@@ -2,16 +2,16 @@
 
 ## Passed locally on macOS
 
-- 20 unittest cases: imported PDF/DOCX/text/TeX, confirmation/conflicts, hard filters and salary comparison, source normalization/failure/closure, strict fact-ID validation, consent and budget blocking, interrupted paid-request handling, run cancellation/resume, PDF/DOCX content, exact EML attachment bytes, review/submission immutability, archive integrity/path traversal and workspace locking.
+- 21 unittest cases: imported PDF/DOCX/text/TeX, confirmation/conflicts, hard filters and salary comparison, source normalization/failure/closure, strict fact-ID validation, consent and budget blocking, interrupted paid-request handling, run cancellation/resume, PDF/DOCX content, exact EML attachment bytes, review/submission immutability, archive integrity/path traversal and workspace locking.
 - Real Chrome/Playwright workflow: identity → career fact → confirmation → profile → job → matching → bounded run → review/comment. No page errors; no horizontal overflow at 320, 768, 1024 and 1440 pixels. Keyboard focus and settings screen checked. Desktop/mobile screenshots and generated PDF pages visually inspected.
 - Live read-only source checks: Greenhouse `figma` returned 138 jobs; Lever `palantir` returned 309. These observations are point-in-time checks, not endorsements or guaranteed continuing availability.
-- Wheel packaging succeeded. Fresh installed-wheel and remote CI results are recorded in the release notes when complete.
+- Wheel packaging succeeded. A fresh installed wheel served the UI assets and API successfully.
 
 ## Review and fixes
 
-Reviewed storage, import handling, source/network boundaries, provider disclosure/budget flow, matching, file delivery and UI contracts. Fixed silent unsupported-PDF-font output by checking extracted text, retained uncertain paid requests without automatic retry after restart, enabled editing imported job details, and retained failed source timestamps/status. Browser test assertions were corrected to wait for completed runs rather than an intermediate message and to match comments with their timestamp context.
+Reviewed storage, import handling, source/network boundaries, provider disclosure/budget flow, matching, file delivery and UI contracts. Fixed silent unsupported-PDF-font output by checking extracted text, retained uncertain paid requests without automatic retry after restart, enabled editing imported job details, and retained failed source timestamps/status. Windows CI exposed reliance on the default text encoding; workspace and document I/O now explicitly use UTF-8. Prior submissions/rejections and existing packages are excluded from automatic batches; explicit local regeneration creates a new version. Browser test assertions were corrected to wait for completed runs rather than an intermediate message and to match comments with their timestamp context.
 
-No paid OpenAI request was made. The request schema and selection/budget contract are tested locally; live provider/model/account compatibility remains unverified. No employer application or email was sent. Broad accessibility auditing, arbitrary resume fidelity, non-Latin PDF layout and global job-board coverage are not claimed. Native launch experience on Windows/Linux is not locally verified; matrix CI covers automated behavior.
+No paid OpenAI request was made. The request schema and selection/budget contract are tested locally; live provider/model/account compatibility remains unverified. No employer application or email was sent. Broad accessibility auditing, arbitrary resume fidelity, non-Latin PDF layout and global job-board coverage are not claimed. Native launch experience on Windows/Linux is not locally verified; matrix CI covers automated behavior. The UTF-8 portability correction passed all three GitHub-hosted operating systems; release-specific results are linked from the GitHub release.
 
 ## Recovery
 
