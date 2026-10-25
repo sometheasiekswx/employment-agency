@@ -348,6 +348,7 @@ class Service:
                 "availability": a.get("availability", "unverified"),
                 "source": text(a.get("source", "manual"), 500),
                 "checked_at": a.get("checked_at") or now(),
+                "prior_application": a.get("prior_application", "none"),
             }
         )
         if a.get("id") and not re.fullmatch(r"[a-f0-9]{24,32}", a["id"]):
@@ -355,6 +356,8 @@ class Service:
         with self.w.edit() as s:
             existing = next((x for x in s["jobs"] if x["id"] == j["id"]), None)
             if existing:
+                if "prior_application" not in a:
+                    j["prior_application"] = existing.get("prior_application", "none")
                 s["jobs"].remove(existing)
             s["jobs"].append(j)
         return j
@@ -466,6 +469,7 @@ class Service:
                             return
                         self.refresh(src["id"])
                 s = self.state()
+                already_prepared = {app["job_id"] for app in s["applications"]}
                 rows = matching.ranked(s["jobs"], r["profile"], s["facts"])
                 self.update_run(
                     id,
@@ -473,6 +477,7 @@ class Service:
                         x["job"]["id"]
                         for x in rows
                         if x["match"]["eligible_for_preparation"]
+                        and x["job"]["id"] not in already_prepared
                     ],
                     note="Discovery and ranking complete",
                 )

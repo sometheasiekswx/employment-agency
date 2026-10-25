@@ -159,3 +159,11 @@ class Boundaries(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class History(unittest.TestCase):
+    def test_prior_submission_excluded(self):
+        result = matching.match({"prior_application": "submitted"}, {}, [])
+        self.assertIn(
+            "Prior application recorded as submitted", result["hard_conflicts"]
+        )

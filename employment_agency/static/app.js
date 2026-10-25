@@ -109,6 +109,10 @@ function jobForm() {
     ["unknown", "Unknown"],
     ["yes", "Available"],
     ["no", "Unavailable"],
+  ])}${select("Prior application", "prior_application", [
+    ["none", "None recorded"],
+    ["submitted", "Already submitted"],
+    ["rejected", "Previously rejected"],
   ])}${select("Availability", "availability", [
     ["unverified", "Not verified"],
     ["retrieved", "I checked the live vacancy"],

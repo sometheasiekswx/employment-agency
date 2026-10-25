@@ -29,6 +29,8 @@ def available(facts):
 
 def match(job, profile, facts):
     hard = []
+    if job.get("prior_application") in ("submitted", "rejected"):
+        hard.append("Prior application recorded as " + job["prior_application"])
     unknown = []
     preferences = []
     for field, jfield in [
