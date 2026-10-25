@@ -107,7 +107,9 @@ def render(directory, identity, job, facts, evidence, template="navy"):
         ("text", name),
     ]
     for stem, blocks, limit in [("resume", resume, 2), ("cover-letter", letter, 1)]:
-        (p / (stem + ".txt")).write_text("\n\n".join(t for _, t in blocks))
+        (p / (stem + ".txt")).write_text(
+            "\n\n".join(t for _, t in blocks), encoding="utf-8"
+        )
         d = Document()
         section = d.sections[0]
         from docx.shared import Mm
