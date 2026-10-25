@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+.env*
+workspace/
+.local/
+*.db
+*.pdf
+*.docx
+*.eml
+.DS_Store
+
+output/

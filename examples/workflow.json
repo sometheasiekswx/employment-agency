@@ -1,0 +1,8 @@
+{
+  "notice": "Fictional examples. Issue each operation separately; IDs come from prior responses.",
+  "identity": {"name":"Alex Morgan","email":"alex@example.test","location":"Toronto, Canada"},
+  "fact": {"text":"Built Python APIs and automated integration tests.","association":"Example Labs","dates":"2022–2025","category":"experience"},
+  "profile": {"name":"Software roles","roles":["Engineer"],"locations":["Toronto"],"hard":["roles","locations"],"include_stretch":true,"include_unknown":true,"minimum":0,"currency":"CAD","period":"year","template":"navy"},
+  "job": {"title":"Software Engineer","employer":"Fictional Systems","location":"Toronto","description":"Build Python APIs and integration tests.","requirements":["Python APIs"],"url":"https://example.test/jobs/1","eligibility":"unknown","availability":"unverified"},
+  "run": {"profile_id":"REPLACE_WITH_PROFILE_ID","count":3,"mode":"local","discover":false}
+}

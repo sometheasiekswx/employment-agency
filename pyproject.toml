@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "employment-agency-local"
+version = "0.1.0"
+description = "Local-first, evidence-grounded job application workspace"
+requires-python = ">=3.11"
+license = "MIT"
+dependencies = ["pypdf>=6.10,<7", "python-docx>=1.2,<2", "reportlab>=4.4.9,<5"]
+[project.scripts]
+employment-agency = "employment_agency.cli:main"
+[tool.setuptools.packages.find]
+include = ["employment_agency*"]
+[tool.setuptools.package-data]
+employment_agency = ["static/*"]
