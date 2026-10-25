@@ -313,6 +313,12 @@ class Workflow(unittest.TestCase):
                     urllib.request.urlopen(req)
                 self.assertEqual(e.exception.code, 403)
             self.assertEqual(self.s.state()["identity"], {})
+            with self.w.edit() as state:
+                state["applications"].append({"id": ".."})
+            (self.w.path / "resume.pdf").write_bytes(b"private root file")
+            with self.assertRaises(urllib.error.HTTPError) as blocked:
+                urllib.request.urlopen(base + "/files/../resume.pdf")
+            self.assertEqual(blocked.exception.code, 404)
             req = urllib.request.Request(
                 base + "/api/state", headers={"Host": "evil.test"}
             )

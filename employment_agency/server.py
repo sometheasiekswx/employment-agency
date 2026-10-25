@@ -5,6 +5,7 @@ from pathlib import Path
 import json
 import secrets
 import mimetypes
+import re
 from urllib.parse import urlsplit
 from .store import encode
 from .documents import FILES
@@ -48,6 +49,7 @@ def server(service, port=8766):
                 parts = path.split("/")
                 if (
                     len(parts) != 4
+                    or not re.fullmatch(r"[a-f0-9]{32}", parts[2])
                     or not any(
                         a["id"] == parts[2] for a in service.state()["applications"]
                     )
