@@ -49,7 +49,9 @@ def main():
             print(w.export(a.destination))
         else:
             body = json.loads(
-                Path(a.input).read_text() if a.input else sys.stdin.read()
+                Path(a.input).read_text(encoding="utf-8")
+                if a.input
+                else sys.stdin.read()
             )
             result = service.action(a.operation, body)
             if service.worker:

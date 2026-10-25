@@ -111,7 +111,7 @@ class Workspace:
 
     def read(self):
         with self.lock:
-            return json.loads((self.path / "state.json").read_text())
+            return json.loads((self.path / "state.json").read_text(encoding="utf-8"))
 
     @contextmanager
     def edit(self):

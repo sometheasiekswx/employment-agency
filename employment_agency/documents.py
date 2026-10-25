@@ -201,7 +201,9 @@ def render(directory, identity, job, facts, evidence, template="navy"):
                 + r"\par"
                 + "\n"
             )
-        (p / (stem + ".tex")).write_text(tex + r"\end{document}" + "\n")
+        (p / (stem + ".tex")).write_text(
+            tex + r"\end{document}" + "\n", encoding="utf-8"
+        )
     msg = EmailMessage(policy=SMTP)
     if job.get("email"):
         msg["To"] = job["email"]
@@ -238,7 +240,7 @@ def render(directory, identity, job, facts, evidence, template="navy"):
 
 def intact(p):
     try:
-        return json.loads((p / "checksums.json").read_text()) == {
+        return json.loads((p / "checksums.json").read_text(encoding="utf-8")) == {
             f: digest((p / f).read_bytes()) for f in FILES
         }
     except (OSError, ValueError):
