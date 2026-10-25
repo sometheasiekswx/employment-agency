@@ -249,6 +249,17 @@ class Service:
             providers.require_consent(s, "agent")
             j = find(s["jobs"], a["job_id"])
             return providers.handoff(j, matching.available(s["facts"]))
+        if action == "local-package":
+            s = self.state()
+            profile = find(s["profiles"], a["profile_id"])
+            job = find(s["jobs"], a["job_id"])
+            facts = matching.available(s["facts"])
+            result = matching.match(job, profile, facts)
+            if not result["eligible_for_preparation"]:
+                raise ValueError("Resolve matching constraints before preparing")
+            return self.prepare(
+                job, profile, s["identity"], facts, result, result["fact_ids"][:10]
+            )
         if action == "agent-package":
             s = self.state()
             p = find(s["profiles"], a["profile_id"])
