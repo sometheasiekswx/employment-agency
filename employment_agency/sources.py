@@ -144,7 +144,8 @@ def url_job(url):
         j.get("description", ""),
         final,
         "JobPosting JSON-LD",
-        closes=j.get("validThrough", "")[:10],
+        closes=j.get("validThrough", ""),
+        posted_at=j.get("datePosted", ""),
     )
 
 

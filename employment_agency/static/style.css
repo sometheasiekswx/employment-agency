@@ -259,3 +259,8 @@ h2{font-size:24px;letter-spacing:-.8px;line-height:1.25;font-weight:650}h3{font-
 @media(min-width:701px) and (max-width:1050px){.page-heading{align-items:flex-start;padding:26px 0 22px}.page-heading h1{font-size:48px}.batch-count{display:none}.workspace-header .badge{display:none}.destination-board>p{font-size:12px}.destinations{gap:6px}.destinations button{padding:6px 9px;min-height:34px}.dossier{padding:24px}}
 .history-page section>details>summary{display:flex;align-items:center;justify-content:space-between;gap:18px;list-style:none}.history-page section>details>summary:before{content:'+';font-size:22px;font-weight:400}.history-page section>details[open]>summary:before{content:'−'}.history-page section>details>summary .company-title{flex:1}.history-page .history-meta{font-size:11px;font-weight:400;text-align:right;color:var(--muted)}
 @media(max-width:700px){.history-page section>details>summary{gap:12px;flex-wrap:wrap}.history-page .history-meta{flex-basis:100%;text-align:left;margin-left:27px}.history-page section{margin-top:22px}}
+
+.application-details { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem; margin:1.5rem 0; }
+.application-details dt { font-size:.75rem; opacity:.7; }
+.application-details dd { margin:.25rem 0 0; overflow-wrap:anywhere; }
+button[aria-pressed="true"] { outline:2px solid currentColor; outline-offset:2px; }

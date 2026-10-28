@@ -1,0 +1,9 @@
+.git
+.venv
+.local
+workspace
+output
+__pycache__
+*.egg-info
+.env*
+.vercel

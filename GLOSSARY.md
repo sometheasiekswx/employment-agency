@@ -30,3 +30,15 @@ Review of proposed career-fact updates and conflicts detected after a master res
 
 **Submitted snapshot**:
 The exact application documents recorded as submitted, preserved with their provenance and submission decision. Later edits or generations do not change what was submitted.
+
+**Application decision**:
+A user's recorded review, rejection or manual submission. Recording Submitted also confirms review; it does not send an application. Comments do not change decisions. Active contains Draft and Reviewed packages; Submitted and Rejected have separate sections.
+
+**Listing dates**:
+Employer-provided posting, reposting and closing dates, distinct from document generation and user decision dates. Missing values remain unknown and approximate source wording stays approximate.
+
+**Hosted workspace**:
+An account-owned collection of career facts, preferences, job evidence, documents and decisions stored privately in the hosted service, isolated from other users and separate from local workspaces.
+
+**Fit summary**:
+One or two sentences describing a role and its strongest supported match to confirmed career facts, including a material gap when relevant. It does not imply qualifications unsupported by evidence.

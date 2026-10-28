@@ -19,3 +19,4 @@ jobs:
         with:
           node-version: '22'
       - run: node --check employment_agency/static/app.js
+      - run: node --check employment_agency/static/cloud.js

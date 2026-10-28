@@ -6,6 +6,7 @@ let state,
   ranking = null;
 let masterProposal = null;
 let includeHistorical = false;
+let applicationSection = "active";
 const $ = (s) => document.querySelector(s),
   esc = (s) =>
     String(s ?? "").replace(
@@ -75,6 +76,7 @@ function setup() {
   return `<section><h2>Your career workspace</h2><p>Keep your master resume, career evidence and applications together here. Your personal files stay local and are excluded from the public source repository.</p><p class="muted">${esc(state._workspace.path)}</p><form data-form="workspace-settings">${field('Workspace name', 'label', state._workspace.label)}<input type="checkbox" name="setup_complete" checked hidden><button>Use this workspace</button></form>${otherWorkspace()}</section>`;
 }
 function workspacePanel() {
+  if (state._hosted) return `<section><h2>Private cloud workspace</h2><p>Your data belongs to your signed-in account. Local-folder watching and custom LaTeX compilation are available in the local edition.</p></section>`;
   const w=state._workspace;
   return `<section><h2>Workspace files</h2><p>${esc(w.path)}</p><form data-form="workspace-settings">${field('Workspace name', 'label', w.label)}${field('Master resume path within this workspace', 'master', w.master)}${field('Timezone for version dates', 'timezone', w.timezone)}${field('Destination priorities, comma separated', 'preferred_locations', w.preferred_locations.join(', '))}${check('Use my trusted LaTeX master layout (requires an installed compiler)', 'master_template', w.master_template)}<button>Save workspace settings</button></form>${otherWorkspace()}</section>`;
 }
@@ -124,7 +126,7 @@ function profileForm(p = {}) {
   )}${check("Include stretch roles with missing evidence", "include_stretch", p.include_stretch)}${check("Prepare drafts when eligibility or other checks need confirmation", "include_unknown", p.include_unknown)}<button>Save profile</button></form>`;
 }
 function jobForm() {
-  return `<form data-form="job">${field("Job title", "title")}${field("Employer", "employer")}${field("Exact location", "location")}${field("Source URL", "url", "", "url")}${field("Recruiter email — if the advert requests email", "email", "", "email")}${area("Paste the job advert", "description")}${area("Requirements — one per line, review extracted requirements yourself", "requirements")}${field("Closing date — if stated", "closes", "", "date")}${field("Seniority — if stated", "seniority")}${select(
+  return `<form data-form="job">${field("Job title", "title")}${field("Employer", "employer")}${field("Exact location", "location")}${field("Source URL", "url", "", "url")}${field("Recruiter email — if the advert requests email", "email", "", "email")}${area("Paste the job advert", "description")}${area("Requirements — one per line, review extracted requirements yourself", "requirements")}${field("Closing date — if stated", "closes")}${field("Listing posted — exact or approximate, if stated", "posted_at")}${field("Listing reposted — if stated", "reposted_at")}${field("Seniority — if stated", "seniority")}${select(
     "Work arrangement",
     "work_arrangement",
     [
@@ -177,14 +179,14 @@ function search() {
     "active_profile",
     state.profiles.map((p) => [p.id, p.name]),
     selectedProfile,
-  )}<details><summary>Create another profile</summary>${profileForm()}</details>${p ? `<details><summary>Edit ${esc(p.name)}</summary>${profileForm(p)}</details>` : "<p>Start by saving your first search profile.</p>"}</section><section><h2>Live sources</h2><p>Search configured employer boards. Coverage is limited to these boards and jobs imported below; use your coding agent for broader research.</p><form data-form="source">${select(
+  )}<details><summary>Create another profile</summary>${profileForm()}</details>${p ? `<details><summary>Edit ${esc(p.name)}</summary>${profileForm(p)}</details>` : "<p>Start by saving your first search profile.</p>"}</section><section><h2>Live sources</h2><p>Search configured employer boards. Coverage is limited to these boards and jobs imported below; ${state._hosted ? "paste other adverts below for broader coverage." : "use your coding agent for broader research."}</p><form data-form="source">${select(
     "Adapter",
     "kind",
     [
       ["greenhouse", "Greenhouse"],
       ["lever", "Lever"],
     ],
-  )}${field("Employer board identifier", "board")}<button>Add source</button></form>${state.sources.map((s) => `<p>${esc(s.kind + ": " + s.board)} <span class="pill">${esc(s.status)}</span> ${button("Refresh", "discover", s.id)}<br><small>${esc(s.checked_at || "Not checked")} ${esc(s.error || "")}</small></p>`).join("")}</section></div><section><h2>Add an opportunity</h2><form data-form="url">${field("Job URL with JobPosting structured data", "url", "", "url")}<button>Import URL</button></form><details><summary>Paste an advert or add details manually</summary>${jobForm()}</details></section><section><h2>Find your best matches</h2><p>Evidence and constraints guide the ordering. Related words do not prove that a requirement is met.</p><div class="actions">${button("Rank saved jobs", "rank", "", "")}${button("Start a run", "show-run", "", "")}</div><div id="run-form" hidden>${runForm()}</div><details><summary>Saved jobs (${state.jobs.length})</summary>${state.jobs.map((j) => `<p>${esc(j.title)} · ${esc(j.employer)} ${button("Edit details", "edit-job", j.id)}</p>`).join("")}</details>${ranking ? ranking.map(({ job: j, match: m }) => `<article><h3>${esc(j.title)} · ${esc(j.employer)}</h3><p>${esc(j.location)} <span class="pill">${m.eligible_for_preparation ? "Can prepare for review" : "Not in automatic batch"}</span></p><p class="error">${esc(m.hard_conflicts.join("; "))}</p><p class="warning">${esc(m.unknowns.join("; "))}</p><p>${esc(m.gaps.length ? "Missing evidence: " + m.gaps.join("; ") : "")}</p><details><summary>Requirement evidence and job details</summary><pre>${esc(JSON.stringify({ requirements: m.evidence, preferences: m.preferences, salary: j.salary, expectation: m.salary_expectation, description: j.description }, null, 2))}</pre></details><a href="${esc(safeUrl(j.url))}" target="_blank" rel="noopener noreferrer">Original listing</a><div class="actions">${button("Prepare a new local version", "local-package", j.id)}${button("Download agent handoff", "handoff", j.id)}</div><details><summary>Import agent fact selection</summary><form data-form="agent-package"><input type="hidden" name="job_id" value="${esc(j.id)}">${area("JSON response containing fact_ids", "selection")}<button>Prepare from selected facts</button></form></details></article>`).join("") : '<p class="empty">Choose a search profile and rank your saved jobs.</p>'}</section><section><h2>Runs</h2><div id="runs">${runs()}</div></section>`;
+  )}${field("Employer board identifier", "board")}<button>Add source</button></form>${state.sources.map((s) => `<p>${esc(s.kind + ": " + s.board)} <span class="pill">${esc(s.status)}</span> ${button("Refresh", "discover", s.id)}<br><small>${esc(s.checked_at || "Not checked")} ${esc(s.error || "")}</small></p>`).join("")}</section></div><section><h2>Add an opportunity</h2><form data-form="url">${field("Job URL with JobPosting structured data", "url", "", "url")}<button>Import URL</button></form><details><summary>Paste an advert or add details manually</summary>${jobForm()}</details></section><section><h2>Find your best matches</h2><p>Evidence and constraints guide the ordering. Related words do not prove that a requirement is met.</p><div class="actions">${button("Rank saved jobs", "rank", "", "")}${state._hosted ? "" : button("Start a run", "show-run", "", "")}</div><div id="run-form" hidden>${runForm()}</div><details><summary>Saved jobs (${state.jobs.length})</summary>${state.jobs.map((j) => `<p>${esc(j.title)} · ${esc(j.employer)} ${button("Edit details", "edit-job", j.id)}</p>`).join("")}</details>${ranking ? ranking.map(({ job: j, match: m }) => `<article><h3>${esc(j.title)} · ${esc(j.employer)}</h3><p>${esc(j.location)} <span class="pill">${m.eligible_for_preparation ? "Can prepare for review" : "Not in automatic batch"}</span></p><p class="error">${esc(m.hard_conflicts.join("; "))}</p><p class="warning">${esc(m.unknowns.join("; "))}</p><p>${esc(m.gaps.length ? "Missing evidence: " + m.gaps.join("; ") : "")}</p><details><summary>Requirement evidence and job details</summary><pre>${esc(JSON.stringify({ requirements: m.evidence, preferences: m.preferences, salary: j.salary, expectation: m.salary_expectation, description: j.description }, null, 2))}</pre></details><a href="${esc(safeUrl(j.url))}" target="_blank" rel="noopener noreferrer">Original listing</a><div class="actions">${button(state._hosted ? "Prepare application" : "Prepare a new local version", "local-package", j.id)}${state._hosted ? "" : button("Download agent handoff", "handoff", j.id)}</div><details ${state._hosted ? "hidden" : ""}><summary>Import agent fact selection</summary><form data-form="agent-package"><input type="hidden" name="job_id" value="${esc(j.id)}">${area("JSON response containing fact_ids", "selection")}<button>Prepare from selected facts</button></form></details></article>`).join("") : '<p class="empty">Choose a search profile and rank your saved jobs.</p>'}</section><section><h2>Runs</h2><div id="runs">${runs()}</div></section>`;
 }
 function runForm() {
   return `<form data-form="run">${field("Maximum applications", "count", 5, "number")}${check("Refresh configured live sources first", "discover", true)}${select(
@@ -206,29 +208,44 @@ function runs() {
       .join("") || "<p>No runs yet.</p>"
   );
 }
+function decisionDate(a, status) {
+  return a[status + '_at'] || a.comments?.find(c => c.kind !== 'comment' && c.status === status)?.at || '';
+}
+function displayDate(value) {
+  if (!value) return 'Unknown';
+  // Only format exact ISO values; relative source wording must not become a guessed date.
+  if (!/^\d{4}-\d{2}-\d{2}(T.*)?$/.test(value)) return value;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  const dateOnly = value.length === 10;
+  return new Intl.DateTimeFormat('en-AU', {day:'numeric', month:'short', year:'numeric',
+    ...(dateOnly ? {} : {hour:'2-digit',minute:'2-digit',timeZoneName:'short'}),
+    timeZone: dateOnly ? 'UTC' : (state._workspace?.timezone || 'UTC')}).format(date);
+}
+function knownDetail(value) { return value != null && String(value).trim() !== '' && !['unknown','not stated','n/a','none','undisclosed'].includes(String(value).trim().toLowerCase()); }
+function applicationDetails(a, job) {
+  const salary = job.salary || {};
+  const pay = typeof salary === 'string' ? salary : [salary.currency, salary.min || '', salary.max ? `– ${salary.max}` : '', salary.period, salary.basis].filter(Boolean).join(' ');
+  const rows = [['Location', job.location], ['Work arrangement', job.work_arrangement],
+    ['Advertised salary', (salary.min || salary.max || typeof salary === 'string') ? pay : ''],
+    ['Listing posted', job.posted_at], ['Listing reposted', job.reposted_at],
+    ['Application deadline', job.closes], ['Availability', job.availability],
+    ['Last checked', job.checked_at], ['Generated', a.created_at],
+    ['Reviewed', decisionDate(a, 'reviewed')], ['Submitted', decisionDate(a, 'submitted')]];
+  return `<dl class="application-details">${rows.filter(([,value]) => knownDetail(value)).map(([label,value]) => `<div><dt>${esc(label)}</dt><dd>${esc(/posted|deadline|checked|Generated|Reviewed|Submitted/.test(label) ? displayDate(value) : (value || 'Unknown'))}</dd></div>`).join('')}</dl>`;
+}
 function applications() {
-  return `<section><h2>Your application packages</h2><p>Each package is a preserved version. Review both PDFs, then download an email draft or open the employer page. Marking submitted records your own action; it does not send anything.</p><label class="check"><input type="checkbox" name="include_history" ${includeHistorical?"checked":""}>Include earlier review queues</label></section>${
-    state.applications.filter(a=>includeHistorical || !a.archived)
-      .map((a) => {
-        const job = state.jobs.find((j) => j.id === a.job_id) || {};
-        return `<article data-application-id="${esc(a.id)}"><h2>${esc(a.title)}</h2><p>${esc(a.employer)} <span class="pill">${esc(a.status)}</span> <small>${esc(a.created_at)}</small></p><div class="actions">${["resume.pdf", "cover-letter.pdf", "resume.docx", "cover-letter.docx", "resume.tex", "cover-letter.tex", "application.eml", "evidence.json"].filter(f=>a.documents?.[f]).map((f) => `<a class="button" href="/files/${a.id}/${f}" target="_blank" rel="noopener">${esc({ "resume.pdf": "CV PDF", "cover-letter.pdf": "Cover letter PDF", "resume.docx": "Edit resume (Word)", "cover-letter.docx": "Edit cover letter (Word)", "resume.tex": "Resume LaTeX", "cover-letter.tex": "Cover letter LaTeX", "application.eml": "Email draft", "evidence.json": "Source evidence" }[f] || f)}</a>`).join("")}</div>${a.file_changes?.length ? `<div class="error"><p>Files changed on disk: ${esc(a.file_changes.join(', '))}. The verified original is preserved for recovery.</p>${button('Validate edits as a new draft', 'adopt-edits', a.id)}</div>` : ''}${a.migration_warning?`<p class="error">${esc(a.migration_warning)}</p>`:''}<p><a href="${esc(safeUrl(job.url))}" target="_blank" rel="noopener noreferrer">Open application listing</a></p><form data-form="review"><input type="hidden" name="id" value="${a.id}">${area("Comments", "comment")}${select(
-          "Review decision",
-          "status",
-          a.status === "submitted"
-            ? [["submitted", "Submitted — record preserved"]]
-            : [
-                ["draft", "Draft"],
-                ["reviewed", "Reviewed"],
-                ["rejected", "Rejected"],
-                ["submitted", "I manually submitted this reviewed version"],
-              ],
-          a.status,
-        )}<button>Save decision</button></form>${a.comments.map((c) => `<p><small>${esc(c.at)} · ${esc(c.status)}</small><br>${esc(c.text)}</p>`).join("")}</article>`;
-      })
-      .join("") || "<p>No applications yet.</p>"
-  }${state.historical_decisions?.length ? `<section><h2>Earlier submission records</h2><p>Preserved decisions from the earlier queue. Exact submitted-file associations remain unconfirmed where the source did not record them.</p>${state.historical_decisions.map(d=>`<p><strong>${esc(d.employer)}</strong> · ${esc(d.status)}${d.url?` · <a href="${esc(safeUrl(d.url))}" target="_blank" rel="noopener">Source record</a>`:''}</p>`).join('')}</section>`:''}`;
+  const available = state.applications.filter(a => includeHistorical || !a.archived);
+  const group = a => ['submitted','rejected'].includes(a.status) ? a.status : 'active';
+  const visible = available.filter(a => group(a) === applicationSection).sort((a,b) =>
+    (applicationSection === 'submitted' ? decisionDate(b,'submitted').localeCompare(decisionDate(a,'submitted')) : (b.created_at || '').localeCompare(a.created_at || '')));
+  return `<section><h2>Your application packages</h2><p>Submitted records that you reviewed and sent the application yourself. It never sends anything.</p><div class="actions" aria-label="Application sections">${[['active','Active'],['submitted','Submitted'],['rejected','Rejected']].map(([key,label]) => `<button data-section="${key}" aria-pressed="${applicationSection === key}">${label} (${available.filter(a=>group(a)===key).length})</button>`).join('')}</div><label class="check"><input type="checkbox" name="include_history" ${includeHistorical?'checked':''}>Include earlier review queues</label></section>${visible.map(a => {
+        const job = state.jobs.find(j => j.id === a.job_id) || {};
+        return `<article data-application-id="${esc(a.id)}"><h2>${esc(a.title)}</h2><p>${esc(a.employer)} <span class="pill">${esc(a.status)}</span> <small>${esc(a.created_at)}</small></p>${a.fit_summary ? `<p class="fit-summary">${esc(a.fit_summary)}</p>` : ""}${a.warnings?.length ? `<p class="warning">${a.warnings.map(esc).join(" · ")}</p>` : ""}${applicationDetails(a, job)}<div class="actions">${["resume.pdf", "cover-letter.pdf", "resume.docx", "cover-letter.docx", "resume.tex", "cover-letter.tex", "application.eml", "evidence.json"].filter(f=>a.documents?.[f]).map((f) => `<a class="button" href="/files/${a.id}/${f}" target="_blank" rel="noopener">${esc({ "resume.pdf": "CV PDF", "cover-letter.pdf": "Cover letter PDF", "resume.docx": "Edit resume (Word)", "cover-letter.docx": "Edit cover letter (Word)", "resume.tex": "Resume LaTeX", "cover-letter.tex": "Cover letter LaTeX", "application.eml": "Email draft", "evidence.json": "Source evidence" }[f] || f)}</a>`).join("")}</div>${a.file_changes?.length ? `<div class="error"><p>Files changed on disk: ${esc(a.file_changes.join(', '))}. The verified original is preserved for recovery.</p>${button('Validate edits as a new draft', 'adopt-edits', a.id)}</div>` : ''}${a.migration_warning?`<p class="error">${esc(a.migration_warning)}</p>`:''}<p><a href="${esc(safeUrl(job.url))}" target="_blank" rel="noopener noreferrer">Open application listing</a></p><form data-form="review"><input type="hidden" name="id" value="${esc(a.id)}">${area("Comments", "comment")}<div class="actions">${a.status !== 'submitted' ? `${a.status !== 'reviewed' ? '<button name="status" value="reviewed">Reviewed</button>' : ''}${a.status !== 'rejected' ? '<button name="status" value="rejected">Reject</button>' : '<button name="status" value="draft">Return to Active</button>'}<button name="status" value="submitted">Submitted</button>` : ''}<button>Save comment</button></div></form>${a.comments.map((c) => `<p><small>${esc(c.at)} · ${esc(c.kind === 'comment' ? 'Comment' : c.status)}</small><br>${esc(c.text)}</p>`).join("")}</article>`;
+      }).join('') || `<p>No ${applicationSection} applications.</p>`}${applicationSection === 'submitted' && state.historical_decisions?.length ? `<section><h2>Earlier submission records</h2><p>Exact submitted files remain unconfirmed where the original record did not identify them.</p>${state.historical_decisions.map(d=>`<p><strong>${esc(d.employer)}</strong> · ${esc(d.status)}</p>`).join('')}</section>` : ''}`;
 }
 function settings() {
+  if (state._hosted) return workspacePanel()+`<section><h2>Account and recovery</h2><p>Export a portable copy before making major changes. Pilot limits: 2 MB imports, 25 application packages, 3 MB compressed workspace, 50 MB cumulative snapshot storage and 250 saves. No paid AI is enabled.</p><div class="actions"><button data-cloud="export">Export private workspace</button><button data-cloud="logout">Sign out</button></div><h3>Delete account and all hosted data</h3><p>This permanently deletes your cloud account and stored snapshots. Export first if you want to keep a copy. Local files are unaffected.</p><label>Type DELETE<input id="delete-confirmation" autocomplete="off"></label><button data-cloud="delete">Delete account and data</button></section>`;
   return workspacePanel()+`<div class="grid"><section><h2>AI disclosure consent</h2><p>Granting consent allows <strong>confirmed career facts and job descriptions</strong> to be shared with the selected provider for <strong>selecting application facts</strong>. Contact details and salary minimums are not included by this integration. An agent running on your computer may independently access other files you authorize.</p>${["agent", "openai"].map((provider) => `<h3>${provider === "agent" ? "Connected coding agent" : "OpenAI API"}</h3><p>${state.consents[provider] ? "Consent granted" : "No consent granted"}</p><div class="actions">${button("Grant consent", "grant", provider)}${button("Revoke", "revoke", provider)}</div>`).join("")}<p class="muted">Revocation prevents future app-controlled requests; it cannot recall previously disclosed data. API keys are read only from OPENAI_API_KEY, never from this UI.</p></section><section><h2>Recovery and upgrades</h2><p>Download an export before upgrades. It includes your private facts and applications, so store it privately. Credentials and consent grants are excluded. Restore to a new workspace using the CLI; existing files are never overwritten.</p>${button("Export private workspace", "export", "", "")}<pre>employment-agency restore backup.zip NEW_FOLDER</pre><p class="muted">Keep your installed release pinned. Runs snapshot before starting. Exporting to the same computer is not an off-device backup.</p></section></div>`;
 }
 function render() {
@@ -264,6 +281,7 @@ document.addEventListener("change", (e) => {
 document.addEventListener("click", async (e) => {
   const b = e.target.closest("button");
   if (!b) return;
+  if (b.dataset.section) { applicationSection = b.dataset.section; render(); return; }
   if (b.dataset.tab) {
     tab = b.dataset.tab;
     notice("");
@@ -357,6 +375,8 @@ document.addEventListener("submit", async (e) => {
   try {
     const action = f.dataset.form,
       a = Object.fromEntries(new FormData(f));
+    if (action === "review" && e.submitter?.name === "status") a.status = e.submitter.value;
+    if (action === "review" && !a.status && !a.comment.trim()) throw Error("Enter a comment to save.");
     f.querySelectorAll("input[type=checkbox]").forEach(
       (x) => (a[x.name] = x.checked),
     );
@@ -445,7 +465,7 @@ setInterval(async () => {
 
 // Detect external edits without replacing a form the user is typing in.
 setInterval(async()=>{
-  if (!state || document.hidden) return;
+  if (!state || state._hosted || document.hidden) return;
   const before=JSON.stringify([state._master, state.applications.map(a=>a.file_changes)]);
   try {
     await refresh();

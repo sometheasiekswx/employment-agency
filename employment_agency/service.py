@@ -9,7 +9,7 @@ import tempfile
 import json
 from pathlib import Path
 from .store import now, uid, digest, atomic, encode
-from . import imports, sources, matching, documents, providers, packages, master
+from . import imports, sources, matching, documents, providers, packages, master, summaries
 from .workspaces import settings, configure, inside
 
 
@@ -71,6 +71,10 @@ class Service:
         state['_workspace'] = {'path': str(self.w.path), **settings(self.w.path)}
         state['_master'] = master.status(self.w)
         for app in state['applications']:
+            job = next((j for j in state['jobs'] if j['id'] == app['job_id']), {})
+            app['fit_summary'] = summaries.summarize(job, state['facts'])
+            assessment = matching.match(job, {}, state['facts'])
+            app['warnings'] = assessment['hard_conflicts'] + assessment['unknowns']
             if app.get('folder'):
                 app['file_changes'] = packages.changed(self.w.path, app)
         return state
@@ -352,6 +356,12 @@ class Service:
         if action == "review":
             with self.w.edit() as s:
                 app = find(s["applications"], a["id"])
+                if 'status' not in a:
+                    comment = text(a.get('comment', ''), 4000)
+                    if not comment.strip():
+                        raise ValueError('Enter a comment to save')
+                    app['comments'].append({'at': now(), 'text': comment, 'status': app['status'], 'kind': 'comment'})
+                    return app
                 status = a.get("status", app["status"])
                 if status not in ("draft", "reviewed", "rejected", "submitted"):
                     raise ValueError("Unknown review status")
@@ -360,8 +370,11 @@ class Service:
                 intact = not packages.changed(self.w.path, app) if app.get('folder') else documents.intact(self.w.path / 'packages' / app['id'])
                 if status in ('reviewed', 'submitted') and not intact:
                     raise ValueError("Files changed; cannot approve")
-                if status == "submitted" and app["status"] != "reviewed":
-                    raise ValueError("Review before recording manual submission")
+                stamp = now()
+                if status in ('reviewed', 'submitted') and not app.get('reviewed_at'):
+                    app['reviewed_at'] = next((c['at'] for c in app.get('comments', []) if c.get('kind') != 'comment' and c.get('status') in ('reviewed', 'submitted')), stamp)
+                if status == 'submitted' and not app.get('submitted_at'):
+                    app['submitted_at'] = next((c['at'] for c in app.get('comments', []) if c.get('kind') != 'comment' and c.get('status') == 'submitted'), stamp)
                 if status == 'submitted':
                     job = find(s['jobs'], app['job_id'])
                     job['prior_application'] = 'submitted'
@@ -391,6 +404,8 @@ class Service:
                 "url",
                 "email",
                 "closes",
+                "posted_at",
+                "reposted_at",
                 "seniority",
                 "work_arrangement",
                 "sponsorship",

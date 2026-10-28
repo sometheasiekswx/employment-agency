@@ -67,16 +67,31 @@ const fs = require("node:fs");
   const pdf = await page.request.get(new URL(await page.getByRole('link', {name:'CV PDF', exact:true}).getAttribute('href'),page.url()).href);
   assert.equal(pdf.status(),200); assert.match(pdf.url(),/history\/files/);
   assert.ok((await pdf.body()).subarray(0,4).toString()==='%PDF');
-  await page.getByText('Review & add comments',{exact:true}).click();
-  await page
-    .getByLabel("Comments", { exact: true })
-    .fill("Reviewed the tailored files.");
-  await page.getByLabel("Review decision").selectOption("reviewed");
-  await page.getByRole("button", { name: "Save decision" }).click();
-  await page.getByText("Review history (1)", {exact:true}).click();
-  await page
-    .getByText("Reviewed the tailored files.", { exact: false })
-    .waitFor();
+  assert.equal(await page.locator('select[name="status"]').count(), 0);
+  assert.equal(await page.locator('.application-details dd').filter({hasText:/^unknown$/i}).count(),0);
+  await page.locator('.fit-summary').waitFor();
+  fs.mkdirSync('output/playwright',{recursive:true});
+  await page.evaluate(()=>{document.activeElement?.blur();window.scrollTo(0,0)});
+  await page.screenshot({path:'output/playwright/current-applications.png',fullPage:true});
+  await page.getByLabel('Comments', {exact:true}).fill('Reviewed the tailored files.');
+  await page.getByRole('button', {name:'Save comment',exact:true}).click();
+  await page.getByText('Review history (1)', {exact:true}).waitFor();
+  await page.getByRole('button', {name:'Reject',exact:true}).click();
+  await page.getByRole('button', {name:'Rejected (1)',exact:true}).click();
+  await page.getByRole('button', {name:'Return to Active',exact:true}).click();
+  await page.getByRole('button', {name:'Active (1)',exact:true}).click();
+  await page.getByRole('button', {name:'Submitted',exact:true}).click();
+  await page.getByRole('button', {name:'Submitted (1)',exact:true}).click();
+  await page.locator('article').waitFor();
+  assert.equal(await page.getByRole('button', {name:'Reject',exact:true}).count(),0);
+  await page.getByLabel('Comments', {exact:true}).fill('Saved after submission.');
+  await page.getByRole('button', {name:'Save comment',exact:true}).click();
+  await page.getByText('Review history (5)', {exact:true}).waitFor();
+  await page.reload();
+  await page.getByRole('button', {name:'Submitted (1)',exact:true}).click();
+  await page.locator('article').waitFor();
+  await page.getByText('Review history (5)', {exact:true}).click();
+  await page.getByText('Saved after submission.', {exact:false}).waitFor();
   fs.mkdirSync("output/playwright", { recursive: true });
   await page.evaluate(()=>window.scrollTo(0,0));
   await page.screenshot({

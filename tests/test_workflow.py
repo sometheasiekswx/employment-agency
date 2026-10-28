@@ -88,6 +88,39 @@ class Workflow(unittest.TestCase):
         self.s.action("confirm", {"id": g["id"]})
         self.assertEqual(len(matching.available(self.s.state()["facts"])), 1)
 
+    def test_direct_submission_and_comments(self):
+        f, p, j = self.seed()
+        app = self.s.action('local-package', {'profile_id': p['id'], 'job_id': j['id']})
+        result = self.s.action('review', {'id': app['id'], 'status': 'submitted'})
+        self.assertEqual(result['status'], 'submitted')
+        self.assertEqual(result['reviewed_at'], result['submitted_at'])
+        submitted = result['submitted_at']
+        self.s.action('review', {'id': app['id'], 'comment': 'Follow-up note'})
+        saved = self.w.read()['applications'][0]
+        self.assertEqual(saved['submitted_at'], submitted)
+        self.assertEqual(saved['comments'][-1]['kind'], 'comment')
+        self.assertEqual(saved['status'], 'submitted')
+        with self.assertRaises(ValueError):
+            self.s.action('review', {'id': app['id'], 'status': 'rejected'})
+
+    def test_direct_submission_requires_intact_files(self):
+        f, p, j = self.seed()
+        app = self.s.action('local-package', {'profile_id': p['id'], 'job_id': j['id']})
+        path = self.w.path / app['folder'] / app['documents']['resume.pdf']
+        path.write_bytes(b'changed')
+        with self.assertRaises(ValueError):
+            self.s.action('review', {'id': app['id'], 'status': 'submitted'})
+        self.s.action('review', {'id': app['id'], 'status': 'rejected'})
+        self.s.action('review', {'id': app['id'], 'status': 'draft'})
+        self.assertEqual(self.w.read()['applications'][0]['status'], 'draft')
+
+    def test_listing_dates_preserve_source_precision(self):
+        _, _, j = self.seed()
+        j.update(posted_at='About 3 weeks ago', reposted_at='2026-10-20', closes='2026-11-01T18:00:00+07:00')
+        saved = self.s.action('job', j)
+        self.assertEqual(saved['posted_at'], 'About 3 weeks ago')
+        self.assertEqual(saved['closes'], '2026-11-01T18:00:00+07:00')
+
     def test_imports_no_confirmation(self):
         result = self.s.action(
             "import",

@@ -43,16 +43,7 @@
       const actions=card.querySelector('.actions');
       const extra=element('details');extra.append(element('summary','','Supporting files & source evidence'));
       const extras=element('div','actions');[...actions.children].slice(2).forEach(link=>extras.append(link));extra.append(extras);
-      const review=element('details');review.append(element('summary','','Review & add comments'));
-      const form=card.querySelector('form[data-form="review"]');if(form){
-        form.before(review);review.append(form);
-        if(app.status==='draft'){
-          const submitted=form.querySelector('option[value="submitted"]');
-          if(submitted)submitted.disabled=true;
-          const help=element('p','muted','Save Reviewed first. Then record Submitted after you have applied yourself.');
-          form.prepend(help);
-        }
-      }
+      const review=card.querySelector('form[data-form="review"]');
       review.before(extra);
       const notes=[];let next=review.nextElementSibling;
       while(next){const following=next.nextElementSibling;notes.push(next);next=following;}
@@ -62,7 +53,7 @@
         if(match){const date=new Date(match[1]);if(!Number.isNaN(date.getTime())){small.title=raw;small.textContent=raw.replace(match[1],new Intl.DateTimeFormat('en-AU',{day:'numeric',month:'short',year:'numeric',timeZone:state._workspace.timezone||'UTC'}).format(date));}}
       });
     });
-    cards.sort((a,b)=>placeOrder(a.dataset.city)-placeOrder(b.dataset.city)||a.dataset.city.localeCompare(b.dataset.city)).forEach(c=>content.append(c));
+    if(applicationSection !== 'submitted') cards.sort((a,b)=>placeOrder(a.dataset.city)-placeOrder(b.dataset.city)||a.dataset.city.localeCompare(b.dataset.city)).forEach(c=>content.append(c));
     const cities=['All destinations',...[...new Set(cards.map(c=>c.dataset.city))].sort((a,b)=>placeOrder(a)-placeOrder(b)||a.localeCompare(b))];
     if(!cities.includes(destination))destination='All destinations';
     const filters=element('div','destinations');filters.setAttribute('role','group');filters.setAttribute('aria-label','Filter applications by destination');

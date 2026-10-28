@@ -6,6 +6,12 @@ A local-first career workspace that turns confirmed experience into job-specific
 
 Import your resume, add the experience it leaves out, save search preferences, and prepare a bounded batch of applications. Every match shows its evidence and gaps. Every document uses confirmed facts. By default, your personal files live in an ignored `workspace/` folder alongside the software. You can choose another folder when needed.
 
+## Hosted pilot
+
+[Hosted pilot on Vercel](https://sams-employment-agency.vercel.app) — **invite-only verification pilot**. Google sign-in and dashboard access have been confirmed by the owner; full live storage and account-isolation acceptance is still pending. The hosted experience needs no clone or local installation; your private career data belongs to your cloud account. The local edition remains fully supported and never uploads your workspace automatically.
+
+The hosted build reuses the same matching, document and decision engine. The pilot prepares one application per request, uses no paid AI, and has explicit storage/import limits. Custom LaTeX, local file watching and agent integrations remain local-only. See [setup, limits and verification](docs/hosted-pilot.md).
+
 ## Start locally
 
 Requires Python 3.11+ and a modern browser. No API key is needed for local matching and document generation.
@@ -41,7 +47,7 @@ The server only binds to loopback. Do not reverse-proxy it onto a public network
 3. **Discovery:** configure Greenhouse or Lever employer boards, import a structured job URL, paste an advert, or use a connected coding agent. Public-board identifiers come from the employer's board URL. There is no universal web/job-board search in the local adapter; agent handoff supports broader research.
 4. **Rank:** inspect requirement evidence, unknown work rights and salary information. Lexical matching is explainable but is not a qualification assessment. Review each requirement; no ATS-pass promise.
 5. **Prepare:** run locally without an AI service, or enable OpenAI fact selection. Runs are bounded, resumable and cancellable between operations. Weak matches do not pad the batch, and existing packages are not automatically duplicated. Use a match’s “Prepare a new local version” action for deliberate regeneration. Shorten long facts or select fewer if the two-page resume/one-page letter limit is exceeded.
-6. **Review:** inspect PDF and editable DOCX, record comments/rejections, download an EML draft with the exact PDFs, or open the employer listing. Sending and submission are always yours. Record a manual submission only after reviewing the version.
+6. **Review:** read a short evidence-based fit summary and any key gaps, inspect PDF and editable DOCX, and use visible Reviewed, Reject or Submitted buttons. Submitted also confirms review; it records your action without sending anything. Active, Submitted and Rejected sections keep the queue organised. Comments save independently. Available dates and details are shown; empty metadata is hidden while eligibility, availability and document-integrity warnings remain visible. Download an EML draft or open the listing to submit yourself.
 
 ## Your files and history
 
@@ -91,6 +97,7 @@ Pin an installed version or Git commit. Export before upgrading, test a restored
 ## Development
 
 ```sh
+python -m pip install .
 python -m unittest discover -s tests -v
 node --check employment_agency/static/app.js
 ```

@@ -196,7 +196,7 @@ class Workspace:
         return self.export(self.path / ".runtime/snapshots" / (uid() + ".zip"))
 
 
-def restore(archive, destination):
+def restore(archive, destination, *, reset_permissions=True):
     dest = Path(destination)
     if dest.exists():
         raise ValueError("Restore requires a new destination")
@@ -235,5 +235,6 @@ def restore(archive, destination):
         for n, b in data.items():
             atomic(stage / n, b)
         os.rename(stage, dest)
-    from .workspaces import config_home
-    atomic(config_home() / 'permissions' / (digest(str(dest.resolve()).encode()) + '.json'), encode({}))
+    if reset_permissions:
+        from .workspaces import config_home
+        atomic(config_home() / 'permissions' / (digest(str(dest.resolve()).encode()) + '.json'), encode({}))
