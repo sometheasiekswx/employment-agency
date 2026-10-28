@@ -105,3 +105,7 @@ node --check employment_agency/static/app.js
 Browser acceptance: start an empty disposable workspace, install/use Playwright separately, then `PLAYWRIGHT_PATH=/path/to/playwright TEST_URL=http://127.0.0.1:8766 node tests/browser.cjs`. The test uses fictional data and changes that workspace. See [verification](docs/verification.md), [security](SECURITY.md) and [dependency notes](docs/dependencies.md).
 
 MIT for original code. This repository includes no personal resumes, mailbox exports or private application history.
+
+### Edit documents on the application page
+
+Use **View / edit CV** or **View / edit cover letter** to open the editor and PDF preview together. Update the preview, then save a new draft; your original application stays intact. Standard templates offer text blocks; custom local LaTeX uses source editing. [Editing and versioning details](docs/document-editor.md).

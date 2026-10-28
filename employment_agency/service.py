@@ -9,7 +9,7 @@ import tempfile
 import json
 from pathlib import Path
 from .store import now, uid, digest, atomic, encode
-from . import imports, sources, matching, documents, providers, packages, master, summaries
+from . import imports, sources, matching, documents, providers, packages, master, summaries, editor
 from .workspaces import settings, configure, inside
 
 
@@ -82,6 +82,10 @@ class Service:
     def action(self, action, a):
         if not isinstance(a, dict):
             raise ValueError("Expected JSON object")
+        if action == 'document-editor':
+            return editor.load(self.w, a)
+        if action in ('preview-document', 'save-document'):
+            return editor.edit(self.w, a, save=action == 'save-document')
         if action == 'workspace-settings':
             return configure(self.w.path, a)
         if action == 'master-propose':

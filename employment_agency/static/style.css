@@ -264,3 +264,26 @@ h2{font-size:24px;letter-spacing:-.8px;line-height:1.25;font-weight:650}h3{font-
 .application-details dt { font-size:.75rem; opacity:.7; }
 .application-details dd { margin:.25rem 0 0; overflow-wrap:anywhere; }
 button[aria-pressed="true"] { outline:2px solid currentColor; outline-offset:2px; }
+
+/* Same-page document editor */
+.editor-actions { display:flex; flex-wrap:wrap; gap:.6rem; margin:1rem 0; }
+.document-editor { width:min(1400px,96vw); max-width:96vw; height:92vh; max-height:92vh; border:1px solid #cbd4d0; border-radius:20px; padding:24px; background:#fafbf8; color:#17384d; overflow:auto; }
+.document-editor::backdrop { background:rgb(15 30 35 / 65%); }
+.document-editor header,.document-editor footer { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.document-editor h2 { margin:0; }
+.editor-columns { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:24px; }
+.editor-columns section { min-width:0; padding:0; }
+.editor-columns iframe { width:100%; height:65vh; border:1px solid #cbd4d0; margin-top:12px; background:white; }
+.edit-block { padding:12px 0; border-bottom:1px solid #cbd4d0; }
+.document-editor label { display:block; }
+.document-editor textarea,.document-editor select { width:100%; box-sizing:border-box; }
+.document-editor .tex-source { min-height:60vh; font-family:monospace; }
+.document-editor footer { position:sticky; bottom:-24px; padding:16px 0; background:#fafbf8; justify-content:flex-end; }
+.editor-status { min-height:1.5em; }
+@media(max-width:760px) { .document-editor {padding:16px;} .editor-columns {grid-template-columns:1fr;} .editor-columns iframe {height:55vh;} .document-editor footer {bottom:-16px; flex-wrap:wrap;} }
+@media(min-width:761px) {
+  .document-editor .editor-columns { height:calc(92vh - 240px); min-height:280px; }
+  .editor-columns > section { overflow:auto; }
+  .editor-columns iframe { height:calc(100% - 48px); min-height:240px; }
+}
+.document-editor > header { position:sticky; top:-24px; z-index:1; background:#fafbf8; padding-bottom:12px; }

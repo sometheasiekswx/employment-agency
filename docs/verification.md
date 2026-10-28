@@ -18,3 +18,11 @@ No paid OpenAI request was made. The request schema and selection/budget contrac
 ## Recovery
 
 The public repository starts with clean history. Personal career data never enters it. Restore exports into a new workspace, regrant consent and verify before switching. Keep prior pinned releases and exports. Version 0.1 rejects unsupported schemas rather than performing an implicit migration.
+
+## In-page document editor — 29 October 2026
+
+- 51 Python tests passed, including preview purity, immutable submitted originals, stale/integrity rejection, exact replacement email attachments, owner isolation and read-only hosted quota behavior.
+- Local and hosted fixture browser tests passed: same-page PDF preview, edits, new-draft persistence after reload, 320/768/1440 widths and unsaved-close protection. Visually inspected the rendered PDF beside the editor in Chrome.
+- Actual installed LaTeX compiler successfully previewed and saved a synthetic custom-template draft. No personal application documents were edited.
+- JavaScript syntax and Git whitespace checks passed. Existing schema and package versions remain compatible; no data migration is required.
+- Recovery: private workspace export and restore checked before updating its installed shared application. Production authenticated editor operations still require user-session verification; fixtures do not prove live Supabase writes.

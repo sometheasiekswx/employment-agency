@@ -63,7 +63,7 @@
     }else {try{session=JSON.parse(sessionStorage.getItem(key));}catch{session=null;}}
     if(!session){say('Invite-only pilot. Your confirmed career information and documents will be stored privately in your cloud account. Nothing is sent to employers.');const button=document.createElement('button');button.textContent='Continue with Google';button.addEventListener('click',()=>login().catch(e=>say(e.message)));content.append(button);return;}
     const state=await fetch('/api/state');if(!state.ok){sessionStorage.removeItem(key);throw Error((await state.json()).error+' Reload to try another account.');}
-    for(const src of ['/app.js','/ui/workspace.js']){await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=reject;document.body.append(s);});}
+    for(const src of ['/app.js','/ui/editor.js','/ui/workspace.js']){await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=reject;document.body.append(s);});}
     document.querySelector('.archive-link').hidden=true;
   }
   boot().catch(error=>say(error.message));

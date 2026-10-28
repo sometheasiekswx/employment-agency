@@ -18,7 +18,7 @@ from . import packages
 MAX_SNAPSHOT = 3 * 1024 * 1024
 MAX_EXPANDED = 30 * 1024 * 1024
 ACTIONS = {'identity', 'import', 'fact', 'confirm', 'retire', 'profile', 'job', 'url', 'source',
-           'discover', 'rank', 'local-package', 'review', 'master-propose', 'master-accept'}
+           'discover', 'rank', 'local-package', 'review', 'master-propose', 'master-accept', 'document-editor', 'preview-document', 'save-document'}
 
 
 class CloudError(Exception):
@@ -151,7 +151,7 @@ def validate_archive(body):
 
 
 def execute(backend, owner, action, args):
-    read_only = action in {'state', 'file', 'export', 'rank', 'master-propose'}
+    read_only = action in {'state', 'file', 'export', 'rank', 'master-propose', 'document-editor', 'preview-document'}
     guard = nullcontext() if read_only else backend.mutation_guard(owner)
     with guard:
         return _execute(backend, owner, action, args)
@@ -207,7 +207,7 @@ def _execute(backend, owner, action, args):
                 if action == 'import' and len(args.get('data', '')) > 2800000:
                     raise CloudError('Pilot imports are limited to 2 MB.', 413)
                 result = service.action(action, args)
-                if action in {'rank', 'master-propose'}:
+                if action in {'rank', 'master-propose', 'document-editor', 'preview-document'}:
                     return {'result': result}
             state = w.read()
             if len(state['facts']) > 500 or len(state['jobs']) > 300 or len(state['applications']) > 25:

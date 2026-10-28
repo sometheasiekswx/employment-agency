@@ -16,7 +16,7 @@ def headers(response):
     response.headers['Cache-Control'] = 'no-store'
     response.headers['X-Content-Type-Options'] = 'nosniff'
     response.headers['Referrer-Policy'] = 'no-referrer'
-    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self' https://*.supabase.co; img-src 'self' blob:; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"
+    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self' https://*.supabase.co; img-src 'self' blob:; object-src 'none'; frame-src 'self' blob:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"
     return response
 
 
@@ -24,6 +24,7 @@ def headers(response):
 def home():
     html = (STATIC / 'index.html').read_text()
     html = html.replace('<script src="/app.js" defer></script>', '<script src="/ui/cloud.js" defer></script>')
+    html = html.replace('<script src="/ui/editor.js" defer></script>', '')
     html = html.replace('<script src="/ui/workspace.js" defer></script>', '')
     html = html.replace('Local workspace', 'Private cloud workspace').replace('Local edition', 'Invite-only hosted pilot')
     return Response(html, mimetype='text/html')

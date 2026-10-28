@@ -29,7 +29,7 @@ def server(service, port=8766):
             self.send_header('Cache-Control', 'no-store')
             self.send_header('X-Content-Type-Options', 'nosniff')
             self.send_header('Referrer-Policy', 'no-referrer')
-            self.send_header('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'none'")
+            self.send_header('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; object-src 'none'; frame-src 'self' blob:; frame-ancestors 'none'; base-uri 'none'")
             for key, value in (headers or {}).items():
                 self.send_header(key, value)
             self.end_headers()

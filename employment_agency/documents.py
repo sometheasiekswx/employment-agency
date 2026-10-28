@@ -38,14 +38,6 @@ def tex_escape(s):
 
 
 def render(directory, identity, job, facts, evidence, template="navy"):
-    from docx import Document
-    from docx.shared import Pt, RGBColor
-    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
-    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-    from reportlab.lib.colors import HexColor
-    from reportlab.lib.pagesizes import A4
-    from pypdf import PdfReader
-
     p = Path(directory)
     p.mkdir(parents=True, exist_ok=False)
     name = identity.get("name", "").strip()
@@ -55,7 +47,6 @@ def render(directory, identity, job, facts, evidence, template="navy"):
         not f.get("confirmed") or f.get("conflict") or f.get("retired") for f in facts
     ):
         raise ValueError("Only confirmed, conflict-free facts can be used")
-    color = "17384D" if template == "navy" else "222222"
     contact = " | ".join(
         identity.get(k, "") for k in ("email", "phone") if identity.get(k)
     )
@@ -106,105 +97,7 @@ def render(directory, identity, job, facts, evidence, template="navy"):
         ("text", name),
     ]
     for stem, blocks, limit in [("resume", resume, 2), ("cover-letter", letter, 1)]:
-        (p / (stem + ".txt")).write_text(
-            "\n\n".join(t for _, t in blocks), encoding="utf-8"
-        )
-        d = Document()
-        section = d.sections[0]
-        from docx.shared import Mm
-
-        section.top_margin = section.bottom_margin = Mm(17)
-        section.left_margin = section.right_margin = Mm(18)
-        d.styles["Normal"].font.name = "Calibri"
-        d.styles["Normal"].font.size = Pt(10)
-        styles = getSampleStyleSheet()
-        styles.add(
-            ParagraphStyle(
-                "Contact", parent=styles["Normal"], fontSize=9, leading=12, spaceAfter=3
-            )
-        )
-        styles["Title"].textColor = HexColor("#" + color)
-        styles["Heading2"].textColor = HexColor("#" + color)
-        styles["Normal"].fontSize = 10
-        styles["Normal"].leading = 13
-        story = []
-        for typ, text in blocks:
-            para = d.add_paragraph(
-                text,
-                "Title"
-                if typ == "title"
-                else "Heading 2"
-                if typ == "heading"
-                else "List Bullet"
-                if typ == "bullet"
-                else None,
-            )
-            if typ in ("title", "heading"):
-                para.runs[0].font.color.rgb = RGBColor.from_string(color)
-            sty = styles[
-                "Title"
-                if typ == "title"
-                else "Heading2"
-                if typ == "heading"
-                else "Contact"
-                if typ == "contact"
-                else "Normal"
-            ]
-            story.append(
-                Paragraph(
-                    escape(text), sty, bulletText="•" if typ == "bullet" else None
-                )
-            )
-            story.append(Spacer(1, 5))
-        d.save(p / (stem + ".docx"))
-        SimpleDocTemplate(
-            str(p / (stem + ".pdf")),
-            pagesize=A4,
-            leftMargin=51,
-            rightMargin=51,
-            topMargin=48,
-            bottomMargin=48,
-        ).build(story)
-        reader = PdfReader(p / (stem + ".pdf"))
-        pages = len(reader.pages)
-        extracted = " ".join(page.extract_text() for page in reader.pages)
-
-        def squash(value):
-            return "".join(value.split()).replace("–", "-").replace("—", "-")
-
-        if any(squash(t) not in squash(extracted) for _, t in blocks):
-            raise ValueError(
-                "PDF font cannot faithfully render this text. Use Latin-script text or configure a Unicode-capable template before applying."
-            )
-        if pages > limit:
-            raise ValueError(
-                f"{stem} exceeds {limit} pages; shorten confirmed facts or select fewer facts"
-            )
-        tex = (
-            r"\documentclass[10pt,a4paper]{article}"
-            + "\n"
-            + r"\usepackage[T1]{fontenc}\usepackage[utf8]{inputenc}\usepackage[margin=18mm]{geometry}\usepackage{xcolor}\definecolor{navy}{HTML}{"
-            + color
-            + "}\n"
-            + r"\setlength{\parindent}{0pt}\setlength{\parskip}{7pt}\begin{document}"
-            + "\n"
-        )
-        for typ, text in blocks:
-            text = tex_escape(text)
-            tex += (
-                (
-                    r"{\LARGE\bfseries\color{navy} " + text + "}"
-                    if typ == "title"
-                    else r"{\large\bfseries\color{navy} " + text + "}"
-                    if typ == "heading"
-                    else text
-                )
-                + r"\par"
-                + "\n"
-            )
-        (p / (stem + ".tex")).write_text(
-            tex + r"\end{document}" + "\n", encoding="utf-8"
-        )
+        render_blocks(p, stem, blocks, limit, template)
     msg = EmailMessage(policy=SMTP)
     if job.get("email"):
         msg["To"] = job["email"]
@@ -246,3 +139,116 @@ def intact(p):
         }
     except (OSError, ValueError):
         return False
+
+
+def render_blocks(p, stem, blocks, limit, template="navy"):
+    """Render user-editable semantic blocks using the same standard template."""
+    from docx import Document
+    from docx.shared import Pt, RGBColor
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.colors import HexColor
+    from reportlab.lib.pagesizes import A4
+    from pypdf import PdfReader
+    color = "17384D" if template == "navy" else "222222"
+    (p / (stem + ".txt")).write_text(
+        "\n\n".join(t for _, t in blocks), encoding="utf-8"
+    )
+    d = Document()
+    from docx.enum.style import WD_STYLE_TYPE
+    d.styles.add_style("Contact", WD_STYLE_TYPE.PARAGRAPH)
+    section = d.sections[0]
+    from docx.shared import Mm
+
+    section.top_margin = section.bottom_margin = Mm(17)
+    section.left_margin = section.right_margin = Mm(18)
+    d.styles["Normal"].font.name = "Calibri"
+    d.styles["Normal"].font.size = Pt(10)
+    styles = getSampleStyleSheet()
+    styles.add(
+        ParagraphStyle(
+            "Contact", parent=styles["Normal"], fontSize=9, leading=12, spaceAfter=3
+        )
+    )
+    styles["Title"].textColor = HexColor("#" + color)
+    styles["Heading2"].textColor = HexColor("#" + color)
+    styles["Normal"].fontSize = 10
+    styles["Normal"].leading = 13
+    story = []
+    for typ, text in blocks:
+        para = d.add_paragraph(
+            text,
+            "Title"
+            if typ == "title"
+            else "Heading 2"
+            if typ == "heading"
+            else "List Bullet"
+            if typ == "bullet"
+            else "Contact" if typ == "contact" else None,
+        )
+        if typ in ("title", "heading"):
+            para.runs[0].font.color.rgb = RGBColor.from_string(color)
+        sty = styles[
+            "Title"
+            if typ == "title"
+            else "Heading2"
+            if typ == "heading"
+            else "Contact"
+            if typ == "contact"
+            else "Normal"
+        ]
+        story.append(
+            Paragraph(
+                escape(text), sty, bulletText="•" if typ == "bullet" else None
+            )
+        )
+        story.append(Spacer(1, 5))
+    d.save(p / (stem + ".docx"))
+    SimpleDocTemplate(
+        str(p / (stem + ".pdf")),
+        pagesize=A4,
+        leftMargin=51,
+        rightMargin=51,
+        topMargin=48,
+        bottomMargin=48,
+    ).build(story)
+    reader = PdfReader(p / (stem + ".pdf"))
+    pages = len(reader.pages)
+    extracted = " ".join(page.extract_text() for page in reader.pages)
+
+    def squash(value):
+        return "".join(value.split()).replace("–", "-").replace("—", "-")
+
+    if any(squash(t) not in squash(extracted) for _, t in blocks):
+        raise ValueError(
+            "PDF font cannot faithfully render this text. Use Latin-script text or configure a Unicode-capable template before applying."
+        )
+    if pages > limit:
+        raise ValueError(
+            f"{stem} exceeds {limit} pages; shorten confirmed facts or select fewer facts"
+        )
+    tex = (
+        r"\documentclass[10pt,a4paper]{article}"
+        + "\n"
+        + r"\usepackage[T1]{fontenc}\usepackage[utf8]{inputenc}\usepackage[margin=18mm]{geometry}\usepackage{xcolor}\definecolor{navy}{HTML}{"
+        + color
+        + "}\n"
+        + r"\setlength{\parindent}{0pt}\setlength{\parskip}{7pt}\begin{document}"
+        + "\n"
+    )
+    for typ, text in blocks:
+        text = tex_escape(text)
+        tex += (
+            (
+                r"{\LARGE\bfseries\color{navy} " + text + "}"
+                if typ == "title"
+                else r"{\large\bfseries\color{navy} " + text + "}"
+                if typ == "heading"
+                else text
+            )
+            + r"\par"
+            + "\n"
+        )
+    (p / (stem + ".tex")).write_text(
+        tex + r"\end{document}" + "\n", encoding="utf-8"
+    )
