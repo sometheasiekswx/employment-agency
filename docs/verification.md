@@ -1,3 +1,5 @@
+> For the current local 0.2 build, see [workspace refactor verification](workspace-refactor.md). Results below concern earlier releases.
+
 # Release verification — 0.1.0
 
 ## Passed locally on macOS

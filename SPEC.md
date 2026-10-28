@@ -1,3 +1,5 @@
+> Version 0.2 workspace architecture is specified and verified in [the workspace refactor](docs/workspace-refactor.md). The original release contract below remains historical context.
+
 # Employment Agency 0.1
 
 A local browser application for individuals to retain confirmed career facts, search with multiple profiles, and prepare job-specific documents for manual submission. Local storage is not a claim of offline AI processing.

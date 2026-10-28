@@ -5,9 +5,12 @@ import re
 import threading
 import shutil
 import math
+import tempfile
+import json
 from pathlib import Path
-from .store import now, uid, digest, atomic
-from . import imports, sources, matching, documents, providers
+from .store import now, uid, digest, atomic, encode
+from . import imports, sources, matching, documents, providers, packages, master
+from .workspaces import settings, configure, inside
 
 
 def text(v, limit=2000):
@@ -64,11 +67,62 @@ class Service:
         self.worker_lock = threading.Lock()
 
     def state(self):
-        return self.w.read()
+        state = self.w.read()
+        state['_workspace'] = {'path': str(self.w.path), **settings(self.w.path)}
+        state['_master'] = master.status(self.w)
+        for app in state['applications']:
+            if app.get('folder'):
+                app['file_changes'] = packages.changed(self.w.path, app)
+        return state
 
     def action(self, action, a):
         if not isinstance(a, dict):
             raise ValueError("Expected JSON object")
+        if action == 'workspace-settings':
+            return configure(self.w.path, a)
+        if action == 'master-propose':
+            return master.propose(self.w)
+        if action == 'master-accept':
+            if a.get('confirmed') is not True:
+                raise ValueError('Confirm the displayed master changes first')
+            result = master.accept(self.w, a['sha256'])
+            with self.w.edit() as state:
+                conflicts(state)
+            return result
+        if action == 'history-adopt':
+            with self.w.lock:
+                entry = packages.catalogue(self.w.path).get(a['id'])
+                if not entry:
+                    raise ValueError('Historical version not found')
+                folder, data = entry
+                index = json.loads(inside(self.w.path, '.recovery/index.json').read_text())
+                baseline_hash = index.get(folder)
+                if not baseline_hash:
+                    raise ValueError('No verified recovery copy exists for this historical version')
+                baseline = json.loads(inside(self.w.path, '.recovery/versions/' + baseline_hash + '.json').read_text())
+                original = {'folder': folder, 'manifest_hash': baseline_hash, 'documents': packages.document_map(baseline)}
+                state = self.w.read()
+                raw_job = baseline['job']
+                job = next((j for j in state['jobs'] if j['id'] == raw_job.get('id') or (j.get('url') and j.get('url') == raw_job.get('url'))),
+                           {**raw_job, 'id': digest(encode(raw_job))[:24], 'availability': 'unknown', 'eligibility': 'unknown', 'requirements': raw_job.get('requirements', [])})
+                version = packages.adopt_edits(self.w.path, original, job, state['identity'])
+                new = {**version, 'id': uid(), 'job_id': job['id'], 'title': job['title'], 'employer': job['employer'],
+                       'status': 'draft', 'created_at': now(), 'comments': [], 'fact_ids': [], 'derived_from_folder': folder}
+                with self.w.edit() as state:
+                    if not any(j['id'] == job['id'] for j in state['jobs']): state['jobs'].append(job)
+                    state['applications'].append(new)
+                return new
+        if action == 'adopt-edits':
+            with self.w.lock:
+                state = self.w.read()
+                original = find(state['applications'], a['id'])
+                job = find(state['jobs'], original['job_id'])
+                version = packages.adopt_edits(self.w.path, original, job, state['identity'])
+                new = {**original, **version, 'id': uid(), 'created_at': now(), 'status': 'draft',
+                       'comments': [], 'derived_from': original['id']}
+                with self.w.edit() as state:
+                    state['applications'].append(new)
+                return new
         if action == "identity":
             identity = {
                 k: text(a.get(k, ""), 500)
@@ -84,10 +138,18 @@ class Service:
             data = base64.b64decode(a["data"], validate=True)
             body = imports.extract(name, data)
             id = uid()
-            atomic(self.w.path / "imports" / (id + ".txt"), body.encode())
+            atomic(inside(self.w.path, 'imports/' + id + '.txt'), body.encode())
+            atomic(inside(self.w.path, 'imports/' + id + '/' + name), data)
+            if a.get('use_as_master'):
+                master_path = 'master/main.' + name.rsplit('.', 1)[-1].lower()
+                old = inside(self.w.path, master_path)
+                if old.exists():
+                    atomic(inside(self.w.path, '.recovery/masters/' + digest(old.read_bytes())), old.read_bytes())
+                atomic(old, data)
+                configure(self.w.path, {'master': master_path})
             lines = [x.strip(" \t•-") for x in body.splitlines() if x.strip()]
             with self.w.edit() as s:
-                for line in lines[:500]:
+                for line in ([] if a.get("use_as_master") else lines[:500]):
                     s["facts"].append(
                         {
                             "id": uid(),
@@ -295,12 +357,14 @@ class Service:
                     raise ValueError("Unknown review status")
                 if app["status"] == "submitted" and status != "submitted":
                     raise ValueError("Submitted snapshot is immutable")
-                if status in ("reviewed", "submitted") and not documents.intact(
-                    self.w.path / "packages" / app["id"]
-                ):
+                intact = not packages.changed(self.w.path, app) if app.get('folder') else documents.intact(self.w.path / 'packages' / app['id'])
+                if status in ('reviewed', 'submitted') and not intact:
                     raise ValueError("Files changed; cannot approve")
                 if status == "submitted" and app["status"] != "reviewed":
                     raise ValueError("Review before recording manual submission")
+                if status == 'submitted':
+                    job = find(s['jobs'], app['job_id'])
+                    job['prior_application'] = 'submitted'
                 app["status"] = status
                 app["comments"].append(
                     {
@@ -311,7 +375,7 @@ class Service:
                 )
             return app
         if action == "export":
-            dest = self.w.path / "exports" / (uid() + ".zip")
+            dest = self.w.path / ".runtime/exports" / (uid() + ".zip")
             self.w.export(dest)
             return {"file": dest.name}
         raise ValueError("Unknown operation")
@@ -564,26 +628,25 @@ class Service:
             raise ValueError(
                 "Career facts changed during preparation; review and retry"
             )
+        config = settings(self.w.path)
+        current_master = master.status(self.w)
+        if current_master['changed']:
+            raise ValueError('Master changed; review and confirm its updates before generating')
         id = uid()
-        p = self.w.path / "packages" / id
-        try:
-            documents.render(
-                p, identity, job, chosen, m, profile.get("template", "navy")
-            )
-        except Exception:
-            if p.exists():
-                shutil.rmtree(p)
-            raise
-        app = {
-            "id": id,
-            "job_id": job["id"],
-            "title": job["title"],
-            "employer": job["employer"],
-            "created_at": now(),
-            "status": "draft",
-            "comments": [],
-            "fact_ids": ids,
-        }
-        with self.w.edit() as s:
-            s["applications"].append(app)
+        staging = inside(self.w.path, '.runtime/staging')
+        staging.mkdir(parents=True, exist_ok=True)
+        with self.w.lock, tempfile.TemporaryDirectory(dir=staging) as temp:
+            p = Path(temp) / 'package'
+            documents.render(p, identity, job, chosen, m, profile.get('template', 'navy'))
+            if config['master_template']:
+                master.render(self.w.path, p, job, chosen, matching.available(self.w.read()["facts"]))
+            if master.status(self.w) != current_master:
+                raise ValueError('Master changed during generation; review and retry')
+            files = {name: (p / name).read_bytes() for name in documents.FILES}
+            packages.validate(files, config)
+            version = packages.publish(self.w.path, files, job, identity)
+            app = {'id': id, 'job_id': job['id'], 'title': job['title'], 'employer': job['employer'],
+                   'created_at': now(), 'status': 'draft', 'comments': [], 'fact_ids': ids, **version}
+            with self.w.edit() as state:
+                state['applications'].append(app)
         return app

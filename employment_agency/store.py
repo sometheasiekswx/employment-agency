@@ -12,6 +12,21 @@ import zipfile
 from datetime import datetime, timezone
 
 
+EXPORT_DIRS = ('applications', 'imports', 'master', 'templates', 'research',
+               'jobs', 'profiles', 'records', 'resumes', 'decisions', 'docs',
+               '.recovery', 'packages')
+
+
+EXCLUDED_DIRS = {'.git', '.github', '.local', '.runtime', '.venv', 'node_modules',
+                 '__pycache__', '.cache', '.build', 'graphify-out', 'output'}
+
+
+def excluded(path):
+    return (any(p.startswith(('.env', 'credentials', 'secrets')) for p in path.parts) or
+            path.suffix in ('.key', '.pem', '.py', '.pyc', '.js', '.mjs', '.cjs', '.sh', '.db', '.sqlite', '.zip', '.tar', '.gz') or
+            path.name.endswith('.lock') or any(p in EXCLUDED_DIRS for p in path.parts))
+
+
 def now():
     return datetime.now(timezone.utc).isoformat()
 
@@ -46,7 +61,13 @@ def atomic(path, data):
 class Workspace:
     def __init__(self, path):
         self.path = Path(path).resolve()
+        project = self.path / 'pyproject.toml'
+        if project.is_file() and 'name = "employment-agency-local"' in project.read_text():
+            raise ValueError('Use the workspace/ subfolder, not the public application source folder')
         self.path.mkdir(parents=True, exist_ok=True)
+        from .workspaces import inside
+        for name in ('state.json', '.lock'):
+            inside(self.path, name)
         self.lock = threading.RLock()
         # Kernel advisory lock is released on crash; no stale lock deletion race.
         self.handle = (self.path / ".lock").open("a+b")
@@ -68,11 +89,13 @@ class Workspace:
             raise ValueError("Workspace is already open in another process")
         f = self.path / "state.json"
         if not f.exists():
+            if self.permissions_path().exists():
+                atomic(self.permissions_path(), encode({}))
             atomic(
                 f,
                 encode(
                     {
-                        "schema": 1,
+                        "schema": 2,
                         "identity": {},
                         "facts": [],
                         "profiles": [],
@@ -86,7 +109,7 @@ class Workspace:
                 ),
             )
         state = self.read()
-        if state.get("schema") != 1:
+        if state.get("schema") not in (1, 2):
             self.close()
             raise ValueError(
                 "Unsupported workspace schema; restore a compatible release. No data changed."
@@ -107,18 +130,35 @@ class Workspace:
                         r["inflight"] = None
 
     def close(self):
-        self.handle.close()
+        if not self.handle.closed:
+            self.handle.close()
+
+    def permissions_path(self):
+        from .workspaces import config_home
+        return config_home() / 'permissions' / (digest(str(self.path).encode()) + '.json')
 
     def read(self):
         with self.lock:
-            return json.loads((self.path / "state.json").read_text(encoding="utf-8"))
+            state = json.loads((self.path / "state.json").read_text(encoding="utf-8"))
+            if state.get('schema') == 2:
+                try:
+                    state['consents'] = json.loads(self.permissions_path().read_text())
+                except FileNotFoundError:
+                    state['consents'] = {}
+            return state
 
     @contextmanager
     def edit(self):
         with self.lock:
             s = self.read()
             yield s
-            atomic(self.path / "state.json", encode(s))
+            if s.get('schema') == 2:
+                permissions = s.pop('consents', {})
+                s['consents'] = {}
+                atomic(self.path / 'state.json', encode(s))
+                atomic(self.permissions_path(), encode(permissions))
+            else:
+                atomic(self.path / 'state.json', encode(s))
 
     def export(self, target):
         target = Path(target)
@@ -126,14 +166,16 @@ class Workspace:
             raise ValueError("Export destination exists")
         with self.lock:
             data = {"state.json": encode(self.read())}
-            for base in ("packages", "imports"):
-                for p in (
-                    (self.path / base).rglob("*") if (self.path / base).exists() else []
-                ):
-                    if p.is_symlink():
-                        raise ValueError("Symlinks are not exportable")
-                    if p.is_file():
-                        data[p.relative_to(self.path).as_posix()] = p.read_bytes()
+            from .workspaces import inside
+            for p in self.path.rglob('*'):
+                rel = p.relative_to(self.path)
+                if excluded(rel):
+                    continue
+                inside(self.path, rel.as_posix())
+                if not p.is_file():
+                    continue
+                if rel.as_posix() != 'state.json':
+                    data[rel.as_posix()] = p.read_bytes()
             # Consent must be regranted after restore; it is not transferable authority.
             state = json.loads(data["state.json"])
             state["consents"] = {}
@@ -151,7 +193,7 @@ class Workspace:
         return target
 
     def snapshot(self):
-        return self.export(self.path / "snapshots" / (uid() + ".zip"))
+        return self.export(self.path / ".runtime/snapshots" / (uid() + ".zip"))
 
 
 def restore(archive, destination):
@@ -160,10 +202,10 @@ def restore(archive, destination):
         raise ValueError("Restore requires a new destination")
     with zipfile.ZipFile(archive) as z:
         infos = z.infolist()
-        if len(infos) > 20000 or sum(i.file_size for i in infos) > 512 * 1024 * 1024:
+        if len(infos) > 100000 or sum(i.file_size for i in infos) > 1024 * 1024 * 1024:
             raise ValueError("Archive too large")
         names = [i.filename for i in infos]
-        if len(names) != len(set(names)):
+        if len(names) != len({PurePosixPath(n).as_posix().casefold() for n in names}):
             raise ValueError("Duplicate archive paths")
         for n in names:
             p = PurePosixPath(n)
@@ -172,8 +214,9 @@ def restore(archive, destination):
                 or ":" in n
                 or p.is_absolute()
                 or ".." in p.parts
-                or n not in ("state.json", "checksums.json")
-                and p.parts[0] not in ("packages", "imports")
+                or not p.parts
+                or p.as_posix() != n
+                or excluded(Path(n))
             ):
                 raise ValueError("Unsafe archive path")
         checks = json.loads(z.read("checksums.json"))
@@ -181,7 +224,7 @@ def restore(archive, destination):
         if checks != {n: digest(b) for n, b in data.items()}:
             raise ValueError("Checksum mismatch")
         s = json.loads(data["state.json"])
-        if s.get("schema") != 1:
+        if s.get("schema") not in (1, 2):
             raise ValueError("Unsupported schema")
         s["consents"] = {}
         data["state.json"] = encode(s)
@@ -192,3 +235,5 @@ def restore(archive, destination):
         for n, b in data.items():
             atomic(stage / n, b)
         os.rename(stage, dest)
+    from .workspaces import config_home
+    atomic(config_home() / 'permissions' / (digest(str(dest.resolve()).encode()) + '.json'), encode({}))

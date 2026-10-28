@@ -65,7 +65,6 @@ def render(directory, identity, job, facts, evidence, template="navy"):
         ("title", name),
         ("contact", location),
         ("contact", contact),
-        ("heading", "Application: " + target),
     ]
     groups = {}
     for f in facts:

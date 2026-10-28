@@ -9,3 +9,8 @@ Credential input is environment-only. Keys are not in export schemas. Consent is
 No telemetry, scheduler, employer upload or email-send endpoint is included. Do not add remote exposure, automatic submission, arbitrary shell execution or model-generated commands without a new threat model.
 
 Report vulnerabilities privately through GitHub private vulnerability reporting when enabled. Avoid placing personal data, API keys or workspace exports in issues.
+
+
+Workspace schema 2 separates durable records from local provider permissions. Switching workspaces refuses active runs and rotates the browser mutation token, rejecting writes from an old tab. The software checkout itself cannot be selected as a personal workspace; choose its ignored workspace/ subfolder or an external directory. Application paths reject traversal and symlink components. Named document routes check registered manifests and file hashes before serving bytes.
+
+Only an explicitly enabled local master template is compiled; imports alone never trigger compilation. LaTeX runs with shell escape disabled, restrictive input/output settings, a timeout and temporary build directory. This is not an operating-system sandbox: enable local templates only when you trust their contents. External document edits require validation as a new draft, and verified originals are retained for recovery. Backups include private data and must be stored privately.

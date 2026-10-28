@@ -13,11 +13,13 @@ const fs = require("node:fs");
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto(process.env.TEST_URL || "http://127.0.0.1:8767");
+  await page.getByRole('button', {name: 'Use this workspace', exact: true}).click();
+  await page.getByRole('button', {name: 'Career evidence'}).click();
   await page.getByRole("heading", { name: "Your details" }).waitFor();
   await page.getByLabel("Name", { exact: true }).fill("Alex Morgan");
   await page.getByLabel("Email", { exact: true }).fill("alex@example.test");
   await page.getByRole("button", { name: "Save details" }).click();
-  await page.getByRole("status").filter({ hasText: "Saved." }).waitFor();
+  await page.locator("#notice").filter({ hasText: "Saved." }).waitFor();
   await page.getByText("Add experience or a skill", { exact: true }).click();
   await page
     .getByLabel("Statement", { exact: true })
@@ -25,7 +27,7 @@ const fs = require("node:fs");
   await page.getByRole("button", { name: "Save for confirmation" }).click();
   await page.getByRole("button", { name: "Confirm", exact: true }).click();
   await page.getByText("1 confirmed", { exact: true }).waitFor();
-  await page.getByRole("button", { name: "Search", exact: true }).click();
+  await page.getByRole("button", { name: "Search profiles" }).click();
   await page.getByText("Create another profile", { exact: true }).click();
   await page.getByLabel("Profile name").fill("Software engineering");
   await page.getByLabel("Roles, comma separated").fill("Engineer");
@@ -57,20 +59,26 @@ const fs = require("node:fs");
       document.querySelector("#runs")?.textContent.includes(" · complete · "),
     { timeout: 20000 },
   );
-  await page.getByRole("button", { name: "Applications", exact: true }).click();
+  await page.getByRole("button", { name: "Applications" }).click();
   await page
     .getByRole("heading", { name: "Software Engineer", exact: true })
     .waitFor();
-  assert.equal(await page.locator("a[download]").count(), 8);
+  assert.equal(await page.locator('a[href^="/files/"]').count(), 8);
+  const pdf = await page.request.get(new URL(await page.getByRole('link', {name:'CV PDF', exact:true}).getAttribute('href'),page.url()).href);
+  assert.equal(pdf.status(),200); assert.match(pdf.url(),/history\/files/);
+  assert.ok((await pdf.body()).subarray(0,4).toString()==='%PDF');
+  await page.getByText('Review & add comments',{exact:true}).click();
   await page
     .getByLabel("Comments", { exact: true })
     .fill("Reviewed the tailored files.");
   await page.getByLabel("Review decision").selectOption("reviewed");
   await page.getByRole("button", { name: "Save decision" }).click();
+  await page.getByText("Review history (1)", {exact:true}).click();
   await page
     .getByText("Reviewed the tailored files.", { exact: false })
     .waitFor();
   fs.mkdirSync("output/playwright", { recursive: true });
+  await page.evaluate(()=>window.scrollTo(0,0));
   await page.screenshot({
     path: "output/playwright/applications-desktop.png",
     fullPage: true,
@@ -86,6 +94,7 @@ const fs = require("node:fs");
     );
   }
   await page.setViewportSize({ width: 320, height: 900 });
+  await page.evaluate(()=>window.scrollTo(0,0));
   await page.screenshot({
     path: "output/playwright/applications-mobile.png",
     fullPage: true,

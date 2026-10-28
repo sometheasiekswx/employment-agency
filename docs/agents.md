@@ -20,3 +20,12 @@ Supported operations are the same as the UI: identity, import, fact, confirm, re
 The public system has no automatic submission tool. Marking a reviewed package `submitted` records a human action only. Preserve that version, rather than regenerating it in place. Repeated drafting creates a new version.
 
 AI selection alone is not a factual review or ATS guarantee. The user can edit the source fact and reconfirm before regenerating. Keep cloud-provider consent distinct from the coding agent's independently granted filesystem/tool access.
+
+
+## Workspace v0.2
+
+The shared app owns all UI/rendering/history code. Read the selected workspace's `workspace.json` and `state.json`, not a hardcoded hidden-runtime path. `applications/` is canonical; application records provide `folder`, `documents` and `manifest_hash`. Never overwrite these files to regenerate a package. Use `local-package` or `agent-package` for a new version and `review` to record the user's own decision.
+
+Use `master-propose` to inspect detected source changes and `master-accept` only after the user confirms the displayed updates (`sha256` and `confirmed: true`). Supplementary facts remain independent. `adopt-edits` validates user-edited documents as a new draft and restores the previously verified version. Preserve unknown historical submission/file associations; migration does not invent them. CLI `migrate-legacy SOURCE DESTINATION` requires the source server to be stopped and preserves source files.
+
+Credentials and scoped permissions are machine-local; do not put them in workspace configuration or state. Export/restore includes master sources, research, organised versions, durable decisions and verified recovery objects. Keep generated files and all real career data out of public software commits.

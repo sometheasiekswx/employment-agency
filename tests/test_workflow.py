@@ -11,7 +11,7 @@ from pathlib import Path
 from unittest.mock import patch
 from employment_agency.store import Workspace, restore
 from employment_agency.service import Service
-from employment_agency import matching, documents, sources, providers, imports
+from employment_agency import matching, documents, sources, providers, imports, packages
 from employment_agency.server import server
 
 
@@ -115,20 +115,21 @@ class Workflow(unittest.TestCase):
         self.assertEqual(state["runs"][0]["status"], "complete")
         self.assertEqual(len(state["applications"]), 1)
         app = state["applications"][0]
-        folder = self.w.path / "packages" / app["id"]
-        self.assertTrue(documents.intact(folder))
+        folder = self.w.path / app['folder']
+        self.assertEqual(packages.changed(self.w.path, app), [])
+        self.assertFalse((self.w.path / 'packages').exists())
         from pypdf import PdfReader
 
         self.assertIn(
-            "Python", PdfReader(folder / "resume.pdf").pages[0].extract_text()
+            "Python", PdfReader(folder / app["documents"]["resume.pdf"]).pages[0].extract_text()
         )
         from docx import Document
 
         self.assertIn(
             "Python",
-            " ".join(p.text for p in Document(folder / "resume.docx").paragraphs),
+            " ".join(p.text for p in Document(folder / app["documents"]["resume.docx"]).paragraphs),
         )
-        msg = email.message_from_bytes((folder / "application.eml").read_bytes())
+        msg = email.message_from_bytes((folder / app["documents"]["application.eml"]).read_bytes())
         parts = [p for p in msg.walk() if p.get_content_type() == "application/pdf"]
         self.assertEqual(len(parts), 2)
         for part in parts:

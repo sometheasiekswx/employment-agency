@@ -1,9 +1,11 @@
 "use strict";
 let state,
   token,
-  tab = "career",
+  tab = "applications",
   selectedProfile = "",
   ranking = null;
+let masterProposal = null;
+let includeHistorical = false;
 const $ = (s) => document.querySelector(s),
   esc = (s) =>
     String(s ?? "").replace(
@@ -48,6 +50,9 @@ async function refresh() {
   const r = await fetch("/api/state");
   if (!r.ok) throw Error("Cannot load workspace");
   const d = await r.json();
+  if (state && state._workspace?.path !== d.state._workspace?.path) {
+    selectedProfile = ''; ranking = null; masterProposal = null;
+  }
   state = d.state;
   token = d.token;
   if (!selectedProfile && state.profiles.length)
@@ -63,9 +68,28 @@ async function api(action, args) {
   if (!r.ok) throw Error(d.error || "Operation failed");
   return d.result;
 }
+function otherWorkspace() {
+  return `<details><summary>Use another folder</summary><p>Keep your career files in a different local folder or private repository.</p><form data-form="workspace-open">${field('Existing workspace folder', 'path')}<button>Open workspace</button></form><form data-form="workspace-create">${field('New workspace folder', 'path')}<button>Create workspace</button></form></details>`;
+}
+function setup() {
+  return `<section><h2>Your career workspace</h2><p>Keep your master resume, career evidence and applications together here. Your personal files stay local and are excluded from the public source repository.</p><p class="muted">${esc(state._workspace.path)}</p><form data-form="workspace-settings">${field('Workspace name', 'label', state._workspace.label)}<input type="checkbox" name="setup_complete" checked hidden><button>Use this workspace</button></form>${otherWorkspace()}</section>`;
+}
+function workspacePanel() {
+  const w=state._workspace;
+  return `<section><h2>Workspace files</h2><p>${esc(w.path)}</p><form data-form="workspace-settings">${field('Workspace name', 'label', w.label)}${field('Master resume path within this workspace', 'master', w.master)}${field('Timezone for version dates', 'timezone', w.timezone)}${field('Destination priorities, comma separated', 'preferred_locations', w.preferred_locations.join(', '))}${check('Use my trusted LaTeX master layout (requires an installed compiler)', 'master_template', w.master_template)}<button>Save workspace settings</button></form>${otherWorkspace()}</section>`;
+}
+function masterPanel() {
+  const m=state._master;
+  if (!m.exists) return `<section><h2>Master resume</h2><p>Import a resume below or place it at <code>${esc(m.path)}</code> in your workspace.</p></section>`;
+  let review='';
+  if (masterProposal && masterProposal.sha256===m.sha256) {
+    review=`<details open><summary>Review master changes</summary><pre>${esc(masterProposal.diff)}</pre>${masterProposal.conflicts?.length?`<h3>Conflicting supplementary facts</h3><p>Correct or retire the conflicting existing facts below before confirming.</p><pre>${esc(JSON.stringify(masterProposal.conflicts,null,2))}</pre>`:""}<h3>Proposed contact details</h3><pre>${esc(JSON.stringify(masterProposal.identity,null,2))}</pre><h3>Proposed career facts</h3><ul>${masterProposal.candidates.map(f=>`<li>${esc([f.text,f.association,f.dates].filter(Boolean).join(' — '))}</li>`).join('')}</ul><p>Supplementary facts stay in your workspace. Previous master-derived facts are retired with their history preserved.</p><form data-form="master-accept"><input type="hidden" name="sha256" value="${esc(m.sha256)}">${check('I reviewed these master changes and confirm the proposed facts', 'confirmed')}<button>Confirm master updates</button></form></details>`;
+  }
+  return `<section><h2>Master resume</h2><p><code>${esc(m.path)}</code> · ${m.changed?'Changes need your review before generating applications.':'Up to date with your confirmed source.'}</p>${button('Review master changes','master-propose')}${review}</section>`;
+}
 function career() {
   const i = state.identity;
-  return `<div class="grid"><section><h2>Your details</h2><form data-form="identity">${field("Name", "name", i.name)}${field("Email", "email", i.email, "email")}${field("Phone", "phone", i.phone)}${field("Current location / relocation statement", "location", i.location)}${field("Languages", "languages", i.languages)}<div class="actions"><button>Save details</button></div></form></section><section><h2>Build your career evidence</h2><p>Import your master resume, then review each extracted statement. You can add experience that never made it onto your resume.</p><form data-form="import"><label>Resume file<input name="file" type="file" accept=".pdf,.docx,.tex,.txt,.md" required></label><small>Up to 10 MB. Text-based PDFs; scanned files need OCR text. Imported TeX is never executed.</small><div class="actions"><button>Import for review</button></div></form><details><summary>Add experience or a skill</summary>${factForm()}</details></section></div><section><h2>Career facts <span class="pill">${state.facts.filter((f) => f.confirmed && !f.retired && !f.conflict).length} confirmed</span></h2><p class="muted">Only confirmed, conflict-free facts are used. Editing resets confirmation. Use the same conflict key for competing versions of a single claim, such as an employment end date.</p>${
+  return masterPanel()+`<div class="grid"><section><h2>Your details</h2><form data-form="identity">${field("Name", "name", i.name)}${field("Email", "email", i.email, "email")}${field("Phone", "phone", i.phone)}${field("Current location / relocation statement", "location", i.location)}${field("Languages", "languages", i.languages)}<div class="actions"><button>Save details</button></div></form></section><section><h2>Build your career evidence</h2><p>Import your master resume, then review each extracted statement. You can add experience that never made it onto your resume.</p><form data-form="import"><label>Resume file<input name="file" type="file" accept=".pdf,.docx,.tex,.txt,.md" required></label>${check("Use this file as my master resume", "use_as_master", true)}<small>Up to 10 MB. Text-based PDFs; scanned files need OCR text. Imported TeX is never executed.</small><div class="actions"><button>Import for review</button></div></form><details><summary>Add experience or a skill</summary>${factForm()}</details></section></div><section><h2>Career facts <span class="pill">${state.facts.filter((f) => f.confirmed && !f.retired && !f.conflict).length} confirmed</span></h2><p class="muted">Only confirmed, conflict-free facts are used. Editing resets confirmation. Use the same conflict key for competing versions of a single claim, such as an employment end date.</p>${
     state.facts
       .filter((f) => !f.retired)
       .map(
@@ -183,11 +207,11 @@ function runs() {
   );
 }
 function applications() {
-  return `<section><h2>Your application packages</h2><p>Each package is an immutable version. Review both PDFs, then download an email draft or open the employer page. Marking submitted records your own action; it does not send anything.</p></section>${
-    state.applications
+  return `<section><h2>Your application packages</h2><p>Each package is a preserved version. Review both PDFs, then download an email draft or open the employer page. Marking submitted records your own action; it does not send anything.</p><label class="check"><input type="checkbox" name="include_history" ${includeHistorical?"checked":""}>Include earlier review queues</label></section>${
+    state.applications.filter(a=>includeHistorical || !a.archived)
       .map((a) => {
         const job = state.jobs.find((j) => j.id === a.job_id) || {};
-        return `<article><h2>${esc(a.title)}</h2><p>${esc(a.employer)} <span class="pill">${esc(a.status)}</span> <small>${esc(a.created_at)}</small></p><div class="actions">${["resume.pdf", "cover-letter.pdf", "resume.docx", "cover-letter.docx", "resume.tex", "cover-letter.tex", "application.eml", "evidence.json"].map((f) => `<a class="button" href="/files/${a.id}/${f}" download>${esc({ "resume.pdf": "Resume PDF", "cover-letter.pdf": "Cover letter PDF", "resume.docx": "Edit resume (Word)", "cover-letter.docx": "Edit cover letter (Word)", "resume.tex": "Resume LaTeX", "cover-letter.tex": "Cover letter LaTeX", "application.eml": "Email draft", "evidence.json": "Source evidence" }[f] || f)}</a>`).join("")}</div><p><a href="${esc(safeUrl(job.url))}" target="_blank" rel="noopener noreferrer">Open application listing</a></p><form data-form="review"><input type="hidden" name="id" value="${a.id}">${area("Comments", "comment")}${select(
+        return `<article data-application-id="${esc(a.id)}"><h2>${esc(a.title)}</h2><p>${esc(a.employer)} <span class="pill">${esc(a.status)}</span> <small>${esc(a.created_at)}</small></p><div class="actions">${["resume.pdf", "cover-letter.pdf", "resume.docx", "cover-letter.docx", "resume.tex", "cover-letter.tex", "application.eml", "evidence.json"].filter(f=>a.documents?.[f]).map((f) => `<a class="button" href="/files/${a.id}/${f}" target="_blank" rel="noopener">${esc({ "resume.pdf": "CV PDF", "cover-letter.pdf": "Cover letter PDF", "resume.docx": "Edit resume (Word)", "cover-letter.docx": "Edit cover letter (Word)", "resume.tex": "Resume LaTeX", "cover-letter.tex": "Cover letter LaTeX", "application.eml": "Email draft", "evidence.json": "Source evidence" }[f] || f)}</a>`).join("")}</div>${a.file_changes?.length ? `<div class="error"><p>Files changed on disk: ${esc(a.file_changes.join(', '))}. The verified original is preserved for recovery.</p>${button('Validate edits as a new draft', 'adopt-edits', a.id)}</div>` : ''}${a.migration_warning?`<p class="error">${esc(a.migration_warning)}</p>`:''}<p><a href="${esc(safeUrl(job.url))}" target="_blank" rel="noopener noreferrer">Open application listing</a></p><form data-form="review"><input type="hidden" name="id" value="${a.id}">${area("Comments", "comment")}${select(
           "Review decision",
           "status",
           a.status === "submitted"
@@ -202,10 +226,10 @@ function applications() {
         )}<button>Save decision</button></form>${a.comments.map((c) => `<p><small>${esc(c.at)} · ${esc(c.status)}</small><br>${esc(c.text)}</p>`).join("")}</article>`;
       })
       .join("") || "<p>No applications yet.</p>"
-  }`;
+  }${state.historical_decisions?.length ? `<section><h2>Earlier submission records</h2><p>Preserved decisions from the earlier queue. Exact submitted-file associations remain unconfirmed where the source did not record them.</p>${state.historical_decisions.map(d=>`<p><strong>${esc(d.employer)}</strong> · ${esc(d.status)}${d.url?` · <a href="${esc(safeUrl(d.url))}" target="_blank" rel="noopener">Source record</a>`:''}</p>`).join('')}</section>`:''}`;
 }
 function settings() {
-  return `<div class="grid"><section><h2>AI disclosure consent</h2><p>Granting consent allows <strong>confirmed career facts and job descriptions</strong> to be shared with the selected provider for <strong>selecting application facts</strong>. Contact details and salary minimums are not included by this integration. An agent running on your computer may independently access other files you authorize.</p>${["agent", "openai"].map((provider) => `<h3>${provider === "agent" ? "Connected coding agent" : "OpenAI API"}</h3><p>${state.consents[provider] ? "Consent granted" : "No consent granted"}</p><div class="actions">${button("Grant consent", "grant", provider)}${button("Revoke", "revoke", provider)}</div>`).join("")}<p class="muted">Revocation prevents future app-controlled requests; it cannot recall previously disclosed data. API keys are read only from OPENAI_API_KEY, never from this UI.</p></section><section><h2>Recovery and upgrades</h2><p>Download an export before upgrades. It includes your private facts and applications, so store it privately. Credentials and consent grants are excluded. Restore to a new workspace using the CLI; existing files are never overwritten.</p>${button("Export private workspace", "export", "", "")}<pre>employment-agency restore backup.zip NEW_FOLDER</pre><p class="muted">Keep your installed release pinned. Runs snapshot before starting. Exporting to the same computer is not an off-device backup.</p></section></div>`;
+  return workspacePanel()+`<div class="grid"><section><h2>AI disclosure consent</h2><p>Granting consent allows <strong>confirmed career facts and job descriptions</strong> to be shared with the selected provider for <strong>selecting application facts</strong>. Contact details and salary minimums are not included by this integration. An agent running on your computer may independently access other files you authorize.</p>${["agent", "openai"].map((provider) => `<h3>${provider === "agent" ? "Connected coding agent" : "OpenAI API"}</h3><p>${state.consents[provider] ? "Consent granted" : "No consent granted"}</p><div class="actions">${button("Grant consent", "grant", provider)}${button("Revoke", "revoke", provider)}</div>`).join("")}<p class="muted">Revocation prevents future app-controlled requests; it cannot recall previously disclosed data. API keys are read only from OPENAI_API_KEY, never from this UI.</p></section><section><h2>Recovery and upgrades</h2><p>Download an export before upgrades. It includes your private facts and applications, so store it privately. Credentials and consent grants are excluded. Restore to a new workspace using the CLI; existing files are never overwritten.</p>${button("Export private workspace", "export", "", "")}<pre>employment-agency restore backup.zip NEW_FOLDER</pre><p class="muted">Keep your installed release pinned. Runs snapshot before starting. Exporting to the same computer is not an off-device backup.</p></section></div>`;
 }
 function render() {
   document
@@ -213,6 +237,10 @@ function render() {
     .forEach((b) =>
       b.setAttribute("aria-current", String(b.dataset.tab === tab)),
     );
+  if (!state._workspace.setup_complete) {
+    $('#content').innerHTML = setup();
+    return;
+  }
   $("#content").innerHTML = { career, search, applications, settings }[tab]();
 }
 function download(name, data) {
@@ -226,6 +254,7 @@ function download(name, data) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 document.addEventListener("change", (e) => {
+  if(e.target.name === "include_history") { includeHistorical=e.target.checked; render(); return; }
   if (e.target.name === "active_profile") {
     selectedProfile = e.target.value;
     ranking = null;
@@ -278,6 +307,9 @@ document.addEventListener("click", async (e) => {
     if (action === "show-run") {
       $("#run-form").hidden = false;
       return;
+    }
+    if (action === 'master-propose') {
+      masterProposal = await api(action, {}); render(); return;
     }
     if (action === "local-package") {
       if (!selectedProfile) throw Error("Choose a search profile first");
@@ -377,7 +409,12 @@ document.addEventListener("submit", async (e) => {
       a.profile_id = selectedProfile;
     }
     if (action === "agent-package") a.selection = JSON.parse(a.selection);
+    if (action === 'workspace-settings') {
+      if (a.preferred_locations !== undefined) a.preferred_locations = list(a.preferred_locations);
+    }
     const result = await api(action, a);
+    if (result?.reload) { location.reload(); return; }
+    if (action === 'master-accept') masterProposal = null;
     if (action === "profile") selectedProfile = result.id;
     await refresh();
     render();
@@ -405,3 +442,16 @@ setInterval(async () => {
     }
   }
 }, 2000);
+
+// Detect external edits without replacing a form the user is typing in.
+setInterval(async()=>{
+  if (!state || document.hidden) return;
+  const before=JSON.stringify([state._master, state.applications.map(a=>a.file_changes)]);
+  try {
+    await refresh();
+    if (before!==JSON.stringify([state._master, state.applications.map(a=>a.file_changes)])) {
+      if (!document.activeElement?.matches('input,textarea,select')) render();
+      notice('Workspace files changed. Review master or document updates before using them.');
+    }
+  } catch(e) { notice(e.message,true); }
+}, 10000);

@@ -4,7 +4,7 @@
 
 A local-first career workspace that turns confirmed experience into job-specific applications you review and submit yourself.
 
-Import your resume, add the experience it leaves out, save search preferences, and prepare a bounded batch of applications. Every match shows its evidence and gaps. Every document uses confirmed facts. Your workspace stays separate from this software repository.
+Import your resume, add the experience it leaves out, save search preferences, and prepare a bounded batch of applications. Every match shows its evidence and gaps. Every document uses confirmed facts. By default, your personal files live in an ignored `workspace/` folder alongside the software. You can choose another folder when needed.
 
 ## Start locally
 
@@ -15,7 +15,7 @@ git clone https://github.com/sometheasiekswx/employment-agency.git
 cd employment-agency
 python3 -m venv .venv
 .venv/bin/python -m pip install .
-.venv/bin/employment-agency serve
+.venv/bin/python -m employment_agency serve
 ```
 
 Windows PowerShell:
@@ -23,10 +23,10 @@ Windows PowerShell:
 ```powershell
 py -3 -m venv .venv
 .venv\Scripts\python -m pip install .
-.venv\Scripts\employment-agency serve
+.venv\Scripts\python -m employment_agency serve
 ```
 
-Open **http://127.0.0.1:8766**. The default workspace is `~/.employment-agency/workspace`, outside the checkout. For another private workspace:
+Open **http://127.0.0.1:8766** and choose **Use this workspace**. Source installations use `employment-agency/workspace/`, excluded from Git. The app remembers your selection. **Use another folder** is available during setup and under Settings; it is optional. Installed packages outside a source checkout default to `~/EmploymentAgency/workspace`. For an external workspace:
 
 ```sh
 employment-agency --workspace /path/to/private-workspace serve --port 8766
@@ -43,6 +43,23 @@ The server only binds to loopback. Do not reverse-proxy it onto a public network
 5. **Prepare:** run locally without an AI service, or enable OpenAI fact selection. Runs are bounded, resumable and cancellable between operations. Weak matches do not pad the batch, and existing packages are not automatically duplicated. Use a match’s “Prepare a new local version” action for deliberate regeneration. Shorten long facts or select fewer if the two-page resume/one-page letter limit is exceeded.
 6. **Review:** inspect PDF and editable DOCX, record comments/rejections, download an EML draft with the exact PDFs, or open the employer listing. Sending and submission are always yours. Record a manual submission only after reviewing the version.
 
+## Your files and history
+
+Your workspace contains `state.json` (facts, profiles, jobs, decisions and comments), `workspace.json` (settings), master sources and `applications/City/Company/Job/DD-MM-YYYY/`. Further generations that day use time subfolders. CV and cover-letter links open these exact named files; there is no separate permanent working-package copy. Earlier queue entries are available through **Include earlier review queues**.
+
+Editing your master on disk shows a change notice. Open **Career evidence → Review master changes**, review the diff, contact details and proposed facts, then confirm. Supplementary facts remain; application files are never silently regenerated. The optional trusted LaTeX master renderer supports the documented navy master structure; arbitrary imported layouts are not reproduced. The default PDF/Word renderer requires no LaTeX.
+
+External edits to a generated file are flagged. **Validate edits as a new draft** preserves the verified original and creates a new version for review. PDF-only edits remove stale editable companions. TeX changes can rebuild PDFs with an installed compiler; Word edits require exporting the matching PDF into the same folder before validation. Recovery objects under `.recovery/` retain verified bytes and are included in backup exports; they are not a second live package store. `.runtime/` contains disposable build/export files. Provider permissions live in the local application configuration, outside the workspace.
+
+To migrate a previous workspace or legacy review queue, stop its server first:
+
+```sh
+employment-agency migrate-legacy OLD_FOLDER NEW_FOLDER
+employment-agency --workspace NEW_FOLDER serve
+```
+
+Migration retains original IDs, decisions, comments, source evidence and historical documents, and reports uncertainties in `records/migration.json`. It does not delete the source software or originals. Export and restore the migrated result before retiring an old installation.
+
 ## AI is optional
 
 Local mode selects relevant facts and produces structured templates. It is intentionally conservative: it assembles confirmed statements rather than inventing persuasive claims. Agent mode exports a scoped handoff; an agent returns ordered fact IDs through the same validator. See [the agent contract](docs/agents.md).
@@ -54,7 +71,7 @@ The app omits contact details and private salary minimums from AI payloads. A co
 ## Documents and limitations
 
 - Navy and plain styles; editable DOCX and text-based PDF resumes and cover letters.
-- Safe generated LaTeX sources for optional local compilation; imported TeX is never executed. TeX compilation needs your own LaTeX installation (`latexmk -pdf -no-shell-escape resume.tex` in a separate copy of the package).
+- Imported TeX is extracted without execution. Enabling your trusted local master layout explicitly allows compilation using an installed `pdflatex`, with shell escape disabled and restricted input/output. Generated Word files are editable content companions; PDF/LaTeX preserve the selected layout.
 - PDF fonts currently support Latin-script application text. Unsupported text fails validation instead of silently shipping missing characters. Scanned PDFs need externally supplied OCR text. Arbitrary source layouts are not reproduced.
 - Matching is lexical and relies on job metadata. Missing sponsorship, salary, seniority or location data remains unknown. There is no automated immigration/legal advice or universal salary benchmark.
 - Listings can close after retrieval. The UI marks stale/unknown evidence and exposes source failures. Recheck before applying.
@@ -69,7 +86,7 @@ employment-agency restore backup.zip /path/to/new-restored-workspace
 
 Exports include private data, exclude credentials and clear consent on restore. Existing restore destinations are rejected. A run snapshots the workspace before work starts. Keep an off-device copy yourself; local snapshots alone are not off-device backups.
 
-Pin an installed version or Git commit. Export before upgrading, test a restored copy with the new version, then explicitly switch. Version 0.1 uses schema 1 and rejects unknown schemas without changing data. No automatic updates or background schedules.
+Pin an installed version or Git commit. Export before upgrading, test a restored copy with the new version, then explicitly switch. Version 0.2 uses schema 2. Older schema-1 workspaces require explicit migration into a new folder; unknown schemas are rejected. No automatic updates or background schedules.
 
 ## Development
 
