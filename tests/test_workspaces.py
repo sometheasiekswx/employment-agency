@@ -114,6 +114,10 @@ class WorkspaceContracts(unittest.TestCase):
         try:
             token = json.load(urllib.request.urlopen(url + '/api/state'))['token']
             request('workspace-create', {'path': str(self.root / 'second')}, token)
+            self.assertEqual(
+                json.loads((self.root / 'config/location.json').read_text())['path'],
+                str((self.root / 'second').resolve()),
+            )
             with self.assertRaises(urllib.error.HTTPError) as error:
                 request('identity', {'name': 'Stale tab'}, token)
             self.assertEqual(error.exception.code, 403)

@@ -19,6 +19,10 @@ class Workflow(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.root = Path(self.tmp.name)
+        # Workspace selection and permissions must never touch the user's config.
+        config = patch.dict('os.environ', {'EA_CONFIG_HOME': str(self.root / 'config')})
+        config.start()
+        self.addCleanup(config.stop)
         self.w = Workspace(self.root / "private")
         self.s = Service(self.w)
 

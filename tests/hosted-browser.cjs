@@ -110,6 +110,7 @@ const fs = require("node:fs");
   });
   await page.getByRole("button", { name: "Settings & recovery" }).click();
   await page.getByRole("heading", { name: "Account and recovery" }).waitFor();
+  assert.equal(await page.getByRole('button', {name:'Open Folder',exact:true}).count(),0);
   await page.keyboard.press("Tab");
   assert.ok(
     await page.evaluate(() => document.activeElement !== document.body),

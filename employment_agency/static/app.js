@@ -69,16 +69,16 @@ async function api(action, args) {
   if (!r.ok) throw Error(d.error || "Operation failed");
   return d.result;
 }
-function otherWorkspace() {
-  return `<details><summary>Use another folder</summary><p>Keep your career files in a different local folder or private repository.</p><form data-form="workspace-open">${field('Existing workspace folder', 'path')}<button>Open workspace</button></form><form data-form="workspace-create">${field('New workspace folder', 'path')}<button>Create workspace</button></form></details>`;
+function workspaceLocation() {
+  return `<div class="workspace-location"><p><strong>Workspace location</strong><br><span>${esc(state._workspace.path)}</span></p><button type="button" data-action="workspace-browse">Open Folder</button></div><p class="muted">Choose an existing workspace, or an empty folder to start a new one. Your files stay on this computer.</p>`;
 }
 function setup() {
-  return `<section><h2>Your career workspace</h2><p>Keep your master resume, career evidence and applications together here. Your personal files stay local and are excluded from the public source repository.</p><p class="muted">${esc(state._workspace.path)}</p><form data-form="workspace-settings">${field('Workspace name', 'label', state._workspace.label)}<input type="checkbox" name="setup_complete" checked hidden><button>Use this workspace</button></form>${otherWorkspace()}</section>`;
+  return `<section><h2>Your career workspace</h2><p>Keep your master resume, career evidence and applications together here.</p>${workspaceLocation()}<form data-form="workspace-settings"><input type="checkbox" name="setup_complete" checked hidden><button>Save</button></form></section>`;
 }
 function workspacePanel() {
   if (state._hosted) return `<section><h2>Private cloud workspace</h2><p>Your data belongs to your signed-in account. Local-folder watching and custom LaTeX compilation are available in the local edition.</p></section>`;
   const w=state._workspace;
-  return `<section><h2>Workspace files</h2><p>${esc(w.path)}</p><form data-form="workspace-settings">${field('Workspace name', 'label', w.label)}${field('Master resume path within this workspace', 'master', w.master)}${field('Timezone for version dates', 'timezone', w.timezone)}${field('Destination priorities, comma separated', 'preferred_locations', w.preferred_locations.join(', '))}${check('Use my trusted LaTeX master layout (requires an installed compiler)', 'master_template', w.master_template)}<button>Save workspace settings</button></form>${otherWorkspace()}</section>`;
+  return `<section><h2>Workspace files</h2>${workspaceLocation()}<form data-form="workspace-settings">${field('Master resume path within this workspace', 'master', w.master)}${field('Timezone for version dates', 'timezone', w.timezone)}${field('Destination priorities, comma separated', 'preferred_locations', w.preferred_locations.join(', '))}${check('Use my trusted LaTeX master layout (requires an installed compiler)', 'master_template', w.master_template)}<button>Save</button></form></section>`;
 }
 function masterPanel() {
   const m=state._master;
@@ -291,9 +291,21 @@ document.addEventListener("click", async (e) => {
   if (!b.dataset.action) return;
   e.preventDefault();
   b.disabled = true;
+  const originalLabel = b.textContent;
   try {
     const action = b.dataset.action,
       id = b.dataset.id;
+    if (action === 'workspace-browse') {
+      b.textContent = 'Choose a folder…';
+      notice('Choose a workspace folder in the folder window.');
+      const result = await api(action, {});
+      if (result.cancelled) {
+        notice('Folder selection cancelled.');
+      } else {
+        location.reload();
+      }
+      return;
+    }
     if (action === "edit-job") {
       const job = state.jobs.find((j) => j.id === id);
       const form = document.querySelector("form[data-form=job]");
@@ -364,6 +376,10 @@ document.addEventListener("click", async (e) => {
     notice(err.message, true);
   } finally {
     b.disabled = false;
+    if (b.dataset.action === 'workspace-browse') {
+      b.textContent = originalLabel;
+      b.focus({preventScroll: true});
+    }
   }
 });
 document.addEventListener("submit", async (e) => {

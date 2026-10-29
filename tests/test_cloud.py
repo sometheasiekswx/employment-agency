@@ -68,7 +68,7 @@ class CloudTests(unittest.TestCase):
 
     def test_hosted_rejects_local_and_paid_actions(self):
         b=Backend()
-        for action in ('workspace-open','agent-package','consent','run','adopt-edits'):
+        for action in ('workspace-open','workspace-browse','agent-package','consent','run','adopt-edits'):
             with self.assertRaises(CloudError): execute(b,OWNER,action,{})
         with self.assertRaises(CloudError): execute(b,OWNER,'workspace-settings',{'master_template':True})
         self.assertEqual(b.rows,{})

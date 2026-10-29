@@ -12,7 +12,7 @@
   function element(tag, cls, text) { const e=document.createElement(tag); if(cls)e.className=cls; if(text)e.textContent=text; return e; }
   function enhance() {
     if (typeof state === 'undefined' || !state || !state._workspace?.setup_complete) return;
-    const label=state._workspace.label || 'My career workspace';
+    const label=state._hosted ? 'Private cloud workspace' : 'Local workspace';
     document.querySelector('.rail-caption').textContent=label;
     const priority=state._workspace.preferred_locations?.[0] || '';
     const placeOrder=c=>{const i=(state._workspace.preferred_locations||[]).indexOf(c);return i<0?1000:i;};

@@ -287,3 +287,7 @@ button[aria-pressed="true"] { outline:2px solid currentColor; outline-offset:2px
   .editor-columns iframe { height:calc(100% - 48px); min-height:240px; }
 }
 .document-editor > header { position:sticky; top:-24px; z-index:1; background:#fafbf8; padding-bottom:12px; }
+.workspace-location { display:flex; align-items:center; gap:24px; flex-wrap:wrap; margin:20px 0 12px; }
+.workspace-location p { flex:1 1 240px; min-width:0; margin:0; overflow-wrap:anywhere; }
+.workspace-location strong { display:inline-block; margin-bottom:6px; }
+.workspace-location button { flex-shrink:0; }

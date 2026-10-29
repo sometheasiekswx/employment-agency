@@ -9,6 +9,13 @@ from employment_agency.store import Workspace
 
 
 class Boundaries(unittest.TestCase):
+    def setUp(self):
+        config = tempfile.TemporaryDirectory()
+        self.addCleanup(config.cleanup)
+        environment = patch.dict('os.environ', {'EA_CONFIG_HOME': config.name})
+        environment.start()
+        self.addCleanup(environment.stop)
+
     def test_jsonld_import(self):
         html = (
             '<script type="application/ld+json">'

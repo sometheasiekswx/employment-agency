@@ -32,7 +32,7 @@ py -3 -m venv .venv
 .venv\Scripts\python -m employment_agency serve
 ```
 
-Open **http://127.0.0.1:8766** and choose **Use this workspace**. Source installations use `employment-agency/workspace/`, excluded from Git. The app remembers your selection. **Use another folder** is available during setup and under Settings; it is optional. Installed packages outside a source checkout default to `~/EmploymentAgency/workspace`. For an external workspace:
+Open **http://127.0.0.1:8766**. Setup shows the **Workspace location**; choose **Save** to use it, or **Open Folder** to select another location using your computer's folder window. Open Folder is also available under Settings. Select an existing career workspace or an empty folder to start a new one; other files are never imported or moved automatically. Cancel keeps the current workspace. The app remembers your selection. Source installations default to `employment-agency/workspace/`, excluded from Git; installed packages outside a source checkout default to `~/EmploymentAgency/workspace`. Linux needs Zenity or KDialog for the folder window. The hosted edition uses your cloud account and has no local folder picker. You can also select a workspace from the command line:
 
 ```sh
 employment-agency --workspace /path/to/private-workspace serve --port 8766

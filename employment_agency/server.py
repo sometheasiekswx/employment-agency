@@ -10,6 +10,7 @@ from urllib.parse import urlsplit, unquote, quote
 from .store import Workspace, encode, digest
 from .service import Service
 from .workspaces import inside, remember, configure
+from .folders import choose_folder
 from . import packages, history
 
 
@@ -17,6 +18,7 @@ def server(service, port=8766):
     token = secrets.token_urlsafe(32)
     static = Path(__file__).parent / 'static'
     gate = threading.RLock()
+    picker = threading.Lock()
 
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, *args):
@@ -97,13 +99,13 @@ def server(service, port=8766):
 
         def do_POST(self):
             nonlocal service, token
-            with gate:
-                origin = 'http://127.0.0.1:' + str(self.server.server_port)
-                if not self.allowed() or self.headers.get('Origin') != origin or not secrets.compare_digest(self.headers.get('X-Workspace-Token', ''), token):
-                    return self.send(403, encode({'error': 'Workspace changed, or request origin/token rejected. Reload before continuing.'}))
-                if self.headers.get('Content-Type') != 'application/json':
-                    return self.send(415, b'{}')
-                try:
+            try:
+                with gate:
+                    origin = 'http://127.0.0.1:' + str(self.server.server_port)
+                    if not self.allowed() or self.headers.get('Origin') != origin or not secrets.compare_digest(self.headers.get('X-Workspace-Token', ''), token):
+                        return self.send(403, encode({'error': 'Workspace changed, or request origin/token rejected. Reload before continuing.'}))
+                    if self.headers.get('Content-Type') != 'application/json':
+                        return self.send(415, b'{}')
                     length = int(self.headers.get('Content-Length', '0'))
                     if not 0 < length <= 15 * 1024 * 1024:
                         raise ValueError('Request size exceeds limit')
@@ -111,39 +113,63 @@ def server(service, port=8766):
                     if not self.path.startswith('/api/') or not isinstance(data, dict):
                         return self.send(404, b'{}')
                     action = self.path[5:]
-                    if action in ('workspace-open', 'workspace-create'):
-                        if service.worker and service.worker.is_alive():
-                            raise ValueError('Wait for or cancel the active run before switching workspaces')
-                        target = Path(data['path']).expanduser().resolve()
-                        if target == service.w.path:
-                            configure(target, {'setup_complete': True})
-                        else:
-                            if action == 'workspace-open' and not (target / 'state.json').is_file():
-                                raise ValueError('Choose an existing career workspace; use Create for a new folder')
-                            if action == 'workspace-create' and target.exists() and any(target.iterdir()):
-                                raise ValueError('Create requires an empty or new folder')
-                            replacement = Workspace(target)
-                            try:
-                                if replacement.read()['schema'] != 2:
-                                    raise ValueError('Migrate this older workspace using the CLI before opening it')
-                                configure(target, {'setup_complete': True})
-                            except Exception:
-                                replacement.close()
-                                raise
-                            previous = service.w
-                            service = Service(replacement)
-                            self.server.active_service = service
-                            previous.close()
-                        remember(target)
-                        token = secrets.token_urlsafe(32)
-                        result = {'path': str(target), 'reload': True}
-                    else:
-                        result = service.action(action, data)
-                    self.send(200, encode({'result': result}))
-                except (ValueError, KeyError, TypeError, OverflowError, OSError) as exc:
-                    self.send(400, encode({'error': str(exc)}))
-                except Exception:
-                    self.send(500, encode({'error': 'Operation failed; no remote response or credentials logged'}))
+                    if action != 'workspace-browse':
+                        return self.mutate(action, data)
+                    self.check_run()
+                    if not picker.acquire(blocking=False):
+                        raise ValueError('A folder chooser is already open. Choose a folder or cancel it first.')
+                    previous_token = token
+                # A native dialog can wait for the user without blocking state reads.
+                try:
+                    target = choose_folder()
+                    with gate:
+                        if previous_token != token:
+                            raise ValueError('Workspace changed while choosing a folder. Reload and try again.')
+                        if target is None:
+                            return self.send(200, encode({'result': {'cancelled': True}}))
+                        action = 'workspace-open' if (target / 'state.json').is_file() else 'workspace-create'
+                        return self.mutate(action, {'path': str(target)})
+                finally:
+                    picker.release()
+            except (ValueError, KeyError, TypeError, OverflowError, OSError) as exc:
+                self.send(400, encode({'error': str(exc)}))
+            except Exception:
+                self.send(500, encode({'error': 'Operation failed; no remote response or credentials logged'}))
+
+        def check_run(self):
+            if service.worker and service.worker.is_alive():
+                raise ValueError('Wait for or cancel the active run before switching workspaces')
+
+        def mutate(self, action, data):
+            nonlocal service, token
+            if action in ('workspace-open', 'workspace-create'):
+                self.check_run()
+                target = Path(data['path']).expanduser().resolve()
+                if target == service.w.path:
+                    configure(target, {'setup_complete': True})
+                else:
+                    if action == 'workspace-open' and not (target / 'state.json').is_file():
+                        raise ValueError('Choose an existing career workspace, or an empty folder to create one.')
+                    if action == 'workspace-create' and target.exists() and any(target.iterdir()):
+                        raise ValueError('This folder has files but no career workspace. Choose an existing workspace or an empty folder.')
+                    replacement = Workspace(target)
+                    try:
+                        if replacement.read()['schema'] != 2:
+                            raise ValueError('Migrate this older workspace using the CLI before opening it')
+                        configure(target, {'setup_complete': True})
+                    except Exception:
+                        replacement.close()
+                        raise
+                    previous = service.w
+                    service = Service(replacement)
+                    self.server.active_service = service
+                    previous.close()
+                remember(target)
+                token = secrets.token_urlsafe(32)
+                result = {'path': str(target), 'reload': True}
+            else:
+                result = service.action(action, data)
+            self.send(200, encode({'result': result}))
 
     class Server(ThreadingHTTPServer):
         def server_close(self):

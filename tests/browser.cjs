@@ -13,7 +13,7 @@ const fs = require("node:fs");
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto(process.env.TEST_URL || "http://127.0.0.1:8767");
-  await page.getByRole('button', {name: 'Use this workspace', exact: true}).click();
+  await page.getByRole('button', {name: 'Save', exact: true}).click();
   await page.getByRole('button', {name: 'Career evidence'}).click();
   await page.getByRole("heading", { name: "Your details" }).waitFor();
   await page.getByLabel("Name", { exact: true }).fill("Alex Morgan");
