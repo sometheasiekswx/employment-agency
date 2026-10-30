@@ -17,14 +17,14 @@ The streaming wall loses task clarity: keep its focus discipline, never hide met
 
 ## Direction contract
 
-THESIS: A career review workspace with fewer repeated instructions. The role, documents and decision remain the work; brand colour supplies identity rather than decorative dashboards.
+THESIS: Evidence and document decisions lead; application chrome recedes.
 
-OWN-WORLD: User-pinned Sky Blue #0593C6 header and primary controls, White #FCFFFF work surfaces, selective Hot Pink #D83995 active marks and a document action. Dark labels preserve contrast; darker tonal text variants are functional pairings, not replacements for the brand. System typography and the existing briefcase identity remain.
+OWN-WORLD: User-pinned Apple/Jira familiarity: white header/canvas, black text, small Sky Blue #0593C6 accents for selection/focus/tags. Green marks reviewed/confirmed, red rejection/destruction; Submitted control remains neutral and its status tag blue. No Hot Pink or saturated brand fields. Apple Design overrides Impeccable, then compatible Taste/polish/motion advice.
 
-STORY: Filter real job records, inspect evidence and exact documents, record a deliberate review. The demo is explicitly fictional and never selects personal data.
+STORY: Filter actual job records, inspect evidence and documents, record a deliberate decision. The expanded fictional demo retains its career and original jobs, adding Boston/San Francisco search coverage and a sourced San Francisco role.
 
-FIRST VIEWPORT: Compact blue navigation bar, one noun title, a concise filter toolbar and document/review work areas. Remove subtitles, repeated instructions and footer slogans. On phones, retain labelled bottom navigation and single-column records. Demo identity remains visible.
+FIRST VIEWPORT: Quiet white header with black labelled navigation, noun title, compact filters, readable evidence and neutral decision area. Selected navigation uses a subtle neutral field and small blue icon. Semantic decision buttons use restrained red/green tints. Phones retain labelled bottom navigation and full-width fictional identity marker.
 
-FORM: Brand-led restyle of the confirmed document catalogue, preserving existing topology and seed:cace81ecd6e58497; user palette overrides the prior neutral materials. Taste contributes no-sidebar compact grouping; its achromatic colour budget conflicts with the brief and is declined. Motion uses the existing stable-target spring; keyboard/reduced-motion/touch remain static.
+FORM: Code-led refinement of the existing topology and seed:cace81ecd6e58497. No new composition tournament: the user explicitly pinned Apple and Jira. Taste contributes restrained accent usage; its greeting/metrics arrangement is unnecessary here. Existing stable-target proximity spring remains interruptible; keyboard/reduced-motion/coarse pointers stay static. No new motion library or decorative entrance.
 
-FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
+FINISH: Independent finish review, current DESIGN.md and token sidecar, browser-capture provenance, refreshed GIF, passing relevant tests, and observed delivery state.

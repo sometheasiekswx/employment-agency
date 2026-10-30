@@ -157,6 +157,7 @@ export function CareerPage() {
               <div className="actions">
                 {!fact.confirmed && !fact.conflict && (
                   <Action
+                    className="positive"
                     run={async () => {
                       await run("confirm", { id: fact.id });
                     }}
@@ -165,6 +166,7 @@ export function CareerPage() {
                   </Action>
                 )}
                 <Action
+                  className="danger"
                   run={async () => {
                     await run("retire", { id: fact.id });
                   }}

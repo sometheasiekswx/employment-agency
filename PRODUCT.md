@@ -26,7 +26,7 @@ The owner explicitly confirmed product/workflow preservation for this redesign. 
 
 ## Brand Commitments
 
-Keep the Employment Agency name and truthful review-first language. The owner requested React Bits and Apple-inspired design, and confirmed a calm workspace with clearer hierarchy, compact navigation and restrained motion. The confirmed palette is Sky Blue #0593C6 and White #FCFFFF, with Hot Pink #D83995 accents and accessible text pairings. Public demonstrations use explicitly fictional experience with verified, dated real-job snapshots. No fabricated career claims, metrics, qualifications or customer evidence.
+Keep the Employment Agency name and truthful review-first language. The owner requested React Bits and Apple-inspired design, and confirmed a calm workspace with clearer hierarchy, compact navigation and restrained motion. The owner replaced the saturated palette with white chrome and canvas, black text and restrained Sky Blue #0593C6 accents. Apple Design leads; Impeccable supports it. Red means rejection/destruction; green means reviewed/confirmation. Submitted controls stay neutral with a sky-blue status tag. Hot Pink is no longer an interface accent. Public demonstrations use explicitly fictional experience with verified, dated real-job snapshots. No fabricated career claims, metrics, qualifications or customer evidence.
 
 ## Evidence on Hand
 

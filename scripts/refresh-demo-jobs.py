@@ -24,12 +24,12 @@ for board, employer in [('mongodb', 'MongoDB'), ('datadog', 'Datadog')]:
         title, location = listing['title'].strip(), listing['location']['name']
         if not ('software engineer' in title.lower() and 'intern' not in title.lower()):
             continue
-        if not any(city in location.lower() for city in ['new york', 'new jersey', 'princeton', 'toronto']):
+        if not any(city in location.lower() for city in ['new york', 'new jersey', 'princeton', 'toronto', 'boston', 'san francisco']):
             continue
         detail = fetch(f'{url}/{listing["id"]}')
         text = unescape(re.sub('<[^>]+>', ' ', unescape(detail.get('content', ''))))
         keywords = [k for k in KEYWORDS if re.search(r'\b' + re.escape(k) + r'\b', text, re.I)]
-        jobs.append({'title': title, 'employer': employer, 'location': location,
+        jobs.append({'city': {3851935: 'Boston', 8189170: 'San Francisco'}.get(listing['id'], ''), 'title': title, 'employer': employer, 'location': location,
                      'url': listing['absolute_url'], 'source': url, 'checked_at': CHECKED,
                      'posted_at': detail.get('first_published', ''), 'availability': 'retrieved',
                      'eligibility': 'unknown', 'requirements': keywords[:5],

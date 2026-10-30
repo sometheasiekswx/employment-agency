@@ -64,7 +64,7 @@ finally:
 print('Installed wheel: routes/assets, document generation and submitted export/restore PASS')
 from employment_agency.demo import create, open_existing
 example = create(Path('demo-workspace'))
-assert example['demo'] and example['applications'] == 10 and example['jobs'] == 13
+assert example['demo'] and example['applications'] == 12 and example['jobs'] == 14
 assert open_existing(Path('demo-workspace'))['demo']
 print('Installed wheel: offline demo data and document generation PASS')
 '''

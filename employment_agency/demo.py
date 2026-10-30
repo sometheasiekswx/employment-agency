@@ -28,10 +28,10 @@ def create(destination):
         workspace = DemoWorkspace(stage)
         try:
             configure(stage, {'demo': True, 'label': 'Demo · Alex Morgan', 'setup_complete': True,
-                              'timezone': 'America/New_York', 'preferred_locations': ['New York', 'New Jersey', 'Princeton', 'Toronto']})
+                              'timezone': 'America/New_York', 'preferred_locations': ['New York', 'New Jersey', 'Princeton', 'Toronto', 'Boston', 'San Francisco']})
             service = Service(workspace)
             service.action('identity', {'name': 'Alex Morgan', 'email': 'alex.morgan@example.test',
-                                       'location': 'New York, NY · Open to NYC metro and Canada', 'languages': 'English, French'})
+                                       'location': 'New York, NY · Open to US cities and Canada', 'languages': 'English, French'})
             source = (DATA / 'resume.txt').read_bytes()
             service.action('import', {'name': 'demo-resume.txt', 'data': base64.b64encode(source).decode(), 'use_as_master': True})
             proposal = service.action('master-propose', {})
@@ -52,13 +52,15 @@ def create(destination):
                 else:
                     service.action('retire', {'id': fact['id']})
             profiles = []
-            for name, locations in [('NYC metro', ['New York', 'New Jersey', 'Princeton']), ('Canada', ['Toronto']), ('All destinations', ['New York', 'New Jersey', 'Princeton', 'Toronto'])]:
+            for name, locations in [('NYC metro', ['New York', 'New Jersey', 'Princeton']), ('Canada', ['Toronto']), ('All destinations', ['New York', 'New Jersey', 'Princeton', 'Toronto', 'Boston', 'San Francisco'])]:
                 profiles.append(service.action('profile', {'name': name, 'roles': ['Engineer'], 'locations': locations,
                     'hard': ['roles', 'locations'], 'include_unknown': True, 'include_stretch': True, 'template': 'plain'}))
             snapshot = json.loads((DATA / 'jobs.json').read_text())
             for index, raw in enumerate(snapshot['jobs']):
-                job = service.action('job', raw)
-                if index < 10:
+                # For selected multi-office examples, choose one advertised office.
+                # The snapshot and description retain the employer's full location list.
+                job = service.action('job', {**raw, 'location': raw.get('city') or raw['location']})
+                if index < 10 or raw.get('city') in ('Boston', 'San Francisco'):
                     application = service.action('local-package', {'job_id': job['id'], 'profile_id': profiles[-1]['id']})
                     if index % 3 == 0:
                         service.action('review', {'id': application['id'], 'status': 'reviewed', 'comment': 'Demo review: inspect the role requirements and eligibility before applying.'})

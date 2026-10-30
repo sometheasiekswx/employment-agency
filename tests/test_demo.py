@@ -30,11 +30,13 @@ class DemoContracts(unittest.TestCase):
     def test_demo_is_populated_offline_and_does_not_select_or_write_global_permissions(self):
         with patch('urllib.request.urlopen', side_effect=AssertionError('Demo must be offline')):
             result = demo.create(self.root / 'example')
-        self.assertEqual(result['applications'], 10)
+        self.assertEqual(result['applications'], 12)
         self.assertGreaterEqual(result['facts'], 12)
         state = json.loads((self.root / 'example/state.json').read_text())
-        self.assertEqual(len(state['jobs']), 13)
+        self.assertEqual(len(state['jobs']), 14)
         self.assertEqual(len(state['profiles']), 3)
+        self.assertTrue({'Boston', 'San Francisco'}.issubset(state['profiles'][-1]['locations']))
+        self.assertTrue({'Boston', 'San Francisco'}.issubset({job['location'] for job in state['jobs']}))
         self.assertFalse(any(a['status'] == 'submitted' for a in state['applications']))
         for application in state['applications']:
             self.assertEqual(packages.changed(self.root / 'example', application), [])

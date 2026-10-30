@@ -57,7 +57,7 @@ export function SettingsPage() {
             }}
           >
             <Field label="Type DELETE" name="confirmation" />
-            <button>Delete account and data</button>
+            <button className="danger">Delete account and data</button>
           </Form>
         </section>
       ) : (

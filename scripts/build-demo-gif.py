@@ -17,7 +17,7 @@ with Image.open(root / manifest['frames'][0]['file']) as image:
     image.save(root / 'docs/preview.png')
 (root / 'docs/evidence').mkdir(exist_ok=True)
 with Image.open(root / 'output/demo-frames/mobile.png') as image:
-    image.save(root / 'docs/evidence/0.5-mobile.png')
+    image.save(root / 'docs/evidence/0.6-mobile.png')
 with Image.open(root / manifest['frames'][0]['file']) as image:
-    image.save(root / 'docs/evidence/0.5-desktop.png')
+    image.save(root / 'docs/evidence/0.6-desktop.png')
 print('GIF bytes:', (root / 'docs/demo.gif').stat().st_size, 'Frames:', len(frames))

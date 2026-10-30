@@ -22,7 +22,7 @@
 
 A local-first application workspace. Import a resume, confirm your experience, define search profiles, compare jobs and prepare PDF/Word documents. Review every version and record your own decisions. **Nothing is submitted or emailed by the app.**
 
-The walkthrough uses **Alex Morgan, a fictional engineer**: 15 sample facts, three search profiles, 13 real employer-board job snapshots and 10 generated packages. The listings include New York, New Jersey/Princeton and Toronto; they are dated examples, not a live availability guarantee. No private resume is used.
+The walkthrough uses **Alex Morgan, a fictional engineer**: 15 sample facts, three search profiles, 14 real employer-board job snapshots and 12 generated packages. The listings include New York, New Jersey/Princeton, Boston, San Francisco and Toronto; they are dated examples, not a live availability guarantee. No private resume is used.
 
 ## Quickstart
 
@@ -32,7 +32,7 @@ macOS / Linux:
 
 ```sh
 python3 -m venv .venv
-.venv/bin/python -m pip install https://github.com/sometheasiekswx/employment-agency/releases/download/v0.5.0/employment_agency_local-0.5.0-py3-none-any.whl
+.venv/bin/python -m pip install https://github.com/sometheasiekswx/employment-agency/releases/download/v0.6.0/employment_agency_local-0.6.0-py3-none-any.whl
 .venv/bin/python -m employment_agency serve
 ```
 
@@ -40,7 +40,7 @@ Windows PowerShell:
 
 ```powershell
 py -3 -m venv .venv
-.venv\Scripts\python -m pip install https://github.com/sometheasiekswx/employment-agency/releases/download/v0.5.0/employment_agency_local-0.5.0-py3-none-any.whl
+.venv\Scripts\python -m pip install https://github.com/sometheasiekswx/employment-agency/releases/download/v0.6.0/employment_agency_local-0.6.0-py3-none-any.whl
 .venv\Scripts\python -m employment_agency serve
 ```
 

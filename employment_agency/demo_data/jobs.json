@@ -1,14 +1,15 @@
 {
   "notice": "Real employer-board snapshots; availability can change. No employer endorsement. Candidate and decisions are fictional.",
-  "checked_at": "2026-10-30T17:16:40.595724+00:00",
+  "checked_at": "2026-10-30T21:22:09.972386+00:00",
   "jobs": [
     {
+      "city": "",
       "title": "Senior Software Engineer",
       "employer": "MongoDB",
       "location": "New York City",
       "url": "https://www.mongodb.com/careers/job/?gh_jid=8300359",
       "source": "https://boards-api.greenhouse.io/v1/boards/mongodb/jobs",
-      "checked_at": "2026-10-30T17:16:40.595724+00:00",
+      "checked_at": "2026-10-30T21:22:09.972386+00:00",
       "posted_at": "2026-10-20T12:01:42-04:00",
       "availability": "retrieved",
       "eligibility": "unknown",
@@ -21,12 +22,13 @@
       "description": "Senior Software Engineer at MongoDB. Offices listed: New York City. Technical topics in the employer posting: Java, Go, AWS, distributed systems. Consult the source for the full scope and current requirements."
     },
     {
+      "city": "",
       "title": "Senior Software Engineer, Deployments",
       "employer": "MongoDB",
       "location": "Toronto",
       "url": "https://www.mongodb.com/careers/job/?gh_jid=7727913",
       "source": "https://boards-api.greenhouse.io/v1/boards/mongodb/jobs",
-      "checked_at": "2026-10-30T17:16:40.595724+00:00",
+      "checked_at": "2026-10-30T21:22:09.972386+00:00",
       "posted_at": "2026-06-17T17:51:19-04:00",
       "availability": "retrieved",
       "eligibility": "unknown",
@@ -40,12 +42,13 @@
       "description": "Senior Software Engineer, Deployments at MongoDB. Offices listed: Toronto. Technical topics in the employer posting: Python, Go, AWS, Kubernetes, distributed systems. Consult the source for the full scope and current requirements."
     },
     {
+      "city": "",
       "title": "Senior Software Engineer, Deployments",
       "employer": "MongoDB",
       "location": "Boston; Miami; New Jersey; New York City; Princeton; Raleigh; Washington DC",
       "url": "https://www.mongodb.com/careers/job/?gh_jid=7727910",
       "source": "https://boards-api.greenhouse.io/v1/boards/mongodb/jobs",
-      "checked_at": "2026-10-30T17:16:40.595724+00:00",
+      "checked_at": "2026-10-30T21:22:09.972386+00:00",
       "posted_at": "2026-06-17T17:51:18-04:00",
       "availability": "retrieved",
       "eligibility": "unknown",
@@ -59,12 +62,13 @@
       "description": "Senior Software Engineer, Deployments at MongoDB. Offices listed: Boston; Miami; New Jersey; New York City; Princeton; Raleigh; Washington DC. Technical topics in the employer posting: Python, Go, AWS, Kubernetes, distributed systems. Consult the source for the full scope and current requirements."
     },
     {
+      "city": "",
       "title": "Senior Software Engineer, Identity & Access Management (FedRamp)",
       "employer": "MongoDB",
       "location": "Austin; Boston; Chicago; New York City; Palo Alto; Philadelphia; San Francisco",
       "url": "https://www.mongodb.com/careers/job/?gh_jid=8140620",
       "source": "https://boards-api.greenhouse.io/v1/boards/mongodb/jobs",
-      "checked_at": "2026-10-30T17:16:40.595724+00:00",
+      "checked_at": "2026-10-30T21:22:09.972386+00:00",
       "posted_at": "2026-09-15T14:54:29-04:00",
       "availability": "retrieved",
       "eligibility": "unknown",
@@ -78,12 +82,13 @@
       "description": "Senior Software Engineer, Identity & Access Management (FedRamp) at MongoDB. Offices listed: Austin; Boston; Chicago; New York City; Palo Alto; Philadelphia; San Francisco. Technical topics in the employer posting: Java, Go, React, TypeScript, AWS. Consult the source for the full scope and current requirements."
     },
     {
+      "city": "",
       "title": "Senior Software Engineer, Identity & Access Management (FedRAMP)",
       "employer": "MongoDB",
       "location": "New York City",
       "url": "https://www.mongodb.com/careers/job/?gh_jid=8140617",
       "source": "https://boards-api.greenhouse.io/v1/boards/mongodb/jobs",
-      "checked_at": "2026-10-30T17:16:40.595724+00:00",
+      "checked_at": "2026-10-30T21:22:09.972386+00:00",
       "posted_at": "2026-08-21T10:53:50-04:00",
       "availability": "retrieved",
       "eligibility": "unknown",
@@ -97,12 +102,13 @@
       "description": "Senior Software Engineer, Identity & Access Management (FedRAMP) at MongoDB. Offices listed: New York City. Technical topics in the employer posting: Java, Go, React, TypeScript, AWS. Consult the source for the full scope and current requirements."
     },
     {
+      "city": "",
       "title": "Senior Software Engineer, Query Optimization",
       "employer": "MongoDB",
       "location": "Austin; New York City; United States",
       "url": "https://www.mongodb.com/careers/job/?gh_jid=7870876",
       "source": "https://boards-api.greenhouse.io/v1/boards/mongodb/jobs",
-      "checked_at": "2026-10-30T17:16:40.595724+00:00",
+      "checked_at": "2026-10-30T21:22:09.972386+00:00",
       "posted_at": "2026-08-07T11:00:03-04:00",
       "availability": "retrieved",
       "eligibility": "unknown",
@@ -114,12 +120,13 @@
       "description": "Senior Software Engineer, Query Optimization at MongoDB. Offices listed: Austin; New York City; United States. Technical topics in the employer posting: AWS, distributed systems, databases. Consult the source for the full scope and current requirements."
     },
     {
+      "city": "",
       "title": "Senior Software Engineer (SRE), Infrastructure Security",
       "employer": "MongoDB",
       "location": "Austin; New York City; United States",
       "url": "https://www.mongodb.com/careers/job/?gh_jid=8274765",
       "source": "https://boards-api.greenhouse.io/v1/boards/mongodb/jobs",
-      "checked_at": "2026-10-30T17:16:40.595724+00:00",
+      "checked_at": "2026-10-30T21:22:09.972386+00:00",
       "posted_at": "2026-10-12T14:32:12-04:00",
       "availability": "retrieved",
       "eligibility": "unknown",
@@ -133,12 +140,13 @@
       "description": "Senior Software Engineer (SRE), Infrastructure Security at MongoDB. Offices listed: Austin; New York City; United States. Technical topics in the employer posting: Python, Go, AWS, Kubernetes, distributed systems. Consult the source for the full scope and current requirements."
     },
     {
+      "city": "",
       "title": "Senior Software Engineer, Storage Layer Services",
       "employer": "MongoDB",
       "location": "New York City; United States",
       "url": "https://www.mongodb.com/careers/job/?gh_jid=7947560",
       "source": "https://boards-api.greenhouse.io/v1/boards/mongodb/jobs",
-      "checked_at": "2026-10-30T17:16:40.595724+00:00",
+      "checked_at": "2026-10-30T21:22:09.972386+00:00",
       "posted_at": "2026-06-17T13:21:16-04:00",
       "availability": "retrieved",
       "eligibility": "unknown",
@@ -152,12 +160,13 @@
       "description": "Senior Software Engineer, Storage Layer Services at MongoDB. Offices listed: New York City; United States. Technical topics in the employer posting: Go, AWS, Kubernetes, distributed systems, testing. Consult the source for the full scope and current requirements."
     },
     {
+      "city": "",
       "title": "Software Engineer 3, Atlas Clusters Platform",
       "employer": "MongoDB",
       "location": "New York City",
       "url": "https://www.mongodb.com/careers/job/?gh_jid=8089859",
       "source": "https://boards-api.greenhouse.io/v1/boards/mongodb/jobs",
-      "checked_at": "2026-10-30T17:16:40.595724+00:00",
+      "checked_at": "2026-10-30T21:22:09.972386+00:00",
       "posted_at": "2026-08-21T13:39:19-04:00",
       "availability": "retrieved",
       "eligibility": "unknown",
@@ -171,12 +180,13 @@
       "description": "Software Engineer 3, Atlas Clusters Platform at MongoDB. Offices listed: New York City. Technical topics in the employer posting: Java, Go, React, TypeScript, AWS, Kubernetes. Consult the source for the full scope and current requirements."
     },
     {
+      "city": "",
       "title": "Software Engineer 3, Identity and Access Management",
       "employer": "MongoDB",
       "location": "Toronto",
       "url": "https://www.mongodb.com/careers/job/?gh_jid=8313374",
       "source": "https://boards-api.greenhouse.io/v1/boards/mongodb/jobs",
-      "checked_at": "2026-10-30T17:16:40.595724+00:00",
+      "checked_at": "2026-10-30T21:22:09.972386+00:00",
       "posted_at": "2026-10-27T15:42:29-04:00",
       "availability": "retrieved",
       "eligibility": "unknown",
@@ -190,12 +200,13 @@
       "description": "Software Engineer 3, Identity and Access Management at MongoDB. Offices listed: Toronto. Technical topics in the employer posting: Java, Go, React, TypeScript, AWS. Consult the source for the full scope and current requirements."
     },
     {
+      "city": "Boston",
       "title": "Senior Software Engineer",
       "employer": "Datadog",
       "location": "Boston, Massachusetts, USA; New York, New York, USA",
       "url": "https://careers.datadoghq.com/detail/3851935/?gh_jid=3851935",
       "source": "https://boards-api.greenhouse.io/v1/boards/datadog/jobs",
-      "checked_at": "2026-10-30T17:16:40.595724+00:00",
+      "checked_at": "2026-10-30T21:22:09.972386+00:00",
       "posted_at": "2022-08-03T14:42:00-04:00",
       "availability": "retrieved",
       "eligibility": "unknown",
@@ -206,12 +217,13 @@
       "description": "Senior Software Engineer at Datadog. Offices listed: Boston, Massachusetts, USA; New York, New York, USA. Technical topics in the employer posting: Python, Go. Consult the source for the full scope and current requirements."
     },
     {
+      "city": "",
       "title": "Senior Software Engineer - Distributed Systems",
       "employer": "Datadog",
       "location": "Boston, Massachusetts, USA; New York, New York, USA",
       "url": "https://careers.datadoghq.com/detail/3851927/?gh_jid=3851927",
       "source": "https://boards-api.greenhouse.io/v1/boards/datadog/jobs",
-      "checked_at": "2026-10-30T17:16:40.595724+00:00",
+      "checked_at": "2026-10-30T21:22:09.972386+00:00",
       "posted_at": "2022-01-27T20:39:32-05:00",
       "availability": "retrieved",
       "eligibility": "unknown",
@@ -223,12 +235,13 @@
       "description": "Senior Software Engineer - Distributed Systems at Datadog. Offices listed: Boston, Massachusetts, USA; New York, New York, USA. Technical topics in the employer posting: Java, Go, distributed systems. Consult the source for the full scope and current requirements."
     },
     {
+      "city": "",
       "title": "Staff Software Engineer - Frontend",
       "employer": "Datadog",
       "location": "New York, New York, USA",
       "url": "https://careers.datadoghq.com/detail/8202699/?gh_jid=8202699",
       "source": "https://boards-api.greenhouse.io/v1/boards/datadog/jobs",
-      "checked_at": "2026-10-30T17:16:40.595724+00:00",
+      "checked_at": "2026-10-30T21:22:09.972386+00:00",
       "posted_at": "2026-09-15T09:09:58-04:00",
       "availability": "retrieved",
       "eligibility": "unknown",
@@ -237,6 +250,24 @@
         "testing"
       ],
       "description": "Staff Software Engineer - Frontend at Datadog. Offices listed: New York, New York, USA. Technical topics in the employer posting: React, testing. Consult the source for the full scope and current requirements."
+    },
+    {
+      "city": "San Francisco",
+      "title": "Senior Software Engineer, Atlas Clusters Security",
+      "employer": "MongoDB",
+      "location": "Austin; Chicago; Dallas; Denver; Nashville; Palo Alto; Portland; San Francisco; Seattle; United States",
+      "url": "https://www.mongodb.com/careers/job/?gh_jid=8189170",
+      "source": "https://boards-api.greenhouse.io/v1/boards/mongodb/jobs",
+      "checked_at": "2026-10-30T21:22:09.972386+00:00",
+      "posted_at": "2026-10-06T13:41:39-04:00",
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "requirements": [
+        "Java",
+        "Go",
+        "AWS"
+      ],
+      "description": "Senior Software Engineer, Atlas Clusters Security at MongoDB. Offices listed: Austin; Chicago; Dallas; Denver; Nashville; Palo Alto; Portland; San Francisco; Seattle; United States. Technical topics in the employer posting: Java, Go, AWS. Consult the source for the full scope and current requirements."
     }
   ]
 }

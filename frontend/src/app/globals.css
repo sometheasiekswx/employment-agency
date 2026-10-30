@@ -1,14 +1,17 @@
 :root {
   color-scheme: light;
-  --ink: #102d3b;
-  --muted: #4c6571;
-  --line: #cbe3ec;
-  --paper: #fcffff;
-  --surface: #fcffff;
+  --ink: #171717;
+  --muted: #555555;
+  --line: #dedee3;
+  --paper: #ffffff;
+  --surface: #ffffff;
   --accent: #0593c6;
-  --on-brand: #071018;
-  --pink: #d83995;
-  --pink-ink: #9f216a;
+  --secondary: #f2f2f4;
+  --secondary-hover: #e7e7eb;
+  --positive-bg: #e6f3eb;
+  --positive-ink: #17613b;
+  --negative-bg: #fcecef;
+  --negative-ink: #a32130;
   --link: #076385;
   --accent-soft: #e5f6fc;
   --error: #b42332;
@@ -58,8 +61,8 @@ button,
   padding: 0.625rem 1rem;
   border: 1px solid transparent;
   border-radius: 9px;
-  background: var(--accent);
-  color: var(--on-brand);
+  background: var(--secondary);
+  color: var(--ink);
   font-size: 0.8125rem;
   font-weight: 600;
   line-height: 1.4;
@@ -72,8 +75,8 @@ button,
 }
 button:hover,
 .button:hover {
-  background: #35a7d0;
-  color: var(--on-brand);
+  background: var(--secondary-hover);
+  color: var(--ink);
 }
 button:active,
 .button:active {
@@ -96,7 +99,7 @@ button:disabled,
   transform: none;
 }
 :focus-visible {
-  outline: 3px solid #9f216a;
+  outline: 3px solid var(--link);
   outline-offset: 3px;
 }
 main:focus {
@@ -254,12 +257,12 @@ details details {
   line-height: 1.5;
 }
 .pill[data-status="submitted"] {
-  background: #e6f3eb;
-  color: #1b6541;
+  background: var(--accent-soft);
+  color: var(--link);
 }
 .pill[data-status="reviewed"] {
-  background: var(--accent-soft);
-  color: #076385;
+  background: var(--positive-bg);
+  color: var(--positive-ink);
 }
 .pill[data-status="rejected"] {
   background: #fcecef;
@@ -311,8 +314,8 @@ details details {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  background: var(--accent);
-  color: var(--on-brand);
+  background: var(--surface);
+  color: var(--ink);
   backdrop-filter: none;
   box-shadow: 0 1px 0 rgb(30 37 55 / 9%);
 }
@@ -332,8 +335,8 @@ details details {
   width: 2.25rem;
   height: 2.25rem;
   border-radius: 10px;
-  background: var(--accent);
-  color: var(--on-brand);
+  background: transparent;
+  color: var(--ink);
 }
 .brand-mark svg {
   width: 1.25rem;
@@ -377,8 +380,8 @@ details details {
   color: var(--ink);
 }
 .dock-item[aria-current="page"] {
-  background: var(--accent-soft);
-  color: #076385;
+  background: var(--secondary);
+  color: var(--ink);
 }
 .dock-icon {
   display: inline-flex;
@@ -503,8 +506,8 @@ details details {
   font-weight: 500;
 }
 .destinations button[aria-pressed="true"] {
-  background: var(--accent-soft);
-  color: #076385;
+  background: var(--secondary);
+  color: var(--ink);
   border-color: #b9d4f4;
 }
 .destinations button:hover {
@@ -550,7 +553,7 @@ details details {
 .review-pane {
   min-width: 0;
   padding: 1.25rem 1.5rem;
-  background: #f1faff;
+  background: var(--surface);
   border-left: 1px solid var(--line);
 }
 .review-pane h3 {
@@ -567,13 +570,16 @@ details details {
   flex: 1 1 auto;
 }
 .review-pane button[name="status"][value="rejected"] {
-  background: #f3e9ec;
-  color: #9c2333;
+  background: var(--negative-bg);
+  color: var(--negative-ink);
 }
-.review-pane button[name="status"][value="reviewed"],
 .review-pane button:not([name]) {
   background: #e9ebf1;
   color: #363a44;
+}
+.review-pane button[name="status"][value="reviewed"] {
+  background: var(--positive-bg);
+  color: var(--positive-ink);
 }
 .review-pane button:hover {
   filter: brightness(0.94);
@@ -884,7 +890,7 @@ details details {
 @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
   .workspace-header,
   .dock-panel {
-    background: #f1faff;
+    background: var(--surface);
     backdrop-filter: none;
   }
 }
@@ -956,103 +962,31 @@ h3 {
   overflow-wrap: anywhere;
 }
 
-html {
-  -webkit-font-smoothing: antialiased;
-}
-p,
-li {
-  text-wrap: pretty;
-}
-.workspace-header .brand,
-.workspace-header .workspace-mode {
-  color: var(--on-brand);
-}
-.brand-mark {
-  background: var(--surface);
-  color: var(--link);
-}
-.dock-item {
-  color: var(--on-brand);
-}
-.dock-item:hover {
-  background: #d7f2fc;
-  color: var(--on-brand);
-}
-.dock-item[aria-current="page"] {
-  background: var(--surface);
-  color: var(--ink);
-}
-.dock-item[aria-current="page"] .dock-icon {
-  color: var(--pink);
-}
+html { -webkit-font-smoothing: antialiased; }
+p, li { text-wrap: pretty; }
 .demo-label {
   padding: 0.3rem 0.6rem;
   border-radius: 6px;
-  background: var(--surface);
-  color: var(--ink);
+  background: var(--secondary);
+  color: var(--muted);
   font-size: 0.75rem;
   white-space: nowrap;
 }
-.segmented-control button,
-.result-count,
-.application-details {
+.segmented-control button, .result-count, .application-details {
   font-variant-numeric: tabular-nums;
 }
 .segmented-control button[aria-pressed="true"] {
-  box-shadow: inset 0 -2px var(--pink);
-}
-.dossier .actions .button:first-child {
-  background: var(--pink);
-  color: var(--on-brand);
-}
-.dossier .actions .button:first-child:hover {
-  background: #e763b0;
-}
-.page-heading {
-  padding: 1.75rem 0 1rem;
-}
-.page-heading h1 {
-  margin: 0;
-  font-size: 1.75rem;
-}
-#notice {
-  color: #285a45;
-}
-@media (max-width: 700px) {
-  .dock-panel {
-    background: var(--surface);
-    backdrop-filter: none;
-  }
-  .dock-item {
-    color: var(--ink);
-  }
-  .dock-item[aria-current="page"] {
-    background: var(--accent-soft);
-  }
-  .dock-short-label {
-    font-size: 0.6875rem;
-  }
-  .demo-label {
-    order: 3;
-    width: 100%;
-    text-align: center;
-  }
-}
-@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
-  .workspace-header {
-    background: var(--accent);
-  }
-  .dock-panel {
-    background: var(--surface);
-  }
-}
-
-@media (max-width: 700px) {
-  .dock-item:first-child {
-    flex-grow: 1.4;
-  }
-}
-.segmented-control button[aria-pressed="true"] {
   box-shadow: none;
-  border-bottom: 2px solid var(--pink);
+  border-bottom: 2px solid var(--accent);
+}
+.dock-item[aria-current="page"] .dock-icon { color: var(--link); }
+button.positive { background: var(--positive-bg); color: var(--positive-ink); }
+button.positive:hover { background: #d8eddf; }
+button.danger { background: var(--negative-bg); color: var(--negative-ink); }
+button.danger:hover { background: #f9dce0; }
+@media (max-width: 700px) {
+  .dock-panel { background: var(--surface); backdrop-filter: none; }
+  .dock-short-label { font-size: 0.6875rem; }
+  .dock-item:first-child { flex-grow: 1.4; }
+  .demo-label { order: 3; width: 100%; text-align: center; }
 }

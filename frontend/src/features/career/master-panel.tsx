@@ -77,7 +77,7 @@ export function MasterPanel() {
               name="confirmed"
               label="I reviewed these master changes and confirm the proposed facts"
             />
-            <button>Confirm master updates</button>
+            <button className="positive">Confirm master updates</button>
           </Form>
         </details>
       )}

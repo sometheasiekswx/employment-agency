@@ -45,9 +45,11 @@ const fs = require('node:fs');
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto(url);
     await page.getByRole('heading', { name: 'Software Engineer', exact: true }).waitFor();
-    assert.equal(await page.locator('.workspace-header').evaluate(node => getComputedStyle(node).backgroundColor), 'rgb(5, 147, 198)');
-    assert.equal(await page.locator('body').evaluate(node => getComputedStyle(node).backgroundColor), 'rgb(252, 255, 255)');
-    assert.equal(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--pink').trim()), '#d83995');
+    assert.equal(await page.locator('.workspace-header').evaluate(node => getComputedStyle(node).backgroundColor), 'rgb(255, 255, 255)');
+    assert.equal(await page.locator('body').evaluate(node => getComputedStyle(node).backgroundColor), 'rgb(255, 255, 255)');
+    assert.equal(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()), '#0593c6');
+    assert.equal(await page.locator('.review-pane button[value=reviewed]').evaluate(n => getComputedStyle(n).color), 'rgb(23, 97, 59)');
+    assert.equal(await page.locator('.review-pane button[value=rejected]').evaluate(n => getComputedStyle(n).color), 'rgb(163, 33, 48)');
     assert.equal(await page.locator('.privacy-note, .workspace-footer').count(), 0, 'Repeated slogans stay removed');
     await page.screenshot({ path: '.impeccable/review/desktop.png' });
     // The proximity spring must never shift a link's actual hit target.

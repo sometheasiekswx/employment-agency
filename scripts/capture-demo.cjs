@@ -11,8 +11,8 @@ const fs = require('node:fs');
     const state = (await (await page.request.get(url + '/api/state')).json()).state;
     assert.equal(state._workspace.demo, true);
     assert.equal(state.identity.email, 'alex.morgan@example.test');
-    assert.equal(state.jobs.length, 13);
-    assert.equal(state.applications.length, 10);
+    assert.equal(state.jobs.length, 14);
+    assert.equal(state.applications.length, 12);
     const errors = []; page.on('pageerror', error => errors.push(error.message));
     const directory = 'output/demo-frames'; fs.mkdirSync(directory, { recursive: true });
     const frames = [];
@@ -29,6 +29,12 @@ const fs = require('node:fs');
     await page.getByRole('button', { name: 'Toronto', exact: true }).click();
     await page.locator('article').first().waitFor();
     await capture('canada', 1800);
+    for (const city of ['Boston', 'San Francisco']) {
+      await page.getByRole('button', { name: city, exact: true }).click();
+      await page.locator('article').first().waitFor();
+      await capture(city.toLowerCase().replaceAll(' ', '-'), 1800);
+    }
+    await page.getByRole('button', { name: 'Toronto', exact: true }).click();
     await page.getByRole('button', { name: 'View / edit CV', exact: true }).first().click();
     const dialog = page.getByRole('dialog'); await dialog.waitFor();
     await dialog.locator('iframe').waitFor();

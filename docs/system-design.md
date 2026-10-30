@@ -1,6 +1,6 @@
 # Employment Agency system design
 
-Source baseline: version 0.5.0, reviewed 31 October 2026. This document describes the implemented local application and hosted pilot. Deployment configuration and live acceptance are separate from source behavior; see [hosted pilot status](hosted-pilot.md), [startup verification](startup-verification.md) and [0.4 redesign verification](redesign-0.4.md).
+Source baseline: version 0.6.0, reviewed 31 October 2026. This document describes the implemented local application and hosted pilot. Deployment configuration and live acceptance are separate from source behavior; see [hosted pilot status](hosted-pilot.md), [startup verification](startup-verification.md) and [0.4 redesign verification](redesign-0.4.md).
 
 ## Purpose and invariants
 
