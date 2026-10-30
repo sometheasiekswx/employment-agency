@@ -29,3 +29,53 @@ The shared app owns all UI/rendering/history code. Read the selected workspace's
 Use `master-propose` to inspect detected source changes and `master-accept` only after the user confirms the displayed updates (`sha256` and `confirmed: true`). Supplementary facts remain independent. `adopt-edits` validates user-edited documents as a new draft and restores the previously verified version. Preserve unknown historical submission/file associations; migration does not invent them. CLI `migrate-legacy SOURCE DESTINATION` requires the source server to be stopped and preserves source files.
 
 Credentials and scoped permissions are machine-local; do not put them in workspace configuration or state. Export/restore includes master sources, research, organised versions, durable decisions and verified recovery objects. Keep generated files and all real career data out of public software commits.
+
+## Copyable CLI cookbook
+
+Use the interpreter/environment where the app is installed. Commands below assume the software source folder and macOS/Linux `.venv`; on Windows use `.venv\Scripts\python`. Replace paths and returned IDs. The `--workspace` option goes **before** the command.
+
+```sh
+.venv/bin/python -m employment_agency --workspace /absolute/path/to/workspace state
+.venv/bin/python -m employment_agency --workspace /absolute/path/to/workspace action rank --input rank.json
+```
+
+`rank.json`:
+
+```json
+{"profile_id":"ID_FROM_STATE"}
+```
+
+Prepare one new version after the user's review of the shortlist:
+
+```sh
+.venv/bin/python -m employment_agency --workspace /absolute/path/to/workspace action local-package --input prepare.json
+```
+
+`prepare.json`:
+
+```json
+{"profile_id":"ID_FROM_STATE","job_id":"ID_FROM_STATE"}
+```
+
+These operations use the same validators as the UI. `local-package` means the app's built-in fact selection and rendering; it needs no model service. It generates a new draft, not a submission. `examples/workflow.json` contains separate sample payloads—do not submit the whole example object as one operation.
+
+### When the local server is running
+
+A CLI process cannot also lock the same workspace. Stop the server first before CLI operations. Alternatively, an authorized browser agent can use the live UI or its protected same-origin API: read `GET /api/state` for the current state/token, then POST a JSON object to `/api/OPERATION` with the exact loopback Origin and `X-Workspace-Token`. Re-read after an explicit workspace change. Never bypass host/origin/token checks or proxy a local instance publicly. Hosted API access instead requires the signed-in account's bearer session and allowed origin.
+
+### Research prompt
+
+```text
+Use the selected Employment Agency search profile to research at most five suitable jobs.
+Check my existing jobs and decisions first so you do not repeat applications.
+Use employer sources where possible. Retain each URL, checked date, location and requirements.
+Distinguish advertised facts from inferred fit. Leave salary, sponsorship and work rights unknown
+unless supported. Show evidence, gaps and a ranked shortlist before preparing anything.
+Do not click Apply, submit forms, contact employers, pay, or upload my documents.
+```
+
+### Optional OpenAI selection
+
+OpenAI mode selects confirmed fact IDs; it is not required for normal use. In Settings, grant the stated disclosure categories/purpose, then supply `OPENAI_API_KEY` only in the launcher environment. Select the model, enter current input/output rates and approve a per-run budget. Never put the key in state, Git, a prompt example or a public issue. Reservations use user-supplied rates and are not provider billing guarantees; uncertain requests are not automatically retried. Tests and the demo make no paid calls.
+
+A coding agent's own access to files/tools is separate from the app's provider consent. Copyable prompts are operating guidance, not permission to send or submit applications. Agent availability/model setup belongs to the user's chosen tool; Employment Agency does not install Claude, Codex or a third-party agent.

@@ -26,11 +26,11 @@ The owner explicitly confirmed product/workflow preservation for this redesign. 
 
 ## Brand Commitments
 
-Keep the Employment Agency name and truthful review-first language. The owner requested React Bits and Apple-inspired design, and confirmed a calm workspace with clearer hierarchy, compact navigation and restrained motion. No fabricated career claims, metrics, qualifications or customer evidence.
+Keep the Employment Agency name and truthful review-first language. The owner requested React Bits and Apple-inspired design, and confirmed a calm workspace with clearer hierarchy, compact navigation and restrained motion. The confirmed palette is Sky Blue #0593C6 and White #FCFFFF, with Hot Pink #D83995 accents and accessible text pairings. Public demonstrations use explicitly fictional experience with verified, dated real-job snapshots. No fabricated career claims, metrics, qualifications or customer evidence.
 
 ## Evidence on Hand
 
-Existing Python, frontend and browser acceptance suites; fictional browser fixtures; documented local/hosted boundaries and systems design. Only fictional data belongs in screenshots, tests and public documentation. Live cloud acceptance is distinct from fake-provider test results.
+Existing Python, frontend and browser acceptance suites; fictional browser fixtures; documented local/hosted boundaries and systems design. Public demos use marked fictional candidate records and sourced public job metadata. Real private career data never belongs in screenshots, tests or public documentation. Live cloud acceptance is distinct from fake-provider test results.
 
 ## Product Principles
 

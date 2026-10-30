@@ -62,6 +62,11 @@ try:
 finally:
     workspace.close()
 print('Installed wheel: routes/assets, document generation and submitted export/restore PASS')
+from employment_agency.demo import create, open_existing
+example = create(Path('demo-workspace'))
+assert example['demo'] and example['applications'] == 10 and example['jobs'] == 13
+assert open_existing(Path('demo-workspace'))['demo']
+print('Installed wheel: offline demo data and document generation PASS')
 '''
 
 
@@ -74,6 +79,8 @@ if __name__ == '__main__':
         for route in ['', 'career/', 'search/', 'settings/', 'history/']:
             assert 'employment_agency/web/' + route + 'index.html' in names
         assert 'employment_agency/web/fonts/OFL.txt' in names
+        assert 'employment_agency/demo_data/resume.txt' in names
+        assert 'employment_agency/demo_data/jobs.json' in names
         assert not any(name.startswith('employment_agency/static/') for name in names), 'Legacy frontend must not remain in the wheel'
         assert not any(name.endswith(('/state.json', '/workspace.json')) for name in names)
     with tempfile.TemporaryDirectory(prefix='ea-wheel-proof-') as temp:

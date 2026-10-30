@@ -1,6 +1,6 @@
 # Employment Agency system design
 
-Source baseline: version 0.4.0, reviewed 31 October 2026. This document describes the implemented local application and hosted pilot. Deployment configuration and live acceptance are separate from source behavior; see [hosted pilot status](hosted-pilot.md), [startup verification](startup-verification.md) and [0.4 redesign verification](redesign-0.4.md).
+Source baseline: version 0.5.0, reviewed 31 October 2026. This document describes the implemented local application and hosted pilot. Deployment configuration and live acceptance are separate from source behavior; see [hosted pilot status](hosted-pilot.md), [startup verification](startup-verification.md) and [0.4 redesign verification](redesign-0.4.md).
 
 ## Purpose and invariants
 
@@ -33,7 +33,7 @@ React owns rendering and browser interactions. Next.js generates HTML, JavaScrip
 
 Python serves those static files and the API from the same origin. Returning the built HTML from Python is normal: Python is the web server, while React is the interactive UI. Developers author JSX/TSX components instead of manually assembling quoted HTML. The local server uses `ThreadingHTTPServer`; the hosted adapter uses Flask/WSGI. Both invoke the same `Service` and document engine.
 
-Version 0.4 uses system typography and a labelled React Bits Dock adaptation over the same state/API layer. Motion handles the small interruptible navigation spring; touch and reduced-motion modes stay static. The local HTTP listener permits a backlog of 64 to accommodate parallel static asset requests on older Python versions. See `DESIGN.md` for the implemented visual system.
+The interface uses system typography and a labelled React Bits Dock adaptation over the same state/API layer. Motion handles the small interruptible navigation spring; touch and reduced-motion modes stay static. The local HTTP listener permits a backlog of 64 to accommodate parallel static asset requests on older Python versions. See `DESIGN.md` for the implemented visual system.
 
 The build requires Python 3.11+, Node 24+ and npm. `setup.py` rejects packaging without the frontend and clears stale Python build output before copying the package. Generated web assets are ignored in Git and rebuilt for distribution. Frontend dependencies are locked in `frontend/package-lock.json`; Python dependencies have version ranges in `pyproject.toml` and are resolved at installation, so different install dates can resolve different compatible versions.
 
@@ -222,3 +222,7 @@ Python tests cover business workflows, storage/recovery, imports, matching, cons
 To add a feature, first define its shared `Service` validation and persistence behavior, then expose it through the allowed adapter(s), update the typed API/view model, and add UI to its feature folder. Preserve schema and document versions or provide explicit migration. To add a source, reuse the bounded public-source fetcher. To change rendering, keep package validation and immutable version publication in the path.
 
 A local database is a future option if measurements show that whole-state reads, serialized writes or JSON relationship validation are limiting. SQLite could add transactional metadata and indexes while retaining canonical documents on disk; adopting it would require versioned migration, portable backup compatibility and restored-copy acceptance. A multi-user hosted service would likely need normalized metadata, incremental document objects and durable jobs instead of whole ZIP snapshots. Neither migration is implemented or required to run the current single-user local app.
+
+## Isolated demonstrations
+
+The local `demo` command creates a new marked workspace using the same import, master reconciliation, fact confirmation, profile, job, package and review operations. It reads bundled fictional resume data and public job snapshots offline. Creation is staged; existing destinations are refused. `--open` validates demo/config/state markers before opening a store. `--serve` isolates application configuration beneath the demo runtime folder, preserving the remembered personal workspace. Demo consent is never granted, real submissions are never seeded, and snapshot availability is dated rather than guaranteed. The extra optional `demo` settings flag defaults to false for existing schema-1 settings; career state remains schema 2. See [demo sources and reproduction](demo.md).

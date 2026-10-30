@@ -17,14 +17,14 @@ The streaming wall loses task clarity: keep its focus discipline, never hide met
 
 ## Direction contract
 
-THESIS: A document workspace that makes the next review action obvious. Remove the oversized marketing heading and metric; preserve all evidence and version context.
+THESIS: A career review workspace with fewer repeated instructions. The role, documents and decision remain the work; brand colour supplies identity rather than decorative dashboards.
 
-OWN-WORLD: Daytime laptop use: cool near-white canvas, graphite text, white work surfaces, one blue action accent. System typography, precise labels, grouped native controls, translucent functional navigation. Lucide icons. No decorative backgrounds.
+OWN-WORLD: User-pinned Sky Blue #0593C6 header and primary controls, White #FCFFFF work surfaces, selective Hot Pink #D83995 active marks and a document action. Dark labels preserve contrast; darker tonal text variants are functional pairings, not replacements for the brand. System typography and the existing briefcase identity remain.
 
-STORY: Locate the current task, scan the job and evidence, open exact files, then record a deliberate decision. Career, search, history and recovery remain one step away.
+STORY: Filter real job records, inspect evidence and exact documents, record a deliberate review. The demo is explicitly fictional and never selects personal data.
 
-FIRST VIEWPORT: A compact top application bar contains identity, five labelled navigation links and local/cloud status. A 32px title and plain purpose line sit above the queue toolbar. A segmented status filter precedes document records. Documents and evidence lead; comments/decisions form a coherent review area. At 320px, labelled navigation moves to a bottom dock and content stays single-column with room above the dock.
+FIRST VIEWPORT: Compact blue navigation bar, one noun title, a concise filter toolbar and document/review work areas. Remove subtitles, repeated instructions and footer slogans. On phones, retain labelled bottom navigation and single-column records. Demo identity remains visible.
 
-FORM: Collection catalogue, candidate 4, translated through the user's Apple-inspired brief. seed:cace81ecd6e58497. Signature: React Bits Dock's proximity spring follows pointer movement without moving the navigation hit targets; reduced-motion and coarse-pointer modes remain static.
+FORM: Brand-led restyle of the confirmed document catalogue, preserving existing topology and seed:cace81ecd6e58497; user palette overrides the prior neutral materials. Taste contributes no-sidebar compact grouping; its achromatic colour budget conflicts with the brief and is declined. Motion uses the existing stable-target spring; keyboard/reduced-motion/touch remain static.
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance

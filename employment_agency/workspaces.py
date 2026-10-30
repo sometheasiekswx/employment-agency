@@ -50,7 +50,7 @@ def inside(root, relative):
 
 
 DEFAULTS = {'schema': 1, 'label': 'My career workspace', 'master': 'master/main.tex',
-            'master_template': False, 'timezone': 'UTC', 'preferred_locations': [],
+            'demo': False, 'master_template': False, 'timezone': 'UTC', 'preferred_locations': [],
             'location_aliases': {}, 'supplementary_skills': [], 'setup_complete': False,
             'resume_pages': 2, 'cover_letter_pages': 1}
 
@@ -73,7 +73,7 @@ def configure(root, changes):
     if set(changes) - allowed:
         raise ValueError('Unknown workspace setting')
     result.update(changes)
-    if not isinstance(result['master_template'], bool) or not isinstance(result['setup_complete'], bool):
+    if any(not isinstance(result[key], bool) for key in ('master_template', 'setup_complete', 'demo')):
         raise ValueError('Expected boolean workspace settings')
     for key in ('label', 'master', 'timezone'):
         if not isinstance(result[key], str) or len(result[key]) > 500:

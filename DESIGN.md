@@ -1,33 +1,37 @@
 ---
 name: Employment Agency
-description: Calm document review with compact native controls.
+description: Calm document review with Sky Blue identity and compact native controls.
 colors:
-  ink: "#202126"
-  muted: "#62656d"
-  line: "#dedfe4"
-  paper: "#f5f5f7"
-  surface: "#ffffff"
-  accent: "#0063c7"
-  accent-soft: "#eaf2ff"
-  accent-hover: "#004f9f"
+  ink: "#102d3b"
+  muted: "#4c6571"
+  line: "#cbe3ec"
+  paper: "#fcffff"
+  surface: "#fcffff"
+  accent: "#0593c6"
+  on-brand: "#071018"
+  pink: "#d83995"
+  link: "#076385"
+  accent-soft: "#e5f6fc"
+  accent-hover: "#35a7d0"
+  pink-hover: "#e763b0"
   error: "#b42332"
   warning: "#805000"
   secondary: "#f0f0f3"
   secondary-hover: "#e4e5eb"
   field-border: "#aeb1bb"
-  focus: "#006bdb"
+  focus: "#9f216a"
   status-neutral: "#eceef2"
   status-text: "#4c5059"
   submitted-bg: "#e6f3eb"
   submitted-text: "#1b6541"
-  reviewed-text: "#0052a6"
+  reviewed-text: "#076385"
   rejected-bg: "#fcecef"
   rejected-text: "#a32130"
-  review-surface: "#fafafc"
+  review-surface: "#f1faff"
 typography:
   headline:
     fontFamily: "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif"
-    fontSize: "2rem"
+    fontSize: "1.75rem"
     fontWeight: 650
     lineHeight: 1.25
     letterSpacing: "-0.025em"
@@ -72,12 +76,20 @@ spacing:
 components:
   button-primary:
     backgroundColor: "{colors.accent}"
-    textColor: "{colors.surface}"
+    textColor: "{colors.on-brand}"
     typography: "{typography.label}"
     rounded: "{rounded.button}"
     padding: "0.625rem 1rem"
   button-primary-hover:
     backgroundColor: "{colors.accent-hover}"
+  button-document:
+    backgroundColor: "{colors.pink}"
+    textColor: "{colors.on-brand}"
+    typography: "{typography.label}"
+    rounded: "{rounded.button}"
+    padding: "0.625rem 1rem"
+  button-document-hover:
+    backgroundColor: "{colors.pink-hover}"
   button-secondary:
     backgroundColor: "{colors.secondary}"
     textColor: "{colors.ink}"
@@ -111,26 +123,30 @@ components:
 
 **Creative North Star: "The Calm Document Workspace"**
 
-A calm document workspace: cool near-white surroundings, graphite text and white work surfaces keep attention on evidence and the next review action. Native system typography and familiar grouped controls implement the confirmed Apple-inspired direction.
+A calm document workspace: a solid Sky Blue header gives the application a clear identity, while White work surfaces and dark blue ink keep attention on evidence and the next review action. Native system typography and familiar grouped controls preserve the confirmed Apple-inspired direction.
 
-Density comes from compact navigation and coherent document groups, with a separate tinted decision area. Translucency belongs to functional navigation; restrained motion responds to pointer proximity without moving link targets.
+Density comes from compact labelled navigation and coherent document groups, with a pale blue decision area. Hot Pink marks active icons, selected sections and the first downloadable document action. Restrained motion responds to pointer proximity without moving link targets.
 
 **Key Characteristics:**
 
-- Cool canvas and white document surfaces.
-- One blue action accent with semantic status colors.
+- White canvas and bordered document surfaces.
+- Sky Blue identity, selective Hot Pink accents and explicit semantic status colors.
 - Compact labelled navigation and persistent focus feedback.
 - Responsive document groups with readable evidence.
 
 ## Colors
 
-Cool neutrals support a single blue action accent; status colors carry explicit meaning.
+The confirmed Sky Blue, White and Hot Pink identity is paired with darker text variants; status colors carry explicit meaning.
 
 ### Primary
 
-- **Action Blue** (`accent`): primary buttons, links, brand mark and field accents.
-- **Selected Blue Wash** (`accent-soft`): active navigation and reviewed or selected states.
-- **Deep Action Blue** (`accent-hover`): primary hover feedback.
+- **Sky Blue** (`accent`): the solid header, primary buttons and field accents.
+- **Deep Sky Text** (`link`, `reviewed-text`): readable links, reviewed status and selected destination text.
+- **Brand Label Ink** (`on-brand`): dark text on Sky Blue and Hot Pink fills.
+- **Selected Sky Wash** (`accent-soft`): mobile selected navigation and reviewed or destination states.
+- **Light Sky Hover** (`accent-hover`): primary hover feedback.
+- **Hot Pink** (`pink`, `pink-hover`): active navigation icon, selected-section bottom border and first downloadable document action.
+- **Deep Pink Focus** (`focus`): visible keyboard outline.
 
 ### Secondary
 
@@ -140,13 +156,13 @@ Cool neutrals support a single blue action accent; status colors carry explicit 
 
 ### Neutral
 
-- **Graphite** (`ink`) and **Quiet Graphite** (`muted`): primary and supporting text.
-- **Cool Paper** (`paper`), **Document White** (`surface`) and **Review Tint** (`review-surface`): canvas, content and decision areas.
+- **Blue Ink** (`ink`) and **Quiet Blue Ink** (`muted`): primary and supporting text.
+- **White** (`paper`, `surface`) and **Review Sky Tint** (`review-surface`): canvas, content and decision areas.
 - **Hairline** (`line`) and **Field Stroke** (`field-border`): dividers and editable boundaries.
 - **Secondary Control** (`secondary`, `secondary-hover`): quieter actions.
 - **Neutral Status** (`status-neutral`, `status-text`): default badges and compact metadata.
 
-**The Action Blue Rule.** Use blue for actions, links and selected navigation; reserve green and red for explicit status or feedback.
+**The Brand Pairing Rule.** Keep Sky Blue and Hot Pink visible in their established roles; use dark labels on their filled surfaces and darker tonal variants for text on White. Reserve green and red for explicit status or feedback.
 
 ## Typography
 
@@ -156,34 +172,33 @@ Cool neutrals support a single blue action accent; status colors carry explicit 
 
 ### Hierarchy
 
-- **Headline:** page title; reduces to (1.75rem) below the compact breakpoint.
+- **Headline:** page title at the same compact size on desktop and mobile; general standalone h1 elements retain (2rem).
 - **Title:** section heading; application titles use (1.375rem), while review headings use (0.875rem).
 - **Body:** evidence and prose, with section paragraphs and fit summaries limited to (72ch); page descriptions use (65ch).
 - **Label:** button labels and disclosure controls; field labels use weight (500).
-- **Metadata:** supporting values and status badges. Navigation labels are (0.6875rem), reducing to (0.625rem) in the bottom dock.
+- **Metadata:** supporting values and status badges. Navigation labels are (0.6875rem), including the bottom dock. Counts and metadata use tabular numerals.
 
 **The Stable Target Rule.** Animate navigation icons while keeping their link targets and labels stable.
 
 ## Layout
 
-The centered work area has a maximum width of (82rem) and desktop side padding of (2.5rem). Panel spacing uses the frontmatter rhythm; repeated surfaces are separated by (1.25rem). The sticky top bar groups brand, five labelled links and workspace mode. Page headings have (2.5rem) top and (1.25rem) bottom spacing.
+The centered work area has a maximum width of (82rem) and desktop side padding of (2.5rem). Panel spacing uses the frontmatter rhythm; repeated surfaces are separated by (1.25rem). The sticky top bar groups brand, five labelled links and workspace mode. Page headings have (1.75rem) top and (1rem) bottom spacing. They use a noun title without repeated subtitles or footer slogans.
 
-Application records pair a flexible document column with a decision column of at least (16rem), at a ratio of (1fr / 0.48fr). Metadata uses an auto-fitting grid with a (9rem) minimum. At (1000px), two-column grids and application records stack, and side padding becomes (1.5rem). At (1200px), supporting shell labels disappear. At (700px), navigation becomes a fixed bottom dock, side padding becomes (1rem), and bottom content padding becomes (6.5rem), including room for the dock. The dock observes the bottom safe-area inset. Destination chips become a labelled select; segmented buttons retain a minimum height of (2.75rem).
+Application records pair a flexible document column with a decision column of at least (16rem), at a ratio of (1fr / 0.48fr). Metadata uses an auto-fitting grid with a (9rem) minimum. At (1000px), two-column grids and application records stack, and side padding becomes (1.5rem). At (1200px), supporting shell labels disappear. At (700px), navigation becomes a fixed bottom dock, side padding becomes (1rem), and bottom content padding becomes (6.5rem), including room for the dock. The dock observes the bottom safe-area inset; its Applications target receives a larger flex share for the longer label. A fictional-demo identity badge remains visible and occupies a full header row on phones. Destination chips become a labelled select; segmented buttons retain a minimum height of (2.75rem).
 
 The editor uses a (96vw) maximum width and (92dvh) height, with sticky actions and two content columns. Below (760px), its columns stack and the PDF preview uses (55vh).
 
 ## Elevation & Depth
 
-Document surfaces are flat white with fine borders. The header uses a translucent light material with blur (18px) and saturation (140%). Depth identifies functional layering rather than raising every card. Reduced-transparency and increased-contrast settings replace translucent navigation with an opaque surface; increased contrast strengthens muted text and dividers.
+Document surfaces are flat White with fine borders. The header is solid Sky Blue and the mobile dock is opaque White, both without backdrop blur. Depth identifies functional layering rather than raising every card. Increased contrast strengthens muted text and dividers; reduced-transparency settings retain the opaque brand materials.
 
 ### Shadow Vocabulary
 
 - **Header edge:** (`0 1px 0 rgb(30 37 55 / 9%)`), a subtle structural divider.
-- **Selected segment:** (`0 2px 5px rgb(30 37 55 / 12%)`), the raised selected control.
 - **Mobile dock:** (`0 4px 24px rgb(20 25 40 / 18%)`), separation from scrolling content.
 - **Editor:** (`0 24px 80px rgb(16 21 32 / 25%)`), modal elevation above a dimmed backdrop.
 
-**The Functional Depth Rule.** Keep document surfaces flat; use depth for selected controls, navigation and the document editor.
+**The Functional Depth Rule.** Keep document surfaces and selected segments flat; use depth for navigation separation and the document editor.
 
 ## Shapes
 
@@ -193,11 +208,11 @@ Soft rectangular geometry uses small badge corners, medium control corners and b
 
 ### Buttons
 
-Compact and deliberate. Primary actions use Action Blue and white text, with a minimum height of (2.75rem). Secondary actions use the neutral control fill. Hover darkens blue or strengthens the neutral fill; press scales to (0.98). Disabled actions use opacity (0.55). Review rejection uses a restrained red tint; review and comment actions use quieter neutral fills. Keyboard focus uses a (3px) blue outline with (3px) offset.
+Compact and deliberate. Primary actions use Sky Blue and dark brand-label text, with a minimum height of (2.75rem). The first downloadable document link in each document action group uses Hot Pink and dark text; editor actions remain neutral. Secondary actions use the neutral control fill. Hover lightens brand fills or strengthens the neutral fill; press scales to (0.96). Disabled actions use opacity (0.55). Review rejection uses a restrained red tint; review and comment actions use quieter neutral fills. Keyboard focus uses a (3px) deep pink outline with (3px) offset.
 
 ### Chips
 
-Neutral badges gain semantic submitted, reviewed or rejected colors. Destination filters are outlined buttons; selection uses a blue wash, darker blue text and a pale blue border. Status is expressed in text alongside color.
+Neutral badges gain semantic submitted, reviewed or rejected colors. Destination filters are outlined buttons; selection uses a blue wash, darker blue text and a pale blue border. Status is expressed in text alongside color. The selected queue section uses a White fill and a (2px) Hot Pink bottom border, without a shadow.
 
 ### Cards / Containers
 
@@ -209,7 +224,7 @@ White editable fields use a visible stroke and the shared field radius, with min
 
 ### Navigation
 
-Five Lucide icon-and-label links use neutral text by default, a neutral hover fill and blue selected state. Desktop links have minimum height (3.5rem), while mobile links use (3.125rem). The fixed mobile dock has its own rounded translucent surface. Keyboard navigation uses the same focus ring as controls.
+Five Lucide icon-and-label links use dark text over the Sky Blue header. Hover uses a light sky fill. Desktop selection uses White with a pink icon; mobile selection uses a sky wash with the same pink icon. Desktop links have minimum height (3.5rem), while mobile links use (3.125rem). The fixed mobile dock has its own rounded opaque White surface. Keyboard navigation uses the same focus ring as controls.
 
 ### Proximity Dock
 
@@ -219,10 +234,11 @@ The React Bits adaptation scales only its icon from (1) to (1.12) across a point
 
 ### Do:
 
-- **Do** use the shared ink, muted text, canvas, surface and blue action colors.
+- **Do** use the confirmed Sky Blue, White and Hot Pink identity with the shared dark text pairings.
 - **Do** keep labels visible on navigation, using the shorter labels on compact screens.
 - **Do** preserve the visible keyboard focus ring and static reduced-motion and coarse-pointer navigation.
 - **Do** group document content and decisions with clear borders and tonal separation.
+- **Do** preserve factual warnings and visible fictional-demo identity while removing repeated page instructions.
 
 ### Don't:
 

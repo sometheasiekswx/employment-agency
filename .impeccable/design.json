@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-30T16:18:40.475424+00:00",
+  "generatedAt": "2026-10-30T17:31:42.399251+00:00",
   "title": "Design System: Employment Agency",
   "extensions": {
     "colorMeta": {
@@ -8,112 +8,112 @@
         "role": "neutral",
         "displayName": "Ink",
         "tonalRamp": [
-          "oklch(15% 0.008 270)",
-          "oklch(26% 0.008 270)",
-          "oklch(38% 0.008 270)",
-          "oklch(49% 0.008 270)",
-          "oklch(61% 0.008 270)",
-          "oklch(72% 0.008 270)",
-          "oklch(84% 0.008 270)",
-          "oklch(95% 0.008 270)"
+          "oklch(15% 0.018 230)",
+          "oklch(26% 0.018 230)",
+          "oklch(38% 0.018 230)",
+          "oklch(49% 0.018 230)",
+          "oklch(61% 0.018 230)",
+          "oklch(72% 0.018 230)",
+          "oklch(84% 0.018 230)",
+          "oklch(95% 0.018 230)"
         ]
       },
       "muted": {
         "role": "neutral",
         "displayName": "Muted",
         "tonalRamp": [
-          "oklch(15% 0.008 270)",
-          "oklch(26% 0.008 270)",
-          "oklch(38% 0.008 270)",
-          "oklch(49% 0.008 270)",
-          "oklch(61% 0.008 270)",
-          "oklch(72% 0.008 270)",
-          "oklch(84% 0.008 270)",
-          "oklch(95% 0.008 270)"
+          "oklch(15% 0.018 230)",
+          "oklch(26% 0.018 230)",
+          "oklch(38% 0.018 230)",
+          "oklch(49% 0.018 230)",
+          "oklch(61% 0.018 230)",
+          "oklch(72% 0.018 230)",
+          "oklch(84% 0.018 230)",
+          "oklch(95% 0.018 230)"
         ]
       },
       "line": {
         "role": "neutral",
         "displayName": "Line",
         "tonalRamp": [
-          "oklch(15% 0.008 270)",
-          "oklch(26% 0.008 270)",
-          "oklch(38% 0.008 270)",
-          "oklch(49% 0.008 270)",
-          "oklch(61% 0.008 270)",
-          "oklch(72% 0.008 270)",
-          "oklch(84% 0.008 270)",
-          "oklch(95% 0.008 270)"
+          "oklch(15% 0.018 230)",
+          "oklch(26% 0.018 230)",
+          "oklch(38% 0.018 230)",
+          "oklch(49% 0.018 230)",
+          "oklch(61% 0.018 230)",
+          "oklch(72% 0.018 230)",
+          "oklch(84% 0.018 230)",
+          "oklch(95% 0.018 230)"
         ]
       },
       "paper": {
         "role": "neutral",
         "displayName": "Paper",
         "tonalRamp": [
-          "oklch(15% 0.008 270)",
-          "oklch(26% 0.008 270)",
-          "oklch(38% 0.008 270)",
-          "oklch(49% 0.008 270)",
-          "oklch(61% 0.008 270)",
-          "oklch(72% 0.008 270)",
-          "oklch(84% 0.008 270)",
-          "oklch(95% 0.008 270)"
+          "oklch(15% 0.018 230)",
+          "oklch(26% 0.018 230)",
+          "oklch(38% 0.018 230)",
+          "oklch(49% 0.018 230)",
+          "oklch(61% 0.018 230)",
+          "oklch(72% 0.018 230)",
+          "oklch(84% 0.018 230)",
+          "oklch(95% 0.018 230)"
         ]
       },
       "surface": {
         "role": "neutral",
-        "displayName": "Surface",
+        "displayName": "White",
         "tonalRamp": [
-          "oklch(15% 0.008 270)",
-          "oklch(26% 0.008 270)",
-          "oklch(38% 0.008 270)",
-          "oklch(49% 0.008 270)",
-          "oklch(61% 0.008 270)",
-          "oklch(72% 0.008 270)",
-          "oklch(84% 0.008 270)",
-          "oklch(95% 0.008 270)"
+          "oklch(15% 0.018 230)",
+          "oklch(26% 0.018 230)",
+          "oklch(38% 0.018 230)",
+          "oklch(49% 0.018 230)",
+          "oklch(61% 0.018 230)",
+          "oklch(72% 0.018 230)",
+          "oklch(84% 0.018 230)",
+          "oklch(95% 0.018 230)"
         ]
       },
       "accent": {
         "role": "primary",
-        "displayName": "Accent",
+        "displayName": "Sky Blue",
         "tonalRamp": [
-          "oklch(15% 0.12 255)",
-          "oklch(26% 0.12 255)",
-          "oklch(38% 0.12 255)",
-          "oklch(49% 0.12 255)",
-          "oklch(61% 0.12 255)",
-          "oklch(72% 0.12 255)",
-          "oklch(84% 0.12 255)",
-          "oklch(95% 0.12 255)"
+          "oklch(15% 0.11 230)",
+          "oklch(26% 0.11 230)",
+          "oklch(38% 0.11 230)",
+          "oklch(49% 0.11 230)",
+          "oklch(61% 0.11 230)",
+          "oklch(72% 0.11 230)",
+          "oklch(84% 0.11 230)",
+          "oklch(95% 0.11 230)"
         ]
       },
       "accent-soft": {
         "role": "primary",
         "displayName": "Accent Soft",
         "tonalRamp": [
-          "oklch(15% 0.12 255)",
-          "oklch(26% 0.12 255)",
-          "oklch(38% 0.12 255)",
-          "oklch(49% 0.12 255)",
-          "oklch(61% 0.12 255)",
-          "oklch(72% 0.12 255)",
-          "oklch(84% 0.12 255)",
-          "oklch(95% 0.12 255)"
+          "oklch(15% 0.11 230)",
+          "oklch(26% 0.11 230)",
+          "oklch(38% 0.11 230)",
+          "oklch(49% 0.11 230)",
+          "oklch(61% 0.11 230)",
+          "oklch(72% 0.11 230)",
+          "oklch(84% 0.11 230)",
+          "oklch(95% 0.11 230)"
         ]
       },
       "accent-hover": {
         "role": "primary",
         "displayName": "Accent Hover",
         "tonalRamp": [
-          "oklch(15% 0.12 255)",
-          "oklch(26% 0.12 255)",
-          "oklch(38% 0.12 255)",
-          "oklch(49% 0.12 255)",
-          "oklch(61% 0.12 255)",
-          "oklch(72% 0.12 255)",
-          "oklch(84% 0.12 255)",
-          "oklch(95% 0.12 255)"
+          "oklch(15% 0.11 230)",
+          "oklch(26% 0.11 230)",
+          "oklch(38% 0.11 230)",
+          "oklch(49% 0.11 230)",
+          "oklch(61% 0.11 230)",
+          "oklch(72% 0.11 230)",
+          "oklch(84% 0.11 230)",
+          "oklch(95% 0.11 230)"
         ]
       },
       "error": {
@@ -148,84 +148,84 @@
         "role": "neutral",
         "displayName": "Secondary",
         "tonalRamp": [
-          "oklch(15% 0.008 270)",
-          "oklch(26% 0.008 270)",
-          "oklch(38% 0.008 270)",
-          "oklch(49% 0.008 270)",
-          "oklch(61% 0.008 270)",
-          "oklch(72% 0.008 270)",
-          "oklch(84% 0.008 270)",
-          "oklch(95% 0.008 270)"
+          "oklch(15% 0.018 230)",
+          "oklch(26% 0.018 230)",
+          "oklch(38% 0.018 230)",
+          "oklch(49% 0.018 230)",
+          "oklch(61% 0.018 230)",
+          "oklch(72% 0.018 230)",
+          "oklch(84% 0.018 230)",
+          "oklch(95% 0.018 230)"
         ]
       },
       "secondary-hover": {
         "role": "neutral",
         "displayName": "Secondary Hover",
         "tonalRamp": [
-          "oklch(15% 0.008 270)",
-          "oklch(26% 0.008 270)",
-          "oklch(38% 0.008 270)",
-          "oklch(49% 0.008 270)",
-          "oklch(61% 0.008 270)",
-          "oklch(72% 0.008 270)",
-          "oklch(84% 0.008 270)",
-          "oklch(95% 0.008 270)"
+          "oklch(15% 0.018 230)",
+          "oklch(26% 0.018 230)",
+          "oklch(38% 0.018 230)",
+          "oklch(49% 0.018 230)",
+          "oklch(61% 0.018 230)",
+          "oklch(72% 0.018 230)",
+          "oklch(84% 0.018 230)",
+          "oklch(95% 0.018 230)"
         ]
       },
       "field-border": {
         "role": "neutral",
         "displayName": "Field Border",
         "tonalRamp": [
-          "oklch(15% 0.008 270)",
-          "oklch(26% 0.008 270)",
-          "oklch(38% 0.008 270)",
-          "oklch(49% 0.008 270)",
-          "oklch(61% 0.008 270)",
-          "oklch(72% 0.008 270)",
-          "oklch(84% 0.008 270)",
-          "oklch(95% 0.008 270)"
+          "oklch(15% 0.018 230)",
+          "oklch(26% 0.018 230)",
+          "oklch(38% 0.018 230)",
+          "oklch(49% 0.018 230)",
+          "oklch(61% 0.018 230)",
+          "oklch(72% 0.018 230)",
+          "oklch(84% 0.018 230)",
+          "oklch(95% 0.018 230)"
         ]
       },
       "focus": {
         "role": "primary",
         "displayName": "Focus",
         "tonalRamp": [
-          "oklch(15% 0.12 255)",
-          "oklch(26% 0.12 255)",
-          "oklch(38% 0.12 255)",
-          "oklch(49% 0.12 255)",
-          "oklch(61% 0.12 255)",
-          "oklch(72% 0.12 255)",
-          "oklch(84% 0.12 255)",
-          "oklch(95% 0.12 255)"
+          "oklch(15% 0.14 340)",
+          "oklch(26% 0.14 340)",
+          "oklch(38% 0.14 340)",
+          "oklch(49% 0.14 340)",
+          "oklch(61% 0.14 340)",
+          "oklch(72% 0.14 340)",
+          "oklch(84% 0.14 340)",
+          "oklch(95% 0.14 340)"
         ]
       },
       "status-neutral": {
         "role": "neutral",
         "displayName": "Status Neutral",
         "tonalRamp": [
-          "oklch(15% 0.008 270)",
-          "oklch(26% 0.008 270)",
-          "oklch(38% 0.008 270)",
-          "oklch(49% 0.008 270)",
-          "oklch(61% 0.008 270)",
-          "oklch(72% 0.008 270)",
-          "oklch(84% 0.008 270)",
-          "oklch(95% 0.008 270)"
+          "oklch(15% 0.018 230)",
+          "oklch(26% 0.018 230)",
+          "oklch(38% 0.018 230)",
+          "oklch(49% 0.018 230)",
+          "oklch(61% 0.018 230)",
+          "oklch(72% 0.018 230)",
+          "oklch(84% 0.018 230)",
+          "oklch(95% 0.018 230)"
         ]
       },
       "status-text": {
         "role": "neutral",
         "displayName": "Status Text",
         "tonalRamp": [
-          "oklch(15% 0.008 270)",
-          "oklch(26% 0.008 270)",
-          "oklch(38% 0.008 270)",
-          "oklch(49% 0.008 270)",
-          "oklch(61% 0.008 270)",
-          "oklch(72% 0.008 270)",
-          "oklch(84% 0.008 270)",
-          "oklch(95% 0.008 270)"
+          "oklch(15% 0.018 230)",
+          "oklch(26% 0.018 230)",
+          "oklch(38% 0.018 230)",
+          "oklch(49% 0.018 230)",
+          "oklch(61% 0.018 230)",
+          "oklch(72% 0.018 230)",
+          "oklch(84% 0.018 230)",
+          "oklch(95% 0.018 230)"
         ]
       },
       "submitted-bg": {
@@ -260,14 +260,14 @@
         "role": "primary",
         "displayName": "Reviewed Text",
         "tonalRamp": [
-          "oklch(15% 0.12 255)",
-          "oklch(26% 0.12 255)",
-          "oklch(38% 0.12 255)",
-          "oklch(49% 0.12 255)",
-          "oklch(61% 0.12 255)",
-          "oklch(72% 0.12 255)",
-          "oklch(84% 0.12 255)",
-          "oklch(95% 0.12 255)"
+          "oklch(15% 0.11 230)",
+          "oklch(26% 0.11 230)",
+          "oklch(38% 0.11 230)",
+          "oklch(49% 0.11 230)",
+          "oklch(61% 0.11 230)",
+          "oklch(72% 0.11 230)",
+          "oklch(84% 0.11 230)",
+          "oklch(95% 0.11 230)"
         ]
       },
       "rejected-bg": {
@@ -302,14 +302,70 @@
         "role": "neutral",
         "displayName": "Review Surface",
         "tonalRamp": [
-          "oklch(15% 0.008 270)",
-          "oklch(26% 0.008 270)",
-          "oklch(38% 0.008 270)",
-          "oklch(49% 0.008 270)",
-          "oklch(61% 0.008 270)",
-          "oklch(72% 0.008 270)",
-          "oklch(84% 0.008 270)",
-          "oklch(95% 0.008 270)"
+          "oklch(15% 0.018 230)",
+          "oklch(26% 0.018 230)",
+          "oklch(38% 0.018 230)",
+          "oklch(49% 0.018 230)",
+          "oklch(61% 0.018 230)",
+          "oklch(72% 0.018 230)",
+          "oklch(84% 0.018 230)",
+          "oklch(95% 0.018 230)"
+        ]
+      },
+      "on-brand": {
+        "role": "primary",
+        "displayName": "On Brand",
+        "tonalRamp": [
+          "oklch(15% 0.018 230)",
+          "oklch(26% 0.018 230)",
+          "oklch(38% 0.018 230)",
+          "oklch(49% 0.018 230)",
+          "oklch(61% 0.018 230)",
+          "oklch(72% 0.018 230)",
+          "oklch(84% 0.018 230)",
+          "oklch(95% 0.018 230)"
+        ]
+      },
+      "pink": {
+        "role": "primary",
+        "displayName": "Hot Pink",
+        "tonalRamp": [
+          "oklch(15% 0.14 340)",
+          "oklch(26% 0.14 340)",
+          "oklch(38% 0.14 340)",
+          "oklch(49% 0.14 340)",
+          "oklch(61% 0.14 340)",
+          "oklch(72% 0.14 340)",
+          "oklch(84% 0.14 340)",
+          "oklch(95% 0.14 340)"
+        ]
+      },
+      "link": {
+        "role": "primary",
+        "displayName": "Link",
+        "tonalRamp": [
+          "oklch(15% 0.11 230)",
+          "oklch(26% 0.11 230)",
+          "oklch(38% 0.11 230)",
+          "oklch(49% 0.11 230)",
+          "oklch(61% 0.11 230)",
+          "oklch(72% 0.11 230)",
+          "oklch(84% 0.11 230)",
+          "oklch(95% 0.11 230)"
+        ]
+      },
+      "pink-hover": {
+        "role": "primary",
+        "displayName": "Pink Hover",
+        "tonalRamp": [
+          "oklch(15% 0.14 340)",
+          "oklch(26% 0.14 340)",
+          "oklch(38% 0.14 340)",
+          "oklch(49% 0.14 340)",
+          "oklch(61% 0.14 340)",
+          "oklch(72% 0.14 340)",
+          "oklch(84% 0.14 340)",
+          "oklch(95% 0.14 340)"
         ]
       }
     },
@@ -340,11 +396,6 @@
         "name": "header-edge",
         "value": "0 1px 0 rgb(30 37 55 / 9%)",
         "purpose": "Sticky shell divider."
-      },
-      {
-        "name": "selected-segment",
-        "value": "0 2px 5px rgb(30 37 55 / 12%)",
-        "purpose": "Selected segmented control."
       },
       {
         "name": "mobile-dock",
@@ -390,12 +441,20 @@
   },
   "components": [
     {
-      "name": "Open CV button",
+      "name": "Primary action",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "Compact primary action.",
-      "html": "<button class=\"ds-button-primary\">Open CV</button>",
-      "css": ".ds-button-primary{font-family:-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif;display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:2.75rem;padding:.625rem 1rem;border:1px solid transparent;border-radius:9px;font-size:.8125rem;font-weight:600;line-height:1.4;cursor:pointer;transition:background-color 160ms ease-out,color 160ms ease-out;background:var(--accent);color:#fff;}.ds-button-primary:hover{background:#004f9f;}.ds-button-primary:focus-visible{outline:3px solid var(--focus, #006bdb);outline-offset:3px;}.ds-button-primary:active{transform:scale(.98);transition:none;}.ds-button-primary:disabled{opacity:.55;cursor:not-allowed;transform:none;}@media(prefers-reduced-motion:reduce){.ds-button-primary{transition:none;}.ds-button-primary:active{transform:none;}}"
+      "description": "Sky Blue action with dark readable labels.",
+      "html": "<button class=\"ds-button-primary\">Save changes</button>",
+      "css": ".ds-button-primary{font-family:-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif;display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:2.75rem;padding:.625rem 1rem;border:1px solid transparent;border-radius:9px;font-size:.8125rem;font-weight:600;line-height:1.4;cursor:pointer;transition:background-color 160ms ease-out,color 160ms ease-out;background:var(--accent);color:var(--on-brand);}.ds-button-primary:hover{background:#35a7d0;}.ds-button-primary:focus-visible{outline:3px solid var(--focus, #9f216a);outline-offset:3px;}.ds-button-primary:active{transform:scale(.96);transition:none;}.ds-button-primary:disabled{opacity:.55;cursor:not-allowed;transform:none;}@media(prefers-reduced-motion:reduce){.ds-button-primary{transition:none;}.ds-button-primary:active{transform:none;}}"
+    },
+    {
+      "name": "Download document",
+      "kind": "button",
+      "refersTo": "button-document",
+      "description": "First downloadable document action within the dossier document group.",
+      "html": "<a class=\"ds-button-document\" href=\"#document\">CV PDF</a>",
+      "css": ".ds-button-document{font-family:-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif;display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:2.75rem;padding:.625rem 1rem;border:1px solid transparent;border-radius:9px;font-size:.8125rem;font-weight:600;line-height:1.4;cursor:pointer;transition:background-color 160ms ease-out,color 160ms ease-out;background:var(--pink);color:var(--on-brand);}.ds-button-document:hover{background:#e763b0;}.ds-button-document:focus-visible{outline:3px solid var(--focus, #9f216a);outline-offset:3px;}.ds-button-document:active{transform:scale(.96);transition:none;}.ds-button-document:disabled{opacity:.55;cursor:not-allowed;transform:none;}@media(prefers-reduced-motion:reduce){.ds-button-document{transition:none;}.ds-button-document:active{transform:none;}}"
     },
     {
       "name": "Save comment button",
@@ -403,7 +462,7 @@
       "refersTo": "button-secondary",
       "description": "Compact secondary action.",
       "html": "<button class=\"ds-button-secondary\">Save comment</button>",
-      "css": ".ds-button-secondary{font-family:-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif;display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:2.75rem;padding:.625rem 1rem;border:1px solid transparent;border-radius:9px;font-size:.8125rem;font-weight:600;line-height:1.4;cursor:pointer;transition:background-color 160ms ease-out,color 160ms ease-out;background:#f0f0f3;color:var(--ink);}.ds-button-secondary:hover{background:#e4e5eb;}.ds-button-secondary:focus-visible{outline:3px solid var(--focus, #006bdb);outline-offset:3px;}.ds-button-secondary:active{transform:scale(.98);transition:none;}.ds-button-secondary:disabled{opacity:.55;cursor:not-allowed;transform:none;}@media(prefers-reduced-motion:reduce){.ds-button-secondary{transition:none;}.ds-button-secondary:active{transform:none;}}"
+      "css": ".ds-button-secondary{font-family:-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif;display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:2.75rem;padding:.625rem 1rem;border:1px solid transparent;border-radius:9px;font-size:.8125rem;font-weight:600;line-height:1.4;cursor:pointer;transition:background-color 160ms ease-out,color 160ms ease-out;background:#f0f0f3;color:var(--ink);}.ds-button-secondary:hover{background:#e4e5eb;}.ds-button-secondary:focus-visible{outline:3px solid var(--focus, #9f216a);outline-offset:3px;}.ds-button-secondary:active{transform:scale(.96);transition:none;}.ds-button-secondary:disabled{opacity:.55;cursor:not-allowed;transform:none;}@media(prefers-reduced-motion:reduce){.ds-button-secondary{transition:none;}.ds-button-secondary:active{transform:none;}}"
     },
     {
       "name": "Text field",
@@ -411,7 +470,7 @@
       "refersTo": "input",
       "description": "Labelled editable control.",
       "html": "<label class=\"ds-field\">Comments<input placeholder=\"Add a review comment\"></label>",
-      "css": ".ds-field{font-family:-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif;display:block;color:#4c5059;font-size:.8125rem;font-weight:500;}.ds-field input{font-family:-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif;display:block;width:100%;min-height:2.75rem;margin-top:.375rem;padding:.6875rem .75rem;border:1px solid #aeb1bb;border-radius:8px;background:var(--surface);color:var(--ink);font-size:.875rem;}.ds-field input::placeholder{color:#686c75;opacity:1;}.ds-field input:focus-visible{outline:3px solid var(--focus, #006bdb);outline-offset:3px;}"
+      "css": ".ds-field{font-family:-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif;display:block;color:#4c5059;font-size:.8125rem;font-weight:500;}.ds-field input{font-family:-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif;display:block;width:100%;min-height:2.75rem;margin-top:.375rem;padding:.6875rem .75rem;border:1px solid #aeb1bb;border-radius:8px;background:var(--surface);color:var(--ink);font-size:.875rem;}.ds-field input::placeholder{color:#686c75;opacity:1;}.ds-field input:focus-visible{outline:3px solid var(--focus, #9f216a);outline-offset:3px;}"
     },
     {
       "name": "Status badge",
@@ -419,14 +478,14 @@
       "refersTo": "chip",
       "description": "Compact reviewed status.",
       "html": "<span class=\"ds-chip\">reviewed</span>",
-      "css": ".ds-chip{font-family:-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif;display:inline-block;padding:.1875rem .5625rem;border-radius:6px;background:var(--accent-soft);color:#0052a6;font-size:.75rem;font-weight:500;line-height:1.5;}"
+      "css": ".ds-chip{font-family:-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif;display:inline-block;padding:.1875rem .5625rem;border-radius:6px;background:var(--accent-soft);color:#076385;font-size:.75rem;font-weight:500;line-height:1.5;}"
     },
     {
       "name": "Document surface",
       "kind": "card",
       "refersTo": "card",
       "description": "Flat bordered evidence container.",
-      "html": "<article class=\"ds-card\"><h2>Application documents</h2><p>Open the saved PDFs, then record your decision.</p></article>",
+      "html": "<article class=\"ds-card\"><h2>Application documents</h2><p>Senior Software Engineer \u00b7 draft</p></article>",
       "css": ".ds-card{font-family:-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif;padding:1.75rem;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink);font-size:.875rem;line-height:1.55;}.ds-card h2{margin:0 0 1rem;font-size:1.25rem;font-weight:650;line-height:1.25;letter-spacing:-.025em;}.ds-card p{max-width:72ch;}"
     },
     {
@@ -434,8 +493,8 @@
       "kind": "nav",
       "refersTo": "navigation",
       "description": "Labelled selected navigation; the preview preserves the fixed hit target.",
-      "html": "<nav aria-label=\"Workspace sections\"><a class=\"ds-nav\" href=\"#applications\" aria-current=\"page\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z\"/><path d=\"M14 2v6h6M9 15l2 2 4-4\"/></svg><span>Applications</span></a></nav>",
-      "css": ".ds-nav{font-family:-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:.25rem;min-width:6.5rem;min-height:3.5rem;padding:.375rem .625rem;border-radius:10px;color:#555963;text-decoration:none;font-size:.6875rem;font-weight:550;}.ds-nav:hover{background:#ededf1;color:var(--ink);}.ds-nav[aria-current=page]{background:var(--accent-soft);color:#0056b0;}.ds-nav:focus-visible{outline:3px solid var(--focus, #006bdb);outline-offset:3px;}"
+      "html": "<nav class=\"ds-nav-panel\" aria-label=\"Workspace sections\"><a class=\"ds-nav\" href=\"#applications\" aria-current=\"page\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z\"/><path d=\"M14 2v6h6M9 15l2 2 4-4\"/></svg><span>Applications</span></a></nav>",
+      "css": ".ds-nav{font-family:-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:.25rem;min-width:6.5rem;min-height:3.5rem;padding:.375rem .625rem;border-radius:10px;color:var(--on-brand);text-decoration:none;font-size:.6875rem;font-weight:550;}.ds-nav:hover{background:#d7f2fc;color:var(--ink);}.ds-nav[aria-current=page]{background:var(--surface);color:var(--ink);}.ds-nav:focus-visible{outline:3px solid var(--focus, #9f216a);outline-offset:3px;} .ds-nav[aria-current=page] svg{color:var(--pink);}.ds-nav-panel{background:var(--accent);padding:.75rem;}"
     },
     {
       "name": "Destination filter",
@@ -443,22 +502,22 @@
       "refersTo": "filter-selected",
       "description": "Outlined filter with explicit pressed state.",
       "html": "<button class=\"ds-filter\" aria-pressed=\"true\">All destinations</button>",
-      "css": ".ds-filter{font-family:-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif;display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:2.75rem;padding:.625rem 1rem;border:1px solid transparent;border-radius:9px;font-size:.8125rem;font-weight:600;line-height:1.4;cursor:pointer;transition:background-color 160ms ease-out,color 160ms ease-out;min-height:2.5rem;padding:.5rem .75rem;background:transparent;color:var(--muted);border-color:var(--line);font-weight:500;}.ds-filter[aria-pressed=true]{background:var(--accent-soft);color:#0052a6;border-color:#b9d4f4;}.ds-filter:hover{background:#e9ebf0;color:var(--ink);}.ds-filter:focus-visible{outline:3px solid var(--focus, #006bdb);outline-offset:3px;}.ds-filter:active{transform:scale(.98);}@media(prefers-reduced-motion:reduce){.ds-filter{transition:none;}.ds-filter:active{transform:none;}}"
+      "css": ".ds-filter{font-family:-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif;display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:2.75rem;padding:.625rem 1rem;border:1px solid transparent;border-radius:9px;font-size:.8125rem;font-weight:600;line-height:1.4;cursor:pointer;transition:background-color 160ms ease-out,color 160ms ease-out;min-height:2.5rem;padding:.5rem .75rem;background:transparent;color:var(--muted);border-color:var(--line);font-weight:500;}.ds-filter[aria-pressed=true]{background:var(--accent-soft);color:#076385;border-color:#b9d4f4;}.ds-filter:hover{background:#e9ebf0;color:var(--ink);}.ds-filter:focus-visible{outline:3px solid var(--focus, #9f216a);outline-offset:3px;}.ds-filter:active{transform:scale(.96);}@media(prefers-reduced-motion:reduce){.ds-filter{transition:none;}.ds-filter:active{transform:none;}}"
     }
   ],
   "narrative": {
     "northStar": "The Calm Document Workspace",
-    "overview": "A calm document workspace: cool near-white surroundings, graphite text and white work surfaces keep attention on evidence and the next review action. Native system typography and familiar grouped controls implement the confirmed Apple-inspired direction.\n\nDensity comes from compact navigation and coherent document groups, with a separate tinted decision area. Translucency belongs to functional navigation; restrained motion responds to pointer proximity without moving link targets.",
+    "overview": "A calm document workspace: a solid Sky Blue header gives the application a clear identity, while White work surfaces and dark blue ink keep attention on evidence and the next review action. Native system typography and familiar grouped controls preserve the confirmed Apple-inspired direction.\n\nDensity comes from compact labelled navigation and coherent document groups, with a pale blue decision area. Hot Pink marks active icons, selected sections and the first downloadable document action. Restrained motion responds to pointer proximity without moving link targets.",
     "keyCharacteristics": [
-      "Cool canvas and white document surfaces.",
-      "One blue action accent with semantic status colors.",
+      "White canvas and bordered document surfaces.",
+      "Sky Blue identity, selective Hot Pink accents and explicit semantic status colors.",
       "Compact labelled navigation and persistent focus feedback.",
       "Responsive document groups with readable evidence."
     ],
     "rules": [
       {
-        "name": "The Action Blue Rule",
-        "body": "Use blue for actions, links and selected navigation; reserve green and red for explicit status or feedback.",
+        "name": "The Brand Pairing Rule",
+        "body": "Keep Sky Blue and Hot Pink visible in their established roles; use dark labels on their filled surfaces and darker tonal variants for text on White. Reserve green and red for explicit status or feedback.",
         "section": "colors"
       },
       {
@@ -468,15 +527,16 @@
       },
       {
         "name": "The Functional Depth Rule",
-        "body": "Keep document surfaces flat; use depth for selected controls, navigation and the document editor.",
+        "body": "Keep document surfaces and selected segments flat; use depth for navigation separation and the document editor.",
         "section": "elevation"
       }
     ],
     "dos": [
-      "Do use the shared ink, muted text, canvas, surface and blue action colors.",
+      "Do use the confirmed Sky Blue, White and Hot Pink identity with the shared dark text pairings.",
       "Do keep labels visible on navigation, using the shorter labels on compact screens.",
       "Do preserve the visible keyboard focus ring and static reduced-motion and coarse-pointer navigation.",
-      "Do group document content and decisions with clear borders and tonal separation."
+      "Do group document content and decisions with clear borders and tonal separation.",
+      "Do preserve factual warnings and visible fictional-demo identity while removing repeated page instructions."
     ],
     "donts": [
       "Don't add decorative backgrounds or marketing-scale headings to this task workspace.",

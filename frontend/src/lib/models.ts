@@ -95,6 +95,7 @@ export interface Application {
   comments: ReviewComment[];
 }
 export interface WorkspaceSettings {
+  demo?: boolean;
   path: string;
   label: string;
   master: string;

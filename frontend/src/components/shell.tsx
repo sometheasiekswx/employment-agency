@@ -12,7 +12,6 @@ import {
   Settings2,
   HardDrive,
   Cloud,
-  ShieldCheck,
 } from "lucide-react";
 import Dock from "./react-bits/dock";
 import { useWorkspace } from "./workspace-provider";
@@ -25,40 +24,30 @@ const pages = [
     label: "Applications",
     shortLabel: "Applications",
     icon: <FileCheck2 />,
-    description:
-      "Review your documents, keep track of decisions, and take the next step.",
   },
   {
     href: "/career/",
     label: "Career evidence",
     shortLabel: "Career",
     icon: <ScanText />,
-    description:
-      "Your experience, confirmed facts and the sources behind every application.",
   },
   {
     href: "/search/",
     label: "Search profiles",
     shortLabel: "Search",
     icon: <Search />,
-    description:
-      "Define the right role, discover opportunities and prepare considered drafts.",
   },
   {
     href: "/history/",
     label: "Application history",
     shortLabel: "History",
     icon: <FolderClock />,
-    description:
-      "Every preserved version, with the original documents exactly where you left them.",
   },
   {
     href: "/settings/",
     label: "Settings & recovery",
     shortLabel: "Settings",
     icon: <Settings2 />,
-    description:
-      "Manage your workspace, provider permissions and recovery options.",
   },
 ];
 
@@ -92,6 +81,9 @@ export function Shell({ children }: { children: ReactNode }) {
           <span>Employment Agency</span>
         </Link>
         <Dock items={pages} pathname={pathname} canLeave={canLeave} />
+        {state._workspace.demo === true && (
+          <span className="demo-label">Demo · fictional profile</span>
+        )}
         <span className="workspace-mode">
           {client.hosted ? (
             <Cloud aria-hidden="true" />
@@ -105,12 +97,7 @@ export function Shell({ children }: { children: ReactNode }) {
         <div className="page-heading">
           <div>
             <h1>{title}</h1>
-            <p>{current.description}</p>
           </div>
-          <span className="privacy-note">
-            <ShieldCheck aria-hidden="true" />
-            Prepared here. Sent by you.
-          </span>
         </div>
         <p id="notice" role="status" aria-live="polite">
           {notice}
@@ -118,13 +105,6 @@ export function Shell({ children }: { children: ReactNode }) {
         <main id="content" tabIndex={-1}>
           {state._workspace.setup_complete ? children : <WorkspaceSetup />}
         </main>
-        <footer className="workspace-footer">
-          <span>
-            Employment Agency ·{" "}
-            {client.hosted ? "Invite-only hosted pilot" : "Local edition"}
-          </span>
-          <span>You review. You decide. You submit.</span>
-        </footer>
       </div>
     </div>
   );

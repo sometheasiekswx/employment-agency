@@ -18,6 +18,11 @@ def main():
     serve = sub.add_parser("serve")
     serve.add_argument("--port", type=int, default=8766)
     serve.add_argument('--frontend-origin', help='Development only: exact http://127.0.0.1:PORT origin for a Next.js dev proxy')
+    demo = sub.add_parser('demo', help='Create a new isolated fictional demo workspace; no API key or network needed')
+    demo.add_argument('destination', help='New folder; existing destinations are never overwritten')
+    demo.add_argument('--serve', action='store_true', help='Start the demo without changing the remembered workspace')
+    demo.add_argument('--open', action='store_true', help='Reopen an existing marked demo without reseeding')
+    demo.add_argument('--port', type=int, default=8770)
     sub.add_parser("state")
     act = sub.add_parser("action")
     act.add_argument("operation")
@@ -32,6 +37,18 @@ def main():
     migration.add_argument('destination')
     migration.add_argument('--settings', help='JSON workspace settings file')
     a = p.parse_args()
+    if a.command == 'demo':
+        if a.workspace:
+            p.error('demo uses its new destination; omit --workspace')
+        from . import demo as examples
+        try:
+            result = examples.open_existing(a.destination) if a.open else examples.create(a.destination)
+            print(json.dumps(result, indent=2), flush=True)
+            if a.serve:
+                examples.serve(result['path'], a.port)
+        except (ValueError, OSError) as exc:
+            p.exit(2, f'Demo not started: {exc}\n')
+        return
     if a.command == 'migrate-legacy':
         from .migrate import migrate
         config = json.loads(Path(a.settings).read_text()) if a.settings else None

@@ -1,0 +1,5 @@
+Origin: actual Employment Agency 0.5 production static export, captured in local Chrome/Playwright on 31 October 2026 (Melbourne).
+Profile: explicitly fictional Alex Morgan; no private career files or real account sessions.
+Jobs: public MongoDB and Datadog Greenhouse metadata, per employment_agency/demo_data/jobs.json; no endorsement or continuing-availability claim.
+Method: scripts/capture-demo.cjs records seven actual browser states; scripts/build-demo-gif.py resizes/quantizes those captures and assigns readable hold durations. No generated or drawn UI frames.
+Static source: output/demo-frames/manifest.json; reproduction is documented in docs/demo.md.

@@ -45,6 +45,10 @@ const fs = require('node:fs');
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto(url);
     await page.getByRole('heading', { name: 'Software Engineer', exact: true }).waitFor();
+    assert.equal(await page.locator('.workspace-header').evaluate(node => getComputedStyle(node).backgroundColor), 'rgb(5, 147, 198)');
+    assert.equal(await page.locator('body').evaluate(node => getComputedStyle(node).backgroundColor), 'rgb(252, 255, 255)');
+    assert.equal(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--pink').trim()), '#d83995');
+    assert.equal(await page.locator('.privacy-note, .workspace-footer').count(), 0, 'Repeated slogans stay removed');
     await page.screenshot({ path: '.impeccable/review/desktop.png' });
     // The proximity spring must never shift a link's actual hit target.
     const link = page.getByRole('link', { name: 'Career evidence', exact: true });

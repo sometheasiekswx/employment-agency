@@ -42,3 +42,6 @@ An account-owned collection of career facts, preferences, job evidence, document
 
 **Fit summary**:
 One or two sentences describing a role and its strongest supported match to confirmed career facts, including a material gap when relevant. It does not imply qualifications unsupported by evidence.
+
+**Demo workspace**:
+An isolated example career workspace containing an explicitly fictional candidate and dated snapshots of real job listings. Its sample decisions and generated documents demonstrate the application, not a real person's employment or submissions.

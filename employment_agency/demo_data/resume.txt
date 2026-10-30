@@ -1,0 +1,25 @@
+Alex Morgan | Software Engineer | New York, NY
+DEMO PROFILE: fictional person, employers and experience. Not a real application.
+
+Experience
+Senior Software Engineer | Harbor Metrics (fictional) | 2022–2026
+Built Python and Go services for a multi-tenant analytics platform, with versioned REST APIs and integration tests.
+Designed PostgreSQL schemas and SQL query optimizations for reporting workloads, reducing slow queries through measured indexing.
+Operated distributed services on AWS with Docker and Kubernetes, adding deployment checks and rollback procedures.
+Implemented tenant-scoped authentication and authorization, with audit events and negative permission tests.
+Led incident reviews, wrote operational runbooks, and improved service telemetry using logs, metrics and traces.
+Mentored four engineers through design reviews, pairing and incremental delivery of production changes.
+
+Software Engineer | Northstar Transit (fictional) | 2019–2022
+Built React and TypeScript interfaces for route planning, with accessible keyboard navigation and component tests.
+Developed Java and Python APIs for scheduling and payment reconciliation with idempotent job processing.
+Introduced contract tests and CI checks to catch API compatibility regressions before release.
+Moved background tasks to queues with retries and dead-letter handling, preserving event ordering where required.
+Worked with product and operations teams to document tradeoffs, scope releases and monitor user-facing errors.
+
+Projects and education
+Built a Go database indexing project to compare query plans and storage tradeoffs using reproducible benchmarks.
+Created a full-stack TypeScript job tracker with React, Node.js, PostgreSQL and automated browser tests.
+BSc Computer Science | Hudson College (fictional) | 2019
+Skills: Python, Go, Java, TypeScript, React, SQL, PostgreSQL, AWS, Docker, Kubernetes, distributed systems, APIs, testing.
+Languages: English and French.

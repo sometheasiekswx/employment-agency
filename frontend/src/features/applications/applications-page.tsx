@@ -82,13 +82,7 @@ export function ApplicationsPage() {
   );
   return (
     <>
-      <section className="destination-board">
-        <h2>Your review queue</h2>
-        <p>
-          {priorities[0] ? `${priorities[0]} first. ` : ""}Open the saved PDFs,
-          review the details, then record your decision. Nothing is sent from
-          here.
-        </p>
+      <section className="destination-board" aria-label="Application filters">
         <div
           className="actions segmented-control"
           aria-label="Application sections"

@@ -26,3 +26,6 @@ workspace-dev/
 .impeccable/review/
 .impeccable/questions/
 .impeccable/mocks/
+
+.taste-skill/
+demo-workspace/
