@@ -1,0 +1,5 @@
+Origin: locally rendered Employment Agency 0.4.0 production static export served by Python to Playwright/Chrome, 31 October 2026.
+Capture: tests/redesign-browser.cjs, run by tests/run_browser_checks.py against its disposable local fixture.
+Content: fictional Alex Morgan / Fictional Systems records only; no private workspace or real account data.
+Desktop: 1440x1000. Mobile: 390x844, reloaded after resize to avoid compositor capture artifacts.
+These are direct browser screenshots, not generated artwork or visual design comps.

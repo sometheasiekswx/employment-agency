@@ -7,9 +7,12 @@ const assert=require('node:assert/strict');
  page.on('console',m=>{if(m.type()==='error') errors.push(m.text());});
  if(process.env.HOSTED) await page.addInitScript(()=>window===window.top&&sessionStorage.setItem('ea-cloud-session',JSON.stringify({access_token:'fixture-session',refresh_token:'fixture',expires_at:Date.now()+3600000})));
  await page.goto(process.env.TEST_URL||'http://127.0.0.1:8773');
+ await page.getByRole('heading',{level:1}).first().waitFor();
  const setup=page.getByRole('button',{name:'Save',exact:true});
  if(await setup.isVisible()) await setup.click();
- await page.getByRole('button',{name:'View / edit CV',exact:true}).first().waitFor();
+ try { await page.getByRole('button',{name:'View / edit CV',exact:true}).first().waitFor(); } catch (error) {
+  console.error('Editor readiness failure:', await page.locator('body').innerText(), errors); throw error;
+ }
  const count=await page.getByRole('button',{name:'View / edit CV',exact:true}).count();
  await page.getByRole('button',{name:'View / edit CV',exact:true}).first().click();
  const dialog=page.getByRole('dialog'); await dialog.waitFor();

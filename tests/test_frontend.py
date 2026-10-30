@@ -10,6 +10,8 @@ import urllib.request
 import urllib.error
 import io
 import zipfile
+import re
+from concurrent.futures import ThreadPoolExecutor
 from unittest.mock import patch
 
 from employment_agency import history
@@ -34,6 +36,23 @@ class FrontendHttpContracts(unittest.TestCase):
         self.thread = threading.Thread(target=self.http.serve_forever, daemon=True)
         self.thread.start()
         self.url = 'http://127.0.0.1:' + str(self.http.server_port)
+
+    def test_parallel_frontend_asset_burst_returns_complete_files(self):
+        self.start()
+        with urllib.request.urlopen(self.url) as response:
+            html = response.read().decode()
+        paths = re.findall(r'<script[^>]+src="([^"]+)"', html)
+        self.assertTrue(paths)
+        def fetch(path):
+            with urllib.request.urlopen(self.url + path, timeout=10) as response:
+                self.assertEqual(response.status, 200)
+                return response.read()
+        expected = {path: fetch(path) for path in paths}
+        burst = (paths * 6)[:32]
+        with ThreadPoolExecutor(max_workers=16) as pool:
+            bodies = list(pool.map(fetch, burst))
+        for path, body in zip(burst, bodies):
+            self.assertEqual(body, expected[path])
 
     def post(self, origin):
         with urllib.request.urlopen(self.url + '/api/state') as response:

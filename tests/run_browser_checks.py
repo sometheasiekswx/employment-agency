@@ -65,6 +65,8 @@ def seed_hosted_draft(url):
 
 if __name__ == '__main__':
     with fixture('serve_folder_fixture.py') as url:
+        browser('redesign-browser.cjs', url)
+    with fixture('serve_folder_fixture.py') as url:
         browser('browser.cjs', url)
         browser('parity-browser.cjs', url)
         browser('editor-browser.cjs', url)

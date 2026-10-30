@@ -172,6 +172,11 @@ def server(service, port=8766, frontend_origin=None):
             self.send(200, encode({'result': result}))
 
     class Server(ThreadingHTTPServer):
+        # Older Python releases default to five pending connections. A modern
+        # exported page can request more chunks at once, resetting connections
+        # before a handler accepts them. Keep room for a browser's asset burst.
+        request_queue_size = 64
+
         def server_close(self):
             super().server_close()
             if self.active_service.w is not service.w:

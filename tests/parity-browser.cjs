@@ -11,7 +11,7 @@ const crypto = require('node:crypto');
     const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
-    page.on('console', message => { if (message.type() === 'error' && !message.text().includes('400 (Bad Request)') && !(message.text().includes('404') && message.location().url.endsWith('/missing-page/'))) errors.push(message.text()); });
+    page.on('console', message => { if (message.type() === 'error' && !message.text().includes('400 (Bad Request)') && !(message.text().includes('404') && message.location().url.endsWith('/missing-page/'))) errors.push(message.text() + " [" + message.location().url + "]"); });
     const base = process.env.TEST_URL || 'http://127.0.0.1:8774';
     await page.goto(base);
     const read = async () => (await (await page.request.get(base + '/api/state')).json());

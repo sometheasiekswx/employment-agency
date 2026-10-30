@@ -1,0 +1,11 @@
+# Next's generated HTML and bootstrap scripts must keep their build output bytes.
+employment_agency/web/
+frontend/out/
+frontend/.next/
+build/
+dist/
+output/
+.venv/
+.venv-next/
+workspace/
+workspace-dev/

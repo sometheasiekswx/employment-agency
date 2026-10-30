@@ -9,6 +9,8 @@ import { decisionDate, destination, compareDestinations } from "@/lib/format";
 import type { Application, EditorDocument } from "@/lib/models";
 import { ApplicationCard } from "./application-card";
 import { DocumentEditor } from "./document-editor";
+import Link from "next/link";
+import { FolderOpen } from "lucide-react";
 
 const sections = [
   ["active", "Active"],
@@ -81,13 +83,16 @@ export function ApplicationsPage() {
   return (
     <>
       <section className="destination-board">
-        <h2>Choose your destination</h2>
+        <h2>Your review queue</h2>
         <p>
           {priorities[0] ? `${priorities[0]} first. ` : ""}Open the saved PDFs,
           review the details, then record your decision. Nothing is sent from
           here.
         </p>
-        <div className="actions" aria-label="Application sections">
+        <div
+          className="actions segmented-control"
+          aria-label="Application sections"
+        >
           {sections.map(([key, label]) => (
             <button
               key={key}
@@ -138,11 +143,31 @@ export function ApplicationsPage() {
           key={app.id}
           app={app}
           job={jobs.get(app.job_id) || {}}
-          city={cityFor(app)}
           onEdit={(document, opener) => setEditing({ document, opener })}
         />
       ))}
-      {!filtered.length && <p>No {section} applications.</p>}
+      {!filtered.length && (
+        <div className="empty-state">
+          <FolderOpen aria-hidden="true" />
+          <h2>No {section} applications.</h2>
+          <p>
+            {section === "active"
+              ? "Start with your career evidence, then prepare a draft from a matching role."
+              : "Applications appear here when you record that decision. Your other queues stay available above."}
+          </p>
+          <Link
+            href={section === "active" ? "/career/" : "/?section=active"}
+            className="button"
+            onNavigate={(event) => {
+              if (!canLeave()) event.preventDefault();
+            }}
+          >
+            {section === "active"
+              ? "Add your experience"
+              : "View active applications"}
+          </Link>
+        </div>
+      )}
       {section === "submitted" &&
         Boolean(state.historical_decisions?.length) && (
           <section>

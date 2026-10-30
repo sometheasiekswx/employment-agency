@@ -4,6 +4,10 @@
 
 A local-first career workspace that turns confirmed experience into job-specific applications you review and submit yourself.
 
+The 0.4 interface is a compact Apple-inspired workspace, built with React and Next.js over the existing Python services. Labelled [React Bits](https://reactbits.dev/components/dock) navigation, grouped document/review actions, responsive layouts and reduced-motion support keep daily tasks in focus. Existing schema-2 workspaces and preserved document versions remain compatible.
+
+See [desktop/mobile evidence and release verification](docs/redesign-0.4.md), [system design](docs/system-design.md) and [local startup troubleshooting](docs/running-locally.md).
+
 Import your resume, add the experience it leaves out, save search preferences, and prepare a bounded batch of applications. Every match shows its evidence and gaps. Every document uses confirmed facts. By default, your personal files live in an ignored `workspace/` folder alongside the software. You can choose another folder when needed.
 
 ## Hosted pilot
@@ -16,15 +20,30 @@ The hosted build reuses the same matching, document and decision engine. The pil
 
 Requires Python 3.11+ and a modern browser. Building from source also requires Node.js 24+ and npm. The installed Python wheel contains the built React/Next.js interface and needs no Node server. No API key is needed for local matching and document generation.
 
+**First installation:** run these two commands from the folder where you want to keep the software:
+
 ```sh
 git clone https://github.com/sometheasiekswx/employment-agency.git
 cd employment-agency
+```
+
+**Already cloned?** Skip cloning and change into the existing checkout instead. `cd employment-agency` only works when your terminal is in its parent folder. For example, if you keep repositories in `Documents/GitHub`:
+
+```sh
+cd "$HOME/Documents/GitHub/employment-agency"
+```
+
+Then install and start from that software folder:
+
+```sh
 python3 -m venv .venv
 npm --prefix frontend ci --ignore-scripts
 npm --prefix frontend run build
 .venv/bin/python -m pip install .
 .venv/bin/python -m employment_agency serve
 ```
+
+Stop if any step reports an error. `cd: no such file or directory` means the terminal has not reached the software folder; it is not an application error. Do not run the remaining commands from your private career workspace. For an existing installation, environment recovery and troubleshooting, see [running locally](docs/running-locally.md).
 
 Windows PowerShell:
 
@@ -96,7 +115,7 @@ employment-agency restore backup.zip /path/to/new-restored-workspace
 
 Exports include private data, exclude credentials and clear consent on restore. Existing restore destinations are rejected. A run snapshots the workspace before work starts. Keep an off-device copy yourself; local snapshots alone are not off-device backups.
 
-Pin an installed version or Git commit. Export before upgrading, test a restored copy with the new version, then explicitly switch. Versions 0.2 and 0.3 use the same schema 2; the frontend rebuild requires no workspace migration. Older schema-1 workspaces require explicit migration into a new folder; unknown schemas are rejected. No automatic updates or background schedules.
+Pin an installed version or Git commit. Export before upgrading, test a restored copy with the new version, then explicitly switch. Versions 0.2, 0.3 and 0.4 use the same schema 2; the frontend redesign requires no workspace migration. Older schema-1 workspaces require explicit migration into a new folder; unknown schemas are rejected. No automatic updates or background schedules.
 
 ## Development
 
@@ -112,9 +131,9 @@ npx --prefix frontend playwright install chrome
 python tests/run_browser_checks.py
 ```
 
-The browser runner starts disposable local and hosted fixtures, uses fictional data, and cleans up its servers. An existing Playwright installation can be supplied with `PLAYWRIGHT_PATH`. See [contributing and live frontend development](CONTRIBUTING.md), [the rebuild contract](docs/frontend-rebuild.md), [security](SECURITY.md) and [dependency notes](docs/dependencies.md).
+The browser runner starts disposable local and hosted fixtures, uses fictional data, and cleans up its servers. An existing Playwright installation can be supplied with `PLAYWRIGHT_PATH`. See [system design](docs/system-design.md), [contributing and live frontend development](CONTRIBUTING.md), [the rebuild contract](docs/frontend-rebuild.md), [security](SECURITY.md) and [dependency notes](docs/dependencies.md).
 
-MIT for original code. This repository includes no personal resumes, mailbox exports or private application history.
+MIT for original code. The adapted React Bits Dock carries its upstream MIT + Commons Clause terms; Motion and Lucide retain their upstream notices. See [dependency licences and adaptations](docs/dependencies.md). This repository includes no personal resumes, mailbox exports or private application history.
 
 ### Edit documents on the application page
 

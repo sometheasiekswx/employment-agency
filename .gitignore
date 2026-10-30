@@ -1,4 +1,5 @@
 .venv/
+.venv-next/
 __pycache__/
 *.pyc
 *.egg-info/
@@ -22,3 +23,6 @@ frontend/*.tsbuildinfo
 employment_agency/web/
 workspace-dev/
 .dev-config/
+.impeccable/review/
+.impeccable/questions/
+.impeccable/mocks/

@@ -3,49 +3,72 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
+import {
+  BriefcaseBusiness,
+  FileCheck2,
+  FolderClock,
+  ScanText,
+  Search,
+  Settings2,
+  HardDrive,
+  Cloud,
+  ShieldCheck,
+} from "lucide-react";
+import Dock from "./react-bits/dock";
 import { useWorkspace } from "./workspace-provider";
 import { useDraft } from "./unsaved";
 import { WorkspaceSetup } from "@/features/settings/workspace-settings";
 
 const pages = [
-  [
-    "/",
-    "Applications",
-    "Your next chapter",
-    "A considered next move starts with a well-prepared application.",
-  ],
-  [
-    "/career/",
-    "Career evidence",
-    "The experience behind you",
-    "Your skills, your experience, and the facts that make each application yours.",
-  ],
-  [
-    "/search/",
-    "Search profiles",
-    "The possibilities ahead",
-    "Define where you want to go and what the right role looks like.",
-  ],
-  [
-    "/settings/",
-    "Settings & recovery",
-    "A little housekeeping",
-    "Manage provider consent, recovery and your private setup.",
-  ],
-  [
-    "/history/",
-    "Application history",
-    "Your work, preserved",
-    "Browse previous application versions and their original documents.",
-  ],
-] as const;
+  {
+    href: "/",
+    label: "Applications",
+    shortLabel: "Applications",
+    icon: <FileCheck2 />,
+    description:
+      "Review your documents, keep track of decisions, and take the next step.",
+  },
+  {
+    href: "/career/",
+    label: "Career evidence",
+    shortLabel: "Career",
+    icon: <ScanText />,
+    description:
+      "Your experience, confirmed facts and the sources behind every application.",
+  },
+  {
+    href: "/search/",
+    label: "Search profiles",
+    shortLabel: "Search",
+    icon: <Search />,
+    description:
+      "Define the right role, discover opportunities and prepare considered drafts.",
+  },
+  {
+    href: "/history/",
+    label: "Application history",
+    shortLabel: "History",
+    icon: <FolderClock />,
+    description:
+      "Every preserved version, with the original documents exactly where you left them.",
+  },
+  {
+    href: "/settings/",
+    label: "Settings & recovery",
+    shortLabel: "Settings",
+    icon: <Settings2 />,
+    description:
+      "Manage your workspace, provider permissions and recovery options.",
+  },
+];
 
 export function Shell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { state, client, notice } = useWorkspace();
   const { canLeave } = useDraft();
-  const current = pages.find(([path]) => path === pathname) || pages[0];
-  const title = current[0] === "/settings/" ? "Your workspace" : current[1];
+  const current = pages.find(({ href }) => href === pathname) || pages[0];
+  const title =
+    current.href === "/settings/" ? "Your workspace" : current.label;
   const label = client.hosted ? "Private cloud workspace" : "Local workspace";
   useEffect(() => {
     document.title = `${title} | ${label}`;
@@ -55,7 +78,7 @@ export function Shell({ children }: { children: ReactNode }) {
       <a className="skip-link" href="#content">
         Skip to content
       </a>
-      <aside className="rail">
+      <header className="workspace-header">
         <Link
           href="/"
           className="brand"
@@ -64,60 +87,30 @@ export function Shell({ children }: { children: ReactNode }) {
           }}
         >
           <span className="brand-mark" aria-hidden="true">
-            ea
+            <BriefcaseBusiness />
           </span>
-          <span>
-            Employment
-            <br />
-            Agency
-          </span>
+          <span>Employment Agency</span>
         </Link>
-        <p className="rail-caption">{label}</p>
-        <nav aria-label="Workspace sections">
-          {pages.map(([path, name]) => (
-            <Link
-              key={path}
-              href={path}
-              aria-current={pathname === path ? "page" : undefined}
-              onNavigate={(event) => {
-                if (!canLeave()) event.preventDefault();
-              }}
-            >
-              {name}
-              <span aria-hidden="true">↗</span>
-            </Link>
-          ))}
-        </nav>
-        <div className="rail-bottom">
-          <span className="local-dot" aria-hidden="true" /> {label}
-          <p>
-            Your next move.
-            <br />
-            On your terms.
-          </p>
-        </div>
-      </aside>
+        <Dock items={pages} pathname={pathname} canLeave={canLeave} />
+        <span className="workspace-mode">
+          {client.hosted ? (
+            <Cloud aria-hidden="true" />
+          ) : (
+            <HardDrive aria-hidden="true" />
+          )}
+          {label}
+        </span>
+      </header>
       <div className="desk">
-        <header className="workspace-header">
-          <span>Private career desk</span>
-          <span className="badge">Prepared here. Sent by you.</span>
-        </header>
         <div className="page-heading">
           <div>
-            <p id="page-context">{current[2]}</p>
             <h1>{title}</h1>
-            <p>{current[3]}</p>
+            <p>{current.description}</p>
           </div>
-          {pathname === "/" && (
-            <div className="batch-count">
-              <strong>
-                {String(
-                  state.applications.filter((app) => !app.archived).length,
-                ).padStart(2, "0")}
-              </strong>
-              <span>application packages</span>
-            </div>
-          )}
+          <span className="privacy-note">
+            <ShieldCheck aria-hidden="true" />
+            Prepared here. Sent by you.
+          </span>
         </div>
         <p id="notice" role="status" aria-live="polite">
           {notice}
@@ -125,12 +118,12 @@ export function Shell({ children }: { children: ReactNode }) {
         <main id="content" tabIndex={-1}>
           {state._workspace.setup_complete ? children : <WorkspaceSetup />}
         </main>
-        <footer>
+        <footer className="workspace-footer">
           <span>
-            Employment Agency /{" "}
+            Employment Agency ·{" "}
             {client.hosted ? "Invite-only hosted pilot" : "Local edition"}
           </span>
-          <span>Review carefully. Apply confidently.</span>
+          <span>You review. You decide. You submit.</span>
         </footer>
       </div>
     </div>
