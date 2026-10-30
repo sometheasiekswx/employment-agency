@@ -15,3 +15,10 @@ workspace/
 
 output/
 .vercel/
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/*.tsbuildinfo
+employment_agency/web/
+workspace-dev/
+.dev-config/

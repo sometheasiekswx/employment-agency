@@ -1,14 +1,13 @@
 """Fail-closed WSGI app for the invite-only cloud pilot."""
 import mimetypes
 import os
-from pathlib import Path
 from flask import Flask, request, Response, jsonify
 from werkzeug.exceptions import HTTPException
 from .cloud import config, Supabase, execute, CloudError
+from .web_assets import asset, script_policy, MissingFrontendError
 
 app = Flask(__name__, static_folder=None)
 app.config['MAX_CONTENT_LENGTH'] = 3 * 1024 * 1024
-STATIC = Path(__file__).parent / 'static'
 
 
 @app.after_request
@@ -16,29 +15,36 @@ def headers(response):
     response.headers['Cache-Control'] = 'no-store'
     response.headers['X-Content-Type-Options'] = 'nosniff'
     response.headers['Referrer-Policy'] = 'no-referrer'
-    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self' https://*.supabase.co; img-src 'self' blob:; object-src 'none'; frame-src 'self' blob:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"
+    scripts = script_policy(response.get_data(as_text=True)) if response.mimetype == 'text/html' else "script-src 'self'"
+    response.headers['Content-Security-Policy'] = "default-src 'self'; " + scripts + "; style-src 'self'; connect-src 'self' https://*.supabase.co; img-src 'self' blob:; object-src 'none'; frame-src 'self' blob:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"
     return response
 
 
 @app.get('/')
 def home():
-    html = (STATIC / 'index.html').read_text()
-    html = html.replace('<script src="/app.js" defer></script>', '<script src="/ui/cloud.js" defer></script>')
-    html = html.replace('<script src="/ui/editor.js" defer></script>', '')
-    html = html.replace('<script src="/ui/workspace.js" defer></script>', '')
-    html = html.replace('Local workspace', 'Private cloud workspace').replace('Local edition', 'Invite-only hosted pilot')
-    return Response(html, mimetype='text/html')
+    return static_file('')
 
 
-@app.get('/app.js')
-@app.get('/style.css')
-@app.get('/ui/<path:name>')
-def static_file(name=None):
-    name = name or request.path.lstrip('/')
-    allowed = {p.relative_to(STATIC).as_posix() for p in STATIC.rglob('*') if p.is_file()}
-    if name not in allowed or name == 'index.html':
+@app.get('/<path:name>')
+def static_file(name):
+    try:
+        path = asset('/' + name)
+    except MissingFrontendError:
+        return jsonify(error='Frontend unavailable. Build the frontend before deploying.'), 503
+    except ValueError:
         return jsonify(error='Not found'), 404
-    return Response((STATIC / name).read_bytes(), mimetype=mimetypes.guess_type(name)[0] or 'application/octet-stream')
+    if path is None:
+        if not name.startswith('api/') and '.' not in name.rsplit('/', 1)[-1]:
+            missing = asset('/404/')
+            if missing:
+                return Response(missing.read_bytes(), status=404, mimetype='text/html')
+        return jsonify(error='Not found'), 404
+    return Response(path.read_bytes(), mimetype=mimetypes.guess_type(path.name)[0] or 'application/octet-stream')
+
+
+@app.get('/api/runtime')
+def runtime():
+    return jsonify(mode='hosted')
 
 
 @app.get('/api/config')

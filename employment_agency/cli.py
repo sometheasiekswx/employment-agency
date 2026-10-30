@@ -17,6 +17,7 @@ def main():
     sub = p.add_subparsers(dest="command", required=True)
     serve = sub.add_parser("serve")
     serve.add_argument("--port", type=int, default=8766)
+    serve.add_argument('--frontend-origin', help='Development only: exact http://127.0.0.1:PORT origin for a Next.js dev proxy')
     sub.add_parser("state")
     act = sub.add_parser("action")
     act.add_argument("operation")
@@ -48,7 +49,7 @@ def main():
             from .server import server
 
             remember(w.path)
-            http = server(service, a.port)
+            http = server(service, a.port, frontend_origin=a.frontend_origin)
             print(f"Employment Agency: http://127.0.0.1:{http.server_port}", flush=True)
             try:
                 http.serve_forever()

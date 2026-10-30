@@ -151,7 +151,7 @@ def validate_archive(body):
 
 
 def execute(backend, owner, action, args):
-    read_only = action in {'state', 'file', 'export', 'rank', 'master-propose', 'document-editor', 'preview-document'}
+    read_only = action in {'state', 'file', 'history', 'history-file', 'export', 'rank', 'master-propose', 'document-editor', 'preview-document'}
     guard = nullcontext() if read_only else backend.mutation_guard(owner)
     with guard:
         return _execute(backend, owner, action, args)
@@ -160,7 +160,7 @@ def execute(backend, owner, action, args):
 def _execute(backend, owner, action, args):
     if not isinstance(args, dict):
         raise CloudError('Expected an object.')
-    if action not in ACTIONS | {'state', 'file', 'export', 'delete-account', 'workspace-settings'}:
+    if action not in ACTIONS | {'state', 'file', 'history', 'history-file', 'export', 'delete-account', 'workspace-settings'}:
         raise CloudError('This operation is available only in the local app.', 403)
     if action == 'delete-account':
         if args.get('confirmation') != 'DELETE':
@@ -195,6 +195,10 @@ def _execute(backend, owner, action, args):
                 app = find(w.read()['applications'], args.get('id'))
                 f = packages.path_for(path, app, args.get('name', ''))
                 return {'binary': f.read_bytes(), 'filename': f.name}
+            if action == 'history-file':
+                from .history import verified_file
+                f = verified_file(w.path, args.get('id'), args.get('name', ''))
+                return {'binary': f.read_bytes(), 'filename': f.name}
             if action == 'export':
                 target = root / 'export.zip'
                 w.export(target)
@@ -207,7 +211,7 @@ def _execute(backend, owner, action, args):
                 if action == 'import' and len(args.get('data', '')) > 2800000:
                     raise CloudError('Pilot imports are limited to 2 MB.', 413)
                 result = service.action(action, args)
-                if action in {'rank', 'master-propose', 'document-editor', 'preview-document'}:
+                if action in {'rank', 'history', 'master-propose', 'document-editor', 'preview-document'}:
                     return {'result': result}
             state = w.read()
             if len(state['facts']) > 500 or len(state['jobs']) > 300 or len(state['applications']) > 25:

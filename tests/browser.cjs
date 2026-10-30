@@ -14,7 +14,7 @@ const fs = require("node:fs");
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto(process.env.TEST_URL || "http://127.0.0.1:8767");
   await page.getByRole('button', {name: 'Save', exact: true}).click();
-  await page.getByRole('button', {name: 'Career evidence'}).click();
+  await page.getByRole('link', {name: 'Career evidence'}).click();
   await page.getByRole("heading", { name: "Your details" }).waitFor();
   await page.getByLabel("Name", { exact: true }).fill("Alex Morgan");
   await page.getByLabel("Email", { exact: true }).fill("alex@example.test");
@@ -27,7 +27,7 @@ const fs = require("node:fs");
   await page.getByRole("button", { name: "Save for confirmation" }).click();
   await page.getByRole("button", { name: "Confirm", exact: true }).click();
   await page.getByText("1 confirmed", { exact: true }).waitFor();
-  await page.getByRole("button", { name: "Search profiles" }).click();
+  await page.getByRole("link", { name: "Search profiles" }).click();
   await page.getByText("Create another profile", { exact: true }).click();
   await page.getByLabel("Profile name").fill("Software engineering");
   await page.getByLabel("Roles, comma separated").fill("Engineer");
@@ -59,7 +59,7 @@ const fs = require("node:fs");
       document.querySelector("#runs")?.textContent.includes(" · complete · "),
     { timeout: 20000 },
   );
-  await page.getByRole("button", { name: "Applications" }).click();
+  await page.getByRole("link", { name: "Applications" }).click();
   await page
     .getByRole("heading", { name: "Software Engineer", exact: true })
     .waitFor();
@@ -114,7 +114,7 @@ const fs = require("node:fs");
     path: "output/playwright/applications-mobile.png",
     fullPage: true,
   });
-  await page.getByRole("button", { name: "Settings & recovery" }).click();
+  await page.getByRole("link", { name: "Settings & recovery" }).click();
   await page.getByRole("heading", { name: "AI disclosure consent" }).waitFor();
   await page.keyboard.press("Tab");
   assert.ok(

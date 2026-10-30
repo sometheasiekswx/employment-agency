@@ -35,5 +35,6 @@ const assert=require('node:assert/strict');
  assert(await page.getByRole('dialog').isVisible());
  page.once('dialog',d=>d.accept()); await page.keyboard.press('Escape');
  assert.equal(await page.getByRole('dialog').count(),0);
+ await page.waitForFunction(()=>document.activeElement?.textContent==='View / edit cover letter');
  assert.deepEqual(errors,[]); await browser.close(); console.log('Document editor browser checks passed');
 })().catch(e=>{console.error(e);process.exit(1)});

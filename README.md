@@ -14,12 +14,14 @@ The hosted build reuses the same matching, document and decision engine. The pil
 
 ## Start locally
 
-Requires Python 3.11+ and a modern browser. No API key is needed for local matching and document generation.
+Requires Python 3.11+ and a modern browser. Building from source also requires Node.js 24+ and npm. The installed Python wheel contains the built React/Next.js interface and needs no Node server. No API key is needed for local matching and document generation.
 
 ```sh
 git clone https://github.com/sometheasiekswx/employment-agency.git
 cd employment-agency
 python3 -m venv .venv
+npm --prefix frontend ci --ignore-scripts
+npm --prefix frontend run build
 .venv/bin/python -m pip install .
 .venv/bin/python -m employment_agency serve
 ```
@@ -28,6 +30,8 @@ Windows PowerShell:
 
 ```powershell
 py -3 -m venv .venv
+npm --prefix frontend ci --ignore-scripts
+npm --prefix frontend run build
 .venv\Scripts\python -m pip install .
 .venv\Scripts\python -m employment_agency serve
 ```
@@ -92,17 +96,23 @@ employment-agency restore backup.zip /path/to/new-restored-workspace
 
 Exports include private data, exclude credentials and clear consent on restore. Existing restore destinations are rejected. A run snapshots the workspace before work starts. Keep an off-device copy yourself; local snapshots alone are not off-device backups.
 
-Pin an installed version or Git commit. Export before upgrading, test a restored copy with the new version, then explicitly switch. Version 0.2 uses schema 2. Older schema-1 workspaces require explicit migration into a new folder; unknown schemas are rejected. No automatic updates or background schedules.
+Pin an installed version or Git commit. Export before upgrading, test a restored copy with the new version, then explicitly switch. Versions 0.2 and 0.3 use the same schema 2; the frontend rebuild requires no workspace migration. Older schema-1 workspaces require explicit migration into a new folder; unknown schemas are rejected. No automatic updates or background schedules.
 
 ## Development
 
 ```sh
+npm --prefix frontend ci --ignore-scripts
+npm --prefix frontend run typecheck
+npm --prefix frontend run lint
+npm --prefix frontend test
+npm --prefix frontend run build
 python -m pip install .
 python -m unittest discover -s tests -v
-node --check employment_agency/static/app.js
+npx --prefix frontend playwright install chrome
+python tests/run_browser_checks.py
 ```
 
-Browser acceptance: start an empty disposable workspace, install/use Playwright separately, then `PLAYWRIGHT_PATH=/path/to/playwright TEST_URL=http://127.0.0.1:8766 node tests/browser.cjs`. The test uses fictional data and changes that workspace. See [verification](docs/verification.md), [security](SECURITY.md) and [dependency notes](docs/dependencies.md).
+The browser runner starts disposable local and hosted fixtures, uses fictional data, and cleans up its servers. An existing Playwright installation can be supplied with `PLAYWRIGHT_PATH`. See [contributing and live frontend development](CONTRIBUTING.md), [the rebuild contract](docs/frontend-rebuild.md), [security](SECURITY.md) and [dependency notes](docs/dependencies.md).
 
 MIT for original code. This repository includes no personal resumes, mailbox exports or private application history.
 

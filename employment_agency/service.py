@@ -82,6 +82,9 @@ class Service:
     def action(self, action, a):
         if not isinstance(a, dict):
             raise ValueError("Expected JSON object")
+        if action == 'history':
+            from .history import versions
+            return versions(self.w.path)
         if action == 'document-editor':
             return editor.load(self.w, a)
         if action in ('preview-document', 'save-document'):

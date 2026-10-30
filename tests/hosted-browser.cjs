@@ -15,7 +15,7 @@ const fs = require("node:fs");
   await page.addInitScript(()=>sessionStorage.setItem('ea-cloud-session',JSON.stringify({access_token:'fixture-session',refresh_token:'fixture',expires_at:Date.now()+3600000})));
   await page.goto(process.env.TEST_URL || "http://127.0.0.1:8769");
 
-  await page.getByRole('button', {name: 'Career evidence'}).click();
+  await page.getByRole('link', {name: 'Career evidence'}).click();
   await page.getByRole("heading", { name: "Your details" }).waitFor();
   await page.getByLabel("Name", { exact: true }).fill("Alex Morgan");
   await page.getByLabel("Email", { exact: true }).fill("alex@example.test");
@@ -28,7 +28,7 @@ const fs = require("node:fs");
   await page.getByRole("button", { name: "Save for confirmation" }).click();
   await page.getByRole("button", { name: "Confirm", exact: true }).click();
   await page.getByText("1 confirmed", { exact: true }).waitFor();
-  await page.getByRole("button", { name: "Search profiles" }).click();
+  await page.getByRole("link", { name: "Search profiles" }).click();
   await page.getByText("Create another profile", { exact: true }).click();
   await page.getByLabel("Profile name").fill("Software engineering");
   await page.getByLabel("Roles, comma separated").fill("Engineer");
@@ -54,7 +54,7 @@ const fs = require("node:fs");
     .waitFor();
   await page.getByRole('button', {name:'Prepare application',exact:true}).click();
   await page.locator('#notice').filter({hasText:'Saved.'}).waitFor();
-  await page.getByRole("button", { name: "Applications" }).click();
+  await page.getByRole("link", { name: "Applications" }).click();
   await page
     .getByRole("heading", { name: "Software Engineer", exact: true })
     .waitFor();
@@ -108,7 +108,7 @@ const fs = require("node:fs");
     path: "output/playwright/hosted-mobile.png",
     fullPage: true,
   });
-  await page.getByRole("button", { name: "Settings & recovery" }).click();
+  await page.getByRole("link", { name: "Settings & recovery" }).click();
   await page.getByRole("heading", { name: "Account and recovery" }).waitFor();
   assert.equal(await page.getByRole('button', {name:'Open Folder',exact:true}).count(),0);
   await page.keyboard.press("Tab");

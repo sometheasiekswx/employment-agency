@@ -11,12 +11,16 @@ from .store import Workspace, encode, digest
 from .service import Service
 from .workspaces import inside, remember, configure
 from .folders import choose_folder
+from .web_assets import asset, script_policy
 from . import packages, history
 
 
-def server(service, port=8766):
+def server(service, port=8766, frontend_origin=None):
+    if frontend_origin:
+        parsed = urlsplit(frontend_origin)
+        if parsed.scheme != 'http' or parsed.hostname != '127.0.0.1' or not parsed.port or frontend_origin != 'http://127.0.0.1:' + str(parsed.port):
+            raise ValueError('Development frontend origin must be an exact http://127.0.0.1:PORT origin')
     token = secrets.token_urlsafe(32)
-    static = Path(__file__).parent / 'static'
     gate = threading.RLock()
     picker = threading.Lock()
 
@@ -31,11 +35,13 @@ def server(service, port=8766):
             self.send_header('Cache-Control', 'no-store')
             self.send_header('X-Content-Type-Options', 'nosniff')
             self.send_header('Referrer-Policy', 'no-referrer')
-            self.send_header('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; object-src 'none'; frame-src 'self' blob:; frame-ancestors 'none'; base-uri 'none'")
+            scripts = script_policy(body.decode()) if kind.startswith('text/html') else "script-src 'self'"
+            self.send_header('Content-Security-Policy', "default-src 'self'; " + scripts + "; style-src 'self'; img-src 'self'; object-src 'none'; frame-src 'self' blob:; frame-ancestors 'none'; base-uri 'none'")
             for key, value in (headers or {}).items():
                 self.send_header(key, value)
             self.end_headers()
-            self.wfile.write(body)
+            if self.command != 'HEAD':
+                self.wfile.write(body)
 
         def allowed(self):
             return self.headers.get('Host') == '127.0.0.1:' + str(self.server.server_port)
@@ -47,14 +53,17 @@ def server(service, port=8766):
                 except (ValueError, KeyError, OSError) as exc:
                     self.send(409, encode({'error': str(exc)}))
 
+        def do_HEAD(self):
+            self.do_GET()
+
         def get(self):
             if not self.allowed():
                 return self.send(403, b'{}')
             path = urlsplit(self.path).path
             if path == '/api/state':
                 return self.send(200, encode({'state': service.state(), 'token': token}))
-            if path in ('/history', '/history/'):
-                return self.send(200, history.page(service.w.path), 'text/html; charset=utf-8')
+            if path == '/api/runtime':
+                return self.send(200, encode({'mode': 'local'}))
             if path.startswith('/files/'):
                 parts = path.split('/')
                 app = next((a for a in service.w.read()['applications'] if len(parts) == 4 and a['id'] == parts[2]), None)
@@ -65,20 +74,9 @@ def server(service, port=8766):
                 return self.send(302, b'', headers={'Location': '/history/files/' + key + '/' + quote(f.name, safe='')})
             if path.startswith('/history/files/'):
                 parts = path.split('/')
-                item = packages.catalogue(service.w.path).get(parts[3]) if len(parts) == 5 else None
-                if not item:
+                if len(parts) != 5:
                     return self.send(404, b'{}')
-                relative, record = item
-                index = json.loads(inside(service.w.path, '.recovery/index.json').read_text())
-                baseline = index.get(relative)
-                if not baseline or digest(inside(service.w.path, relative + '/version.json').read_bytes()) != baseline:
-                    raise ValueError('Version manifest changed; recovery review is required')
-                name = unquote(parts[4])
-                if name not in record['files']:
-                    return self.send(404, b'{}')
-                f = inside(service.w.path, relative + '/' + name)
-                if digest(f.read_bytes()) != record['files'][name]:
-                    raise ValueError('Document changed; validate edits in Applications first')
+                f = history.verified_file(service.w.path, parts[3], unquote(parts[4]))
             elif path.startswith('/exports/'):
                 name = path.removeprefix('/exports/')
                 if not re.fullmatch('[a-f0-9]{32}\\.zip', name):
@@ -86,12 +84,14 @@ def server(service, port=8766):
                 f = inside(service.w.path, '.runtime/exports/' + name)
             elif path == '/robots.txt':
                 return self.send(200, b'User-agent: *\nDisallow: /\n', 'text/plain')
-            elif path in ('/', '/app.js', '/style.css'):
-                f = static / ('index.html' if path == '/' else path[1:])
-            elif path.startswith('/ui/'):
-                f = inside(static, path.removeprefix('/ui/'))
             else:
-                return self.send(404, b'<!doctype html><html lang="en"><title>Page not found</title><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/style.css"><body class="history-page"><main><h1>Not on the board.</h1><p>This page could not be found.</p><a href="/">Return to applications</a></main></body></html>', 'text/html; charset=utf-8')
+                f = asset(unquote(path))
+                if f is None:
+                    if not path.startswith('/api/') and not Path(path).suffix:
+                        missing = asset('/404/')
+                        if missing:
+                            return self.send(404, missing.read_bytes(), 'text/html; charset=utf-8')
+                    return self.send(404, b'{"error":"Page not found"}')
             if not f.is_file() or f.is_symlink():
                 return self.send(404, b'{}')
             headers = {'Content-Disposition': "inline; filename*=UTF-8''" + quote(f.name, safe='')} if f.suffix == '.pdf' else None
@@ -102,7 +102,7 @@ def server(service, port=8766):
             try:
                 with gate:
                     origin = 'http://127.0.0.1:' + str(self.server.server_port)
-                    if not self.allowed() or self.headers.get('Origin') != origin or not secrets.compare_digest(self.headers.get('X-Workspace-Token', ''), token):
+                    if not self.allowed() or self.headers.get('Origin') not in {origin, frontend_origin} or not self.headers.get('Origin') or not secrets.compare_digest(self.headers.get('X-Workspace-Token', ''), token):
                         return self.send(403, encode({'error': 'Workspace changed, or request origin/token rejected. Reload before continuing.'}))
                     if self.headers.get('Content-Type') != 'application/json':
                         return self.send(415, b'{}')
