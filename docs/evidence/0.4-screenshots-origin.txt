@@ -3,3 +3,4 @@ Capture: tests/redesign-browser.cjs, run by tests/run_browser_checks.py against 
 Content: fictional Alex Morgan / Fictional Systems records only; no private workspace or real account data.
 Desktop: 1440x1000. Mobile: 390x844, reloaded after resize to avoid compositor capture artifacts.
 These are direct browser screenshots, not generated artwork or visual design comps.
+Live sign-in: direct Playwright/Chrome capture of https://sams-employment-agency.vercel.app after deployment dpl_8bX2dkishwaWkcnQGidyDaGC7Sie; fresh unauthenticated browser context. No real account data loaded.

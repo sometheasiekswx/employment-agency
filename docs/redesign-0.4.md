@@ -31,7 +31,7 @@ No workspace schema or data migration is required. Version 0.4.0 retains schema 
 | Accessibility | Axe WCAG 2/2.1 A/AA checks: five routes at 320/768/1024/1440; no reported violations |
 | Interaction/responsive | Actual proximity spring, unchanged link geometry, reduced motion, keyboard and draft cancellation, mobile dock, 200% text passed |
 | Hosted dependency bootstrap before assets | Passed with uv in a disposable folder |
-| Complete wheel installed outside checkout | Routes/assets/HEAD, generation and submitted export/restore proof |
+| Complete wheel installed outside checkout | Passed: routes/assets/HEAD, generation and submitted export/restore |
 | Impeccable detector | Ran once on changed UI targets; returned no findings |
 | Original private workspace | SHA-256 inventory checked separately before/after; no real workspace served or migrated |
 
@@ -48,3 +48,15 @@ Screenshots use fictional records and the production export through the Python s
 ## Delivery
 
 The existing Vercel project and domains are the target; account allowlist, provider configuration and deployment protections must remain unchanged. The prior working deployment is retained as rollback. Publication, CI and deployed HTTP/browser observations are recorded after delivery; local checks alone do not establish deployed acceptance. No application data needs to be moved to release this interface.
+
+### Observed production release
+
+Implementation commit: `31ebdc1dd8ab345af214954bcef984531d989131`. Vercel deployment `dpl_8bX2dkishwaWkcnQGidyDaGC7Sie` reached **READY**, and the existing [production domain](https://sams-employment-agency.vercel.app) moved to it. No manual provider/allowlist/protection change was made.
+
+Observed live: all five page routes returned HTTP 200 with the Next export; every referenced JavaScript asset returned successfully; the CSP contained bootstrap hashes; `/api/runtime` identified hosted mode; public configuration returned successfully; unauthenticated `/api/state` returned 401. A fresh Chrome context rendered “Continue with Google” with no page errors. No login, authenticated workspace write/delete, paid AI request or employer submission was performed.
+
+![Live unauthenticated production startup](evidence/0.4-live-sign-in.png)
+
+[Cross-platform GitHub checks](https://github.com/sometheasiekswx/employment-agency/actions/runs/41089053359) belong to the implementation revision; consult that run for its final platform results. Local evidence above was complete before publication. The final delivery also excludes development-only design records and optional virtual environments from the serverless function bundle. That packaging change does not change the rendered UI or data model.
+
+Rollback target retained: deployment `dpl_HTQzxV3GT7efPNPWb9uiBf1ZM6AP` from the previous working source. Private data and the local installed version pin were preserved. All temporary local fixtures were stopped after verification.

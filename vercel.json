@@ -2,6 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "flask",
   "buildCommand": "npm --prefix frontend ci --include=dev --ignore-scripts && npm --prefix frontend run build",
-  "functions": {"app.py": {"maxDuration": 60, "excludeFiles": "{frontend/**,tests/**,docs/**,output/**,.local/**,workspace/**,workspace-dev/**,.dev-config/**,.venv/**,graphify-out/**,build/**,dist/**}"}},
+  "functions": {"app.py": {"maxDuration": 60, "excludeFiles": "{frontend/**,tests/**,docs/**,tasks/**,.impeccable/**,PRODUCT.md,DESIGN.md,output/**,.local/**,workspace/**,workspace-dev/**,.dev-config/**,.venv/**,.venv-next/**,graphify-out/**,build/**,dist/**}"}},
   "regions": ["sin1"]
 }

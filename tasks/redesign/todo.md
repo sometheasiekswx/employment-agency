@@ -5,4 +5,5 @@
 - [x] Automated behavior, accessibility and visual evidence
 - [x] Finish review, corrections and design documentation
 - [x] README and release verification record
-- [ ] GitHub publication, CI and Vercel smoke verification
+- [x] GitHub publication and Vercel smoke verification
+- [ ] Cross-platform GitHub CI completion (remote run linked in docs/redesign-0.4.md)
