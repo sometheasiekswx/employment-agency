@@ -21,6 +21,23 @@ class WorkspaceContracts(unittest.TestCase):
     setUp = test_workflow.Workflow.setUp
     tearDown = test_workflow.Workflow.tearDown
     seed = test_workflow.Workflow.seed
+
+    def test_named_timezone_works_without_system_timezone_database(self):
+        # Windows and minimal containers rely on the packaged IANA database.
+        import zoneinfo
+        from datetime import datetime
+        from employment_agency.workspaces import time_zone
+        original = zoneinfo.TZPATH
+        try:
+            zoneinfo.reset_tzpath(())
+            zoneinfo.ZoneInfo.clear_cache()
+            city = time_zone('America/New_York')
+            self.assertEqual(datetime(2026, 1, 1, tzinfo=city).utcoffset().total_seconds(), -18000)
+            self.assertEqual(datetime(2026, 7, 1, tzinfo=city).utcoffset().total_seconds(), -14400)
+        finally:
+            zoneinfo.reset_tzpath(original)
+            zoneinfo.ZoneInfo.clear_cache()
+
     def test_master_reconciliation_is_local_and_preserves_supplemental(self):
         f, profile, job = self.seed()
         config = configure(self.w.path, {'master': 'master/resume.txt'})

@@ -4,7 +4,7 @@
 
 ## Observed checks
 
-- 82 Python tests passed, including seven new demo contracts: new-only creation, offline generation and canonical file integrity, unchanged remembered config/permissions, existing/symlink rejection, no partial publication on validation failure, guarded reopening and a missing-state error, and actionable CLI errors. Existing workflow/storage/cloud/editor/HTTP tests remain active.
+- 83 Python tests passed, including seven new demo contracts: new-only creation, offline generation and canonical file integrity, unchanged remembered config/permissions, existing/symlink rejection, no partial publication on validation failure, guarded reopening and a missing-state error, and actionable CLI errors. A timezone regression test removes the system timezone search path and verifies New York winter/summer offsets from the packaged tzdata dependency. Existing workflow/storage/cloud/editor/HTTP tests remain active.
 - 20 frontend unit tests, TypeScript, ESLint and the production export passed.
 - All nine local/fake-hosted browser scripts passed. The design script checks five routes at 320/768/1024/1440, Axe WCAG 2/2.1 A/AA, fixed navigation targets, an actual proximity spring, keyboard/draft cancellation, reduced motion, bottom-dock position and 200% text. Exact brand fills and removal of repeated slogans are asserted against the rendered export.
 - Installed-wheel proof passed outside the source checkout: routes/assets/HEAD, normal generation, submitted backup/restore, and offline populated demo generation/reopening. Demo assets are verified inside the wheel.
@@ -35,5 +35,7 @@ Full mode, React/Next.js, existing plain CSS; no second styling system.
 Considered and rejected: a saturated sidebar (no need to change navigation topology); clipping long job titles (loses factual content); adding animated entrances (daily interactions need speed); using a real private resume in public media (user selected fictional data). No actionable polish finding remains in the reviewed scope. Unverified: real-user accessibility study and live authenticated cloud writes. Verdict: Approve within this scope.
 
 ## Delivery
+
+The first CI logs exposed missing Windows timezone data and a hosted browser ordering race. tzdata is now installed with the app on every platform, and the hosted check waits for the persisted saved-job count before ranking, with an intentionally delayed save response. This does not change the business workflows or UI. The affected tests were rerun before release.
 
 The release target is the existing public GitHub repository and Vercel project. Publish the checked complete 0.5.0 wheel with its SHA-256 digest so the README's Python-only installation path is real. Observe cross-platform CI, deployment readiness, all live routes/assets, hosted mode and unauthorized-state rejection. Keep the previous working deployment for rollback and stop temporary fixtures. Delivery observations are reported with the final release links; local checks alone are not deployed verification.

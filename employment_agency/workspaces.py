@@ -109,4 +109,4 @@ def time_zone(name):
     try:
         return ZoneInfo(name)
     except ZoneInfoNotFoundError as exc:
-        raise ValueError('Timezone unavailable; use UTC or install the optional tzdata package') from exc
+        raise ValueError('Timezone unavailable; choose a valid IANA timezone or UTC') from exc

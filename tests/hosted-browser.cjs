@@ -47,7 +47,14 @@ const fs = require("node:fs");
     .getByLabel("Paste the job advert")
     .fill("Build Python APIs and integration tests.");
   await page.getByLabel("Requirements —").fill("Python APIs");
+  await page.route('**/api/job', async route => {
+    await new Promise(resolve => setTimeout(resolve, 250));
+    await route.continue();
+  });
   await page.getByRole("button", { name: "Save job" }).click();
+  // Hosted saves are asynchronous. Rank only after the saved record is visible.
+  await page.getByText("Saved jobs (1)", { exact: true }).waitFor();
+  await page.unroute('**/api/job');
   await page.getByRole("button", { name: "Rank saved jobs" }).click();
   await page
     .getByRole("heading", { name: "Software Engineer · Fictional Systems" })
