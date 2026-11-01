@@ -62,14 +62,14 @@ class Delivery:
             for path in folder.glob('*.json'):
                 if not re.fullmatch(r'[a-f0-9]{32}\.json', path.name):
                     continue
-                result.append(json.loads(inside(self.w.path, 'records/submissions/' + path.name).read_text()))
+                result.append(json.loads(inside(self.w.path, 'records/submissions/' + path.name).read_text(encoding='utf-8')))
         return sorted(result, key=lambda r: r['created_at'])
 
     def get(self, id):
         if not isinstance(id, str) or not re.fullmatch('[a-f0-9]{32}', id):
             raise ValueError('Invalid attempt identifier')
         try:
-            return json.loads(inside(self.w.path, 'records/submissions/' + id + '.json').read_text())
+            return json.loads(inside(self.w.path, 'records/submissions/' + id + '.json').read_text(encoding='utf-8'))
         except FileNotFoundError as exc:
             raise ValueError('Application attempt not found') from exc
 
@@ -99,11 +99,11 @@ class Delivery:
             raise ValueError('This job is already recorded as submitted')
         if packages.changed(self.w.path, app):
             raise ValueError('Documents changed. Validate a new draft before applying')
-        version = json.loads(inside(self.w.path, app['folder'] + '/version.json').read_text())
+        version = json.loads(inside(self.w.path, app['folder'] + '/version.json').read_text(encoding='utf-8'))
         if version['job']['id'] != job['id'] or any(version['job'].get(k) != job.get(k) for k in ('title', 'employer', 'location', 'description', 'requirements', 'url')):
             raise ValueError('The résumé belongs to a different listing')
         evidence_path = packages.path_for(self.w.path, app, 'evidence.json')
-        evidence = json.loads(evidence_path.read_text())
+        evidence = json.loads(evidence_path.read_text(encoding='utf-8'))
         current = {f['id']: f for f in state['facts']}
         for fact in evidence.get('facts', []):
             live = current.get(fact['id'], {})

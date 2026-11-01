@@ -1,5 +1,6 @@
 import email
 import json
+from pathlib import Path
 import threading
 import unittest
 from unittest.mock import patch
@@ -218,6 +219,22 @@ class ApplicationDelivery(unittest.TestCase):
         self.s.action('fact', {'id': fact['id'], 'text': 'A different unconfirmed experience statement'})
         with self.assertRaises(ValueError): self.approve(attempt)
         self.assertEqual(self.mail.messages, [])
+
+    def test_utf8_evidence_and_journal_survive_a_windows_default_encoding(self):
+        app, _, _ = self.setup_delivery()
+        read_text = Path.read_text
+
+        def windows_default(path, encoding=None, **kwargs):
+            return read_text(path, encoding=encoding or 'cp1252', **kwargs)
+
+        with patch.object(Path, 'read_text', windows_default):
+            # The seed includes en-dash dates; the message includes accented text.
+            attempt = self.start(app)
+            self.assertEqual(attempt['payload']['body'], 'Please review my tailored résumé.')
+            self.assertEqual(self.s.delivery.records()[0]['payload'], attempt['payload'])
+            self.assertEqual(self.approve(attempt)['status'], 'confirmed')
+        message = email.message_from_bytes(self.mail.messages[0], policy=email.policy.default)
+        self.assertIn('résumé', message.get_body(preferencelist=('plain',)).get_content())
 
     def test_an_uncertain_browser_is_never_reused_for_a_different_job(self):
         app, profile, job = self.setup_delivery(linkedin=True)

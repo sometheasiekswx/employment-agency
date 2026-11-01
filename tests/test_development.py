@@ -34,7 +34,10 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 # The stand-in frontend, like Next.js, does not need HTTPServer's reverse DNS.
-TCPServer(('127.0.0.1', int(sys.argv[1])), Handler).serve_forever()
+class Frontend(TCPServer):
+    # Match HTTPServer/Next.js so Linux TIME_WAIT permits an immediate restart.
+    allow_reuse_address = True
+Frontend(('127.0.0.1', int(sys.argv[1])), Handler).serve_forever()
 '''
 LAUNCH = '''
 from pathlib import Path
