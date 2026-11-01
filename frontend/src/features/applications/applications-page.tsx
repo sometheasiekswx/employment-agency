@@ -5,12 +5,14 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Check, Select } from "@/components/controls";
 import { useWorkspace } from "@/components/workspace-provider";
 import { useDraft } from "@/components/unsaved";
-import { decisionDate, destination, compareDestinations } from "@/lib/format";
-import type { Application, EditorDocument } from "@/lib/models";
+import { destination, compareDestinations } from "@/lib/format";
+import type { Application, EditorDocument, Job } from "@/lib/models";
 import { ApplicationCard } from "./application-card";
+import { ApplyForMe } from "./apply-for-me";
 import { DocumentEditor } from "./document-editor";
 import Link from "next/link";
 import { FolderOpen } from "lucide-react";
+import { applicationQueues, applicationTime } from "./queues";
 
 const sections = [
   ["active", "Active"],
@@ -34,6 +36,11 @@ export function ApplicationsPage() {
     : "active";
   const selectedCity = filters.get("destination") || "All destinations";
   const includeHistorical = filters.get("history") === "true";
+  const [applying, setApplying] = useState<{
+    app: Application;
+    job: Partial<Job>;
+    opener: HTMLButtonElement;
+  }>();
   const [editing, setEditing] = useState<{
     document: EditorDocument;
     opener: HTMLButtonElement;
@@ -50,18 +57,14 @@ export function ApplicationsPage() {
   };
   const jobs = new Map(state.jobs.map((job) => [job.id, job]));
   const priorities = state._workspace.preferred_locations;
-  const available = state.applications.filter(
-    (app) => includeHistorical || !app.archived,
-  );
+  const available = applicationQueues(state.applications, includeHistorical);
   const visible = available
     .filter((app) => group(app) === section)
-    .sort((a, b) =>
-      section === "submitted"
-        ? decisionDate(b, "submitted").localeCompare(
-            decisionDate(a, "submitted"),
-          )
-        : (b.created_at || "").localeCompare(a.created_at || ""),
-    );
+    .sort((a, b) => {
+      const first = applicationTime(a);
+      const second = applicationTime(b);
+      return first === second ? 0 : first > second ? -1 : 1;
+    });
   const cityFor = (app: Application) =>
     destination(jobs.get(app.job_id) || {}, priorities);
   if (section !== "submitted")
@@ -138,6 +141,9 @@ export function ApplicationsPage() {
           app={app}
           job={jobs.get(app.job_id) || {}}
           onEdit={(document, opener) => setEditing({ document, opener })}
+          onApply={(opener) =>
+            setApplying({ app, job: jobs.get(app.job_id) || {}, opener })
+          }
         />
       ))}
       {!filtered.length && (
@@ -177,6 +183,9 @@ export function ApplicationsPage() {
             ))}
           </section>
         )}
+      {applying && (
+        <ApplyForMe {...applying} onClose={() => setApplying(undefined)} />
+      )}
       {editing && (
         <DocumentEditor
           document={editing.document}

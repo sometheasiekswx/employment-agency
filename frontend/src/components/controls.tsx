@@ -85,6 +85,7 @@ export function Json({
 export function Form({
   children,
   onSave,
+  onBusyChange,
   className,
   ...props
 }: Omit<React.FormHTMLAttributes<HTMLFormElement>, "onSubmit"> & {
@@ -93,8 +94,10 @@ export function Form({
     data: FormData,
     submitter: HTMLButtonElement | null,
   ) => Promise<void>;
+  onBusyChange?: (busy: boolean) => void;
 }) {
   const [busy, setBusy] = useState(false);
+  const saving = useRef(false);
   const [error, setError] = useState("");
   const errorNotice = useRef<HTMLParagraphElement>(null);
   const { setDirty } = useDraft();
@@ -103,12 +106,14 @@ export function Form({
   }, [error]);
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (busy) return;
+    if (saving.current) return;
     const form = event.currentTarget;
     const data = new FormData(form);
     const submitter = (event.nativeEvent as SubmitEvent)
       .submitter as HTMLButtonElement | null;
+    saving.current = true;
     setBusy(true);
+    onBusyChange?.(true);
     setError("");
     try {
       await onSave(data, submitter);
@@ -116,7 +121,9 @@ export function Form({
     } catch (error) {
       setError(errorMessage(error));
     } finally {
+      saving.current = false;
       setBusy(false);
+      onBusyChange?.(false);
     }
   };
   return (

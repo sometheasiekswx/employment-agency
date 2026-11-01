@@ -40,6 +40,11 @@ def fail(message):
     raise ValueError(message)
 
 
+def submitted_job_ids(state):
+    """Preserved submitted versions outrank editable/imported job metadata."""
+    return {app['job_id'] for app in state['applications'] if app['status'] == 'submitted'}
+
+
 def conflicts(s):
     groups = {}
     for f in s["facts"]:
@@ -65,9 +70,14 @@ class Service:
         self.w = workspace
         self.worker = None
         self.worker_lock = threading.Lock()
+        self.delivery = None
 
     def state(self):
         state = self.w.read()
+        submitted = submitted_job_ids(state)
+        for job in state['jobs']:
+            if job['id'] in submitted:
+                job['prior_application'] = 'submitted'
         state['_workspace'] = {'path': str(self.w.path), **settings(self.w.path)}
         state['_master'] = master.status(self.w)
         for app in state['applications']:
@@ -82,6 +92,13 @@ class Service:
     def action(self, action, a):
         if not isinstance(a, dict):
             raise ValueError("Expected JSON object")
+        if action.startswith('apply-'):
+            if self.worker and self.worker.is_alive():
+                raise ValueError('Wait for the preparation run before applying')
+            if self.delivery is None:
+                from .application_delivery import Delivery
+                self.delivery = Delivery(self)
+            return self.delivery.action(action, a)
         if action == 'history':
             from .history import versions
             return versions(self.w.path)
@@ -456,6 +473,8 @@ class Service:
                 if "prior_application" not in a:
                     j["prior_application"] = existing.get("prior_application", "none")
                 s["jobs"].remove(existing)
+            if j['id'] in submitted_job_ids(s):
+                j['prior_application'] = 'submitted'
             s["jobs"].append(j)
         return j
 
@@ -658,6 +677,8 @@ class Service:
         staging = inside(self.w.path, '.runtime/staging')
         staging.mkdir(parents=True, exist_ok=True)
         with self.w.lock, tempfile.TemporaryDirectory(dir=staging) as temp:
+            if job['id'] in submitted_job_ids(self.w.read()):
+                raise ValueError('This job is already recorded as submitted')
             p = Path(temp) / 'package'
             documents.render(p, identity, job, chosen, m, profile.get('template', 'navy'))
             if config['master_template']:

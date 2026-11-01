@@ -29,3 +29,5 @@ workspace-dev/
 
 .taste-skill/
 demo-workspace/
+
+.venv-apply/

@@ -9,7 +9,8 @@
   --secondary: #f2f2f4;
   --secondary-hover: #e7e7eb;
   --positive-bg: #e6f3eb;
-  --positive-ink: #17613b;
+  --positive-ink: #0fb04d;
+  --positive-text: #17613b;
   --negative-bg: #fcecef;
   --negative-ink: #a32130;
   --link: #076385;
@@ -257,12 +258,12 @@ details details {
   line-height: 1.5;
 }
 .pill[data-status="submitted"] {
-  background: var(--accent-soft);
-  color: var(--link);
+  background: var(--positive-bg);
+  color: var(--positive-text);
 }
 .pill[data-status="reviewed"] {
-  background: var(--positive-bg);
-  color: var(--positive-ink);
+  background: var(--accent-soft);
+  color: var(--link);
 }
 .pill[data-status="rejected"] {
   background: #fcecef;
@@ -539,8 +540,10 @@ details details {
   margin: 0;
   color: var(--muted);
 }
-.dossier-header .pill {
+.dossier-header .pill,
+.dossier-header .review-status {
   margin-left: 0.5rem;
+  vertical-align: middle;
 }
 
 .dossier-content {
@@ -560,6 +563,21 @@ details details {
   margin: 0;
   font-size: 0.875rem;
 }
+.review-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+}
+.review-pane .review-header > button {
+  flex: 0 0 auto;
+  max-width: 100%;
+}
+.review-pane .review-header > button.secondary {
+  background: var(--accent);
+  color: var(--ink);
+}
 .review-pane textarea {
   min-height: 7rem;
 }
@@ -574,12 +592,12 @@ details details {
   color: var(--negative-ink);
 }
 .review-pane button:not([name]) {
-  background: #e9ebf1;
-  color: #363a44;
+  background: var(--secondary);
+  color: var(--ink);
 }
-.review-pane button[name="status"][value="reviewed"] {
-  background: var(--positive-bg);
-  color: var(--positive-ink);
+.review-pane button[name="status"][value="submitted"] {
+  background: var(--positive-ink);
+  color: var(--ink);
 }
 .review-pane button:hover {
   filter: brightness(0.94);
@@ -962,8 +980,13 @@ h3 {
   overflow-wrap: anywhere;
 }
 
-html { -webkit-font-smoothing: antialiased; }
-p, li { text-wrap: pretty; }
+html {
+  -webkit-font-smoothing: antialiased;
+}
+p,
+li {
+  text-wrap: pretty;
+}
 .demo-label {
   padding: 0.3rem 0.6rem;
   border-radius: 6px;
@@ -972,21 +995,79 @@ p, li { text-wrap: pretty; }
   font-size: 0.75rem;
   white-space: nowrap;
 }
-.segmented-control button, .result-count, .application-details {
+.segmented-control button,
+.result-count,
+.application-details {
   font-variant-numeric: tabular-nums;
 }
 .segmented-control button[aria-pressed="true"] {
   box-shadow: none;
   border-bottom: 2px solid var(--accent);
 }
-.dock-item[aria-current="page"] .dock-icon { color: var(--link); }
-button.positive { background: var(--positive-bg); color: var(--positive-ink); }
-button.positive:hover { background: #d8eddf; }
-button.danger { background: var(--negative-bg); color: var(--negative-ink); }
-button.danger:hover { background: #f9dce0; }
+.dock-item[aria-current="page"] .dock-icon {
+  color: var(--link);
+}
+button.positive {
+  background: var(--positive-bg);
+  color: var(--positive-text);
+}
+button.positive:hover {
+  background: #d8eddf;
+}
+button.danger {
+  background: var(--negative-bg);
+  color: var(--negative-ink);
+}
+button.danger:hover {
+  background: #f9dce0;
+}
 @media (max-width: 700px) {
-  .dock-panel { background: var(--surface); backdrop-filter: none; }
-  .dock-short-label { font-size: 0.6875rem; }
-  .dock-item:first-child { flex-grow: 1.4; }
-  .demo-label { order: 3; width: 100%; text-align: center; }
+  .dock-panel {
+    background: var(--surface);
+    backdrop-filter: none;
+  }
+  .dock-short-label {
+    font-size: 0.6875rem;
+  }
+  .dock-item:first-child {
+    flex-grow: 1.4;
+  }
+  .demo-label {
+    order: 3;
+    width: 100%;
+    text-align: center;
+  }
+}
+
+.apply-dialog {
+  width: min(48rem, 96vw);
+  max-height: 92dvh;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  background: var(--surface);
+  color: var(--ink);
+}
+.apply-dialog::backdrop {
+  background: rgb(0 0 0 / 35%);
+}
+.apply-dialog header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.apply-dialog h2 {
+  margin-top: 0;
+}
+.apply-dialog iframe {
+  width: 100%;
+  height: 24rem;
+  border: 1px solid var(--line);
+}
+.apply-dialog pre,
+.apply-dialog code {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }

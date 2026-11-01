@@ -34,6 +34,9 @@ The exact application documents recorded as submitted, preserved with their prov
 **Application decision**:
 A user's recorded review, rejection or manual submission. Recording Submitted also confirms review; it does not send an application. Comments do not change decisions. Active contains Draft and Reviewed packages; Submitted and Rejected have separate sections.
 
+**Review status**:
+The reversible Draft or Reviewed state of an active application version. Changing review status records the user's current decision without deleting previous decisions or changing the preserved application documents; a submitted snapshot is not reopened by this control.
+
 **Listing dates**:
 Employer-provided posting, reposting and closing dates, distinct from document generation and user decision dates. Missing values remain unknown and approximate source wording stays approximate.
 
@@ -45,3 +48,6 @@ One or two sentences describing a role and its strongest supported match to conf
 
 **Demo workspace**:
 An isolated example career workspace containing an explicitly fictional candidate and dated snapshots of real job listings. Its sample decisions and generated documents demonstrate the application, not a real person's employment or submissions.
+
+**Submission approval**:
+The user's confirmation of one external application attempt in the local Apply For Me preview, bound to its exact documents, recipient, answers and final action. Requesting preparation or recording a review decision does not constitute this approval. The capability is implemented in the unreleased local source preview; the published 0.6 wheel remains draft-only and hosted execution is disabled.

@@ -35,7 +35,13 @@ jobs:
       - if: runner.os == 'Linux'
         run: npx --prefix frontend playwright install --with-deps chrome
       - if: runner.os == 'Linux'
+        run: python tests/check_development.py
+      - if: runner.os == 'Linux'
         run: python tests/run_browser_checks.py
+      - if: runner.os == 'Linux'
+        run: python -m pip install '.[apply]'
+      - if: runner.os == 'Linux'
+        run: python tests/run_apply_checks.py
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

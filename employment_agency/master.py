@@ -12,7 +12,7 @@ from .workspaces import inside, settings, city_for
 def plain(s):
     s = re.sub(r'\\href\{[^{}]*\}\{([^{}]*)\}', r'\1', s)
     s = re.sub(r'\\(?:textbf|textit|mbox)\{([^{}]*)\}', r'\1', s)
-    s = s.replace(r'\textbar', '|').replace(r'\hfill', '   ')
+    s = s.replace(r'\textbar\ ', '| ').replace(r'\textbar', '|').replace(r'\hfill', '   ')
     s = re.sub(r'\\([$%&#_])', r'\1', s)
     return s.replace('--', '–').strip()
 
@@ -54,8 +54,22 @@ def word_copy(tex, dest):
     d.styles['Normal'].font.name='Latin Modern Roman'; d.styles['Normal'].font.size=Pt(11)
     d.styles['Normal'].paragraph_format.space_after=Pt(2)
     if r'\section{Profile}' not in tex:
-        for line in imports.extract('document.tex', tex.encode()).splitlines():
-            if line.strip(): d.add_paragraph(line.strip())
+        # The supported letter template uses one semantic block per line.
+        # Generic TeX extraction retains layout arguments such as "navy" and
+        # "12pt". Read the body and remove its formatting before copying prose.
+        body = tex.split(r'\begin{document}', 1)[1].split(r'\end{document}', 1)[0]
+        for line in body.splitlines():
+            line = re.sub(r'\\(?:begin|end)\{[A-Za-z*]+\}', '', line).strip()
+            if not line:
+                continue
+            line = re.sub(r'\\(?:color|vspace)\*?\{[^{}]*\}', '', line)
+            line = re.sub(r'\\(?:LARGE|Large|large|small|bfseries|selectfont|raggedright)\b', '', line)
+            bullet = line.startswith(r'\item ')
+            line = plain(line.removeprefix(r'\item ').replace(r'\par', '').removesuffix(r'\\'))
+            if line.startswith('{') and line.endswith('}'):
+                line = line[1:-1].strip()
+            if line:
+                d.add_paragraph(line, 'List Bullet' if bullet else None)
         d.save(dest)
         return
     body=tex.split(r'\section{Profile}',1)[1]

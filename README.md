@@ -20,7 +20,7 @@
 
 </div>
 
-A local-first application workspace. Import a resume, confirm your experience, define search profiles, compare jobs and prepare PDF/Word documents. Review every version and record your own decisions. **Nothing is submitted or emailed by the app.**
+A local-first application workspace. Import a resume, confirm your experience, define search profiles, compare jobs and prepare PDF/Word documents. Review every version and record your own decisions. **Drafting never sends an application.** The unreleased [local Apply For Me preview](docs/apply-for-me.md) adds explicit approval before Gmail sending or experimental browser submission; the published 0.6 wheel remains draft-only.
 
 The walkthrough uses **Alex Morgan, a fictional engineer**: 15 sample facts, three search profiles, 14 real employer-board job snapshots and 12 generated packages. The listings include New York, New Jersey/Princeton, Boston, San Francisco and Toronto; they are dated examples, not a live availability guarantee. No private resume is used.
 
@@ -137,6 +137,14 @@ npm --prefix frontend run build
 npx --prefix frontend playwright install chrome
 .venv/bin/python tests/run_browser_checks.py
 ```
+
+For live frontend development, start both servers in one terminal:
+
+```sh
+.venv/bin/python -m employment_agency dev
+```
+
+Open **http://127.0.0.1:3000**. CSS/React edits update automatically; Ctrl+C stops both servers. This uses your remembered workspace; use the [isolated development setup](CONTRIBUTING.md#live-frontend-development) for contributions. Stop existing servers first.
 
 Useful contributions: source adapters, import fidelity, accessible interactions, document rendering and behavior tests. Put shared logic in the app and private data in workspaces. Include the problem, resulting behavior and verification in your PR. [Live frontend development and contribution boundaries](CONTRIBUTING.md#live-frontend-development).
 

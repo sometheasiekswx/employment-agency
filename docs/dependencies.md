@@ -2,6 +2,12 @@
 
 Original implementation is MIT. No code or history from the private application pilot, career-ops or other job-search projects is included.
 
+## Review-status interaction
+
+The review control ports the actual [React Bits Bell Toggle](https://reactbits.dev/c/micro/bell-toggle) from [revision 4dc7b5b7772e1217c8fb8d2a7aa074302180e5b4](https://github.com/DavidHDev/react-bits/tree/4dc7b5b7772e1217c8fb8d2a7aa074302180e5b4/src/ts-default/Micro/BellToggle). Its measured clip spring, ringing bell/waves and label transitions are retained. The upstream MIT + Commons Clause notice is included in `frontend/public/licenses/react-bits-bell-toggle.txt` and the packaged export.
+
+Application adaptations use the existing Lucide Bell through the icon slot, site colour tokens, native form association, persisted Draft/Reviewed state and a busy guard. A visible wrapper ring handles keyboard focus around the clipped pill; reduced motion and animation cleanup remain explicit. The demo's simulated notification counts are not application data, so its badge is disabled. No new dependency or upstream installer was needed; the source's measurements, events, animation lifecycle and licence were inspected directly.
+
 ## 0.4 interface additions
 
 The navigation adapts [React Bits Dock](https://reactbits.dev/components/dock) from the smaller Motion-based source at [revision da6c709a5c46c172d0406ad626c5df31e509ee2e](https://github.com/DavidHDev/react-bits/blob/da6c709a5c46c172d0406ad626c5df31e509ee2e/src/ts-default/Components/Dock/Dock.tsx). This explicit snapshot keeps the relevant proximity/spring mechanism without importing the newer component's context menus, launch effects and configuration surface. The upstream MIT + Commons Clause licence is included in `frontend/public/licenses/react-bits.txt` and the packaged export. It permits use as part of this application; it does not make these third-party components unrestricted MIT code for standalone redistribution.

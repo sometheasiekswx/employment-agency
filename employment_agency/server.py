@@ -137,6 +137,8 @@ def server(service, port=8766, frontend_origin=None):
                 self.send(500, encode({'error': 'Operation failed; no remote response or credentials logged'}))
 
         def check_run(self):
+            if service.delivery and service.delivery.busy:
+                raise ValueError('Finish or cancel Apply For Me before switching workspaces')
             if service.worker and service.worker.is_alive():
                 raise ValueError('Wait for or cancel the active run before switching workspaces')
 
@@ -157,6 +159,8 @@ def server(service, port=8766, frontend_origin=None):
                         if replacement.read()['schema'] != 2:
                             raise ValueError('Migrate this older workspace using the CLI before opening it')
                         configure(target, {'setup_complete': True})
+                        if service.delivery:
+                            service.delivery.close()
                     except Exception:
                         replacement.close()
                         raise
@@ -178,6 +182,8 @@ def server(service, port=8766, frontend_origin=None):
         request_queue_size = 64
 
         def server_close(self):
+            if service.delivery:
+                service.delivery.close()
             super().server_close()
             if self.active_service.w is not service.w:
                 self.active_service.w.close()

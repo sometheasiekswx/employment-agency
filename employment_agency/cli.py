@@ -9,7 +9,7 @@ from .workspaces import selected_workspace, remember
 
 def main():
     p = argparse.ArgumentParser(
-        description="Private career workspace; no automatic applications"
+        description="Private career workspace; external applications require explicit approval"
     )
     p.add_argument(
         "--workspace", help="Career workspace folder; defaults to the remembered folder or workspace/"
@@ -18,11 +18,18 @@ def main():
     serve = sub.add_parser("serve")
     serve.add_argument("--port", type=int, default=8766)
     serve.add_argument('--frontend-origin', help='Development only: exact http://127.0.0.1:PORT origin for a Next.js dev proxy')
+    dev = sub.add_parser('dev', help='Run Python and the live Next.js frontend together; Ctrl+C stops both')
+    dev.add_argument('--port', type=int, default=8766, help='Python backend port (default: 8766)')
+    dev.add_argument('--frontend-port', type=int, default=3000, help='Live frontend port (default: 3000)')
     demo = sub.add_parser('demo', help='Create a new isolated fictional demo workspace; no API key or network needed')
     demo.add_argument('destination', help='New folder; existing destinations are never overwritten')
     demo.add_argument('--serve', action='store_true', help='Start the demo without changing the remembered workspace')
     demo.add_argument('--open', action='store_true', help='Reopen an existing marked demo without reseeding')
     demo.add_argument('--port', type=int, default=8770)
+    gmail = sub.add_parser('connect-gmail', help='Connect a Google Desktop OAuth client; credentials stay in macOS Keychain')
+    gmail.add_argument('client_json')
+    sub.add_parser('disconnect-gmail', help='Remove local Gmail credentials from macOS Keychain')
+    sub.add_parser('apply-doctor', help='Check optional local application dependencies without contacting employers')
     sub.add_parser("state")
     act = sub.add_parser("action")
     act.add_argument("operation")
@@ -37,6 +44,27 @@ def main():
     migration.add_argument('destination')
     migration.add_argument('--settings', help='JSON workspace settings file')
     a = p.parse_args()
+    if a.command == 'dev':
+        from .development import run
+        try:
+            p.exit(run(selected_workspace(a.workspace), a.port, a.frontend_port))
+        except (ValueError, OSError) as exc:
+            p.exit(2, f'Development app not started: {exc}\n')
+    if a.command in ('connect-gmail', 'disconnect-gmail', 'apply-doctor'):
+        from .delivery_connections import Gmail
+        try:
+            if a.command == 'apply-doctor':
+                import shutil, importlib.util, subprocess
+                binary = shutil.which('codex')
+                signed_in = bool(binary and subprocess.run([binary, 'login', 'status'], capture_output=True, timeout=10).returncode == 0)
+                print(json.dumps({'macos': sys.platform == 'darwin', 'codex_installed': bool(binary),
+                    'codex_signed_in': signed_in, 'optional_dependencies': {n: bool(importlib.util.find_spec(n)) for n in ('playwright', 'keyring', 'google_auth_oauthlib')}}))
+            else:
+                result = Gmail().connect(a.client_json) if a.command == 'connect-gmail' else Gmail().disconnect()
+                print(json.dumps(result))
+        except Exception:
+            p.exit(2, 'Connection setup failed. Check the optional dependencies and Google Desktop client; no credentials were printed.\n')
+        return
     if a.command == 'demo':
         if a.workspace:
             p.error('demo uses its new destination; omit --workspace')
@@ -89,6 +117,8 @@ def main():
                 service.worker.join()
             sys.stdout.buffer.write(encode(result))
     finally:
+        if service.delivery:
+            service.delivery.close()
         w.close()
 
 

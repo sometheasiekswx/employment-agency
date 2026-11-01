@@ -14,6 +14,11 @@ const assert=require('node:assert/strict');
   console.error('Editor readiness failure:', await page.locator('body').innerText(), errors); throw error;
  }
  const count=await page.getByRole('button',{name:'View / edit CV',exact:true}).count();
+ const readState=async()=> (await (await page.request.get((process.env.TEST_URL||'http://127.0.0.1:8773')+'/api/state',{
+  headers:process.env.HOSTED?{Authorization:'Bearer fixture-session'}:{}
+ })).json()).state;
+ const before=(await readState()).applications;
+ const editedId=await page.getByRole('button',{name:'View / edit CV',exact:true}).first().evaluate(e=>e.closest('article').dataset.applicationId);
  await page.getByRole('button',{name:'View / edit CV',exact:true}).first().click();
  const dialog=page.getByRole('dialog'); await dialog.waitFor();
  assert.match(await dialog.locator('iframe').getAttribute('src'),/^blob:/);
@@ -29,9 +34,16 @@ const assert=require('node:assert/strict');
  await page.screenshot({path:'output/playwright/document-editor.png',fullPage:false});
  await dialog.getByRole('button',{name:'Save as new draft'}).click();
  await page.locator('#notice').filter({hasText:'Saved as a new draft'}).waitFor();
- await page.getByRole('button',{name:`Active (${count+1})`,exact:true}).waitFor();
+ const after=(await readState()).applications;
+ assert.equal(after.length,before.length+1,'Editing preserves the original and appends a version');
+ const draft=after.find(app=>!before.some(old=>old.id===app.id));
+ assert.equal(draft.derived_from,editedId);
+ await page.locator(`[data-application-id="${draft.id}"]`).waitFor();
+ assert.equal(await page.locator(`[data-application-id="${editedId}"]`).count(),0,'Only the latest current version appears');
+ await page.getByRole('button',{name:`Active (${count})`,exact:true}).waitFor();
  await page.reload();
- await page.getByRole('button',{name:`Active (${count+1})`,exact:true}).waitFor();
+ await page.getByRole('button',{name:`Active (${count})`,exact:true}).waitFor();
+ await page.locator(`[data-application-id="${draft.id}"]`).waitFor();
  await page.getByRole('button',{name:'View / edit cover letter',exact:true}).first().click();
  await page.getByRole('dialog').getByLabel('Text',{exact:true}).last().fill('Unsaved draft text');
  page.once('dialog',d=>d.dismiss()); await page.keyboard.press('Escape');

@@ -26,26 +26,53 @@ Run TypeScript, lint, frontend unit tests, the production build, and Python test
 
 ## Live frontend development
 
-Start a disposable backend in one terminal (macOS/Linux):
+Run both servers in one terminal from the software checkout (macOS/Linux):
 
 ```sh
-EA_CONFIG_HOME=.dev-config .venv/bin/python -m employment_agency --workspace workspace-dev serve --frontend-origin http://127.0.0.1:3000
+.venv/bin/python -m employment_agency dev
+```
+
+Open **http://127.0.0.1:3000**. The command opens your remembered workspace, starts Python on port 8766 and Next.js on port 3000, and enables Fast Refresh. Saving `frontend/src/app/globals.css` or a React component updates the browser automatically. **Ctrl+C stops both servers and releases the workspace.** Python changes require restarting the command.
+
+Stop any separately running Python/Next servers first. The command reports an occupied port or workspace instead of stopping an existing process. Use `--workspace /absolute/path/to/workspace` **before** `dev` to select a different folder. Development requires a source checkout, its Python environment, Node.js 24+ and the installed frontend dependencies; it does not install anything automatically.
+
+For contributions, use a disposable workspace and isolated remembered-folder settings:
+
+```sh
+EA_CONFIG_HOME=.dev-config .venv/bin/python -m employment_agency --workspace workspace-dev dev
 ```
 
 Windows PowerShell:
 
 ```powershell
 $env:EA_CONFIG_HOME = '.dev-config'
-.venv\Scripts\python -m employment_agency --workspace workspace-dev serve --frontend-origin http://127.0.0.1:3000
+.venv\Scripts\python -m employment_agency --workspace workspace-dev dev
 ```
 
-In a second terminal:
+To choose different ports:
 
 ```sh
-npm --prefix frontend run dev -- --hostname 127.0.0.1 --port 3000
+.venv/bin/python -m employment_agency dev --port 8767 --frontend-port 3001
 ```
 
-Open `http://127.0.0.1:3000`. Next provides Fast Refresh and proxies API/files to Python on port 8766. A different backend can be supplied with the loopback-only `EA_BACKEND_URL`. The explicit frontend-origin flag permits that exact development origin while retaining token checks; normal local serving does not allow it. The separate ignored config/workspace folders keep development from changing your real remembered workspace. Restart Python after backend changes. Test final behavior using the production export too.
+The launcher configures the exact frontend origin and API/file proxy automatically, preserving origin/token checks. For a manual two-terminal setup, `serve --frontend-origin http://127.0.0.1:3000` and `npm --prefix frontend run dev -- --hostname 127.0.0.1 --port 3000` remain available. Test final behavior using the production export too.
+
+The launcher lifecycle is covered by `python -m unittest discover -s tests -p test_development.py -v`. On macOS/Linux with Chrome installed, `python tests/check_development.py` checks the actual Next.js proxy, CSS Fast Refresh and shutdown/restart using a separate temporary source tree and fictional workspace. Local verification was performed on macOS; Windows console cleanup has not been verified locally.
+
+## Editing button colours
+
+The **Apply For Me** and **Submission details** labels belong to the same button in `frontend/src/features/applications/application-card.tsx`. Its default fill/text colours currently come from `.review-pane button:not([name])` in `frontend/src/app/globals.css`. That rule also styles Save comment.
+
+To style only the header button, add a more specific rule to `globals.css`:
+
+```css
+.review-pane .review-header > button.secondary {
+  background: #0593c6;
+  color: #171717;
+}
+```
+
+`background` changes the fill and `color` changes the text. This is an example; it applies to both button labels without changing the decision or Save comment buttons.
 
 ## Adding or changing a feature
 

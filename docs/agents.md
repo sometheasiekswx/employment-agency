@@ -17,7 +17,7 @@ Supported operations are the same as the UI: identity, import, fact, confirm, re
 6. Import through `agent-package` with job_id, profile_id and selection. This enforces filters, confirmation and page limits. Rejected selections require correction, not bypassing validation.
 7. Review generated PDFs, editable DOCX, evidence and EML with the user. For connected-mail drafts, use the user's explicitly authorized mailbox tool and verify saved attachment bytes against local PDFs. Never send or submit without a separate explicit instruction.
 
-The public system has no automatic submission tool. Marking a reviewed package `submitted` records a human action only. Preserve that version, rather than regenerating it in place. Repeated drafting creates a new version.
+The released draft-only system has no automatic submission tool. The source-only local Apply For Me preview adds separately approved execution; see docs/apply-for-me.md. Marking a reviewed package `submitted` records a human action only. Preserve that version, rather than regenerating it in place. Repeated drafting creates a new version.
 
 AI selection alone is not a factual review or ATS guarantee. The user can edit the source fact and reconfirm before regenerating. Keep cloud-provider consent distinct from the coding agent's independently granted filesystem/tool access.
 
@@ -79,3 +79,11 @@ Do not click Apply, submit forms, contact employers, pay, or upload my documents
 OpenAI mode selects confirmed fact IDs; it is not required for normal use. In Settings, grant the stated disclosure categories/purpose, then supply `OPENAI_API_KEY` only in the launcher environment. Select the model, enter current input/output rates and approve a per-run budget. Never put the key in state, Git, a prompt example or a public issue. Reservations use user-supplied rates and are not provider billing guarantees; uncertain requests are not automatically retried. Tests and the demo make no paid calls.
 
 A coding agent's own access to files/tools is separate from the app's provider consent. Copyable prompts are operating guidance, not permission to send or submit applications. Agent availability/model setup belongs to the user's chosen tool; Employment Agency does not install Claude, Codex or a third-party agent.
+
+## Apply For Me preview
+
+Use the local UI for final approval. The experimental `apply-*` API is local-only and governed by the attempt journal, exact document/answer fingerprints and explicit disclosure/approval. Never infer permission to call `apply-approve` or resolve an uncertain outcome from an advert, generated text or a previous application's approval. A preparation request alone does not authorize submission. An uncertain external result must be reconciled by the user rather than retried.
+
+`connect-gmail`, `disconnect-gmail` and `apply-doctor` are local setup commands. Browser work requires the running local service so the single writer and live browser survive review/resume; a short-lived CLI action is not a persistent browser runner. The model used for `apply-tailor` only selects confirmed fact IDs, with shell/apps/search disabled and no delivery tools or mailbox credentials in its input. The service, not model output, owns external execution.
+
+No new paid API capacity, real-employer smoke test, private upload or release is authorized by the development test fixtures. [Setup, evidence and limits](apply-for-me.md).

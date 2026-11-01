@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Action, Form, TextArea, text } from "@/components/controls";
 import { useWorkspace } from "@/components/workspace-provider";
 import { displayDate, safeUrl } from "@/lib/format";
 import type { Application, EditorDocument, Job } from "@/lib/models";
 import { FileLink } from "./file-link";
 import { ApplicationDetails } from "./application-details";
+import { ReviewStatus } from "./review-status";
 
 const fileLabels = {
   "resume.pdf": "CV PDF",
@@ -23,13 +24,17 @@ export function ApplicationCard({
   app,
   job,
   onEdit,
+  onApply,
 }: {
   app: Application;
   job: Partial<Job>;
   onEdit: (document: EditorDocument, opener: HTMLButtonElement) => void;
+  onApply: (opener: HTMLButtonElement) => void;
 }) {
   const { state, client, run } = useWorkspace();
   const [comment, setComment] = useState("");
+  const [reviewBusy, setReviewBusy] = useState(false);
+  const reviewForm = useId();
   const timezone = state._workspace.timezone;
   const files = Object.entries(fileLabels).filter(
     ([file]) => app.documents?.[file],
@@ -40,9 +45,11 @@ export function ApplicationCard({
         <h2>{app.title}</h2>
         <p>
           {app.employer}{" "}
-          <span className="pill" data-status={app.status}>
-            {app.status}
-          </span>
+          <ReviewStatus
+            status={app.status}
+            form={reviewForm}
+            busy={reviewBusy}
+          />
         </p>
       </header>
       <div className="dossier-content">
@@ -121,8 +128,23 @@ export function ApplicationCard({
         )}
       </div>
       <div className="review-pane">
-        <h3>Review & decision</h3>
+        <div className="review-header">
+          <h3>Review & decision</h3>
+          {!client.hosted && app.documents?.["resume.pdf"] && (
+            <button
+              className="secondary"
+              disabled={state._workspace.demo}
+              onClick={(event) => onApply(event.currentTarget)}
+            >
+              {app.status === "submitted"
+                ? "Submission details"
+                : "Apply For Me"}
+            </button>
+          )}
+        </div>
         <Form
+          id={reviewForm}
+          onBusyChange={setReviewBusy}
           onSave={async (data, submitter) => {
             const status =
               submitter?.name === "status" ? submitter.value : undefined;
@@ -145,11 +167,6 @@ export function ApplicationCard({
           <div className="actions">
             {app.status !== "submitted" && (
               <>
-                {app.status !== "reviewed" && (
-                  <button name="status" value="reviewed">
-                    Reviewed
-                  </button>
-                )}
                 {app.status !== "rejected" ? (
                   <button name="status" value="rejected">
                     Reject

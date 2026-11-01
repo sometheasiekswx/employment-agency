@@ -1,12 +1,14 @@
 # Security and privacy
 
-This is a single-user localhost application, not a multi-user hosted service. It binds only to 127.0.0.1, validates Host/Origin and mutation tokens, uses a restrictive content policy and escapes rendered text. Keep the workspace and its backups private. Other processes running as your OS user can read it; there is no encryption-at-rest claim.
+The local application runs for one user and binds only to 127.0.0.1. It validates Host/Origin and mutation tokens, uses a restrictive content policy and escapes rendered text. The separate hosted pilot has the authentication and storage boundaries described below. Keep the workspace and its backups private. Other processes running as your OS user can read it; there is no encryption-at-rest claim.
 
 Public job URL retrieval requires HTTPS, rejects non-global addresses, pins the validated IP for the TLS connection and rechecks each redirect. Fetches have size/time limits. Adverts and imports are data, never instructions. TeX imports are extracted as text without execution. DOCX expanded size and PDF page counts are bounded; parsing third-party files still depends on the document libraries, and only trusted local users should import files.
 
-Credential input is environment-only. Keys are not in export schemas. Consent is scoped and revocable; restore clears grants. API errors omit response bodies. Export archives are checksummed and restored to new destinations with path/size checks. File downloads are allowlisted; packages preserve the exact reviewed version.
+AI provider keys are environment-only and are not in export schemas. The unreleased local Apply For Me preview stores Gmail OAuth credentials in macOS Keychain; its browser session and connection state stay outside portable workspace exports and Git. Consent is scoped and revocable; restore clears grants. API errors omit response bodies. Export archives are checksummed and restored to new destinations with path/size checks. File downloads are allowlisted; packages preserve the exact reviewed version.
 
-No telemetry, scheduler, employer upload or email-send endpoint is included. Do not add remote exposure, automatic submission, arbitrary shell execution or model-generated commands without a new threat model.
+The published 0.6 wheel is draft-only. Current source includes an experimental local Apply For Me preview with Gmail sending and browser-mediated application actions. Disclosure consent is required before preparing an external application; sending the email or activating the final submit action requires separate approval of the exact documents, recipient, answers and final action. Changed review details invalidate approval; an uncertain delivery result must be reconciled before retrying. Hosted execution is disabled. See the [application-action threat model](docs/adr/0005-explicit-approval-for-external-application-actions.md) and [preview limitations](docs/apply-for-me.md).
+
+No application telemetry or scheduler is included. Remote exposure, new external-action channels and changes to agent execution require a corresponding threat-model review; do not treat drafting or a Reviewed status as submission approval.
 
 Report vulnerabilities privately through GitHub private vulnerability reporting when enabled. Avoid placing personal data, API keys or workspace exports in issues.
 

@@ -8,6 +8,8 @@ description = "Local-first, evidence-grounded job application workspace"
 requires-python = ">=3.11"
 license = "MIT"
 dependencies = ["pypdf>=6.10,<7", "python-docx>=1.2,<2", "reportlab>=4.4.9,<5", "Flask>=3.1.2,<4", "tzdata>=2025.2"]
+[project.optional-dependencies]
+apply = ["playwright>=1.56,<2", "keyring>=25,<27", "google-auth-oauthlib>=1.2,<2"]
 [project.scripts]
 employment-agency = "employment_agency.cli:main"
 [tool.uv]

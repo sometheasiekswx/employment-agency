@@ -159,7 +159,8 @@ const crypto = require('node:crypto');
     assert.equal(missing.status(),404);
     await page.getByRole('heading',{name:'Page not found',exact:true}).waitFor();
     await page.getByRole('link',{name:'Return to applications',exact:true}).click();
-    await page.getByRole('button',{name:'Active (2)',exact:true}).waitFor();
+    await page.getByRole('button',{name:'Active (1)',exact:true}).waitFor();
+    assert.equal(await page.locator('article[data-application-id]').count(),1,'Versions of one job share one queue card');
     assert.deepEqual(errors, []);
     console.log('PASS: draft preservation, navigation/back, failed-save/source/URL retry, safe text, imports, job edits, agent handoff/selection, history integrity, historical queues, deep links and responsive routes.');
   } finally { await browser.close(); }

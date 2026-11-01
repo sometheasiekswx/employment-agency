@@ -32,6 +32,29 @@ try:
     application = service.action('local-package', {'profile_id':profile['id'],'job_id':job['id']})
     original = packages.path_for(workspace.path, application, 'resume.pdf').read_bytes()
     assert original.startswith(b'%PDF')
+    from employment_agency.application_delivery import Delivery
+    class RecordingMail:
+        messages = []
+        def sender(self): return 'alex@example.test'
+        def send(self, raw):
+            self.messages.append(raw)
+            return {'provider': 'installed-wheel recording fixture', 'message_id': 'wheel-message'}
+    mail = RecordingMail()
+    service.delivery = Delivery(service, mail=mail)
+    attempt = service.action('apply-start', {'application_id': application['id'], 'channel': 'gmail',
+        'to': 'jobs@example.test', 'subject': 'Controlled wheel application', 'body': 'Fixture message', 'disclosure_confirmed': True})
+    service.delivery.commands.join()
+    review = service.delivery.get(attempt['id'])
+    assert review['status'] == 'awaiting_approval' and not mail.messages
+    service.action('apply-approve', {'id': review['id'], 'approved': True, 'fingerprint': review['fingerprint']})
+    service.delivery.commands.join()
+    assert service.delivery.get(attempt['id'])['status'] == 'confirmed' and len(mail.messages) == 1
+    from email.parser import BytesParser
+    from email import policy
+    attachments = list(BytesParser(policy=policy.default).parsebytes(mail.messages[0]).iter_attachments())
+    assert len(attachments) == 2 and attachments[0].get_payload(decode=True) == original
+    assert attachments[1].get_payload(decode=True) == packages.path_for(workspace.path, application, 'cover-letter.pdf').read_bytes()
+    service.delivery.close()
     service.action('review', {'id':application['id'],'status':'submitted'})
     workspace.export(Path('backup.zip'))
     restore(Path('backup.zip'), Path('restored'))
@@ -66,6 +89,7 @@ from employment_agency.demo import create, open_existing
 example = create(Path('demo-workspace'))
 assert example['demo'] and example['applications'] == 12 and example['jobs'] == 14
 assert open_existing(Path('demo-workspace'))['demo']
+print('Installed wheel: approval-gated recording delivery with exact PDF PASS')
 print('Installed wheel: offline demo data and document generation PASS')
 '''
 

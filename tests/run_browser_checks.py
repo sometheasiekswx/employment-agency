@@ -36,6 +36,9 @@ def fixture(script):
                 else:
                     raise RuntimeError('Browser fixture did not start')
                 yield url
+            except Exception:
+                log.seek(0); sys.stderr.write(log.read().decode())
+                raise
             finally:
                 process.terminate()
                 try: process.wait(timeout=5)
@@ -64,6 +67,10 @@ def seed_hosted_draft(url):
 
 
 if __name__ == '__main__':
+    with fixture('serve_queue_fixture.py') as url:
+        browser('review-tag-browser.cjs', url)
+    with fixture('serve_queue_fixture.py') as url:
+        browser('queues-browser.cjs', url)
     with fixture('serve_folder_fixture.py') as url:
         browser('redesign-browser.cjs', url)
     with fixture('serve_folder_fixture.py') as url:

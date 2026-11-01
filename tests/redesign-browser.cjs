@@ -48,8 +48,18 @@ const fs = require('node:fs');
     assert.equal(await page.locator('.workspace-header').evaluate(node => getComputedStyle(node).backgroundColor), 'rgb(255, 255, 255)');
     assert.equal(await page.locator('body').evaluate(node => getComputedStyle(node).backgroundColor), 'rgb(255, 255, 255)');
     assert.equal(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()), '#0593c6');
-    assert.equal(await page.locator('.review-pane button[value=reviewed]').evaluate(n => getComputedStyle(n).color), 'rgb(23, 97, 59)');
-    assert.equal(await page.locator('.review-pane button[value=rejected]').evaluate(n => getComputedStyle(n).color), 'rgb(163, 33, 48)');
+    assert.equal(await page.locator('.review-pane button[value=reviewed]').count(), 0, 'Reviewed action moved into the status tag');
+    await page.getByRole('button', {name:'Draft — switch to Reviewed', exact:true}).waitFor();
+    const tokenColour = async token => page.evaluate(token => {
+      const probe = document.createElement('span');
+      probe.style.color = `var(${token})`;
+      document.body.append(probe);
+      const value = getComputedStyle(probe).color;
+      probe.remove();
+      return value;
+    }, token);
+    assert.equal(await page.locator('.review-pane button[value=submitted]').evaluate(n => getComputedStyle(n).backgroundColor), await tokenColour('--positive-ink'));
+    assert.equal(await page.locator('.review-pane button[value=rejected]').evaluate(n => getComputedStyle(n).color), await tokenColour('--negative-ink'));
     assert.equal(await page.locator('.privacy-note, .workspace-footer').count(), 0, 'Repeated slogans stay removed');
     await page.screenshot({ path: '.impeccable/review/desktop.png' });
     // The proximity spring must never shift a link's actual hit target.
