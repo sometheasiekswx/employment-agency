@@ -15,12 +15,15 @@ import urllib.request
 from unittest.mock import patch
 
 from employment_agency import cli, development
+from employment_agency.server import server
+from employment_agency.service import Service
 from employment_agency.store import Workspace
 
 ROOT = Path(__file__).resolve().parents[1]
 FRONTEND = '''
 import json, os, sys
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from http.server import BaseHTTPRequestHandler
+from socketserver import TCPServer
 if os.environ.get('EA_FIXTURE_EXIT'):
     sys.exit(7)
 class Handler(BaseHTTPRequestHandler):
@@ -30,17 +33,23 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.end_headers()
         self.wfile.write(body)
-HTTPServer(('127.0.0.1', int(sys.argv[1])), Handler).serve_forever()
+# The stand-in frontend, like Next.js, does not need HTTPServer's reverse DNS.
+TCPServer(('127.0.0.1', int(sys.argv[1])), Handler).serve_forever()
 '''
 LAUNCH = '''
 from pathlib import Path
+import faulthandler
 import sys
 from unittest.mock import patch
 from employment_agency import cli
 folder, script, port = sys.argv[1:4]
 sys.argv = ['employment-agency', *sys.argv[4:]]
 with patch('employment_agency.development.frontend_command', return_value=(Path(folder), [sys.executable, script, port])):
-    cli.main()
+    faulthandler.dump_traceback_later(8, repeat=True)
+    try:
+        cli.main()
+    finally:
+        faulthandler.cancel_dump_traceback_later()
 '''
 
 
@@ -80,6 +89,12 @@ class Development(unittest.TestCase):
                                        **({'creationflags': subprocess.CREATE_NEW_PROCESS_GROUP} if os.name == 'nt' else {}))
             try:
                 yield process
+            except BaseException:
+                # Cleanup can exit successfully after a failed readiness check.
+                # Keep the child diagnostics even when its final code is zero.
+                log.seek(0)
+                print(log.read().decode(), file=sys.stderr)
+                raise
             finally:
                 if process.poll() is None:
                     if os.name == 'nt':
@@ -111,6 +126,28 @@ class Development(unittest.TestCase):
         for path in workspaces or (self.workspace,):
             opened = Workspace(path)
             opened.close()
+
+    def test_loopback_backend_start_does_not_wait_for_reverse_dns(self):
+        workspace = Workspace(self.workspace)
+        try:
+            with patch('socket.getfqdn', side_effect=AssertionError('Loopback startup must not resolve DNS')):
+                http = server(Service(workspace), 0)
+            try:
+                self.assertEqual(http.server_name, '127.0.0.1')
+                self.assertGreater(http.server_port, 0)
+            finally:
+                http.server_close()
+        finally:
+            workspace.close()
+
+    def test_backend_bind_failure_preserves_the_original_error(self):
+        workspace = Workspace(self.workspace)
+        try:
+            with patch('socketserver.TCPServer.server_bind', side_effect=OSError('Fixture bind failure')):
+                with self.assertRaisesRegex(OSError, 'Fixture bind failure'):
+                    server(Service(workspace), 0)
+        finally:
+            workspace.close()
 
     @unittest.skipIf(os.name == 'nt', 'Console Ctrl+C is exercised on POSIX; Windows uses a separate process group')
     def test_ctrl_c_stops_both_servers_and_preserves_workspace(self):

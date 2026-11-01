@@ -1,5 +1,6 @@
 """Loopback-only UI, protected mutations and explicit isolated workspace switching."""
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
+from socketserver import TCPServer
 from pathlib import Path
 import json
 import secrets
@@ -180,6 +181,14 @@ def server(service, port=8766, frontend_origin=None):
         # exported page can request more chunks at once, resetting connections
         # before a handler accepts them. Keep room for a browser's asset burst.
         request_queue_size = 64
+        active_service = service
+
+        def server_bind(self):
+            # HTTPServer resolves a display name through reverse DNS. This
+            # loopback-only app already knows its host; offline or slow DNS
+            # must not hold up startup before signal handlers are installed.
+            TCPServer.server_bind(self)
+            self.server_name, self.server_port = self.server_address[:2]
 
         def server_close(self):
             if service.delivery:
@@ -188,6 +197,4 @@ def server(service, port=8766, frontend_origin=None):
             if self.active_service.w is not service.w:
                 self.active_service.w.close()
             service.w.close()
-    instance = Server(('127.0.0.1', port), Handler)
-    instance.active_service = service
-    return instance
+    return Server(('127.0.0.1', port), Handler)

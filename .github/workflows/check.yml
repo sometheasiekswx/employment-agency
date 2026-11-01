@@ -5,6 +5,7 @@ permissions:
 jobs:
   test:
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
@@ -19,6 +20,7 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - run: npm --prefix frontend ci --ignore-scripts
+      - run: npm --prefix frontend audit --audit-level=moderate
       - run: npm --prefix frontend run typecheck
       - run: npm --prefix frontend run lint
       - run: npm --prefix frontend test
