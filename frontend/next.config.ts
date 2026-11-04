@@ -2,6 +2,10 @@ import type { NextConfig } from "next";
 
 const config: NextConfig = {
   output: process.env.NODE_ENV === "development" ? undefined : "export",
+  distDir:
+    process.env.NEXT_PUBLIC_EA_PUBLIC_PREVIEW === "1"
+      ? ".next-public-preview"
+      : ".next",
   trailingSlash: true,
   images: { unoptimized: true },
   poweredByHeader: false,

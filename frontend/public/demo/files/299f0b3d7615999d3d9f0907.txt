@@ -1,0 +1,25 @@
+Alex Morgan
+
+Melbourne, Australia · Fictional sample profile
+
+alex@example.test
+
+Example Labs (fictional) — 2022–2026
+
+Used Python to build and maintain software services.
+
+Used PostgreSQL to build and maintain software services.
+
+Used AWS to build and maintain software services.
+
+Used Terraform to build and maintain software services.
+
+Used React to build and maintain software services.
+
+Used TypeScript to build and maintain software services.
+
+Used CI/CD to build and maintain software services.
+
+Languages
+
+English

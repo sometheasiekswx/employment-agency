@@ -24,6 +24,7 @@ export function SearchResults() {
       </p>
       <div className="actions">
         <Action
+          previewAllowed
           className=""
           run={async () => {
             requireProfile();

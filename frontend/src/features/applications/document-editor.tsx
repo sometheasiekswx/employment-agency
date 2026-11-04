@@ -125,8 +125,9 @@ export function DocumentEditor({
         </button>
       </header>
       <p>
-        Save creates a new draft application. The original and confirmed career
-        facts stay unchanged. Review your wording before applying.
+        {client.preview
+          ? "Read-only fictional document preview. Download an example PDF or Word file from its application."
+          : "Save creates a new draft application. The original and confirmed career facts stay unchanged. Review your wording before applying."}
       </p>
       <p role="status" className="editor-status">
         {status}

@@ -1,65 +1,61 @@
 ---
 name: "Employment Agency"
-description: "White document workspace, dark text, restrained Sky Blue accents and semantic decisions."
+description: "Concept A: a charcoal opportunity workspace with a contextual rail, lavender selection and review in place."
 colors:
-  ink: "#171717"
-  muted: "#555555"
-  line: "#dedee3"
-  paper: "#ffffff"
-  surface: "#ffffff"
-  accent: "#0593c6"
-  secondary: "#f2f2f4"
-  secondary-hover: "#e7e7eb"
-  positive-bg: "#e6f3eb"
-  positive-ink: "#17613b"
-  positive-hover: "#d8eddf"
-  negative-bg: "#fcecef"
-  negative-ink: "#a32130"
-  negative-hover: "#f9dce0"
-  link: "#076385"
-  accent-soft: "#e5f6fc"
-  error: "#b42332"
-  warning: "#805000"
-  field-border: "#aeb1bb"
-  status-neutral: "#eceef2"
-  status-text: "#4c5059"
-  document-control: "#f0f0f3"
-  document-control-hover: "#e4e5eb"
+  ink: "#f0f0f3"
+  muted: "#aaaab3"
+  faint: "#96969f"
+  line: "#393a40"
+  paper: "#1e1f21"
+  surface: "#26272a"
+  rail: "#171819"
+  accent: "#c994f3"
+  accent-soft: "#302736"
+  secondary: "#303136"
+  secondary-hover: "#3a3b42"
+  positive-bg: "#203b32"
+  positive-ink: "#8dd6b5"
+  negative-bg: "#41272c"
+  negative-ink: "#ffadb9"
+  link: "#d7aaf8"
+  error: "#ffadb9"
+  warning: "#efc181"
+  field-border: "#71737d"
 typography:
   headline:
-    fontFamily: "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif"
-    fontSize: "2rem"
-    fontWeight: 650
-    lineHeight: 1.25
+    fontFamily: "Inter, sans-serif"
+    fontSize: "1.875rem"
+    fontWeight: 600
+    lineHeight: 1.3
     letterSpacing: "-0.025em"
   title:
-    fontFamily: "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif"
-    fontSize: "1.25rem"
-    fontWeight: 650
-    lineHeight: 1.25
+    fontFamily: "Inter, sans-serif"
+    fontSize: "1.1875rem"
+    fontWeight: 500
+    lineHeight: 1.3
     letterSpacing: "-0.025em"
   body:
-    fontFamily: "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif"
+    fontFamily: "Inter, sans-serif"
     fontSize: "0.875rem"
     fontWeight: 400
     lineHeight: 1.55
     letterSpacing: "normal"
   label:
-    fontFamily: "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif"
+    fontFamily: "Inter, sans-serif"
     fontSize: "0.8125rem"
-    fontWeight: 600
+    fontWeight: 500
     lineHeight: 1.4
     letterSpacing: "normal"
   metadata:
-    fontFamily: "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif"
+    fontFamily: "Inter, sans-serif"
     fontSize: "0.75rem"
     fontWeight: 400
     lineHeight: 1.55
     letterSpacing: "normal"
 rounded:
-  badge: "6px"
+  badge: "5px"
   field: "8px"
-  button: "9px"
+  button: "8px"
   navigation: "10px"
   surface: "14px"
   dialog: "16px"
@@ -69,205 +65,50 @@ spacing:
   base: "1rem"
   group: "1.25rem"
   panel: "1.5rem"
-  surface: "1.75rem"
-components:
-  button-neutral:
-    backgroundColor: "{colors.secondary}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.button}"
-    padding: "0.625rem 1rem"
-    typography: "{typography.label}"
-  button-neutral-hover:
-    backgroundColor: "{colors.secondary-hover}"
-  button-document:
-    backgroundColor: "{colors.document-control}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.button}"
-    padding: "0.625rem 1rem"
-    typography: "{typography.label}"
-  button-document-hover:
-    backgroundColor: "{colors.document-control-hover}"
-  button-positive:
-    backgroundColor: "{colors.positive-bg}"
-    textColor: "{colors.positive-ink}"
-    rounded: "{rounded.button}"
-    padding: "0.625rem 1rem"
-    typography: "{typography.label}"
-  button-positive-hover:
-    backgroundColor: "{colors.positive-hover}"
-  button-danger:
-    backgroundColor: "{colors.negative-bg}"
-    textColor: "{colors.negative-ink}"
-    rounded: "{rounded.button}"
-    padding: "0.625rem 1rem"
-    typography: "{typography.label}"
-  button-danger-hover:
-    backgroundColor: "{colors.negative-hover}"
-  input:
-    backgroundColor: "{colors.surface}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.field}"
-    padding: "0.6875rem 0.75rem"
-  card:
-    backgroundColor: "{colors.surface}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.surface}"
-    padding: "1.75rem"
-  chip:
-    backgroundColor: "{colors.status-neutral}"
-    textColor: "{colors.status-text}"
-    rounded: "{rounded.badge}"
-    padding: "0.1875rem 0.5625rem"
-  chip-submitted:
-    backgroundColor: "{colors.accent-soft}"
-    textColor: "{colors.link}"
-    rounded: "{rounded.badge}"
-    padding: "0.1875rem 0.5625rem"
-  chip-reviewed:
-    backgroundColor: "{colors.positive-bg}"
-    textColor: "{colors.positive-ink}"
-    rounded: "{rounded.badge}"
-    padding: "0.1875rem 0.5625rem"
-  chip-rejected:
-    backgroundColor: "{colors.negative-bg}"
-    textColor: "{colors.negative-ink}"
-    rounded: "{rounded.badge}"
-    padding: "0.1875rem 0.5625rem"
-  navigation-selected:
-    backgroundColor: "{colors.secondary}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.navigation}"
-    padding: "0.375rem 0.625rem"
-  filter-selected:
-    backgroundColor: "{colors.secondary}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.button}"
-    padding: "0.5rem 0.75rem"
 ---
+
 # Design System: Employment Agency
 
-## Overview
+## Approved direction
 
-**Creative North Star: "The Calm Document Workspace"**
+The user selected Concept A and its second revision: the Orax-inspired location board, with opportunity review in a docked inspector on desktop and an expandable sheet on phones. This replaces the former white and sky-blue visual direction. The application remains a private, evidence-led tool: the design does not change submission authority, document integrity or the local/hosted boundary.
 
-A calm document workspace: white header, canvas and evidence surfaces let dark text and the next review action lead. Platform system typography and familiar grouped controls preserve the confirmed Apple-inspired direction. Apple Design takes precedence over supporting Impeccable guidance.
+The visual language is a near-black contextual sidebar, a charcoal workspace, subtly raised cards, restrained lavender selection and a pink-to-lavender primary action. The mark is a rounded employment briefcase containing a person; the visible wordmark is **Agency**, while metadata retains **Employment Agency**. Keep the supplied SVG proportions and colours. Do not restore the O mark or use decorative project-management metrics.
 
-Density comes from compact labelled navigation and coherent document groups. Sky Blue appears in small selection details, field accents and status tags. Green communicates reviewed or confirmed decisions; red communicates rejection or destruction. Restrained pointer motion leaves navigation targets stable.
+## Colour and type
 
-**Key Characteristics:**
+The frontmatter and CSS variables are the shared values. Most of the interface uses neutral surfaces and off-white text. Lavender identifies selected navigation, tabs and cards. The gradient is confined to the employment mark and primary actions; primary-action text is dark for contrast. Green identifies confirmed evidence and reviewed badges; the interactive review toggle retains lavender for its selected state. Amber highlights requirements to check and red identifies rejection or errors. Recording a confirmed submission uses a green action with dark text, while its saved Submitted badge stays neutral and explicitly labelled. A numeric score or progress bar must represent real, explained data.
 
-- White chrome and flat bordered document surfaces.
-- Dark text, neutral controls and small Sky Blue accents.
-- Explicit semantic decision colors with visible text labels.
-- Compact labelled navigation, visible focus and responsive evidence groups.
+Inter is self-hosted at weights 400, 500, 600 and 700, with its SIL Open Font License included in `frontend/public/licenses/Inter-OFL.txt`. Body text is 14px, labels 13px and decision-relevant metadata at least 12px where space permits. Use regular or medium weight for role titles and compact controls; reserve 600 for page headings and important actions. Heading tracking stops at -0.035em. Counts and record metadata use tabular numerals.
 
-## Colors
+## Composition and navigation
 
-White and neutral grays carry the interface; restrained Sky Blue and explicit semantic tints carry state. Frontmatter records the authoritative values.
+At desktop sizes the rail is 272px wide. It carries the brand, the selected profile's actual role/location/arrangement/seniority preferences, the real number of stored opportunities, six navigation destinations and workspace identity. All counts come from runtime state. Do not copy illustrative candidate names, salaries, employers or location counts from the design source into production.
 
-### Primary
+The desktop workspace has 24px side padding and an 81px top bar with a breadcrumb, functional role search and one useful navigation action. Discover groups opportunities by location. Selecting a role preserves the board context and opens its inspector; the board can scroll horizontally instead of squeezing cards. Inspector evidence and requirements scroll independently of its persistent actions. Existing application forms, versioned documents, editor and submission previews retain their behaviour.
 
-- **Sky Blue** (`accent`): selected-segment bottom edge and field caret/check accents.
-- **Deep Sky Text** (`link`): readable links, selected navigation icons and the keyboard focus outline.
-- **Sky Wash** (`accent-soft`): submitted status tags, paired with Deep Sky Text.
+Below 900px the rail becomes a compact header. A fixed bottom dock exposes Discover, Applications, Profile and Settings. The header menu includes all six destinations, including Search preferences and History. The dock and content observe the bottom safe area. Discover review uses a modal sheet with collapse/expand and close controls, preserved shortlist position and restored focus. Other pages retain readable stacked content. Long text and 200% text resizing must not create page-wide horizontal overflow.
 
-### Secondary
+## Components and states
 
-- **Confirmation Green** (`positive-bg`, `positive-ink`, `positive-hover`): reviewed tags, Reviewed decisions and confirmation actions.
-- **Decision Red** (`negative-bg`, `negative-ink`, `negative-hover`): rejected tags, Reject decisions and destructive actions.
-- **Error Red** (`error`) and **Warning Amber** (`warning`): explicit errors and factual cautions.
+Cards use 12–16px corners and restrained elevation. Dividers separate related information; avoid adding a bordered card around every text group. Fields use dark opaque fills and visible boundaries. Neutral controls use quiet outlines or charcoal fills; a page's main useful action receives the gradient. All essential actions have visible labels or accessible names, usable pointer targets and a lavender keyboard-focus outline.
 
-### Neutral
+Preserve existing setup, loading, empty, permission, local/hosted, fictional-demo, success and error states. Unknown career evidence and work eligibility remain explicit. Save, review and draft actions never imply employer submission. The real source advert and exact document versions remain findable.
 
-- **Ink** (`ink`) and **Quiet Ink** (`muted`): primary and supporting text.
-- **White** (`paper`, `surface`): canvas, header, document cards, review pane and editor.
-- **Hairline** (`line`) and **Field Stroke** (`field-border`): surface dividers and editable boundaries.
-- **Neutral Control** (`secondary`, `secondary-hover`): default buttons, Submitted controls and selected navigation/destinations.
-- **Document Control** (`document-control`, `document-control-hover`): secondary buttons and history file links.
-- **Neutral Status** (`status-neutral`, `status-text`): default badges and compact metadata.
+The document editor remains a native modal dialog with contained scrolling, correct cancellation and restored focus. Its PDF pages retain a light document background inside the dark chrome. Application sending continues through its separate approval process.
 
-**The Restrained Accent Rule.** Use Sky Blue for small selection details, field accents and submitted tags; keep the header, canvas and decision surfaces white. Retire Hot Pink from interface accents.
+## Motion and accessibility
 
-**The Decision Meaning Rule.** Use green for reviewed or confirmation, red for rejection or destruction, and neutral controls for Submitted with a blue submitted status tag.
+The existing React Bits Dock adaptation animates icons while keeping link rectangles and labels stable. Motion is suppressed for reduced-motion and coarse-pointer users. Other transitions are short colour changes; navigation and essential evidence are never revealed only on hover.
 
-## Typography
+Verify text contrast on actual surfaces, visible focus, keyboard navigation, modal/sheet behaviour, responsive layouts and long real content. The global dark colour scheme covers native inputs, selection, scrollbars and loading/error screens. Increased-contrast preferences strengthen supporting text and boundaries. Do not infer accessibility conformance from a screenshot alone.
 
-**Display and Body Font:** the platform system stack in frontmatter. There is no separate decorative display face. This native task interface preserves the user's explicit system-font choice.
+## Source authority
 
-**Character:** compact and familiar; medium control weights and tightened headings organize evidence without promotional scale.
+The approved [Concept A revision](https://www.figma.com/design/4Y26Y8OlPdYFi0ooL7ORjl?node-id=11-2), its authored source, local PNGs and employment SVG supplied during design are the authority for this implementation. Figma context, screenshot, variables and library requests were quota-blocked when implementation began. Native component and Code Connect mappings could not be verified. That fallback does not authorize changes to the private installed workspace or replace browser verification of the implemented application.
 
-### Hierarchy
+## Behaviour beyond the concept
 
-- **Headline:** desktop page title; phone page titles reduce to (1.75rem) at (700px).
-- **Title:** section heading. Application titles use (1.375rem), review headings (0.875rem), and tertiary headings (1rem, weight 600).
-- **Body:** evidence and prose; section paragraphs and fit summaries have a (72ch) reading limit.
-- **Label:** buttons and disclosure controls; field labels use weight (500).
-- **Metadata:** supporting values and badges. Navigation labels use (0.6875rem) on desktop and phones. Segments, result counts and application metadata use tabular numerals.
+Discover uses the existing read-only, evidence-led matching operation for the selected search profile. Opening the page does not fetch employer sites, call a paid AI provider, prepare documents or submit an application. The header search filters imported opportunities; Add opportunities opens the existing search and import tools. Previous and Next follow the current filtered result order across locations. Saved is a persistent workspace bookmark, independent of application decisions.
 
-## Layout
-
-The centered work area has a maximum width of (82rem), desktop side padding of (2.5rem) and repeated surface separation of (1.25rem). The sticky white header groups brand, five labelled links and workspace mode. Desktop page-heading padding is (2.5rem 0 1.25rem); phones use (1.75rem 0 1.25rem). Noun titles avoid repeated instructions.
-
-Application records pair a flexible evidence column with a decision column of at least (16rem), at a ratio of (1fr / 0.48fr). Metadata uses an auto-fitting grid with a (9rem) minimum. At (1200px), supporting shell labels disappear. At (1000px), content grids and records stack, navigation uses shorter labels, and side padding becomes (1.5rem). At (700px), navigation becomes a fixed bottom dock, side padding becomes (1rem), and bottom content padding becomes (6.5rem). The dock observes the bottom safe-area inset; Applications gets a larger flex share for its longer label. Fictional-demo identity occupies a full header row on phones. Destination chips become a labelled select; mobile segmented buttons retain a (2.75rem) minimum height. Above this phone breakpoint, filter controls use a two-column arrangement.
-
-The editor uses a (96vw) maximum width and (92dvh) height, with sticky actions and two content columns. At (760px), its columns stack and the PDF preview uses (55vh).
-
-## Elevation & Depth
-
-Document surfaces are flat white with fine borders. The header and mobile dock are opaque white without backdrop blur. Depth identifies functional layering. Increased contrast strengthens muted text and dividers; reduced-transparency preferences retain opaque surfaces.
-
-### Shadow Vocabulary
-
-- **Header edge:** (`0 1px 0 rgb(30 37 55 / 9%)`), a subtle structural divider.
-- **Mobile dock:** (`0 4px 24px rgb(20 25 40 / 18%)`), separation from scrolling content.
-- **Editor:** (`0 24px 80px rgb(16 21 32 / 25%)`), modal elevation above a (`rgb(20 24 35 / 45%)`) backdrop.
-
-**The Functional Depth Rule.** Keep document surfaces and selected segments flat; use depth for navigation separation and the document editor.
-
-## Shapes
-
-Soft rectangles use the badge, field, button, navigation, surface and dialog radii in frontmatter. Borders are generally (1px). Application cards clip their white header and decision pane to the surface outline. Status badges are compact rounded rectangles rather than capsules.
-
-## Components
-
-### Buttons
-
-Compact neutral controls use dark labels and minimum height (2.75rem). Download and editing actions follow the same restrained treatment. Reviewed decisions and confirmation actions use green tints; Reject, retire and account deletion use red tints. Submitted stays neutral. Explicit positive/danger actions strengthen their tint on hover; review-pane controls use brightness (0.94) on hover. Save comment has its own quiet neutral fill. Press scales to (0.96), and disabled actions use opacity (0.55). Global keyboard focus uses a (3px) Deep Sky Text outline with (3px) offset.
-
-### Chips
-
-Default status badges are neutral; reviewed is green, rejected is red, and submitted uses Sky Wash with Deep Sky Text. Text names the status. Destination filters are outlined controls; selection uses a neutral fill, dark text and a pale blue border (`#b9d4f4`). The selected queue segment uses white and a (2px) Sky Blue bottom border, with no shadow.
-
-### Cards / Containers
-
-White bordered surfaces use the shared surface radius and padding. Application headers span the card, followed by evidence and a white decision pane. The decision border moves from left to top when stacked. Cards carry no ambient shadow.
-
-### Inputs / Fields
-
-White editable fields use a visible stroke, shared field radius and minimum height (2.75rem). Placeholder text stays opaque. Textareas resize vertically and start at (6rem), or (7rem) in the review pane. Labels sit above controls; checkboxes align beside their labels. The global focus ring remains visible.
-
-### Navigation
-
-Five Lucide icon-and-label links use dark neutral text over white chrome. Hover adds a neutral fill. Selection uses the shared neutral control fill, dark labels and a small Deep Sky Text icon. Desktop targets have minimum height (3.5rem); phone targets use (3.125rem) inside a rounded opaque white dock. Keyboard navigation uses the global focus ring.
-
-### Proximity Dock
-
-The React Bits adaptation scales only the icon from (1) to (1.12) across pointer distances of (-100px) to (100px), using a spring with mass (0.8), stiffness (300) and damping (32). Link rectangles stay fixed. Only mouse pointer movement updates proximity; keyboard navigation stays static. Coarse pointers and reduced-motion mode suppress icon transforms; reduced motion also removes control press transforms and transitions. Other color transitions use (160ms ease-out).
-
-**The Stable Target Rule.** Animate navigation icons while keeping their link targets and labels stable.
-
-## Do's and Don'ts
-
-### Do:
-
-- **Do** keep the white canvas, dark text and restrained Sky Blue details.
-- **Do** use green for reviewed or confirmation and red for rejection or destruction.
-- **Do** keep Submitted controls neutral and submitted status tags blue.
-- **Do** keep navigation labels visible and preserve keyboard focus and static reduced-motion and coarse-pointer navigation.
-- **Do** preserve readable evidence, factual warnings and the visible fictional-demo identity.
-
-### Don't:
-
-- **Don't** restore Hot Pink, saturated header fills or decorative backgrounds.
-- **Don't** rely on hover or color alone to reveal essential evidence, state or navigation.
-- **Don't** scale navigation hit targets with the animated icons.
+On phones the default sheet leaves the shortlist visible, with an explicit expansion control for fuller assessment. Escape and Close restore focus to the current opportunity; desktop review stays nonmodal. Errors must remain visible inside an open modal. Existing application packages link to their actual review or submitted records; a historical submission flag alone never proves which document bytes were sent. Preparing a draft is an explicit user action and retains existing eligibility checks.

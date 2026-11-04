@@ -3,6 +3,7 @@ import { DraftProvider } from "@/components/unsaved";
 import { WorkspaceProvider } from "@/components/workspace-provider";
 import { Shell } from "@/components/shell";
 import "./globals.css";
+import "@/features/secondary.css";
 
 export const metadata: Metadata = {
   title: "Employment Agency",

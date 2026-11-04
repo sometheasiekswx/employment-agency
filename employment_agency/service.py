@@ -290,6 +290,13 @@ class Service:
             return p
         if action == "job":
             return self.add_job(a)
+        if action == "save-job":
+            if not isinstance(a.get("saved"), bool):
+                raise ValueError("Saved must be true or false")
+            with self.w.edit() as s:
+                job = find(s["jobs"], a["id"])
+                job["saved"] = a["saved"]
+            return {"id": job["id"], "saved": job["saved"]}
         if action == "url":
             return self.add_job(sources.url_job(text(a["url"], 2000)))
         if action == "source":
@@ -471,6 +478,8 @@ class Service:
             raise ValueError("Invalid job ID")
         with self.w.edit() as s:
             existing = next((x for x in s["jobs"] if x["id"] == j["id"]), None)
+            # A bookmark is the user's decision, not part of an imported advert.
+            j["saved"] = existing.get("saved", False) is True if existing else False
             if existing:
                 for key in ('prior_application', 'source', 'checked_at'):
                     if key not in a:

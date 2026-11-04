@@ -1,18 +1,19 @@
 "use client";
 
-import { useState, useOptimistic, startTransition } from "react";
+import { useEffect, useState, useOptimistic, startTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Check, Select } from "@/components/controls";
 import { useWorkspace } from "@/components/workspace-provider";
 import { useDraft } from "@/components/unsaved";
-import { destination, compareDestinations } from "@/lib/format";
+import { destination, compareDestinations, displayDate } from "@/lib/format";
 import type { Application, EditorDocument, Job } from "@/lib/models";
 import { ApplicationCard } from "./application-card";
 import { ApplyForMe } from "./apply-for-me";
 import { DocumentEditor } from "./document-editor";
 import Link from "next/link";
-import { FolderOpen } from "lucide-react";
+import { ArrowUpRight, FolderOpen, MapPin } from "lucide-react";
 import { applicationQueues, applicationTime } from "./queues";
+import "./applications.css";
 
 const sections = [
   ["active", "Active"],
@@ -36,6 +37,7 @@ export function ApplicationsPage() {
     : "active";
   const selectedCity = filters.get("destination") || "All destinations";
   const includeHistorical = filters.get("history") === "true";
+  const requestedApplication = filters.get("application") || "";
   const [applying, setApplying] = useState<{
     app: Application;
     job: Partial<Job>;
@@ -50,6 +52,7 @@ export function ApplicationsPage() {
     const next = new URLSearchParams(filters);
     next.set(name, value);
     if (name === "section") next.delete("destination");
+    if (name !== "application") next.delete("application");
     startTransition(() => {
       setOptimisticQuery(next.toString());
       router.replace(`/?${next}`, { scroll: false });
@@ -83,8 +86,24 @@ export function ApplicationsPage() {
   const filtered = visible.filter(
     (app) => city === "All destinations" || cityFor(app) === city,
   );
+  const requestedTarget = filtered.some(
+    (app) => app.id === requestedApplication,
+  )
+    ? requestedApplication
+    : "";
+  const selectedApplication = requestedTarget || filtered[0]?.id;
+  useEffect(() => {
+    if (!requestedTarget) return;
+    const target = document.getElementById(`application-${requestedTarget}`);
+    target?.scrollIntoView({ block: "start", behavior: "instant" });
+    target?.focus({ preventScroll: true });
+  }, [requestedTarget]);
   return (
-    <>
+    <div className="applications-page">
+      <p className="page-introduction">
+        Review your next move. Keep every document version and decision in
+        context.
+      </p>
       <section className="destination-board" aria-label="Application filters">
         <div
           className="actions segmented-control"
@@ -135,6 +154,43 @@ export function ApplicationsPage() {
           {filtered.length} of {visible.length} application packages shown
         </p>
       </section>
+      {filtered.length > 0 && (
+        <nav className="application-overview" aria-label="Application packages">
+          {filtered.map((app) => (
+            <button
+              type="button"
+              key={app.id}
+              className="application-overview-row"
+              aria-pressed={selectedApplication === app.id}
+              onClick={() => setFilter("application", app.id)}
+            >
+              <span className="employer-initial" aria-hidden="true">
+                {app.employer.trim().slice(0, 1).toUpperCase() || "—"}
+              </span>
+              <span className="application-overview-title">
+                <strong>{app.title}</strong>
+                <span>
+                  {app.employer}
+                  <span className="application-overview-city">
+                    <MapPin aria-hidden="true" /> {cityFor(app)}
+                  </span>
+                </span>
+              </span>
+              <span className="pill" data-status={app.status}>
+                {app.status === "reviewed"
+                  ? "Reviewed"
+                  : app.status.charAt(0).toUpperCase() + app.status.slice(1)}
+              </span>
+              <span className="application-overview-date">
+                {app.created_at
+                  ? displayDate(app.created_at, state._workspace.timezone)
+                  : "Date not recorded"}
+              </span>
+              <ArrowUpRight aria-hidden="true" />
+            </button>
+          ))}
+        </nav>
+      )}
       {filtered.map((app) => (
         <ApplicationCard
           key={app.id}
@@ -193,6 +249,6 @@ export function ApplicationsPage() {
           onClose={() => setEditing(undefined)}
         />
       )}
-    </>
+    </div>
   );
 }

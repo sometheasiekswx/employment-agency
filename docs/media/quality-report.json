@@ -1,0 +1,71 @@
+{
+  "comparison": "GIF versus its corresponding browser PNG at the same390px mobile display width. Lower MSE and higher PSNR indicate less encoding distortion; this does not measure UI usability.",
+  "mobile_text_and_evidence_crop": [
+    {
+      "version": "Before",
+      "best_corresponding_frame": 56,
+      "display_crop_mse": 11.9402,
+      "display_crop_psnr_db": 37.36
+    },
+    {
+      "version": "After",
+      "best_corresponding_frame": 25,
+      "display_crop_mse": 0.0491,
+      "display_crop_psnr_db": 61.22
+    }
+  ],
+  "desktop_display_body_text_px": {
+    "before": 10.89,
+    "after": 14
+  },
+  "clips": [
+    {
+      "slug": "discover-review",
+      "before_dimensions": [
+        1120,
+        778
+      ],
+      "after_dimensions": [
+        2240,
+        1680
+      ],
+      "before_fps": 10,
+      "after_actual_capture_fps": 17.77,
+      "after_median_motion_frame_ms": 60.0,
+      "before_bytes": 3424304,
+      "after_bytes": 3751951
+    },
+    {
+      "slug": "mobile-review",
+      "before_dimensions": [
+        390,
+        844
+      ],
+      "after_dimensions": [
+        780,
+        1688
+      ],
+      "before_fps": 12,
+      "after_actual_capture_fps": 17.67,
+      "after_median_motion_frame_ms": 50,
+      "before_bytes": 2578592,
+      "after_bytes": 1569453
+    },
+    {
+      "slug": "application-documents",
+      "before_dimensions": [
+        1120,
+        778
+      ],
+      "after_dimensions": [
+        2240,
+        1680
+      ],
+      "before_fps": 10,
+      "after_actual_capture_fps": 17.57,
+      "after_median_motion_frame_ms": 60.0,
+      "before_bytes": 4109159,
+      "after_bytes": 4429550
+    }
+  ]
+}

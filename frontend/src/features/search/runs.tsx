@@ -16,6 +16,7 @@ export function RunForm() {
   const { run, profileId } = useWorkspace();
   return (
     <Form
+      className="search-run-form"
       onSave={async (data) => {
         if (!profileId) throw new Error("Save a search profile first.");
         await run("run", {
@@ -97,7 +98,7 @@ export function RunForm() {
 export function Runs() {
   const { state, run } = useWorkspace();
   return (
-    <section>
+    <section className="secondary-panel search-runs-panel">
       <h2>Runs</h2>
       <div id="runs">
         {state.runs.map((item) => (

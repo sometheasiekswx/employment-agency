@@ -45,6 +45,7 @@ export interface Salary {
 }
 export interface Job {
   id: string;
+  saved?: boolean;
   title: string;
   employer: string;
   location?: string;

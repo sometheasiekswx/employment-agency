@@ -26,6 +26,7 @@ export function JobForm({ job, onSaved }: { job?: Job; onSaved?: () => void }) {
   const salary = typeof job?.salary === "object" ? job.salary : {};
   return (
     <Form
+      className="search-job-form"
       onSave={async (data) => {
         await run("job", {
           ...values(data),

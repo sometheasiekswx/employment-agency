@@ -2,6 +2,10 @@
 
 Original implementation is MIT. No code or history from the private application pilot, career-ops or other job-search projects is included.
 
+## Current interface typography
+
+The current workspace self-hosts Inter at weights 400, 500, 600 and 700. The font copyright and SIL Open Font License are included in [Inter-OFL.txt](../frontend/public/licenses/Inter-OFL.txt) and the packaged export. The interface does not request fonts from an external service. Earlier Manrope assets and their licence remain in the bundle.
+
 ## Development glob-matching security patch
 
 The frontend overrides transitive `minimatch` to 11.0.1 for [GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249). The pinned ESLint and TypeScript ESLint packages still request version 10; their named matcher APIs are checked with a fresh install, lint, type checks, unit tests and build before accepting this override. Remove it when those parent packages adopt a patched compatible dependency. CI audits development as well as production dependencies.

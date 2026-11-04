@@ -11,7 +11,7 @@ export function MasterPanel() {
   const [proposal, setProposal] = useState<MasterProposal>();
   if (!master.exists)
     return (
-      <section>
+      <section className="secondary-panel career-master-panel">
         <h2>Master resume</h2>
         <p>
           Import a resume below or place it at <code>{master.path}</code> in
@@ -20,7 +20,7 @@ export function MasterPanel() {
       </section>
     );
   return (
-    <section>
+    <section className="secondary-panel career-master-panel">
       <h2>Master resume</h2>
       <p>
         <code>{master.path}</code> ·{" "}

@@ -116,7 +116,7 @@ const path = require("node:path");
     assert.equal(await page.locator(".dossier").count(), 1);
 
     await page
-      .getByRole("link", { name: "Application history", exact: true })
+      .getByRole("link", { name: "History", exact: true })
       .click();
     await page.locator(".history-files").first().waitFor({ state: "attached" });
     assert.equal(

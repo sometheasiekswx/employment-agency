@@ -28,12 +28,14 @@ const assert = require('node:assert/strict');
     assert.equal(refreshes, 2);
     assert.equal((await page.request.get(base + '/api/state')).status(), 401);
     const company = page.locator('section > details').first();
-    await company.locator('summary').first().click();
+    if (!(await company.evaluate(element => element.open))) {
+      await company.locator('summary').first().click();
+    }
     await company.locator('details summary').first().click();
     const file = company.getByRole('link').filter({ hasText: /\.pdf$/ }).first();
     const download = page.waitForEvent('download'); await file.click();
     assert.match((await download).suggestedFilename(), /\.pdf$/);
-    await page.getByRole('link', { name: 'Settings & recovery' }).click();
+    await page.getByRole('link', { name: 'Settings' }).click();
     assert.equal(await page.getByRole('button', { name: 'Open Folder', exact: true }).count(), 0);
     const exportDownload = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Export private workspace', exact: true }).click();

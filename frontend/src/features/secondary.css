@@ -1,0 +1,675 @@
+:where(.career-page, .search-preferences-page, .history-page, .settings-page) {
+  min-width: 0;
+}
+
+:where(.career-page, .search-preferences-page, .history-page, .settings-page)
+  .secondary-page-intro {
+  margin: -0.25rem 0 2rem;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+:where(.career-page, .search-preferences-page, .history-page, .settings-page)
+  .secondary-panel {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+:where(.career-page, .search-preferences-page, .history-page, .settings-page)
+  .secondary-panel
+  h2 {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+:where(.career-page, .search-preferences-page, .history-page, .settings-page)
+  .secondary-panel
+  > p {
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+:where(.career-page, .search-preferences-page, .history-page, .settings-page)
+  .secondary-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+:where(.career-page, .search-preferences-page, .history-page, .settings-page)
+  .secondary-section-heading
+  h2 {
+  margin: 0;
+}
+
+:where(.career-page, .search-preferences-page, .history-page, .settings-page)
+  .secondary-section-heading
+  > svg {
+  color: var(--muted);
+  flex: none;
+}
+
+:where(.career-page, .search-preferences-page, .history-page, .settings-page)
+  .secondary-two-column {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 2.5rem;
+}
+
+:where(.career-page, .search-preferences-page, .history-page, .settings-page)
+  .secondary-inline-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+:where(.career-page, .search-preferences-page, .history-page, .settings-page)
+  .secondary-inline-note
+  > svg {
+  margin-top: 0.125rem;
+  flex: none;
+}
+
+:where(.career-page, .search-preferences-page, .history-page, .settings-page)
+  .secondary-inline-note
+  p {
+  margin: 0.25rem 0 0;
+  max-width: 72ch;
+}
+
+.career-page .career-profile-summary {
+  display: flex;
+  align-items: center;
+  gap: 1.125rem;
+  padding: 1rem 0 1.875rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.career-page .career-avatar {
+  display: grid;
+  place-items: center;
+  width: 4rem;
+  height: 4.25rem;
+  flex: none;
+  border-radius: 1.125rem;
+  color: #3e293e;
+  background: linear-gradient(135deg, #f3ce8f, #dba4bd);
+  font-size: 1.375rem;
+  font-weight: 500;
+}
+
+.career-page .career-profile-summary h2 {
+  margin: 0;
+  font-size: 1.375rem;
+  font-weight: 500;
+}
+
+.career-page .career-profile-summary p {
+  margin: 0.375rem 0 0.25rem;
+  color: var(--ink);
+  font-size: 0.8125rem;
+}
+
+.career-page .career-profile-summary span {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.career-page .career-profile-summary > a {
+  margin-left: auto;
+  flex: none;
+}
+
+.career-page .career-evidence-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: 2.5rem;
+}
+
+.career-page .career-evidence-main,
+.career-page .career-evidence-aside {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2.25rem;
+}
+
+.career-page .career-skill-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.career-page .career-skill-tags > span {
+  max-width: 100%;
+  padding: 0.4375rem 0.625rem;
+  border-radius: 0.375rem;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 0.75rem;
+  overflow-wrap: anywhere;
+}
+
+.career-page .career-fact {
+  padding: 1.125rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.career-page .career-fact-heading {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.career-page .career-fact-heading > svg {
+  color: var(--muted);
+}
+
+.career-page .career-fact-category {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.6875rem;
+}
+
+.career-page .career-fact p {
+  margin: 0.75rem 0 0.375rem;
+  font-size: 0.8125rem;
+}
+
+.career-page .career-fact .actions {
+  margin: 0.875rem 0 0.25rem;
+}
+
+.career-page .career-fact .actions > button {
+  min-height: 2.25rem;
+  padding: 0.4375rem 0.75rem;
+}
+
+.career-page .career-fact-confirmed {
+  color: var(--positive-text);
+  background: var(--positive-bg);
+}
+
+.career-page .career-fact-pending {
+  color: var(--warning);
+  background: transparent;
+}
+
+.career-page .career-fact-conflict {
+  color: var(--error);
+  background: var(--negative-bg);
+}
+
+.career-page
+  .career-confirmation[data-review-needed="true"]
+  .secondary-inline-note {
+  color: var(--warning);
+}
+
+.career-page .career-master-panel code {
+  color: var(--ink);
+  font-size: 0.75rem;
+}
+
+.career-page .career-editing-grid {
+  padding-top: 2rem;
+  margin-top: 2.5rem;
+  border-top: 1px solid var(--line);
+  scroll-margin-top: 2rem;
+}
+
+.search-preferences-page .secondary-page-intro-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.search-preferences-page .secondary-page-intro-row .secondary-page-intro {
+  margin-bottom: 0;
+}
+
+.search-preferences-page .search-preferences-grid {
+  display: grid;
+  grid-template-columns: minmax(15rem, 0.75fr) minmax(0, 1fr);
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.search-preferences-page .search-location-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  margin: 1.25rem 0 1rem;
+}
+
+.search-preferences-page .search-location {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 1rem;
+  background: var(--surface);
+  border-radius: 0.625rem;
+}
+
+.search-preferences-page .search-location-icon {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: none;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 0.625rem;
+}
+
+.search-preferences-page .search-location > div {
+  min-width: 0;
+}
+
+.search-preferences-page .search-location strong {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.search-preferences-page .search-location > div > span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.6875rem;
+  margin-top: 0.125rem;
+}
+
+.search-preferences-page .search-location > svg {
+  margin-left: auto;
+  flex: none;
+  color: var(--accent);
+}
+
+.search-preferences-page .search-profile-panel > details {
+  border-top: 1px solid var(--line);
+}
+
+.search-preferences-page .search-profile-form > fieldset,
+.settings-page .settings-workspace-form > fieldset {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 1rem;
+  align-items: start;
+}
+
+.search-preferences-page .search-profile-form > fieldset > label,
+.settings-page .settings-workspace-form > fieldset > label {
+  margin: 0.625rem 0;
+}
+
+.search-preferences-page
+  .search-profile-form
+  > fieldset
+  > :is(.check, .grid, button),
+.search-preferences-page
+  .search-profile-form
+  > fieldset
+  > label:has(
+    input:is(
+      [name="name"],
+      [name="roles"],
+      [name="locations"],
+      [name="hard"],
+      [name="exclude"],
+      [name="work_rights"]
+    )
+  ),
+.settings-page .settings-workspace-form > fieldset > :is(.check, button),
+.settings-page
+  .settings-workspace-form
+  > fieldset
+  > label:has(input:is([name="master"], [name="preferred_locations"])) {
+  grid-column: 1 / -1;
+}
+
+.search-preferences-page .search-profile-form > fieldset > button,
+.settings-page .settings-workspace-form > fieldset > button {
+  justify-self: start;
+  margin-top: 0.625rem;
+}
+
+.search-preferences-page .search-tools-grid {
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--line);
+}
+
+.search-preferences-page .search-source-row {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.search-preferences-page .search-source-row small {
+  display: block;
+  margin-top: 0.5rem;
+}
+
+.search-preferences-page .search-saved-job {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--line);
+  font-size: 0.8125rem;
+}
+
+.search-preferences-page .search-saved-job > button {
+  flex: none;
+}
+
+.search-preferences-page .search-preparation-tools {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 2.5rem;
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--line);
+}
+
+.search-preferences-page .search-preparation-tools > section {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.history-page .history-preservation-note {
+  margin-bottom: 1.5rem;
+}
+
+.history-page .history-toolbar {
+  display: grid;
+  grid-template-columns: minmax(12rem, 1fr) minmax(10rem, 16rem) auto;
+  gap: 1rem;
+  align-items: end;
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.75rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.history-page .history-toolbar label {
+  margin: 0;
+}
+
+.history-page .history-result-count {
+  padding-bottom: 0.75rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.history-page .history-city-group {
+  margin-bottom: 2.25rem;
+}
+
+.history-page .history-employer {
+  border-top: 1px solid var(--line);
+  margin-top: 0;
+  padding-top: 0.375rem;
+}
+
+.history-page .history-employer > summary {
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.history-page .history-employer > summary > span {
+  margin-left: 0.5rem;
+}
+
+.history-page .history-role-group {
+  margin: 0 0 1.25rem 1.25rem;
+}
+
+.history-page .history-role-group h3 {
+  margin: 0.625rem 0 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.history-page .history-version {
+  margin: 0;
+  padding: 0.125rem 0 0.125rem 1rem;
+  border-left: 1px solid var(--line);
+}
+
+.history-page .history-version > summary {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 400;
+  list-style: none;
+}
+
+.history-page .history-version > summary::-webkit-details-marker {
+  display: none;
+}
+
+.history-page .history-version > summary::after {
+  content: "";
+  width: 0.375rem;
+  height: 0.375rem;
+  border-right: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  transform: rotate(45deg);
+  margin: 0 0.25rem 0.25rem;
+  flex: none;
+}
+
+.history-page .history-version[open] > summary::after {
+  transform: rotate(225deg);
+  margin-bottom: 0;
+}
+
+.history-page .history-version > summary > svg {
+  color: var(--accent);
+  flex: none;
+}
+
+.history-page .history-version-title {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.history-page .history-version-date {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.history-page .history-version-content {
+  padding: 0 0.5rem 1rem 1.8125rem;
+}
+
+.history-page .history-version-content > p {
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.history-page .history-empty {
+  padding: 2.5rem 0;
+  color: var(--muted);
+}
+
+.settings-page .settings-workspace-panel {
+  max-width: 54rem;
+  margin-bottom: 2rem;
+}
+
+.settings-page .workspace-location {
+  padding: 1rem;
+  border-radius: 0.625rem;
+  background: var(--surface);
+}
+
+.settings-page .workspace-location p {
+  min-width: 0;
+}
+
+.settings-page .workspace-location p > span {
+  display: inline-block;
+  color: var(--muted);
+  font-size: 0.75rem;
+  overflow-wrap: anywhere;
+}
+
+.settings-page .settings-control-note {
+  margin: 1.5rem 0 2rem;
+  padding: 1.25rem 0;
+  border-block: 1px solid var(--line);
+}
+
+.settings-page .settings-control-note strong {
+  color: var(--ink);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.settings-page .settings-consent-provider {
+  border-top: 1px solid var(--line);
+  padding: 1rem 0;
+}
+
+.settings-page .settings-consent-provider h3 {
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin: 0 0 0.5rem;
+}
+
+.settings-page .settings-consent-status {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.settings-page .settings-consent-provider .actions {
+  margin: 0.875rem 0 0;
+}
+
+.settings-page .settings-danger-zone {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.settings-page.workspace-setup {
+  max-width: 46rem;
+  padding: 1.5rem;
+}
+
+@media (max-width: 1100px) {
+  .career-page .career-evidence-grid,
+  .search-preferences-page .search-preferences-grid {
+    gap: 1.75rem;
+  }
+
+  .search-preferences-page .search-preferences-grid {
+    grid-template-columns: minmax(12rem, 0.65fr) minmax(0, 1fr);
+  }
+
+  .search-preferences-page .search-tools-grid,
+  .search-preferences-page .search-preparation-tools,
+  .settings-page .settings-controls-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 760px) {
+  :where(.career-page, .search-preferences-page, .history-page, .settings-page)
+    .secondary-two-column,
+  .career-page .career-evidence-grid,
+  .search-preferences-page .search-preferences-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+  }
+
+  .career-page .career-profile-summary {
+    flex-wrap: wrap;
+    gap: 0.875rem;
+    padding-top: 0;
+  }
+
+  .career-page .career-profile-summary > div:nth-child(2) {
+    flex: 1;
+    min-width: 10rem;
+  }
+
+  .career-page .career-profile-summary > a {
+    margin-left: 0;
+  }
+
+  .search-preferences-page .secondary-page-intro-row {
+    flex-direction: column;
+    margin-bottom: 2rem;
+  }
+
+  .history-page .history-toolbar {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .history-page .history-toolbar > label:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .history-page .history-result-count {
+    justify-self: end;
+  }
+
+  .history-page .history-role-group {
+    margin-left: 0.5rem;
+  }
+
+  .history-page .history-version-date {
+    max-width: 8rem;
+  }
+
+  .history-page .history-version-content {
+    padding-left: 0;
+  }
+}
+
+@media (max-width: 420px) {
+  .search-preferences-page .search-profile-form > fieldset,
+  .settings-page .settings-workspace-form > fieldset {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .history-page .history-version > summary {
+    flex-wrap: wrap;
+  }
+
+  .history-page .history-version-title {
+    flex: 1;
+  }
+
+  .history-page .history-version-date {
+    order: 4;
+    width: 100%;
+    max-width: none;
+    padding-left: 1.8125rem;
+    margin-top: -0.375rem;
+    text-align: left;
+  }
+}

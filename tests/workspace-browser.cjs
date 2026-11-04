@@ -36,14 +36,14 @@ const path = require('node:path');
  fs.mkdirSync(path.join(root,'master'),{recursive:true});
  fs.writeFileSync(path.join(root,'master/main.tex'),'\\documentclass{article}\n\\begin{document}\nBuilt reliable distributed services.\n\\end{document}\n');
  await page.reload();
- await page.getByRole('link',{name:'Career evidence'}).click();
+ await page.getByRole('link',{name:'Career profile'}).click();
  await page.getByText('Changes need your review before generating applications.',{exact:false}).waitFor();
  await page.getByRole('button',{name:'Review master changes',exact:true}).click();
  await page.getByLabel('I reviewed these master changes').check();
  await page.getByRole('button',{name:'Confirm master updates',exact:true}).click();
  await page.getByText('Up to date with your confirmed source.',{exact:false}).waitFor();
  assert.ok(await page.getByText('Built Python APIs and automated integration tests.',{exact:true}).count());
- await page.getByRole('link',{name:'Settings & recovery'}).click();
+ await page.getByRole('link',{name:'Settings'}).click();
  // Substitute the OS dialog result; the protected switch still reaches the server.
  let selection=root+'-secondary';
  await page.route('**/api/workspace-browse',async route=>{
@@ -55,7 +55,7 @@ const path = require('node:path');
  await page.getByText(selection,{exact:true}).waitFor();
  await page.getByRole('link',{name:'Applications',exact:true}).click();
  await page.getByText('No active applications.',{exact:true}).waitFor();
- await page.getByRole('link',{name:'Settings & recovery'}).click();
+ await page.getByRole('link',{name:'Settings'}).click();
  selection=root;
  await page.getByRole('button',{name:'Open Folder',exact:true}).click();
  await page.getByText(root,{exact:true}).waitFor();

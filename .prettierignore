@@ -2,6 +2,8 @@
 employment_agency/web/
 frontend/out/
 frontend/.next/
+frontend/.next-public-preview/
+frontend/public/demo/
 build/
 dist/
 output/

@@ -1,0 +1,8 @@
+# Generated, content-addressed sample documents must retain their exact bytes.
+frontend/public/demo/files/* -text
+frontend/public/demo/files/*.pdf binary
+frontend/public/demo/files/*.docx binary
+frontend/public/demo/files/*.eml binary
+frontend/public/demo/preview.json text eol=lf
+# Retain the upstream font licence's original formatting verbatim.
+frontend/public/licenses/Inter-OFL.txt -whitespace
