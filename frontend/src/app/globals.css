@@ -1080,6 +1080,29 @@ details details {
 .editor-status {
   min-height: 1.5em;
 }
+.document-editor.is-confirming {
+  width: min(30rem, 96vw);
+  height: fit-content;
+}
+.editor-discard {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.editor-discard p {
+  margin: 1rem 0;
+}
+.editor-discard-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.editor-discard-confirm {
+  border-color: var(--negative-ink);
+  color: var(--negative-ink);
+}
 .apply-dialog {
   width: min(48rem, 96vw);
   max-height: 92dvh;

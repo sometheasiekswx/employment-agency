@@ -1,6 +1,13 @@
-import { expect, it, vi } from "vitest";
-import { render, screen, waitFor, within } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { beforeEach, expect, it, vi } from "vitest";
 import type { EditorDocument } from "@/lib/models";
 import { DocumentEditor } from "./document-editor";
 
@@ -8,26 +15,40 @@ const fixture = vi.hoisted(() => ({
   action: vi.fn(),
   refresh: vi.fn(),
   notify: vi.fn(),
+  markDraft: vi.fn(),
   replace: vi.fn(),
 }));
 vi.mock("@/components/workspace-provider", () => ({
   useWorkspace: () => ({
-    client: { action: fixture.action },
+    client: { action: fixture.action, preview: false },
     refresh: fixture.refresh,
     notify: fixture.notify,
   }),
 }));
+vi.mock("@/components/unsaved", () => ({
+  useDraft: () => ({ setDirty: fixture.markDraft }),
+}));
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: fixture.replace }),
 }));
+
 const document: EditorDocument = {
   id: "app",
   document: "resume",
-  mode: "blocks",
   base: "original-hash",
+  mode: "blocks",
   pdf: "JVBERg==",
   blocks: [["text", "Original text"]],
+  source: "Original LaTeX source",
 };
+const confirmation = () =>
+  screen.getByRole("alertdialog", { name: "Discard unsaved document edits?" });
+
+beforeEach(() => {
+  vi.clearAllMocks();
+  fixture.action.mockReset().mockResolvedValue({ pdf: document.pdf });
+  fixture.refresh.mockResolvedValue(undefined);
+});
 
 it("previews without saving, sends the original base, and saves a preserved draft", async () => {
   fixture.action
@@ -77,11 +98,14 @@ it("keeps unsaved edits and the dialog open when the backend rejects a stale doc
     "Original text with unsaved changes",
   );
   expect(close).not.toHaveBeenCalled();
-  vi.spyOn(window, "confirm").mockReturnValue(false);
   await user.click(screen.getByRole("button", { name: "Close" }));
+  expect(confirmation()).toBeVisible();
+  await user.click(
+    within(confirmation()).getByRole("button", { name: "Keep editing" }),
+  );
   expect(close).not.toHaveBeenCalled();
-  expect(window.confirm).toHaveBeenCalledWith(
-    "Discard unsaved document edits?",
+  expect(screen.getByLabelText("Text")).toHaveValue(
+    "Original text with unsaved changes",
   );
 });
 
@@ -135,4 +159,121 @@ it("shows a PDF-only version without offering an unsupported save", () => {
     "src",
     "blob:fixture-pdf",
   );
+});
+
+it.each(["blocks", "tex"] as const)(
+  "preserves %s edits and the PDF through repeated Escape and explicit cancellation",
+  async (mode) => {
+    const onClose = vi.fn();
+    const browserConfirm = vi.spyOn(window, "confirm");
+    const view = render(
+      <DocumentEditor document={{ ...document, mode }} onClose={onClose} />,
+    );
+    const label = mode === "tex" ? "LaTeX source" : "Text";
+    const input = screen.getByLabelText(label, { exact: true });
+    const editor = screen.getByRole("dialog");
+    const pdf = screen.getByTitle("Document PDF preview");
+    const pdfSource = pdf.getAttribute("src");
+    fireEvent.change(input, {
+      target: { value: "Unsaved evidence stays here" },
+    });
+    input.focus();
+
+    fireEvent.keyDown(editor, { key: "Escape" });
+    expect(
+      within(confirmation()).getByRole("button", { name: "Keep editing" }),
+    ).toHaveFocus();
+    expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+    fireEvent.keyDown(confirmation(), { key: "Escape", repeat: true });
+    expect(confirmation()).toBeVisible();
+    fireEvent.keyDown(confirmation(), { key: "Escape" });
+    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+    expect(input).toHaveValue("Unsaved evidence stays here");
+    expect(input).toHaveFocus();
+    expect(screen.getByTitle("Document PDF preview")).toBe(pdf);
+    expect(pdf).toHaveAttribute("src", pdfSource);
+    expect(URL.createObjectURL).toHaveBeenCalledTimes(1);
+
+    fireEvent.keyDown(editor, { key: "Escape" });
+    await userEvent.click(
+      within(confirmation()).getByRole("button", { name: "Keep editing" }),
+    );
+    expect(input).toHaveValue("Unsaved evidence stays here");
+    expect(input).toHaveFocus();
+    fireEvent.keyDown(editor, { key: "Escape" });
+    const discard = within(confirmation()).getByRole("button", {
+      name: "Discard changes",
+    });
+    discard.focus();
+    await userEvent.keyboard("{Enter}");
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(fixture.markDraft).toHaveBeenLastCalledWith(false);
+    expect(fixture.action).not.toHaveBeenCalled();
+    expect(browserConfirm).not.toHaveBeenCalled();
+    view.unmount();
+    browserConfirm.mockRestore();
+  },
+);
+
+it("keeps the editor open during preview generation and retains edits after it finishes", async () => {
+  let finish!: (value: { pdf: string }) => void;
+  fixture.action.mockImplementation(
+    () =>
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+  );
+  const onClose = vi.fn();
+  render(<DocumentEditor document={document} onClose={onClose} />);
+  fireEvent.change(screen.getByLabelText("Text", { exact: true }), {
+    target: { value: "Pending edits" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Update preview" }));
+  const editor = screen.getByRole("dialog");
+  fireEvent.keyDown(editor, { key: "Escape" });
+  fireEvent(editor, new Event("cancel", { cancelable: true }));
+  expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+  expect(onClose).not.toHaveBeenCalled();
+  expect(screen.getByRole("button", { name: "Close" })).toBeDisabled();
+  await act(async () => {
+    finish({ pdf: document.pdf });
+  });
+  fireEvent.keyDown(editor, { key: "Escape" });
+  expect(confirmation()).toBeVisible();
+  fireEvent.keyDown(confirmation(), { key: "Escape" });
+  expect(screen.getByLabelText("Text", { exact: true })).toHaveValue(
+    "Pending edits",
+  );
+});
+
+it("retains dirty edits when a platform close request bypasses cancellation", () => {
+  const onClose = vi.fn();
+  render(<DocumentEditor document={document} onClose={onClose} />);
+  fireEvent.change(screen.getByLabelText("Text", { exact: true }), {
+    target: { value: "Protected edits" },
+  });
+  const editor = screen.getByRole("dialog") as HTMLDialogElement;
+  fireEvent(editor, new Event("cancel", { cancelable: false }));
+  editor.open = false;
+  fireEvent(editor, new Event("close"));
+  expect(editor.open).toBe(true);
+  expect(confirmation()).toBeVisible();
+  expect(
+    within(confirmation()).getByRole("button", { name: "Keep editing" }),
+  ).toHaveFocus();
+  expect(onClose).not.toHaveBeenCalled();
+});
+
+it("closes an unchanged read-only document with Escape without a discard prompt", () => {
+  const onClose = vi.fn();
+  render(
+    <DocumentEditor
+      document={{ ...document, mode: "view" }}
+      onClose={onClose}
+    />,
+  );
+  fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
+  expect(onClose).toHaveBeenCalledTimes(1);
+  expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+  expect(fixture.action).not.toHaveBeenCalled();
 });
