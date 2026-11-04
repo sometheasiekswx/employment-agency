@@ -17,7 +17,7 @@ class PublicPreviewExport(unittest.TestCase):
             destination = Path(temporary) / 'demo'
             with patch('urllib.request.urlopen', side_effect=AssertionError('No external request allowed')), patch.dict('os.environ', {'OPENAI_API_KEY': 'never-export-this-key', 'SUPABASE_SERVICE_ROLE_KEY': 'never-export-this-secret'}):
                 summary = export_preview(destination)
-            bundle = json.loads((destination / 'preview.json').read_text())
+            bundle = json.loads((destination / 'preview.json').read_text(encoding='utf-8'))
             self.assertEqual(summary['jobs'], 6)
             self.assertEqual(summary['applications'], 3)
             self.assertTrue(bundle['public_preview'])
