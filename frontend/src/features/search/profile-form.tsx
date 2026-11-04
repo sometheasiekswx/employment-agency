@@ -31,6 +31,7 @@ export function ProfileForm({ profile }: { profile?: Profile }) {
   const { run, selectProfile } = useWorkspace();
   return (
     <Form
+      className="search-profile-form"
       onSave={async (data) => {
         const input: RequestData = {
           id: profile?.id || "",

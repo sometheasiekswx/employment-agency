@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Cloud, FolderOpen } from "lucide-react";
 import { useWorkspace } from "@/components/workspace-provider";
 import { useDraft } from "@/components/unsaved";
 import { Check, Field, Form, checked, text } from "@/components/controls";
@@ -11,6 +12,14 @@ function WorkspaceLocation() {
   const { canLeave } = useDraft();
   const [busy, setBusy] = useState(false);
   const button = useRef<HTMLButtonElement>(null);
+  const restoreFocus = useRef(false);
+  useEffect(() => {
+    const opener = button.current;
+    if (busy || !restoreFocus.current || !opener || opener.disabled) return;
+    // Consume the picker intent only after the enabled button has committed.
+    restoreFocus.current = false;
+    opener.focus();
+  });
   return (
     <>
       <div className="workspace-location">
@@ -22,7 +31,7 @@ function WorkspaceLocation() {
         <button
           ref={button}
           type="button"
-          disabled={busy}
+          disabled={busy || client.preview}
           onClick={async () => {
             if (!canLeave()) return;
             setBusy(true);
@@ -40,11 +49,12 @@ function WorkspaceLocation() {
             } catch (error) {
               notify(errorMessage(error));
             } finally {
+              restoreFocus.current = true;
               setBusy(false);
-              requestAnimationFrame(() => button.current?.focus());
             }
           }}
         >
+          <FolderOpen size={16} aria-hidden="true" />
           {busy ? "Choose a folder…" : "Open Folder"}
         </button>
       </div>
@@ -59,7 +69,7 @@ function WorkspaceLocation() {
 export function WorkspaceSetup() {
   const { run } = useWorkspace();
   return (
-    <section>
+    <section className="settings-page secondary-panel workspace-setup">
       <h2>Your career workspace</h2>
       <p>
         Keep your master resume, career evidence and applications together here.
@@ -81,8 +91,11 @@ export function WorkspaceSettings() {
   const workspace = state._workspace;
   if (client.hosted)
     return (
-      <section>
-        <h2>Private cloud workspace</h2>
+      <section className="secondary-panel settings-workspace-panel">
+        <div className="secondary-section-heading">
+          <h2>Private cloud workspace</h2>
+          <Cloud size={18} aria-hidden="true" />
+        </div>
         <p>
           Your data belongs to your signed-in account. Local-folder watching and
           custom LaTeX compilation are available in the local edition.
@@ -90,10 +103,14 @@ export function WorkspaceSettings() {
       </section>
     );
   return (
-    <section>
-      <h2>Workspace files</h2>
+    <section className="secondary-panel settings-workspace-panel">
+      <div className="secondary-section-heading">
+        <h2>Workspace files</h2>
+        <FolderOpen size={18} aria-hidden="true" />
+      </div>
       <WorkspaceLocation />
       <Form
+        className="settings-workspace-form"
         onSave={async (data) => {
           await run("workspace-settings", {
             master: text(data, "master"),

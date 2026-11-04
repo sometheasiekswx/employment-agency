@@ -35,17 +35,25 @@ export function ApplicationCard({
   const [comment, setComment] = useState("");
   const [reviewBusy, setReviewBusy] = useState(false);
   const reviewForm = useId();
+  const headingId = useId();
   const timezone = state._workspace.timezone;
   const files = Object.entries(fileLabels).filter(
     ([file]) => app.documents?.[file],
   );
   return (
-    <article className="dossier" data-application-id={app.id}>
+    <article
+      className="dossier"
+      id={`application-${app.id}`}
+      data-application-id={app.id}
+      tabIndex={-1}
+      aria-labelledby={headingId}
+    >
       <header className="dossier-header">
-        <h2>{app.title}</h2>
+        <h2 id={headingId}>{app.title}</h2>
         <p>
           {app.employer}{" "}
           <ReviewStatus
+            readOnly={client.preview}
             status={app.status}
             form={reviewForm}
             busy={reviewBusy}
@@ -63,6 +71,7 @@ export function ApplicationCard({
             .filter((document) => app.documents?.[`${document}.pdf`])
             .map((document) => (
               <Action
+                previewAllowed
                 key={document}
                 run={async (button) => {
                   onEdit(
@@ -74,7 +83,8 @@ export function ApplicationCard({
                   );
                 }}
               >
-                View / edit {document === "resume" ? "CV" : "cover letter"}
+                {client.preview ? "View" : "View / edit"}{" "}
+                {document === "resume" ? "CV" : "cover letter"}
               </Action>
             ))}
         </div>

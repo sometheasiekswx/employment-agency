@@ -6,7 +6,12 @@ import next from "@next/eslint-plugin-next";
 import globals from "globals";
 
 export default defineConfig([
-  globalIgnores([".next/**", "out/**", "next-env.d.ts"]),
+  globalIgnores([
+    ".next/**",
+    ".next-public-preview/**",
+    "out/**",
+    "next-env.d.ts",
+  ]),
   js.configs.recommended,
   ...ts.configs.recommended,
   hooks.configs.flat.recommended,

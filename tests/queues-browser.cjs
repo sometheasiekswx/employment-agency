@@ -204,7 +204,7 @@ const crypto = require("node:crypto");
     await tab("Submitted", 2).click();
     await card(fixture.active).waitFor();
     assert.equal(await page.locator(".dossier").count(), 2);
-    await page.getByRole("link", { name: "Application history", exact: true }).click();
+    await page.getByRole("link", { name: "History", exact: true }).click();
     await page.waitForURL("**/history/");
     const versions = initial.state.applications.filter(
       (app) => app.folder,

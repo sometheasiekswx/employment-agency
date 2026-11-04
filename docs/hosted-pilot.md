@@ -25,6 +25,8 @@ Pilot workspaces are bounded portable snapshots in a private Supabase bucket, wi
 
 ### Pilot limits and recovery
 
+Automatic Git deployments are disabled through `git.deploymentEnabled` in the root `vercel.json`, using [Vercel's documented deployment gate](https://vercel.com/docs/project-configuration/git-configuration). Publishing source or merging a PR must not upgrade this private pilot. An authorized pilot upgrade requires a separately verified, explicit deployment while preserving its protection and owner allowlist. The [public fictional demo](demo.md) has its own static build and Vercel project.
+
 One package is generated per request; browser users can prepare additional matches individually. No background threads or paid APIs run in hosted mode. Imports are limited to 2 MB; current workspaces to 3 MB compressed / 30 MB expanded; 25 packages, 300 jobs and 500 facts. Historical cloud snapshots consume a cumulative 50 MB and 250-save cap per account; the SQL transaction enforces this before publishing a new pointer. This deliberately small pilot retains snapshots for recovery and prevents unbounded owner storage. Export to the local app when a cap is reached; failed mutations preserve the prior state.
 
 Account deletion first marks the workspace as deleting, then removes all owned snapshot objects and the Auth user. Interrupted deletions can be retried; other operations are blocked during deletion. Browser downloads use authenticated fetch, never public storage links. Session tokens stay in sessionStorage for that browser tab; Google uses PKCE. Logs must not contain tokens, career data or provider response bodies.

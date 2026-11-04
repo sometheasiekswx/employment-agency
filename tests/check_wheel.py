@@ -1,11 +1,24 @@
 """Install a built wheel outside the checkout and verify its runtime contract."""
 import argparse
+import hashlib
+import json
 import os
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
 import zipfile
+
+
+PUBLIC_ASSETS = (
+    'employment-mark.svg',
+    'icon.svg',
+    'fonts/inter-400.ttf',
+    'fonts/inter-500.ttf',
+    'fonts/inter-600.ttf',
+    'fonts/inter-700.ttf',
+    'licenses/Inter-OFL.txt',
+)
 
 
 PROOF = r'''
@@ -15,6 +28,9 @@ import sys
 import threading
 import urllib.request
 import re
+import hashlib
+import json
+import os
 import employment_agency
 from employment_agency.store import Workspace, restore
 from employment_agency.service import Service
@@ -71,7 +87,7 @@ try:
     thread = threading.Thread(target=http.serve_forever, daemon=True); thread.start()
     try:
         url = 'http://127.0.0.1:' + str(http.server_port)
-        for route in ['/', '/career/', '/search/', '/settings/', '/history/']:
+        for route in ['/', '/discover/', '/career/', '/search/', '/settings/', '/history/']:
             with urllib.request.urlopen(url + route) as response:
                 assert response.status == 200
                 html = response.read().decode()
@@ -80,6 +96,10 @@ try:
             for src in re.findall(r'<script[^>]+src="([^"]+)"', html):
                 with urllib.request.urlopen(url + src) as response:
                     assert response.status == 200 and response.read()
+        for asset, expected in json.loads(os.environ['EA_WHEEL_ASSET_DIGESTS']).items():
+            with urllib.request.urlopen(url + '/' + asset) as response:
+                assert response.status == 200
+                assert hashlib.sha256(response.read()).hexdigest() == expected, asset
         with urllib.request.urlopen(urllib.request.Request(url + '/career/', method='HEAD')) as response:
             assert response.status == 200 and response.read() == b''
     finally:
@@ -201,9 +221,15 @@ if __name__ == '__main__':
     wheel = args.wheel.resolve()
     with zipfile.ZipFile(wheel) as archive:
         names = archive.namelist()
-        for route in ['', 'career/', 'search/', 'settings/', 'history/']:
+        for route in ['', 'discover/', 'career/', 'search/', 'settings/', 'history/']:
             assert 'employment_agency/web/' + route + 'index.html' in names
         assert 'employment_agency/web/fonts/OFL.txt' in names
+        public = Path(__file__).resolve().parents[1] / 'frontend' / 'public'
+        asset_digests = {}
+        for asset in PUBLIC_ASSETS:
+            packaged = archive.read('employment_agency/web/' + asset)
+            assert packaged == (public / asset).read_bytes(), 'Stale packaged asset: ' + asset
+            asset_digests[asset] = hashlib.sha256(packaged).hexdigest()
         assert 'employment_agency/demo_data/resume.txt' in names
         assert 'employment_agency/demo_data/jobs.json' in names
         assert not any(name.startswith('employment_agency/static/') for name in names), 'Legacy frontend must not remain in the wheel'
@@ -217,7 +243,11 @@ if __name__ == '__main__':
             result = subprocess.run([str(python), '-m', 'pip', 'install', '--disable-pip-version-check', str(wheel)], stdout=log, stderr=log)
             if result.returncode:
                 log.seek(0); raise RuntimeError(log.read().decode())
-        environment = {**os.environ, 'EA_CONFIG_HOME': str(root / 'config')}
+        environment = {
+            **os.environ,
+            'EA_CONFIG_HOME': str(root / 'config'),
+            'EA_WHEEL_ASSET_DIGESTS': json.dumps(asset_digests),
+        }
         environment.pop('PYTHONPATH', None)
         subprocess.run([str(python), '-c', PROOF], cwd=root, env=environment, check=True)
         if args.browser:

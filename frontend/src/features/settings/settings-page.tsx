@@ -1,5 +1,6 @@
 "use client";
 
+import { ArchiveRestore, Cloud, ShieldCheck } from "lucide-react";
 import { useWorkspace } from "@/components/workspace-provider";
 import { Action, Field, Form, text } from "@/components/controls";
 import { WorkspaceSettings } from "./workspace-settings";
@@ -19,11 +20,27 @@ export function SettingsPage() {
     notify("Export ready. It contains private data.");
   };
   return (
-    <>
+    <div className="settings-page secondary-page">
+      <p className="secondary-page-intro">
+        Your workspace, privacy and recovery options.
+      </p>
       <WorkspaceSettings />
+      <div className="secondary-inline-note settings-control-note">
+        <ShieldCheck size={21} aria-hidden="true" />
+        <div>
+          <strong>You stay in control</strong>
+          <p>
+            Prepare and review your documents here. Submission decisions remain
+            yours.
+          </p>
+        </div>
+      </div>
       {client.hosted ? (
-        <section>
-          <h2>Account and recovery</h2>
+        <section className="secondary-panel settings-account-panel">
+          <div className="secondary-section-heading">
+            <h2>Account and recovery</h2>
+            <Cloud size={18} aria-hidden="true" />
+          </div>
           <p>
             Export a portable copy before major changes. Pilot limits: 2 MB
             imports, 25 application packages, 3 MB compressed workspace, 50 MB
@@ -40,30 +57,36 @@ export function SettingsPage() {
               Sign out
             </Action>
           </div>
-          <h3>Delete account and all hosted data</h3>
-          <p>
-            This permanently deletes your cloud account and stored snapshots.
-            Export first if you want to keep a copy. Local files are unaffected.
-          </p>
-          <Form
-            onSave={async (data) => {
-              const confirmation = text(data, "confirmation");
-              if (confirmation !== "DELETE")
-                throw new Error(
-                  "Type DELETE to confirm account and data deletion.",
-                );
-              await client.action("delete-account", { confirmation });
-              clearSession();
-            }}
-          >
-            <Field label="Type DELETE" name="confirmation" />
-            <button className="danger">Delete account and data</button>
-          </Form>
+          <div className="settings-danger-zone">
+            <h3>Delete account and all hosted data</h3>
+            <p>
+              This permanently deletes your cloud account and stored snapshots.
+              Export first if you want to keep a copy. Local files are
+              unaffected.
+            </p>
+            <Form
+              onSave={async (data) => {
+                const confirmation = text(data, "confirmation");
+                if (confirmation !== "DELETE")
+                  throw new Error(
+                    "Type DELETE to confirm account and data deletion.",
+                  );
+                await client.action("delete-account", { confirmation });
+                clearSession();
+              }}
+            >
+              <Field label="Type DELETE" name="confirmation" />
+              <button className="danger">Delete account and data</button>
+            </Form>
+          </div>
         </section>
       ) : (
-        <div className="grid">
-          <section>
-            <h2>AI disclosure consent</h2>
+        <div className="secondary-two-column settings-controls-grid">
+          <section className="secondary-panel settings-consent-panel">
+            <div className="secondary-section-heading">
+              <h2>AI disclosure consent</h2>
+              <ShieldCheck size={18} aria-hidden="true" />
+            </div>
             <p>
               Granting consent allows{" "}
               <strong>confirmed career facts and job descriptions</strong> to be
@@ -72,13 +95,13 @@ export function SettingsPage() {
               salary minimums are not included.
             </p>
             {["agent", "openai"].map((provider) => (
-              <div key={provider}>
+              <div className="settings-consent-provider" key={provider}>
                 <h3>
                   {provider === "agent"
                     ? "Connected coding agent"
                     : "OpenAI API"}
                 </h3>
-                <p>
+                <p className="settings-consent-status">
                   {state.consents[provider]
                     ? "Consent granted"
                     : "No consent granted"}
@@ -109,8 +132,11 @@ export function SettingsPage() {
               boundary.
             </p>
           </section>
-          <section>
-            <h2>Recovery and upgrades</h2>
+          <section className="secondary-panel settings-recovery-panel">
+            <div className="secondary-section-heading">
+              <h2>Recovery and upgrades</h2>
+              <ArchiveRestore size={18} aria-hidden="true" />
+            </div>
             <p>
               Exports include private facts and applications, but exclude
               credentials and consent grants. Restore to a new workspace;
@@ -125,6 +151,6 @@ export function SettingsPage() {
           </section>
         </div>
       )}
-    </>
+    </div>
   );
 }

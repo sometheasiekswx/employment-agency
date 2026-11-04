@@ -17,16 +17,18 @@ export function FileLink({
 }) {
   const { client, notify } = useWorkspace();
   const [busy, setBusy] = useState(false);
-  const href = history
-    ? `/history/files/${id}/${encodeURIComponent(name)}`
-    : `/files/${id}/${encodeURIComponent(name)}`;
+  const href = client.preview
+    ? client.previewFileUrl(id, name, history)
+    : history
+      ? `/history/files/${id}/${encodeURIComponent(name)}`
+      : `/files/${id}/${encodeURIComponent(name)}`;
   return (
     <a
       className="button"
       href={href}
       target="_blank"
       rel="noopener"
-      aria-disabled={busy}
+      aria-disabled={busy || !href}
       onClick={async (event) => {
         if (!client.hosted) return;
         event.preventDefault();

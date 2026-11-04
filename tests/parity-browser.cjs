@@ -1,6 +1,7 @@
 // Run after browser.cjs on the same disposable local fixture.
 const { chromium } = require(process.env.PLAYWRIGHT_PATH || 'playwright');
 const assert = require('node:assert/strict');
+const { decideDialog } = require('./browser-dialog.cjs');
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
@@ -33,16 +34,14 @@ const crypto = require('node:crypto');
     await action('local-package', { profile_id: initial.profiles[0].id, job_id: job.id });
     await page.reload();
 
-    await page.getByRole('link', { name: 'Career evidence' }).click();
+    await page.getByRole('link', { name: 'Career profile' }).click();
     await page.getByLabel('Name', { exact: true }).fill('Unsaved name');
     await page.waitForTimeout(8500); // Exercise the actual local polling interval.
     assert.equal(await page.getByLabel('Name', { exact: true }).inputValue(), 'Unsaved name');
     assert.equal((await read()).state.identity.name, initial.identity.name);
-    page.once('dialog', dialog => dialog.dismiss());
-    await page.getByRole('link', { name: 'Search profiles' }).click();
+    await decideDialog(page, () => page.getByRole('link', { name: 'Search preferences' }).click(), false);
     assert.match(page.url(), /\/career\/$/);
-    page.once('dialog', dialog => dialog.accept());
-    await page.getByRole('link', { name: 'Search profiles' }).click();
+    await decideDialog(page, () => page.getByRole('link', { name: 'Search preferences' }).click(), true);
     await page.waitForURL('**/search/');
     await page.goBack();
     await page.getByRole('heading', { name: 'Your details' }).waitFor();
@@ -57,9 +56,10 @@ const crypto = require('node:crypto');
     await page.getByRole('button', { name: 'Save details' }).click();
     await page.locator('#notice').filter({ hasText: 'Saved.' }).waitFor();
     await page.getByText('Add experience or a skill', { exact: true }).click();
+    const addFact = page.locator('details').filter({ has: page.getByText('Add experience or a skill', { exact: true }) });
     const malicious = '<img src=x onerror=window.__injected=true>';
-    await page.getByLabel('Statement', { exact: true }).first().fill(malicious);
-    await page.getByRole('button', { name: 'Save for confirmation' }).first().click();
+    await addFact.getByLabel('Statement', { exact: true }).fill(malicious);
+    await addFact.getByRole('button', { name: 'Save for confirmation' }).click();
     await page.locator('.fact > p').filter({ hasText: malicious }).waitFor();
     assert.equal(await page.locator('img[src=x]').count(), 0);
     assert.equal(await page.evaluate(() => window.__injected), undefined);
@@ -68,7 +68,7 @@ const crypto = require('node:crypto');
     await page.getByRole('button', { name: 'Import for review' }).click();
     await page.locator('#notice').filter({ hasText: 'candidate facts imported' }).waitFor();
 
-    await page.getByRole('link', { name: 'Search profiles' }).click();
+    await page.getByRole('link', { name: 'Search preferences' }).click();
     await page.getByText('Saved jobs (2)', { exact: true }).click();
     const row = page.locator('p').filter({ hasText: 'Software Engineer · Fictional Expansion' });
     await row.getByRole('button', { name: 'Edit details' }).click();
@@ -98,11 +98,10 @@ const crypto = require('node:crypto');
     assert.equal(await page.getByLabel('Job URL with JobPosting structured data',{exact:true}).inputValue(),'https://example.test/unavailable');
     await page.unroute('**/api/url');
     // Explicitly discard this rejected URL draft before moving to consent settings.
-    page.once('dialog',dialog=>dialog.accept());
-    await page.getByRole('link',{name:'Settings & recovery'}).click();
+    await decideDialog(page, () => page.getByRole('link',{name:'Settings'}).click(), true);
     await page.getByRole('button',{name:'Grant consent',exact:true}).first().click();
     await page.getByText('Consent granted',{exact:true}).waitFor();
-    await page.getByRole('link',{name:'Search profiles'}).click();
+    await page.getByRole('link',{name:'Search preferences'}).click();
     await page.getByRole('button',{name:'Rank saved jobs',exact:true}).click();
     const match = page.locator('article').filter({has:page.getByRole('heading',{name:'Software Engineer · Fictional Expansion',exact:true})});
     const handoff = page.waitForEvent('download');
@@ -115,15 +114,17 @@ const crypto = require('node:crypto');
     await page.locator('#notice').filter({hasText:'Saved.'}).waitFor();
     assert.equal((await read()).state.applications.length,3);
 
-    await page.getByRole('link',{name:'Settings & recovery'}).click();
+    await page.getByRole('link',{name:'Settings'}).click();
     const backupDownload=page.waitForEvent('download');
     await page.getByRole('button',{name:'Export private workspace',exact:true}).click();
     assert.equal((await backupDownload).suggestedFilename(),'career-workspace.zip');
 
-    await page.getByRole('link', { name: 'Application history' }).click();
+    await page.getByRole('link', { name: 'History' }).click();
     await page.getByRole('heading', { name: 'Toronto', exact: true }).waitFor();
     const company = page.locator('details').filter({ has: page.locator('summary', { hasText: 'Fictional Systems' }) }).first();
-    await company.locator('summary').first().click();
+    if (!(await company.evaluate(element => element.open))) {
+      await company.locator('summary').first().click();
+    }
     await company.locator('details summary').first().click();
     const link = company.getByRole('link', { name: submitted.documents['resume.pdf'], exact: true });
     const response = await page.request.get(new URL(await link.getAttribute('href'), base).href);

@@ -129,6 +129,20 @@ class CloudTests(unittest.TestCase):
         execute(b,OWNER,'rank',{'profile_id':result['id']})
         self.assertEqual(b.record(OWNER)['revision'],before)
 
+    def test_saved_roles_are_persisted_only_in_their_owners_workspace(self):
+        b = Backend()
+        data = {'title': 'Software Engineer', 'employer': 'Fictional Systems',
+                'location': 'Toronto', 'description': 'Build Python services.',
+                'url': 'https://example.test/roles/software-engineer'}
+        job = execute(b, OWNER, 'job', data)['result']
+        other = execute(b, OTHER, 'job', data)['result']
+        self.assertEqual(job['id'], other['id'])
+        execute(b, OWNER, 'save-job', {'id': job['id'], 'saved': True})
+        self.assertTrue(execute(b, OWNER, 'state', {})['state']['jobs'][0]['saved'])
+        self.assertFalse(execute(b, OTHER, 'state', {})['state']['jobs'][0]['saved'])
+        execute(b, OWNER, 'save-job', {'id': job['id'], 'saved': False})
+        self.assertFalse(execute(b, OWNER, 'state', {})['state']['jobs'][0]['saved'])
+
     def test_malformed_and_oversized_requests_return_client_errors(self):
         from employment_agency.hosted import app
         c=app.test_client()

@@ -12,12 +12,16 @@ workspace/
 *.pdf
 *.docx
 *.eml
+!frontend/public/demo/files/*.pdf
+!frontend/public/demo/files/*.docx
+!frontend/public/demo/files/*.eml
 .DS_Store
 
 output/
 .vercel/
 frontend/node_modules/
 frontend/.next/
+frontend/.next-public-preview/
 frontend/out/
 frontend/*.tsbuildinfo
 employment_agency/web/

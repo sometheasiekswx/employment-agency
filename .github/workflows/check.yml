@@ -45,6 +45,10 @@ jobs:
       - if: runner.os == 'Linux'
         run: python tests/run_browser_checks.py
       - if: runner.os == 'Linux'
+        run: npm --prefix frontend run build:preview
+      - if: runner.os == 'Linux'
+        run: python tests/run_public_preview_checks.py
+      - if: runner.os == 'Linux'
         run: python -m pip install '.[apply]'
       - if: runner.os == 'Linux'
         run: python tests/run_apply_checks.py

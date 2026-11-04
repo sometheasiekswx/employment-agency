@@ -9,6 +9,7 @@ import {
   type InputHTMLAttributes,
 } from "react";
 import { errorMessage } from "@/lib/format";
+import { PREVIEW_READ_ONLY, publicPreviewEnabled } from "@/lib/public-preview";
 import { useDraft } from "./unsaved";
 
 export function Field({
@@ -106,6 +107,10 @@ export function Form({
   }, [error]);
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (publicPreviewEnabled()) {
+      setError(PREVIEW_READ_ONLY);
+      return;
+    }
     if (saving.current) return;
     const form = event.currentTarget;
     const data = new FormData(form);
@@ -133,7 +138,12 @@ export function Form({
       onChange={() => setDirty(true)}
       {...props}
     >
-      <fieldset disabled={busy}>{children}</fieldset>
+      <fieldset
+        disabled={busy || publicPreviewEnabled()}
+        title={publicPreviewEnabled() ? PREVIEW_READ_ONLY : undefined}
+      >
+        {children}
+      </fieldset>
       {busy && <p role="status">Saving…</p>}
       {error && (
         <p role="alert" className="error" tabIndex={-1} ref={errorNotice}>
@@ -148,10 +158,12 @@ export function Action({
   children,
   run,
   className = "secondary",
+  previewAllowed = false,
   ...props
 }: Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "onClick"> & {
   run: (button: HTMLButtonElement) => Promise<void>;
   children: ReactNode;
+  previewAllowed?: boolean;
 }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -161,7 +173,14 @@ export function Action({
         type="button"
         className={className}
         {...props}
-        disabled={busy || props.disabled}
+        title={
+          publicPreviewEnabled() && !previewAllowed
+            ? PREVIEW_READ_ONLY
+            : props.title
+        }
+        disabled={
+          busy || props.disabled || (publicPreviewEnabled() && !previewAllowed)
+        }
         onClick={async (event) => {
           setBusy(true);
           setError("");

@@ -1,0 +1,207 @@
+{
+  "job": {
+    "title": "Backend Software Engineer",
+    "employer": "Cedarlight Software",
+    "location": "Toronto",
+    "description": "Fictional concept listing. Build and maintain software services with Python, PostgreSQL, AWS. Work with a small engineering team.",
+    "url": "https://example.test/concept/role-6",
+    "email": "",
+    "closes": "",
+    "posted_at": "2026-11-01",
+    "reposted_at": "",
+    "seniority": "",
+    "work_arrangement": "Hybrid",
+    "sponsorship": "unknown",
+    "requirements": [
+      "Python",
+      "PostgreSQL",
+      "AWS"
+    ],
+    "eligibility": "unknown",
+    "salary": {
+      "currency": "CAD",
+      "period": "year",
+      "basis": "gross_base",
+      "min": 110000.0,
+      "max": 140000.0
+    },
+    "expectation": {
+      "target": "",
+      "basis": "",
+      "source": "",
+      "confidence": ""
+    },
+    "id": "afb3122d5d4655d08d385a21",
+    "availability": "illustrative example",
+    "source": "manual",
+    "checked_at": "2026-11-05T00:00:00Z",
+    "prior_application": "none",
+    "saved": false
+  },
+  "facts": [
+    {
+      "text": "Used Python to build and maintain software services.",
+      "category": "experience",
+      "association": "Example Labs (fictional)",
+      "dates": "2022–2026",
+      "claim_key": "",
+      "id": "a2e5df26240b45c095c90b8ec1249792",
+      "confirmed": true,
+      "retired": false,
+      "updated_at": "2026-11-04T20:08:34.402782+00:00",
+      "source": {
+        "name": "User supplied note",
+        "at": "2026-11-04T20:08:34.402893+00:00"
+      },
+      "conflict": false
+    },
+    {
+      "text": "Used PostgreSQL to build and maintain software services.",
+      "category": "experience",
+      "association": "Example Labs (fictional)",
+      "dates": "2022–2026",
+      "claim_key": "",
+      "id": "18f751b4f64141979de590ed56a81fe4",
+      "confirmed": true,
+      "retired": false,
+      "updated_at": "2026-11-04T20:08:34.405757+00:00",
+      "source": {
+        "name": "User supplied note",
+        "at": "2026-11-04T20:08:34.405762+00:00"
+      },
+      "conflict": false
+    },
+    {
+      "text": "Used AWS to build and maintain software services.",
+      "category": "experience",
+      "association": "Example Labs (fictional)",
+      "dates": "2022–2026",
+      "claim_key": "",
+      "id": "4f5c9eba62d2407288a00aced4cee1bb",
+      "confirmed": true,
+      "retired": false,
+      "updated_at": "2026-11-04T20:08:34.403739+00:00",
+      "source": {
+        "name": "User supplied note",
+        "at": "2026-11-04T20:08:34.403742+00:00"
+      },
+      "conflict": false
+    },
+    {
+      "text": "Used Terraform to build and maintain software services.",
+      "category": "experience",
+      "association": "Example Labs (fictional)",
+      "dates": "2022–2026",
+      "claim_key": "",
+      "id": "f17585a08abb4c8a80be78a745d62367",
+      "confirmed": true,
+      "retired": false,
+      "updated_at": "2026-11-04T20:08:34.404523+00:00",
+      "source": {
+        "name": "User supplied note",
+        "at": "2026-11-04T20:08:34.404526+00:00"
+      },
+      "conflict": false
+    },
+    {
+      "text": "Used React to build and maintain software services.",
+      "category": "experience",
+      "association": "Example Labs (fictional)",
+      "dates": "2022–2026",
+      "claim_key": "",
+      "id": "514bb0a10a9743a0b4acf3d8c3b85be0",
+      "confirmed": true,
+      "retired": false,
+      "updated_at": "2026-11-04T20:08:34.406812+00:00",
+      "source": {
+        "name": "User supplied note",
+        "at": "2026-11-04T20:08:34.406815+00:00"
+      },
+      "conflict": false
+    },
+    {
+      "text": "Used TypeScript to build and maintain software services.",
+      "category": "experience",
+      "association": "Example Labs (fictional)",
+      "dates": "2022–2026",
+      "claim_key": "",
+      "id": "e59c701c5c5f4e5e865123cdd04bc3e2",
+      "confirmed": true,
+      "retired": false,
+      "updated_at": "2026-11-04T20:08:34.407608+00:00",
+      "source": {
+        "name": "User supplied note",
+        "at": "2026-11-04T20:08:34.407610+00:00"
+      },
+      "conflict": false
+    },
+    {
+      "text": "Used CI/CD to build and maintain software services.",
+      "category": "experience",
+      "association": "Example Labs (fictional)",
+      "dates": "2022–2026",
+      "claim_key": "",
+      "id": "2aaf8617f82e43458339521cb4d782d6",
+      "confirmed": true,
+      "retired": false,
+      "updated_at": "2026-11-04T20:08:34.408448+00:00",
+      "source": {
+        "name": "User supplied note",
+        "at": "2026-11-04T20:08:34.408449+00:00"
+      },
+      "conflict": false
+    }
+  ],
+  "matching": {
+    "hard_conflicts": [],
+    "unknowns": [
+      "Work rights / sponsorship need confirmation",
+      "Availability not verified"
+    ],
+    "preferences": [],
+    "evidence": [
+      {
+        "requirement": "Python",
+        "fact_ids": [
+          "a2e5df26240b45c095c90b8ec1249792"
+        ],
+        "assessment": "Related text; verify full requirement"
+      },
+      {
+        "requirement": "PostgreSQL",
+        "fact_ids": [
+          "18f751b4f64141979de590ed56a81fe4"
+        ],
+        "assessment": "Related text; verify full requirement"
+      },
+      {
+        "requirement": "AWS",
+        "fact_ids": [
+          "4f5c9eba62d2407288a00aced4cee1bb"
+        ],
+        "assessment": "Related text; verify full requirement"
+      }
+    ],
+    "gaps": [],
+    "stretch": false,
+    "eligible_for_preparation": true,
+    "fact_ids": [
+      "a2e5df26240b45c095c90b8ec1249792",
+      "18f751b4f64141979de590ed56a81fe4",
+      "4f5c9eba62d2407288a00aced4cee1bb",
+      "f17585a08abb4c8a80be78a745d62367",
+      "514bb0a10a9743a0b4acf3d8c3b85be0",
+      "e59c701c5c5f4e5e865123cdd04bc3e2",
+      "2aaf8617f82e43458339521cb4d782d6"
+    ],
+    "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+    "salary_expectation": {
+      "target": "Up to 140000 CAD gross base per year",
+      "basis": "Advertised upper bound, not a market percentile. Opening negotiation target only; confirm the full requirements and benefits.",
+      "source": "https://example.test/concept/role-6",
+      "confidence": "medium"
+    }
+  },
+  "template": "plain",
+  "notice": "User review required. No ATS guarantee."
+}

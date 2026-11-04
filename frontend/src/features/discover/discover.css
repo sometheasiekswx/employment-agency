@@ -1,0 +1,1010 @@
+.discover-screen {
+  --discover-card: var(--card, #26272a);
+  --discover-raised: #2b2c30;
+  --discover-muted: var(--muted, #a2a2a8);
+  --discover-green: #8cddb8;
+  --discover-amber: #edbf80;
+  min-width: 0;
+  color: var(--ink);
+}
+.discover-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.discover-screen .discover-toolbar,
+.discover-screen .discover-views,
+.discover-screen .discover-search-row,
+.discover-screen .discover-profile-context {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.discover-toolbar {
+  position: relative;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 18px;
+}
+.discover-views {
+  flex: 1;
+  gap: 22px !important;
+}
+.discover-screen .discover-views button {
+  min-height: 49px;
+  padding: 9px 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  color: var(--discover-muted);
+  background: transparent;
+  font-size: 14px;
+  font-weight: 400;
+}
+.discover-screen .discover-views button[aria-pressed="true"] {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+.discover-screen .discover-refresh,
+.discover-filters > summary {
+  min-height: 36px;
+  padding: 7px 11px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: var(--discover-muted);
+  background: transparent;
+  font-size: 12px;
+  font-weight: 400;
+}
+.discover-screen .discover-filters {
+  position: static;
+  margin: 0;
+}
+.discover-filters > summary {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  list-style: none;
+}
+.discover-filters > summary::-webkit-details-marker {
+  display: none;
+}
+.discover-filter-panel {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 6px);
+  right: 0;
+  width: min(340px, 100%);
+  padding: 6px 18px 18px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--discover-card);
+  box-shadow: 0 10px 30px #0004;
+}
+.discover-screen .discover-filter-panel label {
+  margin: 14px 0;
+  color: var(--discover-muted);
+}
+.discover-filter-panel a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+}
+.discover-search-row {
+  display: none !important;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+.discover-desktop-count {
+  color: var(--discover-muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.discover-search-row form {
+  flex: 1;
+  max-width: 430px;
+  margin: 0;
+}
+.discover-search-row label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--discover-card);
+  color: var(--discover-muted);
+}
+.discover-screen .discover-search-row input:not([type="hidden"]) {
+  min-height: 40px;
+  padding: 8px 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: 13px;
+}
+.discover-search-row label:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.discover-search-row input:focus-visible {
+  outline: 0;
+}
+.discover-result-count {
+  color: var(--discover-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.discover-profile-context {
+  margin: 8px 0 20px;
+  color: var(--discover-muted);
+  font-size: 12px;
+}
+.discover-profile-context > svg {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.discover-profile-context > p {
+  margin: 0;
+  flex: 1;
+}
+.discover-profile-context strong {
+  color: var(--ink);
+  font-weight: 500;
+}
+.discover-screen .discover-profile-context details {
+  margin: 0;
+  flex-shrink: 0;
+}
+.discover-profile-context summary {
+  cursor: pointer;
+}
+.discover-profile-context dl {
+  position: absolute;
+  z-index: 20;
+  right: 24px;
+  max-width: min(380px, 85vw);
+  padding: 14px;
+  margin: 8px 0 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--discover-card);
+  box-shadow: 0 8px 25px #0004;
+}
+.discover-profile-context dl > div {
+  margin: 0 0 10px;
+}
+.discover-profile-context dl > div:last-child {
+  margin: 0;
+}
+.discover-profile-context dt {
+  color: var(--discover-muted);
+}
+.discover-profile-context dd {
+  margin: 3px 0 0;
+  color: var(--ink);
+}
+.discover-layout {
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+  min-width: 0;
+}
+.discover-layout.has-inspector {
+  height: var(--discover-available-height, calc(100dvh - 20rem));
+  min-height: 0;
+}
+.discover-board {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(244px, 1fr);
+  gap: 16px;
+  align-items: start;
+  overflow: auto;
+  padding: 3px 3px 12px;
+  scrollbar-color: #55545f #29292d;
+  scrollbar-width: thin;
+}
+.discover-screen .discover-column {
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.discover-column > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 17px;
+}
+.discover-column > header h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+.discover-column > header h2 svg {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.discover-column > header > span {
+  min-width: 21px;
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: var(--discover-card);
+  color: var(--discover-muted);
+  text-align: center;
+  font-size: 11px;
+}
+.discover-screen .discover-card {
+  position: relative;
+  padding: 14px;
+  margin: 0 0 13px;
+  background: var(--discover-card);
+  border: 1px solid transparent;
+  border-radius: 11px;
+}
+.discover-screen .discover-card.is-selected {
+  background: #2d2833;
+  border-color: var(--accent);
+}
+.discover-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.discover-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  width: fit-content;
+  padding: 3px 7px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 400;
+  color: #c4c4cb;
+  background: #333439;
+  line-height: 1.5;
+}
+.discover-status::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.discover-status.blue {
+  color: #8bcfff;
+  background: #273944;
+}
+.discover-status.green {
+  color: #8cddb8;
+  background: #273a32;
+}
+.discover-status.purple {
+  color: #dab0f6;
+  background: #3c3047;
+}
+.discover-status.amber,
+.discover-status.warning {
+  color: #edbf80;
+  background: #40362b;
+}
+.discover-screen .discover-icon-button {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--discover-muted);
+}
+.discover-screen .discover-icon-button:hover {
+  color: var(--ink);
+  background: #ffffff0a;
+}
+.discover-screen .discover-icon-button.is-saved {
+  color: var(--accent);
+}
+.discover-card-top .discover-icon-button {
+  position: relative;
+  z-index: 2;
+  width: 25px;
+  height: 25px;
+  min-height: 25px;
+}
+.discover-screen .discover-card-open {
+  display: block;
+  width: 100%;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  text-align: left;
+  color: var(--ink);
+  background: transparent;
+  font-weight: 400;
+}
+.discover-screen .discover-card-open:hover {
+  background: transparent;
+  color: var(--ink);
+}
+.discover-screen .discover-card-open:active {
+  transform: none;
+}
+.discover-screen .discover-card-open::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 11px;
+}
+.discover-card:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.discover-card-open h3 {
+  margin: 10px 0 13px;
+  font-size: 16px;
+  line-height: 1.4;
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+.discover-card p {
+  margin: 10px 0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.discover-card-company {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--discover-muted);
+}
+.discover-employer-mark {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 23px;
+  width: 23px;
+  height: 23px;
+  border-radius: 6px;
+  color: #dac1eb;
+  background: #3d3347;
+  font-size: 12px;
+  font-weight: 500;
+}
+.discover-card-location {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+  color: var(--discover-muted);
+}
+.discover-card-salary {
+  color: #d6d6dc;
+}
+.discover-card-fit {
+  display: flex;
+  align-items: start;
+  gap: 6px;
+  min-height: 18px;
+  color: var(--discover-muted);
+}
+.discover-card-fit svg {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+.discover-card-fit > span {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+}
+.discover-card-open .discover-card-checks {
+  color: var(--discover-amber);
+  font-size: 11px;
+}
+.discover-card-footer {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 13px;
+  margin-top: 17px;
+  border-top: 1px solid var(--line);
+  color: var(--discover-muted);
+  font-size: 10px;
+  line-height: 1.5;
+}
+.discover-card-footer > span:last-child {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+  align-items: center;
+  color: #d8d7dd;
+}
+.discover-screen .discover-inspector {
+  display: flex;
+  flex: 0 0 430px;
+  flex-direction: column;
+  width: 430px;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--ink);
+  background: var(--discover-card);
+}
+.discover-screen .discover-dialog:not([open]) {
+  display: none;
+}
+.discover-inspector-toolbar {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 7px;
+  padding: 13px 17px;
+  border-bottom: 1px solid var(--line);
+  color: var(--discover-muted);
+  font-size: 13px;
+}
+.discover-inspector-navigation {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.discover-inspector-navigation > span {
+  white-space: nowrap;
+  font-size: 12px;
+}
+.discover-screen .discover-inspector-navigation .discover-icon-button {
+  border-color: var(--line);
+  width: 29px;
+  height: 29px;
+  min-height: 29px;
+}
+.discover-inspector-navigation .discover-icon-button:last-child {
+  margin-left: 4px;
+  color: var(--ink);
+}
+.discover-inspector-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 22px 20px;
+  overscroll-behavior: contain;
+  scrollbar-color: #55545f transparent;
+  scrollbar-width: thin;
+}
+.discover-inspector-company {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+.discover-inspector-company .discover-employer-mark {
+  width: 39px;
+  height: 39px;
+  flex-basis: 39px;
+  font-size: 17px;
+}
+.discover-inspector-company > strong {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+}
+.discover-inspector-company .discover-status {
+  font-size: 12px;
+}
+.discover-inspector-body > h2 {
+  margin: 22px 0 12px;
+  font-size: 23px;
+  line-height: 1.3;
+  font-weight: 500;
+  letter-spacing: -0.4px;
+}
+.discover-role-location {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  color: var(--discover-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.discover-role-location > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.discover-inspector-salary {
+  margin: 19px 0 8px;
+  font-size: 15px;
+}
+.discover-source-label {
+  color: var(--discover-muted);
+  font-size: 12px;
+}
+.discover-screen .discover-evidence-section {
+  margin: 27px 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.discover-evidence-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 13px;
+  font-size: 15px;
+  font-weight: 500;
+}
+.discover-evidence-section h3 > svg {
+  color: var(--accent);
+}
+.discover-explanation {
+  margin: 0 0 13px;
+  color: var(--discover-muted);
+  font-size: 12px;
+  line-height: 1.65;
+}
+.discover-evidence-row {
+  display: flex;
+  align-items: start;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line);
+}
+.discover-evidence-row:last-child {
+  border: 0;
+}
+.discover-evidence-row > div {
+  flex: 1;
+  min-width: 0;
+}
+.discover-evidence-row strong {
+  font-size: 14px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.discover-evidence-row p {
+  margin: 5px 0 0;
+  font-size: 13px;
+  color: var(--discover-muted);
+  line-height: 1.6;
+}
+.discover-evidence-mark {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  color: var(--discover-green);
+  background: #293c33;
+}
+.discover-evidence-mark.missing {
+  color: var(--discover-amber);
+  background: #3d3328;
+}
+.discover-screen .discover-evidence-row details {
+  margin: 5px 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: 13px;
+}
+.discover-evidence-row summary {
+  padding: 0;
+  font-weight: 400;
+  color: var(--accent);
+  cursor: pointer;
+}
+.discover-inspector-save-error {
+  margin: 10px 0 0;
+  padding: 10px;
+  border: 1px solid #75424a;
+  border-radius: 6px;
+  color: #f4c0c8;
+  background: #38292c;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.discover-evidence-row ul {
+  padding-left: 17px;
+  color: var(--discover-muted);
+}
+.discover-evidence-row li {
+  margin-bottom: 10px;
+  line-height: 1.6;
+}
+.discover-evidence-row small {
+  display: block;
+  margin-top: 5px;
+  font-size: 12px;
+}
+.discover-checks {
+  padding: 14px;
+  margin-bottom: 13px;
+  border: 1px solid #594b37;
+  border-radius: 8px;
+  background: #2f2b27;
+  color: #edc791;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.discover-checks.conflict {
+  border-color: #75424a;
+  background: #38292c;
+  color: #f3b2bb;
+}
+.discover-checks h4 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+.discover-checks ul {
+  margin: 0;
+  padding-left: 17px;
+}
+.discover-checks li + li {
+  margin-top: 9px;
+}
+.discover-listing-details {
+  font-size: 13px;
+}
+.discover-listing-details > div {
+  display: grid;
+  grid-template-columns: 105px minmax(0, 1fr);
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line);
+}
+.discover-listing-details dt {
+  color: var(--discover-muted);
+}
+.discover-listing-details dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.discover-job-description {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--discover-muted);
+  font-size: 13px;
+  line-height: 1.75;
+}
+.discover-submission-note {
+  display: flex;
+  align-items: start;
+  gap: 9px;
+  padding: 14px;
+  margin: 20px 0 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--discover-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.discover-submission-note svg {
+  color: var(--discover-green);
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.discover-inspector-footer {
+  flex: 0 0 auto;
+  padding: 15px 17px;
+  border-top: 1px solid var(--line);
+  background: var(--discover-card);
+}
+.discover-inspector-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.discover-inspector-actions > .button,
+.discover-inspector-actions > button {
+  min-height: 42px;
+  padding: 8px 11px;
+  font-size: 13px;
+  font-weight: 400;
+}
+.discover-inspector-actions > .discover-primary {
+  flex: 1;
+}
+.discover-screen .discover-primary {
+  border: 1px solid transparent;
+  background: linear-gradient(110deg, #d863dd, #bd8ce7);
+  color: #201225;
+}
+.discover-screen .discover-primary:hover {
+  background: #d9a3f4;
+  color: #201225;
+}
+.discover-screen .discover-advert {
+  border: 1px solid var(--line);
+  color: var(--ink);
+  background: transparent;
+}
+.discover-screen .discover-inspector-actions .discover-icon-button {
+  padding: 0;
+  width: 35px;
+  height: 42px;
+  min-height: 42px;
+  border-color: var(--line);
+}
+.discover-footer-note {
+  display: flex;
+  align-items: start;
+  justify-content: center;
+  gap: 5px;
+  margin: 10px 0 0;
+  color: var(--discover-muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.discover-footer-note svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.discover-preparation-note {
+  color: var(--discover-amber);
+  margin: 10px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.discover-screen .discover-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 55px 20px;
+  margin: 20px 0;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  background: transparent;
+  text-align: center;
+}
+.discover-empty > svg {
+  color: var(--accent);
+}
+.discover-empty h2 {
+  margin: 20px 0 10px;
+  font-size: 21px;
+  font-weight: 500;
+}
+.discover-empty p {
+  max-width: 480px;
+  margin: 0 0 23px;
+  color: var(--discover-muted);
+}
+.discover-request-error {
+  margin: 12px 0 20px;
+  padding: 15px;
+  border: 1px solid #75424a;
+  border-radius: 8px;
+  background: #38292c;
+  color: #f4c0c8;
+}
+.discover-request-error p {
+  margin: 0 0 8px;
+}
+.discover-hidden-note {
+  color: var(--discover-muted);
+  font-size: 12px;
+  margin: 0 0 16px;
+}
+.discover-location-tabs {
+  display: none;
+}
+.discover-local-search {
+  display: none;
+}
+@media (min-width: 901px) and (max-width: 1150px) {
+  .discover-screen .discover-inspector {
+    width: 350px;
+    flex-basis: 350px;
+  }
+  .discover-inspector-company > strong {
+    font-size: 12px;
+  }
+  .discover-inspector-company .discover-status {
+    font-size: 11px;
+  }
+  .discover-inspector-actions .discover-advert > span {
+    display: none;
+  }
+  .discover-refresh {
+    font-size: 0 !important;
+  }
+}
+@media (max-width: 900px) {
+  .discover-screen .discover-toolbar {
+    gap: 9px;
+    margin-bottom: 14px;
+  }
+  .discover-screen .discover-views {
+    gap: 17px !important;
+  }
+  .discover-screen .discover-views button {
+    font-size: 13px;
+    gap: 5px;
+  }
+  .discover-screen .discover-refresh {
+    display: none;
+  }
+  .discover-filters > summary {
+    padding: 7px;
+    font-size: 0;
+  }
+  .discover-filters > summary svg {
+    width: 17px;
+    height: 17px;
+  }
+  .discover-search-row {
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: 10px !important;
+  }
+  .discover-desktop-count {
+    display: none;
+  }
+  .discover-search-row form {
+    flex: 1 1 100%;
+    max-width: none;
+  }
+  .discover-result-count {
+    font-size: 12px;
+  }
+  .discover-profile-context {
+    display: none !important;
+  }
+  .discover-profile-context > svg {
+    margin-top: 2px;
+  }
+  .discover-profile-context > details {
+    display: none;
+  }
+  .discover-location-tabs {
+    display: flex;
+    gap: 17px;
+    margin: 0 0 17px;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--line);
+    scrollbar-width: thin;
+  }
+  .discover-screen .discover-location-tabs button {
+    flex-shrink: 0;
+    min-height: 38px;
+    padding: 0 0 9px;
+    border-radius: 0;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    color: var(--discover-muted);
+    background: transparent;
+    font-size: 12px;
+    font-weight: 400;
+  }
+  .discover-screen .discover-location-tabs button[aria-pressed="true"] {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+  .discover-layout {
+    display: block;
+  }
+  .discover-board {
+    grid-auto-flow: row;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 22px;
+    overflow: visible;
+    padding: 2px;
+  }
+  .discover-column > header {
+    margin-bottom: 12px;
+  }
+  .discover-screen .discover-card {
+    padding: 15px;
+  }
+  .discover-card-open h3 {
+    font-size: 17px;
+  }
+  .discover-card p {
+    font-size: 13px;
+  }
+  .discover-local-search {
+    display: block;
+  }
+  .discover-card-footer {
+    font-size: 11px;
+  }
+  .discover-screen .discover-dialog {
+    position: fixed;
+    inset: auto 0 0;
+    width: 100%;
+    max-width: 100%;
+    height: 50dvh;
+    min-height: min(400px, calc(100dvh - 8px));
+    max-height: calc(100dvh - 8px);
+    margin: 0;
+    border-radius: 16px 16px 0 0;
+  }
+  .discover-screen .discover-dialog.is-expanded {
+    height: calc(100dvh - 8px);
+  }
+  .discover-dialog::backdrop {
+    background: #0007;
+  }
+  .discover-screen .discover-sheet-expand {
+    display: flex;
+    flex: 0 0 auto;
+    justify-content: center;
+    gap: 5px;
+    width: 100%;
+    min-height: 33px;
+    padding: 5px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--discover-muted);
+    font-size: 11px;
+    font-weight: 400;
+  }
+  .discover-inspector-toolbar {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+  .discover-inspector-body {
+    padding: 20px 17px;
+  }
+  .discover-inspector-body > h2 {
+    font-size: 23px;
+  }
+  .discover-inspector-footer {
+    padding: 13px 14px;
+  }
+  .discover-inspector-actions > .button,
+  .discover-inspector-actions > button {
+    padding: 8px 10px;
+  }
+  .discover-inspector-actions .discover-advert > span {
+    display: none;
+  }
+  .discover-footer-note {
+    font-size: 11px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .discover-screen button,
+  .discover-screen .button {
+    transition: none;
+    transform: none;
+  }
+}

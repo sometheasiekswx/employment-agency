@@ -1,0 +1,129 @@
+.applications-page .page-introduction {
+  margin: -0.5rem 0 1.5rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+.applications-page .destination-board {
+  background: transparent;
+  border: 0;
+  padding: 0 0 1.25rem;
+  border-radius: 0;
+}
+.application-overview {
+  display: flex;
+  flex-direction: column;
+  margin: 0 0 2rem;
+  border-top: 1px solid var(--line);
+}
+.application-overview-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  min-height: 5.5rem;
+  padding: 1.125rem 0.75rem;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  color: var(--ink);
+  background: transparent;
+  text-align: left;
+}
+.application-overview-row:hover,
+.application-overview-row[aria-pressed="true"] {
+  background: var(--accent-soft);
+}
+.employer-initial {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: 0 0 2.5rem;
+  border-radius: 0.65rem;
+  background: var(--accent-soft);
+  color: var(--link);
+  font-size: 1rem;
+  font-weight: 600;
+}
+.application-overview-title {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.application-overview-title strong {
+  font-weight: 500;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.application-overview-title > span {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+.application-overview-city {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.application-overview-city svg {
+  width: 0.8125rem;
+  height: 0.8125rem;
+}
+.application-overview-date {
+  width: 10rem;
+  flex: 0 0 10rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+.application-overview-row > svg {
+  width: 1rem;
+  height: 1rem;
+  color: var(--muted);
+  flex: none;
+}
+.applications-page .dossier {
+  scroll-margin-top: 1.5rem;
+}
+.applications-page .dossier-header {
+  background: var(--surface);
+}
+.applications-page .dossier-content,
+.applications-page .review-pane {
+  background: var(--surface);
+}
+.applications-page .editor-actions {
+  padding-top: 0.75rem;
+}
+.applications-page .result-count {
+  font-size: 0.75rem;
+}
+@media (max-width: 1050px) {
+  .application-overview-date {
+    display: none;
+  }
+}
+@media (max-width: 700px) {
+  .application-overview-row {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 1rem 0.5rem;
+  }
+  .application-overview-title {
+    flex-basis: calc(100% - 4rem);
+  }
+  .application-overview-row > .pill {
+    margin-left: 3.25rem;
+  }
+  .application-overview-row > svg {
+    margin-left: auto;
+  }
+  .applications-page .dossier {
+    scroll-margin-top: 5.5rem;
+  }
+}

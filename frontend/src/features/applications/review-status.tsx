@@ -6,12 +6,14 @@ export function ReviewStatus({
   status,
   form,
   busy,
+  readOnly = false,
 }: {
   status: Application["status"];
   form: string;
   busy: boolean;
+  readOnly?: boolean;
 }) {
-  if (status !== "draft" && status !== "reviewed") {
+  if (readOnly || (status !== "draft" && status !== "reviewed")) {
     return (
       <span className="pill" data-status={status}>
         {status}

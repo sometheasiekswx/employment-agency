@@ -67,6 +67,10 @@ def seed_hosted_draft(url):
 
 
 if __name__ == '__main__':
+    with fixture('serve_concept_fixture.py') as url:
+        browser('discover-browser.cjs', url)
+        browser('search-navigation-browser.cjs', url)
+        browser('application-navigation-browser.cjs', url)
     with fixture('serve_queue_fixture.py') as url:
         browser('review-tag-browser.cjs', url)
     with fixture('serve_queue_fixture.py') as url:

@@ -81,7 +81,8 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const running = state?.runs.some((run) => run.status === "running");
   const ready = Boolean(state);
   useEffect(() => {
-    if (!ready || !client || (!running && client.hosted)) return;
+    if (!ready || !client || client.preview || (!running && client.hosted))
+      return;
     const interval = setInterval(
       () => {
         if (document.visibilityState !== "hidden")

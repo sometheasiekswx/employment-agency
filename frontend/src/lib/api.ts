@@ -1,5 +1,6 @@
 import { HostedAuth } from "./auth";
 import type { RequestData, StateResponse } from "./models";
+import { PublicPreviewTransport, publicPreviewEnabled } from "./public-preview";
 
 export class WorkspaceChangedError extends Error {
   constructor() {
@@ -15,7 +16,15 @@ export class ApiClient {
   constructor(
     readonly hosted: boolean,
     readonly auth?: HostedAuth,
+    private readonly previewTransport?: PublicPreviewTransport,
   ) {}
+
+  get preview() {
+    return Boolean(this.previewTransport);
+  }
+  previewFileUrl(id: string, name: string, history = false) {
+    return this.previewTransport?.fileUrl(id, name, history);
+  }
 
   private async request(action: string, data?: RequestData) {
     const headers = new Headers();
@@ -25,12 +34,14 @@ export class ApiClient {
       headers.set("Content-Type", "application/json");
       headers.set("X-Workspace-Token", this.token);
     }
-    const response = await fetch(`/api/${action}`, {
-      method: data === undefined ? "GET" : "POST",
-      headers,
-      ...(data === undefined ? {} : { body: JSON.stringify(data) }),
-      cache: "no-store",
-    });
+    const response = this.previewTransport
+      ? await this.previewTransport.request(action, data)
+      : await fetch(`/api/${action}`, {
+          method: data === undefined ? "GET" : "POST",
+          headers,
+          ...(data === undefined ? {} : { body: JSON.stringify(data) }),
+          cache: "no-store",
+        });
     if (!response.ok) {
       const body = await response.json().catch(() => ({}));
       throw new Error(
@@ -97,6 +108,11 @@ export async function connect(): Promise<{
   client: ApiClient;
   signedIn: boolean;
 }> {
+  if (publicPreviewEnabled())
+    return {
+      client: new ApiClient(false, undefined, new PublicPreviewTransport()),
+      signedIn: true,
+    };
   const runtime = await fetch("/api/runtime", { cache: "no-store" });
   if (!runtime.ok)
     throw new Error("Cannot connect to the application. Please retry.");

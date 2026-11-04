@@ -16,7 +16,7 @@ const path=require('node:path');
   assert.match(root,/employment-agency-folder-browser-/,'Never mutate a real workspace');
   const queue=choices=>fs.writeFileSync(path.join(root,'picker.json'),JSON.stringify(choices));
   const open=()=>page.getByRole('button',{name:'Open Folder',exact:true});
-  const settings=()=>page.getByRole('link',{name:'Settings & recovery'}).click();
+  const settings=()=>page.getByRole('link',{name:'Settings'}).click();
   assert.equal(await page.getByLabel('Workspace name',{exact:true}).count(),0);
   assert.equal(await page.getByText('Use another folder',{exact:true}).count(),0);
   await open().waitFor();

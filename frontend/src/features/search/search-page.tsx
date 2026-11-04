@@ -1,6 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import {
+  ArrowUpRight,
+  Check as CheckIcon,
+  Compass,
+  MapPin,
+  ShieldCheck,
+} from "lucide-react";
 import {
   Action,
   Field,
@@ -23,10 +31,58 @@ export function SearchPage() {
   const [editing, setEditing] = useState<Job>();
   const { canLeave } = useDraft();
   return (
-    <>
-      <div className="grid">
-        <section>
-          <h2>Search profiles</h2>
+    <div className="search-preferences-page secondary-page">
+      <div className="secondary-page-intro-row">
+        <p className="secondary-page-intro">
+          Choose where your next role could take you.
+        </p>
+        <Link
+          href="/discover/"
+          className="button secondary"
+          onNavigate={(event) => {
+            if (!canLeave()) event.preventDefault();
+          }}
+        >
+          <Compass size={16} aria-hidden="true" />
+          Discover roles
+          <ArrowUpRight size={14} aria-hidden="true" />
+        </Link>
+      </div>
+      <div className="search-preferences-grid">
+        <section className="secondary-panel search-locations-panel">
+          <h2>Preferred locations</h2>
+          <p className="muted">
+            Location and work eligibility are checked separately.
+          </p>
+          <div className="search-location-list">
+            {profile?.locations.map((location, index) => (
+              <div className="search-location" key={`${location}-${index}`}>
+                <span className="search-location-icon">
+                  <MapPin size={20} aria-hidden="true" />
+                </span>
+                <div>
+                  <strong>{location}</strong>
+                  <span>Priority {index + 1}</span>
+                </div>
+                <CheckIcon size={17} aria-label="Included" />
+              </div>
+            ))}
+            {!profile?.locations.length && (
+              <p className="empty">
+                Add locations to a search profile to shape your shortlist.
+              </p>
+            )}
+          </div>
+          <div className="secondary-inline-note">
+            <ShieldCheck size={17} aria-hidden="true" />
+            <p>
+              Unknown eligibility remains explicit. Only confirmed work rights
+              belong in your profile.
+            </p>
+          </div>
+        </section>
+        <section className="secondary-panel search-profile-panel">
+          <h2>What you are looking for</h2>
           <Select
             label="Active profile"
             name="active_profile"
@@ -44,7 +100,7 @@ export function SearchPage() {
             <ProfileForm />
           </details>
           {profile ? (
-            <details key={profile.id}>
+            <details key={profile.id} open>
               <summary>Edit {profile.name}</summary>
               <ProfileForm profile={profile} />
             </details>
@@ -52,7 +108,9 @@ export function SearchPage() {
             <p>Start by saving your first search profile.</p>
           )}
         </section>
-        <section>
+      </div>
+      <div className="secondary-two-column search-tools-grid">
+        <section className="secondary-panel search-sources-panel">
           <h2>Live sources</h2>
           <p>
             Search configured employer boards. Coverage is limited to these
@@ -78,7 +136,7 @@ export function SearchPage() {
             <button>Add source</button>
           </Form>
           {state.sources.map((source) => (
-            <div key={source.id}>
+            <div className="search-source-row" key={source.id}>
               <p>
                 {source.kind}: {source.board}{" "}
                 <span className="pill">{source.status}</span>
@@ -96,48 +154,50 @@ export function SearchPage() {
             </div>
           ))}
         </section>
+        <section className="secondary-panel search-import-panel">
+          <h2>Add an opportunity</h2>
+          <Form
+            onSave={async (data) => {
+              await run("url", { url: text(data, "url") });
+            }}
+          >
+            <Field
+              label="Job URL with JobPosting structured data"
+              name="url"
+              type="url"
+              required
+            />
+            <button>Import URL</button>
+          </Form>
+          <details key={editing?.id || "new-job"} open={Boolean(editing)}>
+            <summary>
+              {editing
+                ? "Edit job details"
+                : "Paste an advert or add details manually"}
+            </summary>
+            <JobForm job={editing} onSaved={() => setEditing(undefined)} />
+          </details>
+          <details>
+            <summary>Saved jobs ({state.jobs.length})</summary>
+            {state.jobs.map((job) => (
+              <p className="search-saved-job" key={job.id}>
+                {job.title} · {job.employer}{" "}
+                <button
+                  onClick={() => {
+                    if (canLeave()) setEditing(job);
+                  }}
+                >
+                  Edit details
+                </button>
+              </p>
+            ))}
+          </details>
+        </section>
       </div>
-      <section>
-        <h2>Add an opportunity</h2>
-        <Form
-          onSave={async (data) => {
-            await run("url", { url: text(data, "url") });
-          }}
-        >
-          <Field
-            label="Job URL with JobPosting structured data"
-            name="url"
-            type="url"
-            required
-          />
-          <button>Import URL</button>
-        </Form>
-        <details key={editing?.id || "new-job"} open={Boolean(editing)}>
-          <summary>
-            {editing
-              ? "Edit job details"
-              : "Paste an advert or add details manually"}
-          </summary>
-          <JobForm job={editing} onSaved={() => setEditing(undefined)} />
-        </details>
-        <details>
-          <summary>Saved jobs ({state.jobs.length})</summary>
-          {state.jobs.map((job) => (
-            <p key={job.id}>
-              {job.title} · {job.employer}{" "}
-              <button
-                onClick={() => {
-                  if (canLeave()) setEditing(job);
-                }}
-              >
-                Edit details
-              </button>
-            </p>
-          ))}
-        </details>
-      </section>
-      <SearchResults key={profileId} />
-      <Runs />
-    </>
+      <div className="search-preparation-tools">
+        <SearchResults key={profileId} />
+        <Runs />
+      </div>
+    </div>
   );
 }

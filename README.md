@@ -1,32 +1,101 @@
 <div align="center">
 
+<img src="frontend/public/employment-mark.svg" alt="Employment Agency briefcase and person mark" width="48" height="51">
+
 # Employment Agency
 
-**Your experience. The right roles. Applications you control.**
+**Your next move, with the evidence in view.**
+
+A career workspace for discovering roles, reviewing your experience and preparing applications you control.
 
 [![Checks](https://github.com/sometheasiekswx/employment-agency/actions/workflows/check.yml/badge.svg)](https://github.com/sometheasiekswx/employment-agency/actions/workflows/check.yml)
-[![Release](https://img.shields.io/github/v/release/sometheasiekswx/employment-agency?color=0593C6)](https://github.com/sometheasiekswx/employment-agency/releases)
-![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-0593C6)
-![React + Next.js](https://img.shields.io/badge/React-Next.js-D83995)
+[![Release](https://img.shields.io/github/v/release/sometheasiekswx/employment-agency?color=C994F3)](https://github.com/sometheasiekswx/employment-agency/releases)
+![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-C994F3)
+![React + Next.js](https://img.shields.io/badge/React-Next.js-26272A)
 
-[Quickstart](#quickstart) · [Try the demo](#try-the-demo) · [Use your agent](#use-your-agent) · [Contribute](#contribute) · [System design](docs/system-design.md)
+[**Explore the live demo →**](https://employment-agency-demo.vercel.app/discover/)
+
+Six fictional roles · Four locations · Desktop and mobile
+
+[Run locally](#run-locally) · [The workspace](#the-workspace) · [Use your agent](#use-your-agent) · [Architecture](#architecture) · [Contribute](#contribute)
 
 <picture>
-  <source media="(prefers-reduced-motion: reduce)" srcset="docs/preview.png">
-  <img src="docs/demo.gif" alt="A fictional New York software engineer reviewing real job snapshots, filtering Toronto applications, opening a generated resume, and browsing evidence and history" width="1120">
+  <source media="(prefers-reduced-motion: reduce)" srcset="docs/media/discover-review.png">
+  <img src="docs/media/discover-review.gif" alt="The charcoal and lavender Discover workspace, with roles grouped by location and an opportunity inspector showing confirmed evidence and requirements to check" width="1120" height="840">
 </picture>
 
-[Static preview](docs/preview.png) · [Demo content and sources](docs/demo.md)
+[Static desktop preview](docs/media/discover-review.png) · [Demo content and media provenance](docs/demo.md)
 
 </div>
 
-A local-first application workspace. Import a resume, confirm your experience, define search profiles, compare jobs and prepare PDF/Word documents. Review every version and record your own decisions. **Drafting never sends an application.** The unreleased [local Apply For Me preview](docs/apply-for-me.md) adds explicit approval before Gmail sending or experimental browser submission; the published 0.6 wheel remains draft-only.
+The public demo shows the current charcoal and lavender interface: a location board, an inspector that keeps each role in context, and application documents backed by recorded evidence. It uses a **fictional Alex Morgan profile and six invented vacancies** in Singapore, Melbourne, Berlin and Toronto.
 
-The walkthrough uses **Alex Morgan, a fictional engineer**: 15 sample facts, three search profiles, 14 real employer-board job snapshots and 12 generated packages. The listings include New York, New Jersey/Princeton, Boston, San Francisco and Toronto; they are dated examples, not a live availability guarantee. No private resume is used.
+Explore the screens, inspect sample documents and bookmark roles in your browser. The public showcase is read-only apart from those browser bookmarks. Use the local application for your own résumé, imports, profile changes and application preparation. The [private hosted pilot](https://sams-employment-agency.vercel.app) is a separate, invite-only service.
 
-## Quickstart
+**Preparing a draft does not send an application.** You review the documents and record your own decisions. The unreleased [local Apply For Me preview](docs/apply-for-me.md) requires separate, explicit approval for Gmail sending or experimental browser submission; the published 0.6 wheel remains draft-only.
 
-**New installation:** use Python 3.11+ in a new folder. The release wheel includes the interface; Node is not needed.
+## The workspace
+
+| View                   | What it helps you do                                                                                                                   |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| **Discover**           | Compare roles by location, inspect confirmed evidence and open questions, save opportunities and open the relevant application record. |
+| **Applications**       | Review documents, preview edits, save a new draft, add comments and record decisions.                                                  |
+| **Career profile**     | Import a résumé, reconcile master changes, confirm facts and retain their sources.                                                     |
+| **Search preferences** | Set roles, locations and work preferences; manage employer sources, imports, matching and preparation runs.                            |
+| **History**            | Search preserved versions by role, employer and location, then open the exact recorded documents.                                      |
+| **Settings**           | Choose a local workspace, manage disclosure consent, export a backup and review recovery options.                                      |
+
+Matching exposes evidence, gaps and unknowns. It does not establish qualifications, work rights or current vacancy availability. Configured Greenhouse and Lever boards, structured job URLs and agent research provide job records; paid AI selection is optional. [Sources, providers, consent and budgets](docs/agents.md).
+
+### Documents with their history
+
+Open a generated résumé and inspect its preserved version. The walkthroughs use the local application with fictional data; the public demo offers the read-only exploration described above.
+
+<picture>
+  <source media="(prefers-reduced-motion: reduce)" srcset="docs/media/application-documents.png">
+  <img src="docs/media/application-documents.gif" alt="A fictional application record opening its generated résumé PDF, then reviewing the preserved document version in History" width="1120" height="840" loading="lazy">
+</picture>
+
+[Static document preview](docs/media/application-documents.png)
+
+### Review on mobile
+
+The same role assessment opens in an expandable sheet. Previous and next controls keep the shortlist available while you compare opportunities.
+
+<picture>
+  <source media="(prefers-reduced-motion: reduce)" srcset="docs/media/mobile-review.png">
+  <img src="docs/media/mobile-review.gif" alt="The mobile Discover workspace opening and expanding an opportunity sheet, reviewing requirements and returning to the shortlist" width="390" height="844" loading="lazy">
+</picture>
+
+[Static mobile preview](docs/media/mobile-review.png)
+
+## Run locally
+
+<a id="quickstart"></a>
+
+The live demo and GIFs show the **current source interface**. The published **v0.6.0 wheel contains its earlier release interface**. Building this checkout does not publish a new wheel or upgrade an existing private workspace.
+
+### Current source interface
+
+Requires Python 3.11+, Node 24+ and npm. Build the frontend before installing the Python package:
+
+```sh
+git clone https://github.com/sometheasiekswx/employment-agency.git
+cd employment-agency
+python3 -m venv .venv
+npm --prefix frontend ci --ignore-scripts
+npm --prefix frontend run build
+.venv/bin/python -m pip install .
+.venv/bin/python -m employment_agency --workspace ../career-workspace serve
+```
+
+Open **http://127.0.0.1:8766**. The explicit workspace path keeps personal files outside the software checkout. The local server serves the built React interface and Python API together; Node is needed for building, not for running the installed application. No app API key is required.
+
+Keep the terminal running; Ctrl+C stops it. **Open Folder** selects another workspace. If you already use the app, export a backup and test a restored copy before upgrading. See [running locally and recovery](docs/running-locally.md).
+
+### Published v0.6.0 release
+
+For the released application, start in a new folder. The wheel already includes its interface.
 
 macOS / Linux:
 
@@ -44,21 +113,17 @@ py -3 -m venv .venv
 .venv\Scripts\python -m employment_agency serve
 ```
 
-Open **http://127.0.0.1:8766**. Keep the terminal running; Ctrl+C stops it. Choose **Save** for the shown workspace or **Open Folder** to select another. No app API key is required.
+Installing a release does not upload local data or update a workspace's version pin. [Upgrade instructions](docs/running-locally.md#existing-environments-and-upgrades).
 
-**Already using the app?** Export a backup and test a restored copy before upgrading. See [upgrade/recovery instructions](docs/running-locally.md#existing-environments-and-upgrades). Installing a release does not automatically upload local data or update a workspace's version pin.
+### Local demo workspace
 
-[Hosted pilot](https://sams-employment-agency.vercel.app) is invite-only. Local files and hosted account storage are separate. [Hosted setup and limits](docs/hosted-pilot.md).
-
-## Try the demo
-
-After installation:
+The existing CLI demo remains available after either installation:
 
 ```sh
 .venv/bin/python -m employment_agency demo demo-workspace --serve
 ```
 
-Open **http://127.0.0.1:8770**. On Windows, use `.venv\Scripts\python` instead. The command runs offline, creates a **new** folder, generates actual PDFs/DOCX through the application services, and keeps the remembered personal workspace unchanged. Existing destinations are refused.
+Open **http://127.0.0.1:8770**. On Windows, use `.venv\Scripts\python`. It creates a new, isolated workspace with a fictional candidate and **14 dated real employer-board snapshots**. This is a different dataset from the six entirely fictional roles in the public web showcase. It runs offline and generates actual PDF/DOCX files through the shared document engine.
 
 Reopen without replacing your demo edits:
 
@@ -66,24 +131,11 @@ Reopen without replacing your demo edits:
 .venv/bin/python -m employment_agency demo demo-workspace --open --serve
 ```
 
-The demo has a fictional source resume, confirmed sample experience, real job metadata/URLs, explicit eligibility unknowns, drafts, review comments and version history. [What is real, what is sample, and how to reproduce the GIF](docs/demo.md).
-
-## Make an application
-
-| Task | Where |
-| --- | --- |
-| Import PDF, DOCX, TeX or text; review and confirm facts | **Career evidence** |
-| Set roles, destinations and hard filters; add jobs or employer boards | **Search profiles** |
-| Rank jobs and prepare a bounded batch, or one deliberate version | **Search profiles** |
-| Open PDFs/Word files, preview edits, save a new draft, comment or record a decision | **Applications** |
-| Find preserved document versions | **Application history** |
-| Select a folder, manage provider consent and export a backup | **Settings & recovery** |
-
-Matching explains evidence and gaps; it does not certify qualifications or work rights. Discovery supports configured Greenhouse/Lever boards and structured job URLs; an agent can research broader sources. AI selection is optional. [Providers, consent and budget behavior](docs/agents.md#optional-openai-selection).
+[Demo datasets, source dates and reproduction details](docs/demo.md).
 
 ## Use your agent
 
-Claude Code, Codex or another coding agent can read the project docs and operate the same CLI/API. No special plugin is required. Copy this into your agent, replace the workspace path, and keep the software checkout separate from your private data:
+Codex, Claude Code or another coding agent can use the same validated CLI/API. Keep the software checkout separate from your private career workspace:
 
 ```text
 Help me prepare applications using Employment Agency.
@@ -92,41 +144,31 @@ Read README.md, CONTRIBUTING.md and docs/agents.md in the software checkout.
 My career workspace is: /absolute/path/to/my-private-workspace
 
 Inspect existing facts, search profiles, applications and decisions before making changes.
-Use only confirmed experience. Ask about missing facts and work rights; do not invent them.
-Find relevant jobs for my selected profile and retain source URLs and retrieval dates.
+Use confirmed experience and retain its sources. Ask about missing facts and work rights.
+Research relevant jobs and keep source URLs and retrieval dates.
 Show a ranked shortlist with evidence and gaps before preparing drafts.
-Use the app's validated operations to create new versions; preserve submitted files.
+Create new document versions through the app; preserve submitted snapshots.
 Stop before any paid AI request, employer upload, email sending or submission.
-Keep my personal data out of the public software repository and its screenshots.
+Keep personal data out of the public software repository and its screenshots.
 ```
 
-For code contributions:
+[Agent cookbook: operations, JSON inputs, running-server access and recovery](docs/agents.md).
 
-```text
-Work on the Employment Agency software checkout, not my private career workspace.
-Read PRODUCT.md, DESIGN.md, CONTRIBUTING.md and docs/system-design.md.
-Explain the change, preserve existing workflows, and implement a small complete slice.
-Use disposable fictional data. Run relevant Python, frontend and browser checks.
-Review the diff and show evidence. Do not publish or deploy without my instruction.
-```
+## Architecture
 
-[Agent cookbook: commands, JSON inputs, running-server access and recovery](docs/agents.md).
+React, Next.js and TypeScript own the interface. Python owns validation, matching, documents and durable workspace state. The current interface uses self-hosted Inter, Lucide icons and the existing React Bits navigation and review interactions.
+
+| Mode                     | Runtime                                                                       | Data boundary                                                                      |
+| ------------------------ | ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| **Public showcase**      | Static frontend with prebuilt fictional state, assessments and document files | Browser bookmarks only; no account, uploads, provider calls or application backend |
+| **Local application**    | Python loopback server serving the static frontend and shared API             | Your selected private workspace folder                                             |
+| **Private hosted pilot** | Authenticated hosted adapter over the shared Python services                  | Account-scoped cloud workspace; separate from local files                          |
+
+The production application uses a static Next.js export; it does not need a second Node server. Private career workspaces contain data and intentional documents. Reusable UI, rendering, storage and application logic stay in this repository. [System design](docs/system-design.md) · [Design system](DESIGN.md) · [Hosted pilot boundaries](docs/hosted-pilot.md).
 
 ## Contribute
 
-React + Next.js + TypeScript handles the interface; Python owns validation, matching, documents and storage. Production serves a static export—there is no second Node server. Start with [CONTRIBUTING.md](CONTRIBUTING.md), [the architecture](docs/system-design.md) and [the design system](DESIGN.md).
-
-```sh
-git clone https://github.com/sometheasiekswx/employment-agency.git
-cd employment-agency
-python3 -m venv .venv
-npm --prefix frontend ci --ignore-scripts
-npm --prefix frontend run build
-.venv/bin/python -m pip install .
-.venv/bin/python -m employment_agency demo demo-workspace --serve
-```
-
-Source builds require **Node 24+** and npm. If you already cloned, enter the existing software folder using its full path; do not clone inside your private workspace. Stop if a step fails. [Troubleshooting](docs/running-locally.md).
+Start with [CONTRIBUTING.md](CONTRIBUTING.md). Use disposable fictional data and keep behavior checks meaningful:
 
 ```sh
 npm --prefix frontend run typecheck
@@ -138,20 +180,20 @@ npx --prefix frontend playwright install chrome
 .venv/bin/python tests/run_browser_checks.py
 ```
 
-For live frontend development, start both servers in one terminal:
+For frontend development against an explicitly selected workspace:
 
 ```sh
-.venv/bin/python -m employment_agency dev
+.venv/bin/python -m employment_agency --workspace ../career-workspace dev
 ```
 
-Open **http://127.0.0.1:3000**. CSS/React edits update automatically; Ctrl+C stops both servers. This uses your remembered workspace; use the [isolated development setup](CONTRIBUTING.md#live-frontend-development) for contributions. Stop existing servers first.
+Open **http://127.0.0.1:3000**. React and CSS edits update automatically; Ctrl+C stops both servers. Use the [isolated development setup](CONTRIBUTING.md#live-frontend-development) for contributions and preserve existing running sessions.
 
-Useful contributions: source adapters, import fidelity, accessible interactions, document rendering and behavior tests. Put shared logic in the app and private data in workspaces. Include the problem, resulting behavior and verification in your PR. [Live frontend development and contribution boundaries](CONTRIBUTING.md#live-frontend-development).
+Useful contributions include source adapters, import fidelity, accessible interactions, document rendering and regression coverage. Describe the problem, resulting behavior and verification in your PR. Publishing, deployment and private-workspace upgrades are separate actions.
 
 ## Your files stay yours
 
-`state.json` holds facts, profiles, jobs and decisions. `applications/City/Company/Job/Date/` holds canonical, versioned documents. Master changes require confirmation. External document edits are validated as a new draft; submitted snapshots remain preserved. [Document editing](docs/document-editor.md) · [Backup, restore and migration](docs/running-locally.md) · [Security](SECURITY.md).
+`state.json` holds facts, profiles, jobs and decisions. `applications/City/Company/Job/Date/` holds canonical versioned documents. Master changes require confirmation. External edits create a new draft after validation; submitted snapshots retain their verified bytes. [Document editing](docs/document-editor.md) · [Backup and restore](docs/running-locally.md) · [Security](SECURITY.md).
 
-The default renderer produces PDF and editable DOCX without LaTeX. Trusted local TeX is optional. Scanned PDFs need OCR supplied separately; arbitrary layouts are not reproduced; unsupported font/script content fails validation. [System limitations and recovery](docs/system-design.md).
+The default renderer produces PDF and editable DOCX without LaTeX. Trusted local TeX is optional. Scanned PDFs need separately supplied OCR; arbitrary layouts are not reproduced, and unsupported font/script content fails validation.
 
-Original code is MIT. React Bits and other third-party components retain their own terms and notices. [Dependencies and licences](docs/dependencies.md).
+Original code is MIT. React Bits and other third-party components retain their own terms and notices. Inter is distributed under the SIL Open Font License. [Dependencies and licences](docs/dependencies.md).
