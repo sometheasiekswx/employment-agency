@@ -3,6 +3,7 @@ const { chromium } = require(
   process.env.PLAYWRIGHT_PATH || "../frontend/node_modules/playwright",
 );
 const assert = require("node:assert/strict");
+const { decideDialog } = require("./browser-dialog.cjs");
 
 (async () => {
   const base = process.env.TEST_URL;
@@ -104,8 +105,7 @@ const assert = require("node:assert/strict");
       .getByLabel("Name", { exact: true })
       .fill("Unsaved search fixture name");
     await globalSearch.fill("Python");
-    page.once("dialog", (dialog) => dialog.dismiss());
-    await globalSearch.press("Enter");
+    await decideDialog(page, () => globalSearch.press("Enter"), false);
     assert.equal(
       new URL(page.url()).pathname,
       "/career/",
@@ -121,16 +121,17 @@ const assert = require("node:assert/strict");
     assert.equal(unchanged.state.identity.name, original.state.identity.name);
 
     const dialogs = [];
-    page.on("dialog", async (dialog) => {
+    const recordDialog = (dialog) => {
       dialogs.push(dialog.type());
-      await dialog.accept();
-    });
-    await globalSearch.press("Enter");
+    };
+    page.on("dialog", recordDialog);
+    await decideDialog(page, () => globalSearch.press("Enter"), true);
     await page.waitForURL(
       (url) =>
         url.pathname === "/discover/" && url.searchParams.get("q") === "Python",
     );
     await assertProfile();
+    page.off("dialog", recordDialog);
     assert.deepEqual(
       dialogs,
       ["confirm"],

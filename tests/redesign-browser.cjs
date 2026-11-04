@@ -2,6 +2,7 @@
 const { chromium } = require(process.env.PLAYWRIGHT_PATH || '../frontend/node_modules/playwright');
 const AxeBuilder = require('../frontend/node_modules/@axe-core/playwright').default;
 const assert = require('node:assert/strict');
+const { decideDialog } = require('./browser-dialog.cjs');
 const fs = require('node:fs');
 (async () => {
   const url = process.env.TEST_URL;
@@ -101,11 +102,9 @@ const fs = require('node:fs');
     await page.keyboard.press('Enter');
     await page.getByRole('heading', { name: 'Your details', exact: true }).waitFor();
     await page.getByLabel('Name', { exact: true }).fill('Unsaved synthetic draft');
-    page.once('dialog', dialog => dialog.dismiss());
-    await page.getByRole('link', { name: 'Applications', exact: true }).click();
+    await decideDialog(page, () => page.getByRole('link', { name: 'Applications', exact: true }).click(), false);
     assert.ok(page.url().endsWith('/career/'), 'Draft guard cancelled navigation');
-    page.once('dialog', dialog => dialog.accept());
-    await page.getByRole('link', { name: 'Applications', exact: true }).click();
+    await decideDialog(page, () => page.getByRole('link', { name: 'Applications', exact: true }).click(), true);
     await page.getByRole('heading', { name: 'Software Engineer', exact: true }).waitFor();
     await page.setViewportSize({ width: 390, height: 844 });
     await page.reload();

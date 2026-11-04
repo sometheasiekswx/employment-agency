@@ -1,5 +1,6 @@
 const {chromium}=require(process.env.PLAYWRIGHT_PATH||'playwright');
 const assert=require('node:assert/strict');
+const {decideDialog}=require('./browser-dialog.cjs');
 (async()=>{
  const browser=await chromium.launch({channel:'chrome',headless:true});
  const page=await browser.newPage(); const errors=[];
@@ -46,9 +47,10 @@ const assert=require('node:assert/strict');
  await page.locator(`[data-application-id="${draft.id}"]`).waitFor();
  await page.getByRole('button',{name:'View / edit cover letter',exact:true}).first().click();
  await page.getByRole('dialog').getByLabel('Text',{exact:true}).last().fill('Unsaved draft text');
- page.once('dialog',d=>d.dismiss()); await page.keyboard.press('Escape');
+ const decideDiscard=accept=>decideDialog(page,()=>page.keyboard.press('Escape'),accept,'Discard unsaved document edits?');
+ await decideDiscard(false);
  assert(await page.getByRole('dialog').isVisible());
- page.once('dialog',d=>d.accept()); await page.keyboard.press('Escape');
+ await decideDiscard(true);
  assert.equal(await page.getByRole('dialog').count(),0);
  await page.waitForFunction(()=>document.activeElement?.textContent==='View / edit cover letter');
  assert.deepEqual(errors,[]); await browser.close(); console.log('Document editor browser checks passed');

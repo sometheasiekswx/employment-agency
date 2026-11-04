@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Cloud, FolderOpen } from "lucide-react";
 import { useWorkspace } from "@/components/workspace-provider";
 import { useDraft } from "@/components/unsaved";
@@ -12,6 +12,14 @@ function WorkspaceLocation() {
   const { canLeave } = useDraft();
   const [busy, setBusy] = useState(false);
   const button = useRef<HTMLButtonElement>(null);
+  const restoreFocus = useRef(false);
+  useEffect(() => {
+    const opener = button.current;
+    if (busy || !restoreFocus.current || !opener || opener.disabled) return;
+    // Consume the picker intent only after the enabled button has committed.
+    restoreFocus.current = false;
+    opener.focus();
+  });
   return (
     <>
       <div className="workspace-location">
@@ -41,8 +49,8 @@ function WorkspaceLocation() {
             } catch (error) {
               notify(errorMessage(error));
             } finally {
+              restoreFocus.current = true;
               setBusy(false);
-              requestAnimationFrame(() => button.current?.focus());
             }
           }}
         >

@@ -1,6 +1,7 @@
 // Run after browser.cjs on the same disposable local fixture.
 const { chromium } = require(process.env.PLAYWRIGHT_PATH || 'playwright');
 const assert = require('node:assert/strict');
+const { decideDialog } = require('./browser-dialog.cjs');
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
@@ -38,11 +39,9 @@ const crypto = require('node:crypto');
     await page.waitForTimeout(8500); // Exercise the actual local polling interval.
     assert.equal(await page.getByLabel('Name', { exact: true }).inputValue(), 'Unsaved name');
     assert.equal((await read()).state.identity.name, initial.identity.name);
-    page.once('dialog', dialog => dialog.dismiss());
-    await page.getByRole('link', { name: 'Search preferences' }).click();
+    await decideDialog(page, () => page.getByRole('link', { name: 'Search preferences' }).click(), false);
     assert.match(page.url(), /\/career\/$/);
-    page.once('dialog', dialog => dialog.accept());
-    await page.getByRole('link', { name: 'Search preferences' }).click();
+    await decideDialog(page, () => page.getByRole('link', { name: 'Search preferences' }).click(), true);
     await page.waitForURL('**/search/');
     await page.goBack();
     await page.getByRole('heading', { name: 'Your details' }).waitFor();
@@ -99,8 +98,7 @@ const crypto = require('node:crypto');
     assert.equal(await page.getByLabel('Job URL with JobPosting structured data',{exact:true}).inputValue(),'https://example.test/unavailable');
     await page.unroute('**/api/url');
     // Explicitly discard this rejected URL draft before moving to consent settings.
-    page.once('dialog',dialog=>dialog.accept());
-    await page.getByRole('link',{name:'Settings'}).click();
+    await decideDialog(page, () => page.getByRole('link',{name:'Settings'}).click(), true);
     await page.getByRole('button',{name:'Grant consent',exact:true}).first().click();
     await page.getByText('Consent granted',{exact:true}).waitFor();
     await page.getByRole('link',{name:'Search preferences'}).click();
