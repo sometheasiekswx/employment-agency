@@ -67,6 +67,8 @@ Before opening real data with a new release, stop the old app, export with the o
 
 Export refuses an existing archive path; restore refuses an existing destination. Backups contain private data; store them outside the public software checkout and keep an off-device copy. Permissions must be regranted after restore. A workspace's `workspace.lock.json` is a human-maintained installation record, not an automatic version manager. Update it only after deliberately accepting an upgrade. Versions 0.2 and 0.3 share workspace schema 2.
 
+Rebuilding the checkout does not update a running process or an installed wheel. If an installed app still shows older behavior, stop it and install the tested candidate with the interpreter used to launch it. For the separate environment above, use `.venv-next/bin/python -m pip install --force-reinstall /absolute/path/to/candidate.whl`, then launch with `.venv-next/bin/python`. Record the package version, source revision and wheel SHA-256 in the workspace lock; local builds can differ even when their base release version is the same. Keep the previous environment and wheel until the restored copy and the real workspace have passed verification.
+
 ## Troubleshooting
 
 | Symptom | Meaning and action |

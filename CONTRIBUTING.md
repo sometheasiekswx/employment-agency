@@ -89,6 +89,8 @@ Run `npm --prefix frontend run build` before `python -m pip wheel --no-deps .`. 
 
 Run `python tests/check_wheel.py path/to/the-built.whl` to install the candidate outside the checkout and verify packaged routes, document generation and submitted snapshot export/restore. CI performs this check on all three operating systems.
 
+With the frontend dependencies and Playwright Chrome installed, add `--browser` to verify the installed wheel's application queues in a real browser. Linux CI requires this check. It uses fictional versioned applications to check that submitted jobs appear once, older or later drafts stay out of Active, filters/counts agree, and History retains the documents. Testing the source frontend alone does not verify the files distributed in a wheel.
+
 Vercel installs Python dependencies before running its configured frontend build. `[tool.uv] package = false` tells that dependency bootstrap to use the source checkout without building an incomplete wheel. Local distributors still build the frontend and use pip/setuptools to produce complete wheels. `python tests/check_hosted_install.py` (requires uv) reproduces the pre-frontend dependency phase in a disposable folder; Linux CI runs it. Do not remove the complete-wheel asset check to work around a deployment ordering error.
 
 The 0.4 browser runner also checks all five routes at 320/768/1024/1440 with Axe WCAG A/AA checks, keyboard navigation, unsaved drafts, stable Dock targets, reduced motion, viewport-anchored mobile navigation and 200% text. The design system lives in `DESIGN.md`; development-only strategy is under `.impeccable/surfaces/`. React Bits attribution and local adaptations are recorded in `docs/dependencies.md`.

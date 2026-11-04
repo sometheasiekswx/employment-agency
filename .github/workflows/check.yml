@@ -32,10 +32,14 @@ jobs:
       - if: runner.os == 'Linux'
         run: python tests/check_hosted_install.py
       - run: python -m pip wheel --no-deps . --wheel-dir dist
-      - shell: bash
+      - if: runner.os != 'Linux'
+        shell: bash
         run: python tests/check_wheel.py dist/*.whl
       - if: runner.os == 'Linux'
         run: npx --prefix frontend playwright install --with-deps chrome
+      - if: runner.os == 'Linux'
+        shell: bash
+        run: python tests/check_wheel.py --browser dist/*.whl
       - if: runner.os == 'Linux'
         run: python tests/check_development.py
       - if: runner.os == 'Linux'

@@ -65,3 +65,48 @@ Linux then exposed a test-fixture regression: switching the stand-in frontend fr
 Windows exposed locale-dependent reads of UTF-8 evidence and delivery journals. Non-ASCII dates were falsely treated as changed facts, preventing valid applications; non-ASCII message content could also be corrupted on reread. The four delivery JSON reads now explicitly use UTF-8. A CP1252-default regression first reproduces the exact evidence error (`/tmp/ea-ship-encoding-before.log`), then verifies accented message text, en-dash dates, journal readback and approved recording delivery without changing the fact checks or sending real mail.
 
 After these corrections, all **122 Python tests** pass (`/tmp/ea-ship-python-encoding-final.log`), along with the complete controlled Apply For Me suite (`/tmp/ea-ship-apply-encoding-final.log`): mocked Gmail HTTP, actual Chromium against controlled forms, exact résumé/cover attachments, approval guards, receipt persistence, three responsive sizes and Axe checks. No live employer account or real mail was used. Frontend dependency/build/browser evidence remains valid because this follow-up changes only JSON decoding and the process-test fixture.
+
+
+## Pre-push review — 5 November 2026
+
+Candidate: working changes based on public main commit b534c8498303d00ec3e85f38cccc58bd1945c758, on codex/installed-queue-regression-20261103. The branch and remote main currently share that base; no upstream is configured for the local branch. This section records local readiness, not a commit, push, release tag or deployment.
+
+### Findings resolved
+
+- Job-form edits preserved neither unknown salary units nor imported select values. The form now retains unstated currency/period/basis and imported availability, work arrangement and expectation confidence until the user changes them. Fifteen component regressions exercise actual form payloads and explicit replacement/clearing.
+- Updating job details replaced omitted research provenance with a manual source and a new check time. Existing source/checked_at now survive omission; explicit research replacements and new-manual defaults remain supported. Regressions cover ID and URL updates.
+- Adopting edited documents cloned review/submission timestamps, archive state and stale integrity alerts into a new Draft. Those fields are now removed from the new record; the full submitted original and restored bytes remain unchanged.
+- Supported custom letter headers could leak fontsize commands and multiline grouping braces into editable Word text. Conversion now strips bounded formatting syntax while retaining escaped literal braces and prose. It remains a conventional-template companion, not a general TeX layout engine.
+
+The previous installed-wheel queue regression, version reporting, CI and contributor/run instructions are included. The incidental frontend/next-env.d.ts development-cache path change is excluded from the proposed commit.
+
+### Final local evidence
+
+All checks ran on an isolated source copy with a fresh frontend dependency install and fictional disposable workspaces. The private career workspace, running development cache and installed private build were not used for validation or upgraded.
+
+| Gate | Result |
+| --- | --- |
+| Frontend fresh install and full npm audit | Pass; zero reported vulnerabilities |
+| Frontend type check and lint | Pass |
+| Frontend component/unit tests | 55 passed across nine files |
+| Production frontend export and Python asset packaging | Pass |
+| Python regression suite after frontend build | 127 passed |
+| Complete local/hosted production browser workflows | All 11 scenarios passed |
+| Controlled Apply For Me checks | Pass: mocked Gmail HTTP, actual Chromium against controlled forms, exact attachments, approval and receipt checks |
+| Development lifecycle proof | Pass: API proxy guards, CSS Fast Refresh, Ctrl+C/SIGTERM cleanup and same-port restart |
+| Hosted dependency bootstrap before assets exist | Pass |
+| Wheel build and installed-wheel proof with --browser | Pass: installed-package routes/assets, document generation, recording delivery, export/restore, offline demo and one-card-per-job queues |
+| Independent backend/frontend/packaging re-review | No remaining actionable findings |
+| Diff hygiene | Pass |
+
+Final implementation/test source fingerprint: 9d700bedae134ba0e15d37ed3f7347b0ce9f3d159fe206c0c4b48fd947c5ae17. This hashes the 213 source files compared byte-for-byte to the test copy, excluding generated next-env development drift and this subsequently appended evidence section.
+
+The local verification wheel remains version 0.6.0 and is not a published replacement for the existing release. SHA-256: 49b44f91deaae9df73ca99fa3c5cedce2d02c64639c130a4487483bba7337a7e. Ignored logs, candidate metadata and wheel are under output/readiness/2026-11-05/. The first isolated Python run preceded asset generation and failed asset-dependent tests; the final run above followed the required build order and passed without weakening assertions.
+
+### Release boundaries and recovery
+
+The existing base commit's [GitHub run 41330094670](https://github.com/sometheasiekswx/employment-agency/actions/runs/41330094670) passed Linux, macOS and Windows. That is baseline evidence only; remote CI for this uncommitted candidate has not run. GitHub also reports a successful Vercel check for the base, not a deployment of these changes.
+
+Local verification used macOS, Python 3.12 and Node 24. No live Gmail OAuth/send, authenticated LinkedIn application, signed-in production-account mutation or live multi-account hosted recovery/deletion test was performed. These remain explicit preview/pilot limitations; no service was enabled or access widened.
+
+Workspace schema remains 2; no migration or private-data rewrite is required. Recovery is the previous public commit and published wheel, followed by rebuilding the prior source if needed. Publishing a source change does not upgrade a private pinned installation. Push target and any publication action must be clear before execution; no tag, package release, manual deployment or private installation change is included in this readiness result.

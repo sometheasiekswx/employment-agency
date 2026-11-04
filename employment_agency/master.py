@@ -10,8 +10,8 @@ from .store import digest, encode, atomic, now, uid
 from .workspaces import inside, settings, city_for
 
 def plain(s):
-    s = re.sub(r'\\href\{[^{}]*\}\{([^{}]*)\}', r'\1', s)
-    s = re.sub(r'\\(?:textbf|textit|mbox)\{([^{}]*)\}', r'\1', s)
+    s = re.sub(r'\\href\{(?:\\.|[^\\{}])*\}\{((?:\\.|[^\\{}])*)\}', r'\1', s)
+    s = re.sub(r'\\(?:textbf|textit|mbox)\{((?:\\.|[^\\{}])*)\}', r'\1', s)
     s = s.replace(r'\textbar\ ', '| ').replace(r'\textbar', '|').replace(r'\hfill', '   ')
     s = re.sub(r'\\([$%&#_])', r'\1', s)
     return s.replace('--', '–').strip()
@@ -58,16 +58,19 @@ def word_copy(tex, dest):
         # Generic TeX extraction retains layout arguments such as "navy" and
         # "12pt". Read the body and remove its formatting before copying prose.
         body = tex.split(r'\begin{document}', 1)[1].split(r'\end{document}', 1)[0]
+        literal_braces = {r'\{': '{', r'\}': '}', r'\\': r'\\'}
         for line in body.splitlines():
             line = re.sub(r'\\(?:begin|end)\{[A-Za-z*]+\}', '', line).strip()
             if not line:
                 continue
+            line = re.sub(r'\\fontsize\s*\{[^{}]*\}\s*\{[^{}]*\}', '', line)
             line = re.sub(r'\\(?:color|vspace)\*?\{[^{}]*\}', '', line)
             line = re.sub(r'\\(?:LARGE|Large|large|small|bfseries|selectfont|raggedright)\b', '', line)
             bullet = line.startswith(r'\item ')
             line = plain(line.removeprefix(r'\item ').replace(r'\par', '').removesuffix(r'\\'))
-            if line.startswith('{') and line.endswith('}'):
-                line = line[1:-1].strip()
+            # Formatting groups may span physical lines. Bare braces group TeX;
+            # escaped braces are literal document text and must survive.
+            line = re.sub(r'\\\\|\\[{}]|[{}]', lambda m: literal_braces.get(m[0], ''), line).strip()
             if line:
                 d.add_paragraph(line, 'List Bullet' if bullet else None)
         d.save(dest)

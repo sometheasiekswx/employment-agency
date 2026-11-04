@@ -10,6 +10,7 @@ import zipfile
 
 PROOF = r'''
 from pathlib import Path
+from importlib.metadata import version
 import sys
 import threading
 import urllib.request
@@ -21,6 +22,7 @@ from employment_agency.server import server
 from employment_agency import packages
 
 assert Path(employment_agency.__file__).resolve().is_relative_to(Path(sys.prefix).resolve())
+assert employment_agency.__version__ == version('employment-agency-local')
 workspace = Workspace(Path('workspace'))
 service = Service(workspace)
 try:
@@ -94,10 +96,109 @@ print('Installed wheel: offline demo data and document generation PASS')
 '''
 
 
+QUEUE_PROOF = r'''
+from pathlib import Path
+import hashlib
+import json
+import os
+import subprocess
+import sys
+import threading
+import employment_agency
+from employment_agency.store import Workspace
+from employment_agency.service import Service
+from employment_agency.server import server
+from employment_agency import packages
+
+assert Path(employment_agency.__file__).resolve().is_relative_to(Path(sys.prefix).resolve())
+workspace = Workspace(Path('queue-workspace'))
+service = Service(workspace)
+try:
+    service.action('identity', {'name': 'Alex Morgan', 'email': 'alex@example.test'})
+    fact = service.action('fact', {'text': 'Built Python APIs and integration tests.', 'category': 'experience'})
+    service.action('confirm', {'id': fact['id']})
+    profile = service.action('profile', {'name': 'Wheel queues', 'roles': ['Engineer'],
+        'locations': [], 'hard': [], 'include_unknown': True, 'include_stretch': True})
+    service.action('workspace-settings', {'setup_complete': True, 'preferred_locations': ['Toronto']})
+
+    def job(title, employer, city):
+        return service.action('job', {'title': title, 'employer': employer, 'location': city,
+            'description': 'Build Python APIs and integration tests.', 'requirements': ['Python APIs'],
+            'availability': 'retrieved'})
+
+    def draft(listing):
+        return service.action('local-package', {'profile_id': profile['id'], 'job_id': listing['id']})
+
+    def edited(app):
+        document = service.action('document-editor', {'id': app['id'], 'document': 'resume'})
+        return service.action('save-document', {**document, 'blocks': document['blocks']})
+
+    listing = job('Software Engineer', 'Fictional Wheel Systems', 'Toronto')
+    old_draft = draft(listing)
+    earlier_sent = draft(listing)
+    service.action('review', {'id': earlier_sent['id'], 'status': 'submitted'})
+    sent = edited(earlier_sent)
+    service.action('review', {'id': sent['id'], 'status': 'submitted'})
+    late_draft = edited(sent)
+    active_job = job('Systems Engineer', 'Fictional Active Systems', 'Toronto')
+    draft(active_job)
+    active = draft(active_job)
+    # Matching employer/title must not merge distinct requisitions.
+    separate = draft(job('Software Engineer', 'Fictional Wheel Systems', 'Montreal'))
+    rejected_job = job('Support Engineer', 'Fictional Decisions', 'Vancouver')
+    draft(rejected_job)
+    rejected = draft(rejected_job)
+    service.action('review', {'id': rejected['id'], 'status': 'rejected'})
+    legacy_job = job('Cloud Engineer', 'Fictional Legacy Systems', 'London')
+    draft(legacy_job)
+    legacy_sent = draft(legacy_job)
+    service.action('review', {'id': legacy_sent['id'], 'status': 'submitted'})
+    with workspace.edit() as state:
+        records = {app['id']: app for app in state['applications']}
+        records[old_draft['id']]['created_at'] = '2026-10-18T00:00:00Z'
+        records[earlier_sent['id']].update(created_at='2026-10-21T00:00:00Z', submitted_at='2026-10-22T00:00:00Z')
+        # Submission time must win even when creation timestamps order differently.
+        records[sent['id']].update(created_at='2026-10-20T00:00:00Z', submitted_at='2026-10-24T00:00:00Z')
+        records[late_draft['id']]['created_at'] = '2026-10-25T00:00:00Z'
+        records[legacy_sent['id']]['archived'] = True
+
+    state = workspace.read()
+    metadata = {name: {'id': app['id']} for name, app in {
+        'old_draft': old_draft, 'earlier_sent': earlier_sent, 'sent': sent,
+        'late_draft': late_draft, 'active': active, 'separate': separate,
+        'rejected': rejected, 'legacy_sent': legacy_sent}.items()}
+    metadata.update(workspace=str(workspace.path), versions=[{
+        'id': app['id'], 'history_id': hashlib.sha256(app['folder'].encode()).hexdigest()[:24]
+    } for app in state['applications']], submitted_files=[{
+        'id': app['id'],
+        'name': name,
+        'path': str(packages.path_for(workspace.path, app, name)),
+        'sha256': hashlib.sha256(packages.path_for(workspace.path, app, name).read_bytes()).hexdigest()
+    } for app in state['applications'] if app['status'] == 'submitted'
+        for name in ('resume.pdf', 'cover-letter.pdf')])
+    fixture = Path('queue-fixture.json').resolve()
+    fixture.write_text(json.dumps(metadata), encoding='utf-8')
+    http = server(service, 0)
+    thread = threading.Thread(target=http.serve_forever, daemon=True)
+    thread.start()
+    try:
+        subprocess.run(['node', os.environ['WHEEL_QUEUE_BROWSER'],
+            'http://127.0.0.1:' + str(http.server_port), str(fixture)], check=True)
+    finally:
+        http.shutdown()
+        http.server_close()
+        thread.join()
+finally:
+    workspace.close()
+'''
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('wheel', type=Path)
-    wheel = parser.parse_args().wheel.resolve()
+    parser.add_argument('--browser', action='store_true', help='Verify installed queue behavior using Playwright and Chrome')
+    args = parser.parse_args()
+    wheel = args.wheel.resolve()
     with zipfile.ZipFile(wheel) as archive:
         names = archive.namelist()
         for route in ['', 'career/', 'search/', 'settings/', 'history/']:
@@ -119,3 +220,8 @@ if __name__ == '__main__':
         environment = {**os.environ, 'EA_CONFIG_HOME': str(root / 'config')}
         environment.pop('PYTHONPATH', None)
         subprocess.run([str(python), '-c', PROOF], cwd=root, env=environment, check=True)
+        if args.browser:
+            checkout = Path(__file__).resolve().parents[1]
+            environment.setdefault('PLAYWRIGHT_PATH', str(checkout / 'frontend/node_modules/playwright'))
+            environment['WHEEL_QUEUE_BROWSER'] = str(checkout / 'tests/wheel-queues-browser.cjs')
+            subprocess.run([str(python), '-c', QUEUE_PROOF], cwd=root, env=environment, check=True)

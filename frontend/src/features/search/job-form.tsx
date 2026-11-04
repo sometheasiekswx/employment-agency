@@ -12,6 +12,15 @@ import { useWorkspace } from "@/components/workspace-provider";
 import type { Job } from "@/lib/models";
 import { payPeriods } from "./profile-form";
 
+function preserveCurrentOption(
+  options: readonly (readonly [string, string])[],
+  current?: string,
+) {
+  if (current && !options.some(([value]) => value === current))
+    return [...options, [current, current] as const];
+  return options;
+}
+
 export function JobForm({ job, onSaved }: { job?: Job; onSaved?: () => void }) {
   const { run } = useWorkspace();
   const salary = typeof job?.salary === "object" ? job.salary : {};
@@ -94,13 +103,17 @@ export function JobForm({ job, onSaved }: { job?: Job; onSaved?: () => void }) {
       <Select
         label="Work arrangement"
         name="work_arrangement"
-        defaultValue={job?.work_arrangement || "unknown"}
-        options={[
-          ["unknown", "Unknown"],
-          ["onsite", "Onsite"],
-          ["hybrid", "Hybrid"],
-          ["remote", "Remote"],
-        ]}
+        defaultValue={job?.work_arrangement ?? "unknown"}
+        options={preserveCurrentOption(
+          [
+            ["", "Not stated"],
+            ["unknown", "Unknown"],
+            ["onsite", "Onsite"],
+            ["hybrid", "Hybrid"],
+            ["remote", "Remote"],
+          ],
+          job?.work_arrangement,
+        )}
       />
       <Select
         label="Your eligibility for this specific job"
@@ -135,12 +148,16 @@ export function JobForm({ job, onSaved }: { job?: Job; onSaved?: () => void }) {
       <Select
         label="Availability"
         name="availability"
-        defaultValue={job?.availability || "unverified"}
-        options={[
-          ["unverified", "Not verified"],
-          ["retrieved", "I checked the live vacancy"],
-          ["closed", "Closed"],
-        ]}
+        defaultValue={job?.availability ?? "unverified"}
+        options={preserveCurrentOption(
+          [
+            ["", "Not stated"],
+            ["unverified", "Not verified"],
+            ["retrieved", "I checked the live vacancy"],
+            ["closed", "Closed"],
+          ],
+          job?.availability,
+        )}
       />
       <details>
         <summary>Salary evidence and expectation</summary>
@@ -161,22 +178,29 @@ export function JobForm({ job, onSaved }: { job?: Job; onSaved?: () => void }) {
         <Field
           label="Currency"
           name="salary_currency"
-          defaultValue={salary.currency || "USD"}
+          defaultValue={salary.currency || ""}
         />
         <Select
           label="Pay period"
           name="salary_period"
-          options={payPeriods}
-          defaultValue={salary.period || "month"}
+          options={preserveCurrentOption(
+            [["", "Not stated"], ["unknown", "Unknown"], ...payPeriods],
+            salary.period,
+          )}
+          defaultValue={salary.period || ""}
         />
         <Select
           label="Pay basis"
           name="salary_basis"
-          options={[
-            ["unknown", "Unknown"],
-            ["gross_base", "Gross base"],
-          ]}
-          defaultValue={salary.basis || "unknown"}
+          options={preserveCurrentOption(
+            [
+              ["", "Not stated"],
+              ["unknown", "Unknown"],
+              ["gross_base", "Gross base"],
+            ],
+            salary.basis,
+          )}
+          defaultValue={salary.basis || ""}
         />
         <Field
           label="Proposed expectation"
@@ -197,12 +221,16 @@ export function JobForm({ job, onSaved }: { job?: Job; onSaved?: () => void }) {
         <Select
           label="Confidence"
           name="expectation_confidence"
-          options={[
-            ["low", "Low"],
-            ["medium", "Medium"],
-            ["high", "High"],
-          ]}
-          defaultValue={job?.expectation?.confidence || "low"}
+          options={preserveCurrentOption(
+            [
+              ["", "Not stated"],
+              ["low", "Low"],
+              ["medium", "Medium"],
+              ["high", "High"],
+            ],
+            job?.expectation?.confidence,
+          )}
+          defaultValue={job?.expectation?.confidence || ""}
         />
       </details>
       <button>Save job</button>

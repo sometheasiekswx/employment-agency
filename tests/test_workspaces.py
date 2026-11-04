@@ -63,6 +63,9 @@ class WorkspaceContracts(unittest.TestCase):
         app = self.s.action('local-package', {'job_id': j['id'], 'profile_id': p['id']})
         self.s.action('review', {'id': app['id'], 'status': 'reviewed'})
         self.s.action('review', {'id': app['id'], 'status': 'submitted'})
+        with self.w.edit() as state:
+            state['applications'][0].update(archived=True, file_changes=['old alert'])
+        submitted = self.w.read()['applications'][0]
         target = packages.path_for(self.w.path, app, 'resume.pdf')
         before = target.read_bytes()
         from reportlab.pdfgen import canvas
@@ -74,9 +77,11 @@ class WorkspaceContracts(unittest.TestCase):
             packages.path_for(self.w.path, app, 'resume.pdf')
         revised = self.s.action('adopt-edits', {'id': app['id']})
         self.assertEqual(revised['status'], 'draft')
+        for key in ('reviewed_at', 'submitted_at', 'file_changes', 'archived'):
+            self.assertNotIn(key, revised)
         self.assertNotEqual(revised['folder'], app['folder'])
         self.assertEqual(target.read_bytes(), before)
-        self.assertEqual(self.s.state()['applications'][0]['status'], 'submitted')
+        self.assertEqual(self.w.read()['applications'][0], submitted)
         self.assertNotIn('resume.docx', revised['documents'])
         self.assertEqual(packages.changed(self.w.path, revised), [])
         from email.parser import BytesParser

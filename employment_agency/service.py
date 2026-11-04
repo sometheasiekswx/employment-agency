@@ -148,6 +148,8 @@ class Service:
                 version = packages.adopt_edits(self.w.path, original, job, state['identity'])
                 new = {**original, **version, 'id': uid(), 'created_at': now(), 'status': 'draft',
                        'comments': [], 'derived_from': original['id']}
+                for key in ('reviewed_at', 'submitted_at', 'file_changes', 'archived'):
+                    new.pop(key, None)
                 with self.w.edit() as state:
                     state['applications'].append(new)
                 return new
@@ -470,8 +472,9 @@ class Service:
         with self.w.edit() as s:
             existing = next((x for x in s["jobs"] if x["id"] == j["id"]), None)
             if existing:
-                if "prior_application" not in a:
-                    j["prior_application"] = existing.get("prior_application", "none")
+                for key in ('prior_application', 'source', 'checked_at'):
+                    if key not in a:
+                        j[key] = existing.get(key, j[key])
                 s["jobs"].remove(existing)
             if j['id'] in submitted_job_ids(s):
                 j['prior_application'] = 'submitted'
