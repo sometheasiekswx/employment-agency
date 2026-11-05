@@ -1,4 +1,5 @@
 """Real Next/Chrome proof in an isolated source copy; never use private data."""
+import errno
 import json
 import os
 from pathlib import Path
@@ -130,6 +131,17 @@ def seed(workspace, config):
             store.close()
 
 
+def link_or_copy(source, destination):
+    """Keep staging cheap on one filesystem and portable across mount points."""
+    try:
+        os.link(source, destination)
+    except OSError as error:
+        if error.errno != errno.EXDEV:
+            raise
+        return shutil.copy2(source, destination)
+    return destination
+
+
 def main():
     if os.name == 'nt':
         raise SystemExit('This real-signal proof requires macOS/Linux; run unit contracts on Windows.')
@@ -144,9 +156,9 @@ def main():
         for name in ('src', 'public'):
             shutil.copytree(ROOT / 'frontend' / name, frontend / name)
         # Preserve normal module paths inside the staged Turbopack root, but
-        # avoid copying hundreds of megabytes or sharing the live .next cache.
+        # prefer hard links where possible without sharing the live .next cache.
         shutil.copytree(ROOT / 'frontend/node_modules', frontend / 'node_modules',
-                        copy_function=os.link, symlinks=True)
+                        copy_function=link_or_copy, symlinks=True)
         workspace, config = stage / 'workspace', stage / 'config'
         seed(workspace, config)
         ports = free_ports()
