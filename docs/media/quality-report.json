@@ -1,71 +1,108 @@
 {
-  "comparison": "GIF versus its corresponding browser PNG at the same390px mobile display width. Lower MSE and higher PSNR indicate less encoding distortion; this does not measure UI usability.",
-  "mobile_text_and_evidence_crop": [
-    {
-      "version": "Before",
-      "best_corresponding_frame": 56,
-      "display_crop_mse": 11.9402,
-      "display_crop_psnr_db": 37.36
-    },
-    {
-      "version": "After",
-      "best_corresponding_frame": 25,
-      "display_crop_mse": 0.0491,
-      "display_crop_psnr_db": 61.22
-    }
+  "schema_version": 1,
+  "verified_at": "2026-11-05T05:07:19.258749+00:00",
+  "capture_at": "2026-11-05T05:03:24.195Z",
+  "scope": "Validation of the current three walkthroughs only; no comparisons with older application revisions.",
+  "source_pipeline": "Lossless 2x Chromium PNG capture of the actual built application; real clicks, hover and scrolling with measured frame timestamps",
+  "served_html_sha256": "a331869835f9fbd37179d3dd31ae9df15c254e6a14556d1961f70016415f9b50",
+  "served_html_unchanged_before_after_capture": true,
+  "fixture": "Disposable Alex Morgan fictional workspace; stopped and deleted after capture.",
+  "encoding": "Lossless 2x PNG source; no WebM, JPEG or spatial resizing. 256-colour GIF with no dithering, source timestamps rounded to GIF centiseconds, unchanged frames represented as reading holds, and frame-difference compression. No synthetic frames or interpolation.",
+  "checks": [
+    "Every staged source PNG hash and 2x dimensions match its provenance record.",
+    "Every GIF frame decoded, dimensions match source, loop is infinite, and file is below 10 MB.",
+    "Static posters preserve source PNG pixels at native dimensions.",
+    "Walkthrough img tags retain width caps and omit fixed height attributes.",
+    "Current poster and GIF action-state contact sheets inspected at their native aspect ratio."
   ],
-  "desktop_display_body_text_px": {
-    "before": 10.89,
-    "after": 14
-  },
+  "poster_error_metric": "Best matching decoded GIF frame versus its PNG poster, both resized to the intended display width using Lanczos; RGB mean squared error. This measures palette encoding error, not usability or animation smoothness.",
   "clips": [
     {
       "slug": "discover-review",
-      "before_dimensions": [
-        1120,
-        778
-      ],
-      "after_dimensions": [
+      "native_dimensions_px": [
         2240,
         1680
       ],
-      "before_fps": 10,
-      "after_actual_capture_fps": 17.77,
-      "after_median_motion_frame_ms": 60.0,
-      "before_bytes": 3424304,
-      "after_bytes": 3751951
+      "intended_display_dimensions_px": [
+        1120,
+        840
+      ],
+      "aspect_ratio_preserved": true,
+      "gif_bytes": 1643180,
+      "gif_sha256": "d286918e68041c8ff913139dd4dafc9ea9358fb369675704e56561830ba1433f",
+      "png_bytes": 409732,
+      "png_sha256": "798d3f67055fb3391f985d8d2ecc4731c263de6384ff164191c96760902ac72b",
+      "decoded_gif_frames": 74,
+      "source_png_frames_verified": 73,
+      "duration_ms": 12840,
+      "loop": 0,
+      "measured_capture_fps": 18.63,
+      "median_motion_frame_duration_ms": 60,
+      "maximum_frame_hold_ms": 700,
+      "body_font_at_intended_display_width_px": 14,
+      "poster_best_matching_gif_frame": 12,
+      "poster_display_rgb_mse": 0.080449,
+      "poster_display_psnr_db": 59.08,
+      "all_frames_decode": true,
+      "poster_source_pixels_preserved": true
     },
     {
       "slug": "mobile-review",
-      "before_dimensions": [
-        390,
-        844
-      ],
-      "after_dimensions": [
+      "native_dimensions_px": [
         780,
         1688
       ],
-      "before_fps": 12,
-      "after_actual_capture_fps": 17.67,
-      "after_median_motion_frame_ms": 50,
-      "before_bytes": 2578592,
-      "after_bytes": 1569453
+      "intended_display_dimensions_px": [
+        390,
+        844
+      ],
+      "aspect_ratio_preserved": true,
+      "gif_bytes": 1552857,
+      "gif_sha256": "e6cbb30ea64d9c1422b399d8aa51257d7a8fdef9f190af798d6541606f89b1c4",
+      "png_bytes": 157910,
+      "png_sha256": "010aaada71d99ec127586901b4972c484b4b29521454b43f5ee1bdef0613d5d6",
+      "decoded_gif_frames": 98,
+      "source_png_frames_verified": 97,
+      "duration_ms": 12070,
+      "loop": 0,
+      "measured_capture_fps": 18.75,
+      "median_motion_frame_duration_ms": 60.0,
+      "maximum_frame_hold_ms": 870,
+      "body_font_at_intended_display_width_px": 14,
+      "poster_best_matching_gif_frame": 27,
+      "poster_display_rgb_mse": 0.070101,
+      "poster_display_psnr_db": 59.67,
+      "all_frames_decode": true,
+      "poster_source_pixels_preserved": true
     },
     {
       "slug": "application-documents",
-      "before_dimensions": [
-        1120,
-        778
-      ],
-      "after_dimensions": [
+      "native_dimensions_px": [
         2240,
         1680
       ],
-      "before_fps": 10,
-      "after_actual_capture_fps": 17.57,
-      "after_median_motion_frame_ms": 60.0,
-      "before_bytes": 4109159,
-      "after_bytes": 4429550
+      "intended_display_dimensions_px": [
+        1120,
+        840
+      ],
+      "aspect_ratio_preserved": true,
+      "gif_bytes": 4310219,
+      "gif_sha256": "ed30965e385ab33763e89ad071f74772ddf22338f39c6dbd09ba3fea43c6e7e1",
+      "png_bytes": 227670,
+      "png_sha256": "f20cab31ec9472460dea4dd53994dd41f36a7490a26fab589c31c3445abd39fd",
+      "decoded_gif_frames": 90,
+      "source_png_frames_verified": 89,
+      "duration_ms": 13100,
+      "loop": 0,
+      "measured_capture_fps": 18.87,
+      "median_motion_frame_duration_ms": 50,
+      "maximum_frame_hold_ms": 970,
+      "body_font_at_intended_display_width_px": 14,
+      "poster_best_matching_gif_frame": 36,
+      "poster_display_rgb_mse": 0.089453,
+      "poster_display_psnr_db": 58.61,
+      "all_frames_decode": true,
+      "poster_source_pixels_preserved": true
     }
   ]
 }

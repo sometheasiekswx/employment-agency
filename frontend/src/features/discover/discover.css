@@ -4,6 +4,8 @@
   --discover-muted: var(--muted, #a2a2a8);
   --discover-green: #8cddb8;
   --discover-amber: #edbf80;
+  --discover-column-min: 17rem;
+  --discover-column-max: 24rem;
   min-width: 0;
   color: var(--ink);
 }
@@ -204,16 +206,24 @@
   display: grid;
   flex: 1;
   min-width: 0;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(244px, 1fr);
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(min(100%, var(--discover-column-min)), 1fr)
+  );
   gap: 16px;
   align-items: start;
-  overflow: auto;
-  padding: 3px 3px 12px;
+  align-content: start;
+  padding: 4px 4px 12px;
+}
+.discover-layout.has-inspector .discover-board {
+  overflow-y: auto;
+  scrollbar-gutter: stable;
   scrollbar-color: #55545f #29292d;
   scrollbar-width: thin;
 }
 .discover-screen .discover-column {
+  min-width: 0;
+  max-width: var(--discover-column-max);
   padding: 0;
   margin: 0;
   border: 0;
@@ -235,12 +245,14 @@
   margin: 0;
   font-size: 14px;
   font-weight: 500;
+  overflow-wrap: anywhere;
 }
 .discover-column > header h2 svg {
   color: var(--accent);
   flex-shrink: 0;
 }
 .discover-column > header > span {
+  flex-shrink: 0;
   min-width: 21px;
   padding: 2px 6px;
   border-radius: 5px;
@@ -364,16 +376,17 @@
   outline-offset: 2px;
 }
 .discover-card-open h3 {
-  margin: 10px 0 13px;
+  margin: 10px 0 8px;
   font-size: 16px;
   line-height: 1.4;
   font-weight: 400;
   overflow-wrap: anywhere;
 }
 .discover-card p {
-  margin: 10px 0;
-  font-size: 12px;
+  margin: 6px 0;
+  font-size: 13px;
   line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 .discover-card-company {
   display: flex;
@@ -429,11 +442,12 @@
   align-items: end;
   justify-content: space-between;
   gap: 12px;
-  padding-top: 13px;
-  margin-top: 17px;
+  flex-wrap: wrap;
+  padding-top: 10px;
+  margin-top: 12px;
   border-top: 1px solid var(--line);
   color: var(--discover-muted);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.5;
 }
 .discover-card-footer > span:last-child {
@@ -445,9 +459,10 @@
 }
 .discover-screen .discover-inspector {
   display: flex;
-  flex: 0 0 430px;
+  /* Keep room for readable shortlist columns before enlarging the inspector. */
+  flex: 0 0 clamp(350px, calc(100vw - 60rem), 430px);
   flex-direction: column;
-  width: 430px;
+  width: clamp(350px, calc(100vw - 60rem), 430px);
   min-width: 0;
   min-height: 0;
   height: 100%;
@@ -829,10 +844,6 @@
   display: none;
 }
 @media (min-width: 901px) and (max-width: 1150px) {
-  .discover-screen .discover-inspector {
-    width: 350px;
-    flex-basis: 350px;
-  }
   .discover-inspector-company > strong {
     font-size: 12px;
   }
@@ -921,14 +932,15 @@
     display: block;
   }
   .discover-board {
-    grid-auto-flow: row;
-    grid-template-columns: minmax(0, 1fr);
     gap: 22px;
     overflow: visible;
     padding: 2px;
   }
   .discover-column > header {
     margin-bottom: 12px;
+  }
+  .discover-screen .discover-column {
+    max-width: none;
   }
   .discover-screen .discover-card {
     padding: 15px;
@@ -943,8 +955,10 @@
     display: block;
   }
   .discover-card-footer {
-    font-size: 11px;
+    font-size: 12px;
   }
+}
+@media (max-width: 1000px) {
   .discover-screen .discover-dialog {
     position: fixed;
     inset: auto 0 0;
@@ -999,6 +1013,13 @@
   }
   .discover-footer-note {
     font-size: 11px;
+  }
+}
+@media (min-width: 901px) and (max-width: 1000px) {
+  .discover-screen .discover-dialog {
+    inset-inline-start: auto;
+    width: min(36rem, calc(100% - 16px));
+    margin-inline-end: 8px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

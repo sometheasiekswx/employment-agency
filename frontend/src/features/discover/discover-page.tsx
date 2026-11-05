@@ -53,7 +53,7 @@ interface RankingState {
 function useMobileInspector() {
   const [mobile, setMobile] = useState(false);
   useEffect(() => {
-    const query = window.matchMedia("(max-width: 900px)");
+    const query = window.matchMedia("(max-width: 1000px)");
     const update = () => setMobile(query.matches);
     update();
     query.addEventListener("change", update);
@@ -555,7 +555,7 @@ export function DiscoverPage() {
           <div
             className="discover-board"
             aria-label="Opportunities by location"
-            tabIndex={0}
+            tabIndex={selected && !mobile ? 0 : undefined}
           >
             {groups.map(([city, opportunities]) => (
               <section
