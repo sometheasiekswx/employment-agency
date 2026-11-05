@@ -1,12 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useId, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+import { animate, type AnimationOptions } from "motion";
 import {
   ArrowUpRight,
   Bookmark,
   Check,
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
   ChevronUp,
@@ -20,6 +27,85 @@ import { Action } from "@/components/controls";
 import { applicationHref, displayDate, safeUrl } from "@/lib/format";
 import type { Application, Fact, RankedJob } from "@/lib/models";
 import { advertisedSalary, requirementEvidence, roleStatus } from "./discovery";
+import "./inspector-motion.css";
+
+type InspectorAnimation = ReturnType<typeof animate>;
+type AnimationSlot = { current: InspectorAnimation | null };
+type InspectorFrame = { x: number; y: number; opacity: number };
+
+const arrival = { type: "spring", duration: 0.46, bounce: 0.08 } as const;
+const settle = { duration: 0.2, ease: [0.16, 1, 0.3, 1] } as const;
+const restingFrame = { x: 0, y: 0, opacity: 1 };
+
+function frameTransform({ x, y }: InspectorFrame) {
+  return `translate3d(${x}px, ${y}px, 0px)`;
+}
+
+function currentFrame(element: HTMLElement): InspectorFrame {
+  const style = getComputedStyle(element);
+  const matrix = style.transform.match(/^matrix(3d)?\(([^)]+)\)$/);
+  const values = matrix?.[2].split(",").map(Number);
+  const translation = style.transform.match(/^translate3d\(([^)]+)\)$/);
+  const coordinates = translation?.[1].split(",").map(parseFloat);
+  // Computed styles are matrices in browsers. Keep only our translation so
+  // interruption always interpolates matching translate3d keyframes.
+  const x = values?.[matrix?.[1] ? 12 : 4] ?? coordinates?.[0] ?? 0;
+  const y = values?.[matrix?.[1] ? 13 : 5] ?? coordinates?.[1] ?? 0;
+  return {
+    x: Number.isFinite(x) ? x : 0,
+    y: Number.isFinite(y) ? y : 0,
+    opacity: Number(style.opacity) || 1,
+  };
+}
+
+function stopMotion(slot: AnimationSlot, element: HTMLElement | null) {
+  const animation = slot.current;
+  slot.current = null;
+  // stop() commits an intermediate MotionValue and can reapply it next frame.
+  // Our explicit start frames allow cancellation without that frozen value.
+  animation?.cancel();
+  element?.style.removeProperty("transform");
+  element?.style.removeProperty("opacity");
+  element?.style.removeProperty("will-change");
+}
+
+function playMotion(
+  slot: AnimationSlot,
+  element: HTMLElement,
+  from: InspectorFrame,
+  to: InspectorFrame,
+  options: AnimationOptions,
+  onComplete?: () => void,
+) {
+  stopMotion(slot, element);
+  // Unsupported runtimes retain the ordinary visible, interactive surface.
+  if (typeof element.animate !== "function") {
+    onComplete?.();
+    return;
+  }
+  element.style.transform = frameTransform(from);
+  element.style.opacity = String(from.opacity);
+  element.style.willChange = "transform, opacity";
+  const animation = animate(
+    element,
+    {
+      transform: [frameTransform(from), frameTransform(to)],
+      opacity: [from.opacity, to.opacity],
+    },
+    options,
+  );
+  slot.current = animation;
+  void animation.finished.then(
+    () => {
+      if (slot.current !== animation) return;
+      stopMotion(slot, element);
+      onComplete?.();
+    },
+    () => {
+      if (slot.current === animation) stopMotion(slot, element);
+    },
+  );
+}
 
 interface InspectorProps {
   row: RankedJob;
@@ -33,10 +119,12 @@ interface InspectorProps {
   saving: boolean;
   saveError: string;
   preview?: boolean;
+  animateInteractions?: boolean;
+  motionRevision?: number;
   onPrevious: () => void;
   onNext: () => void;
   onClose: () => void;
-  onSave: () => Promise<void>;
+  onSave: (button?: HTMLButtonElement) => Promise<void>;
   onPrepare: () => Promise<void>;
 }
 
@@ -52,6 +140,8 @@ export function OpportunityInspector({
   saving,
   saveError,
   preview = false,
+  animateInteractions = false,
+  motionRevision = 0,
   onPrevious,
   onNext,
   onClose,
@@ -61,6 +151,21 @@ export function OpportunityInspector({
   const { job, match } = row;
   const titleId = useId();
   const dialog = useRef<HTMLDialogElement>(null);
+  const inspector = useRef<HTMLElement>(null);
+  const body = useRef<HTMLDivElement>(null);
+  const surfaceAnimation = useRef<InspectorAnimation | null>(null);
+  const bodyAnimation = useRef<InspectorAnimation | null>(null);
+  const closeGeneration = useRef(0);
+  const closing = useRef(false);
+  const previousMotion = useRef<{
+    surface: HTMLElement;
+    jobId: string;
+    position: number;
+    revision: number;
+  } | null>(null);
+  const expansionOrigin = useRef<{ element: HTMLElement; top: number } | null>(
+    null,
+  );
   const title = useRef<HTMLHeadingElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
   const documentLink = useRef<HTMLAnchorElement>(null);
@@ -88,7 +193,15 @@ export function OpportunityInspector({
       job.prior_application === "rejected",
     );
 
-  useEffect(() => {
+  const closeImmediately = useCallback(() => {
+    closeGeneration.current += 1;
+    closing.current = false;
+    stopMotion(surfaceAnimation, mobile ? dialog.current : inspector.current);
+    stopMotion(bodyAnimation, body.current);
+    onClose();
+  }, [mobile, onClose]);
+
+  useLayoutEffect(() => {
     if (!mobile) {
       closeButton.current?.focus({ preventScroll: true });
       return;
@@ -97,17 +210,157 @@ export function OpportunityInspector({
     if (!element) return;
     const cancel = (event: Event) => {
       event.preventDefault();
-      onClose();
+      closeImmediately();
     };
     element.addEventListener("cancel", cancel);
-    element.addEventListener("close", onClose);
+    element.addEventListener("close", closeImmediately);
     element.showModal();
     return () => {
       element.removeEventListener("cancel", cancel);
-      element.removeEventListener("close", onClose);
+      element.removeEventListener("close", closeImmediately);
       if (element.open) element.close();
     };
-  }, [mobile, onClose]);
+  }, [mobile, closeImmediately]);
+
+  useLayoutEffect(() => {
+    const element = mobile ? dialog.current : inspector.current;
+    if (!element) return;
+    const previous = previousMotion.current;
+    const newSurface = previous?.surface !== element;
+    const wasClosing = closing.current;
+    const reselected =
+      previous &&
+      (previous.jobId !== job.id || previous.revision !== motionRevision);
+    closeGeneration.current += 1;
+    closing.current = false;
+    previousMotion.current = {
+      surface: element,
+      jobId: job.id,
+      position,
+      revision: motionRevision,
+    };
+
+    if (!animateInteractions) {
+      stopMotion(surfaceAnimation, element);
+      stopMotion(bodyAnimation, body.current);
+      if (wasClosing && !reselected) onClose();
+      return;
+    }
+
+    if (newSurface || wasClosing) {
+      playMotion(
+        surfaceAnimation,
+        element,
+        newSurface
+          ? {
+              x: mobile ? 0 : 24,
+              y: 0,
+              opacity: 0.82,
+            }
+          : currentFrame(element),
+        restingFrame,
+        arrival,
+      );
+      if (mobile && body.current) {
+        // The native sheet and its complete footer remain anchored. Its
+        // scrolling assessment carries the arrival and dismissal movement.
+        playMotion(
+          bodyAnimation,
+          body.current,
+          newSurface ? { x: 0, y: 24, opacity: 1 } : currentFrame(body.current),
+          restingFrame,
+          arrival,
+        );
+      }
+    }
+    if (!newSurface && previous?.jobId !== job.id && body.current) {
+      // Replace one body in place; never retain a second interactive assessment.
+      playMotion(
+        bodyAnimation,
+        body.current,
+        {
+          x: position < previous.position ? -12 : 12,
+          y: 0,
+          opacity: 0.72,
+        },
+        restingFrame,
+        settle,
+      );
+    }
+  }, [animateInteractions, mobile, motionRevision, job.id, position, onClose]);
+
+  useLayoutEffect(() => {
+    const origin = expansionOrigin.current;
+    expansionOrigin.current = null;
+    const element = body.current;
+    if (
+      !animateInteractions ||
+      !origin ||
+      !element ||
+      origin.element !== element
+    )
+      return;
+    const offset = Math.max(
+      -48,
+      Math.min(48, origin.top - element.getBoundingClientRect().top),
+    );
+    // Only the scrolling content carries continuity. Native sheet geometry and
+    // its footer immediately take their usable destination positions.
+    playMotion(
+      bodyAnimation,
+      element,
+      { x: 0, y: offset, opacity: 1 },
+      restingFrame,
+      { type: "spring", duration: 0.36, bounce: 0 },
+    );
+  }, [expanded, animateInteractions]);
+
+  useLayoutEffect(
+    () => () => {
+      closeGeneration.current += 1;
+      stopMotion(surfaceAnimation, previousMotion.current?.surface ?? null);
+      stopMotion(bodyAnimation, body.current);
+      previousMotion.current = null;
+      closing.current = false;
+    },
+    [],
+  );
+
+  const requestClose = (pointer: boolean) => {
+    const element = mobile ? dialog.current : inspector.current;
+    if (!pointer || !animateInteractions || !element) {
+      closeImmediately();
+      return;
+    }
+    const generation = ++closeGeneration.current;
+    closing.current = true;
+    const departure = { duration: 0.14, ease: [0.4, 0, 1, 1] } as const;
+    if (mobile && body.current) {
+      playMotion(
+        bodyAnimation,
+        body.current,
+        currentFrame(body.current),
+        { x: 0, y: 20, opacity: 1 },
+        departure,
+      );
+    }
+    playMotion(
+      surfaceAnimation,
+      element,
+      currentFrame(element),
+      {
+        x: mobile ? 0 : 18,
+        y: 0,
+        opacity: 0.6,
+      },
+      departure,
+      () => {
+        if (generation !== closeGeneration.current) return;
+        closing.current = false;
+        onClose();
+      },
+    );
+  };
 
   useEffect(() => {
     const intent = prepareFocusIntent.current;
@@ -160,9 +413,21 @@ export function OpportunityInspector({
           className="discover-sheet-expand"
           type="button"
           aria-expanded={expanded}
-          onClick={() => setExpanded((value) => !value)}
+          onClick={(event) => {
+            if (animateInteractions && event.detail > 0 && body.current) {
+              expansionOrigin.current = {
+                element: body.current,
+                top: body.current.getBoundingClientRect().top,
+              };
+              stopMotion(bodyAnimation, body.current);
+            } else {
+              expansionOrigin.current = null;
+              stopMotion(bodyAnimation, body.current);
+            }
+            setExpanded((value) => !value);
+          }}
         >
-          {expanded ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+          <ChevronUp size={16} />
           {expanded ? "Collapse details" : "Expand details"}
         </button>
       )}
@@ -195,13 +460,13 @@ export function OpportunityInspector({
             type="button"
             className="discover-icon-button"
             aria-label="Close opportunity details"
-            onClick={onClose}
+            onClick={(event) => requestClose(event.detail > 0)}
           >
             <X size={19} />
           </button>
         </div>
       </header>
-      <div className="discover-inspector-body" key={job.id}>
+      <div ref={body} className="discover-inspector-body" key={job.id}>
         <div className="discover-inspector-company">
           <span className="discover-employer-mark" aria-hidden="true">
             {job.employer.slice(0, 1)}
@@ -439,6 +704,8 @@ export function OpportunityInspector({
           )}
           <Action
             previewAllowed
+            keepContentWhileBusy
+            data-opportunity-id={job.id}
             className={`discover-icon-button ${job.saved ? "is-saved" : ""}`}
             disabled={saving}
             aria-label={`${job.saved ? "Unsave" : "Save"} ${job.title}`}
@@ -485,6 +752,7 @@ export function OpportunityInspector({
     return (
       <dialog
         ref={dialog}
+        data-inspector-motion={animateInteractions ? "on" : "off"}
         aria-labelledby={titleId}
         className={`discover-inspector discover-dialog ${expanded ? "is-expanded" : ""}`}
       >
@@ -493,12 +761,14 @@ export function OpportunityInspector({
     );
   return (
     <aside
+      ref={inspector}
+      data-inspector-motion={animateInteractions ? "on" : "off"}
       aria-labelledby={titleId}
       className="discover-inspector"
       onKeyDown={(event) => {
         if (event.key === "Escape") {
           event.preventDefault();
-          onClose();
+          closeImmediately();
         }
       }}
     >

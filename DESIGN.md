@@ -101,7 +101,9 @@ The document editor remains a native modal dialog with contained scrolling, corr
 
 ## Motion and accessibility
 
-The existing React Bits Dock adaptation animates icons while keeping link rectangles and labels stable. Motion is suppressed for reduced-motion and coarse-pointer users. Other transitions are short colour changes; navigation and essential evidence are never revealed only on hover.
+The existing React Bits Dock adaptation animates icons while keeping link rectangles and labels stable. Its motion is suppressed for reduced-motion and coarse-pointer users. Opportunity review adds an expressive arrival from the shortlist: a spring-driven desktop inspector and mobile sheet, quicker dismissal, and a short content transition when pointer users select another opportunity. Mobile expansion uses a bounded content-continuity cue while the native sheet reaches its final height immediately, keeping persistent actions reachable. Repeated keyboard navigation remains immediate.
+
+Bookmark icons acknowledge confirmed changes without changing button geometry. Existing success and error live regions remain in place and announce immediately; save feedback has a short upward reveal and errors use opacity without a shake. Replaced feedback cancels previous motion. Reduced-motion preferences are observed live in JavaScript and CSS, with static final states. Entry, exit and expansion motion must cancel on reversal, preference changes, keyboard input or unmount. No delayed animation may close a newly selected opportunity.
 
 Verify text contrast on actual surfaces, visible focus, keyboard navigation, modal/sheet behaviour, responsive layouts and long real content. The global dark colour scheme covers native inputs, selection, scrollbars and loading/error screens. Increased-contrast preferences strengthen supporting text and boundaries. Do not infer accessibility conformance from a screenshot alone.
 

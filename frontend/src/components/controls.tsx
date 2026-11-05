@@ -159,11 +159,13 @@ export function Action({
   run,
   className = "secondary",
   previewAllowed = false,
+  keepContentWhileBusy = false,
   ...props
 }: Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "onClick"> & {
   run: (button: HTMLButtonElement) => Promise<void>;
   children: ReactNode;
   previewAllowed?: boolean;
+  keepContentWhileBusy?: boolean;
 }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -181,6 +183,7 @@ export function Action({
         disabled={
           busy || props.disabled || (publicPreviewEnabled() && !previewAllowed)
         }
+        aria-busy={busy}
         onClick={async (event) => {
           setBusy(true);
           setError("");
@@ -193,7 +196,7 @@ export function Action({
           }
         }}
       >
-        {busy ? "Working…" : children}
+        {busy && !keepContentWhileBusy ? "Working…" : children}
       </button>
       {error && (
         <p role="alert" className="error">

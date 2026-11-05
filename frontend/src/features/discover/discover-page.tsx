@@ -41,6 +41,7 @@ import {
   type DiscoveryView,
 } from "./discovery";
 import { OpportunityInspector } from "./opportunity-inspector";
+import { useInteractionMotion } from "./interaction-motion";
 import "./discover.css";
 
 interface RankingState {
@@ -63,6 +64,13 @@ function useMobileInspector() {
 }
 
 export function DiscoverPage() {
+  const animateInteractions = useInteractionMotion();
+  const [motionRevision, setMotionRevision] = useState(0);
+  const bookmarkAnimations = useRef(new Set<Animation>());
+  const motionAllowed = useRef(false);
+  useLayoutEffect(() => {
+    motionAllowed.current = animateInteractions;
+  }, [animateInteractions]);
   const { state, client, run, refresh, profileId, selectProfile } =
     useWorkspace();
   const params = useSearchParams();
@@ -206,6 +214,18 @@ export function DiscoverPage() {
   );
   const error = ranking.key === requestKey ? ranking.error : "";
 
+  useEffect(() => {
+    const animations = bookmarkAnimations.current;
+    if (!animateInteractions) {
+      animations.forEach((animation) => animation.cancel());
+      animations.clear();
+    }
+    return () => {
+      animations.forEach((animation) => animation.cancel());
+      animations.clear();
+    };
+  }, [animateInteractions]);
+
   useLayoutEffect(() => {
     const layout = inspectorLayout.current;
     if (!layout || !inspectorOpen || mobile) return;
@@ -286,7 +306,11 @@ export function DiscoverPage() {
     replaceQuery(next);
   };
 
-  const saveJob = async (id: string, saved: boolean) => {
+  const saveJob = async (
+    id: string,
+    saved: boolean,
+    button?: HTMLButtonElement,
+  ) => {
     setSaveError("");
     setSavedOverrides((previous) => ({ ...previous, [id]: saved }));
     setSavingIds((previous) => [...previous, id]);
@@ -296,6 +320,37 @@ export function DiscoverPage() {
         { id, saved },
         saved ? "Role saved." : "Role removed from Saved.",
       );
+      const icon = button?.querySelector("svg");
+      if (
+        motionAllowed.current &&
+        button?.dataset.opportunityId === id &&
+        icon?.isConnected &&
+        typeof icon.animate === "function"
+      ) {
+        const animation = icon.animate(
+          saved
+            ? [
+                { transform: "scale(1) rotate(0deg)" },
+                { transform: "scale(.76) rotate(-14deg)", offset: 0.22 },
+                { transform: "scale(1.18) rotate(6deg)", offset: 0.6 },
+                { transform: "scale(1) rotate(0deg)" },
+              ]
+            : [
+                { transform: "translateY(0) scale(1)", opacity: 1 },
+                {
+                  transform: "translateY(-3px) scale(.84)",
+                  opacity: 0.55,
+                  offset: 0.35,
+                },
+                { transform: "translateY(0) scale(1)", opacity: 1 },
+              ],
+          { duration: saved ? 360 : 240, easing: "cubic-bezier(.16,1,.3,1)" },
+        );
+        bookmarkAnimations.current.add(animation);
+        void animation.finished
+          .catch(() => {})
+          .finally(() => bookmarkAnimations.current.delete(animation));
+      }
     } catch (error) {
       setSaveError(errorMessage(error));
     } finally {
@@ -312,6 +367,7 @@ export function DiscoverPage() {
     const row = navigationRows[index];
     if (!row) return;
     opener.current = cardButtons.current.get(row.job.id) || null;
+    setMotionRevision((value) => value + 1);
     setSelectedId(row.job.id);
   };
 
@@ -331,7 +387,10 @@ export function DiscoverPage() {
     );
 
   return (
-    <div className="discover-screen">
+    <div
+      className="discover-screen"
+      data-interaction-motion={animateInteractions ? "on" : "off"}
+    >
       <div className="discover-toolbar">
         <div
           className="discover-views"
@@ -638,11 +697,15 @@ export function DiscoverPage() {
                         </span>
                         <Action
                           previewAllowed
+                          keepContentWhileBusy
+                          data-opportunity-id={job.id}
                           className={`discover-icon-button ${job.saved ? "is-saved" : ""}`}
                           disabled={savingIds.includes(job.id)}
                           aria-label={`${job.saved ? "Unsave" : "Save"} ${job.title}`}
                           aria-pressed={Boolean(job.saved)}
-                          run={async () => saveJob(job.id, !job.saved)}
+                          run={async (button) =>
+                            saveJob(job.id, !job.saved, button)
+                          }
                         >
                           <Bookmark
                             size={16}
@@ -665,6 +728,7 @@ export function DiscoverPage() {
                         aria-pressed={selectedId === job.id}
                         onClick={(event) => {
                           opener.current = event.currentTarget;
+                          setMotionRevision((value) => value + 1);
                           setSelectedId(job.id);
                         }}
                       >
@@ -725,6 +789,8 @@ export function DiscoverPage() {
           </div>
           {selected && (
             <OpportunityInspector
+              animateInteractions={animateInteractions}
+              motionRevision={motionRevision}
               row={selected}
               application={applications.get(selected.job.id)}
               facts={state.facts}
@@ -739,7 +805,9 @@ export function DiscoverPage() {
               onClose={closeInspector}
               onPrevious={() => moveSelection(selectedIndex - 1)}
               onNext={() => moveSelection(selectedIndex + 1)}
-              onSave={async () => saveJob(selected.job.id, !selected.job.saved)}
+              onSave={async (button) =>
+                saveJob(selected.job.id, !selected.job.saved, button)
+              }
               onPrepare={async () => {
                 await run(
                   "local-package",

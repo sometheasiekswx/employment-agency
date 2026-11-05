@@ -28,7 +28,9 @@ Six fictional roles · Four locations · Desktop and mobile
 
 </div>
 
-The public demo shows the current charcoal and lavender interface: a location board, an inspector that keeps each role in context, and application documents backed by recorded evidence. It uses a **fictional Alex Morgan profile and six invented vacancies** in Singapore, Melbourne, Berlin and Toronto.
+The public demo shows the charcoal and lavender interface: a location board, an inspector that keeps each role in context, and application documents backed by recorded evidence. It uses a **fictional Alex Morgan profile and six invented vacancies** in Singapore, Melbourne, Berlin and Toronto.
+
+Purposeful motion connects review to the shortlist: the desktop inspector arrives with a short spring, mobile details open in an expandable sheet, and bookmark feedback acknowledges a confirmed save. Keyboard operation stays immediate, and the interface follows your operating system’s reduced-motion preference.
 
 Explore the screens, inspect sample documents and bookmark roles in your browser. The public showcase is read-only apart from those browser bookmarks. Use the local application for your own résumé, imports, profile changes and application preparation. The [private hosted pilot](https://sams-employment-agency.vercel.app) is a separate, invite-only service.
 
@@ -62,7 +64,7 @@ Open a generated résumé and inspect its preserved version. The walkthroughs us
 
 ### Review on mobile
 
-The same role assessment opens in an expandable sheet. Previous and next controls keep the shortlist available while you compare opportunities.
+The same role assessment opens in an expandable sheet, with a brief content transition as details expand. Previous and next controls keep the shortlist available while you compare opportunities.
 
 <picture>
   <source media="(prefers-reduced-motion: reduce)" srcset="docs/media/mobile-review.png">
