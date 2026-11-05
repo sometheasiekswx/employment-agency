@@ -21,7 +21,7 @@ Six fictional roles · Four locations · Desktop and mobile
 
 <picture>
   <source media="(prefers-reduced-motion: reduce)" srcset="docs/media/discover-review.png">
-  <img src="docs/media/discover-review.gif" alt="The charcoal and lavender Discover workspace, with roles grouped by location and an opportunity inspector showing confirmed evidence and requirements to check" width="1120" height="840">
+  <img src="docs/media/discover-review.gif" alt="The charcoal and lavender Discover workspace, with roles grouped by location and an opportunity inspector showing confirmed evidence and requirements to check" width="1120">
 </picture>
 
 [Static desktop preview](docs/media/discover-review.png) · [Demo content and media provenance](docs/demo.md)
@@ -53,7 +53,7 @@ Open a generated résumé and inspect its preserved version. The walkthroughs us
 
 <picture>
   <source media="(prefers-reduced-motion: reduce)" srcset="docs/media/application-documents.png">
-  <img src="docs/media/application-documents.gif" alt="A fictional application record opening its generated résumé PDF, then reviewing the preserved document version in History" width="1120" height="840" loading="lazy">
+  <img src="docs/media/application-documents.gif" alt="A fictional application record opening its generated résumé PDF, then reviewing the preserved document version in History" width="1120" loading="lazy">
 </picture>
 
 [Static document preview](docs/media/application-documents.png)
@@ -64,7 +64,7 @@ The same role assessment opens in an expandable sheet. Previous and next control
 
 <picture>
   <source media="(prefers-reduced-motion: reduce)" srcset="docs/media/mobile-review.png">
-  <img src="docs/media/mobile-review.gif" alt="The mobile Discover workspace opening and expanding an opportunity sheet, reviewing requirements and returning to the shortlist" width="390" height="844" loading="lazy">
+  <img src="docs/media/mobile-review.gif" alt="The mobile Discover workspace opening and expanding an opportunity sheet, reviewing requirements and returning to the shortlist" width="390" loading="lazy">
 </picture>
 
 [Static mobile preview](docs/media/mobile-review.png)
