@@ -77,6 +77,8 @@ if __name__ == '__main__':
         browser('review-tag-browser.cjs', url)
     with fixture('serve_queue_fixture.py') as url:
         browser('queues-browser.cjs', url)
+    with fixture('serve_queue_fixture.py') as url:
+        browser('action-recovery-browser.cjs', url)
     with fixture('serve_folder_fixture.py') as url:
         browser('redesign-browser.cjs', url)
     with fixture('serve_folder_fixture.py') as url:

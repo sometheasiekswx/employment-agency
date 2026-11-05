@@ -76,7 +76,7 @@ function initials(name: string) {
 export function Shell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { state, client, notice, profileId } = useWorkspace();
+  const { state, client, notice, refreshError, profileId } = useWorkspace();
   const { canLeave } = useDraft();
   const mobileMenu = useRef<HTMLDetailsElement>(null);
   const current = pages.find(({ href }) => href === pathname) || pages[1];
@@ -288,7 +288,7 @@ export function Shell({ children }: { children: ReactNode }) {
           </form>
           <Link
             className="button primary workspace-primary-action"
-            href={isDiscover ? "/search/" : "/discover/"}
+            href={isDiscover ? "/search/#add-opportunity" : "/discover/"}
             onNavigate={guardedNavigation}
           >
             {isDiscover ? (
@@ -309,6 +309,11 @@ export function Shell({ children }: { children: ReactNode }) {
           <p id="notice" role="status" aria-live="polite">
             {notice}
           </p>
+          {refreshError && (
+            <p role="alert" className="error">
+              {refreshError}
+            </p>
+          )}
           <main id="content" tabIndex={-1}>
             {state._workspace.setup_complete ? children : <WorkspaceSetup />}
           </main>

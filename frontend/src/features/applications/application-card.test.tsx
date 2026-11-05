@@ -7,15 +7,26 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import type { Application } from "@/lib/models";
 import { ApplicationCard } from "./application-card";
 
-const fixture = vi.hoisted(() => ({ run: vi.fn() }));
+const fixture = vi.hoisted(() => ({
+  run: vi.fn(),
+  replace: vi.fn(),
+  preview: false,
+  applications: [] as Application[],
+}));
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace: fixture.replace }),
+}));
 vi.mock("@/components/workspace-provider", () => ({
   useWorkspace: () => ({
-    state: { _workspace: { timezone: "UTC", demo: false } },
-    client: { hosted: false },
+    state: {
+      applications: fixture.applications,
+      _workspace: { timezone: "UTC", demo: false },
+    },
+    client: { hosted: false, preview: fixture.preview },
     run: fixture.run,
   }),
 }));
@@ -27,6 +38,12 @@ const draft: Application = {
   employer: "Fictional Systems",
   status: "draft",
   comments: [],
+};
+const submitted: Application = {
+  ...draft,
+  id: "original-submission",
+  status: "submitted",
+  manifest_hash: "a".repeat(64),
 };
 const card = (app = draft) => (
   <ApplicationCard app={app} job={{}} onEdit={vi.fn()} onApply={vi.fn()} />
@@ -40,7 +57,11 @@ const tag = (status: "draft" | "reviewed" = "draft") =>
   });
 
 beforeEach(() => {
+  fixture.preview = false;
+  fixture.applications = [];
+  fixture.replace.mockReset();
   fixture.run.mockReset().mockResolvedValue(undefined);
+  vi.stubEnv("NEXT_PUBLIC_EA_PUBLIC_PREVIEW", "");
   vi.stubGlobal(
     "ResizeObserver",
     class {
@@ -70,6 +91,7 @@ beforeEach(() => {
     },
   });
 });
+afterEach(() => vi.unstubAllEnvs());
 
 it("moves the review action to the status tag without saving on hover or focus", async () => {
   const { container } = render(card());
@@ -83,7 +105,9 @@ it("moves the review action to the status tag without saving on hover or focus",
   expect(tag()).toHaveAttribute("data-status", "draft");
   expect(tag()).toHaveAttribute("aria-pressed", "false");
   expect(screen.getByRole("button", { name: "Reject" })).toBeEnabled();
-  expect(screen.getByRole("button", { name: "Submitted" })).toBeEnabled();
+  expect(
+    screen.getByRole("button", { name: "Record submission…" }),
+  ).toBeEnabled();
 });
 
 it("submits current comments while toggling Draft to Reviewed and back to Draft", async () => {
@@ -189,7 +213,7 @@ it("blocks duplicate/concurrent saves and waits for persistence before claiming 
   expect(button).toHaveAttribute("data-status", "draft");
   expect(button).toHaveAttribute("aria-busy", "true");
   expect(button).toHaveAttribute("aria-disabled", "true");
-  for (const name of ["Reject", "Submitted", "Save comment"]) {
+  for (const name of ["Reject", "Record submission…", "Save comment"]) {
     expect(screen.getByRole("button", { name })).toBeDisabled();
   }
   await user.click(button);
@@ -271,5 +295,324 @@ it.each(["submitted", "rejected"] as const)(
     expect(
       container.querySelector(`.pill[data-status="${status}"]`)?.tagName,
     ).toBe("SPAN");
+  },
+);
+
+it.each([
+  [draft, "Record submission…", "Record this submission?"],
+  [
+    submitted,
+    "Correct submission record…",
+    "Correct a mistaken submission record?",
+  ],
+] as const)(
+  "opens a focused decision and cancels without changing %s",
+  async (app, openerName, heading) => {
+    render(card(app));
+    const user = userEvent.setup();
+    await user.type(screen.getByLabelText("Comments"), "Keep my review note.");
+    const opener = screen.getByRole("button", { name: openerName });
+    await user.click(opener);
+    expect(screen.getByRole("heading", { name: heading })).toHaveFocus();
+    expect(fixture.run).not.toHaveBeenCalled();
+    expect(screen.getByLabelText("Comments")).toBeDisabled();
+    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(
+      screen.queryByRole("heading", { name: heading }),
+    ).not.toBeInTheDocument();
+    expect(opener).toHaveFocus();
+    expect(screen.getByLabelText("Comments")).toHaveValue(
+      "Keep my review note.",
+    );
+    expect(fixture.run).not.toHaveBeenCalled();
+    expect(fixture.replace).not.toHaveBeenCalled();
+  },
+);
+
+it("requires explicit acknowledgment and submission method before recording a submission", async () => {
+  fixture.run.mockResolvedValueOnce(submitted);
+  render(card());
+  const user = userEvent.setup();
+  await user.type(
+    screen.getByLabelText("Comments"),
+    "Reviewed both documents.",
+  );
+  await user.click(screen.getByRole("button", { name: "Record submission…" }));
+  const confirm = screen.getByRole("button", {
+    name: "Confirm submission record",
+  });
+  fireEvent.submit((confirm as HTMLButtonElement).form!);
+  expect(await screen.findByRole("alert")).toHaveTextContent(
+    "Confirm the statement before continuing.",
+  );
+  expect(fixture.run).not.toHaveBeenCalled();
+  await user.click(
+    screen.getByRole("checkbox", {
+      name: "I have already submitted this application.",
+    }),
+  );
+  fireEvent.submit((confirm as HTMLButtonElement).form!);
+  expect(await screen.findByRole("alert")).toHaveTextContent(
+    "Describe where or how you submitted the application.",
+  );
+  expect(fixture.run).not.toHaveBeenCalled();
+  await user.type(
+    screen.getByLabelText("Where or how you submitted"),
+    "Employer website confirmation page",
+  );
+  await user.click(confirm);
+  await waitFor(() =>
+    expect(fixture.run).toHaveBeenCalledWith(
+      "review",
+      {
+        id: draft.id,
+        status: "submitted",
+        comment:
+          "Reviewed both documents.\nSubmission recorded by user. Method: Employer website confirmation page",
+      },
+      expect.any(String),
+    ),
+  );
+  expect(fixture.run).toHaveBeenCalledTimes(1);
+  expect(fixture.replace).toHaveBeenCalledWith(
+    "/?section=submitted&application=original-submission",
+  );
+});
+
+it("retains submission confirmation values after a failure and prevents concurrent mutation until retry finishes", async () => {
+  fixture.run.mockRejectedValueOnce(
+    new Error("Could not preserve the submission record"),
+  );
+  render(card());
+  const user = userEvent.setup();
+  await user.type(screen.getByLabelText("Comments"), "My note survives.");
+  await user.click(screen.getByRole("button", { name: "Record submission…" }));
+  await user.type(
+    screen.getByLabelText("Where or how you submitted"),
+    "Employer website",
+  );
+  const acknowledgment = screen.getByRole("checkbox", {
+    name: "I have already submitted this application.",
+  });
+  await user.click(acknowledgment);
+  const confirm = screen.getByRole("button", {
+    name: "Confirm submission record",
+  });
+  await user.click(confirm);
+  expect(await screen.findByRole("alert")).toHaveTextContent(
+    "Could not preserve the submission record",
+  );
+  expect(screen.getByLabelText("Where or how you submitted")).toHaveValue(
+    "Employer website",
+  );
+  expect(acknowledgment).toBeChecked();
+  expect(screen.getByLabelText("Comments")).toHaveValue("My note survives.");
+  expect(fixture.replace).not.toHaveBeenCalled();
+
+  let resolve!: (app: Application) => void;
+  fixture.run.mockImplementationOnce(
+    () =>
+      new Promise<Application>((finish) => {
+        resolve = finish;
+      }),
+  );
+  await user.click(confirm);
+  expect(confirm).toBeDisabled();
+  expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled();
+  expect(tag()).toHaveAttribute("aria-disabled", "true");
+  await user.click(confirm);
+  fireEvent.submit((confirm as HTMLButtonElement).form!);
+  expect(fixture.run).toHaveBeenCalledTimes(2);
+  await act(async () => resolve(submitted));
+  expect(fixture.replace).toHaveBeenCalledWith(
+    "/?section=submitted&application=original-submission",
+  );
+});
+
+it("requires correction acknowledgment and a reason, then opens the exact recovered draft", async () => {
+  const recovered: Application = { ...draft, id: "recovered-draft" };
+  fixture.run.mockResolvedValueOnce(recovered);
+  render(card(submitted));
+  const user = userEvent.setup();
+  await user.click(
+    screen.getByRole("button", { name: "Correct submission record…" }),
+  );
+  const confirm = screen.getByRole("button", {
+    name: "Create corrected draft record",
+  });
+  fireEvent.submit((confirm as HTMLButtonElement).form!);
+  expect(await screen.findByRole("alert")).toHaveTextContent(
+    "Confirm the statement before continuing.",
+  );
+  expect(fixture.run).not.toHaveBeenCalled();
+  await user.click(
+    screen.getByRole("checkbox", {
+      name: "This application was not actually submitted; the record was a mistake.",
+    }),
+  );
+  fireEvent.submit((confirm as HTMLButtonElement).form!);
+  expect(await screen.findByRole("alert")).toHaveTextContent(
+    "Explain why the submission record is incorrect.",
+  );
+  expect(fixture.run).not.toHaveBeenCalled();
+  await user.type(
+    screen.getByLabelText("Reason for correction"),
+    "Clicked the decision before I sent anything.",
+  );
+  await user.click(confirm);
+  expect(fixture.run).toHaveBeenCalledWith(
+    "correct-submission",
+    {
+      id: submitted.id,
+      base: submitted.manifest_hash,
+      confirmed: true,
+      reason: "Clicked the decision before I sent anything.",
+    },
+    expect.any(String),
+  );
+  expect(fixture.replace).toHaveBeenCalledWith(
+    "/?section=active&application=recovered-draft",
+  );
+  expect(fixture.run).toHaveBeenCalledTimes(1);
+});
+
+it("retains correction reason and acknowledgment after failure and blocks duplicate correction requests", async () => {
+  fixture.run.mockRejectedValueOnce(new Error("The verified manifest changed"));
+  render(card(submitted));
+  const user = userEvent.setup();
+  await user.click(
+    screen.getByRole("button", { name: "Correct submission record…" }),
+  );
+  const reason = screen.getByLabelText("Reason for correction");
+  const acknowledgment = screen.getByRole("checkbox", {
+    name: "This application was not actually submitted; the record was a mistake.",
+  });
+  await user.type(reason, "The submission decision was mistaken.");
+  await user.click(acknowledgment);
+  const confirm = screen.getByRole("button", {
+    name: "Create corrected draft record",
+  });
+  await user.click(confirm);
+  expect(await screen.findByRole("alert")).toHaveTextContent(
+    "The verified manifest changed",
+  );
+  expect(reason).toHaveValue("The submission decision was mistaken.");
+  expect(acknowledgment).toBeChecked();
+  expect(fixture.replace).not.toHaveBeenCalled();
+  let resolve!: (app: Application) => void;
+  fixture.run.mockImplementationOnce(
+    () =>
+      new Promise<Application>((finish) => {
+        resolve = finish;
+      }),
+  );
+  await user.click(confirm);
+  expect(confirm).toBeDisabled();
+  expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled();
+  await user.click(confirm);
+  fireEvent.submit((confirm as HTMLButtonElement).form!);
+  expect(fixture.run).toHaveBeenCalledTimes(2);
+  await act(async () => resolve({ ...draft, id: "corrected-review" }));
+  expect(fixture.replace).toHaveBeenCalledWith(
+    "/?section=active&application=corrected-review",
+  );
+});
+
+it.each([false, true])(
+  "keeps recovered records and later document edits truthfully linked to the original audit (edited: %s)",
+  async (edited) => {
+    const original: Application = {
+      ...submitted,
+      documents: {
+        "resume.pdf": "original/resume.pdf",
+        "cover-letter.pdf": "original/cover-letter.pdf",
+      },
+      comments: [
+        {
+          at: "2026-11-05",
+          status: "submitted",
+          text: "Original decision evidence.",
+        },
+      ],
+      submission_correction: {
+        at: "2026-11-05",
+        reason: "Recorded before submission.",
+        recovery_application_id: "recovered-review",
+      },
+    };
+    const recovered: Application = {
+      ...draft,
+      id: "recovered-review",
+      documents: { ...original.documents },
+      folder: edited ? "later-edited-version" : original.folder,
+      manifest_hash: edited ? "b".repeat(64) : original.manifest_hash,
+      submission_recovery: {
+        original_id: original.id,
+        at: "2026-11-05",
+        reason: "Recorded before submission.",
+        recorded_at: "2026-11-04",
+      },
+    };
+    fixture.applications = [original, recovered];
+    const before = structuredClone(fixture.applications);
+    render(
+      <ApplicationCard
+        app={recovered}
+        job={{ prior_application: "submitted" }}
+        onEdit={vi.fn()}
+        onApply={vi.fn()}
+      />,
+    );
+    await userEvent.click(
+      screen.getByText("Original submission record and correction"),
+    );
+    expect(
+      screen.getByText(
+        /This draft descends from a corrected manual submission record/,
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(/No new documents were generated/),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Original CV PDF" }),
+    ).toHaveAttribute("href", "/files/original-submission/resume.pdf");
+    expect(
+      screen.getByRole("link", { name: "Original cover letter PDF" }),
+    ).toHaveAttribute("href", "/files/original-submission/cover-letter.pdf");
+    expect(screen.getByText("Original decision evidence.")).toBeInTheDocument();
+    expect(
+      screen.getByText(/A separate earlier submission decision still applies/),
+    ).toBeInTheDocument();
+    expect(fixture.applications).toEqual(before);
+    expect(fixture.run).not.toHaveBeenCalled();
+  },
+);
+
+it.each([draft, submitted])(
+  "keeps public preview decisions read-only for %s",
+  async (app) => {
+    fixture.preview = true;
+    vi.stubEnv("NEXT_PUBLIC_EA_PUBLIC_PREVIEW", "1");
+    render(card(app));
+    expect(
+      screen.queryByRole("button", { name: /switch to/ }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Correct submission record…" }),
+    ).not.toBeInTheDocument();
+    const record = screen.queryByRole("button", { name: "Record submission…" });
+    if (record) {
+      expect(record).toBeDisabled();
+      await userEvent.click(record);
+    }
+    expect(screen.getByLabelText("Comments")).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Save comment" })).toBeDisabled();
+    expect(
+      screen.queryByRole("heading", {
+        name: /Record this submission|Correct a mistaken/,
+      }),
+    ).not.toBeInTheDocument();
+    expect(fixture.run).not.toHaveBeenCalled();
   },
 );

@@ -37,6 +37,20 @@ export function applicationQueues(
 ) {
   const current = new Map<string, Application>();
   for (const app of applications) {
+    const recovery = app.submission_correction
+      ? applications.find(
+          (item) =>
+            item.id === app.submission_correction?.recovery_application_id,
+        )
+      : undefined;
+    // Match the backend: only an intact linked recovery supersedes a manual decision.
+    if (
+      app.status === "submitted" &&
+      recovery?.submission_recovery?.original_id === app.id &&
+      recovery.manifest_hash === app.manifest_hash &&
+      recovery.folder === app.folder
+    )
+      continue;
     const key = app.job_id || app.id;
     const previous = current.get(key);
     if (!previous || replaces(app, previous)) current.set(key, app);

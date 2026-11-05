@@ -47,6 +47,8 @@ Explore the screens, inspect sample documents and bookmark roles in your browser
 
 Matching exposes evidence, gaps and unknowns. It does not establish qualifications, work rights or current vacancy availability. Configured Greenhouse and Lever boards, structured job URLs and agent research provide job records; paid AI selection is optional. [Sources, providers, consent and budgets](docs/agents.md).
 
+Recording a submission requires confirmation that you submitted it yourself. A mistaken manual record can be corrected into a draft while preserving the original record and verified documents; active, uncertain or confirmed delivery evidence blocks this correction. Retired career facts can be restored for reconfirmation.
+
 ### Documents with their history
 
 Open a generated résumé and inspect its preserved version. The walkthroughs use the local application with fictional data; the public demo offers the read-only exploration described above.

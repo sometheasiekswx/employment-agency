@@ -22,10 +22,16 @@ class StaticPreviewHandler(SimpleHTTPRequestHandler):
         pass
 
 
+class StaticPreviewServer(ThreadingHTTPServer):
+    # Several independent browser contexts request the exported chunks together.
+    # Match the local app's backlog instead of the five-connection test default.
+    request_queue_size = 64
+
+
 if __name__ == '__main__':
     if not (SITE / 'demo/preview.json').is_file():
         raise SystemExit('Build the fictional site first: npm --prefix frontend run build:preview')
-    server = ThreadingHTTPServer(
+    server = StaticPreviewServer(
         ('127.0.0.1', 0), partial(StaticPreviewHandler, directory=str(SITE)),
     )
     thread = threading.Thread(target=server.serve_forever, daemon=True)

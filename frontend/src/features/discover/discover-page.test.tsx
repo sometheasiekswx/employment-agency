@@ -7,6 +7,7 @@ import {
   waitFor,
   within,
 } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import type { Profile, RankedJob, WorkspaceState } from "@/lib/models";
 import { DiscoverPage } from "./discover-page";
 
@@ -17,6 +18,7 @@ const fixture = vi.hoisted(() => ({
   state: {} as WorkspaceState,
   client: { action: vi.fn() },
   run: vi.fn(),
+  refresh: vi.fn(),
   replace: vi.fn(),
   selectProfile: vi.fn(),
 }));
@@ -29,6 +31,7 @@ vi.mock("@/components/workspace-provider", () => ({
     state: fixture.state,
     client: fixture.client,
     run: fixture.run,
+    refresh: fixture.refresh,
     profileId: fixture.profileId,
     selectProfile: fixture.selectProfile,
   }),
@@ -119,7 +122,10 @@ beforeEach(() => {
   };
   fixture.client.action.mockReset().mockImplementation(async () => ranked());
   fixture.run.mockReset().mockResolvedValue({});
-  fixture.replace.mockReset();
+  fixture.refresh.mockReset().mockResolvedValue(undefined);
+  fixture.replace.mockReset().mockImplementation((href: string) => {
+    fixture.query = new URL(href, "http://localhost").searchParams.toString();
+  });
   fixture.selectProfile.mockReset();
   vi.stubGlobal(
     "matchMedia",
@@ -171,7 +177,195 @@ it("cycles across locations in place and restores focus to the current role when
       }),
     ).toHaveFocus(),
   );
-  expect(fixture.replace).not.toHaveBeenCalled();
+  expect(fixture.replace.mock.calls).toEqual([
+    [
+      "/discover/?opportunity=job-a&assessment_profile=profile-a",
+      { scroll: false },
+    ],
+    [
+      "/discover/?opportunity=job-b&assessment_profile=profile-a",
+      { scroll: false },
+    ],
+    ["/discover/", { scroll: false }],
+  ]);
+});
+
+it.each([false, true])(
+  "keeps keyboard orientation at visual navigation boundaries (mobile: %s)",
+  async (mobile) => {
+    fixture.mobile = mobile;
+    fixture.state.jobs.push({
+      id: "job-c",
+      title: "Platform Engineer",
+      employer: "Example Platform",
+      location: "Toronto",
+    });
+    const user = userEvent.setup();
+    const { rerender } = render(<DiscoverPage />);
+    const first = await screen.findByRole("button", {
+      name: "Assess Cloud Engineer at Example Cloud",
+    });
+    expect(
+      Array.from(document.querySelectorAll(".discover-card-open")).map(
+        (button) => button.getAttribute("aria-label"),
+      ),
+    ).toEqual([
+      "Assess Cloud Engineer at Example Cloud",
+      "Assess Platform Engineer at Example Platform",
+      "Assess Backend Engineer at Example Studio",
+    ]);
+    await user.click(first);
+    const inspector = screen.getByRole(mobile ? "dialog" : "complementary");
+    const next = within(inspector).getByRole("button", {
+      name: "Next opportunity",
+    });
+    const previous = within(inspector).getByRole("button", {
+      name: "Previous opportunity",
+    });
+    next.focus();
+    await user.keyboard("{Enter}");
+    expect(
+      within(inspector).getByRole("heading", { name: "Platform Engineer" }),
+    ).toBeInTheDocument();
+    expect(within(inspector).getByText("2 of 3")).toBeInTheDocument();
+    expect(next).toHaveFocus();
+    await user.keyboard("{Enter}");
+    const lastHeading = within(inspector).getByRole("heading", {
+      name: "Backend Engineer",
+    });
+    expect(next).toBeDisabled();
+    expect(lastHeading).toHaveFocus();
+    expect(within(inspector).getByText("3 of 3")).toBeInTheDocument();
+    previous.focus();
+    await user.keyboard("{Enter}");
+    expect(
+      within(inspector).getByRole("heading", { name: "Platform Engineer" }),
+    ).toBeInTheDocument();
+    expect(previous).toHaveFocus();
+    await user.keyboard("{Enter}");
+    expect(previous).toBeDisabled();
+    expect(
+      within(inspector).getByRole("heading", { name: "Cloud Engineer" }),
+    ).toHaveFocus();
+    const close = within(inspector).getByRole("button", {
+      name: "Close opportunity details",
+    });
+    close.focus();
+    fixture.state.applications = [...fixture.state.applications];
+    rerender(<DiscoverPage />);
+    expect(close).toHaveFocus();
+  },
+);
+
+it("does not take focus when another control activates navigation into a boundary", async () => {
+  render(<DiscoverPage />);
+  fireEvent.click(
+    await screen.findByRole("button", {
+      name: "Assess Cloud Engineer at Example Cloud",
+    }),
+  );
+  const close = screen.getByRole("button", {
+    name: "Close opportunity details",
+  });
+  expect(close).toHaveFocus();
+  fireEvent.click(screen.getByRole("button", { name: "Next opportunity" }));
+  expect(
+    within(screen.getByRole("complementary")).getByRole("heading", {
+      name: "Backend Engineer",
+    }),
+  ).toBeInTheDocument();
+  expect(close).toHaveFocus();
+});
+
+it("restores the selected assessment and its focus context when returning to its route", async () => {
+  fixture.query =
+    "view=all&location=Berlin&opportunity=job-b&assessment_profile=profile-a";
+  const { unmount } = render(<DiscoverPage />);
+  const inspector = await screen.findByRole("complementary");
+  expect(
+    within(inspector).getByRole("heading", { name: "Backend Engineer" }),
+  ).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Berlin" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  expect(
+    screen.getByRole("button", { name: "Close opportunity details" }),
+  ).toHaveFocus();
+  unmount();
+  render(<DiscoverPage />);
+  expect(await screen.findByRole("complementary")).toHaveAccessibleName(
+    "Backend Engineer",
+  );
+  fireEvent.click(
+    screen.getByRole("button", { name: "Close opportunity details" }),
+  );
+  await waitFor(() =>
+    expect(
+      screen.getByRole("button", {
+        name: "Assess Backend Engineer at Example Studio",
+      }),
+    ).toHaveFocus(),
+  );
+  expect(fixture.query).toBe("view=all&location=Berlin");
+});
+
+it.each([
+  "opportunity=missing-job&assessment_profile=profile-a",
+  "opportunity=job-a&assessment_profile=profile-b",
+  "location=Berlin&opportunity=job-a&assessment_profile=profile-a",
+  "opportunity=job-a",
+])(
+  "ignores an invalid or out-of-context selected assessment: %s",
+  async (query) => {
+    fixture.query = query;
+    render(<DiscoverPage />);
+    await screen.findByRole("button", {
+      name: "Assess Backend Engineer at Example Studio",
+    });
+    expect(screen.queryByRole("complementary")).not.toBeInTheDocument();
+    expect(fixture.run).not.toHaveBeenCalled();
+  },
+);
+
+it("follows browser route changes and clears the assessment when filters change", async () => {
+  fixture.query = "view=all&opportunity=job-a&assessment_profile=profile-a";
+  const { rerender } = render(<DiscoverPage />);
+  expect(await screen.findByRole("complementary")).toHaveAccessibleName(
+    "Cloud Engineer",
+  );
+  fixture.query = "view=all&opportunity=job-b&assessment_profile=profile-a";
+  rerender(<DiscoverPage />);
+  expect(screen.getByRole("complementary")).toHaveAccessibleName(
+    "Backend Engineer",
+  );
+  fireEvent.click(screen.getByRole("button", { name: "Berlin" }));
+  await waitFor(() =>
+    expect(screen.queryByRole("complementary")).not.toBeInTheDocument(),
+  );
+  expect(fixture.query).toBe("view=all&location=Berlin");
+});
+
+it("restores a selected mobile assessment as a modal and returns focus to its role", async () => {
+  fixture.mobile = true;
+  fixture.query = "view=all&opportunity=job-b&assessment_profile=profile-a";
+  render(<DiscoverPage />);
+  const dialog = await screen.findByRole("dialog", {
+    name: "Backend Engineer",
+  });
+  expect(dialog).toHaveAttribute("open");
+  fireEvent(dialog, new Event("cancel", { cancelable: true }));
+  await waitFor(() =>
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+  );
+  await waitFor(() =>
+    expect(
+      screen.getByRole("button", {
+        name: "Assess Backend Engineer at Example Studio",
+      }),
+    ).toHaveFocus(),
+  );
+  expect(fixture.query).toBe("view=all");
 });
 
 it("resizes the inspector to remaining viewport space when preceding content or viewport height changes", async () => {
@@ -295,6 +489,12 @@ it("distinguishes an earlier submission record from a preserved local draft", as
 });
 
 it("consumes document focus once, leaving later refreshes and role navigation in control", async () => {
+  fixture.state.jobs.push({
+    id: "job-c",
+    title: "Platform Engineer",
+    employer: "Example Platform",
+    location: "Berlin",
+  });
   const app = {
     id: "existing-b",
     job_id: "job-b",
@@ -510,6 +710,8 @@ it("offers a retry after ranking fails and requires a profile before any request
       name: "Assess Cloud Engineer at Example Cloud",
     }),
   ).toBeInTheDocument();
+  expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  expect(fixture.refresh).toHaveBeenCalledTimes(1);
   unmount();
   fixture.state.profiles = [];
   fixture.profileId = "";

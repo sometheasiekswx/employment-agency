@@ -148,7 +148,7 @@ const crypto = require("node:crypto");
     assert.equal(await reviewed.getAttribute("aria-label"), "Draft — switch to Reviewed");
     assert.equal(await active.locator('.review-pane button[value="reviewed"]').count(), 0);
     const submitted = active.getByRole("button", {
-      name: "Submitted",
+      name: "Record submission…",
       exact: true,
     });
     const reject = active.getByRole("button", { name: "Reject", exact: true });
@@ -195,7 +195,11 @@ const crypto = require("node:crypto");
       .click();
     await active.getByText("Review history (2)", { exact: false }).waitFor();
     await submitted.click();
-    await tab("Active", 2).waitFor();
+    await active.getByLabel("Where or how you submitted").fill("Fictional employer website");
+    await active.getByLabel("I have already submitted this application.", {exact:true}).check();
+    await active.getByRole("button", {name:"Confirm submission record",exact:true}).click();
+    await page.waitForURL(url => url.searchParams.get("section") === "submitted" && url.searchParams.get("application") === fixture.active.id);
+    await tab("Active", 2).click();
     assert.equal(
       await card(fixture.active).count(),
       0,

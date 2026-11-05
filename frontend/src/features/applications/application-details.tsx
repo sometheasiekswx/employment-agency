@@ -1,5 +1,10 @@
 import type { Application, Job } from "@/lib/models";
-import { decisionDate, displayDate, known } from "@/lib/format";
+import {
+  advertisedSalary,
+  decisionDate,
+  displayDate,
+  known,
+} from "@/lib/format";
 
 export function ApplicationDetails({
   app,
@@ -10,25 +15,10 @@ export function ApplicationDetails({
   job: Partial<Job>;
   timezone: string;
 }) {
-  const salary = job.salary;
-  const pay =
-    typeof salary === "string"
-      ? salary
-      : salary && (salary.min || salary.max)
-        ? [
-            salary.currency,
-            salary.min || "",
-            salary.max ? `– ${salary.max}` : "",
-            salary.period,
-            salary.basis,
-          ]
-            .filter(Boolean)
-            .join(" ")
-        : "";
   const rows: [string, string | undefined, boolean?][] = [
     ["Location", job.location],
     ["Work arrangement", job.work_arrangement],
-    ["Advertised salary", pay],
+    ["Advertised salary", advertisedSalary(job)],
     ["Listing posted", job.posted_at, true],
     ["Listing reposted", job.reposted_at, true],
     ["Application deadline", job.closes, true],

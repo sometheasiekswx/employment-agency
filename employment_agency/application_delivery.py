@@ -13,6 +13,7 @@ from .store import atomic, encode, digest, uid, now
 from .workspaces import inside, settings
 from .delivery_connections import Gmail, codex_select
 from .linkedin_apply import LinkedIn, NeedsUser, linkedin_url
+from .service import submitted_job_ids
 
 ACTIVE = {'preparing', 'needs_user', 'awaiting_approval', 'executing', 'unknown'}
 
@@ -93,9 +94,7 @@ class Delivery:
         if not app or not app.get('folder') or app['status'] == 'submitted':
             raise ValueError('Choose an unsubmitted job-specific application version')
         job = next(j for j in state['jobs'] if j['id'] == app['job_id'])
-        if job.get('prior_application') == 'submitted' or any(
-            a['job_id'] == job['id'] and a['status'] == 'submitted' for a in state['applications']
-        ):
+        if job.get('prior_application') == 'submitted' or job['id'] in submitted_job_ids(state):
             raise ValueError('This job is already recorded as submitted')
         if packages.changed(self.w.path, app):
             raise ValueError('Documents changed. Validate a new draft before applying')

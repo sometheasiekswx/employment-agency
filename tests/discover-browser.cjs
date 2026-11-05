@@ -70,6 +70,75 @@ const fs = require("node:fs");
         name: "Close opportunity details",
         exact: true,
       });
+    const checkKeyboardNavigation = async () => {
+      const visualTitles = await page
+        .locator(".discover-card-open h3")
+        .allTextContents();
+      assert.ok(
+        visualTitles.length > 2,
+        "The fixture exercises navigation between and across boundaries",
+      );
+      const next = inspector().getByRole("button", {
+        name: "Next opportunity",
+        exact: true,
+      });
+      const previous = inspector().getByRole("button", {
+        name: "Previous opportunity",
+        exact: true,
+      });
+      const assertFocusedTitle = async (name) => {
+        const heading = inspector().getByRole("heading", { name, exact: true });
+        await heading.waitFor();
+        await page.waitForFunction(
+          (text) =>
+            document.activeElement?.tagName === "H2" &&
+            document.activeElement.textContent === text,
+          name,
+        );
+      };
+      await next.focus();
+      for (let index = 1; index < visualTitles.length; index++) {
+        await page.keyboard.press("Enter");
+        await inspector()
+          .getByRole("heading", { name: visualTitles[index], exact: true })
+          .waitFor();
+        assert.equal(
+          await inspector()
+            .locator(".discover-inspector-navigation [aria-live]")
+            .textContent(),
+          `${index + 1} of ${visualTitles.length}`,
+        );
+        if (index === visualTitles.length - 1) {
+          assert.equal(await next.isDisabled(), true);
+          await assertFocusedTitle(visualTitles[index]);
+        } else {
+          assert.equal(
+            await next.evaluate((button) => button === document.activeElement),
+            true,
+            "Next retains keyboard focus between boundaries",
+          );
+        }
+      }
+      await previous.focus();
+      for (let index = visualTitles.length - 2; index >= 0; index--) {
+        await page.keyboard.press("Enter");
+        await inspector()
+          .getByRole("heading", { name: visualTitles[index], exact: true })
+          .waitFor();
+        if (index === 0) {
+          assert.equal(await previous.isDisabled(), true);
+          await assertFocusedTitle(visualTitles[index]);
+        } else {
+          assert.equal(
+            await previous.evaluate(
+              (button) => button === document.activeElement,
+            ),
+            true,
+            "Previous retains keyboard focus between boundaries",
+          );
+        }
+      }
+    };
     const discovery = base + "/discover/?view=all";
     fs.mkdirSync("output/playwright/concept-a", { recursive: true });
 
@@ -109,6 +178,43 @@ const fs = require("node:fs");
       desktopAxe.violations.map((violation) => violation.id),
       [],
     );
+    await page.waitForURL((url) =>
+      Boolean(url.searchParams.get("opportunity")),
+    );
+    const selectedRoute = page.url();
+    const selectedParams = new URL(selectedRoute).searchParams;
+    assert.equal(selectedParams.get("view"), "all");
+    assert.equal(
+      selectedParams.get("assessment_profile"),
+      initial.profiles[0].id,
+    );
+    assert.equal(
+      selectedParams.get("opportunity"),
+      initial.jobs.find((job) => job.employer === "Emberlane Systems").id,
+    );
+    const existingDocuments = inspector().getByRole("link", {
+      name: "Review documents",
+      exact: true,
+    });
+    const existingApplication = new URL(
+      await existingDocuments.getAttribute("href"),
+      base,
+    ).searchParams.get("application");
+    await existingDocuments.click();
+    await page
+      .locator(`[data-application-id="${existingApplication}"]`)
+      .waitFor();
+    await page.goBack();
+    await page.waitForURL(selectedRoute);
+    await inspector()
+      .getByRole("heading", { name: "Cloud Software Engineer", exact: true })
+      .waitFor();
+    await page.waitForFunction(
+      () =>
+        document.activeElement?.getAttribute("aria-label") ===
+        "Close opportunity details",
+    );
+    await checkKeyboardNavigation();
     await page
       .getByRole("button", { name: "Next opportunity", exact: true })
       .click();
@@ -124,6 +230,7 @@ const fs = require("node:fs");
         document.activeElement?.getAttribute("aria-label") ===
         "Assess Full Stack Engineer at Paperwell Studio",
     );
+    await page.waitForURL(discovery);
     assert.equal(page.url(), discovery, "assessment keeps the shortlist route");
 
     // Persist a bookmark through a full reload before testing rollback in Saved.
@@ -318,6 +425,21 @@ const fs = require("node:fs");
       exact: true,
     });
     await modal.waitFor();
+    await page.waitForURL((url) =>
+      Boolean(url.searchParams.get("opportunity")),
+    );
+    const mobileSelectedRoute = page.url();
+    await modal
+      .getByRole("link", { name: "Review documents", exact: true })
+      .click();
+    await page
+      .locator(`[data-application-id="${existingApplication}"]`)
+      .waitFor();
+    await page.goBack();
+    await page.waitForURL(mobileSelectedRoute);
+    await modal.waitFor();
+    assert.equal(await modal.evaluate((element) => element.open), true);
+    await checkKeyboardNavigation();
     const sheet = await modal.boundingBox();
     assert.ok(
       sheet.y >= 844 * 0.4,

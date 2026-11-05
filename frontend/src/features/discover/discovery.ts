@@ -2,6 +2,8 @@ import type { Application, Fact, Job, RankedJob } from "@/lib/models";
 import { compareDestinations, destination } from "@/lib/format";
 import { applicationQueues } from "@/features/applications/queues";
 
+export { advertisedSalary } from "@/lib/format";
+
 export type DiscoveryView = "recommended" | "all" | "saved";
 export interface RequirementEvidence {
   requirement: string;
@@ -41,16 +43,6 @@ export function applicationsByJob(applications: Application[]) {
   );
 }
 
-export function applicationHref(app: Application) {
-  const section =
-    app.status === "submitted" || app.status === "rejected"
-      ? app.status
-      : "active";
-  const query = new URLSearchParams({ section, application: app.id });
-  if (app.archived) query.set("history", "true");
-  return `/?${query}`;
-}
-
 export function roleStatus(job: Job, app?: Application) {
   if (app?.status === "submitted") return { label: "Submitted", tone: "muted" };
   if (job.prior_application === "submitted")
@@ -62,41 +54,6 @@ export function roleStatus(job: Job, app?: Application) {
   if (app) return { label: "Draft", tone: "purple" };
   if (job.saved) return { label: "Saved", tone: "amber" };
   return { label: "New", tone: "blue" };
-}
-
-export function advertisedSalary(job: Job, compact = false) {
-  if (typeof job.salary === "string") return job.salary || "Salary not listed";
-  const salary = job.salary;
-  const minimum =
-    Number.isFinite(salary?.min) && Number(salary?.min) > 0
-      ? salary!.min
-      : undefined;
-  const maximum =
-    Number.isFinite(salary?.max) && Number(salary?.max) > 0
-      ? salary!.max
-      : undefined;
-  if (!salary || (minimum == null && maximum == null))
-    return "Salary not listed";
-  const numbers = new Intl.NumberFormat("en", {
-    maximumFractionDigits: compact ? 1 : 2,
-    notation: compact ? "compact" : "standard",
-  });
-  const amount = (value: number) =>
-    compact ? numbers.format(value).toLowerCase() : numbers.format(value);
-  const range =
-    minimum != null && maximum != null
-      ? `${amount(minimum)}–${amount(maximum)}`
-      : minimum != null
-        ? `From ${amount(minimum)}`
-        : `Up to ${amount(maximum!)}`;
-  return [
-    salary.currency,
-    range,
-    salary.period ? `/ ${salary.period}` : "",
-    !compact && salary.basis === "gross_base" ? "gross base" : "",
-  ]
-    .filter(Boolean)
-    .join(" ");
 }
 
 export function checkedDate(value: string, timezone: string) {

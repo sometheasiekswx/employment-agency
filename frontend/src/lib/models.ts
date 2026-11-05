@@ -87,6 +87,27 @@ export interface Application {
   created_at?: string;
   reviewed_at?: string;
   submitted_at?: string;
+  folder?: string;
+  manifest_hash?: string;
+  submission_record?: {
+    at: string;
+    previous_status: string;
+    prior_application?: string;
+    token: string;
+    prior_token?: string;
+  };
+  submission_correction?: {
+    at: string;
+    reason: string;
+    recovery_application_id: string;
+  };
+  submission_recovery?: {
+    original_id: string;
+    at: string;
+    reason: string;
+    recorded_at?: string;
+  };
+  submission_correction_blocked?: string;
   archived?: boolean;
   fit_summary?: string;
   warnings?: string[];

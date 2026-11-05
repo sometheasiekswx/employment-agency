@@ -17,7 +17,7 @@ from . import packages
 
 MAX_SNAPSHOT = 3 * 1024 * 1024
 MAX_EXPANDED = 30 * 1024 * 1024
-ACTIONS = {'identity', 'import', 'fact', 'confirm', 'retire', 'profile', 'job', 'save-job', 'url', 'source',
+ACTIONS = {'identity', 'import', 'fact', 'confirm', 'retire', 'restore-fact', 'correct-submission', 'profile', 'job', 'save-job', 'url', 'source',
            'discover', 'rank', 'local-package', 'review', 'master-propose', 'master-accept', 'document-editor', 'preview-document', 'save-document'}
 
 

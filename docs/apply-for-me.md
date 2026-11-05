@@ -12,6 +12,8 @@ The review shows the résumé PDF and hash, destination, sending identity or sit
 
 A changed résumé, job, evidence, account or form requires another review. An ambiguous send remains **outcome unknown** and blocks retries for that job. Verify Gmail Sent or the site's confirmation and record the evidence before resolving it. Cancellation does not recall a message already being sent. Submission details remain available on the Submitted queue. A manual Submitted record without an automatic receipt is labelled accordingly.
 
+**Record submission…** records something you already submitted yourself, after you confirm where or how. If that manual record was a mistake, **Correct submission record…** requires a reason and explicit confirmation. It creates a recovered draft referencing the same verified documents and retains the original Submitted snapshot, timestamps and correction history. It does not recall or undo a real submission. Active, uncertain, confirmed or unreadable delivery evidence blocks correction; separate earlier submission decisions remain authoritative.
+
 ## Install the optional local connections
 
 Keep your existing pinned installation and private workspace unchanged while evaluating the preview. Build the source in a separate environment, using a disposable workspace first:

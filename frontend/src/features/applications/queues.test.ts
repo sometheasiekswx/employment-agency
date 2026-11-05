@@ -110,3 +110,134 @@ it("chooses submitted snapshots by decision time with creation-time fallback", (
     ]),
   ).toEqual(["legacy"]);
 });
+
+it("excludes a corrected original from current queues while preserving the recovered review record and source data", () => {
+  const apps = [
+    version("incorrect-sent", {
+      status: "submitted",
+      created_at: "2026-11-05",
+      folder: "applications/fictional/original",
+      manifest_hash: "verified-original",
+      submission_correction: {
+        at: "2026-11-05",
+        reason: "Recorded by mistake",
+        recovery_application_id: "recovered",
+      },
+    }),
+    version("recovered", {
+      created_at: "2026-11-05",
+      folder: "applications/fictional/original",
+      manifest_hash: "verified-original",
+      submission_recovery: {
+        original_id: "incorrect-sent",
+        at: "2026-11-05",
+        reason: "Recorded by mistake",
+      },
+    }),
+  ];
+  const before = structuredClone(apps);
+  expect(ids(apps)).toEqual(["recovered"]);
+  expect(ids(apps, true)).toEqual(["recovered"]);
+  expect(apps).toEqual(before);
+});
+
+it("keeps a valid Submitted sibling authoritative over corrected originals and recovered drafts regardless of order", () => {
+  const corrected = version("mistaken-submission", {
+    status: "submitted",
+    submitted_at: "2026-11-05",
+    folder: "applications/fictional/original",
+    manifest_hash: "verified-original",
+    submission_correction: {
+      at: "2026-11-05",
+      reason: "Wrong record",
+      recovery_application_id: "recovered",
+    },
+  });
+  const recovered = version("recovered", {
+    created_at: "2026-11-05",
+    folder: "applications/fictional/original",
+    manifest_hash: "verified-original",
+    submission_recovery: {
+      original_id: corrected.id,
+      at: "2026-11-05",
+      reason: "Wrong record",
+    },
+  });
+  const valid = version("real-submission", {
+    status: "submitted",
+    submitted_at: "2026-11-04",
+  });
+  for (const apps of [
+    [valid, corrected, recovered],
+    [recovered, corrected, valid],
+    [corrected, valid, recovered],
+  ]) {
+    expect(ids(apps)).toEqual(["real-submission"]);
+    expect(ids(apps, true)).toEqual(["real-submission"]);
+  }
+});
+
+it.each([
+  ["missing recovery", undefined],
+  ["missing lineage", {}],
+  [
+    "wrong original",
+    {
+      submission_recovery: {
+        original_id: "different-original",
+        at: "2026-11-05",
+        reason: "Imported correction",
+      },
+    },
+  ],
+  [
+    "changed document manifest",
+    {
+      manifest_hash: "different-manifest",
+      submission_recovery: {
+        original_id: "original",
+        at: "2026-11-05",
+        reason: "Imported correction",
+      },
+    },
+  ],
+  [
+    "different document folder",
+    {
+      folder: "applications/another-version",
+      submission_recovery: {
+        original_id: "original",
+        at: "2026-11-05",
+        reason: "Imported correction",
+      },
+    },
+  ],
+] as const)(
+  "retains Submitted authority when correction recovery has %s",
+  (_label, recoveryChanges) => {
+    const original = version("original", {
+      status: "submitted",
+      submitted_at: "2026-11-05",
+      folder: "applications/fictional/original",
+      manifest_hash: "verified-original",
+      submission_correction: {
+        at: "2026-11-05",
+        reason: "Imported correction",
+        recovery_application_id: "recovery",
+      },
+    });
+    const recovery =
+      recoveryChanges == null
+        ? []
+        : [
+            version("recovery", {
+              created_at: "2026-11-06",
+              folder: original.folder,
+              manifest_hash: original.manifest_hash,
+              ...recoveryChanges,
+            }),
+          ];
+    expect(ids([original, ...recovery])).toEqual(["original"]);
+    expect(ids([original, ...recovery], true)).toEqual(["original"]);
+  },
+);
