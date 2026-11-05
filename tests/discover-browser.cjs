@@ -290,6 +290,7 @@ const fs = require("node:fs");
     );
     await page.unroute(base + "/api/save-job", saveFailure);
     await close().click();
+    await inspector().waitFor({ state: "detached" });
     await page
       .getByRole("button", {
         name: "Unsave Cloud Software Engineer",

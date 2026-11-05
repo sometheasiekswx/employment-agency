@@ -73,6 +73,8 @@ if __name__ == '__main__':
         browser('discover-browser.cjs', url)
         browser('search-navigation-browser.cjs', url)
         browser('application-navigation-browser.cjs', url)
+    with fixture('serve_concept_fixture.py') as url:
+        browser('motion-browser.cjs', url)
     with fixture('serve_queue_fixture.py') as url:
         browser('review-tag-browser.cjs', url)
     with fixture('serve_queue_fixture.py') as url:

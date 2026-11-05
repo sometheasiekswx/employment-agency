@@ -45,3 +45,36 @@ it("disables an action while pending even if the caller passed disabled=false", 
   finish();
   expect(await screen.findByRole("button", { name: "Prepare" })).toBeEnabled();
 });
+
+it("retains an icon action's content, name and busy semantics through failure and retry", async () => {
+  let fail!: (error: Error) => void;
+  const run = vi
+    .fn()
+    .mockImplementationOnce(
+      () =>
+        new Promise<void>((_resolve, reject) => {
+          fail = reject;
+        }),
+    )
+    .mockResolvedValueOnce(undefined);
+  render(
+    <Action aria-label="Save opportunity" keepContentWhileBusy run={run}>
+      <svg data-testid="bookmark" aria-hidden="true" />
+    </Action>,
+  );
+  const button = screen.getByRole("button", { name: "Save opportunity" });
+  await userEvent.click(button);
+  expect(button).toHaveAttribute("aria-busy", "true");
+  expect(button).toBeDisabled();
+  expect(screen.getByTestId("bookmark")).toBeInTheDocument();
+  await userEvent.click(button);
+  expect(run).toHaveBeenCalledTimes(1);
+  fail(new Error("Save failed; retry."));
+  expect(await screen.findByRole("alert")).toHaveTextContent(
+    "Save failed; retry.",
+  );
+  expect(button).toBeEnabled();
+  expect(button).toHaveAttribute("aria-busy", "false");
+  await userEvent.click(button);
+  await waitFor(() => expect(run).toHaveBeenCalledTimes(2));
+});

@@ -36,7 +36,7 @@ The sample application records include a reviewed Emberlane package, a Fernbridg
 
 ## Current interface GIFs
 
-The README walkthroughs are real browser captures of the current local application with the six-role fictional fixture. They show the full local interface; the public static showcase has the read-only capabilities described above. Screens use the application's own fonts and assets. They contain no private résumé, browser session or employer account. Recording does not edit documents or send an application.
+The README walkthroughs are real browser captures of the current local application with the six-role fictional fixture. The refreshed discovery clips include the desktop inspector arrival, in-place role change, confirmed bookmark feedback and mobile sheet expansion. They record pointer interactions with motion enabled; keyboard review remains immediate and operating-system reduced-motion preferences suppress the animated transitions. They show the full local interface; the public static showcase has the read-only capabilities described above. Screens use the application's own fonts and assets. They contain no private résumé, browser session or employer account. Recording does not edit documents or send an application.
 
 | Walkthrough                                 | Animation                                                    | Reduced-motion still                                         |
 | ------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
@@ -46,7 +46,7 @@ The README walkthroughs are real browser captures of the current local applicati
 
 The README uses `<picture>` to select the still image when reduced motion is requested and provides direct static-preview links. Lossless browser PNGs are captured at twice the displayed resolution: desktop and document assets are 2240 × 1680, displayed at 1120 × 840; mobile assets are 780 × 1688, displayed at 390 × 844. GIF timing follows the captures, with reading holds between interactions. The walkthroughs demonstrate interface navigation and sample evidence; they are not evidence that a vacancy is open or an application was sent.
 
-[Capture provenance, timing and asset metadata](media/showcase-provenance.json).
+[Capture provenance, timing and asset metadata](media/showcase-provenance.json) · [Decoded asset and source-frame quality checks](media/quality-report.json).
 
 The shared fictional seed and static exporter live in [employment_agency/public_preview.py](../employment_agency/public_preview.py). To rebuild and preview the public site from the software checkout:
 
