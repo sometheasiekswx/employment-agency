@@ -63,9 +63,10 @@ function useMobileInspector() {
 }
 
 export function DiscoverPage() {
-  const { state, client, run, profileId, selectProfile } = useWorkspace();
+  const { state, client, run, refresh, profileId, selectProfile } =
+    useWorkspace();
   const params = useSearchParams();
-  const router = useRouter();
+  const { replace } = useRouter();
   const [queryString, setOptimisticQuery] = useOptimistic(params.toString());
   const filters = new URLSearchParams(queryString);
   const query = filters.get("q") || "";
@@ -75,15 +76,49 @@ export function DiscoverPage() {
   const view: DiscoveryView =
     rawView === "all" || rawView === "saved" ? rawView : "recommended";
   const [attempt, setAttempt] = useState(0);
+  const [retrying, setRetrying] = useState(false);
   const [ranking, setRanking] = useState<RankingState>({
     key: "",
     profileId: "",
     rows: [],
     error: "",
   });
-  const [selection, setSelection] = useState({ id: "", profileId: "" });
-  const selectedId = selection.profileId === profileId ? selection.id : "";
-  const setSelectedId = (id: string) => setSelection({ id, profileId });
+  const selectedId =
+    filters.get("assessment_profile") === profileId
+      ? filters.get("opportunity") || ""
+      : "";
+  const currentRoute = useRef({ queryString, profileId });
+  useLayoutEffect(() => {
+    currentRoute.current = { queryString, profileId };
+  }, [queryString, profileId]);
+  const replaceQuery = useCallback(
+    (next: URLSearchParams) => {
+      startTransition(() => {
+        setOptimisticQuery(next.toString());
+        replace(`/discover/${next.size ? `?${next}` : ""}`, {
+          scroll: false,
+        });
+      });
+    },
+    [replace, setOptimisticQuery],
+  );
+  const setSelectedId = useCallback(
+    (id: string) => {
+      // Keep the close callback stable so navigation within the inspector does
+      // not rerun its initial-focus effect or reopen the native mobile dialog.
+      const current = currentRoute.current;
+      const next = new URLSearchParams(current.queryString);
+      if (id) {
+        next.set("opportunity", id);
+        next.set("assessment_profile", current.profileId);
+      } else {
+        next.delete("opportunity");
+        next.delete("assessment_profile");
+      }
+      replaceQuery(next);
+    },
+    [replaceQuery],
+  );
   const [savedOverrides, setSavedOverrides] = useState<Record<string, boolean>>(
     {},
   );
@@ -163,9 +198,12 @@ export function DiscoverPage() {
         statusFilter,
   );
   const groups = groupOpportunities(visible, priorities);
+  const navigationRows = groups.flatMap(([, rows]) => rows);
   const selected = visible.find((row) => row.job.id === selectedId);
   const inspectorOpen = Boolean(selected);
-  const selectedIndex = visible.findIndex((row) => row.job.id === selectedId);
+  const selectedIndex = navigationRows.findIndex(
+    (row) => row.job.id === selectedId,
+  );
   const error = ranking.key === requestKey ? ranking.error : "";
 
   useLayoutEffect(() => {
@@ -213,11 +251,11 @@ export function DiscoverPage() {
   }, [inspectorOpen, mobile]);
 
   useEffect(() => {
-    if (selectedId && !mobile)
+    if (inspectorOpen && !mobile)
       cardButtons.current
         .get(selectedId)
         ?.scrollIntoView?.({ block: "nearest", inline: "nearest" });
-  }, [selectedId, mobile]);
+  }, [selectedId, inspectorOpen, mobile]);
 
   useEffect(() => {
     if (saveError && (!inspectorOpen || !mobile))
@@ -225,7 +263,7 @@ export function DiscoverPage() {
   }, [saveError, inspectorOpen, mobile]);
 
   const closeInspector = useCallback(() => {
-    setSelection((previous) => ({ ...previous, id: "" }));
+    setSelectedId("");
     window.setTimeout(() => {
       if (opener.current?.isConnected) {
         opener.current.scrollIntoView?.({
@@ -235,7 +273,7 @@ export function DiscoverPage() {
         opener.current.focus({ preventScroll: true });
       }
     }, 0);
-  }, []);
+  }, [setSelectedId]);
 
   const updateFilters = (values: Record<string, string>) => {
     const next = new URLSearchParams(queryString);
@@ -243,13 +281,9 @@ export function DiscoverPage() {
       if (value) next.set(name, value);
       else next.delete(name);
     }
-    setSelectedId("");
-    startTransition(() => {
-      setOptimisticQuery(next.toString());
-      router.replace(`/discover/${next.size ? `?${next}` : ""}`, {
-        scroll: false,
-      });
-    });
+    next.delete("opportunity");
+    next.delete("assessment_profile");
+    replaceQuery(next);
   };
 
   const saveJob = async (id: string, saved: boolean) => {
@@ -275,7 +309,7 @@ export function DiscoverPage() {
   };
 
   const moveSelection = (index: number) => {
-    const row = visible[index];
+    const row = navigationRows[index];
     if (!row) return;
     opener.current = cardButtons.current.get(row.job.id) || null;
     setSelectedId(row.job.id);
@@ -482,9 +516,20 @@ export function DiscoverPage() {
           <p>{error}</p>
           <button
             type="button"
-            onClick={() => setAttempt((value) => value + 1)}
+            disabled={retrying}
+            onClick={async () => {
+              setRetrying(true);
+              try {
+                await refresh();
+                setAttempt((value) => value + 1);
+              } catch {
+                // The provider exposes the failed state refresh; keep this assessment available to retry.
+              } finally {
+                setRetrying(false);
+              }
+            }}
           >
-            Retry assessment
+            {retrying ? "Retrying…" : "Retry assessment"}
           </button>
         </div>
       )}
@@ -532,7 +577,10 @@ export function DiscoverPage() {
               : "Adjust your filters or choose All results to inspect the full assessment."}
           </p>
           {!rows.length ? (
-            <Link className="button discover-primary" href="/search/">
+            <Link
+              className="button discover-primary"
+              href="/search/#add-opportunity"
+            >
               Add opportunities
             </Link>
           ) : (

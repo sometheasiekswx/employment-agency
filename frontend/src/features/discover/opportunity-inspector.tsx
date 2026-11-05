@@ -17,14 +17,9 @@ import {
   X,
 } from "lucide-react";
 import { Action } from "@/components/controls";
-import { displayDate, safeUrl } from "@/lib/format";
+import { applicationHref, displayDate, safeUrl } from "@/lib/format";
 import type { Application, Fact, RankedJob } from "@/lib/models";
-import {
-  advertisedSalary,
-  applicationHref,
-  requirementEvidence,
-  roleStatus,
-} from "./discovery";
+import { advertisedSalary, requirementEvidence, roleStatus } from "./discovery";
 
 interface InspectorProps {
   row: RankedJob;
@@ -66,12 +61,17 @@ export function OpportunityInspector({
   const { job, match } = row;
   const titleId = useId();
   const dialog = useRef<HTMLDialogElement>(null);
+  const title = useRef<HTMLHeadingElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
   const documentLink = useRef<HTMLAnchorElement>(null);
   const saveErrorNotice = useRef<HTMLParagraphElement>(null);
   const prepareFocusIntent = useRef<{
     jobId: string;
     previousVersion: string;
+  } | null>(null);
+  const navigationFocusIntent = useRef<{
+    jobId: string;
+    button: HTMLButtonElement;
   } | null>(null);
   const [prepareFocusSignal, setPrepareFocusSignal] = useState(0);
   const [expanded, setExpanded] = useState(false);
@@ -123,9 +123,29 @@ export function OpportunityInspector({
   }, [prepareFocusSignal, application, job.id]);
 
   useEffect(() => {
+    const intent = navigationFocusIntent.current;
+    if (!intent || intent.jobId === job.id) return;
+    navigationFocusIntent.current = null;
+    // A newly disabled navigation button can lose focus to body in Chrome.
+    // Consume only the user's navigation intent; refreshes never move focus.
+    if (
+      intent.button.disabled &&
+      (document.activeElement === intent.button ||
+        document.activeElement === document.body)
+    )
+      title.current?.focus({ preventScroll: true });
+  }, [job.id, position, count]);
+
+  useEffect(() => {
     if (mobile && saveError)
       saveErrorNotice.current?.focus({ preventScroll: true });
   }, [mobile, saveError]);
+
+  const navigate = (button: HTMLButtonElement, change: () => void) => {
+    navigationFocusIntent.current =
+      button === document.activeElement ? { jobId: job.id, button } : null;
+    change();
+  };
 
   const warnings = [
     ...new Set([
@@ -154,7 +174,7 @@ export function OpportunityInspector({
             className="discover-icon-button"
             aria-label="Previous opportunity"
             disabled={position === 0}
-            onClick={onPrevious}
+            onClick={(event) => navigate(event.currentTarget, onPrevious)}
           >
             <ChevronLeft size={17} />
           </button>
@@ -166,7 +186,7 @@ export function OpportunityInspector({
             className="discover-icon-button"
             aria-label="Next opportunity"
             disabled={position === count - 1}
-            onClick={onNext}
+            onClick={(event) => navigate(event.currentTarget, onNext)}
           >
             <ChevronRight size={17} />
           </button>
@@ -191,7 +211,9 @@ export function OpportunityInspector({
             {status.label}
           </span>
         </div>
-        <h2 id={titleId}>{job.title}</h2>
+        <h2 id={titleId} ref={title} tabIndex={-1}>
+          {job.title}
+        </h2>
         <p className="discover-role-location">
           <span>
             <MapPin size={15} />

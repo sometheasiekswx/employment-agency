@@ -7,6 +7,7 @@ import shutil
 import math
 import tempfile
 import json
+import os
 from pathlib import Path
 from .store import now, uid, digest, atomic, encode
 from . import imports, sources, matching, documents, providers, packages, master, summaries, editor
@@ -42,7 +43,91 @@ def fail(message):
 
 def submitted_job_ids(state):
     """Preserved submitted versions outrank editable/imported job metadata."""
-    return {app['job_id'] for app in state['applications'] if app['status'] == 'submitted'}
+    return {app['job_id'] for app in state['applications']
+            if app['status'] == 'submitted' and not corrected_submission(app, state)}
+
+
+def corrected_submission(app, state):
+    """Only a linked, audited recovery changes the effective manual decision."""
+    correction = app.get('submission_correction')
+    if not isinstance(correction, dict):
+        return False
+    recovery = next((item for item in state['applications']
+                     if item['id'] == correction.get('recovery_application_id')), None)
+    lineage = recovery.get('submission_recovery') if recovery else None
+    return bool(recovery and isinstance(lineage, dict) and lineage.get('original_id') == app['id']
+                and recovery.get('manifest_hash') == app.get('manifest_hash')
+                and recovery.get('folder') == app.get('folder'))
+
+
+def submission_token_owner(state, job_id, token):
+    if not isinstance(token, str) or not token:
+        return None
+    owners = [app for app in state['applications']
+              if app['job_id'] == job_id and app['status'] == 'submitted'
+              and isinstance(app.get('submission_record'), dict)
+              and app['submission_record'].get('token') == token]
+    return owners[0] if len(owners) == 1 else None
+
+
+def submission_chain_root(state, job):
+    """A job token can restore only the prior proven by its unbroken owned chain."""
+    token = job.get('submission_record_token')
+    visited = set()
+    while isinstance(token, str) and token and token not in visited:
+        visited.add(token)
+        owner = submission_token_owner(state, job['id'], token)
+        if not owner:
+            return None
+        record = owner['submission_record']
+        if 'prior_application' not in record:
+            return None
+        if 'prior_token' not in record:
+            return record
+        if record['prior_application'] != 'submitted':
+            return None
+        token = record['prior_token']
+    return None
+
+
+def submission_records(root):
+    """Read receipt authority without starting or reconciling a delivery worker."""
+    records = []
+    try:
+        # glob can suppress directory read errors, which would hide receipt authority.
+        folder = inside(root, 'records/submissions')
+        with os.scandir(folder) as entries:
+            paths = [Path(entry.path) for entry in entries if entry.name.endswith('.json')]
+    except FileNotFoundError:
+        return []
+    except OSError as exc:
+        raise ValueError('Submission evidence is unreadable; review it before correcting a record') from exc
+    for path in paths:
+        if not re.fullmatch(r'[a-f0-9]{32}\.json', path.name):
+            raise ValueError('Submission evidence is invalid; review it before correcting a record')
+        try:
+            record = json.loads(inside(root, 'records/submissions/' + path.name).read_text(encoding='utf-8'))
+            binding = record['binding']
+            if (not isinstance(record, dict) or not isinstance(binding, dict)
+                    or record.get('id') != path.stem
+                    or not isinstance(binding.get('job_id'), str) or not binding['job_id']
+                    or not isinstance(record.get('application_id'), str)
+                    or binding.get('application_id') != record['application_id']
+                    or record.get('status') not in {'preparing', 'needs_user', 'awaiting_approval',
+                                                   'executing', 'unknown', 'confirmed', 'cancelled',
+                                                   'failed', 'not_sent'}):
+                raise ValueError('Malformed submission receipt')
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            raise ValueError('Submission evidence is invalid; review it before correcting a record') from exc
+        records.append(record)
+    return records
+
+
+def check_submission_correction(records, job_id):
+    if any(record['binding']['job_id'] == job_id and record['status'] in
+           {'preparing', 'needs_user', 'awaiting_approval', 'executing', 'unknown', 'confirmed'}
+           for record in records):
+        raise ValueError('An active, uncertain or confirmed delivery cannot be corrected as an unsent manual record')
 
 
 def conflicts(s):
@@ -75,6 +160,12 @@ class Service:
     def state(self):
         state = self.w.read()
         submitted = submitted_job_ids(state)
+        receipt_error, receipts = '', []
+        if submitted:
+            try:
+                receipts = submission_records(self.w.path)
+            except ValueError as exc:
+                receipt_error = str(exc)
         for job in state['jobs']:
             if job['id'] in submitted:
                 job['prior_application'] = 'submitted'
@@ -87,6 +178,18 @@ class Service:
             app['warnings'] = assessment['hard_conflicts'] + assessment['unknowns']
             if app.get('folder'):
                 app['file_changes'] = packages.changed(self.w.path, app)
+            if app['status'] == 'submitted' and not corrected_submission(app, state):
+                if not app.get('folder') or not app.get('manifest_hash'):
+                    app['submission_correction_blocked'] = 'This historical record has no verified canonical version to recover.'
+                elif app.get('file_changes'):
+                    app['submission_correction_blocked'] = 'Validate the changed files before correcting this record.'
+                elif receipt_error:
+                    app['submission_correction_blocked'] = receipt_error
+                else:
+                    try:
+                        check_submission_correction(receipts, app['job_id'])
+                    except ValueError as exc:
+                        app['submission_correction_blocked'] = str(exc)
         return state
 
     def action(self, action, a):
@@ -148,7 +251,8 @@ class Service:
                 version = packages.adopt_edits(self.w.path, original, job, state['identity'])
                 new = {**original, **version, 'id': uid(), 'created_at': now(), 'status': 'draft',
                        'comments': [], 'derived_from': original['id']}
-                for key in ('reviewed_at', 'submitted_at', 'file_changes', 'archived'):
+                for key in ('reviewed_at', 'submitted_at', 'file_changes', 'archived',
+                            'submission_record', 'submission_correction'):
                     new.pop(key, None)
                 with self.w.edit() as state:
                     state['applications'].append(new)
@@ -208,7 +312,7 @@ class Service:
                     }
                 )
             return {"candidates": min(len(lines), 500), "truncated": len(lines) > 500}
-        if action in ("fact", "confirm", "retire"):
+        if action in ("fact", "confirm", "retire", "restore-fact"):
             with self.w.edit() as s:
                 if action == "fact":
                     old = find(s["facts"], a["id"]) if a.get("id") else None
@@ -247,9 +351,17 @@ class Service:
                                 "Resolve conflicting or retired fact first"
                             )
                         f["confirmed"] = True
-                    else:
+                    elif action == 'retire':
+                        if not f.get('retired'):
+                            s['events'].append({'at': now(), 'type': 'fact_retired', 'fact_id': f['id'],
+                                                'previous_confirmed': bool(f.get('confirmed'))})
                         f["retired"] = True
                         f["confirmed"] = False
+                    elif f.get('retired'):
+                        f['retired'] = False
+                        f['confirmed'] = False
+                        f['updated_at'] = now()
+                        s['events'].append({'at': f['updated_at'], 'type': 'fact_restored', 'fact_id': f['id']})
                 conflicts(s)
             return f
         if action == "profile":
@@ -386,6 +498,47 @@ class Service:
             with self.w.edit() as s:
                 find(s["runs"], a["id"])["cancel"] = True
             return {"requested": True}
+        if action == 'correct-submission':
+            if a.get('confirmed') is not True:
+                raise ValueError('Confirm that this manual submission was recorded by mistake')
+            reason = text(a.get('reason', ''), 4000)
+            if not reason:
+                raise ValueError('Explain why the manual submission record is incorrect')
+            with self.w.edit() as s:
+                app = find(s['applications'], a['id'])
+                if app['status'] != 'submitted':
+                    raise ValueError('Choose a submitted manual record to correct')
+                if not app.get('manifest_hash') or a.get('base') != app['manifest_hash']:
+                    raise ValueError('The application version changed; refresh before correcting its record')
+                if app.get('submission_correction'):
+                    if not corrected_submission(app, s):
+                        raise ValueError('The original correction needs review; no new record was created')
+                    return find(s['applications'], app['submission_correction']['recovery_application_id'])
+                if not app.get('folder') or packages.changed(self.w.path, app):
+                    raise ValueError('Files changed; validate the preserved version before correcting its record')
+                check_submission_correction(submission_records(self.w.path), app['job_id'])
+                stamp, recovery_id = now(), uid()
+                recovered = {**app, 'id': recovery_id, 'created_at': stamp, 'status': 'draft',
+                             'comments': [], 'derived_from': app['id'],
+                             'submission_recovery': {'original_id': app['id'], 'at': stamp, 'reason': reason,
+                                                     'recorded_at': app.get('submitted_at', '')}}
+                for key in ('reviewed_at', 'submitted_at', 'file_changes', 'archived',
+                            'submission_record', 'submission_correction'):
+                    recovered.pop(key, None)
+                app['submission_correction'] = {'at': stamp, 'reason': reason,
+                                                'recovery_application_id': recovery_id}
+                app['comments'].append({'at': stamp, 'kind': 'submission-correction', 'status': 'submitted',
+                                        'text': reason, 'recovery_application_id': recovery_id})
+                s['events'].append({'at': stamp, 'type': 'submission_corrected', 'application_id': app['id'],
+                                    'recovery_application_id': recovery_id, 'reason': reason})
+                s['applications'].append(recovered)
+                job = find(s['jobs'], app['job_id'])
+                if app['job_id'] not in submitted_job_ids(s):
+                    root = submission_chain_root(s, job)
+                    if root:
+                        job['prior_application'] = root['prior_application']
+                        job.pop('submission_record_token', None)
+            return recovered
         if action == "review":
             with self.w.edit() as s:
                 app = find(s["applications"], a["id"])
@@ -398,6 +551,8 @@ class Service:
                 status = a.get("status", app["status"])
                 if status not in ("draft", "reviewed", "rejected", "submitted"):
                     raise ValueError("Unknown review status")
+                if app.get('submission_correction'):
+                    raise ValueError('This manual submission was corrected; review the recovered draft instead')
                 if app["status"] == "submitted" and status != "submitted":
                     raise ValueError("Submitted snapshot is immutable")
                 intact = not packages.changed(self.w.path, app) if app.get('folder') else documents.intact(self.w.path / 'packages' / app['id'])
@@ -410,6 +565,15 @@ class Service:
                     app['submitted_at'] = next((c['at'] for c in app.get('comments', []) if c.get('kind') != 'comment' and c.get('status') == 'submitted'), stamp)
                 if status == 'submitted':
                     job = find(s['jobs'], app['job_id'])
+                    if app['status'] != 'submitted':
+                        prior = 'submitted' if job['id'] in submitted_job_ids(s) else job.get('prior_application', 'none')
+                        prior_token = job.get('submission_record_token')
+                        app['submission_record'] = {'at': stamp, 'previous_status': app['status'],
+                                                    'prior_application': prior,
+                                                    'token': uid()}
+                        if prior == 'submitted' and submission_token_owner(s, job['id'], prior_token):
+                            app['submission_record']['prior_token'] = prior_token
+                        job['submission_record_token'] = app['submission_record']['token']
                     job['prior_application'] = 'submitted'
                 app["status"] = status
                 app["comments"].append(
@@ -484,6 +648,8 @@ class Service:
                 for key in ('prior_application', 'source', 'checked_at'):
                     if key not in a:
                         j[key] = existing.get(key, j[key])
+                if 'prior_application' not in a and existing.get('submission_record_token'):
+                    j['submission_record_token'] = existing['submission_record_token']
                 s["jobs"].remove(existing)
             if j['id'] in submitted_job_ids(s):
                 j['prior_application'] = 'submitted'

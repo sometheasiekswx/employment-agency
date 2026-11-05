@@ -951,10 +951,33 @@ details details {
   background: var(--negative-bg);
   color: var(--negative-ink);
 }
-.review-pane button[name="status"][value="submitted"] {
+.review-pane .record-submission {
   border-color: transparent;
   background: var(--positive-ink);
   color: #16281f;
+}
+.decision-confirmation {
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.decision-confirmation h4 {
+  margin: 0;
+  font-size: 0.875rem;
+}
+.decision-confirmation p,
+.submission-audit p {
+  overflow-wrap: anywhere;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
+.submission-audit {
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
 }
 .application-details {
   display: grid;

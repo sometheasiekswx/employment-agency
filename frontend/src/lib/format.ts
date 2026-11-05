@@ -42,6 +42,15 @@ export const decisionDate = (
     (comment) => comment.kind !== "comment" && comment.status === status,
   )?.at ||
   "";
+export function applicationHref(app: Application) {
+  const section =
+    app.status === "submitted" || app.status === "rejected"
+      ? app.status
+      : "active";
+  const query = new URLSearchParams({ section, application: app.id });
+  if (app.archived) query.set("history", "true");
+  return `/?${query}`;
+}
 export function destination(
   job: Pick<Job, "city" | "location">,
   priorities: string[],
@@ -69,4 +78,39 @@ export function known(value: unknown) {
       String(value).trim().toLowerCase(),
     )
   );
+}
+
+export function advertisedSalary(job: Pick<Job, "salary">, compact = false) {
+  if (typeof job.salary === "string") return job.salary || "Salary not listed";
+  const salary = job.salary;
+  const minimum =
+    Number.isFinite(salary?.min) && Number(salary?.min) > 0
+      ? salary!.min
+      : undefined;
+  const maximum =
+    Number.isFinite(salary?.max) && Number(salary?.max) > 0
+      ? salary!.max
+      : undefined;
+  if (!salary || (minimum == null && maximum == null))
+    return "Salary not listed";
+  const numbers = new Intl.NumberFormat("en", {
+    maximumFractionDigits: compact ? 1 : 2,
+    notation: compact ? "compact" : "standard",
+  });
+  const amount = (value: number) =>
+    compact ? numbers.format(value).toLowerCase() : numbers.format(value);
+  const range =
+    minimum != null && maximum != null
+      ? `${amount(minimum)}–${amount(maximum)}`
+      : minimum != null
+        ? `From ${amount(minimum)}`
+        : `Up to ${amount(maximum!)}`;
+  return [
+    salary.currency,
+    range,
+    salary.period ? `/ ${salary.period}` : "",
+    !compact && salary.basis === "gross_base" ? "gross base" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 }

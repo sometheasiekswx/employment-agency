@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { Application, Fact, Job, RankedJob } from "@/lib/models";
+import { applicationHref } from "@/lib/format";
 import {
   advertisedSalary,
-  applicationHref,
   applicationsByJob,
   filterOpportunities,
   groupOpportunities,

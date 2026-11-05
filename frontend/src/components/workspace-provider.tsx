@@ -17,6 +17,7 @@ interface WorkspaceContextValue {
   state: WorkspaceState;
   client: ApiClient;
   notice: string;
+  refreshError: string;
   notify: (message: string) => void;
   refresh: () => Promise<void>;
   run: <T = unknown>(
@@ -35,6 +36,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<WorkspaceState>();
   const [error, setError] = useState("");
   const [notice, notify] = useState("");
+  const [refreshError, setRefreshError] = useState("");
   const [signedIn, setSignedIn] = useState(false);
   const [attempt, setAttempt] = useState(0);
   const [selectedProfile, selectProfile] = useState("");
@@ -68,8 +70,13 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const refresh = useCallback(async () => {
     if (!client) return;
     const sequence = ++refreshSequence.current;
-    const result = await client.state();
+    const result = await client.state().catch((error) => {
+      if (sequence === refreshSequence.current)
+        setRefreshError(errorMessage(error));
+      throw error;
+    });
     if (sequence !== refreshSequence.current) return;
+    setRefreshError("");
     if (workspace.current !== result.state._workspace.path) {
       selectProfile("");
       notify("Workspace changed.");
@@ -85,8 +92,11 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       return;
     const interval = setInterval(
       () => {
-        if (document.visibilityState !== "hidden")
-          refresh().catch((error) => notify(errorMessage(error)));
+        if (document.visibilityState !== "hidden") {
+          refresh().catch(() => {
+            // Refresh failures remain visible in the provider's scoped alert.
+          });
+        }
       },
       running ? 2000 : 8000,
     );
@@ -112,12 +122,14 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   );
 
   const clearSession = useCallback(() => {
+    refreshSequence.current++;
     client?.auth?.clear();
     setError("");
     setSignedIn(false);
     setState(undefined);
     selectProfile("");
     notify("");
+    setRefreshError("");
   }, [client]);
 
   if (error)
@@ -172,6 +184,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         state,
         client,
         notice,
+        refreshError,
         notify,
         refresh,
         run,

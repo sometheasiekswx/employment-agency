@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowUpRight,
@@ -30,6 +30,16 @@ export function SearchPage() {
   const profile = state.profiles.find((item) => item.id === profileId);
   const [editing, setEditing] = useState<Job>();
   const { canLeave } = useDraft();
+  const opportunityHeading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    const focusOpportunity = () => {
+      if (window.location.hash === "#add-opportunity")
+        opportunityHeading.current?.focus();
+    };
+    focusOpportunity();
+    window.addEventListener("hashchange", focusOpportunity);
+    return () => window.removeEventListener("hashchange", focusOpportunity);
+  }, []);
   return (
     <div className="search-preferences-page secondary-page">
       <div className="secondary-page-intro-row">
@@ -155,7 +165,9 @@ export function SearchPage() {
           ))}
         </section>
         <section className="secondary-panel search-import-panel">
-          <h2>Add an opportunity</h2>
+          <h2 id="add-opportunity" ref={opportunityHeading} tabIndex={-1}>
+            Add an opportunity
+          </h2>
           <Form
             onSave={async (data) => {
               await run("url", { url: text(data, "url") });

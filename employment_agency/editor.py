@@ -92,7 +92,8 @@ def edit(workspace, args, *, save=False):
             record = packages.record(workspace.path, app)
             version = packages.publish(workspace.path, files, record['job'], workspace.read()['identity'], source='In-page user edit')
             new = {**app, **version, 'id':uid(), 'status':'draft', 'created_at':now(), 'comments':[], 'derived_from':app['id']}
-            for key in ('reviewed_at', 'submitted_at', 'file_changes', 'archived'):
+            for key in ('reviewed_at', 'submitted_at', 'file_changes', 'archived',
+                        'submission_record', 'submission_correction'):
                 new.pop(key, None)
             with workspace.edit() as state:
                 state['applications'].append(new)

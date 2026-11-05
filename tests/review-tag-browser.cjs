@@ -265,7 +265,7 @@ const path = require("node:path");
       assert.ok(
         Math.abs((await dimensions(tag)).visible - draftSize.visible) < 0.5,
       );
-      for (const name of ["Reject", "Submitted", "Save comment"])
+      for (const name of ["Reject", "Record submission…", "Save comment"])
         assert.equal(
           await card(fixture.active)
             .getByRole("button", { name, exact: true })

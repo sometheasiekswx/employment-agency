@@ -71,6 +71,41 @@ const { decideDialog } = require("./browser-dialog.cjs");
       );
     };
 
+    await page
+      .getByRole("link", { name: "Add opportunities", exact: true })
+      .click();
+    await page.waitForURL(base + "/search/#add-opportunity");
+    const importHeading = page.getByRole("heading", {
+      name: "Add an opportunity",
+      exact: true,
+    });
+    await importHeading.waitFor();
+    await page.waitForFunction(
+      () => document.activeElement?.id === "add-opportunity",
+    );
+    const importBounds = await importHeading.boundingBox();
+    assert.ok(
+      importBounds.y >= 0 && importBounds.y < 1000,
+      "Add opportunities scrolls directly to import controls",
+    );
+    const jobUrl = page.getByLabel("Job URL with JobPosting structured data", {
+      exact: true,
+    });
+    await jobUrl.fill("https://example.com/jobs/unsaved-fixture");
+    const discoverLink = page.getByRole("link", {
+      name: "Discover",
+      exact: true,
+    });
+    await decideDialog(page, () => discoverLink.click(), false);
+    assert.equal(new URL(page.url()).hash, "#add-opportunity");
+    assert.equal(
+      await jobUrl.inputValue(),
+      "https://example.com/jobs/unsaved-fixture",
+    );
+    await decideDialog(page, () => discoverLink.click(), true);
+    await page.waitForURL(base + "/discover/");
+    await assertProfile();
+
     const globalSearch = page.locator(".workspace-search input[name=q]");
     await globalSearch.fill("Backend");
     await globalSearch.press("Enter");

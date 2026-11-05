@@ -160,7 +160,7 @@ const fs = require("node:fs");
         window.innerHeight + 1,
     );
     await page.reload();
-    await page
+    await inspector
       .getByRole("button", {
         name: "Unsave Cloud Software Engineer",
         exact: true,
@@ -214,7 +214,13 @@ const fs = require("node:fs");
       secondTab
         .getByRole("button", { name: "Save Backend Engineer", exact: true })
         .waitFor(),
-    ]);
+    ]).catch(async (error) => {
+      for (const [index, tab] of [firstTab, secondTab].entries()) {
+        await tab.screenshot({path: `output/playwright/public-preview/concurrent-tab-${index}.png`, fullPage: true});
+        fs.writeFileSync(`output/playwright/public-preview/concurrent-tab-${index}.txt`, await tab.locator("body").innerText());
+      }
+      throw error;
+    });
     await firstTab
       .getByRole("button", {
         name: "Save Cloud Software Engineer",
@@ -273,7 +279,7 @@ const fs = require("node:fs");
       .waitFor();
     assert.equal(
       await application
-        .getByRole("button", { name: "Submitted", exact: true })
+        .getByRole("button", { name: "Record submission…", exact: true })
         .isDisabled(),
       true,
     );
