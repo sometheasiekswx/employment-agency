@@ -65,6 +65,10 @@ describe("advertised salary", () => {
     expect(
       advertisedSalary({ ...job, salary: { min: NaN, max: Infinity } }),
     ).toBe("Salary not listed");
+    expect(advertisedSalary(job, { missing: "" })).toBe("");
+    expect(
+      advertisedSalary({ salary: "Salary not listed" }, { missing: "" }),
+    ).toBe("");
   });
   it("retains a real single bound without inventing the missing bound", () => {
     expect(

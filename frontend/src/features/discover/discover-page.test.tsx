@@ -120,7 +120,7 @@ beforeEach(() => {
     },
     _master: { exists: false, changed: false, path: "master.txt" },
   };
-  fixture.client.action.mockReset().mockImplementation(async () => ranked());
+  fixture.client = { action: vi.fn().mockImplementation(async () => ranked()) };
   fixture.run.mockReset().mockResolvedValue({});
   fixture.refresh.mockReset().mockResolvedValue(undefined);
   fixture.replace.mockReset().mockImplementation((href: string) => {
@@ -137,7 +137,7 @@ beforeEach(() => {
   );
 });
 
-it("loads a read-only profile assessment and keeps job locations and unknown salaries visible", async () => {
+it("keeps unknown salary in the inspector without repeating it on cards", async () => {
   render(<DiscoverPage />);
   expect(
     await screen.findByRole("button", {
@@ -151,8 +151,92 @@ it("loads a read-only profile assessment and keeps job locations and unknown sal
   expect(
     screen.getByRole("region", { name: "Toronto opportunities" }),
   ).toBeInTheDocument();
-  expect(screen.getAllByText("Salary not listed")).toHaveLength(2);
+  expect(screen.queryByText("Salary not listed")).not.toBeInTheDocument();
+  fireEvent.click(
+    screen.getByRole("button", {
+      name: "Assess Cloud Engineer at Example Cloud",
+    }),
+  );
+  expect(
+    within(screen.getByRole("complementary")).getByText("Salary not listed"),
+  ).toBeInTheDocument();
 });
+
+it("keeps advertised pay on cards and its complete basis in the inspector", async () => {
+  fixture.state.jobs[0].salary = {
+    min: 90000,
+    max: 120000,
+    currency: "CAD",
+    period: "year",
+    basis: "gross_base",
+  };
+  render(<DiscoverPage />);
+  const open = await screen.findByRole("button", {
+    name: "Assess Cloud Engineer at Example Cloud",
+  });
+  expect(
+    within(open.closest("article")!).getByText("CAD 90k–120k / year"),
+  ).toBeInTheDocument();
+  fireEvent.click(open);
+  expect(
+    within(screen.getByRole("complementary")).getByText(
+      "CAD 90,000–120,000 / year gross base",
+    ),
+  ).toBeInTheDocument();
+});
+
+it("shows completed matches immediately when returning to Discover without another request", async () => {
+  const first = render(<DiscoverPage />);
+  await screen.findByRole("button", {
+    name: "Assess Cloud Engineer at Example Cloud",
+  });
+  first.unmount();
+  fixture.client.action.mockClear();
+
+  render(<DiscoverPage />);
+  expect(
+    screen.getByRole("button", {
+      name: "Assess Cloud Engineer at Example Cloud",
+    }),
+  ).toBeInTheDocument();
+  expect(
+    screen.queryByRole("heading", { name: "Assessing opportunities" }),
+  ).not.toBeInTheDocument();
+  await act(async () => {});
+  expect(fixture.client.action).not.toHaveBeenCalled();
+});
+
+it("keeps Refresh matches effective after reusing a completed assessment", async () => {
+  const first = render(<DiscoverPage />);
+  await screen.findByRole("button", {
+    name: "Assess Cloud Engineer at Example Cloud",
+  });
+  first.unmount();
+  render(<DiscoverPage />);
+  await screen.findByRole("button", {
+    name: "Assess Cloud Engineer at Example Cloud",
+  });
+  fixture.client.action.mockClear();
+  fireEvent.click(screen.getByRole("button", { name: "Refresh matches" }));
+  await waitFor(() => expect(fixture.client.action).toHaveBeenCalledTimes(1));
+});
+
+it.each(["facts", "jobs", "profiles"] as const)(
+  "reassesses changed %s when returning to Discover",
+  async (input) => {
+    const first = render(<DiscoverPage />);
+    await screen.findByRole("button", {
+      name: "Assess Cloud Engineer at Example Cloud",
+    });
+    first.unmount();
+    fixture.client.action.mockClear();
+    if (input === "facts") fixture.state.facts[0].confirmed = false;
+    if (input === "jobs") fixture.state.jobs[0].requirements = ["SQL"];
+    if (input === "profiles") fixture.state.profiles[0].locations = ["Berlin"];
+    render(<DiscoverPage />);
+    await waitFor(() => expect(fixture.client.action).toHaveBeenCalledTimes(1));
+  },
+);
 
 it("cycles across locations in place and restores focus to the current role when closed", async () => {
   render(<DiscoverPage />);

@@ -487,18 +487,13 @@ export function OpportunityInspector({
           <span>{job.work_arrangement || "Work arrangement unconfirmed"}</span>
         </p>
         <p className="discover-inspector-salary">{advertisedSalary(job)}</p>
-        <p className="discover-source-label">
-          {advert
-            ? "Employer / source listing"
-            : "Imported job record · Source link unavailable"}
-        </p>
+        {!advert && (
+          <p className="discover-source-label">Source link unavailable</p>
+        )}
         <section className="discover-evidence-section">
           <h3>
-            <Sparkles size={17} /> Why this fits
+            <Sparkles size={17} /> Career evidence
           </h3>
-          <p className="discover-explanation">
-            Related evidence is a starting point. Verify the full requirement.
-          </p>
           {evidence.length ? (
             evidence.map((item, index) => (
               <div
@@ -552,7 +547,7 @@ export function OpportunityInspector({
           )}
         </section>
         <section className="discover-evidence-section">
-          <h3>Requirements to check</h3>
+          <h3>Listing details</h3>
           {match.hard_conflicts.length > 0 && (
             <div className="discover-checks conflict">
               <h4>Preparation is blocked</h4>
@@ -571,12 +566,6 @@ export function OpportunityInspector({
                 ))}
               </ul>
             </div>
-          )}
-          {!warnings.length && !match.hard_conflicts.length && (
-            <p className="discover-explanation">
-              No additional checks were flagged by this assessment. Review the
-              full advert before applying.
-            </p>
           )}
           <dl className="discover-listing-details">
             <div>
@@ -738,12 +727,6 @@ export function OpportunityInspector({
             own drafts with the local app.
           </p>
         )}
-        <p className="discover-footer-note">
-          <ShieldCheck size={14} />
-          {submitted
-            ? "Submitted documents stay preserved."
-            : "You review the documents and control submission."}
-        </p>
       </footer>
     </>
   );

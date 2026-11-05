@@ -470,16 +470,9 @@ details details {
   padding-top: 43px;
 }
 .rail-context-label {
-  margin: 0;
+  margin: 0 0 20px;
   color: var(--muted);
   font-size: 0.75rem;
-}
-.rail-context h2 {
-  margin: 13px 0 30px;
-  font-size: 34px;
-  font-weight: 600;
-  letter-spacing: -0.035em;
-  line-height: 1.12;
 }
 .rail-context dl {
   display: flex;
@@ -635,26 +628,14 @@ details details {
   min-height: 81px;
   padding: 20px 24px;
 }
-.workspace-breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 0;
-  color: var(--muted);
-  font-size: 0.6875rem;
-}
-.workspace-breadcrumb > span:last-child {
-  color: #d8d8de;
-  white-space: nowrap;
-}
 .workspace-search {
   display: flex;
   align-items: center;
   gap: 10px;
   min-width: 130px;
-  width: min(360px, 35%);
+  width: min(480px, 60%);
   height: 40px;
-  margin-left: auto;
+  margin-right: auto;
   padding-left: 13px;
   border: 1px solid transparent;
   border-radius: 10px;
@@ -737,16 +718,6 @@ details details {
   max-width: 65ch;
   margin: 9px 0 0;
   color: var(--muted);
-}
-.workspace[data-page="discover"] .page-heading {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
 }
 #notice {
   margin: 0 0 16px;
@@ -1213,10 +1184,6 @@ details details {
   }
 }
 @media (max-width: 1200px) {
-  .workspace-breadcrumb > span:first-child,
-  .workspace-breadcrumb > span:nth-child(2) {
-    display: none;
-  }
   .workspace-topbar {
     gap: 12px;
   }
@@ -1236,9 +1203,6 @@ details details {
   .review-pane {
     border-left: 0;
     border-top: 1px solid var(--line);
-  }
-  .workspace-breadcrumb {
-    display: none;
   }
 }
 @media (max-width: 900px) {
@@ -1407,8 +1371,7 @@ details details {
   .desk {
     padding: 0 20px calc(100px + env(safe-area-inset-bottom));
   }
-  .page-heading,
-  .workspace[data-page="discover"] .page-heading {
+  .page-heading {
     position: static;
     width: auto;
     height: auto;

@@ -80,8 +80,17 @@ export function known(value: unknown) {
   );
 }
 
-export function advertisedSalary(job: Pick<Job, "salary">, compact = false) {
-  if (typeof job.salary === "string") return job.salary || "Salary not listed";
+export function advertisedSalary(
+  job: Pick<Job, "salary">,
+  {
+    compact = false,
+    missing = "Salary not listed",
+  }: { compact?: boolean; missing?: string } = {},
+) {
+  if (typeof job.salary === "string") {
+    const value = job.salary.trim();
+    return value && !/^salary not listed$/i.test(value) ? value : missing;
+  }
   const salary = job.salary;
   const minimum =
     Number.isFinite(salary?.min) && Number(salary?.min) > 0
@@ -91,8 +100,7 @@ export function advertisedSalary(job: Pick<Job, "salary">, compact = false) {
     Number.isFinite(salary?.max) && Number(salary?.max) > 0
       ? salary!.max
       : undefined;
-  if (!salary || (minimum == null && maximum == null))
-    return "Salary not listed";
+  if (!salary || (minimum == null && maximum == null)) return missing;
   const numbers = new Intl.NumberFormat("en", {
     maximumFractionDigits: compact ? 1 : 2,
     notation: compact ? "compact" : "standard",

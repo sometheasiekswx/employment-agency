@@ -23,25 +23,19 @@ import {
 } from "lucide-react";
 import { Action, Select } from "@/components/controls";
 import { useWorkspace } from "@/components/workspace-provider";
-import {
-  compareDestinations,
-  destination,
-  displayDate,
-  errorMessage,
-} from "@/lib/format";
+import { compareDestinations, destination, errorMessage } from "@/lib/format";
 import type { RankedJob } from "@/lib/models";
 import {
   advertisedSalary,
   applicationsByJob,
-  checkedDate,
   filterOpportunities,
   groupOpportunities,
-  requirementEvidence,
   roleStatus,
   type DiscoveryView,
 } from "./discovery";
 import { OpportunityInspector } from "./opportunity-inspector";
 import { useInteractionMotion } from "./interaction-motion";
+import { cachedRanking, loadRanking } from "./rankings";
 import "./discover.css";
 
 interface RankingState {
@@ -147,12 +141,21 @@ export function DiscoverPage() {
     jobs: state.jobs.map((job) => ({ ...job, saved: undefined })),
   });
   const requestKey = `${profileId}:${attempt}:${rankInput}`;
-  const loading = Boolean(profile) && ranking.key !== requestKey;
+  const workspacePath = state._workspace.path;
+  const cached =
+    attempt === 0
+      ? cachedRanking(client, workspacePath, profileId, rankInput)
+      : undefined;
+  const currentRanking =
+    ranking.key !== requestKey && cached
+      ? { key: requestKey, profileId, rows: cached, error: "" }
+      : ranking;
+  const loading = Boolean(profile) && currentRanking.key !== requestKey;
 
   useEffect(() => {
     if (!profileId) return;
     let active = true;
-    client.action<RankedJob[]>("rank", { profile_id: profileId }).then(
+    loadRanking(client, workspacePath, profileId, rankInput, attempt > 0).then(
       (rows) => {
         if (active) setRanking({ key: requestKey, profileId, rows, error: "" });
       },
@@ -169,30 +172,30 @@ export function DiscoverPage() {
     return () => {
       active = false;
     };
-  }, [client, profileId, requestKey]);
+  }, [client, workspacePath, profileId, rankInput, requestKey, attempt]);
 
   const applications = useMemo(
     () => applicationsByJob(state.applications),
     [state.applications],
   );
   const latestJobs = new Map(state.jobs.map((job) => [job.id, job]));
-  const rows = (ranking.profileId === profileId ? ranking.rows : []).flatMap(
-    (row) => {
-      const latest = latestJobs.get(row.job.id);
-      return latest
-        ? [
-            {
-              ...row,
-              job: {
-                ...row.job,
-                ...latest,
-                saved: savedOverrides[row.job.id] ?? latest.saved ?? false,
-              },
+  const rows = (
+    currentRanking.profileId === profileId ? currentRanking.rows : []
+  ).flatMap((row) => {
+    const latest = latestJobs.get(row.job.id);
+    return latest
+      ? [
+          {
+            ...row,
+            job: {
+              ...row.job,
+              ...latest,
+              saved: savedOverrides[row.job.id] ?? latest.saved ?? false,
             },
-          ]
-        : [];
-    },
-  );
+          },
+        ]
+      : [];
+  });
   const locations = [
     ...new Set(rows.map(({ job }) => destination(job, priorities))),
   ].sort((a, b) => compareDestinations(a, b, priorities));
@@ -213,7 +216,7 @@ export function DiscoverPage() {
   const selectedIndex = navigationRows.findIndex(
     (row) => row.job.id === selectedId,
   );
-  const error = ranking.key === requestKey ? ranking.error : "";
+  const error = currentRanking.key === requestKey ? currentRanking.error : "";
   const boardGroups = JSON.stringify(
     groups.map(([city, opportunities]) => [
       city,
@@ -504,15 +507,6 @@ export function DiscoverPage() {
               )}
             </form>
             <Select
-              label="Search profile"
-              value={profileId}
-              options={state.profiles.map((item) => [item.id, item.name])}
-              onChange={(event) => {
-                setSelectedId("");
-                selectProfile(event.target.value);
-              }}
-            />
-            <Select
               label="Location"
               value={location}
               options={[
@@ -551,45 +545,22 @@ export function DiscoverPage() {
           </div>
         </details>
       </div>
-      <div className="discover-search-row">
+      <div className="discover-summary">
+        <Select
+          label="Profile"
+          aria-label="Search profile"
+          value={profileId}
+          options={state.profiles.map((item) => [item.id, item.name])}
+          onChange={(event) => {
+            setSelectedId("");
+            selectProfile(event.target.value);
+          }}
+        />
         <span className="discover-result-count" role="status">
           {loading
-            ? "Assessing your opportunities…"
+            ? "Loading matches…"
             : `${visible.length} ${visible.length === 1 ? "role" : "roles"} · ${groups.length} ${groups.length === 1 ? "location" : "locations"}`}
         </span>
-      </div>
-      <div className="discover-profile-context">
-        <Sparkles size={15} />
-        <p>
-          <strong>{profile.name}.</strong> Ranked from confirmed career evidence
-          and your location preferences.
-        </p>
-        <span className="discover-desktop-count" role="status">
-          {loading
-            ? "Assessing opportunities…"
-            : `${visible.length} roles · ${groups.length} locations`}
-        </span>
-        <details>
-          <summary>Search context</summary>
-          <dl>
-            <div>
-              <dt>Roles</dt>
-              <dd>{profile.roles.join(", ") || "Any role"}</dd>
-            </div>
-            <div>
-              <dt>Locations</dt>
-              <dd>{profile.locations.join(", ") || "Any location"}</dd>
-            </div>
-            <div>
-              <dt>Work models</dt>
-              <dd>{profile.arrangements.join(", ") || "Any work model"}</dd>
-            </div>
-            <div>
-              <dt>Seniority</dt>
-              <dd>{profile.seniority.join(", ") || "Any level"}</dd>
-            </div>
-          </dl>
-        </details>
       </div>
       <div
         className="discover-location-tabs"
@@ -650,13 +621,6 @@ export function DiscoverPage() {
           </p>
         </div>
       )}
-      {view === "recommended" &&
-        rows.some(({ match }) => match.hard_conflicts.length) && (
-          <p className="discover-hidden-note">
-            Opportunities with confirmed conflicts remain available in All
-            results.
-          </p>
-        )}
       {loading && !rows.length && (
         <div className="discover-empty" role="status">
           <RefreshCw size={25} />
@@ -723,14 +687,19 @@ export function DiscoverPage() {
                   <span>{opportunities.length}</span>
                 </header>
                 {opportunities.map((row) => {
-                  const { job, match } = row;
+                  const { job } = row;
                   const status = roleStatus(job, applications.get(job.id));
-                  const related = requirementEvidence(
-                    match.evidence,
-                    state.facts,
-                  )
-                    .filter((item) => item.facts.length)
-                    .map((item) => item.requirement);
+                  const salary = advertisedSalary(job, {
+                    compact: true,
+                    missing: "",
+                  });
+                  const location = job.location || job.city;
+                  const metadata = [
+                    location && location !== city ? location : "",
+                    job.work_arrangement,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ");
                   return (
                     <article
                       className={`discover-card ${selectedId === job.id ? "is-selected" : ""}`}
@@ -788,44 +757,17 @@ export function DiscoverPage() {
                         </span>
                         {job.employer}
                       </p>
-                      <p className="discover-card-location">
-                        <MapPin size={13} />
-                        {job.location || job.city || "Location unconfirmed"}
-                        {job.work_arrangement && <> · {job.work_arrangement}</>}
-                      </p>
-                      <p
-                        className="discover-card-salary"
-                        title={advertisedSalary(job)}
-                      >
-                        {advertisedSalary(job, true)}
-                      </p>
-                      <p className="discover-card-fit">
-                        <Sparkles size={14} />
-                        <span>
-                          {related.length
-                            ? `Related evidence: ${related.slice(0, 3).join(", ")}`
-                            : "Review requirements and career evidence"}
-                        </span>
-                      </p>
-                      <span className="discover-card-footer">
-                        <span
-                          title={
-                            job.checked_at
-                              ? displayDate(
-                                  job.checked_at,
-                                  state._workspace.timezone,
-                                )
-                              : "No verified retrieval time"
-                          }
+                      {metadata && (
+                        <p className="discover-card-location">{metadata}</p>
+                      )}
+                      {salary && (
+                        <p
+                          className="discover-card-salary"
+                          title={advertisedSalary(job)}
                         >
-                          {job.checked_at
-                            ? `Checked ${checkedDate(job.checked_at, state._workspace.timezone)}`
-                            : "Not checked"}
-                        </span>
-                        <span>
-                          Assess role <ArrowUpRight size={13} />
-                        </span>
-                      </span>
+                          {salary}
+                        </p>
+                      )}
                     </article>
                   );
                 })}

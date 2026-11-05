@@ -22,10 +22,12 @@ const fs = require("node:fs");
     const errors = [];
     const external = [];
     let preparations = 0;
+    let rankings = 0;
     page.on("pageerror", (error) => errors.push(error.message));
     page.on("request", (request) => {
       if (new URL(request.url()).pathname === "/api/local-package")
         preparations++;
+      if (new URL(request.url()).pathname === "/api/rank") rankings++;
     });
     await page.route("**/*", (route) => {
       const url = new URL(route.request().url());
@@ -149,6 +151,26 @@ const fs = require("node:fs");
       0,
       "loading/ranking never prepares an application",
     );
+    const initialRankings = rankings;
+    await page.getByRole("link", { name: "Applications", exact: true }).click();
+    await page.waitForURL(base + "/");
+    await page.getByRole("link", { name: "Discover", exact: true }).click();
+    await cloud().waitFor();
+    assert.equal(
+      rankings,
+      initialRankings,
+      "returning reuses completed matches",
+    );
+    assert.equal(
+      await page
+        .getByRole("heading", { name: "Assessing opportunities", exact: true })
+        .count(),
+      0,
+    );
+    await page
+      .getByRole("button", { name: "All results", exact: true })
+      .click();
+    await page.waitForURL(discovery);
     await page.screenshot({
       path: "output/playwright/concept-a/discover-desktop.png",
     });

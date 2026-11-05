@@ -431,7 +431,12 @@ class Service:
         if action == "discover":
             return self.refresh(a["id"])
         if action == "rank":
-            s = self.state()
+            # Matching needs records, not document integrity or delivery checks.
+            s = self.w.read()
+            submitted = submitted_job_ids(s)
+            for job in s['jobs']:
+                if job['id'] in submitted:
+                    job['prior_application'] = 'submitted'
             return matching.ranked(
                 s["jobs"], find(s["profiles"], a["profile_id"]), s["facts"]
             )

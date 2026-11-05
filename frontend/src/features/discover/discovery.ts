@@ -56,16 +56,6 @@ export function roleStatus(job: Job, app?: Application) {
   return { label: "New", tone: "blue" };
 }
 
-export function checkedDate(value: string, timezone: string) {
-  const date = new Date(value);
-  if (!Number.isFinite(date.getTime())) return value;
-  return new Intl.DateTimeFormat("en-AU", {
-    day: "numeric",
-    month: "short",
-    timeZone: value.length === 10 ? "UTC" : timezone,
-  }).format(date);
-}
-
 export function filterOpportunities(
   rows: RankedJob[],
   filters: { query: string; location: string; view: DiscoveryView },

@@ -231,11 +231,6 @@ export function Shell({ children }: { children: ReactNode }) {
           <p className="rail-context-label">
             {profile?.name || "Your career workspace"}
           </p>
-          <h2>
-            Your next
-            <br />
-            move.
-          </h2>
           <dl>
             <div>
               <dt>Role family</dt>
@@ -265,8 +260,7 @@ export function Shell({ children }: { children: ReactNode }) {
             </span>
           </div>
           <p className="rail-caption">
-            {queueCount} {queueCount === 1 ? "application" : "applications"} ·
-            Your decisions stay yours
+            {queueCount} {queueCount === 1 ? "application" : "applications"}
           </p>
         </div>
 
@@ -339,11 +333,6 @@ export function Shell({ children }: { children: ReactNode }) {
       </aside>
       <div className="workspace-main">
         <header className="workspace-topbar">
-          <div className="workspace-breadcrumb">
-            <span>Workspace</span>
-            <span aria-hidden="true">/</span>
-            <span>{current.label}</span>
-          </div>
           {state._workspace.demo === true && (
             <span className="demo-label">Demo · fictional profile</span>
           )}
@@ -388,7 +377,7 @@ export function Shell({ children }: { children: ReactNode }) {
         </header>
         <div className="desk">
           {client.preview && <PublicPreviewNotice />}
-          <div className="page-heading">
+          <div className={isDiscover ? "visually-hidden" : "page-heading"}>
             <div>
               <h1>{current.label}</h1>
             </div>
