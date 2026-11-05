@@ -207,9 +207,254 @@ const fs = require("node:fs");
       .getByRole("heading", { name: "No roles match these filters" })
       .waitFor();
     assert.equal(await page.locator(".discover-column").count(), 0);
+
+    // Exercise uneven city groups entirely in the browser. The disposable
+    // service and its application records retain their original fixture data.
+    const cities = [
+      "Toronto",
+      "Berlin",
+      "Singapore",
+      "Melbourne",
+      "Oslo",
+      "Helsinki",
+      "Dublin",
+      "Stockholm",
+      "Prague",
+      "Vienna",
+      "Zurich",
+    ];
+    const cityCounts = [10, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1];
+    const firstJob = state.jobs.find(
+      (job) =>
+        job.title === "Cloud Software Engineer" &&
+        job.employer === "Emberlane Systems",
+    );
+    assert.ok(firstJob, "The original fictional cloud role is available");
+    const layoutState = JSON.parse(JSON.stringify(state));
+    layoutState.jobs = cities.flatMap((city, cityIndex) =>
+      Array.from({ length: cityCounts[cityIndex] }, (_, index) => ({
+        ...firstJob,
+        id:
+          cityIndex === 0 && index === 0
+            ? firstJob.id
+            : `layout-city-${cityIndex}-role-${index}`,
+        title:
+          cityIndex === 0 && index === 0
+            ? firstJob.title
+            : `Layout Engineer ${cityIndex + 1}.${index + 1}`,
+        employer:
+          cityIndex === 0 && index === 0
+            ? firstJob.employer
+            : "Fictional Layout Studio",
+        city,
+        location: city,
+        saved: false,
+      })),
+    );
+    layoutState.profiles = layoutState.profiles.map((profile) => ({
+      ...profile,
+      locations: cities,
+    }));
+    layoutState._workspace.preferred_locations = cities;
+    layoutState.applications = [];
+    const layoutRows = layoutState.jobs.map((job) => ({
+      job,
+      match: {
+        eligible_for_preparation: true,
+        hard_conflicts: [],
+        unknowns: [],
+        gaps: [],
+        evidence: [],
+        preferences: [],
+        salary_expectation: {},
+      },
+    }));
+    await page.route("**/api/state", (route) =>
+      route.fulfill({
+        json: { state: layoutState, token: "fictional-layout-only" },
+      }),
+    );
+    await page.route("**/api/rank", (route) =>
+      route.fulfill({
+        json: { result: layoutRows },
+      }),
+    );
+    const packedGroups = async (label) => {
+      await page.waitForFunction(
+        () =>
+          document.querySelector(".discover-board")?.dataset.compact === "true",
+      );
+      await settle();
+      await settle();
+      await bounds(label);
+      const groups = await page
+        .locator(".discover-column")
+        .evaluateAll((columns) =>
+          columns.map((column) => {
+            const rect = column.getBoundingClientRect();
+            return {
+              city: column.querySelector("h2").textContent.trim(),
+              top: rect.top,
+              bottom: rect.bottom,
+              left: rect.left,
+              right: rect.right,
+              cards: column.querySelectorAll(".discover-card").length,
+            };
+          }),
+        );
+      assert.deepEqual(
+        groups.map((group) => group.city),
+        cities,
+        `${label}: location priority and DOM order are retained`,
+      );
+      assert.deepEqual(
+        groups.map((group) => group.cards),
+        cityCounts,
+        `${label}: every city keeps its complete card group`,
+      );
+      for (let index = 0; index < groups.length; index++) {
+        if (index > 0)
+          assert.ok(
+            groups[index].top >= groups[index - 1].top - 1,
+            `${label}: later cities never backfill ahead of earlier priorities`,
+          );
+        for (const other of groups.slice(index + 1)) {
+          const group = groups[index];
+          assert.ok(
+            group.right <= other.left + 1 ||
+              other.right <= group.left + 1 ||
+              group.bottom <= other.top + 1 ||
+              other.bottom <= group.top + 1,
+            `${label}: ${group.city} and ${other.city} do not overlap`,
+          );
+        }
+      }
+      return groups;
+    };
+    await page.setViewportSize({ width: 1640, height: 1000 });
+    await page.goto(base + "/discover/?view=all");
+    await cloud().waitFor();
+    const desktopGroups = await packedGroups("Uneven desktop city groups");
+    for (const group of desktopGroups.slice(0, 4))
+      assert.ok(
+        Math.abs(group.top - desktopGroups[0].top) <= 1,
+        "The first four priority cities start in the first desktop row",
+      );
+    assert.ok(
+      desktopGroups[4].top >= desktopGroups[1].bottom + 15,
+      "The next city starts below a complete shorter group with a gutter",
+    );
+    assert.ok(
+      desktopGroups[4].top < desktopGroups[0].bottom / 2,
+      "Later cities fill the shorter columns before the ten-card city ends",
+    );
+    assert.deepEqual(
+      await page.locator(".discover-card-open h3").allTextContents(),
+      layoutState.jobs.map((job) => job.title),
+      "Card DOM and inspector navigation order retain the original city sequence",
+    );
+    await page.screenshot({ path: `${output}/uneven-cities-1640.png` });
+    await cloud().click();
+    await page
+      .locator(".discover-inspector")
+      .getByRole("heading", {
+        name: firstJob.title,
+        exact: true,
+      })
+      .waitFor();
+    const assessmentGroups = await packedGroups("Uneven cities with inspector");
+    assert.ok(
+      assessmentGroups[4].top < assessmentGroups[0].bottom / 2,
+      "The inspector retains compact shorter columns",
+    );
+    await page.screenshot({
+      path: `${output}/uneven-cities-inspector-1640.png`,
+    });
+    await page.setViewportSize({ width: 1280, height: 1000 });
+    await packedGroups("Uneven cities after inspector width change");
+    await page
+      .locator(".discover-inspector")
+      .getByRole("button", {
+        name: "Close opportunity details",
+        exact: true,
+      })
+      .click();
+    await packedGroups("Uneven cities after closing inspector");
+
+    await page.setViewportSize({ width: 1640, height: 1000 });
+    const beforeGrowth = await packedGroups("Uneven cities before text growth");
+    await page
+      .locator(".discover-column")
+      .nth(1)
+      .locator(".discover-card-open h3")
+      .evaluate((heading) => {
+        heading.textContent =
+          "Senior platform and reliability engineer ".repeat(18);
+      });
+    const afterGrowth = await packedGroups(
+      "Uneven cities after live text growth",
+    );
+    assert.ok(
+      afterGrowth[1].bottom - afterGrowth[1].top >
+        beforeGrowth[1].bottom - beforeGrowth[1].top + 100,
+      "Live content growth changes the city height and repacks subsequent cities",
+    );
+
+    // Reload the intercepted fixture to restore the original short title.
+    for (const width of [320, 390]) {
+      await page.setViewportSize({ width, height: 1000 });
+      await page.goto(base + "/discover/?view=all");
+      await cloud().waitFor();
+      const mobileGroups = await packedGroups(`${width}px uneven city groups`);
+      for (let index = 1; index < mobileGroups.length; index++) {
+        assert.ok(
+          Math.abs(mobileGroups[index].left - mobileGroups[0].left) <= 1,
+          `${width}px: city groups form one readable column`,
+        );
+        assert.ok(
+          mobileGroups[index].top >= mobileGroups[index - 1].bottom + 21,
+          `${width}px: complete city groups retain the mobile gutter`,
+        );
+      }
+      if (width === 390)
+        await page.screenshot({ path: `${output}/uneven-cities-390.png` });
+    }
+    await cloud().click();
+    const mobileInspector = page.locator(".discover-inspector");
+    for (let index = 0; index < 10; index++)
+      await mobileInspector
+        .getByRole("button", {
+          name: "Next opportunity",
+          exact: true,
+        })
+        .click();
+    const nextCityJob = layoutState.jobs[10];
+    await mobileInspector
+      .getByRole("heading", {
+        name: nextCityJob.title,
+        exact: true,
+      })
+      .waitFor();
+    await mobileInspector
+      .getByRole("button", {
+        name: "Close opportunity details",
+        exact: true,
+      })
+      .click();
+    await page.waitForFunction(
+      (label) => document.activeElement?.getAttribute("aria-label") === label,
+      `Assess ${nextCityJob.title} at ${nextCityJob.employer}`,
+    );
+    const restoredCard = await page
+      .locator(".discover-card-open:focus")
+      .boundingBox();
+    assert.ok(
+      restoredCard.y >= 0 && restoredCard.y < 1000,
+      "Closing mobile assessment restores visible focus across packed city groups",
+    );
     assert.deepEqual(errors, []);
     console.log(
-      "Discover layout passed: complete readable columns, responsive inspector, wrapped-row focus, single/empty locations and long content.",
+      "Discover layout passed: compact uneven cities, complete readable groups, responsive inspector, focus restoration, single/empty locations and long content.",
     );
   } finally {
     await browser.close();

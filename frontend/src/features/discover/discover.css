@@ -203,6 +203,8 @@
   min-height: 0;
 }
 .discover-board {
+  --discover-row-size: 4px;
+  --discover-group-gap: 16px;
   display: grid;
   flex: 1;
   min-width: 0;
@@ -210,10 +212,14 @@
     auto-fill,
     minmax(min(100%, var(--discover-column-min)), 1fr)
   );
-  gap: 16px;
+  gap: var(--discover-group-gap);
   align-items: start;
   align-content: start;
   padding: 4px 4px 12px;
+}
+.discover-board[data-compact="true"] {
+  grid-auto-rows: var(--discover-row-size);
+  row-gap: 0;
 }
 .discover-layout.has-inspector .discover-board {
   overflow-y: auto;
@@ -952,7 +958,7 @@
     display: block;
   }
   .discover-board {
-    gap: 22px;
+    --discover-group-gap: 22px;
     overflow: visible;
     padding: 2px;
   }

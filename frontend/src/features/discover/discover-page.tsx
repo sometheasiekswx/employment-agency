@@ -135,6 +135,7 @@ export function DiscoverPage() {
   const saveErrorNotice = useRef<HTMLDivElement>(null);
   const opener = useRef<HTMLButtonElement | null>(null);
   const cardButtons = useRef(new Map<string, HTMLButtonElement>());
+  const board = useRef<HTMLDivElement>(null);
   const inspectorLayout = useRef<HTMLDivElement>(null);
   const mobile = useMobileInspector();
   const profile = state.profiles.find((item) => item.id === profileId);
@@ -213,6 +214,49 @@ export function DiscoverPage() {
     (row) => row.job.id === selectedId,
   );
   const error = ranking.key === requestKey ? ranking.error : "";
+  const boardGroups = JSON.stringify(
+    groups.map(([city, opportunities]) => [
+      city,
+      opportunities.map(({ job }) => job.id),
+    ]),
+  );
+
+  useLayoutEffect(() => {
+    const element = board.current;
+    if (!element || typeof ResizeObserver === "undefined") return;
+    const sections = [
+      ...element.querySelectorAll<HTMLElement>(".discover-column"),
+    ];
+    let frame = 0;
+    const pack = () => {
+      const style = getComputedStyle(element);
+      const rowSize = parseFloat(style.getPropertyValue("--discover-row-size"));
+      const gap = parseFloat(style.getPropertyValue("--discover-group-gap"));
+      // Read every natural section height before writing placement. Sections
+      // stay in source order; shorter city groups release space for later ones.
+      const spans = sections.map((section) =>
+        Math.ceil((section.getBoundingClientRect().height + gap) / rowSize),
+      );
+      sections.forEach((section, index) => {
+        const span = `span ${spans[index]}`;
+        if (section.style.gridRowEnd !== span) section.style.gridRowEnd = span;
+      });
+      element.dataset.compact = "true";
+    };
+    const schedule = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(pack);
+    };
+    // Pack synchronously before the selected card's scroll/focus restoration.
+    pack();
+    const observer = new ResizeObserver(schedule);
+    observer.observe(element);
+    sections.forEach((section) => observer.observe(section));
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+    };
+  }, [boardGroups, inspectorOpen, mobile]);
 
   useEffect(() => {
     const animations = bookmarkAnimations.current;
@@ -660,6 +704,7 @@ export function DiscoverPage() {
           className={`discover-layout ${selected && !mobile ? "has-inspector" : ""}`}
         >
           <div
+            ref={board}
             className="discover-board"
             aria-label="Opportunities by location"
             tabIndex={selected && !mobile ? 0 : undefined}
