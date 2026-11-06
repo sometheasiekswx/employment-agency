@@ -9,6 +9,7 @@ const interactive =
   "button, a, input, textarea, select, summary, [contenteditable], [role='button']";
 const editable = "input, textarea, select, [contenteditable]";
 const headerRegion = ".discover-sheet-header";
+const footerRegion = ".discover-inspector-footer";
 
 type Bounds = { collapsed: number; expanded: number };
 type Sample = { y: number; time: number };
@@ -22,7 +23,7 @@ type Gesture = {
   lastY: number;
   intentY: number;
   direction: number;
-  fromBody: boolean;
+  readsContent: boolean;
   startedExpanded: boolean;
   scrollBase: number;
   addedScroll: number;
@@ -269,7 +270,8 @@ export function useSheetGesture({
       const target = event.target as Element;
       const fromHeader = Boolean(target.closest(headerRegion));
       const fromBody = !fromHeader && scroller.contains(target);
-      if (!fromHeader && !fromBody) return;
+      const fromFooter = Boolean(target.closest(footerRegion));
+      if (!fromHeader && !fromBody && !fromFooter) return;
       if (
         target.closest(editable) ||
         window.getSelection()?.isCollapsed === false
@@ -290,7 +292,7 @@ export function useSheetGesture({
           performance.now() - lastScroll < scrollCooldown)
       )
         return;
-      const owner = fromHeader ? element : scroller;
+      const owner = fromBody ? scroller : element;
       callbacks.current.onGrab(element);
       const height = visibleHeight(element);
       const bounds = boundsFor(element);
@@ -308,7 +310,7 @@ export function useSheetGesture({
         lastY: event.clientY,
         intentY: event.clientY,
         direction: 0,
-        fromBody,
+        readsContent: fromBody || fromFooter,
         startedExpanded: destination.current,
         scrollBase: scroller.scrollTop,
         addedScroll: 0,
@@ -361,7 +363,11 @@ export function useSheetGesture({
       remaining -= resized - drag.height;
       drag.height = resized;
       renderHeight(element, resized, drag.bounds);
-      if (drag.fromBody && remaining > 0 && resized === drag.bounds.expanded) {
+      if (
+        drag.readsContent &&
+        remaining > 0 &&
+        resized === drag.bounds.expanded
+      ) {
         if (drag.maximumScroll === null) {
           // Measure once at the expansion boundary, not on every pointer move.
           drag.maximumScroll = Math.max(
@@ -410,7 +416,7 @@ export function useSheetGesture({
         return;
       }
       const reading =
-        drag.fromBody &&
+        drag.readsContent &&
         !drag.startedExpanded &&
         ((height > drag.initialHeight + threshold && drag.direction > 0) ||
           drag.addedScroll > 0);
@@ -462,8 +468,8 @@ export function useSheetGesture({
       callbacks.current.onGrab(element);
       snap(true, true);
     };
-    // One delegated listener covers the whole header, including company name
-    // and gaps around tabs, without double-consuming nested bubbling events.
+    // One delegated listener covers header, reading content and footer controls.
+    // A vertical footer swipe resizes/reads; a tap retains its ordinary action.
     const targets = [element];
     for (const target of targets) {
       target.addEventListener("pointerdown", down);
@@ -474,7 +480,7 @@ export function useSheetGesture({
       target.addEventListener("click", click, true);
     }
     scroller.addEventListener("scroll", onScroll, { passive: true });
-    scroller.addEventListener("wheel", wheel, { passive: false });
+    element.addEventListener("wheel", wheel, { passive: false });
     // An arrival can move a pending press off its original hit target before
     // the drag threshold is reached. Finish that press even when pointer-up
     // lands outside the toolbar; active drags still use owner capture.
@@ -495,7 +501,7 @@ export function useSheetGesture({
         target.removeEventListener("click", click, true);
       }
       scroller.removeEventListener("scroll", onScroll);
-      scroller.removeEventListener("wheel", wheel);
+      element.removeEventListener("wheel", wheel);
       window.removeEventListener("pointerup", up);
       window.removeEventListener("pointercancel", interrupted);
       updateScrollAction.current = () => {};

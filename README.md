@@ -24,7 +24,7 @@ Six fictional roles · Four locations · No sign-in
 
 ### Desktop · Keep the shortlist in view
 
-Compare opportunities, inspect supporting evidence and move between roles in the same workspace.
+Compare opportunities, choose a profile in Filters and inspect supporting evidence in the same workspace.
 
 <a href="docs/media/discover-review.gif">
   <picture>
@@ -37,13 +37,13 @@ Compare opportunities, inspect supporting evidence and move between roles in the
 
 ### Mobile · Search, assess, swipe
 
-Search as you type. Drag details up to read, down to close, or tap outside to return to your shortlist.
+Search as you type. Swipe anywhere in the partial sheet to expand or close. Keep swiping upward to move straight into reading.
 
 <p align="center">
   <a href="docs/media/mobile-review.gif">
     <picture>
       <source media="(prefers-reduced-motion: reduce)" srcset="docs/media/mobile-review.png">
-      <img src="docs/media/mobile-review.gif" alt="Mobile Opportunities workspace filtering roles live, smoothly opening a details sheet, dragging to expand and dismiss, and returning to the shortlist" width="390">
+      <img src="docs/media/mobile-review.gif" alt="Mobile Opportunities filtering fictional roles live, expanding and reading in one continuous swipe, dragging from the footer, and returning to the shortlist" width="390">
     </picture>
   </a>
 </p>
@@ -85,6 +85,8 @@ npm --prefix frontend run build
 ```
 
 Open **http://127.0.0.1:8766**. Keep Terminal open; Ctrl+C stops the app. `../career-workspace` keeps personal data outside the public software checkout. On Windows, use `py -3` and `.venv\Scripts\python`. Node is needed to build the interface; the installed app runs on Python.
+
+For private iPhone access while the Mac runs the app, use the source checkout's [Tailscale setup](docs/tailscale.md).
 
 The public demo follows checked `main` releases. The published **v0.6.0 wheel contains its earlier interface**; updating the public demo does not upgrade an installed workspace. Export a backup and test a restored copy before upgrading. [Installation, Windows guidance and recovery](docs/running-locally.md) · [Release downloads](https://github.com/sometheasiekswx/employment-agency/releases) · [Offline demo](docs/demo.md#existing-cli-demo).
 
@@ -133,7 +135,7 @@ npm --prefix frontend run build
 
 <picture>
   <source media="(prefers-reduced-motion: reduce)" srcset="docs/media/application-documents.png">
-  <img src="docs/media/application-documents.gif" alt="Fictional application documents and their preserved versions in History" width="1120" loading="lazy">
+  <img src="docs/media/application-documents.gif" alt="Fictional application document files, source evidence and their preserved versions in History" width="1120" loading="lazy">
 </picture>
 
 [Static document preview](docs/media/application-documents.png) · [Capture provenance](docs/demo.md#current-interface-gifs)

@@ -337,6 +337,37 @@ it("expands a deliberate short body swipe and sends excess travel into reading b
   ).toHaveAttribute("aria-expanded", "true");
 });
 
+it.each(["Prepare draft", "Save Engineer", "footer padding"])(
+  "expands a short reading swipe beginning on %s without activating an action",
+  (region) => {
+    const { dialog, props, point } = touchFixture();
+    const target =
+      region === "footer padding"
+        ? dialog.querySelector<HTMLElement>(".discover-inspector-footer")!
+        : screen.getByRole("button", { name: region });
+    point("pointerdown", 780, 0, target);
+    point("pointermove", 710, 100, target);
+    point("pointerup", 710, 250, window);
+    expect(
+      screen.getByRole("button", { name: "Resize opportunity details" }),
+    ).toHaveAttribute("aria-expanded", "true");
+    expect(props.onPrepare).not.toHaveBeenCalled();
+    expect(props.onSave).not.toHaveBeenCalled();
+  },
+);
+
+it("continues a footer-origin reading swipe into the content before release", () => {
+  const { body, point } = touchFixture();
+  const target = screen.getByRole("button", { name: "Prepare draft" });
+  point("pointerdown", 790, 0, target);
+  point("pointermove", 320, 300, target);
+  expect(body.scrollTop).toBeGreaterThan(100);
+  point("pointerup", 320, 450, window);
+  expect(
+    screen.getByRole("button", { name: "Resize opportunity details" }),
+  ).toHaveAttribute("aria-expanded", "true");
+});
+
 it.each(["pointercancel", "second pointer"])(
   "restores owned reading and the committed detent after %s",
   async (cancellation) => {

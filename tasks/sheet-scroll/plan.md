@@ -26,3 +26,15 @@ Research:
 - Vaul current source: 25% dismissal distance and velocity thresholds; do not equate its implementation defaults with universal best timing. https://raw.githubusercontent.com/emilkowalski/vaul/main/src/constants.ts
 - Apple fluid interfaces: direct tracking, interruptibility, reversal and velocity continuity. https://developer.apple.com/videos/play/wwdc2018/803/
 - Motion numeric/inertia APIs were checked against installed motion-dom14.9 types/source before use. https://motion.dev/docs/animate
+
+## Footer and showcase follow-up
+
+After publication of bad915b, the user reported swipes beginning below the company and on Prepare draft. The documented interview confirmed: while partially open, vertical swipes anywhere from the job title through footer buttons and bottom padding resize the sheet; taps retain their action. Fully expanded content keeps native scrolling. There are no open design decisions or new domain terms requiring a glossary/ADR.
+
+The user authorized the fix, refreshed desktop/mobile README GIFs, review and push. The existing checked public-demo release remains the publication path; private workspaces and installed builds stay separate.
+
+1. Preserve a native-touch baseline matrix covering title, body/disclosures, enabled and disabled footer controls, footer notes/padding and background scroll. Add a regression that fails on the omitted footer region.
+2. Extend the existing dialog's delegated gesture ownership and predeclared touch policy to its footer. Retain same-contact reading, cancellation, rapid reversal, taps, focus, Back/Escape, draft guards and reduced motion. Contain modal/backdrop scroll chaining without changing page position.
+3. Verify native Chromium touch with on-screen coordinates, scoped WebKit checks, desktop/mobile screenshots and recordings. Run units/lint/types/build plus existing browser/public-preview checks.
+4. Refresh the existing fictional showcase captures after the verified export. Show single-contact expansion into reading, footer-origin expansion, native subsequent scrolling and drag-to-close. Keep lossless 2x sources, width-only display caps, correct aspect ratios and reduced-motion posters; inspect GitHub's rendered README.
+5. Obtain an independent review, resolve material findings, commit/push named files, verify all CI gates and the exact live public-demo release. Record limitations without equating desktop WebKit with physical iPhone testing.

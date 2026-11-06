@@ -36,8 +36,18 @@
   cursor: grabbing;
   user-select: none;
 }
-.discover-sheet-header {
+.discover-sheet-header,
+.discover-dialog .discover-inspector-footer {
   touch-action: pan-x pinch-zoom;
+}
+
+.discover-dialog {
+  overscroll-behavior: contain;
+}
+.discover-dialog::backdrop {
+  overflow: hidden;
+  overscroll-behavior: contain;
+  touch-action: pinch-zoom;
 }
 .discover-sheet-header,
 .discover-inspector-header {

@@ -23,7 +23,11 @@ fs.mkdirSync(output, { recursive: true });
     const page = await context.newPage();
     page.setDefaultTimeout(8000);
     const errors = [];
+    const mutations = [];
     page.on("pageerror", (e) => errors.push(e.message));
+    page.on("request", (request) => {
+      if (request.method() === "POST") mutations.push(request.url());
+    });
     const state = (
       await (await context.request.get(base + "/api/state")).json()
     ).state;
@@ -69,6 +73,7 @@ fs.mkdirSync(output, { recursive: true });
       delta,
       {
         fraction = 0.7,
+        xFraction = 0.5,
         steps = 24,
         hold = 150,
         beforeEnd,
@@ -77,8 +82,13 @@ fs.mkdirSync(output, { recursive: true });
       } = {},
     ) {
       const r = await locator.boundingBox();
-      const x = r.x + r.width / 2,
+      const x = r.x + r.width * xFraction,
         y = r.y + r.height * fraction;
+      assert.ok(
+        Math.min(y, y + delta, y + delta + reverse) > 0 &&
+          Math.max(y, y + delta, y + delta + reverse) < 844,
+        "Native touch evidence must remain inside the visible viewport",
+      );
       await session.send("Input.dispatchTouchEvent", {
         type: "touchStart",
         touchPoints: [{ x, y }],
@@ -191,6 +201,15 @@ fs.mkdirSync(output, { recursive: true });
     );
     await open();
     const summary = body.locator("summary").first();
+    // Bring the disclosure into the upper visible body so a real downward
+    // contact can cross the dismissal boundary without leaving the screen.
+    await summary.evaluate((element) => {
+      const scroller = element.closest(".discover-inspector-body");
+      scroller.scrollTop +=
+        element.getBoundingClientRect().top -
+        scroller.getBoundingClientRect().top -
+        20;
+    });
     await drag(summary, 155, { fraction: 0.5 });
     await panel.waitFor({ state: "detached" });
     await open();
@@ -202,9 +221,123 @@ fs.mkdirSync(output, { recursive: true });
     );
     await page.keyboard.press("Escape");
     await panel.waitFor({ state: "detached" });
+
+    for (const region of [
+      "title",
+      "footer action",
+      "bookmark",
+      "footer padding",
+    ]) {
+      await page.evaluate(() => window.scrollTo(0, 180));
+      await open();
+      const position = await page.evaluate(() => scrollY);
+      const height = (await panel.boundingBox()).height;
+      const footer = panel.locator(".discover-inspector-footer");
+      const target =
+        region === "title"
+          ? body.locator("h2")
+          : region === "footer action"
+            ? footer.getByRole("link", {
+                name: "Review documents",
+                exact: true,
+              })
+            : region === "bookmark"
+              ? footer.locator("button[aria-pressed] svg")
+              : footer;
+      const requests = mutations.length;
+      await drag(target, region === "footer action" ? -470 : -70, {
+        fraction: region === "footer padding" ? 0.95 : 0.5,
+        xFraction: region === "footer padding" ? 0.025 : 0.5,
+        beforeEnd: async () => {
+          assert.ok((await panel.boundingBox()).height > height + 50);
+          if (region === "footer action")
+            assert.ok(
+              (await body.evaluate((element) => element.scrollTop)) > 90,
+              "Footer contact expands then reads before finger lift",
+            );
+        },
+      });
+      await settle();
+      assert.equal(await grip.getAttribute("aria-expanded"), "true", region);
+      assert.equal(await page.evaluate(() => scrollY), position);
+      assert.equal(
+        mutations.length,
+        requests,
+        "Dragging never activates an action",
+      );
+      assert.equal(
+        await panel
+          .getByRole("button", { name: "Overview", exact: true })
+          .getAttribute("aria-pressed"),
+        "true",
+      );
+      await page.keyboard.press("Escape");
+      await panel.waitFor({ state: "detached" });
+    }
+
+    // Exercise the real disabled-control and explanatory-note markup with a
+    // controlled fictional eligibility response, without changing its CSS.
+    await page.route("**/api/rank", async (route) => {
+      const response = await route.fetch();
+      const data = await response.json();
+      const backend = data.result.find(
+        (entry) => entry.job.employer === "Bayform Labs",
+      );
+      assert.ok(backend);
+      backend.match.eligible_for_preparation = false;
+      await route.fulfill({ response, json: data });
+    });
+    await page.goto(base + "/discover/?view=all");
+    await role.waitFor();
+    const backend = page.getByRole("button", {
+      name: "Assess Backend Engineer at Bayform Labs",
+      exact: true,
+    });
+    for (const region of ["disabled action", "footer note"]) {
+      await backend.tap();
+      await panel.waitFor();
+      await settle();
+      const disabled = panel.getByRole("button", {
+        name: "Prepare draft",
+        exact: true,
+      });
+      assert.equal(await disabled.isDisabled(), true);
+      const position = await page.evaluate(() => scrollY);
+      const requests = mutations.length;
+      await drag(
+        region === "disabled action"
+          ? disabled
+          : panel.locator(".discover-preparation-note"),
+        -70,
+        { fraction: 0.5 },
+      );
+      await settle();
+      assert.equal(await grip.getAttribute("aria-expanded"), "true", region);
+      assert.equal(await page.evaluate(() => scrollY), position);
+      assert.equal(mutations.length, requests);
+      await page.keyboard.press("Escape");
+      await panel.waitFor({ state: "detached" });
+    }
+    await open();
+    await panel
+      .getByRole("link", { name: "Review documents", exact: true })
+      .tap();
+    await page.waitForURL(
+      (url) => url.searchParams.get("panel") === "documents",
+    );
+    const workbench = page.locator(".opportunities-workbench:visible");
+    await workbench.waitFor();
+    await workbench
+      .getByRole("button", { name: "Close application workspace", exact: true })
+      .tap();
+    await workbench.waitFor({ state: "hidden" });
     await page.emulateMedia({ reducedMotion: "reduce" });
     await open();
-    await drag(body, -60);
+    await drag(
+      panel.getByRole("link", { name: "Review documents", exact: true }),
+      -60,
+      { fraction: 0.5 },
+    );
     await settle();
     assert.equal(await grip.getAttribute("aria-expanded"), "true");
     await page.keyboard.press("Escape");
@@ -214,7 +347,7 @@ fs.mkdirSync(output, { recursive: true });
     await context.close();
     await video.saveAs(output + "/native-body-scroll.webm");
     console.log(
-      "PASS: short-body expansion, same-contact expansion-to-reading, native subsequent scroll, company/header collapse, lower-body/disclosure dismissal, taps/focus and reduced motion.",
+      "PASS: body/footer/disabled-control expansion, same-contact reading, native subsequent scroll, fixed background, company/header collapse, on-screen body/disclosure dismissal, ordinary taps/focus and reduced motion.",
     );
   } finally {
     await browser.close();

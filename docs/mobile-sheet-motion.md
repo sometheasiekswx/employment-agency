@@ -22,6 +22,8 @@ This explicit first-contact handoff follows Apple's detent-then-content behavior
 
 Downward dragging from anywhere in peek lowers the sheet, including when content already has a scroll offset. Touch links and disclosures remain ordinary taps until 8px of vertical intent; editable controls and active selection are excluded. Dismissal uses 25% of peek height, or a downward flick with at least 32px travel, recent speed of 600px/s and a 160ms projection across that boundary. A deliberate upward reversal cancels dismissal even after pausing; 4px direction hysteresis filters touch noise. These values are app-specific starting points checked in recordings. Vaul's current source provides a useful 25% reference, not a platform requirement. Native scrolling that began in the expanded body is not converted into dismissal mid-contact.
 
+The reading region includes footer actions, explanatory notes and bottom padding. A short upward swipe there commits expansion, and excess movement in the same contact reads the body. A deliberate vertical drag suppresses its resulting click; ordinary taps still open documents, save a role or prepare a draft through existing safeguards. The footer declares its touch policy before contact, so the browser cannot cancel its pointer stream into background scrolling. The dialog and backdrop contain scroll chaining; the backdrop establishes a non-scrollable scroll container. This follows the browser guidance without fixing the document body or changing its scroll position. Expanded body contacts retain their native scroll policy.
+
 ## Invariants and implementation
 
 - Native `dialog.showModal()`, Escape/cancel/close, browser Back, shortlist position and focus restoration remain intact.
@@ -46,6 +48,7 @@ See [the task contract](../tasks/mobile-workspace/plan.md) and [verification rec
 - [Apple: scrolling expands the sheet](https://developer.apple.com/documentation/uikit/uisheetpresentationcontroller/prefersscrollingexpandswhenscrolledtoedge) — upward scrolling first increases the detent, then scrolls content at the largest detent.
 - [Emil Kowalski: Building a drawer component](https://emilkowal.ski/ui/building-a-drawer-component) — scroll-top ownership, a 100ms scroll cooldown, direct style updates; its 500ms animation is a reference, not a universal requirement.
 - [W3C Pointer Events](https://www.w3.org/TR/pointerevents3/) — native gesture arbitration through `touch-action`, capture and cancellation; changing touch policy after a gesture begins does not transfer ownership.
+- [Chrome: prevent page scroll underneath a modal dialog](https://developer.chrome.com/docs/modern-web-guidance/guides/ui-behaviors/prevent-page-scroll-under-modal-dialog) — modal inertness does not itself lock background scrolling; contain chaining on the dialog and a scroll-container backdrop. Cross-engine verification remains necessary.
 - [Vaul executable defaults](https://raw.githubusercontent.com/emilkowalski/vaul/main/src/constants.ts) — current 25% distance threshold, velocity reference and scroll cooldown; implementation defaults are not universal best values.
 - [Motion: animate](https://motion.dev/docs/animate), [drag](https://motion.dev/docs/react-drag) — controlled springs, velocity, axis/constraints and interruption. Current documentation must be checked against the installed version.
 

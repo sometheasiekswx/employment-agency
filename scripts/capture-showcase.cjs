@@ -18,6 +18,7 @@ const CAPTURE_SCALE = 2;
 const CAPTURE_FPS = 20;
 const selected = new Set((process.env.SHOWCASE_CLIPS || 'desktop,mobile,documents').split(','));
 assert.match(origin, /^http:\/\/127\.0\.0\.1:\d+$/);
+assert.notEqual(new URL(origin).port, '8766', 'Never capture the private app');
 fs.mkdirSync(output, { recursive: true });
 fs.mkdirSync(media, { recursive: true });
 
@@ -45,13 +46,17 @@ async function pacedScroll(page, locator, distance, steps = 18) {
   }
 }
 
-async function touchDrag(page, locator, distance, fraction = 0.5) {
+async function touchDrag(page, locator, distance, { fraction = 0.5, beforeEnd } = {}) {
   const client = await page.context().newCDPSession(page);
   try {
     const box = await locator.boundingBox();
     assert.ok(box, 'Drag surface must be visible');
     const x = box.x + box.width / 2;
     const y = box.y + box.height * fraction;
+    const viewport = page.viewportSize();
+    assert.ok(viewport && x > 0 && x < viewport.width &&
+      Math.min(y, y + distance) > 0 && Math.max(y, y + distance) < viewport.height,
+    'Published touch gestures must stay inside the visible viewport');
     await client.send('Input.dispatchTouchEvent', {
       type: 'touchStart', touchPoints: [{ x, y }],
     });
@@ -61,6 +66,7 @@ async function touchDrag(page, locator, distance, fraction = 0.5) {
       });
       await wait(page, 16);
     }
+    if (beforeEnd) await beforeEnd();
     await wait(page, 120);
     await client.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
   } finally { await client.detach(); }
@@ -212,7 +218,14 @@ async function desktop(page, note, zero) {
   const start_ms = Date.now() - zero;
   note('Location shortlist');
   await capturePoster(page, path.join(output, 'discover-board-poster.png'));
-  await wait(page, 1900);
+  await wait(page, 1000);
+  const filters = page.locator('.discover-filters > summary');
+  await filters.click();
+  await page.getByRole('combobox', { name: 'Search profile', exact: true }).waitFor();
+  note('Find the profile chooser inside Filters');
+  await wait(page, 850);
+  await filters.click();
+  await wait(page, 450);
   await card.hover();
   await wait(page, 350);
   await card.click();
@@ -266,29 +279,54 @@ async function mobile(page, note, zero) {
   const inspector = page.locator('.discover-inspector');
   await inspector.waitFor();
   note('Slide the native review sheet up from the bottom');
-  await wait(page, 1200);
+  await wait(page, 800);
   const poster = relative(path.join(output, 'mobile-review-poster.png'));
   await capturePoster(page, path.join(root, poster));
   const grip = inspector.getByRole('button', { name: 'Resize opportunity details', exact: true });
-  await touchDrag(page, grip, -280);
-  note('Drag the grip upward to expand');
-  await wait(page, 900);
-  await inspector.getByText('Related evidence (1 fact)', { exact: true }).first().tap();
-  await wait(page, 650);
-  await touchDrag(page, inspector.locator('.discover-inspector-body'), -240, 0.72);
-  note('Read evidence and requirements with native touch scrolling');
-  await wait(page, 900);
-  await touchDrag(page, grip, 320);
-  note('Drag back to the peek position');
-  await wait(page, 700);
+  const body = inspector.locator('.discover-inspector-body');
+  const company = inspector.locator('.discover-inspector-company');
+  const footer = inspector.locator('.discover-inspector-footer');
+  await touchDrag(page, body, -470, {
+    fraction: 0.88,
+    beforeEnd: async () => assert.ok(await body.evaluate(element => element.scrollTop) > 90,
+      'The same contact must expand the partial sheet and scroll before lifting'),
+  });
+  note('Expand from the content and keep reading in one swipe');
+  await wait(page, 750);
+  assert.equal(await grip.getAttribute('aria-expanded'), 'true');
+  const previousScroll = await body.evaluate(element => element.scrollTop);
+  await touchDrag(page, body, -140, { fraction: 0.75 });
+  await wait(page, 350);
+  assert.ok(await body.evaluate(element => element.scrollTop) > previousScroll + 40,
+    'The next expanded contact must scroll natively');
+  note('Continue reading with native touch scrolling');
+  await wait(page, 550);
+  await touchDrag(page, company, 320);
+  note('Drag the company header down to the partial sheet');
+  await wait(page, 600);
   assert.equal(await grip.getAttribute('aria-expanded'), 'false');
-  await touchDrag(page, grip, 350);
+  await touchDrag(page, footer.getByRole('link', { name: 'Review documents', exact: true }), -330);
+  await wait(page, 600);
+  assert.equal(await grip.getAttribute('aria-expanded'), 'true');
+  assert.equal(await inspector.getByRole('button', { name: 'Overview', exact: true }).getAttribute('aria-pressed'), 'true',
+    'Swiping a footer control must not activate its document action');
+  note('Swipe up from the footer control to expand');
+  await touchDrag(page, company, 320);
+  await wait(page, 500);
+  assert.equal(await grip.getAttribute('aria-expanded'), 'false');
+  await touchDrag(page, body, 155, { fraction: 0.15 });
   await inspector.waitFor({ state: 'detached' });
-  note('Drag all the way down to dismiss');
+  note('Drag the partial-sheet content down to close');
   await wait(page, 650);
   await role.tap();
   await inspector.waitFor();
-  await wait(page, 750);
+  await wait(page, 550);
+  const evidence = inspector.getByText('Related evidence (1 fact)', { exact: true }).first();
+  await evidence.tap();
+  assert.equal(await evidence.evaluate(element => element.parentElement.open), true,
+    'An ordinary disclosure tap must still work after footer dragging');
+  note('Tap supporting evidence normally');
+  await wait(page, 500);
   await page.touchscreen.tap(180, 220);
   await inspector.waitFor({ state: 'detached' });
   note('Tap outside to dismiss');
@@ -302,31 +340,33 @@ async function documents(page, note, zero) {
   await ready(page);
   const start_ms = Date.now() - zero;
   note('Review application packages');
-  await wait(page, 1800);
+  await wait(page, 1300);
   await page.getByRole('button', { name: 'Assess Cloud Software Engineer at Emberlane Systems', exact: true }).click();
   await showPanel(page, 'documents');
+  await page.getByRole('combobox', { name: 'Document version', exact: true }).waitFor();
+  assert.match(await page.getByRole('link', { name: 'CV PDF', exact: true }).first().getAttribute('href'), /^\/files\//);
+  note('Review sample document files and their preserved version');
+  await wait(page, 1100);
+  await page.getByText('Supporting files & source evidence', { exact: true }).first().click();
+  await pacedScroll(page, page.locator('.opportunities-workbench-scroll'), 280, 12);
+  const evidenceFile = await page.getByRole('link', { name: 'Source evidence', exact: true }).first().boundingBox();
+  assert.ok(evidenceFile && evidenceFile.y > 0 &&
+    evidenceFile.y + evidenceFile.height < page.viewportSize().height,
+  'The supporting source-evidence file must be visible in the recording');
+  note('Inspect supporting files and source evidence');
   await wait(page, 1000);
-  await page.getByRole('button', { name: 'View / edit CV', exact: true }).first().click();
-  const editor = page.getByRole('dialog');
-  await editor.waitFor();
-  await editor.locator('iframe').waitFor();
-  note('View the generated sample CV and document blocks');
-  await wait(page, 1900);
   const poster = relative(path.join(output, 'application-documents-poster.png'));
   await capturePoster(page, path.join(root, poster));
-  await wait(page, 1700);
-  await editor.getByRole('button', { name: 'Close', exact: true }).click();
-  await wait(page, 600);
-  await page.getByRole('link', { name: 'History', exact: true }).click();
+  await page.getByRole('link', { name: 'View application history', exact: true }).click();
   await page.getByRole('heading', { name: 'History', level: 1, exact: true }).waitFor();
   note('Find preserved document versions in History');
-  await wait(page, 2000);
+  await wait(page, 1400);
   await page.locator('.history-version summary').first().click();
-  await wait(page, 1300);
+  await wait(page, 1200);
   await page.getByRole('link', { name: 'Opportunities', exact: true }).click();
   await page.getByRole('button', { name: 'Applications', exact: true }).click();
   await page.getByRole('group', { name: 'Application stage', exact: true }).waitFor();
-  await wait(page, 1400);
+  await wait(page, 1100);
   return { start_ms, end_ms: Date.now() - zero, poster };
 }
 
