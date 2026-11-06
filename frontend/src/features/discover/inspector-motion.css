@@ -19,6 +19,26 @@
   transform: rotate(0deg);
 }
 
+.discover-sheet-expand::before {
+  content: "";
+  position: absolute;
+  top: 5px;
+  left: calc(50% - 14px);
+  width: 28px;
+  height: 3px;
+  border-radius: 3px;
+  background: #6b6a74;
+}
+
+.discover-screen .discover-sheet-expand {
+  padding-top: 12px;
+}
+
+.discover-dialog[data-sheet-dragging] {
+  cursor: grabbing;
+  user-select: none;
+}
+
 .discover-sheet-expand[aria-expanded="true"] > svg {
   transform: rotate(180deg);
 }

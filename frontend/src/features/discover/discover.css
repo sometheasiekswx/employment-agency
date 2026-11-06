@@ -300,6 +300,10 @@
 .discover-screen .discover-card-open:active {
   transform: none;
 }
+.discover-screen .discover-card-open:focus-visible {
+  /* The full-card ring is the title action's focus indicator. */
+  outline: none;
+}
 .discover-screen .discover-card-open::after {
   content: "";
   position: absolute;
@@ -857,7 +861,7 @@
     justify-content: center;
     gap: 5px;
     width: 100%;
-    min-height: 33px;
+    min-height: 44px;
     padding: 5px;
     border: 0;
     border-radius: 0;
@@ -865,6 +869,9 @@
     color: var(--discover-muted);
     font-size: 11px;
     font-weight: 400;
+    touch-action: pan-x pinch-zoom;
+    user-select: none;
+    cursor: ns-resize;
   }
   .discover-inspector-toolbar {
     padding: 10px 14px;

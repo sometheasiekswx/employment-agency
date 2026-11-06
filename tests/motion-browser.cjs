@@ -146,7 +146,10 @@ async function settled(page, selector = inspectorSelector) {
               (animation.pending || animation.playState === "running")
             );
           });
-          stable = active ? 0 : stable + 1;
+          const resizing = [...document.querySelectorAll(selector)].some(
+            (element) => element.style.height,
+          );
+          stable = active || resizing ? 0 : stable + 1;
           if (stable >= 2) resolve();
           else if (performance.now() >= deadline)
             reject(new Error(`Animation did not settle: ${selector}`));
@@ -281,6 +284,17 @@ async function openWithPointer(page, label) {
 
 async function keyboardJourney(page, label) {
   await cloud(page).focus();
+  const focus = await cloud(page).evaluate((button) => ({
+    title: getComputedStyle(button).outlineStyle,
+    card: getComputedStyle(button.closest(".discover-card")).outlineStyle,
+  }));
+  assert.equal(focus.title, "none", "no duplicate title focus border");
+  assert.equal(
+    focus.card,
+    "solid",
+    "full-card keyboard focus is still visible",
+  );
+  await page.screenshot({ path: path.join(output, `${label}-card-focus.png`) });
   await startProbe(page, `${label}: keyboard open`);
   await page.keyboard.press("Enter");
   await heading(page, "Cloud Software Engineer").waitFor();
@@ -499,6 +513,7 @@ async function mobileSheet(page, session) {
   );
   await page.screenshot({ path: path.join(output, "mobile-settled.png") });
   const toggle = inspector(page).locator(".discover-sheet-expand");
+  await mobileGestures(page, session);
   await startProbe(page, "mobile rapid expand / collapse / expand");
   await toggle.click({ force: true });
   await toggle.click({ force: true });
@@ -570,6 +585,9 @@ async function mobileSheet(page, session) {
     },
     LayoutCount: after.LayoutCount - before.LayoutCount,
     RecalcStyleCount: after.RecalcStyleCount - before.RecalcStyleCount,
+    LayoutDurationMs: (after.LayoutDuration - before.LayoutDuration) * 1000,
+    RecalcStyleDurationMs:
+      (after.RecalcStyleDuration - before.RecalcStyleDuration) * 1000,
   });
   await page.evaluate(() => {
     window.__nativeDialogEvents = [];
@@ -599,6 +617,262 @@ async function mobileSheet(page, session) {
     (name) => document.activeElement?.getAttribute("aria-label") === name,
     cloudName,
   );
+}
+
+// Native touch input exercises touch-action arbitration and pointercancel;
+// synthetic DOM pointer events alone cannot prove scrolling is preserved.
+async function swipeSheet(page, session, source, distance, options = {}) {
+  const rect = await source.boundingBox();
+  assert.ok(rect, "gesture source is visible");
+  const x = options.content ? rect.x + rect.width - 8 : rect.x + rect.width / 2;
+  const y = options.content
+    ? rect.y + Math.min(120, rect.height * 0.4)
+    : rect.y + rect.height / 2;
+  // CDP round trips and geometry assertions must not turn a deliberate flick
+  // into a held drag. Supply a native input timeline for velocity-specific cases.
+  const clock = options.duration || options.reverse ? Date.now() / 1000 : null;
+  const duration = options.duration || 240;
+  const timestamp = (milliseconds) =>
+    clock === null ? {} : { timestamp: clock + milliseconds / 1000 };
+  await session.send("Input.dispatchTouchEvent", {
+    type: "touchStart",
+    touchPoints: [{ x, y }],
+    ...timestamp(0),
+  });
+  const steps = options.steps || 12;
+  for (let step = 1; step <= steps; step++) {
+    await session.send("Input.dispatchTouchEvent", {
+      type: "touchMove",
+      touchPoints: [{ x, y: y + (distance * step) / steps }],
+      ...timestamp((duration * step) / steps),
+    });
+    await frames(page, 1);
+  }
+  if (options.reverse) {
+    await page.waitForTimeout(100);
+    for (let step = 1; step <= 3; step++) {
+      await session.send("Input.dispatchTouchEvent", {
+        type: "touchMove",
+        touchPoints: [{ x, y: y + distance + (options.reverse * step) / 3 }],
+        ...timestamp(duration + 100 + step * 15),
+      });
+      await frames(page, 1);
+    }
+  }
+  if (options.pause) await page.waitForTimeout(options.pause);
+  const during = await inspector(page).evaluate((element) => ({
+    height: element.getBoundingClientRect().height,
+    dragging: element.hasAttribute("data-sheet-dragging"),
+  }));
+  assert.equal(
+    during.dragging,
+    options.dragging !== false,
+    options.dragging === false
+      ? "native scrolling does not drag the sheet"
+      : "tracks a live drag before release",
+  );
+  await assertFooter(page, "footer remains usable during the gesture");
+  await session.send("Input.dispatchTouchEvent", {
+    type: options.cancel ? "touchCancel" : "touchEnd",
+    touchPoints: [],
+    ...timestamp(
+      duration + (options.reverse ? 145 : 0) + (options.pause || 0) + 5,
+    ),
+  });
+  return during;
+}
+
+async function mobileGestures(page, session) {
+  const toggle = inspector(page).locator(".discover-sheet-expand");
+  const body = inspector(page).locator(".discover-inspector-body");
+  const height = () =>
+    inspector(page).evaluate(
+      (element) => element.getBoundingClientRect().height,
+    );
+  const expanded = () => toggle.getAttribute("aria-expanded");
+  const halfHeight = await height();
+  const beforeScroll = await page.evaluate(() => window.scrollY);
+
+  const intermediate = await swipeSheet(page, session, toggle, -280);
+  assert.ok(
+    Math.abs(intermediate.height - halfHeight - 280) < 2,
+    "sheet follows the finger 1:1",
+  );
+  await settled(page);
+  assert.equal(
+    await expanded(),
+    "true",
+    "drag up expands without a tap or double toggle",
+  );
+  const fullHeight = await height();
+  assert.ok(fullHeight > halfHeight + 150);
+  await page.screenshot({
+    path: path.join(output, "mobile-drag-expanded.png"),
+  });
+
+  await swipeSheet(page, session, body, -150, {
+    content: true,
+    dragging: false,
+  });
+  await page.waitForFunction(
+    () => document.querySelector(".discover-inspector-body").scrollTop > 30,
+  );
+  assert.equal(
+    await expanded(),
+    "true",
+    "upward reading scroll stays expanded",
+  );
+  // A downward content scroll that STARTS below the top belongs to the browser
+  // for its entire duration, even if it reaches the top with momentum.
+  await swipeSheet(page, session, body, 160, {
+    content: true,
+    dragging: false,
+  });
+  await settled(page);
+  assert.equal(
+    await expanded(),
+    "true",
+    "scrolling back to the top does not collapse",
+  );
+  await body.evaluate((element) => {
+    element.scrollTop = 0;
+  });
+  await page.waitForTimeout(150);
+  await swipeSheet(page, session, body, 260, { content: true });
+  await settled(page);
+  assert.equal(
+    await expanded(),
+    "false",
+    "downward drag starting at the top collapses",
+  );
+
+  await swipeSheet(page, session, body, -260, { content: true });
+  await settled(page);
+  assert.equal(
+    await expanded(),
+    "true",
+    "upward drag on collapsed content expands first",
+  );
+  await body.evaluate((element) => {
+    element.scrollTop = 120;
+  });
+  await swipeSheet(page, session, toggle, 280);
+  await settled(page);
+  assert.equal(
+    await expanded(),
+    "false",
+    "header can collapse at any content scroll position",
+  );
+  assert.ok(
+    (await body.evaluate((element) => element.scrollTop)) > 0,
+    "resizing preserves reading position",
+  );
+
+  await swipeSheet(page, session, toggle, -20, { pause: 120 });
+  await settled(page);
+  assert.equal(
+    await expanded(),
+    "false",
+    "short slow drags return to the original detent",
+  );
+  await swipeSheet(page, session, toggle, -100, { steps: 4, duration: 64 });
+  await settled(page);
+  assert.equal(
+    await expanded(),
+    "true",
+    "a short upward flick uses release momentum to expand",
+  );
+  await swipeSheet(page, session, toggle, 100, { steps: 4, duration: 64 });
+  await settled(page);
+  assert.equal(
+    await expanded(),
+    "false",
+    "a short downward flick uses release momentum to collapse",
+  );
+  await swipeSheet(page, session, toggle, -280, { reverse: 50 });
+  await settled(page);
+  assert.equal(
+    await expanded(),
+    "false",
+    "recent reversal beats the direction of the earlier drag",
+  );
+  await swipeSheet(page, session, toggle, -230, { cancel: true });
+  await settled(page);
+  assert.equal(
+    await expanded(),
+    "false",
+    "cancelled touch returns to its committed detent",
+  );
+
+  await toggle.click({ force: true });
+  // Grab during the slower part of the spring, so the native touch lands on
+  // the moving 44px handle rather than a different surface between CDP calls.
+  await page.waitForTimeout(150);
+  assert.ok(
+    await inspector(page).evaluate((element) => element.style.height),
+    "expansion is still running before it is grabbed",
+  );
+  const grabbed = await swipeSheet(page, session, toggle, 220);
+  assert.ok(
+    grabbed.height >= halfHeight - 1 && grabbed.height <= fullHeight + 1,
+  );
+  await settled(page);
+  assert.equal(
+    await expanded(),
+    "false",
+    "a new drag reverses an unfinished expansion",
+  );
+  await toggle.click({ force: true });
+  await page.waitForFunction(
+    () => document.querySelector(".discover-inspector").style.height,
+  );
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await frames(page, 2);
+  assert.equal(
+    await inspector(page).evaluate((element) => element.style.height),
+    "",
+    "live reduced motion cancels the height spring",
+  );
+  assert.equal(await expanded(), "true");
+  await toggle.click({ force: true });
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await frames(page, 2);
+
+  await toggle.click({ force: true });
+  await page.waitForFunction(
+    () => document.querySelector(".discover-inspector").style.height,
+  );
+  await page.setViewportSize({ width: 390, height: 700 });
+  await frames(page, 2);
+  assert.equal(
+    await inspector(page).evaluate((element) => element.style.height),
+    "",
+    "viewport resize clears transient height",
+  );
+  await assertFooter(page, "resized viewport retains usable actions");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await toggle.focus();
+  await page.keyboard.press("ArrowDown");
+  assert.equal(await expanded(), "false");
+  assert.equal(
+    await page.evaluate(() => window.scrollY),
+    beforeScroll,
+    "gestures preserve shortlist position",
+  );
+  assert.equal(
+    await inspector(page).evaluate((element) =>
+      element.matches("dialog:modal"),
+    ),
+    true,
+  );
+  await page.screenshot({
+    path: path.join(output, "mobile-drag-collapsed.png"),
+  });
+  report.checks.push({
+    label:
+      "native touch detents, 1:1 tracking, scrolling handoff, cancellation and interruption",
+    passed: true,
+  });
 }
 
 async function bookmarkRollback(page, readState, label, mobile) {
@@ -749,7 +1023,25 @@ async function reducedMotion(page, label, mobile) {
   await startProbe(page, `${label}: reduced before open`);
   await cloud(page).click();
   await heading(page, "Cloud Software Engineer").waitFor();
-  if (mobile) await inspector(page).locator(".discover-sheet-expand").click();
+  if (mobile) {
+    const toggle = inspector(page).locator(".discover-sheet-expand");
+    await toggle.click();
+    const session = await page.context().newCDPSession(page);
+    for (const distance of [280, -280]) {
+      await swipeSheet(page, session, toggle, distance);
+      await frames(page, 2);
+      assert.equal(
+        await inspector(page).evaluate((element) => element.style.height),
+        "",
+        "reduced motion snaps immediately after a direct drag",
+      );
+      assert.equal(
+        await toggle.getAttribute("aria-expanded"),
+        String(distance < 0),
+      );
+    }
+    await session.detach();
+  }
   await navigation(page, "Next").click();
   await settled(page);
   assert.equal(
@@ -840,6 +1132,8 @@ async function reducedMotion(page, label, mobile) {
     ]) {
       const context = await browser.newContext({
         viewport,
+        hasTouch: label === "mobile",
+        isMobile: label === "mobile",
         reducedMotion: "no-preference",
         recordVideo: { dir: path.join(output, "recordings"), size: viewport },
       });

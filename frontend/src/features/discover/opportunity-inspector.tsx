@@ -27,6 +27,7 @@ import { Action } from "@/components/controls";
 import { applicationHref, displayDate, safeUrl } from "@/lib/format";
 import type { Application, Fact, RankedJob } from "@/lib/models";
 import { advertisedSalary, requirementEvidence, roleStatus } from "./discovery";
+import { useSheetGesture } from "./use-sheet-gesture";
 import "./inspector-motion.css";
 
 type InspectorAnimation = ReturnType<typeof animate>;
@@ -154,9 +155,7 @@ export function OpportunityInspector({
 }: InspectorProps) {
   const { job, match } = row;
   const titleId = useId();
-  const dialog = useRef<HTMLDialogElement>(null);
   const inspector = useRef<HTMLElement>(null);
-  const body = useRef<HTMLDivElement>(null);
   const surfaceAnimation = useRef<InspectorAnimation | null>(null);
   const bodyAnimation = useRef<InspectorAnimation | null>(null);
   const closeGeneration = useRef(0);
@@ -167,9 +166,6 @@ export function OpportunityInspector({
     position: number;
     revision: number;
   } | null>(null);
-  const expansionOrigin = useRef<{ element: HTMLElement; top: number } | null>(
-    null,
-  );
   const title = useRef<HTMLHeadingElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
   const documentLink = useRef<HTMLAnchorElement>(null);
@@ -183,7 +179,18 @@ export function OpportunityInspector({
     button: HTMLButtonElement;
   } | null>(null);
   const [prepareFocusSignal, setPrepareFocusSignal] = useState(0);
-  const [expanded, setExpanded] = useState(false);
+  const {
+    dialog,
+    body,
+    handle: sheetHandle,
+    expanded,
+    snap: snapSheet,
+    cancel: cancelSheet,
+  } = useSheetGesture({
+    mobile,
+    animateInteractions,
+    jobId: job.id,
+  });
   const evidence = requirementEvidence(match.evidence, facts);
   const status = roleStatus(job, application);
   const advert = safeUrl(job.url);
@@ -198,12 +205,13 @@ export function OpportunityInspector({
     );
 
   const closeImmediately = useCallback(() => {
+    cancelSheet();
     closeGeneration.current += 1;
     closing.current = false;
     stopMotion(surfaceAnimation, mobile ? dialog.current : inspector.current);
     stopMotion(bodyAnimation, body.current);
     onClose();
-  }, [mobile, onClose]);
+  }, [mobile, onClose, cancelSheet, body, dialog]);
 
   useLayoutEffect(() => {
     if (!mobile) {
@@ -224,7 +232,7 @@ export function OpportunityInspector({
       element.removeEventListener("close", closeImmediately);
       if (element.open) element.close();
     };
-  }, [mobile, closeImmediately]);
+  }, [mobile, closeImmediately, dialog]);
 
   useLayoutEffect(() => {
     const element = mobile ? dialog.current : inspector.current;
@@ -291,33 +299,16 @@ export function OpportunityInspector({
         settle,
       );
     }
-  }, [animateInteractions, mobile, motionRevision, job.id, position, onClose]);
-
-  useLayoutEffect(() => {
-    const origin = expansionOrigin.current;
-    expansionOrigin.current = null;
-    const element = body.current;
-    if (
-      !animateInteractions ||
-      !origin ||
-      !element ||
-      origin.element !== element
-    )
-      return;
-    const offset = Math.max(
-      -48,
-      Math.min(48, origin.top - element.getBoundingClientRect().top),
-    );
-    // Only the scrolling content carries continuity. Native sheet geometry and
-    // its footer immediately take their usable destination positions.
-    playMotion(
-      bodyAnimation,
-      element,
-      { x: 0, y: offset, opacity: 1 },
-      restingFrame,
-      { type: "spring", duration: 0.36, bounce: 0 },
-    );
-  }, [expanded, animateInteractions]);
+  }, [
+    animateInteractions,
+    mobile,
+    motionRevision,
+    job.id,
+    position,
+    onClose,
+    body,
+    dialog,
+  ]);
 
   useLayoutEffect(
     () => () => {
@@ -327,10 +318,11 @@ export function OpportunityInspector({
       previousMotion.current = null;
       closing.current = false;
     },
-    [],
+    [body],
   );
 
   const requestClose = (pointer: boolean) => {
+    cancelSheet();
     const element = mobile ? dialog.current : inspector.current;
     if (!pointer || !animateInteractions || !element) {
       closeImmediately();
@@ -414,21 +406,18 @@ export function OpportunityInspector({
     <>
       {mobile && (
         <button
+          ref={sheetHandle}
           className="discover-sheet-expand"
           type="button"
           aria-expanded={expanded}
           onClick={(event) => {
-            if (animateInteractions && event.detail > 0 && body.current) {
-              expansionOrigin.current = {
-                element: body.current,
-                top: body.current.getBoundingClientRect().top,
-              };
-              stopMotion(bodyAnimation, body.current);
-            } else {
-              expansionOrigin.current = null;
-              stopMotion(bodyAnimation, body.current);
-            }
-            setExpanded((value) => !value);
+            stopMotion(bodyAnimation, body.current);
+            snapSheet(!expanded, event.detail > 0);
+          }}
+          onKeyDown={(event) => {
+            if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+            event.preventDefault();
+            snapSheet(event.key === "ArrowUp", false);
           }}
         >
           <ChevronUp size={16} />

@@ -23,6 +23,12 @@ const animations: {
   finish: () => void;
   cancel: ReturnType<typeof vi.fn>;
 }[] = [];
+const sheetAnimations: {
+  from: number;
+  to: number;
+  finish: () => void;
+  stop: ReturnType<typeof vi.fn>;
+}[] = [];
 
 const row: RankedJob = {
   job: { id: "one", employer: "Example Company", title: "Engineer" },
@@ -60,6 +66,7 @@ function inspectorProps() {
 
 beforeEach(() => {
   animations.length = 0;
+  sheetAnimations.length = 0;
   Object.defineProperty(Element.prototype, "animate", {
     configurable: true,
     value: vi.fn(),
@@ -70,8 +77,11 @@ beforeEach(() => {
       finish = resolve;
     });
     const cancel = vi.fn();
-    animations.push({ element, keyframes, finish, cancel });
-    return { finished, cancel };
+    const stop = vi.fn();
+    if (typeof element === "number")
+      sheetAnimations.push({ from: element, to: keyframes, finish, stop });
+    else animations.push({ element, keyframes, finish, cancel });
+    return { finished, cancel, stop };
   });
 });
 
@@ -136,38 +146,59 @@ it("closes keyboard and native cancellation paths without an exit delay", () => 
   expect(mobileProps.onClose).toHaveBeenCalledOnce();
 });
 
-it("retargets mobile content on rapid expansion while keeping the footer static", () => {
+it("resizes from the live height on rapid reversal and ignores stale completions", async () => {
   render(<OpportunityInspector {...inspectorProps()} mobile />);
   const dialog = screen.getByRole("dialog");
   const body = dialog.querySelector<HTMLElement>(".discover-inspector-body")!;
   const footer = dialog.querySelector<HTMLElement>(
     ".discover-inspector-footer",
   )!;
-  vi.spyOn(body, "getBoundingClientRect")
-    .mockReturnValueOnce({ top: 450 } as DOMRect)
-    .mockReturnValueOnce({ top: 90 } as DOMRect)
-    .mockReturnValueOnce({ top: 115 } as DOMRect)
-    .mockReturnValueOnce({ top: 450 } as DOMRect);
+  dialog.style.minHeight = "400px";
+  dialog.style.maxHeight = "836px";
+  vi.spyOn(dialog, "getBoundingClientRect")
+    .mockReturnValueOnce({ height: 422 } as DOMRect)
+    .mockReturnValueOnce({ height: 700 } as DOMRect);
   fireEvent.click(screen.getByRole("button", { name: "Expand details" }), {
     detail: 1,
   });
-  const expand = animations.at(-1)!;
-  expect(expand.keyframes.transform).toEqual([
-    "translate3d(0px, 48px, 0px)",
-    "translate3d(0px, 0px, 0px)",
-  ]);
+  const expand = sheetAnimations.at(-1)!;
+  expect(expand.from).toBe(422);
+  expect(expand.to).toBe(836);
   fireEvent.click(screen.getByRole("button", { name: "Collapse details" }), {
     detail: 1,
   });
-  expect(expand.cancel).toHaveBeenCalledOnce();
-  expect(animations.at(-1)!.keyframes.transform).toEqual([
-    "translate3d(0px, -48px, 0px)",
-    "translate3d(0px, 0px, 0px)",
-  ]);
+  expect(expand.stop).toHaveBeenCalledOnce();
+  expect(sheetAnimations.at(-1)!.from).toBe(700);
+  expect(sheetAnimations.at(-1)!.to).toBe(422);
+  await act(async () => expand.finish());
+  expect(dialog.style.height).toBe("700px");
+  await act(async () => sheetAnimations.at(-1)!.finish());
+  expect(dialog.style.height).toBe("");
+  expect(body.style.height).toBe("");
   expect(footer.style.transform).toBe("");
   expect(
     screen.getByRole("button", { name: "Expand details" }),
   ).toHaveAttribute("aria-expanded", "false");
+});
+
+it("supports instant arrow-key resizing without changing focus or replacing the native dialog", () => {
+  render(
+    <OpportunityInspector
+      {...inspectorProps()}
+      mobile
+      animateInteractions={false}
+    />,
+  );
+  const dialog = screen.getByRole("dialog");
+  const handle = screen.getByRole("button", { name: "Expand details" });
+  handle.focus();
+  fireEvent.keyDown(handle, { key: "ArrowUp" });
+  expect(handle).toHaveAttribute("aria-expanded", "true");
+  expect(handle).toHaveFocus();
+  expect(dialog).toHaveAttribute("open");
+  fireEvent.keyDown(handle, { key: "ArrowDown" });
+  expect(handle).toHaveAttribute("aria-expanded", "false");
+  expect(sheetAnimations).toHaveLength(0);
 });
 
 it("retargets a native computed exit matrix to an explicit translation identity", async () => {
