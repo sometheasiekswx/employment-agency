@@ -126,6 +126,14 @@ beforeEach(() => {
   fixture.replace.mockReset().mockImplementation((href: string) => {
     fixture.query = new URL(href, "http://localhost").searchParams.toString();
   });
+  vi.spyOn(window.history, "replaceState").mockImplementation(
+    (_state, _unused, href) => {
+      fixture.query = new URL(
+        String(href),
+        "http://localhost",
+      ).searchParams.toString();
+    },
+  );
   fixture.selectProfile.mockReset();
   vi.stubGlobal(
     "matchMedia",
@@ -135,6 +143,78 @@ beforeEach(() => {
       removeEventListener: vi.fn(),
     })),
   );
+});
+
+it("filters while typing without ranking again or fetching a new route, then clears without losing focus", async () => {
+  fixture.mobile = true;
+  fixture.query = "view=all";
+  render(<DiscoverPage />);
+  await screen.findByRole("button", {
+    name: "Assess Cloud Engineer at Example Cloud",
+  });
+  const input = screen.getByRole("searchbox", { name: "Filter roles" });
+  input.focus();
+  fireEvent.change(input, { target: { value: "Backend" } });
+  expect(input).toHaveFocus();
+  expect(
+    screen.queryByRole("button", {
+      name: "Assess Cloud Engineer at Example Cloud",
+    }),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.getByRole("button", {
+      name: "Assess Backend Engineer at Example Studio",
+    }),
+  ).toBeInTheDocument();
+  expect(new URLSearchParams(fixture.query).get("q")).toBe("Backend");
+  expect(new URLSearchParams(fixture.query).get("view")).toBe("all");
+  expect(fixture.replace).not.toHaveBeenCalled();
+  expect(fixture.client.action).toHaveBeenCalledTimes(1);
+  fireEvent.submit(
+    screen.getByRole("search", { name: "Filter opportunities" }),
+  );
+  expect(fixture.replace).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole("button", { name: "Clear search" }));
+  expect(input).toHaveFocus();
+  expect(input).toHaveValue("");
+  expect(
+    screen.getByRole("button", {
+      name: "Assess Cloud Engineer at Example Cloud",
+    }),
+  ).toBeInTheDocument();
+  expect(new URLSearchParams(fixture.query).has("q")).toBe(false);
+});
+
+it("shows static card skeletons only while a real initial ranking request is pending", async () => {
+  let finish: (rows: RankedJob[]) => void = () => {};
+  fixture.client.action.mockImplementation(
+    () =>
+      new Promise<RankedJob[]>((resolve) => {
+        finish = resolve;
+      }),
+  );
+  const view = render(<DiscoverPage />);
+  expect(
+    view.container.querySelectorAll(".discover-skeleton-card"),
+  ).toHaveLength(6);
+  expect(screen.getByText("Loading matches…")).toHaveAttribute(
+    "role",
+    "status",
+  );
+  expect(
+    screen.queryByRole("button", {
+      name: "Assess Cloud Engineer at Example Cloud",
+    }),
+  ).not.toBeInTheDocument();
+  await act(async () => finish(ranked()));
+  expect(
+    view.container.querySelector(".discover-skeleton-board"),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.getByRole("button", {
+      name: "Assess Cloud Engineer at Example Cloud",
+    }),
+  ).toBeInTheDocument();
 });
 
 it("keeps unknown salary in the inspector without repeating it on cards", async () => {
@@ -696,9 +776,11 @@ it("uses a native mobile dialog, supports expansion and restores focus after can
   fireEvent.click(opener);
   const dialog = screen.getByRole("dialog", { name: "Cloud Engineer" });
   expect(dialog).toHaveAttribute("open");
-  fireEvent.click(screen.getByRole("button", { name: "Expand details" }));
+  fireEvent.click(
+    screen.getByRole("button", { name: "Resize opportunity details" }),
+  );
   expect(
-    screen.getByRole("button", { name: "Collapse details" }),
+    screen.getByRole("button", { name: "Resize opportunity details" }),
   ).toHaveAttribute("aria-expanded", "true");
   fireEvent(dialog, new Event("cancel", { cancelable: true }));
   await waitFor(() =>
@@ -794,6 +876,12 @@ it("offers a retry after ranking fails and requires a profile before any request
   expect(await screen.findByRole("alert")).toHaveTextContent(
     "Assessment unavailable",
   );
+  expect(screen.getByText("Matches unavailable")).toHaveAttribute(
+    "role",
+    "status",
+  );
+  expect(screen.queryByText("0 roles · 0 locations")).not.toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Applications" })).toBeEnabled();
   fireEvent.click(screen.getByRole("button", { name: "Retry assessment" }));
   expect(
     await screen.findByRole("button", {
@@ -801,6 +889,7 @@ it("offers a retry after ranking fails and requires a profile before any request
     }),
   ).toBeInTheDocument();
   expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  expect(screen.queryByText("Matches unavailable")).not.toBeInTheDocument();
   expect(fixture.refresh).toHaveBeenCalledTimes(1);
   unmount();
   fixture.state.profiles = [];

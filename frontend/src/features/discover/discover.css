@@ -16,6 +16,9 @@
   align-items: center;
   gap: 12px;
 }
+.discover-controls {
+  display: contents;
+}
 .discover-toolbar {
   position: relative;
   border-bottom: 1px solid var(--line);
@@ -737,6 +740,52 @@
 .discover-local-search {
   display: none;
 }
+.discover-skeleton-board {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(100%, var(--discover-column-min)), 1fr)
+  );
+  gap: 16px;
+  padding: 2px;
+}
+.discover-skeleton-group {
+  display: grid;
+  gap: 13px;
+  align-content: start;
+}
+.discover-skeleton-line {
+  display: block;
+  width: 78%;
+  height: 13px;
+  border-radius: 4px;
+  background: #ffffff0b;
+}
+.discover-skeleton-heading {
+  width: 38%;
+  height: 15px;
+  margin: 8px 0;
+}
+.discover-skeleton-card {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  min-height: 182px;
+  padding: 16px;
+  border-radius: 11px;
+  background: var(--discover-card);
+}
+.discover-skeleton-badge {
+  width: 62px;
+  height: 21px;
+}
+.discover-skeleton-title {
+  width: 88%;
+  height: 17px;
+}
+.discover-skeleton-short {
+  width: 53%;
+}
 @media (min-width: 901px) and (max-width: 1150px) {
   .discover-inspector-company > strong {
     font-size: 12px;
@@ -752,16 +801,38 @@
   }
 }
 @media (max-width: 900px) {
+  .discover-controls {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 44px;
+    gap: 4px 8px;
+    position: relative;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+  }
   .discover-screen .discover-toolbar {
-    gap: 9px;
-    margin-bottom: 14px;
+    display: contents;
   }
   .discover-screen .discover-views {
-    gap: 17px !important;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-content: space-between;
+    gap: 8px !important;
+    min-width: 0;
   }
   .discover-screen .discover-views button {
+    flex: 0 1 auto;
+    min-height: 44px;
+    padding: 7px 0;
     font-size: 13px;
-    gap: 5px;
+    white-space: nowrap;
+  }
+  .discover-screen .discover-views button svg {
+    display: none;
+  }
+  .discover-screen .discover-filters {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
   }
   .discover-screen .discover-refresh {
     display: none;
@@ -776,7 +847,10 @@
     max-width: none;
   }
   .discover-filters > summary {
-    padding: 7px;
+    justify-content: center;
+    width: 44px;
+    min-height: 44px;
+    padding: 0;
     font-size: 0;
   }
   .discover-filters > summary svg {
@@ -834,7 +908,56 @@
     font-size: 13px;
   }
   .discover-local-search {
-    display: block;
+    display: flex;
+    grid-column: 1;
+    grid-row: 1;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    min-height: 46px;
+    padding: 0 0 0 12px;
+    margin: 0;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--discover-card);
+  }
+  .discover-local-search:focus-within {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .discover-local-search > svg {
+    flex-shrink: 0;
+    color: var(--discover-muted);
+  }
+  .discover-local-search input[type="search"] {
+    flex: 1;
+    min-width: 0;
+    min-height: 44px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    font-size: 16px;
+  }
+  .discover-local-search input::-webkit-search-cancel-button {
+    appearance: none;
+  }
+  .discover-screen .discover-local-search button {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 44px;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--discover-muted);
+  }
+  .discover-screen .discover-local-search button:hover {
+    background: #ffffff0a;
+    color: var(--ink);
   }
 }
 @media (max-width: 1000px) {

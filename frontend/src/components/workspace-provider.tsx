@@ -169,8 +169,40 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     );
   if (!state || !client)
     return (
-      <main className="boot" role="status">
-        Loading your private workspace…
+      <main className="workspace-boot" aria-busy="true">
+        <div className="workspace-boot-rail" aria-hidden="true">
+          <span className="workspace-boot-placeholder workspace-boot-brand" />
+          <span className="workspace-boot-placeholder" />
+          <span className="workspace-boot-placeholder" />
+          <span className="workspace-boot-placeholder" />
+        </div>
+        <div className="workspace-boot-content">
+          <div className="workspace-boot-header" aria-hidden="true">
+            <span className="workspace-boot-placeholder workspace-boot-brand" />
+            <span className="workspace-boot-placeholder workspace-boot-avatar" />
+          </div>
+          <p className="workspace-boot-message" role="status">
+            Loading workspace…
+          </p>
+          <div aria-hidden="true">
+            <div className="workspace-boot-search" />
+            <div className="workspace-boot-tabs">
+              {[0, 1, 2].map((tab) => (
+                <span className="workspace-boot-placeholder" key={tab} />
+              ))}
+            </div>
+            <div className="workspace-boot-cards">
+              {[0, 1, 2, 3].map((card) => (
+                <div className="workspace-boot-card" key={card}>
+                  <span className="workspace-boot-placeholder workspace-boot-badge" />
+                  <span className="workspace-boot-placeholder workspace-boot-title" />
+                  <span className="workspace-boot-placeholder" />
+                  <span className="workspace-boot-placeholder" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </main>
     );
   const profileId = state.profiles.some(

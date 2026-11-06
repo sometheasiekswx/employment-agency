@@ -17,6 +17,10 @@ const { decideDialog } = require("./browser-dialog.cjs");
       viewport: { width: 1440, height: 1000 },
     });
     const errors = [];
+    let rankings = 0;
+    page.on("request", (request) => {
+      if (new URL(request.url()).pathname === "/api/rank") rankings++;
+    });
     page.on("pageerror", (error) => errors.push(error.message));
     const response = await page.request.get(base + "/api/state");
     const original = await response.json();
@@ -114,13 +118,23 @@ const { decideDialog } = require("./browser-dialog.cjs");
     await assertProfile();
 
     await page.setViewportSize({ width: 390, height: 844 });
-    const filters = page.locator(".discover-filters");
-    if (!(await filters.evaluate((element) => element.open)))
-      await filters.locator("summary").click();
     const localSearch = page.getByLabel("Filter roles", { exact: true });
-    await localSearch.fill("DevOps");
-    await localSearch.press("Enter");
+    assert.equal(
+      await localSearch.isVisible(),
+      true,
+      "mobile search is visible without opening Filters",
+    );
+    const rankingsBeforeTyping = rankings;
+    await localSearch.fill("");
+    await localSearch.pressSequentially("DevOps", { delay: 40 });
     await page.waitForURL((url) => url.searchParams.get("q") === "DevOps");
+    assert.equal(
+      await localSearch.evaluate(
+        (element) => element === document.activeElement,
+      ),
+      true,
+      "live filtering retains the keyboard/input focus",
+    );
     await assertProfile();
     await page
       .getByRole("button", {
@@ -128,6 +142,13 @@ const { decideDialog } = require("./browser-dialog.cjs");
         exact: true,
       })
       .waitFor();
+    assert.equal(
+      rankings,
+      rankingsBeforeTyping,
+      "typing filters loaded rows without re-ranking",
+    );
+    await localSearch.press("Enter");
+    await assertProfile();
 
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page

@@ -100,6 +100,36 @@ beforeEach(() => {
   );
 });
 
+it("shows a neutral static workspace skeleton until the actual state request completes", async () => {
+  let finish: (value: { state: WorkspaceState }) => void = () => {};
+  fixture.client.state.mockImplementationOnce(
+    () =>
+      new Promise<{ state: WorkspaceState }>((resolve) => {
+        finish = resolve;
+      }),
+  );
+  const view = render(app());
+  expect(screen.getByRole("status")).toHaveTextContent("Loading workspace…");
+  expect(view.container.querySelector(".workspace-boot")).toHaveAttribute(
+    "aria-busy",
+    "true",
+  );
+  expect(view.container.querySelectorAll(".workspace-boot-card")).toHaveLength(
+    4,
+  );
+  expect(
+    screen.queryByText("Loading your private workspace…"),
+  ).not.toBeInTheDocument();
+  await waitFor(() => expect(fixture.client.state).toHaveBeenCalledOnce());
+  await act(async () => finish({ state: state() }));
+  expect(
+    view.container.querySelector(".workspace-boot"),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.getByRole("button", { name: "Save comment" }),
+  ).toBeInTheDocument();
+});
+
 it("retains success feedback during polling recovery and clears it when leaving the page", async () => {
   const view = render(app());
   fireEvent.click(await screen.findByRole("button", { name: "Save comment" }));
@@ -165,13 +195,9 @@ it("does not restore workspace state from a refresh that outlives the session", 
   );
   await act(async () => fixture.poll());
   fireEvent.click(screen.getByRole("button", { name: "Clear session" }));
-  expect(screen.getByRole("status")).toHaveTextContent(
-    "Loading your private workspace",
-  );
+  expect(screen.getByRole("status")).toHaveTextContent("Loading workspace");
   await act(async () => resolveOld({ state: state("/old-session") }));
-  expect(screen.getByRole("status")).toHaveTextContent(
-    "Loading your private workspace",
-  );
+  expect(screen.getByRole("status")).toHaveTextContent("Loading workspace");
   expect(screen.queryByText("/old-session")).not.toBeInTheDocument();
 });
 

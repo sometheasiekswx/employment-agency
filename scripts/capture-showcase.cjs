@@ -5,6 +5,8 @@ const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
+const { execFileSync } = require('node:child_process');
+const { showPanel } = require('../tests/browser-applications.cjs');
 
 const root = path.resolve(__dirname, '..');
 const origin = process.env.SHOWCASE_URL || 'http://127.0.0.1:8788';
@@ -41,6 +43,27 @@ async function pacedScroll(page, locator, distance, steps = 18) {
     await page.mouse.wheel(0, distance / steps);
     await wait(page, 35);
   }
+}
+
+async function touchDrag(page, locator, distance, fraction = 0.5) {
+  const client = await page.context().newCDPSession(page);
+  try {
+    const box = await locator.boundingBox();
+    assert.ok(box, 'Drag surface must be visible');
+    const x = box.x + box.width / 2;
+    const y = box.y + box.height * fraction;
+    await client.send('Input.dispatchTouchEvent', {
+      type: 'touchStart', touchPoints: [{ x, y }],
+    });
+    for (let step = 1; step <= 24; step++) {
+      await client.send('Input.dispatchTouchEvent', {
+        type: 'touchMove', touchPoints: [{ x, y: y + distance * step / 24 }],
+      });
+      await wait(page, 16);
+    }
+    await wait(page, 120);
+    await client.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  } finally { await client.detach(); }
 }
 
 async function capturePoster(page, file) {
@@ -142,7 +165,16 @@ async function record(browser, slug, viewport, story, mobile = false) {
   const page = await context.newPage();
   pendingRecorders.set(page, [context, page, directory, viewport, zero]);
   const errors = [];
+  const external = [];
   const actions = [];
+  await context.route('**/*', route => {
+    const url = new URL(route.request().url());
+    if (['http:', 'https:'].includes(url.protocol) && url.origin !== origin) {
+      external.push(url.href);
+      return route.abort();
+    }
+    return route.continue();
+  });
   page.on('pageerror', error => errors.push(error.message));
   const note = name => actions.push({ name, at_ms: Date.now() - zero });
   let result;
@@ -150,6 +182,7 @@ async function record(browser, slug, viewport, story, mobile = false) {
   try {
     result = await story(page, note, zero);
     assert.deepEqual(errors, []);
+    assert.deepEqual(external, [], 'Published walkthroughs must not contact external sites');
     result.body_font_css_px = await page.evaluate(() => parseFloat(getComputedStyle(document.body).fontSize));
     recording = await recorders.get(page).stop(result.start_ms, result.end_ms);
   } finally {
@@ -220,38 +253,59 @@ async function mobile(page, note, zero) {
   await ready(page);
   const start_ms = Date.now() - zero;
   note('Mobile location shortlist');
-  await wait(page, 1900);
-  await page.getByRole('button', { name: 'Assess Cloud Software Engineer at Emberlane Systems', exact: true }).click();
-  const inspector = page.getByRole('dialog');
+  await wait(page, 1000);
+  const search = page.getByRole('search', { name: 'Filter opportunities' }).getByRole('searchbox');
+  await search.pressSequentially('Cloud', { delay: 90 });
+  await page.waitForFunction(() => document.querySelectorAll('.discover-card').length === 1);
+  note('Filter roles live while typing');
+  await wait(page, 700);
+  await page.getByRole('button', { name: 'Clear search', exact: true }).tap();
+  await wait(page, 600);
+  const role = page.getByRole('button', { name: 'Assess Cloud Software Engineer at Emberlane Systems', exact: true });
+  await role.tap();
+  const inspector = page.locator('.discover-inspector');
   await inspector.waitFor();
-  note('Open the in-context review sheet');
-  await wait(page, 1700);
-  await inspector.getByRole('button', { name: 'Expand details', exact: true }).click();
-  note('Expand role details');
-  await wait(page, 1600);
+  note('Slide the native review sheet up from the bottom');
+  await wait(page, 1200);
   const poster = relative(path.join(output, 'mobile-review-poster.png'));
   await capturePoster(page, path.join(root, poster));
-  await inspector.getByText('Related evidence (1 fact)', { exact: true }).first().click();
-  await wait(page, 1200);
-  await pacedScroll(page, inspector.locator('.discover-inspector-body'), 360);
-  note('Scroll evidence and requirements independently');
-  await wait(page, 1800);
-  await inspector.getByRole('button', { name: 'Collapse details', exact: true }).click();
+  const grip = inspector.getByRole('button', { name: 'Resize opportunity details', exact: true });
+  await touchDrag(page, grip, -280);
+  note('Drag the grip upward to expand');
   await wait(page, 900);
-  await inspector.getByRole('button', { name: 'Close opportunity details', exact: true }).click();
+  await inspector.getByText('Related evidence (1 fact)', { exact: true }).first().tap();
+  await wait(page, 650);
+  await touchDrag(page, inspector.locator('.discover-inspector-body'), -240, 0.72);
+  note('Read evidence and requirements with native touch scrolling');
+  await wait(page, 900);
+  await touchDrag(page, grip, 320);
+  note('Drag back to the peek position');
+  await wait(page, 700);
+  assert.equal(await grip.getAttribute('aria-expanded'), 'false');
+  await touchDrag(page, grip, 350);
+  await inspector.waitFor({ state: 'detached' });
+  note('Drag all the way down to dismiss');
+  await wait(page, 650);
+  await role.tap();
+  await inspector.waitFor();
+  await wait(page, 750);
+  await page.touchscreen.tap(180, 220);
+  await inspector.waitFor({ state: 'detached' });
+  note('Tap outside to dismiss');
   note('Return to the same shortlist position');
-  await wait(page, 1700);
+  await wait(page, 1000);
   return { start_ms, end_ms: Date.now() - zero, poster };
 }
 
 async function documents(page, note, zero) {
-  await page.goto(origin + '/');
+  await page.goto(origin + '/discover/?view=applications');
   await ready(page);
   const start_ms = Date.now() - zero;
   note('Review application packages');
   await wait(page, 1800);
-  await pacedScroll(page, page.locator('.dossier').first(), 500, 24);
-  await wait(page, 700);
+  await page.getByRole('button', { name: 'Assess Cloud Software Engineer at Emberlane Systems', exact: true }).click();
+  await showPanel(page, 'documents');
+  await wait(page, 1000);
   await page.getByRole('button', { name: 'View / edit CV', exact: true }).first().click();
   const editor = page.getByRole('dialog');
   await editor.waitFor();
@@ -269,8 +323,9 @@ async function documents(page, note, zero) {
   await wait(page, 2000);
   await page.locator('.history-version summary').first().click();
   await wait(page, 1300);
-  await page.getByRole('link', { name: 'Applications', exact: true }).click();
-  await page.getByRole('heading', { name: 'Applications', level: 1, exact: true }).waitFor();
+  await page.getByRole('link', { name: 'Opportunities', exact: true }).click();
+  await page.getByRole('button', { name: 'Applications', exact: true }).click();
+  await page.getByRole('group', { name: 'Application stage', exact: true }).waitFor();
   await wait(page, 1400);
   return { start_ms, end_ms: Date.now() - zero, poster };
 }
@@ -296,6 +351,11 @@ async function documents(page, note, zero) {
     if (selected.has('desktop')) clips.push(await record(browser, 'discover-review', { width: 1120, height: 840 }, desktop));
     if (selected.has('mobile')) clips.push(await record(browser, 'mobile-review', { width: 390, height: 844 }, mobile, true));
     if (selected.has('documents')) clips.push(await record(browser, 'application-documents', { width: 1120, height: 840 }, documents));
+    const after = await browser.newContext();
+    const servedAfter = await after.request.get(origin + '/discover/?view=all');
+    assert.equal(crypto.createHash('sha256').update(await servedAfter.body()).digest('hex'), servedHtmlHash,
+      'The served application must not change during capture');
+    await after.close();
     fs.writeFileSync(path.join(output, 'manifest.json'), JSON.stringify({
       captured_at: new Date().toISOString(),
       source: 'Lossless 2x Chromium PNG capture of the actual built application; real clicks, hover and scrolling with measured frame timestamps',
@@ -306,6 +366,9 @@ async function documents(page, note, zero) {
       mutations: 'One sample bookmark toggle, restored outside the published clip; no drafts edited, documents saved, messages sent or applications submitted',
       external_requests: 'No employer links or external accounts opened',
       served_html_sha256: servedHtmlHash,
+      served_html_unchanged_before_after_capture: true,
+      source_commit: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(),
+      source_working_tree_dirty: execFileSync('git', ['status', '--porcelain'], { cwd: root, encoding: 'utf8' }).trim().length > 0,
       clips,
     }, null, 2) + '\n');
     console.log('Recorded:', clips.map(clip => `${clip.slug} (${clip.duration_seconds.toFixed(1)}s)`).join(', '));

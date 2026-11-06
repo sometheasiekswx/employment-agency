@@ -257,7 +257,15 @@ async function openWithPointer(page, label) {
   await cloud(page).click();
   await heading(page, "Cloud Software Engineer").waitFor();
   await waitForMotion(page);
-  await assertFooter(page, `${label}: actions during arrival`, false);
+  if (!(await inspector(page).evaluate((node) => node.tagName === "DIALOG")))
+    await assertFooter(page, `${label}: actions during arrival`, false);
+  else
+    assert.ok(
+      (await inspector(page).evaluate(
+        (node) => getComputedStyle(node).transform,
+      )) !== "none",
+      "mobile surface slides up from below",
+    );
   await settled(page);
   const sample = await stopProbe(page);
   assert.ok(

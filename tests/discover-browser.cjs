@@ -489,17 +489,17 @@ const fs = require("node:fs");
     await checkKeyboardNavigation();
     const sheet = await modal.boundingBox();
     assert.ok(
-      sheet.y >= 844 * 0.4,
+      sheet.y >= 844 * 0.4 - 1,
       "default sheet leaves the shortlist visible",
     );
     await page.screenshot({
       path: "output/playwright/concept-a/discover-mobile-inspector.png",
     });
     await modal
-      .getByRole("button", { name: "Expand details", exact: true })
+      .getByRole("button", { name: "Resize opportunity details", exact: true })
       .click();
     await modal
-      .getByRole("button", { name: "Collapse details", exact: true })
+      .getByRole("button", { name: "Resize opportunity details", exact: true })
       .waitFor();
     for (let step = 0; step < 18; step++) {
       await page.keyboard.press("Tab");

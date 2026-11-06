@@ -27,14 +27,31 @@ function boundsFor(element: HTMLElement): Bounds {
   return {
     collapsed: Math.min(
       expanded,
-      Math.max(parseFloat(css.minHeight) || 0, (expanded + 8) / 2),
+      Math.max(parseFloat(css.minHeight) || 0, (expanded + 8) * 0.6),
     ),
     expanded,
   };
 }
 
 function clampHeight(height: number, bounds: Bounds) {
-  return Math.max(bounds.collapsed, Math.min(bounds.expanded, height));
+  return Math.max(0, Math.min(bounds.expanded, height));
+}
+
+function visibleHeight(element: HTMLElement) {
+  const transform = getComputedStyle(element).transform;
+  const matrix = transform.match(/^matrix(3d)?\(([^)]+)\)$/);
+  const values = matrix?.[2].split(",").map(Number);
+  const translation = transform.match(/^translate3d\(([^)]+)\)$/);
+  const offset =
+    values?.[matrix?.[1] ? 13 : 5] ??
+    parseFloat(translation?.[1].split(",")[1] || "0");
+  return element.getBoundingClientRect().height - offset;
+}
+
+function renderHeight(element: HTMLElement, height: number, bounds: Bounds) {
+  const value = clampHeight(height, bounds);
+  element.style.height = `${Math.max(bounds.collapsed, value)}px`;
+  element.style.transform = `translate3d(0px, ${Math.max(0, bounds.collapsed - value)}px, 0px)`;
 }
 
 /** Two detents for the existing native opportunity dialog, not a second modal. */
@@ -42,10 +59,14 @@ export function useSheetGesture({
   mobile,
   animateInteractions,
   jobId,
+  onDismiss,
+  onGrab,
 }: {
   mobile: boolean;
   animateInteractions: boolean;
   jobId: string;
+  onDismiss: () => void;
+  onGrab: (element: HTMLElement) => void;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const body = useRef<HTMLDivElement>(null);
@@ -58,6 +79,10 @@ export function useSheetGesture({
   const gesture = useRef<Gesture | null>(null);
   const suppressClick = useRef(false);
   const updateScrollAction = useRef(() => {});
+  const callbacks = useRef({ onDismiss, onGrab });
+  useLayoutEffect(() => {
+    callbacks.current = { onDismiss, onGrab };
+  }, [onDismiss, onGrab]);
 
   const stop = useCallback(() => {
     generation.current += 1;
@@ -73,17 +98,23 @@ export function useSheetGesture({
     dialog.current?.removeAttribute("data-sheet-dragging");
   }, []);
 
-  const cancel = useCallback(() => {
-    stop();
-    release();
-    dialog.current?.style.removeProperty("height");
-  }, [release, stop]);
+  const cancel = useCallback(
+    (preservePresentation = false) => {
+      stop();
+      release();
+      if (!preservePresentation) {
+        dialog.current?.style.removeProperty("height");
+        dialog.current?.style.removeProperty("transform");
+      }
+    },
+    [release, stop],
+  );
 
   const snap = useCallback(
     (next: boolean, animated: boolean, velocity = 0) => {
       const element = dialog.current;
       if (!element) return;
-      const from = element.getBoundingClientRect().height;
+      const from = visibleHeight(element);
       const bounds = boundsFor(element);
       const to = next ? bounds.expanded : bounds.collapsed;
       stop();
@@ -92,10 +123,11 @@ export function useSheetGesture({
       setExpanded(next);
       if (!animated || !motionAllowed.current || Math.abs(from - to) < 1) {
         element.style.removeProperty("height");
+        element.style.removeProperty("transform");
         return;
       }
       const revision = generation.current;
-      element.style.height = `${from}px`;
+      renderHeight(element, from, bounds);
       // A real height keeps the native scrolling viewport and persistent footer
       // correct throughout resizing. One bounded style write per frame; no React
       // renders or layout reads on the move/update path. See docs/mobile-sheet-motion.md.
@@ -109,7 +141,7 @@ export function useSheetGesture({
         restSpeed: 15,
         onUpdate: (height) => {
           if (generation.current === revision)
-            element.style.height = `${clampHeight(height, bounds)}px`;
+            renderHeight(element, height, bounds);
         },
       });
       animation.current = control;
@@ -118,6 +150,7 @@ export function useSheetGesture({
           if (animation.current !== control) return;
           animation.current = null;
           element.style.removeProperty("height");
+          element.style.removeProperty("transform");
         },
         () => {},
       );
@@ -170,6 +203,8 @@ export function useSheetGesture({
       // its suppression, including presses on controls excluded from dragging.
       suppressClick.current = false;
       const owner = event.currentTarget as HTMLElement;
+      if (owner !== grabber && (event.target as Element).closest(interactive))
+        return;
       if (
         owner === scroller &&
         (event.pointerType === "mouse" ||
@@ -181,12 +216,15 @@ export function useSheetGesture({
               performance.now() - lastScroll < scrollCooldown)))
       )
         return;
-      const height = element.getBoundingClientRect().height;
+      callbacks.current.onGrab(element);
+      const height = visibleHeight(element);
       const bounds = boundsFor(element);
       if (animation.current) {
         stop();
-        element.style.height = `${height}px`;
       }
+      // Establish transient geometry even for a tap that interrupts arrival.
+      // Pointer-up can then settle the frozen presentation back to its detent.
+      renderHeight(element, height, bounds);
       gesture.current = {
         pointer: event.pointerId,
         owner,
@@ -220,7 +258,7 @@ export function useSheetGesture({
         (sample) => event.timeStamp - sample.time <= 80,
       );
       drag.samples.push({ y: event.clientY, time: event.timeStamp });
-      element.style.height = `${clampHeight(drag.height - dy, drag.bounds)}px`;
+      renderHeight(element, drag.height - dy, drag.bounds);
     };
     const up = (event: PointerEvent) => {
       const drag = gesture.current;
@@ -245,6 +283,11 @@ export function useSheetGesture({
       // Short flicks and a last-moment reversal use recent velocity, not the
       // average of the whole drag. Pausing before release removes momentum.
       const projected = height + velocity * 0.16;
+      if (projected < drag.bounds.collapsed / 2) {
+        release();
+        callbacks.current.onDismiss();
+        return;
+      }
       snap(
         projected > (drag.bounds.collapsed + drag.bounds.expanded) / 2,
         true,
@@ -276,7 +319,14 @@ export function useSheetGesture({
       cancel();
       updateScrolling();
     };
-    const targets: HTMLElement[] = [grabber, scroller];
+    const toolbar = element.querySelector<HTMLElement>(
+      ".discover-inspector-toolbar",
+    );
+    const targets: HTMLElement[] = [
+      grabber,
+      scroller,
+      ...(toolbar ? [toolbar] : []),
+    ];
     for (const target of targets) {
       target.addEventListener("pointerdown", down);
       target.addEventListener("pointermove", move);
@@ -286,6 +336,11 @@ export function useSheetGesture({
       target.addEventListener("click", click, true);
     }
     scroller.addEventListener("scroll", onScroll, { passive: true });
+    // An arrival can move a pending press off its original hit target before
+    // the drag threshold is reached. Finish that press even when pointer-up
+    // lands outside the toolbar; active drags still use owner capture.
+    window.addEventListener("pointerup", up);
+    window.addEventListener("pointercancel", interrupted);
     window.addEventListener("resize", resize);
     window.visualViewport?.addEventListener("resize", resize);
     updateScrolling();
@@ -301,6 +356,8 @@ export function useSheetGesture({
         target.removeEventListener("click", click, true);
       }
       scroller.removeEventListener("scroll", onScroll);
+      window.removeEventListener("pointerup", up);
+      window.removeEventListener("pointercancel", interrupted);
       updateScrollAction.current = () => {};
       scroller.style.removeProperty("touch-action");
       window.removeEventListener("resize", resize);

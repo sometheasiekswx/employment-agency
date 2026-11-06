@@ -20,6 +20,7 @@ import {
   Search,
   SlidersHorizontal,
   Sparkles,
+  X,
 } from "lucide-react";
 import { useDraft } from "@/components/unsaved";
 import { applicationQueues } from "@/features/applications/queues";
@@ -113,12 +114,14 @@ export function DiscoverPage() {
     currentRoute.current = { queryString, profileId };
   }, [queryString, profileId]);
   const replaceQuery = useCallback(
-    (next: URLSearchParams) => {
+    (next: URLSearchParams, localSearch = false) => {
       startTransition(() => {
         setOptimisticQuery(next.toString());
-        replace(`/discover/${next.size ? `?${next}` : ""}`, {
-          scroll: false,
-        });
+        const href = `/discover/${next.size ? `?${next}` : ""}`;
+        // Next's native-history integration updates useSearchParams without a
+        // router fetch for every character. Ranking inputs do not change.
+        if (localSearch) window.history.replaceState(null, "", href);
+        else replace(href, { scroll: false });
       });
     },
     [replace, setOptimisticQuery],
@@ -439,7 +442,10 @@ export function DiscoverPage() {
     return true;
   }, [setSelectedId]);
 
-  const updateFilters = (values: Record<string, string>) => {
+  const updateFilters = (
+    values: Record<string, string>,
+    localSearch = false,
+  ) => {
     if (!canLeave()) return;
     const next = new URLSearchParams(queryString);
     if (values.view) {
@@ -456,7 +462,7 @@ export function DiscoverPage() {
     next.delete("assessment_profile");
     next.delete("application");
     next.delete("panel");
-    replaceQuery(next);
+    if (next.toString() !== queryString) replaceQuery(next, localSearch);
   };
 
   const saveJob = async (
@@ -530,117 +536,138 @@ export function DiscoverPage() {
       className="discover-screen"
       data-interaction-motion={animateInteractions ? "on" : "off"}
     >
-      <div className="discover-toolbar">
-        <div
-          className="discover-views"
-          role="group"
-          aria-label="Opportunity views"
+      <div className="discover-controls">
+        <form
+          className="discover-local-search"
+          id="discover-search-form"
+          action="/discover/"
+          method="get"
+          role="search"
+          aria-label="Filter opportunities"
+          onSubmit={(event) => {
+            event.preventDefault();
+            updateFilters({ q: query }, true);
+          }}
         >
-          {(
-            [
-              ["recommended", "Recommended"],
-              ["all", "All roles"],
-              ["saved", "Saved"],
-              ["applications", "Applications"],
-            ] as const
-          ).map(([value, label]) => (
+          <Search size={18} aria-hidden="true" />
+          <label className="visually-hidden" htmlFor="discover-role-search">
+            Filter roles
+          </label>
+          <input
+            id="discover-role-search"
+            name="q"
+            type="search"
+            value={query}
+            onChange={(event) => updateFilters({ q: event.target.value }, true)}
+            placeholder="Search role, employer or skill"
+            autoComplete="off"
+            autoCapitalize="none"
+            spellCheck={false}
+            enterKeyHint="search"
+          />
+          {query && (
             <button
-              key={value}
               type="button"
-              aria-pressed={view === value}
-              onClick={() => updateFilters({ view: value })}
-            >
-              {value === "recommended" && <Sparkles size={16} />}
-              {label}
-            </button>
-          ))}
-        </div>
-        {!applicationView && (
-          <Action
-            className="discover-refresh"
-            previewAllowed
-            disabled={loading}
-            run={async () => setAttempt((value) => value + 1)}
-          >
-            <RefreshCw size={15} />
-            Refresh matches
-          </Action>
-        )}
-        <details className="discover-filters">
-          <summary>
-            <SlidersHorizontal size={16} />
-            Filters
-          </summary>
-          <div className="discover-filter-panel">
-            <form
-              className="discover-local-search"
-              id="discover-search-form"
-              action="/discover/"
-              method="get"
-              role="search"
-              aria-label="Filter opportunities"
-              onSubmit={(event) => {
-                event.preventDefault();
-                updateFilters({ q: query });
+              aria-label="Clear search"
+              onClick={(event) => {
+                updateFilters({ q: "" }, true);
+                event.currentTarget.form
+                  ?.querySelector("input")
+                  ?.focus({ preventScroll: true });
               }}
             >
-              <label>
-                Filter roles
-                <input
-                  name="q"
-                  value={query}
-                  onChange={(event) => updateFilters({ q: event.target.value })}
-                  placeholder="Search role, employer or skill"
-                />
-              </label>
-              <input type="hidden" name="view" value={view} />
-              {location && (
-                <input type="hidden" name="location" value={location} />
-              )}
-              {statusFilter && (
-                <input type="hidden" name="status" value={statusFilter} />
-              )}
-            </form>
-            <Select
-              label="Location"
-              value={location}
-              options={[
-                ["", "All locations"],
-                ...locations.map((city) => [city, city] as const),
-              ]}
-              onChange={(event) =>
-                updateFilters({ location: event.target.value })
-              }
-            />
-            <Select
-              label="Application status"
-              value={statusFilter}
-              options={[
-                ["", "Any status"],
-                ["new", "New"],
+              <X size={18} aria-hidden="true" />
+            </button>
+          )}
+          <input type="hidden" name="view" value={view} />
+          {location && <input type="hidden" name="location" value={location} />}
+          {statusFilter && (
+            <input type="hidden" name="status" value={statusFilter} />
+          )}
+        </form>
+        <div className="discover-toolbar">
+          <div
+            className="discover-views"
+            role="group"
+            aria-label="Opportunity views"
+          >
+            {(
+              [
+                ["recommended", "Recommended"],
+                ["all", "All roles"],
                 ["saved", "Saved"],
-                ["draft", "Draft"],
-                ["reviewed", "Reviewed"],
-                ["submitted", "Submitted"],
-                ["rejected", "Rejected"],
-              ]}
-              onChange={(event) =>
-                updateFilters({
-                  status: event.target.value,
-                  ...(event.target.value === "submitted" ||
-                  event.target.value === "rejected"
-                    ? applicationView
-                      ? { section: event.target.value }
-                      : { view: "all" }
-                    : {}),
-                })
-              }
-            />
-            <Link href="/search/">
-              Manage profiles and job sources <ArrowUpRight size={14} />
-            </Link>
+                ["applications", "Applications"],
+              ] as const
+            ).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={view === value}
+                onClick={() => updateFilters({ view: value })}
+              >
+                {value === "recommended" && <Sparkles size={16} />}
+                {label}
+              </button>
+            ))}
           </div>
-        </details>
+          {!applicationView && (
+            <Action
+              className="discover-refresh"
+              previewAllowed
+              disabled={loading}
+              run={async () => setAttempt((value) => value + 1)}
+            >
+              <RefreshCw size={15} />
+              Refresh matches
+            </Action>
+          )}
+          <details className="discover-filters">
+            <summary>
+              <SlidersHorizontal size={16} />
+              Filters
+            </summary>
+            <div className="discover-filter-panel">
+              <Select
+                label="Location"
+                value={location}
+                options={[
+                  ["", "All locations"],
+                  ...locations.map((city) => [city, city] as const),
+                ]}
+                onChange={(event) =>
+                  updateFilters({ location: event.target.value })
+                }
+              />
+              <Select
+                label="Application status"
+                value={statusFilter}
+                options={[
+                  ["", "Any status"],
+                  ["new", "New"],
+                  ["saved", "Saved"],
+                  ["draft", "Draft"],
+                  ["reviewed", "Reviewed"],
+                  ["submitted", "Submitted"],
+                  ["rejected", "Rejected"],
+                ]}
+                onChange={(event) =>
+                  updateFilters({
+                    status: event.target.value,
+                    ...(event.target.value === "submitted" ||
+                    event.target.value === "rejected"
+                      ? applicationView
+                        ? { section: event.target.value }
+                        : { view: "all" }
+                      : {}),
+                  })
+                }
+              />
+              <Link href="/search/">
+                Manage profiles and job sources <ArrowUpRight size={14} />
+              </Link>
+            </div>
+          </details>
+        </div>
       </div>
       {applicationView && (
         <div className="opportunities-application-filters">
@@ -718,7 +745,9 @@ export function DiscoverPage() {
         <span className="discover-result-count" role="status">
           {loading
             ? "Loading matches…"
-            : `${visible.length} ${visible.length === 1 ? "role" : "roles"} · ${groups.length} ${groups.length === 1 ? "location" : "locations"}`}
+            : error && !rows.length
+              ? "Matches unavailable"
+              : `${visible.length} ${visible.length === 1 ? "role" : "roles"} · ${groups.length} ${groups.length === 1 ? "location" : "locations"}`}
         </span>
       </div>
       <div
@@ -781,10 +810,21 @@ export function DiscoverPage() {
         </div>
       )}
       {loading && !rows.length && (
-        <div className="discover-empty" role="status">
-          <RefreshCw size={25} />
-          <h2>Assessing opportunities</h2>
-          <p>Comparing imported roles with this search profile.</p>
+        <div className="discover-skeleton-board" aria-hidden="true">
+          {[0, 1, 2].map((group) => (
+            <div className="discover-skeleton-group" key={group}>
+              <span className="discover-skeleton-line discover-skeleton-heading" />
+              {[0, 1].map((card) => (
+                <div className="discover-skeleton-card" key={card}>
+                  <span className="discover-skeleton-line discover-skeleton-badge" />
+                  <span className="discover-skeleton-line discover-skeleton-title" />
+                  <span className="discover-skeleton-line" />
+                  <span className="discover-skeleton-line discover-skeleton-short" />
+                  <span className="discover-skeleton-line discover-skeleton-short" />
+                </div>
+              ))}
+            </div>
+          ))}
         </div>
       )}
       {!loading && !error && !visible.length && !requestedApplication && (

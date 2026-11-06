@@ -16,7 +16,6 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
-  ChevronUp,
   FileText,
   MapPin,
   ShieldCheck,
@@ -59,6 +58,12 @@ function currentFrame(element: HTMLElement): InspectorFrame {
   };
 }
 
+function freezeSurface(slot: AnimationSlot, element: HTMLElement) {
+  const frame = currentFrame(element);
+  stopMotion(slot, element);
+  element.style.transform = frameTransform(frame);
+}
+
 function stopMotion(slot: AnimationSlot, element: HTMLElement | null) {
   const animation = slot.current;
   slot.current = null;
@@ -77,6 +82,7 @@ function playMotion(
   to: InspectorFrame,
   options: AnimationOptions,
   onComplete?: () => void,
+  retainEnd = false,
 ) {
   stopMotion(slot, element);
   // Unsupported runtimes retain the ordinary visible, interactive surface.
@@ -100,6 +106,10 @@ function playMotion(
     () => {
       if (slot.current !== animation) return;
       stopMotion(slot, element);
+      if (retainEnd) {
+        element.style.transform = frameTransform(to);
+        element.style.opacity = String(to.opacity);
+      }
       onComplete?.();
     },
     () => {
@@ -126,7 +136,7 @@ interface InspectorProps {
   onOpenPanel?: (panel: "overview" | "documents" | "activity") => void;
   onPrevious: () => void;
   onNext: () => void;
-  onClose: () => void;
+  onClose: () => boolean | void;
   onSave: (button?: HTMLButtonElement) => Promise<void>;
   onPrepare: () => Promise<void>;
 }
@@ -160,6 +170,7 @@ export function OpportunityInspector({
   const bodyAnimation = useRef<InspectorAnimation | null>(null);
   const closeGeneration = useRef(0);
   const closing = useRef(false);
+  const outsidePress = useRef(false);
   const previousMotion = useRef<{
     surface: HTMLElement;
     jobId: string;
@@ -190,6 +201,8 @@ export function OpportunityInspector({
     mobile,
     animateInteractions,
     jobId: job.id,
+    onDismiss: () => requestClose(true),
+    onGrab: (element) => freezeSurface(surfaceAnimation, element),
   });
   const evidence = requirementEvidence(match.evidence, facts);
   const status = roleStatus(job, application);
@@ -204,14 +217,31 @@ export function OpportunityInspector({
       job.prior_application === "rejected",
     );
 
+  const restoreRejectedClose = useCallback(() => {
+    closing.current = false;
+    cancelSheet();
+    stopMotion(surfaceAnimation, mobile ? dialog.current : inspector.current);
+    stopMotion(bodyAnimation, body.current);
+    const element = mobile ? dialog.current : inspector.current;
+    // Reset Motion's rendered value as well as inline styles: a queued final
+    // render from the rejected exit must not put the modal offscreen again.
+    if (element)
+      playMotion(surfaceAnimation, element, restingFrame, restingFrame, {
+        duration: 0,
+      });
+    if (mobile && dialog.current && !dialog.current.open)
+      dialog.current.showModal();
+    closeButton.current?.focus({ preventScroll: true });
+  }, [body, cancelSheet, dialog, mobile]);
+
   const closeImmediately = useCallback(() => {
     cancelSheet();
     closeGeneration.current += 1;
     closing.current = false;
     stopMotion(surfaceAnimation, mobile ? dialog.current : inspector.current);
     stopMotion(bodyAnimation, body.current);
-    onClose();
-  }, [mobile, onClose, cancelSheet, body, dialog]);
+    if (onClose() === false) restoreRejectedClose();
+  }, [mobile, onClose, cancelSheet, body, dialog, restoreRejectedClose]);
 
   useLayoutEffect(() => {
     if (!mobile) {
@@ -255,7 +285,8 @@ export function OpportunityInspector({
     if (!animateInteractions) {
       stopMotion(surfaceAnimation, element);
       stopMotion(bodyAnimation, body.current);
-      if (wasClosing && !reselected) onClose();
+      if (wasClosing && !reselected && onClose() === false)
+        restoreRejectedClose();
       return;
     }
 
@@ -266,24 +297,13 @@ export function OpportunityInspector({
         newSurface
           ? {
               x: mobile ? 0 : 24,
-              y: 0,
-              opacity: 0.82,
+              y: mobile ? element.getBoundingClientRect().height : 0,
+              opacity: mobile ? 1 : 0.82,
             }
           : currentFrame(element),
         restingFrame,
-        arrival,
+        mobile ? { type: "spring", duration: 0.32, bounce: 0 } : arrival,
       );
-      if (mobile && body.current) {
-        // The native sheet and its complete footer remain anchored. Its
-        // scrolling assessment carries the arrival and dismissal movement.
-        playMotion(
-          bodyAnimation,
-          body.current,
-          newSurface ? { x: 0, y: 24, opacity: 1 } : currentFrame(body.current),
-          restingFrame,
-          arrival,
-        );
-      }
     }
     if (!newSurface && previous?.jobId !== job.id && body.current) {
       // Replace one body in place; never retain a second interactive assessment.
@@ -308,6 +328,7 @@ export function OpportunityInspector({
     onClose,
     body,
     dialog,
+    restoreRejectedClose,
   ]);
 
   useLayoutEffect(
@@ -322,7 +343,6 @@ export function OpportunityInspector({
   );
 
   const requestClose = (pointer: boolean) => {
-    cancelSheet();
     const element = mobile ? dialog.current : inspector.current;
     if (!pointer || !animateInteractions || !element) {
       closeImmediately();
@@ -330,31 +350,28 @@ export function OpportunityInspector({
     }
     const generation = ++closeGeneration.current;
     closing.current = true;
-    const departure = { duration: 0.14, ease: [0.4, 0, 1, 1] } as const;
-    if (mobile && body.current) {
-      playMotion(
-        bodyAnimation,
-        body.current,
-        currentFrame(body.current),
-        { x: 0, y: 20, opacity: 1 },
-        departure,
-      );
-    }
+    const frame = currentFrame(element);
+    cancelSheet(true);
+    const departure = {
+      duration: mobile ? 0.22 : 0.14,
+      ease: [0.32, 0.72, 0, 1],
+    } as const;
     playMotion(
       surfaceAnimation,
       element,
-      currentFrame(element),
+      frame,
       {
         x: mobile ? 0 : 18,
-        y: 0,
-        opacity: 0.6,
+        y: mobile ? element.getBoundingClientRect().height + 24 : 0,
+        opacity: mobile ? 1 : 0.6,
       },
       departure,
       () => {
         if (generation !== closeGeneration.current) return;
         closing.current = false;
-        onClose();
+        if (onClose() === false) restoreRejectedClose();
       },
+      true,
     );
   };
 
@@ -409,6 +426,7 @@ export function OpportunityInspector({
           ref={sheetHandle}
           className="discover-sheet-expand"
           type="button"
+          aria-label="Resize opportunity details"
           aria-expanded={expanded}
           onClick={(event) => {
             stopMotion(bodyAnimation, body.current);
@@ -420,12 +438,13 @@ export function OpportunityInspector({
             snapSheet(event.key === "ArrowUp", false);
           }}
         >
-          <ChevronUp size={16} />
-          {expanded ? "Collapse details" : "Expand details"}
+          <span className="visually-hidden">
+            Drag up to expand or down to close. Tap to resize.
+          </span>
         </button>
       )}
       <header className="discover-inspector-toolbar">
-        <span>Opportunity details</span>
+        <span>{mobile ? "Details" : "Opportunity details"}</span>
         <div className="discover-inspector-navigation">
           <button
             type="button"
@@ -774,6 +793,30 @@ export function OpportunityInspector({
         data-inspector-motion={animateInteractions ? "on" : "off"}
         aria-labelledby={titleId}
         className={`discover-inspector discover-dialog ${expanded ? "is-expanded" : ""}`}
+        onPointerDown={(event) => {
+          const rect = event.currentTarget.getBoundingClientRect();
+          outsidePress.current =
+            event.target === event.currentTarget &&
+            (event.clientX < rect.left ||
+              event.clientX > rect.right ||
+              event.clientY < rect.top ||
+              event.clientY > rect.bottom);
+        }}
+        onClick={(event) => {
+          if (!outsidePress.current || event.target !== event.currentTarget)
+            return;
+          const rect = event.currentTarget.getBoundingClientRect();
+          if (
+            outsidePress.current &&
+            event.target === event.currentTarget &&
+            (event.clientX < rect.left ||
+              event.clientX > rect.right ||
+              event.clientY < rect.top ||
+              event.clientY > rect.bottom)
+          )
+            requestClose(true);
+          outsidePress.current = false;
+        }}
       >
         {content}
       </dialog>

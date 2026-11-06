@@ -15,40 +15,91 @@
   background: var(--discover-card);
 }
 
-.discover-sheet-expand > svg {
-  transform: rotate(0deg);
-}
-
 .discover-sheet-expand::before {
   content: "";
   position: absolute;
-  top: 5px;
+  top: 13px;
   left: calc(50% - 14px);
   width: 28px;
-  height: 3px;
+  height: 4px;
   border-radius: 3px;
   background: #6b6a74;
 }
 
 .discover-screen .discover-sheet-expand {
-  padding-top: 12px;
+  min-height: 44px;
+  height: 44px;
+  padding: 0;
 }
 
 .discover-dialog[data-sheet-dragging] {
   cursor: grabbing;
   user-select: none;
 }
-
-.discover-sheet-expand[aria-expanded="true"] > svg {
-  transform: rotate(180deg);
+.discover-dialog .discover-inspector-toolbar {
+  touch-action: pan-x pinch-zoom;
 }
 
-.discover-inspector[data-inspector-motion="on"] .discover-sheet-expand > svg {
-  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .discover-inspector .discover-sheet-expand > svg {
-    transition: none;
+@media (max-width: 1000px) {
+  .discover-screen .discover-dialog.discover-inspector {
+    min-height: min(480px, calc(100dvh - 8px));
+  }
+  .discover-screen .discover-dialog:not(.is-expanded) {
+    height: 60dvh;
+  }
+  .discover-screen .discover-card-top .discover-icon-button {
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+    margin: -9px -9px -10px 0;
+  }
+  .discover-screen
+    .discover-dialog
+    .discover-inspector-navigation
+    .discover-icon-button {
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+  }
+  .discover-inspector-toolbar > span {
+    min-width: 0;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .discover-dialog .discover-inspector-toolbar {
+    padding-block: 6px;
+  }
+  .discover-dialog .discover-inspector-body {
+    padding-block: 16px;
+  }
+  .discover-dialog .discover-inspector-company .discover-employer-mark {
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
+    font-size: 15px;
+  }
+  .discover-dialog .discover-inspector-body > h2 {
+    margin-top: 16px;
+    margin-bottom: 10px;
+  }
+  .discover-dialog .discover-role-location {
+    margin-block: 8px;
+  }
+  .discover-dialog .discover-inspector-salary {
+    margin-top: 12px;
+  }
+  .discover-screen .discover-dialog .discover-evidence-section {
+    margin-top: 16px;
+  }
+  .discover-inspector-navigation {
+    flex-shrink: 0;
+  }
+  .discover-screen
+    .discover-dialog
+    .discover-inspector-actions
+    .discover-icon-button {
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
   }
 }

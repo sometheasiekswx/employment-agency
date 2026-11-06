@@ -38,7 +38,7 @@ The sample application records include a reviewed Emberlane package, a Fernbridg
 
 ## Current interface GIFs
 
-The README walkthroughs are real browser captures of the current local application with the six-role fictional fixture. The refreshed discovery clips include the desktop inspector arrival, in-place role change, confirmed bookmark feedback and mobile sheet expansion. They record pointer interactions with motion enabled; keyboard review remains immediate and operating-system reduced-motion preferences suppress the animated transitions. They show the full local interface; the public static showcase has the read-only capabilities described above. Screens use the application's own fonts and assets. They contain no private résumé, browser session or employer account. Recording does not edit documents or send an application.
+The README walkthroughs are real browser captures of the current local application with the six-role fictional fixture. Desktop review includes inspector arrival, evidence, in-place role comparison and bookmark feedback. Mobile review includes live search, bottom-sheet arrival, touch expansion, native reading, drag to collapse or close, and outside-tap dismissal. The document walkthrough opens a sample CV from the combined Opportunities workspace and follows its preserved history. They record motion enabled; keyboard review remains immediate and reduced-motion preferences suppress the transitions. They show the full local interface; the public static showcase has the read-only capabilities described above. Screens use the application's own fonts and assets. They contain no private résumé, browser session or employer account. Recording does not edit documents or send an application.
 
 | Walkthrough                                 | Animation                                                    | Reduced-motion still                                         |
 | ------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
@@ -46,7 +46,7 @@ The README walkthroughs are real browser captures of the current local applicati
 | Application documents and preserved history | [application-documents.gif](media/application-documents.gif) | [application-documents.png](media/application-documents.png) |
 | Mobile discovery and expandable review      | [mobile-review.gif](media/mobile-review.gif)                 | [mobile-review.png](media/mobile-review.png)                 |
 
-The README uses `<picture>` to select the still image when reduced motion is requested and provides direct static-preview links. Lossless browser PNGs are captured at twice the displayed resolution: desktop and document assets are 2240 × 1680, displayed at 1120 × 840; mobile assets are 780 × 1688, displayed at 390 × 844. GIF timing follows the captures, with reading holds between interactions. The walkthroughs demonstrate interface navigation and sample evidence; they are not evidence that a vacancy is open or an application was sent.
+The README leads with a full-width desktop GIF followed by a centered phone GIF, preserving readable layouts rather than shrinking both into table columns. It uses `<picture>` to select the still image when reduced motion is requested and provides direct static-preview links. Lossless browser PNGs are captured at twice the intended display size: desktop and document assets are 2240 × 1680, capped at 1120 × 840; mobile assets are 780 × 1688, capped at 390 × 844. GitHub can reduce widths to fit its content column; no fixed height stretches or squeezes the images. GIF timing follows the captures, with reading holds between interactions. The walkthroughs demonstrate interface navigation and sample evidence; they are not evidence that a vacancy is open or an application was sent.
 
 [Capture provenance, timing and asset metadata](media/showcase-provenance.json) · [Decoded asset and source-frame quality checks](media/quality-report.json).
 
@@ -76,9 +76,10 @@ With that fixture running, record and encode the three walkthroughs in another t
 ```sh
 node scripts/capture-showcase.cjs
 .venv/bin/python scripts/build-showcase.py
+.venv/bin/python scripts/check-showcase.py
 ```
 
-Capture requires Playwright with Chrome; encoding requires FFmpeg and Pillow. Lossless PNG frames and the capture manifest go under `output/readme-showcase/`. The encoder preserves their resolution and variable timing, then writes the GIFs, matching PNG posters and `docs/media/showcase-provenance.json`, retaining source timings and asset hashes. It rejects a GIF over 10 MB. `SHOWCASE_URL` can select another loopback fixture port.
+Capture requires Playwright with Chrome; encoding requires FFmpeg and Pillow. Lossless PNG frames and the capture manifest go under `output/readme-showcase/`. The encoder preserves their resolution and variable timing, then writes the GIFs, matching PNG posters and `docs/media/showcase-provenance.json`, retaining source timings and asset hashes. It rejects a GIF over 10 MB. The checker decodes every GIF frame, verifies source hashes and dimensions, validates the posters and README fallbacks, and writes `docs/media/quality-report.json` plus local action contact sheets. Its palette-error metric does not measure usability or physical-device motion quality. `SHOWCASE_URL` selects another loopback fixture port for both capture and checking; neither tool should target a private workspace.
 
 ## Existing CLI demo
 

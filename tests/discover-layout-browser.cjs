@@ -92,6 +92,18 @@ const fs = require("node:fs");
       await inspector
         .getByRole("heading", { name: "Cloud Software Engineer", exact: true })
         .waitFor();
+      // Measure destination geometry after the mobile bottom-entry animation.
+      await page.waitForFunction(
+        () =>
+          !document
+            .getAnimations()
+            .some(
+              (a) =>
+                a.effect?.target instanceof Element &&
+                a.effect.target.closest(".discover-inspector") &&
+                (a.pending || a.playState === "running"),
+            ),
+      );
       await bounds(`${width}px assessment`);
       assert.equal(
         await page.locator("dialog[open]").count(),

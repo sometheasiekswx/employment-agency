@@ -417,7 +417,7 @@ const { showPanel } = require("./browser-applications.cjs");
     });
     await modal.waitFor();
     await modal
-      .getByRole("button", { name: "Expand details", exact: true })
+      .getByRole("button", { name: "Resize opportunity details", exact: true })
       .click();
     await page.screenshot({
       path: "output/playwright/public-preview/discover-mobile.png",

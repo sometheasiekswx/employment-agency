@@ -146,6 +146,29 @@ it("closes keyboard and native cancellation paths without an exit delay", () => 
   expect(mobileProps.onClose).toHaveBeenCalledOnce();
 });
 
+it("restores the visible native sheet and focus when a close is rejected by a draft guard", async () => {
+  const props = {
+    ...inspectorProps(),
+    mobile: true,
+    onClose: vi.fn(() => false),
+  };
+  render(<OpportunityInspector {...props} />);
+  const dialog = screen.getByRole("dialog");
+  const close = screen.getByRole("button", {
+    name: "Close opportunity details",
+  });
+  fireEvent.click(close, { detail: 1 });
+  await act(async () => animations.at(-1)!.finish());
+  expect(props.onClose).toHaveBeenCalledOnce();
+  expect(dialog).toHaveAttribute("open");
+  expect(dialog.style.transform).toBe("translate3d(0px, 0px, 0px)");
+  expect(dialog.style.opacity).toBe("1");
+  expect(close).toHaveFocus();
+  (dialog as HTMLDialogElement).open = false;
+  fireEvent(dialog, new Event("close"));
+  expect(dialog).toHaveAttribute("open");
+});
+
 it("resizes from the live height on rapid reversal and ignores stale completions", async () => {
   render(<OpportunityInspector {...inspectorProps()} mobile />);
   const dialog = screen.getByRole("dialog");
@@ -156,20 +179,26 @@ it("resizes from the live height on rapid reversal and ignores stale completions
   dialog.style.minHeight = "400px";
   dialog.style.maxHeight = "836px";
   vi.spyOn(dialog, "getBoundingClientRect")
-    .mockReturnValueOnce({ height: 422 } as DOMRect)
+    .mockReturnValueOnce({ height: 506.4 } as DOMRect)
     .mockReturnValueOnce({ height: 700 } as DOMRect);
-  fireEvent.click(screen.getByRole("button", { name: "Expand details" }), {
-    detail: 1,
-  });
+  fireEvent.click(
+    screen.getByRole("button", { name: "Resize opportunity details" }),
+    {
+      detail: 1,
+    },
+  );
   const expand = sheetAnimations.at(-1)!;
-  expect(expand.from).toBe(422);
+  expect(expand.from).toBe(506.4);
   expect(expand.to).toBe(836);
-  fireEvent.click(screen.getByRole("button", { name: "Collapse details" }), {
-    detail: 1,
-  });
+  fireEvent.click(
+    screen.getByRole("button", { name: "Resize opportunity details" }),
+    {
+      detail: 1,
+    },
+  );
   expect(expand.stop).toHaveBeenCalledOnce();
   expect(sheetAnimations.at(-1)!.from).toBe(700);
-  expect(sheetAnimations.at(-1)!.to).toBe(422);
+  expect(sheetAnimations.at(-1)!.to).toBe(506.4);
   await act(async () => expand.finish());
   expect(dialog.style.height).toBe("700px");
   await act(async () => sheetAnimations.at(-1)!.finish());
@@ -177,9 +206,47 @@ it("resizes from the live height on rapid reversal and ignores stale completions
   expect(body.style.height).toBe("");
   expect(footer.style.transform).toBe("");
   expect(
-    screen.getByRole("button", { name: "Expand details" }),
+    screen.getByRole("button", { name: "Resize opportunity details" }),
   ).toHaveAttribute("aria-expanded", "false");
 });
+
+it.each(["pointerup", "pointercancel"])(
+  "settles an interrupted arrival when pending %s lands outside the toolbar",
+  async (completion) => {
+    render(<OpportunityInspector {...inspectorProps()} mobile />);
+    const dialog = screen.getByRole("dialog");
+    const toolbar = dialog.querySelector<HTMLElement>(
+      ".discover-inspector-toolbar",
+    )!;
+    dialog.style.minHeight = "480px";
+    dialog.style.maxHeight = "836px";
+    dialog.style.transform = "translate3d(0px, 81px, 0px)";
+    vi.spyOn(dialog, "getBoundingClientRect").mockReturnValue({
+      height: 506.4,
+    } as DOMRect);
+    const pointer = (type: string) =>
+      Object.assign(new Event(type, { bubbles: true }), {
+        isPrimary: true,
+        pointerId: 7,
+        pointerType: "mouse",
+        button: 0,
+        clientX: 36,
+        clientY: 530,
+      });
+
+    fireEvent(toolbar, pointer("pointerdown"));
+    expect(dialog.style.height).not.toBe("");
+    // The moving surface can change the release hit target before a drag has
+    // activated pointer capture. Completion must still release and settle it.
+    fireEvent(window, pointer(completion));
+    expect(sheetAnimations).toHaveLength(1);
+    expect(sheetAnimations[0].to).toBe(506.4);
+    await act(async () => sheetAnimations[0].finish());
+    expect(dialog.style.height).toBe("");
+    expect(dialog.style.transform).toBe("");
+    expect(dialog).toHaveAttribute("open");
+  },
+);
 
 it("supports instant arrow-key resizing without changing focus or replacing the native dialog", () => {
   render(
@@ -190,7 +257,9 @@ it("supports instant arrow-key resizing without changing focus or replacing the 
     />,
   );
   const dialog = screen.getByRole("dialog");
-  const handle = screen.getByRole("button", { name: "Expand details" });
+  const handle = screen.getByRole("button", {
+    name: "Resize opportunity details",
+  });
   handle.focus();
   fireEvent.keyDown(handle, { key: "ArrowUp" });
   expect(handle).toHaveAttribute("aria-expanded", "true");
@@ -231,7 +300,7 @@ it("retargets a native computed exit matrix to an explicit translation identity"
   expect(surface.style.transform).toBe("");
 });
 
-it("keeps the entire mobile footer stationary during entrance and departure", () => {
+it("moves the mobile surface from the bottom and exits on the same path", () => {
   render(<OpportunityInspector {...inspectorProps()} mobile />);
   const surface = screen.getByRole("dialog");
   const body = surface.querySelector<HTMLElement>(".discover-inspector-body")!;
@@ -240,21 +309,20 @@ it("keeps the entire mobile footer stationary during entrance and departure", ()
   )!;
   const identity = "translate3d(0px, 0px, 0px)";
   expect(
-    animations.find((animation) => animation.element === surface)?.keyframes
-      .transform,
-  ).toEqual([identity, identity]);
-  expect(
-    animations.find((animation) => animation.element === body)?.keyframes
-      .transform,
-  ).toEqual(["translate3d(0px, 24px, 0px)", identity]);
+    animations.find((a) => a.element === surface)!.keyframes.transform[1],
+  ).toBe(identity);
+  expect(animations.filter((a) => a.element === body)).toHaveLength(0);
+  vi.spyOn(surface, "getBoundingClientRect").mockReturnValue({
+    height: 422,
+  } as DOMRect);
   fireEvent.click(
     screen.getByRole("button", { name: "Close opportunity details" }),
     { detail: 1 },
   );
-  expect(animations.at(-1)!.keyframes.transform).toEqual([identity, identity]);
-  expect(
-    animations.filter((animation) => animation.element === footer),
-  ).toHaveLength(0);
+  expect(animations.at(-1)!.keyframes.transform[1]).toBe(
+    "translate3d(0px, 446px, 0px)",
+  );
+  expect(animations.filter((a) => a.element === footer)).toHaveLength(0);
   expect(footer.style.transform).toBe("");
 });
 

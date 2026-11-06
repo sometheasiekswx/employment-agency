@@ -419,6 +419,110 @@ details details {
   border-radius: var(--radius);
   background: var(--surface);
 }
+.workspace-boot {
+  display: grid;
+  grid-template-columns: 272px minmax(0, 1fr);
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--bg);
+}
+.workspace-boot-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 30px 24px;
+  background: #18191b;
+}
+.workspace-boot-placeholder {
+  display: block;
+  width: 70%;
+  height: 13px;
+  border-radius: 4px;
+  background: #ffffff0b;
+}
+.workspace-boot-brand {
+  width: 130px;
+  height: 28px;
+  margin-bottom: 24px;
+}
+.workspace-boot-content {
+  min-width: 0;
+  padding: 24px;
+}
+.workspace-boot-header {
+  display: none;
+}
+.workspace-boot-message {
+  margin: 10px 0 24px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.workspace-boot-search {
+  width: min(100%, 480px);
+  height: 48px;
+  border-radius: 10px;
+  background: var(--surface);
+}
+.workspace-boot-tabs {
+  display: flex;
+  gap: 28px;
+  padding: 32px 0;
+}
+.workspace-boot-tabs .workspace-boot-placeholder {
+  width: 100px;
+}
+.workspace-boot-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  gap: 16px;
+}
+.workspace-boot-card {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-height: 182px;
+  padding: 16px;
+  border-radius: 11px;
+  background: var(--surface);
+}
+.workspace-boot-badge {
+  width: 60px;
+  height: 22px;
+}
+.workspace-boot-title {
+  width: 90%;
+  height: 17px;
+}
+.workspace-boot-card > :last-child {
+  width: 46%;
+}
+@media (max-width: 900px) {
+  .workspace-boot {
+    display: block;
+  }
+  .workspace-boot-rail {
+    display: none;
+  }
+  .workspace-boot-content {
+    padding: 20px;
+  }
+  .workspace-boot-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .workspace-boot-header .workspace-boot-brand {
+    margin: 0;
+  }
+  .workspace-boot-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+  }
+  .workspace-boot-message {
+    margin: 24px 0 16px;
+  }
+}
 .boot h1 {
   font-size: 1.75rem;
 }
@@ -1379,7 +1483,8 @@ details details {
     display: block;
     font-size: 0.6875rem;
     font-weight: 400;
-    overflow-wrap: anywhere;
+    overflow-wrap: normal;
+    white-space: nowrap;
   }
   .desk {
     padding: 0 20px calc(100px + env(safe-area-inset-bottom));
@@ -1441,6 +1546,11 @@ details details {
   .boot {
     margin: 8vh 16px;
     padding: 1.5rem;
+  }
+}
+@media (max-width: 360px) {
+  .dock-short-label {
+    font-size: 0.625rem;
   }
 }
 @media (max-width: 760px) {
