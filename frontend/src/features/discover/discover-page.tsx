@@ -158,7 +158,9 @@ export function DiscoverPage() {
   const inspectorLayout = useRef<HTMLDivElement>(null);
   const mobile = useMobileInspector();
   const profile = state.profiles.find((item) => item.id === profileId);
-  const priorities = profile?.locations || state._workspace.preferred_locations;
+  const priorities = profile?.locations.length
+    ? profile.locations
+    : state._workspace.preferred_locations;
   // Saving a role or refreshing application decisions must not reload the board.
   const rankInput = JSON.stringify({
     profile,

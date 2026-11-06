@@ -827,6 +827,44 @@ it("keeps an explicitly chosen decision status when switching to All roles", asy
   expect(new URLSearchParams(fixture.query).get("status")).toBe("submitted");
 });
 
+it.each(["all", "applications"])(
+  "uses workspace location priority in %s when the profile has no location preference",
+  async (view) => {
+    fixture.state.profiles[0].locations = [];
+    fixture.state._workspace.preferred_locations = ["Toronto"];
+    fixture.query = `view=${view}`;
+    fixture.state.applications = fixture.state.jobs.map((job) => ({
+      id: `app-${job.id}`,
+      job_id: job.id,
+      title: job.title,
+      employer: job.employer,
+      status: "draft",
+      comments: [],
+    }));
+    render(<DiscoverPage />);
+    await screen.findByRole("button", {
+      name: "Assess Cloud Engineer at Example Cloud",
+    });
+    const board = screen.getByRole("region", {
+      name: "Opportunities by location",
+    });
+    expect(
+      within(board)
+        .getAllByRole("heading", { level: 2 })
+        .map((heading) => heading.textContent),
+    ).toEqual(["Toronto", "Berlin"]);
+    const locationOptions = screen.getByRole("combobox", {
+      name: "Location",
+      hidden: true,
+    });
+    expect(
+      within(locationOptions)
+        .getAllByRole("option", { hidden: true })
+        .map((option) => option.textContent),
+    ).toEqual(["All locations", "Toronto", "Berlin"]);
+  },
+);
+
 it("changes the Applications stage without leaving Applications when filtering decisions", async () => {
   fixture.query = "view=applications";
   render(<DiscoverPage />);
