@@ -172,7 +172,9 @@ export async function promotePublicDemo(
     );
 
     async function readProject() {
-      const project = await request(`/v9/projects/${projectId}`);
+      const project = await request(
+        `/v9/projects/${projectId}?rollbackInfo=true`,
+      );
       requireValue(
         project.id === projectId && project.accountId === teamId,
         "Vercel did not return the expected project and account.",

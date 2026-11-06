@@ -56,6 +56,7 @@ function apiServer({ statuses = [job("succeeded")], postStatus = 201 } = {}) {
         return Response.json(deployment);
       }
       if (parsed.pathname === `/v9/projects/${projectId}`) {
+        assert.equal(parsed.searchParams.get("rollbackInfo"), "true");
         assert.equal(request.method, "GET");
         const current = promoted
           ? statuses[Math.min(pollIndex++, statuses.length - 1)]

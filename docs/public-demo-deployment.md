@@ -16,6 +16,8 @@ The generated static directory is deployed through Vercel's deployment API with 
 
 The deployment transport intentionally avoids the CLI: Vercel CLI 65.2.0 requests `/v2/user`, which returns HTTP 404 for this project-scoped token even though project access succeeds. Keeping the token narrow takes precedence over granting CI account-wide access. The staging request follows the official CLI's deployment payload for static configuration and `autoAssignCustomDomains: false`; promotion uses the documented project deployment endpoint.
 
+Project status requests include `rollbackInfo=true`, as in the official CLI, because Vercel otherwise omits `lastAliasRequest`. Both the pending-operation guard and promotion polling require that metadata; the public release marker remains the final routing check.
+
 ## One-time credential setup
 
 The release job requires the GitHub Actions repository secret **`VERCEL_DEMO_TOKEN`**, containing a deployment token scoped only to the public demo project:

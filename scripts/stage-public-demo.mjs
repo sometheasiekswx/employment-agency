@@ -246,7 +246,7 @@ export async function stagePublicDemo(
       throw new Error("Vercel returned invalid JSON");
     }
   }
-  const project = await request(`/v9/projects/${projectId}`);
+  const project = await request(`/v9/projects/${projectId}?rollbackInfo=true`);
   requireValue(
     project?.id === projectId &&
       project.accountId === teamId &&

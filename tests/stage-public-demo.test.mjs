@@ -139,6 +139,7 @@ function server() {
     assert.ok(options.signal instanceof AbortSignal);
     let body;
     if (parsed.pathname === `/v9/projects/${projectId}`) {
+      assert.equal(parsed.searchParams.get("rollbackInfo"), "true");
       assert.equal(options.method, "GET");
       body = state.project;
     } else if (parsed.pathname === "/v13/deployments") {
