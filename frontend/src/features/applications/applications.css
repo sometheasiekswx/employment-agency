@@ -103,6 +103,41 @@
 .applications-page .result-count {
   font-size: 0.75rem;
 }
+.opportunity-application {
+  min-width: 0;
+}
+.opportunity-application .dossier {
+  grid-template-columns: minmax(0, 1fr);
+  margin: 0;
+  background: var(--surface);
+}
+.opportunity-application .dossier-header {
+  padding: 1rem 1.25rem;
+  background: var(--surface);
+}
+.opportunity-application .dossier h2 {
+  margin-top: 0;
+}
+.opportunity-application .dossier-content,
+.opportunity-application .review-pane {
+  padding: 1.25rem;
+  background: var(--surface);
+}
+.opportunity-application .review-pane {
+  border: 0;
+}
+.opportunity-application .editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 1.25rem 0 0.75rem;
+}
+.opportunity-application .editor-actions > button {
+  min-height: 2.75rem;
+}
+.opportunity-application .review-pane textarea {
+  min-height: 10rem;
+}
 @media (max-width: 1050px) {
   .application-overview-date {
     display: none;

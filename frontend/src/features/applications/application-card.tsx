@@ -12,6 +12,7 @@ import {
   text,
 } from "@/components/controls";
 import { useWorkspace } from "@/components/workspace-provider";
+import { useDraft } from "@/components/unsaved";
 import { applicationHref, displayDate, safeUrl } from "@/lib/format";
 import type { Application, EditorDocument, Job } from "@/lib/models";
 import { FileLink } from "./file-link";
@@ -34,14 +35,18 @@ export function ApplicationCard({
   job,
   onEdit,
   onApply,
+  view = "all",
 }: {
   app: Application;
   job: Partial<Job>;
   onEdit: (document: EditorDocument, opener: HTMLButtonElement) => void;
   onApply: (opener: HTMLButtonElement) => void;
+  view?: "all" | "documents" | "activity";
 }) {
   const { state, client, run } = useWorkspace();
+  const { canLeave } = useDraft();
   const [comment, setComment] = useState("");
+  const [reviewFormRevision, setReviewFormRevision] = useState(0);
   const [reviewBusy, setReviewBusy] = useState(false);
   const [decision, setDecision] = useState<"submit" | "correct">();
   const [decisionBusy, setDecisionBusy] = useState(false);
@@ -78,88 +83,51 @@ export function ApplicationCard({
   const files = Object.entries(fileLabels).filter(
     ([file]) => app.documents?.[file],
   );
+  const reviewHistory = app.comments.length > 0 && (
+    <details className="application-review-history" open={view === "activity"}>
+      <summary>Review history ({app.comments.length})</summary>
+      <ol
+        className="application-activity-list"
+        aria-label="Latest activity first"
+      >
+        {[...app.comments].reverse().map((item, index) => (
+          <li key={`${item.at}-${index}`}>
+            <div className="application-activity-meta">
+              <strong>
+                {item.kind === "comment" ? "Comment" : item.status || "Update"}
+              </strong>
+              <time dateTime={item.at}>{displayDate(item.at, timezone)}</time>
+            </div>
+            {item.text && <p>{item.text}</p>}
+          </li>
+        ))}
+      </ol>
+    </details>
+  );
   return (
     <article
       className="dossier"
       id={`application-${app.id}`}
       data-application-id={app.id}
+      data-view={view}
       tabIndex={-1}
       aria-labelledby={headingId}
     >
-      <header className="dossier-header">
+      <header className="dossier-header" hidden={view === "documents"}>
         <h2 id={headingId}>{app.title}</h2>
         <p>
-          {app.employer}{" "}
+          {view === "all" && <>{app.employer} </>}
           <ReviewStatus
-            readOnly={client.preview}
+            readOnly={client.preview || view === "documents"}
             status={app.status}
             form={reviewForm}
             busy={reviewBusy || decisionBusy || Boolean(decision)}
           />
         </p>
       </header>
-      <div className="dossier-content">
-        {app.fit_summary && <p className="fit-summary">{app.fit_summary}</p>}
+      <div className="dossier-content" hidden={view === "activity"}>
         {Boolean(app.warnings?.length) && (
           <p className="warning">{app.warnings?.join(" · ")}</p>
-        )}
-        <ApplicationDetails app={app} job={job} timezone={timezone} />
-        {app.submission_recovery && (
-          <details className="submission-audit">
-            <summary>Original submission record and correction</summary>
-            <p>
-              This draft descends from a corrected manual submission record. The
-              original record and its documents remain preserved.
-            </p>
-            <p>
-              <strong>Correction:</strong> {app.submission_recovery.reason}
-            </p>
-            <p>
-              Corrected {displayDate(app.submission_recovery.at, timezone)}.
-              {app.submission_recovery.recorded_at && (
-                <>
-                  {" "}
-                  Original submission recording:{" "}
-                  {displayDate(app.submission_recovery.recorded_at, timezone)}.
-                </>
-              )}
-            </p>
-            {original && (
-              <>
-                <p>
-                  The original Submitted record and its documents are preserved.
-                </p>
-                <div className="actions">
-                  {original.documents?.["resume.pdf"] && (
-                    <FileLink id={original.id} name="resume.pdf">
-                      Original CV PDF
-                    </FileLink>
-                  )}
-                  {original.documents?.["cover-letter.pdf"] && (
-                    <FileLink id={original.id} name="cover-letter.pdf">
-                      Original cover letter PDF
-                    </FileLink>
-                  )}
-                </div>
-                {original.comments.map((item, index) => (
-                  <p key={index}>
-                    <small>
-                      {displayDate(item.at, timezone)} ·{" "}
-                      {item.kind === "comment" ? "Comment" : item.status}
-                    </small>
-                    <br />
-                    {item.text}
-                  </p>
-                ))}
-              </>
-            )}
-            {job.prior_application === "submitted" && (
-              <p className="warning">
-                A separate earlier submission decision still applies to this
-                job. Review that decision before preparing or applying again.
-              </p>
-            )}
-          </details>
         )}
         <div className="editor-actions">
           {(["resume", "cover-letter"] as const)
@@ -190,6 +158,72 @@ export function ApplicationCard({
             </FileLink>
           ))}
         </div>
+
+        <details className="application-context" open={view === "all"}>
+          <summary>Application details</summary>
+          {app.fit_summary && <p className="fit-summary">{app.fit_summary}</p>}
+
+          <ApplicationDetails app={app} job={job} timezone={timezone} />
+          {app.submission_recovery && (
+            <details className="submission-audit">
+              <summary>Original submission record and correction</summary>
+              <p>
+                This draft descends from a corrected manual submission record.
+                The original record and its documents remain preserved.
+              </p>
+              <p>
+                <strong>Correction:</strong> {app.submission_recovery.reason}
+              </p>
+              <p>
+                Corrected {displayDate(app.submission_recovery.at, timezone)}.
+                {app.submission_recovery.recorded_at && (
+                  <>
+                    {" "}
+                    Original submission recording:{" "}
+                    {displayDate(app.submission_recovery.recorded_at, timezone)}
+                    .
+                  </>
+                )}
+              </p>
+              {original && (
+                <>
+                  <p>
+                    The original Submitted record and its documents are
+                    preserved.
+                  </p>
+                  <div className="actions">
+                    {original.documents?.["resume.pdf"] && (
+                      <FileLink id={original.id} name="resume.pdf">
+                        Original CV PDF
+                      </FileLink>
+                    )}
+                    {original.documents?.["cover-letter.pdf"] && (
+                      <FileLink id={original.id} name="cover-letter.pdf">
+                        Original cover letter PDF
+                      </FileLink>
+                    )}
+                  </div>
+                  {original.comments.map((item, index) => (
+                    <p key={index}>
+                      <small>
+                        {displayDate(item.at, timezone)} ·{" "}
+                        {item.kind === "comment" ? "Comment" : item.status}
+                      </small>
+                      <br />
+                      {item.text}
+                    </p>
+                  ))}
+                </>
+              )}
+              {job.prior_application === "submitted" && (
+                <p className="warning">
+                  A separate earlier submission decision still applies to this
+                  job. Review that decision before preparing or applying again.
+                </p>
+              )}
+            </details>
+          )}
+        </details>
         {files.length > 2 && (
           <details>
             <summary>Supporting files & source evidence</summary>
@@ -210,7 +244,11 @@ export function ApplicationCard({
             </p>
             <Action
               run={async () => {
-                await run("adopt-edits", { id: app.id });
+                if (!canLeave()) return;
+                const application = await run<Application>("adopt-edits", {
+                  id: app.id,
+                });
+                router.replace(applicationHref(application));
               }}
             >
               Validate edits as a new draft
@@ -232,22 +270,26 @@ export function ApplicationCard({
           </p>
         )}
       </div>
-      <div className="review-pane">
+      <div className="review-pane" hidden={view === "documents"}>
         <div className="review-header">
           <h3>Review & decision</h3>
-          {!client.hosted && app.documents?.["resume.pdf"] && (
-            <button
-              className="secondary"
-              disabled={state._workspace.demo}
-              onClick={(event) => onApply(event.currentTarget)}
-            >
-              {app.status === "submitted"
-                ? "Submission details"
-                : "Apply For Me"}
-            </button>
-          )}
+          {!client.hosted &&
+            !state._workspace.demo &&
+            app.documents?.["resume.pdf"] && (
+              <button
+                className="secondary"
+                disabled={state._workspace.demo}
+                onClick={(event) => onApply(event.currentTarget)}
+              >
+                {app.status === "submitted"
+                  ? "Submission details"
+                  : "Apply For Me"}
+              </button>
+            )}
         </div>
+        {view === "activity" && reviewHistory}
         <Form
+          key={reviewFormRevision}
           id={reviewForm}
           onBusyChange={setReviewBusy}
           onSave={async (data, submitter) => {
@@ -361,7 +403,8 @@ export function ApplicationCard({
                     "Submission recorded. No message was sent by this action.",
                   );
                   setComment("");
-                  router.replace(applicationHref(result));
+                  setReviewFormRevision((revision) => revision + 1);
+                  router.replace(applicationHref(result, "activity"));
                 } else {
                   const reason = text(data, "reason").trim();
                   if (!reason)
@@ -430,21 +473,7 @@ export function ApplicationCard({
             </Form>
           </section>
         )}
-        {app.comments.length > 0 && (
-          <details>
-            <summary>Review history ({app.comments.length})</summary>
-            {app.comments.map((item, index) => (
-              <p key={index}>
-                <small>
-                  {displayDate(item.at, timezone)} ·{" "}
-                  {item.kind === "comment" ? "Comment" : item.status}
-                </small>
-                <br />
-                {item.text}
-              </p>
-            ))}
-          </details>
-        )}
+        {view !== "activity" && reviewHistory}
       </div>
     </article>
   );

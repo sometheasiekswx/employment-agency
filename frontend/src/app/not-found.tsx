@@ -5,7 +5,7 @@ export default function NotFound() {
     <section>
       <h2>Page not found</h2>
       <p>This page is no longer available.</p>
-      <Link href="/">Return to applications</Link>
+      <Link href="/discover/?view=applications">Return to applications</Link>
     </section>
   );
 }

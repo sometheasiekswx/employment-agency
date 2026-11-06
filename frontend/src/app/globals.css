@@ -444,6 +444,9 @@ details details {
   background: var(--rail);
   color: var(--ink);
 }
+.workspace-header > * {
+  flex-shrink: 0;
+}
 .brand {
   display: inline-flex;
   align-items: center;
@@ -467,6 +470,7 @@ details details {
   flex-shrink: 0;
 }
 .rail-context {
+  container: career-summary / inline-size;
   padding-top: 43px;
 }
 .rail-context-label {
@@ -489,12 +493,22 @@ details details {
 }
 .rail-context dt {
   color: var(--muted);
+  overflow-wrap: anywhere;
 }
 .rail-context dd {
   margin: 0;
   color: #d6d6dd;
   text-align: right;
   overflow-wrap: anywhere;
+}
+@container career-summary (max-width: 12rem) {
+  .rail-context dl > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+  .rail-context dd {
+    text-align: left;
+  }
 }
 .rail-summary {
   display: flex;
@@ -1348,8 +1362,7 @@ details details {
     border-radius: 7px;
     text-align: center;
   }
-  .dock-item[href="/search/"],
-  .dock-item[href="/history/"] {
+  .dock-item[href="/search/"] {
     display: none;
   }
   .dock-item[aria-current="page"] {

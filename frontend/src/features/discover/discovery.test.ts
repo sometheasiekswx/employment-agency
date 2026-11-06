@@ -104,7 +104,7 @@ it("preserves the submitted snapshot even when a later draft exists", () => {
   ]).get(job.id)!;
   expect(selected.id).toBe(sent.id);
   expect(applicationHref(selected)).toBe(
-    "/?section=submitted&application=exact-submitted-version",
+    "/discover/?view=applications&section=submitted&application=exact-submitted-version&panel=documents",
   );
 });
 

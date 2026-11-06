@@ -8,7 +8,7 @@ import {
   type ReactNode,
   type InputHTMLAttributes,
 } from "react";
-import { errorMessage } from "@/lib/format";
+import { errorMessage, isConnectionError } from "@/lib/format";
 import { PREVIEW_READ_ONLY, publicPreviewEnabled } from "@/lib/public-preview";
 import { useDraft } from "./unsaved";
 
@@ -124,7 +124,12 @@ export function Form({
       await onSave(data, submitter);
       setDirty(false);
     } catch (error) {
-      setError(errorMessage(error));
+      const message = errorMessage(error);
+      setError(
+        isConnectionError(error)
+          ? `Your unsaved input is still in this form. ${message}`
+          : message,
+      );
     } finally {
       saving.current = false;
       setBusy(false);

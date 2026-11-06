@@ -5,7 +5,76 @@ import {
   safeUrl,
   splitList,
   compareDestinations,
+  applicationHref,
+  errorMessage,
+  isConnectionError,
 } from "./format";
+import type { Application } from "./models";
+
+it.each([
+  "Failed to fetch",
+  "Load failed",
+  "NetworkError",
+  "NetworkError when attempting to fetch resource.",
+])("explains the known raw browser connection failure %s", (message) => {
+  const error = new TypeError(message);
+  expect(isConnectionError(error)).toBe(true);
+  expect(errorMessage(error)).toBe(
+    "Cannot connect to the app. Check your connection and that the app is running, then try again.",
+  );
+});
+
+it.each([
+  "Files changed; reload the editor",
+  "Workspace is locked",
+  "Failed to fetch employer profile: access was denied",
+  "NetworkError: document manifest changed; review the latest version",
+])("preserves the specific backend error %s", (message) => {
+  const error = new Error(message);
+  expect(isConnectionError(error)).toBe(false);
+  expect(errorMessage(error)).toBe(message);
+});
+
+it("does not infer a connection failure from unrelated error values", () => {
+  expect(isConnectionError(null)).toBe(false);
+  expect(isConnectionError("Failed to fetch")).toBe(false);
+  expect(errorMessage(undefined)).toBe(
+    "The operation failed. Please try again.",
+  );
+});
+
+it.each([
+  ["draft", "active"],
+  ["reviewed", "active"],
+  ["submitted", "submitted"],
+  ["rejected", "rejected"],
+] as const)(
+  "opens %s application documents in Opportunities",
+  (status, section) => {
+    expect(
+      applicationHref({ id: "application-1", status } as Application),
+    ).toBe(
+      `/discover/?view=applications&section=${section}&application=application-1&panel=documents`,
+    );
+  },
+);
+
+it("preserves archived version access and safely encodes application identifiers", () => {
+  const href = applicationHref({
+    id: "version / 1&2",
+    status: "submitted",
+    archived: true,
+  } as Application);
+  const url = new URL(href, "https://example.test");
+  expect(url.pathname).toBe("/discover/");
+  expect(Object.fromEntries(url.searchParams)).toEqual({
+    view: "applications",
+    section: "submitted",
+    application: "version / 1&2",
+    panel: "documents",
+    history: "true",
+  });
+});
 
 it("preserves approximate source dates and formats date-only values without timezone shifts", () => {
   expect(displayDate("about a week ago", "Australia/Melbourne")).toBe(

@@ -397,6 +397,16 @@
   margin-bottom: 1.5rem;
 }
 
+.history-page .history-role-context {
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.history-page .history-role-context > a {
+  flex-shrink: 0;
+}
+
 .history-page .history-toolbar {
   display: grid;
   grid-template-columns: minmax(12rem, 1fr) minmax(10rem, 16rem) auto;

@@ -1,0 +1,307 @@
+.opportunities-application-filters {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 0 20px;
+  flex-wrap: wrap;
+}
+.opportunities-stages {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.opportunities-stages button {
+  display: inline-flex;
+  gap: 9px;
+  align-items: center;
+  padding: 8px 12px;
+  min-height: 40px;
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--line);
+}
+.opportunities-stages button[aria-pressed="true"] {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.opportunities-stages button span {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.opportunities-application-filters > label {
+  font-size: 12px;
+  color: var(--muted);
+}
+.discover-screen .discover-layout.has-workbench {
+  gap: 20px;
+}
+.discover-layout.has-workbench .discover-board {
+  flex: 0 0 290px;
+}
+.opportunities-workbench {
+  position: relative;
+  inset: auto;
+  margin: 0;
+  padding: 0;
+  color: var(--ink);
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--card);
+  overflow: hidden;
+}
+.opportunities-workbench[hidden],
+.opportunities-workbench:not([open]) {
+  display: none;
+}
+.opportunities-overview-unavailable {
+  line-height: 1.6;
+}
+.opportunities-overview-unavailable h3 {
+  margin-top: 0;
+  font-size: 17px;
+}
+.opportunities-overview-unavailable p {
+  color: var(--muted);
+}
+.opportunities-workbench-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 22px 24px 16px;
+}
+.opportunities-workbench-header p {
+  margin: 0 0 7px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.opportunities-workbench-header h2 {
+  margin: 0;
+  font-size: 21px;
+  line-height: 1.35;
+  letter-spacing: -0.025em;
+}
+.opportunities-detail-tabs {
+  display: flex;
+  gap: 6px;
+  border-bottom: 1px solid var(--line);
+  padding: 0 16px;
+  flex-shrink: 0;
+  background: var(--card);
+}
+.opportunities-detail-tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  padding: 13px 10px;
+  min-height: 44px;
+  font-size: 13px;
+}
+.opportunities-detail-tabs button[aria-pressed="true"] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.opportunities-workbench-scroll {
+  overflow: auto;
+  min-height: 0;
+  flex: 1;
+  padding: 22px 24px;
+  scrollbar-width: thin;
+  scrollbar-color: #55545f #29292d;
+}
+.opportunities-workbench-dialog {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: 100%;
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0;
+  padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+  border: 0;
+  border-radius: 0;
+  color: var(--ink);
+}
+.opportunities-workbench-dialog:not([open]) {
+  display: none;
+}
+.opportunities-workbench-dialog::backdrop {
+  background: #0009;
+}
+.opportunities-historical {
+  margin-top: 24px;
+  color: var(--muted);
+}
+.opportunities-historical h2 {
+  color: var(--ink);
+  font-size: 17px;
+}
+@media (max-width: 1100px) and (min-width: 1001px) {
+  .discover-layout.has-workbench .discover-board {
+    flex-basis: 272px;
+  }
+  .opportunities-workbench-header,
+  .opportunities-workbench-scroll {
+    padding: 16px;
+  }
+}
+@media (max-width: 700px) {
+  .discover-screen .discover-toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: end;
+  }
+  .discover-screen .discover-toolbar .discover-views {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 12px !important;
+    overflow: visible;
+    min-width: 0;
+  }
+  .discover-screen .discover-toolbar .discover-views button {
+    justify-content: center;
+    padding-inline: 0;
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-size: 13px;
+  }
+  .discover-screen .discover-toolbar .discover-views button svg {
+    display: none;
+  }
+  .discover-screen .discover-toolbar .discover-filters {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .opportunities-workbench-header {
+    padding: 18px 20px 14px;
+  }
+  .opportunities-workbench-scroll {
+    padding: 20px;
+  }
+}
+.opportunities-workbench .dossier-header {
+  padding: 0 0 12px;
+  background: transparent;
+}
+.opportunities-workbench .dossier-header h2 {
+  display: none;
+}
+.opportunities-workbench .dossier-header p {
+  margin: 0;
+}
+.opportunities-workbench .dossier-header .pill,
+.opportunities-workbench .dossier-header .review-status {
+  font-size: 12px;
+}
+.opportunities-workbench .dossier-content,
+.opportunities-workbench .review-pane {
+  padding: 0;
+  background: transparent;
+}
+.opportunities-workbench .editor-actions {
+  margin-top: 0;
+}
+.opportunities-workbench .application-context {
+  margin: 18px 0;
+}
+.opportunities-workbench .application-context > summary {
+  color: var(--muted);
+  font-size: 13px;
+}
+.opportunities-workbench .review-pane textarea {
+  min-height: 88px;
+}
+.opportunities-workbench .review-header {
+  margin-bottom: 16px;
+}
+.opportunities-workbench .application-review-history {
+  margin: 0 0 24px;
+}
+.application-activity-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+}
+.application-activity-list li {
+  padding: 12px 0;
+  margin: 0;
+  border-bottom: 1px solid var(--line);
+  line-height: 1.55;
+}
+.application-activity-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  align-items: baseline;
+  justify-content: space-between;
+  font-size: 12px;
+}
+.application-activity-meta strong {
+  text-transform: capitalize;
+  color: var(--ink);
+}
+.application-activity-meta time {
+  color: var(--muted);
+}
+.application-activity-list p {
+  margin: 6px 0 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.application-versions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: end;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--line);
+}
+.application-versions > label {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.application-versions select {
+  min-width: 0;
+  width: 100%;
+  font-size: 12px;
+}
+.application-versions > a {
+  grid-column: 2;
+  grid-row: 1;
+  font-size: 12px;
+  padding-bottom: 9px;
+}
+.application-version-help {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+@media (max-width: 700px) {
+  .application-versions {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 12px 20px;
+    gap: 8px;
+  }
+  .application-versions > a {
+    grid-column: 1;
+    grid-row: 3;
+    padding: 0;
+  }
+}

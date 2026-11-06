@@ -116,11 +116,13 @@ interface InspectorProps {
   position: number;
   count: number;
   rankingCurrent: boolean;
+  assessmentAvailable?: boolean;
   saving: boolean;
   saveError: string;
   preview?: boolean;
   animateInteractions?: boolean;
   motionRevision?: number;
+  onOpenPanel?: (panel: "overview" | "documents" | "activity") => void;
   onPrevious: () => void;
   onNext: () => void;
   onClose: () => void;
@@ -137,11 +139,13 @@ export function OpportunityInspector({
   position,
   count,
   rankingCurrent,
+  assessmentAvailable = true,
   saving,
   saveError,
   preview = false,
   animateInteractions = false,
   motionRevision = 0,
+  onOpenPanel,
   onPrevious,
   onNext,
   onClose,
@@ -466,6 +470,31 @@ export function OpportunityInspector({
           </button>
         </div>
       </header>
+      {application && onOpenPanel && (
+        <div
+          className="opportunities-detail-tabs"
+          role="group"
+          aria-label="Role workspace"
+        >
+          <button type="button" aria-pressed="true">
+            Overview
+          </button>
+          <button
+            type="button"
+            aria-pressed="false"
+            onClick={() => onOpenPanel("documents")}
+          >
+            Documents
+          </button>
+          <button
+            type="button"
+            aria-pressed="false"
+            onClick={() => onOpenPanel("activity")}
+          >
+            Activity
+          </button>
+        </div>
+      )}
       <div ref={body} className="discover-inspector-body" key={job.id}>
         <div className="discover-inspector-company">
           <span className="discover-employer-mark" aria-hidden="true">
@@ -494,7 +523,13 @@ export function OpportunityInspector({
           <h3>
             <Sparkles size={17} /> Career evidence
           </h3>
-          {evidence.length ? (
+          {!assessmentAvailable ? (
+            <p className="discover-explanation">
+              Matching is not loaded for this application. Use All roles to
+              assess it against your search profile. Saved documents and
+              decisions remain available.
+            </p>
+          ) : evidence.length ? (
             evidence.map((item, index) => (
               <div
                 className="discover-evidence-row"
@@ -639,6 +674,18 @@ export function OpportunityInspector({
               ref={documentLink}
               className="button discover-primary"
               href={applicationHref(application)}
+              onClick={(event) => {
+                if (
+                  onOpenPanel &&
+                  !event.metaKey &&
+                  !event.ctrlKey &&
+                  !event.shiftKey &&
+                  !event.altKey
+                ) {
+                  event.preventDefault();
+                  onOpenPanel("documents");
+                }
+              }}
             >
               <FileText size={17} />
               {submitted

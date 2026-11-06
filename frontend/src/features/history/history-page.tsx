@@ -2,19 +2,32 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { FileText, FolderClock, ShieldCheck } from "lucide-react";
 import { Action, Field, Select } from "@/components/controls";
 import { useWorkspace } from "@/components/workspace-provider";
-import { displayDate, errorMessage } from "@/lib/format";
-import type { HistoryVersion } from "@/lib/models";
+import { applicationHref, errorMessage } from "@/lib/format";
+import type { Application, HistoryVersion } from "@/lib/models";
 import { FileLink } from "@/features/applications/file-link";
+import { historyVersionLabel } from "@/features/applications/version-labels";
 
 export function HistoryPage() {
   const { state, client, run } = useWorkspace();
+  const params = useSearchParams();
+  const role = params.get("role") || "";
+  const employer = params.get("employer") || "";
+  const scoped = Boolean(role || employer);
+  const cleared = new URLSearchParams(params.toString());
+  cleared.delete("role");
+  cleared.delete("employer");
+  const clearHref = `/history/${cleared.size ? `?${cleared}` : ""}`;
   const [versions, setVersions] = useState<HistoryVersion[]>();
   const [error, setError] = useState("");
   const [attempt, setAttempt] = useState(0);
-  const [adopted, setAdopted] = useState("");
+  const [adopted, setAdopted] = useState<{
+    versionId: string;
+    application: Application;
+  }>();
   const [query, setQuery] = useState("");
   const [location, setLocation] = useState("");
   useEffect(() => {
@@ -51,9 +64,24 @@ export function HistoryPage() {
         <p role="status">Loading application history…</p>
       </div>
     );
-  const allCities = Array.from(new Set(versions.map((item) => item.city)));
+  const labelledVersions = versions.map((version) => ({
+    ...version,
+    display: historyVersionLabel(
+      version,
+      state.applications,
+      state._workspace.timezone,
+    ),
+  }));
+  const scopedVersions = labelledVersions.filter(
+    (version) =>
+      (!role || version.job === role) &&
+      (!employer || version.company === employer),
+  );
+  const allCities = Array.from(
+    new Set(scopedVersions.map((item) => item.city)),
+  );
   const search = query.trim().toLocaleLowerCase();
-  const filteredVersions = versions.filter(
+  const filteredVersions = scopedVersions.filter(
     (version) =>
       (!location || version.city === location) &&
       (!search ||
@@ -63,6 +91,9 @@ export function HistoryPage() {
           version.job,
           version.label,
           version.source,
+          version.display.title,
+          version.display.date,
+          ...version.display.records.map((record) => record.label),
         ].some((value) => value.toLocaleLowerCase().includes(search))),
   );
   const cities = Array.from(new Set(filteredVersions.map((item) => item.city)));
@@ -71,6 +102,19 @@ export function HistoryPage() {
       <p className="secondary-page-intro">
         Every document version, kept in context.
       </p>
+      {scoped && (
+        <div
+          className="secondary-inline-note history-role-context"
+          role="region"
+          aria-label="Selected application history"
+        >
+          <p>
+            History for <strong>{role || "all roles"}</strong> at{" "}
+            <strong>{employer || "all employers"}</strong>.
+          </p>
+          <Link href={clearHref}>Clear role filter</Link>
+        </div>
+      )}
       <div className="secondary-inline-note history-preservation-note">
         <ShieldCheck size={18} aria-hidden="true" />
         <p>
@@ -158,20 +202,43 @@ export function HistoryPage() {
                             <summary>
                               <FileText size={17} aria-hidden="true" />
                               <span className="history-version-title">
-                                {version.label}
+                                {version.display.title}
                                 {version.date_uncertain
                                   ? " — date needs confirmation"
                                   : ""}
                               </span>
                               <span className="history-version-date">
-                                {displayDate(
-                                  version.generated_at,
-                                  state._workspace.timezone,
-                                )}
+                                {version.display.date}
                               </span>
                             </summary>
                             <div className="history-version-content">
                               <p>{version.source}</p>
+                              <p>
+                                <strong>Storage label:</strong> {version.label}
+                              </p>
+                              {version.display.records.length > 1 ? (
+                                <>
+                                  <p>
+                                    These documents are shared by separate
+                                    application records:
+                                  </p>
+                                  <ul>
+                                    {version.display.records.map((record) => (
+                                      <li key={record.application.id}>
+                                        {record.label}
+                                        {record.note && <> — {record.note}</>}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </>
+                              ) : version.display.records.length === 0 ? (
+                                <p>
+                                  Application status is not recorded for these
+                                  preserved documents.
+                                </p>
+                              ) : version.display.records[0].note ? (
+                                <p>{version.display.records[0].note}</p>
+                              ) : null}
                               <ul className="history-files">
                                 {version.files.map((name) => (
                                   <li key={name}>
@@ -188,20 +255,30 @@ export function HistoryPage() {
                               {!client.hosted && (
                                 <Action
                                   run={async () => {
-                                    await run("history-adopt", {
-                                      id: version.id,
+                                    const application = await run<Application>(
+                                      "history-adopt",
+                                      {
+                                        id: version.id,
+                                      },
+                                    );
+                                    setAdopted({
+                                      versionId: version.id,
+                                      application,
                                     });
-                                    setAdopted(version.id);
                                   }}
                                 >
                                   Validate external edits as a new draft
                                 </Action>
                               )}
-                              {adopted === version.id && (
+                              {adopted?.versionId === version.id && (
                                 <p role="status">
                                   New draft saved. The previously verified
                                   version was restored.{" "}
-                                  <Link href="/">Review the new draft</Link>
+                                  <Link
+                                    href={applicationHref(adopted.application)}
+                                  >
+                                    Review the new draft
+                                  </Link>
                                 </p>
                               )}
                             </div>

@@ -3,7 +3,12 @@ import { beforeEach, expect, it, vi } from "vitest";
 import { Shell } from "./shell";
 
 const fixture = vi.hoisted(() => ({
+  pathname: "/discover/",
+  push: vi.fn(),
+  canLeave: vi.fn(() => true),
+  dock: vi.fn(),
   notice: "",
+  notify: vi.fn(),
   refreshError: "",
   profileId: "",
   client: { preview: false, hosted: false },
@@ -19,14 +24,14 @@ const fixture = vi.hoisted(() => ({
 
 vi.mock("./workspace-provider", () => ({ useWorkspace: () => fixture }));
 vi.mock("./unsaved", () => ({
-  useDraft: () => ({ canLeave: () => true }),
+  useDraft: () => ({ canLeave: fixture.canLeave }),
 }));
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/discover/",
-  useRouter: () => ({ push: vi.fn() }),
+  usePathname: () => fixture.pathname,
+  useRouter: () => ({ push: fixture.push }),
 }));
 vi.mock("next/image", () => ({ default: () => null }));
-vi.mock("./react-bits/dock", () => ({ default: () => null }));
+vi.mock("./react-bits/dock", () => ({ default: fixture.dock }));
 vi.mock("motion", () => ({ animate: fixture.animate }));
 
 class MotionPreference extends EventTarget {
@@ -47,8 +52,28 @@ const shell = () => (
   </Shell>
 );
 
+it("keeps current feedback within Opportunities and clears success feedback when leaving the page", () => {
+  fixture.notice = "Saved as a new draft.";
+  fixture.refreshError = "Unresolved refresh failure";
+  const { rerender } = render(shell());
+  expect(fixture.notify).not.toHaveBeenCalled();
+  rerender(shell());
+  expect(fixture.notify).not.toHaveBeenCalled();
+  fixture.pathname = "/history/";
+  rerender(shell());
+  expect(fixture.notify).toHaveBeenCalledExactlyOnceWith("");
+  expect(screen.getByRole("alert")).toHaveTextContent(
+    "Unresolved refresh failure",
+  );
+});
+
 beforeEach(() => {
+  fixture.pathname = "/discover/";
+  fixture.push.mockReset();
+  fixture.canLeave.mockReset().mockReturnValue(true);
+  fixture.dock.mockReset().mockReturnValue(null);
   fixture.notice = "";
+  fixture.notify.mockReset();
   fixture.refreshError = "";
   preference = new MotionPreference();
   vi.stubGlobal(
@@ -63,6 +88,62 @@ beforeEach(() => {
     controls.push(control);
     return control;
   });
+});
+
+it("unifies navigation under Opportunities and keeps every other workspace page accessible", () => {
+  render(shell());
+  const { items, canLeave } = fixture.dock.mock.calls[0][0];
+  expect(
+    items.map(({ href, label }: { href: string; label: string }) => [
+      href,
+      label,
+    ]),
+  ).toEqual([
+    ["/discover/", "Opportunities"],
+    ["/career/", "Career profile"],
+    ["/search/", "Search preferences"],
+    ["/history/", "History"],
+    ["/settings/", "Settings"],
+  ]);
+  expect(canLeave).toBe(fixture.canLeave);
+  expect(
+    screen.queryByRole("link", { name: "Applications" }),
+  ).not.toBeInTheDocument();
+  expect(
+    screen
+      .getByRole("link", { name: "Employment Agency — Opportunities" })
+      .getAttribute("href"),
+  ).toMatch(/^\/discover\/?$/);
+  expect(document.title).toBe(
+    "Opportunities | Employment Agency | Local workspace",
+  );
+});
+
+it("labels the legacy root as Opportunities while its redirect is loading", () => {
+  fixture.pathname = "/";
+  render(shell());
+  expect(
+    screen.getByRole("heading", { name: "Opportunities", hidden: true }),
+  ).toBeInTheDocument();
+  expect(fixture.dock.mock.calls[0][0].pathname).toBe("/discover/");
+  expect(document.title).toBe(
+    "Opportunities | Employment Agency | Local workspace",
+  );
+});
+
+it("searches Opportunities and respects unsaved changes before navigating", () => {
+  render(shell());
+  const input = screen.getByRole("searchbox", { name: "Search roles" });
+  fireEvent.change(input, { target: { value: "  platform engineer  " } });
+  fixture.canLeave.mockReturnValue(false);
+  fireEvent.submit(screen.getByRole("search", { name: "Search roles" }));
+  expect(fixture.push).not.toHaveBeenCalled();
+  fixture.canLeave.mockReturnValue(true);
+  fireEvent.submit(screen.getByRole("search", { name: "Search roles" }));
+  expect(fixture.push).toHaveBeenCalledWith("/discover/?q=platform+engineer");
+  fireEvent.change(input, { target: { value: "  " } });
+  fireEvent.submit(screen.getByRole("search", { name: "Search roles" }));
+  expect(fixture.push).toHaveBeenLastCalledWith("/discover/");
 });
 
 it("keeps one live region and reveals a new notice only once across refreshes", () => {

@@ -12,7 +12,6 @@ import {
 } from "react";
 import { animate } from "motion";
 import {
-  BriefcaseBusiness,
   Compass,
   History,
   Menu,
@@ -35,15 +34,9 @@ import "./shell-motion.css";
 const pages = [
   {
     href: "/discover/",
-    label: "Discover",
-    shortLabel: "Discover",
+    label: "Opportunities",
+    shortLabel: "Opportunities",
     icon: <Compass />,
-  },
-  {
-    href: "/",
-    label: "Applications",
-    shortLabel: "Applications",
-    icon: <BriefcaseBusiness />,
   },
   {
     href: "/career/",
@@ -126,7 +119,8 @@ function revealShellFeedback(
 export function Shell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { state, client, notice, refreshError, profileId } = useWorkspace();
+  const { state, client, notice, notify, refreshError, profileId } =
+    useWorkspace();
   const { canLeave } = useDraft();
   const mobileMenu = useRef<HTMLDetailsElement>(null);
   const noticeElement = useRef<HTMLParagraphElement>(null);
@@ -134,7 +128,12 @@ export function Shell({ children }: { children: ReactNode }) {
   const keyboardInput = useRef(false);
   const stopNoticeMotion = useRef(() => {});
   const stopErrorMotion = useRef(() => {});
-  const current = pages.find(({ href }) => href === pathname) || pages[1];
+  const feedbackRoute = useRef(pathname);
+  useEffect(() => {
+    if (feedbackRoute.current !== pathname) notify("");
+    feedbackRoute.current = pathname;
+  }, [pathname, notify]);
+  const current = pages.find(({ href }) => href === pathname) || pages[0];
   const isDiscover = current.href === "/discover/";
   const profile = state.profiles.find(({ id }) => id === profileId);
   const locations = profile?.locations.length
@@ -198,13 +197,7 @@ export function Shell({ children }: { children: ReactNode }) {
         keyboardInput.current = false;
         event.currentTarget.dataset.feedbackInput = "pointer";
       }}
-      data-page={
-        isDiscover
-          ? "discover"
-          : current.href === "/"
-            ? "applications"
-            : current.href.split("/")[1]
-      }
+      data-page={current.href.split("/")[1]}
     >
       <a className="skip-link" href="#content">
         Skip to content
@@ -213,7 +206,7 @@ export function Shell({ children }: { children: ReactNode }) {
         <Link
           href="/discover/"
           className="brand"
-          aria-label="Employment Agency — Discover"
+          aria-label="Employment Agency — Opportunities"
           onNavigate={guardedNavigation}
         >
           <Image
@@ -264,7 +257,7 @@ export function Shell({ children }: { children: ReactNode }) {
           </p>
         </div>
 
-        <Dock items={pages} pathname={pathname} canLeave={canLeave} />
+        <Dock items={pages} pathname={current.href} canLeave={canLeave} />
 
         <div className="rail-bottom">
           <span className="workspace-avatar" aria-hidden="true">
@@ -313,7 +306,7 @@ export function Shell({ children }: { children: ReactNode }) {
                 <Link
                   key={page.href}
                   href={page.href}
-                  aria-current={page.href === pathname ? "page" : undefined}
+                  aria-current={page.href === current.href ? "page" : undefined}
                   onNavigate={guardedNavigation}
                 >
                   <span aria-hidden="true">{page.icon}</span>
@@ -372,7 +365,7 @@ export function Shell({ children }: { children: ReactNode }) {
             ) : (
               <Compass aria-hidden="true" />
             )}
-            {isDiscover ? "Add opportunities" : "Discover roles"}
+            {isDiscover ? "Add opportunities" : "Explore opportunities"}
           </Link>
         </header>
         <div className="desk">

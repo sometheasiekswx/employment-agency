@@ -100,13 +100,15 @@ beforeEach(() => {
   );
 });
 
-it("announces a polling failure as an error and clears only that error after recovery and navigation", async () => {
+it("retains success feedback during polling recovery and clears it when leaving the page", async () => {
   const view = render(app());
   fireEvent.click(await screen.findByRole("button", { name: "Save comment" }));
   expect(await screen.findByRole("status")).toHaveTextContent("Comment saved.");
   fixture.client.state.mockRejectedValueOnce(new Error("Failed to fetch"));
   await act(async () => fixture.poll());
-  expect(await screen.findByRole("alert")).toHaveTextContent("Failed to fetch");
+  expect(await screen.findByRole("alert")).toHaveTextContent(
+    "Cannot connect to the app. Check your connection and that the app is running, then try again.",
+  );
   expect(screen.getByRole("alert")).toHaveClass("error");
   expect(screen.getByRole("status")).toHaveTextContent("Comment saved.");
   fireEvent.click(screen.getByRole("button", { name: "Retry workspace" }));
@@ -115,8 +117,10 @@ it("announces a polling failure as an error and clears only that error after rec
   );
   fixture.pathname = "/history/";
   view.rerender(app());
-  expect(screen.queryByText("Failed to fetch")).not.toBeInTheDocument();
-  expect(screen.getByRole("status")).toHaveTextContent("Comment saved.");
+  expect(
+    screen.queryByText(/Cannot connect to the app/),
+  ).not.toBeInTheDocument();
+  expect(screen.getByRole("status")).toBeEmptyDOMElement();
 });
 
 it("does not replace recovery with an older polling failure", async () => {
@@ -250,5 +254,5 @@ it("recovers both workspace and assessment errors through Retry assessment witho
     </WorkspaceProvider>,
   );
   expect(screen.queryByRole("alert")).not.toBeInTheDocument();
-  expect(screen.getByRole("status")).toHaveTextContent("Comment saved.");
+  expect(screen.getByRole("status")).toBeEmptyDOMElement();
 });

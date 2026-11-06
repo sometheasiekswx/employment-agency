@@ -5,10 +5,20 @@ export const splitList = (value: string) =>
     .split(/[,\n]/)
     .map((item) => item.trim())
     .filter(Boolean);
+export function isConnectionError(error: unknown) {
+  return (
+    error instanceof Error &&
+    /^(Failed to fetch|Load failed|NetworkError(?: when attempting to fetch resource\.?)?)$/i.test(
+      error.message.trim(),
+    )
+  );
+}
 export const errorMessage = (error: unknown) =>
-  error instanceof Error
-    ? error.message
-    : "The operation failed. Please try again.";
+  isConnectionError(error)
+    ? "Cannot connect to the app. Check your connection and that the app is running, then try again."
+    : error instanceof Error
+      ? error.message
+      : "The operation failed. Please try again.";
 export function safeUrl(value?: string) {
   try {
     const url = new URL(value || "");
@@ -42,14 +52,22 @@ export const decisionDate = (
     (comment) => comment.kind !== "comment" && comment.status === status,
   )?.at ||
   "";
-export function applicationHref(app: Application) {
+export function applicationHref(
+  app: Application,
+  panel: "documents" | "activity" = "documents",
+) {
   const section =
     app.status === "submitted" || app.status === "rejected"
       ? app.status
       : "active";
-  const query = new URLSearchParams({ section, application: app.id });
+  const query = new URLSearchParams({
+    view: "applications",
+    section,
+    application: app.id,
+    panel,
+  });
   if (app.archived) query.set("history", "true");
-  return `/?${query}`;
+  return `/discover/?${query}`;
 }
 export function destination(
   job: Pick<Job, "city" | "location">,

@@ -21,7 +21,10 @@ import {
   SlidersHorizontal,
   Sparkles,
 } from "lucide-react";
-import { Action, Select } from "@/components/controls";
+import { useDraft } from "@/components/unsaved";
+import { applicationQueues } from "@/features/applications/queues";
+import { OpportunityWorkbench } from "./opportunity-workbench";
+import { Action, Check, Select } from "@/components/controls";
 import { useWorkspace } from "@/components/workspace-provider";
 import { compareDestinations, destination, errorMessage } from "@/lib/format";
 import type { RankedJob } from "@/lib/models";
@@ -58,6 +61,7 @@ function useMobileInspector() {
 }
 
 export function DiscoverPage() {
+  const { canLeave } = useDraft();
   const animateInteractions = useInteractionMotion();
   const [motionRevision, setMotionRevision] = useState(0);
   const bookmarkAnimations = useRef(new Set<Animation>());
@@ -76,7 +80,21 @@ export function DiscoverPage() {
   const statusFilter = filters.get("status") || "";
   const rawView = filters.get("view");
   const view: DiscoveryView =
-    rawView === "all" || rawView === "saved" ? rawView : "recommended";
+    rawView === "all" || rawView === "saved" || rawView === "applications"
+      ? rawView
+      : "recommended";
+  const applicationView = view === "applications";
+  const section = filters.get("section") || "active";
+  const includeHistorical = filters.get("history") === "true";
+  const panel =
+    filters.get("panel") === "activity"
+      ? "activity"
+      : filters.get("panel") === "documents"
+        ? "documents"
+        : "overview";
+  const requestedApplication = state.applications.find(
+    (app) => app.id === filters.get("application"),
+  );
   const [attempt, setAttempt] = useState(0);
   const [retrying, setRetrying] = useState(false);
   const [ranking, setRanking] = useState<RankingState>({
@@ -86,9 +104,10 @@ export function DiscoverPage() {
     error: "",
   });
   const selectedId =
-    filters.get("assessment_profile") === profileId
+    requestedApplication?.job_id ||
+    (filters.get("assessment_profile") === profileId
       ? filters.get("opportunity") || ""
-      : "";
+      : "");
   const currentRoute = useRef({ queryString, profileId });
   useLayoutEffect(() => {
     currentRoute.current = { queryString, profileId };
@@ -108,18 +127,24 @@ export function DiscoverPage() {
     (id: string) => {
       // Keep the close callback stable so navigation within the inspector does
       // not rerun its initial-focus effect or reopen the native mobile dialog.
+      if (!canLeave()) return false;
       const current = currentRoute.current;
       const next = new URLSearchParams(current.queryString);
       if (id) {
         next.set("opportunity", id);
         next.set("assessment_profile", current.profileId);
+        next.delete("application");
+        next.delete("panel");
       } else {
         next.delete("opportunity");
         next.delete("assessment_profile");
+        next.delete("application");
+        next.delete("panel");
       }
       replaceQuery(next);
+      return true;
     },
-    [replaceQuery],
+    [replaceQuery, canLeave],
   );
   const [savedOverrides, setSavedOverrides] = useState<Record<string, boolean>>(
     {},
@@ -150,10 +175,11 @@ export function DiscoverPage() {
     ranking.key !== requestKey && cached
       ? { key: requestKey, profileId, rows: cached, error: "" }
       : ranking;
-  const loading = Boolean(profile) && currentRanking.key !== requestKey;
+  const loading =
+    !applicationView && Boolean(profile) && currentRanking.key !== requestKey;
 
   useEffect(() => {
-    if (!profileId) return;
+    if (!profileId || applicationView) return;
     let active = true;
     loadRanking(client, workspacePath, profileId, rankInput, attempt > 0).then(
       (rows) => {
@@ -172,7 +198,15 @@ export function DiscoverPage() {
     return () => {
       active = false;
     };
-  }, [client, workspacePath, profileId, rankInput, requestKey, attempt]);
+  }, [
+    client,
+    workspacePath,
+    profileId,
+    rankInput,
+    requestKey,
+    attempt,
+    applicationView,
+  ]);
 
   const applications = useMemo(
     () => applicationsByJob(state.applications),
@@ -196,12 +230,46 @@ export function DiscoverPage() {
         ]
       : [];
   });
+  const applicationRecords = applicationQueues(
+    state.applications,
+    includeHistorical,
+  );
+  const applicationRows: RankedJob[] = applicationRecords
+    .filter(
+      (app) =>
+        section === "all" ||
+        (section === "active"
+          ? !["submitted", "rejected"].includes(app.status)
+          : app.status === section),
+    )
+    .map((app) => ({
+      job: latestJobs.get(app.job_id) || {
+        id: app.job_id || app.id,
+        title: app.title,
+        employer: app.employer,
+      },
+      match: {
+        eligible_for_preparation: false,
+        hard_conflicts: [],
+        unknowns: [],
+        gaps: [],
+        evidence: [],
+        preferences: [],
+        salary_expectation: {},
+      },
+    }));
+  const sourceRows = applicationView ? applicationRows : rows;
   const locations = [
-    ...new Set(rows.map(({ job }) => destination(job, priorities))),
+    ...new Set(sourceRows.map(({ job }) => destination(job, priorities))),
   ].sort((a, b) => compareDestinations(a, b, priorities));
   const visible = filterOpportunities(
-    rows,
-    { query, location, view },
+    sourceRows,
+    {
+      query,
+      location:
+        location || (applicationView ? filters.get("destination") || "" : ""),
+      view,
+    },
     priorities,
   ).filter(
     ({ job }) =>
@@ -211,12 +279,32 @@ export function DiscoverPage() {
   );
   const groups = groupOpportunities(visible, priorities);
   const navigationRows = groups.flatMap(([, rows]) => rows);
-  const selected = visible.find((row) => row.job.id === selectedId);
-  const inspectorOpen = Boolean(selected);
+  const selectedRow = visible.find((row) => row.job.id === selectedId);
+  const selected =
+    selectedRow || requestedApplication
+      ? rows.find((row) => row.job.id === selectedId) || selectedRow
+      : undefined;
+  const assessmentAvailable = rows.some((row) => row.job.id === selectedId);
+  const selectedApplication =
+    requestedApplication ||
+    (selected ? applications.get(selected.job.id) : undefined);
+  const expandedApplication = Boolean(
+    selectedApplication && panel !== "overview",
+  );
+  const openPanel = (value: "overview" | "documents" | "activity") => {
+    const next = new URLSearchParams(queryString);
+    next.set("panel", value);
+    if (selectedApplication) next.set("application", selectedApplication.id);
+    replaceQuery(next);
+  };
+  const inspectorOpen = Boolean(selected) || Boolean(requestedApplication);
   const selectedIndex = navigationRows.findIndex(
     (row) => row.job.id === selectedId,
   );
-  const error = currentRanking.key === requestKey ? currentRanking.error : "";
+  const error =
+    !applicationView && currentRanking.key === requestKey
+      ? currentRanking.error
+      : "";
   const boardGroups = JSON.stringify(
     groups.map(([city, opportunities]) => [
       city,
@@ -330,7 +418,7 @@ export function DiscoverPage() {
   }, [saveError, inspectorOpen, mobile]);
 
   const closeInspector = useCallback(() => {
-    setSelectedId("");
+    if (!setSelectedId("")) return false;
     window.setTimeout(() => {
       if (opener.current?.isConnected) {
         opener.current.scrollIntoView?.({
@@ -338,18 +426,34 @@ export function DiscoverPage() {
           inline: "nearest",
         });
         opener.current.focus({ preventScroll: true });
+      } else {
+        document
+          .querySelector<HTMLButtonElement>(
+            '.discover-views button[aria-pressed="true"]',
+          )
+          ?.focus({ preventScroll: true });
       }
     }, 0);
+    return true;
   }, [setSelectedId]);
 
   const updateFilters = (values: Record<string, string>) => {
+    if (!canLeave()) return;
     const next = new URLSearchParams(queryString);
+    if (values.view) {
+      next.delete("location");
+      next.delete("status");
+      next.delete("destination");
+      next.delete("q");
+    }
     for (const [name, value] of Object.entries(values)) {
       if (value) next.set(name, value);
       else next.delete(name);
     }
     next.delete("opportunity");
     next.delete("assessment_profile");
+    next.delete("application");
+    next.delete("panel");
     replaceQuery(next);
   };
 
@@ -413,25 +517,11 @@ export function DiscoverPage() {
   const moveSelection = (index: number) => {
     const row = navigationRows[index];
     if (!row) return;
-    opener.current = cardButtons.current.get(row.job.id) || null;
-    setMotionRevision((value) => value + 1);
-    setSelectedId(row.job.id);
+    if (setSelectedId(row.job.id)) {
+      opener.current = cardButtons.current.get(row.job.id) || null;
+      setMotionRevision((value) => value + 1);
+    }
   };
-
-  if (!profile)
-    return (
-      <section className="discover-screen discover-empty">
-        <Sparkles size={27} />
-        <h2>Choose your next search</h2>
-        <p>
-          Create a search profile with your roles and preferred locations to
-          assess opportunities.
-        </p>
-        <Link className="button discover-primary" href="/search/">
-          Create a search profile
-        </Link>
-      </section>
-    );
 
   return (
     <div
@@ -447,8 +537,9 @@ export function DiscoverPage() {
           {(
             [
               ["recommended", "Recommended"],
-              ["all", "All results"],
+              ["all", "All roles"],
               ["saved", "Saved"],
+              ["applications", "Applications"],
             ] as const
           ).map(([value, label]) => (
             <button
@@ -462,15 +553,17 @@ export function DiscoverPage() {
             </button>
           ))}
         </div>
-        <Action
-          className="discover-refresh"
-          previewAllowed
-          disabled={loading}
-          run={async () => setAttempt((value) => value + 1)}
-        >
-          <RefreshCw size={15} />
-          Refresh matches
-        </Action>
+        {!applicationView && (
+          <Action
+            className="discover-refresh"
+            previewAllowed
+            disabled={loading}
+            run={async () => setAttempt((value) => value + 1)}
+          >
+            <RefreshCw size={15} />
+            Refresh matches
+          </Action>
+        )}
         <details className="discover-filters">
           <summary>
             <SlidersHorizontal size={16} />
@@ -534,7 +627,9 @@ export function DiscoverPage() {
                   status: event.target.value,
                   ...(event.target.value === "submitted" ||
                   event.target.value === "rejected"
-                    ? { view: "all" }
+                    ? applicationView
+                      ? { section: event.target.value }
+                      : { view: "all" }
                     : {}),
                 })
               }
@@ -545,17 +640,79 @@ export function DiscoverPage() {
           </div>
         </details>
       </div>
+      {applicationView && (
+        <div className="opportunities-application-filters">
+          <div
+            className="opportunities-stages"
+            role="group"
+            aria-label="Application stage"
+          >
+            {[
+              ["active", "Active"],
+              ["submitted", "Submitted"],
+              ["rejected", "Rejected"],
+            ].map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={section === value}
+                onClick={() =>
+                  updateFilters({
+                    section: value,
+                    location: "",
+                    destination: "",
+                  })
+                }
+              >
+                {label}{" "}
+                <span>
+                  {
+                    applicationRecords.filter((app) =>
+                      value === "active"
+                        ? !["submitted", "rejected"].includes(app.status)
+                        : app.status === value,
+                    ).length
+                  }
+                </span>
+              </button>
+            ))}
+          </div>
+          <Check
+            name="history"
+            label="Include earlier review queues"
+            checked={includeHistorical}
+            onChange={(event) =>
+              updateFilters({ history: String(event.target.checked) })
+            }
+          />
+        </div>
+      )}
+      {filters.has("application") && !requestedApplication && (
+        <div className="discover-request-error" role="status">
+          <p>
+            This application is no longer available. Choose another saved
+            application.
+          </p>
+          <button
+            type="button"
+            onClick={() => updateFilters({ view: "applications" })}
+          >
+            View applications
+          </button>
+        </div>
+      )}
       <div className="discover-summary">
-        <Select
-          label="Profile"
-          aria-label="Search profile"
-          value={profileId}
-          options={state.profiles.map((item) => [item.id, item.name])}
-          onChange={(event) => {
-            setSelectedId("");
-            selectProfile(event.target.value);
-          }}
-        />
+        {!applicationView && profile && (
+          <Select
+            label="Profile"
+            aria-label="Search profile"
+            value={profileId}
+            options={state.profiles.map((item) => [item.id, item.name])}
+            onChange={(event) => {
+              if (setSelectedId("")) selectProfile(event.target.value);
+            }}
+          />
+        )}
         <span className="discover-result-count" role="status">
           {loading
             ? "Loading matches…"
@@ -628,22 +785,38 @@ export function DiscoverPage() {
           <p>Comparing imported roles with this search profile.</p>
         </div>
       )}
-      {!loading && !error && !visible.length && (
+      {!loading && !error && !visible.length && !requestedApplication && (
         <div className="discover-empty">
           <Search size={27} />
           <h2>
-            {!rows.length
-              ? "Add your first opportunity"
-              : view === "saved"
-                ? "No saved roles here yet"
-                : "No roles match these filters"}
+            {applicationView
+              ? `No ${section} applications`
+              : !rows.length
+                ? "Add your first opportunity"
+                : view === "saved"
+                  ? "No saved roles here yet"
+                  : "No roles match these filters"}
           </h2>
           <p>
-            {!rows.length
-              ? "Import a job URL, paste an advert or refresh a configured source in Search preferences."
-              : "Adjust your filters or choose All results to inspect the full assessment."}
+            {applicationView
+              ? "Prepare a draft from a role to start an application. Your recorded submissions and decisions stay available in the other stage views."
+              : !rows.length
+                ? "Import a job URL, paste an advert or refresh a configured source in Search preferences."
+                : "Adjust your filters or choose All results to inspect the full assessment."}
           </p>
-          {!rows.length ? (
+          {!profile && !applicationView ? (
+            <Link className="button discover-primary" href="/search/">
+              Create a search profile
+            </Link>
+          ) : applicationView ? (
+            <button
+              type="button"
+              className="discover-primary"
+              onClick={() => updateFilters({ view: "recommended" })}
+            >
+              Find an opportunity
+            </button>
+          ) : !rows.length ? (
             <Link
               className="button discover-primary"
               href="/search/#add-opportunity"
@@ -662,14 +835,15 @@ export function DiscoverPage() {
           )}
         </div>
       )}
-      {visible.length > 0 && (
+      {(visible.length > 0 || requestedApplication) && (
         <div
           ref={inspectorLayout}
-          className={`discover-layout ${selected && !mobile ? "has-inspector" : ""}`}
+          className={`discover-layout ${inspectorOpen && !mobile ? "has-inspector" : ""} ${expandedApplication ? "has-workbench" : ""}`}
         >
           <div
             ref={board}
             className="discover-board"
+            role="region"
             aria-label="Opportunities by location"
             tabIndex={selected && !mobile ? 0 : undefined}
           >
@@ -741,9 +915,10 @@ export function DiscoverPage() {
                         aria-label={`Assess ${job.title} at ${job.employer}`}
                         aria-pressed={selectedId === job.id}
                         onClick={(event) => {
-                          opener.current = event.currentTarget;
-                          setMotionRevision((value) => value + 1);
-                          setSelectedId(job.id);
+                          if (setSelectedId(job.id)) {
+                            opener.current = event.currentTarget;
+                            setMotionRevision((value) => value + 1);
+                          }
                         }}
                       >
                         <h3>{job.title}</h3>
@@ -774,18 +949,20 @@ export function DiscoverPage() {
               </section>
             ))}
           </div>
-          {selected && (
+          {selected && !expandedApplication && (
             <OpportunityInspector
               animateInteractions={animateInteractions}
               motionRevision={motionRevision}
               row={selected}
-              application={applications.get(selected.job.id)}
+              application={selectedApplication}
+              onOpenPanel={openPanel}
               facts={state.facts}
               timezone={state._workspace.timezone}
               mobile={mobile}
-              position={selectedIndex}
-              count={visible.length}
+              position={Math.max(0, selectedIndex)}
+              count={selectedIndex < 0 ? 1 : visible.length}
               rankingCurrent={!loading && !error}
+              assessmentAvailable={assessmentAvailable}
               saving={savingIds.includes(selected.job.id)}
               saveError={saveError}
               preview={client.preview}
@@ -804,8 +981,53 @@ export function DiscoverPage() {
               }}
             />
           )}
+          {selectedApplication && (
+            <OpportunityWorkbench
+              application={selectedApplication}
+              job={
+                latestJobs.get(selectedApplication.job_id) || {
+                  title: selectedApplication.title,
+                  employer: selectedApplication.employer,
+                }
+              }
+              panel={panel}
+              overviewAvailable={Boolean(selected)}
+              mobile={mobile}
+              onPanel={openPanel}
+              onVersion={(application) => {
+                if (!canLeave()) return;
+                const next = new URLSearchParams(queryString);
+                next.set("application", application.id);
+                next.set("panel", panel);
+                if (applicationView)
+                  next.set(
+                    "section",
+                    ["submitted", "rejected"].includes(application.status)
+                      ? application.status
+                      : "active",
+                  );
+                replaceQuery(next);
+              }}
+              onClose={closeInspector}
+            />
+          )}
         </div>
       )}
+      {applicationView &&
+        section === "submitted" &&
+        Boolean(state.historical_decisions?.length) && (
+          <section className="opportunities-historical">
+            <h2>Earlier submission records</h2>
+            <p>
+              These records do not confirm which document bytes were submitted.
+            </p>
+            {state.historical_decisions?.map((record, index) => (
+              <p key={index}>
+                {record.employer} · {record.status}
+              </p>
+            ))}
+          </section>
+        )}
     </div>
   );
 }

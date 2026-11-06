@@ -1,13 +1,26 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useId, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { ArrowDown, ArrowUp } from "lucide-react";
 import { useWorkspace } from "@/components/workspace-provider";
 import { useDraft } from "@/components/unsaved";
-import { errorMessage } from "@/lib/format";
-import type { Block, EditorDocument, RequestData } from "@/lib/models";
+import { applicationHref, errorMessage, isConnectionError } from "@/lib/format";
+import type {
+  Application,
+  Block,
+  EditorDocument,
+  RequestData,
+} from "@/lib/models";
+import "./editor-navigation.css";
 
-const styles = ["title", "contact", "heading", "bullet", "text"];
+const styles = [
+  ["title", "Title"],
+  ["contact", "Contact details"],
+  ["heading", "Section heading"],
+  ["bullet", "Bullet point"],
+  ["text", "Paragraph"],
+] as const;
 
 export function DocumentEditor({
   document,
@@ -20,10 +33,19 @@ export function DocumentEditor({
 }) {
   const { client, refresh, notify } = useWorkspace();
   const router = useRouter();
+  const pathname = usePathname();
+  const params = useSearchParams();
   const dialog = useRef<HTMLDialogElement>(null);
   const [blocks, setBlocks] = useState<Block[]>(document.blocks || []);
   const [source, setSource] = useState(document.source || "");
   const [pdf, setPdf] = useState(document.pdf);
+  const [compact, setCompact] = useState(false);
+  const [pane, setPane] = useState<"edit" | "preview">("preview");
+  const [blockIndex, setBlockIndex] = useState(0);
+  const blockFields = useRef<(HTMLTextAreaElement | null)[]>([]);
+  const pendingBlock = useRef<number | null>(null);
+  const paneTabs = useRef<(HTMLButtonElement | null)[]>([]);
+  const navigationId = useId();
   const iframe = useRef<HTMLIFrameElement>(null);
   const previewLink = useRef<HTMLAnchorElement>(null);
   const [dirty, setDirty] = useState(false);
@@ -34,7 +56,7 @@ export function DocumentEditor({
   const closeButton = useRef<HTMLButtonElement>(null);
   const editingFocus = useRef<HTMLElement | null>(null);
   const restoreEditingFocus = useRef(false);
-  const { setDirty: markDraft } = useDraft();
+  const { setDirty: markDraft, canLeaveOtherDrafts } = useDraft();
   const keepEditing = () => {
     restoreEditingFocus.current = true;
     setConfirmClose(false);
@@ -49,6 +71,21 @@ export function DocumentEditor({
     } else onClose();
   };
 
+  useEffect(() => {
+    const query = window.matchMedia?.("(max-width: 760px)");
+    if (!query) return;
+    const update = () => setCompact(query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
+  useEffect(() => {
+    if (pendingBlock.current === null) return;
+    const target = blockFields.current[pendingBlock.current];
+    pendingBlock.current = null;
+    target?.scrollIntoView?.({ block: "center", behavior: "instant" });
+    target?.focus({ preventScroll: true });
+  }, [pane, blockIndex, blocks]);
   useEffect(() => {
     const previous =
       opener || (window.document.activeElement as HTMLElement | null);
@@ -95,7 +132,26 @@ export function DocumentEditor({
     );
     changed();
   };
+  const moveBlock = (index: number, offset: -1 | 1) => {
+    const destination = index + offset;
+    if (destination < 0 || destination >= blocks.length) return;
+    pendingBlock.current = destination;
+    setBlockIndex(destination);
+    setBlocks((items) => {
+      const next = [...items];
+      [next[index], next[destination]] = [next[destination], next[index]];
+      return next;
+    });
+    changed();
+  };
   const build = async (save: boolean) => {
+    if (
+      save &&
+      !canLeaveOtherDrafts(
+        "Save this new document version and discard the unsaved Activity changes? Choose Cancel to keep both drafts.",
+      )
+    )
+      return;
     setBusy(true);
     setStatus(save ? "Saving a new draft…" : "Building preview…");
     const args: RequestData = {
@@ -106,12 +162,27 @@ export function DocumentEditor({
     };
     try {
       if (save) {
-        await client.action("save-document", args);
+        const application = await client.action<Application>(
+          "save-document",
+          args,
+        );
         await refresh();
+        let href = applicationHref(application);
+        if (pathname === "/discover/" || pathname === "/discover") {
+          const next = new URLSearchParams(params?.toString());
+          next.set("application", application.id);
+          next.set("panel", "documents");
+          if (
+            next.get("view") === "applications" &&
+            ["submitted", "rejected"].includes(next.get("section") || "")
+          )
+            next.set("section", "active");
+          href = `/discover/?${next}`;
+        }
         setDirty(false);
         markDraft(false);
         onClose();
-        router.replace("/");
+        router.replace(href, { scroll: false });
         notify("Saved as a new draft. The original application is preserved.");
       } else {
         const result = await client.action<{ pdf: string }>(
@@ -122,7 +193,11 @@ export function DocumentEditor({
         setStatus("Preview updated. Changes are not saved yet.");
       }
     } catch (error) {
-      setStatus(errorMessage(error));
+      setStatus(
+        isConnectionError(error)
+          ? `Your edits are still in this editor. Check your connection and that the app is running, then try ${save ? "Save as new draft" : "Update preview"} again.`
+          : errorMessage(error),
+      );
     } finally {
       setBusy(false);
     }
@@ -182,7 +257,7 @@ export function DocumentEditor({
           </div>
         </section>
       )}
-      <div hidden={confirmClose}>
+      <div className="document-editor-content" hidden={confirmClose}>
         <header>
           <h2 id="document-editor-title">
             {document.document === "resume" ? "CV" : "Cover letter"}
@@ -193,14 +268,97 @@ export function DocumentEditor({
         </header>
         <p>
           {client.preview
-            ? "Read-only fictional document preview. Download an example PDF or Word file from its application."
-            : "Save creates a new draft application. The original and confirmed career facts stay unchanged. Review your wording before applying."}
+            ? "Read-only example. Download PDF or Word files from Documents."
+            : "Save as a new draft. Your original stays unchanged."}
         </p>
         <p role="status" className="editor-status">
           {status}
         </p>
-        <div className="editor-columns">
-          <section aria-label="Edit document">
+        {document.mode === "view" && <p>{document.notice}</p>}
+        {document.mode !== "view" && (
+          <div className="editor-navigation">
+            {compact && (
+              <div
+                role="tablist"
+                aria-label="Document view"
+                className="editor-pane-tabs"
+              >
+                {(["edit", "preview"] as const).map((name, index) => (
+                  <button
+                    key={name}
+                    ref={(button) => {
+                      paneTabs.current[index] = button;
+                    }}
+                    type="button"
+                    role="tab"
+                    id={`${navigationId}-${name}-tab`}
+                    aria-controls={`${navigationId}-${name}-panel`}
+                    aria-selected={pane === name}
+                    tabIndex={pane === name ? 0 : -1}
+                    onClick={() => setPane(name)}
+                    onKeyDown={(event) => {
+                      let next: number;
+                      if (
+                        event.key === "ArrowLeft" ||
+                        event.key === "ArrowRight"
+                      )
+                        next = 1 - index;
+                      else if (event.key === "Home") next = 0;
+                      else if (event.key === "End") next = 1;
+                      else return;
+                      event.preventDefault();
+                      setPane(next === 0 ? "edit" : "preview");
+                      paneTabs.current[next]?.focus();
+                    }}
+                  >
+                    {name === "edit" ? "Edit" : "Preview"}
+                  </button>
+                ))}
+              </div>
+            )}
+            {document.mode === "blocks" && (
+              <label
+                className="editor-section-jump"
+                hidden={compact && pane !== "edit"}
+              >
+                Document section
+                <select
+                  value={blocks.length ? blockIndex : ""}
+                  disabled={busy || !blocks.length}
+                  onChange={(event) => {
+                    const index = Number(event.target.value);
+                    pendingBlock.current = index;
+                    setBlockIndex(index);
+                    setPane("edit");
+                  }}
+                >
+                  {!blocks.length && <option value="">No text sections</option>}
+                  {blocks.map(([, value], index) => {
+                    const text = value.replace(/\s+/g, " ").trim();
+                    return (
+                      <option key={index} value={index}>
+                        Section {index + 1} ·{" "}
+                        {text
+                          ? `${text.slice(0, 64)}${text.length > 64 ? "…" : ""}`
+                          : "Empty section"}
+                      </option>
+                    );
+                  })}
+                </select>
+              </label>
+            )}
+          </div>
+        )}
+        <div
+          className={`editor-columns${document.mode === "view" ? " is-read-only" : ""}`}
+        >
+          <section
+            id={`${navigationId}-edit-panel`}
+            role={compact ? "tabpanel" : undefined}
+            aria-label={compact ? undefined : "Edit document"}
+            aria-labelledby={compact ? `${navigationId}-edit-tab` : undefined}
+            hidden={document.mode === "view" || (compact && pane !== "edit")}
+          >
             <fieldset disabled={busy}>
               {document.mode === "tex" ? (
                 <>
@@ -224,59 +382,106 @@ export function DocumentEditor({
                   {blocks.map(([style, value], index) => (
                     <div className="edit-block" key={index}>
                       <label>
-                        Style
+                        Text format
                         <select
-                          aria-label="Style"
+                          aria-label="Text format"
                           value={style}
                           onChange={(event) =>
                             updateBlock(index, 0, event.target.value)
                           }
                         >
-                          {styles.map((style) => (
-                            <option key={style}>{style}</option>
+                          {styles.map(([value, label]) => (
+                            <option key={value} value={value}>
+                              {label}
+                            </option>
                           ))}
                         </select>
                       </label>
                       <label>
                         Text
                         <textarea
+                          ref={(field) => {
+                            blockFields.current[index] = field;
+                          }}
                           aria-label="Text"
                           rows={3}
                           value={value}
+                          onFocus={() => setBlockIndex(index)}
                           onChange={(event) =>
                             updateBlock(index, 1, event.target.value)
                           }
                         />
                       </label>
-                      <button
-                        type="button"
-                        aria-label="Remove text block"
-                        onClick={() => {
-                          setBlocks((items) =>
-                            items.filter((_, item) => item !== index),
-                          );
-                          changed();
-                        }}
-                      >
-                        Remove
-                      </button>
+                      <div className="editor-section-actions">
+                        <button
+                          type="button"
+                          className="secondary"
+                          aria-label={`Move up section ${index + 1}`}
+                          disabled={index === 0}
+                          onClick={() => moveBlock(index, -1)}
+                        >
+                          <ArrowUp size={16} aria-hidden="true" />
+                          Move up
+                        </button>
+                        <button
+                          type="button"
+                          className="secondary"
+                          aria-label={`Move down section ${index + 1}`}
+                          disabled={index === blocks.length - 1}
+                          onClick={() => moveBlock(index, 1)}
+                        >
+                          <ArrowDown size={16} aria-hidden="true" />
+                          Move down
+                        </button>
+                        <button
+                          type="button"
+                          aria-label="Remove text section"
+                          onClick={() => {
+                            const next = Math.max(
+                              0,
+                              Math.min(index, blocks.length - 2),
+                            );
+                            pendingBlock.current = next;
+                            setBlockIndex(next);
+                            setBlocks((items) =>
+                              items.filter((_, item) => item !== index),
+                            );
+                            changed();
+                          }}
+                        >
+                          Remove text section
+                        </button>
+                      </div>
                     </div>
                   ))}
                   <button
                     onClick={() => {
+                      pendingBlock.current = blocks.length;
+                      setBlockIndex(blocks.length);
                       setBlocks((items) => [...items, ["text", ""]]);
                       changed();
                     }}
                   >
-                    Add text block
+                    Add text section
                   </button>
                 </>
-              ) : (
-                <p>{document.notice}</p>
-              )}
+              ) : null}
             </fieldset>
           </section>
-          <section aria-label="PDF preview">
+          <section
+            className="editor-pdf-pane"
+            id={`${navigationId}-preview-panel`}
+            role={compact && document.mode !== "view" ? "tabpanel" : undefined}
+            aria-label={
+              compact && document.mode !== "view" ? undefined : "PDF preview"
+            }
+            aria-labelledby={
+              compact && document.mode !== "view"
+                ? `${navigationId}-preview-tab`
+                : undefined
+            }
+            hidden={document.mode !== "view" && compact && pane !== "preview"}
+          >
             <a ref={previewLink} target="_blank" rel="noopener">
               Open preview in another tab
             </a>

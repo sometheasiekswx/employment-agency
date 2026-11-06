@@ -10,6 +10,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import type { Application } from "@/lib/models";
 import { ApplicationCard } from "./application-card";
+import { DraftProvider } from "@/components/unsaved";
 
 const fixture = vi.hoisted(() => ({
   run: vi.fn(),
@@ -48,6 +49,38 @@ const submitted: Application = {
 const card = (app = draft) => (
   <ApplicationCard app={app} job={{}} onEdit={vi.fn()} onApply={vi.fn()} />
 );
+
+it("guards a pending review before validating external edits and opens the returned draft", async () => {
+  const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
+  const changed = { ...draft, file_changes: ["resume.pdf"] };
+  const recovered = { ...draft, id: "validated-draft" };
+  fixture.run.mockResolvedValueOnce(recovered);
+  render(<DraftProvider>{card(changed)}</DraftProvider>);
+  const user = userEvent.setup();
+  await user.type(
+    screen.getByRole("textbox", { name: "Comments" }),
+    "Pending review note",
+  );
+  await user.click(
+    screen.getByRole("button", { name: "Validate edits as a new draft" }),
+  );
+  expect(confirm).toHaveBeenCalledWith("Discard unsaved changes?");
+  expect(fixture.run).not.toHaveBeenCalled();
+  expect(fixture.replace).not.toHaveBeenCalled();
+  expect(screen.getByRole("textbox", { name: "Comments" })).toHaveValue(
+    "Pending review note",
+  );
+  confirm.mockReturnValue(true);
+  await user.click(
+    screen.getByRole("button", { name: "Validate edits as a new draft" }),
+  );
+  await waitFor(() =>
+    expect(fixture.run).toHaveBeenCalledWith("adopt-edits", { id: draft.id }),
+  );
+  expect(fixture.replace).toHaveBeenCalledWith(
+    "/discover/?view=applications&section=active&application=validated-draft&panel=documents",
+  );
+});
 const tag = (status: "draft" | "reviewed" = "draft") =>
   screen.getByRole("button", {
     name:
@@ -92,6 +125,35 @@ beforeEach(() => {
   });
 });
 afterEach(() => vi.unstubAllEnvs());
+
+it("hides the repeated document header while retaining the interactive Activity status and legacy card header", () => {
+  const view = render(
+    <ApplicationCard
+      app={draft}
+      job={{}}
+      view="documents"
+      onEdit={vi.fn()}
+      onApply={vi.fn()}
+    />,
+  );
+  expect(view.container.querySelector(".dossier-header")).not.toBeVisible();
+  expect(screen.queryByRole("button", { name: /switch to/ })).toBeNull();
+  view.rerender(
+    <ApplicationCard
+      app={draft}
+      job={{}}
+      view="activity"
+      onEdit={vi.fn()}
+      onApply={vi.fn()}
+    />,
+  );
+  expect(view.container.querySelector(".dossier-header")).toBeVisible();
+  expect(tag()).toBeEnabled();
+  view.rerender(card());
+  expect(view.container.querySelector(".dossier-header")).toBeVisible();
+  expect(screen.getByRole("heading", { name: draft.title })).toBeVisible();
+  expect(tag()).toBeEnabled();
+});
 
 it("moves the review action to the status tag without saving on hover or focus", async () => {
   const { container } = render(card());
@@ -375,7 +437,7 @@ it("requires explicit acknowledgment and submission method before recording a su
   );
   expect(fixture.run).toHaveBeenCalledTimes(1);
   expect(fixture.replace).toHaveBeenCalledWith(
-    "/?section=submitted&application=original-submission",
+    "/discover/?view=applications&section=submitted&application=original-submission&panel=activity",
   );
 });
 
@@ -425,7 +487,7 @@ it("retains submission confirmation values after a failure and prevents concurre
   expect(fixture.run).toHaveBeenCalledTimes(2);
   await act(async () => resolve(submitted));
   expect(fixture.replace).toHaveBeenCalledWith(
-    "/?section=submitted&application=original-submission",
+    "/discover/?view=applications&section=submitted&application=original-submission&panel=activity",
   );
 });
 
@@ -471,7 +533,7 @@ it("requires correction acknowledgment and a reason, then opens the exact recove
     expect.any(String),
   );
   expect(fixture.replace).toHaveBeenCalledWith(
-    "/?section=active&application=recovered-draft",
+    "/discover/?view=applications&section=active&application=recovered-draft&panel=documents",
   );
   expect(fixture.run).toHaveBeenCalledTimes(1);
 });
@@ -514,7 +576,7 @@ it("retains correction reason and acknowledgment after failure and blocks duplic
   expect(fixture.run).toHaveBeenCalledTimes(2);
   await act(async () => resolve({ ...draft, id: "corrected-review" }));
   expect(fixture.replace).toHaveBeenCalledWith(
-    "/?section=active&application=corrected-review",
+    "/discover/?view=applications&section=active&application=corrected-review&panel=documents",
   );
 });
 

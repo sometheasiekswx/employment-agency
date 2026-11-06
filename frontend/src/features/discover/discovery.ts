@@ -4,7 +4,7 @@ import { applicationQueues } from "@/features/applications/queues";
 
 export { advertisedSalary } from "@/lib/format";
 
-export type DiscoveryView = "recommended" | "all" | "saved";
+export type DiscoveryView = "recommended" | "all" | "saved" | "applications";
 export interface RequirementEvidence {
   requirement: string;
   assessment: string;

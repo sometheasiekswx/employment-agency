@@ -12,7 +12,7 @@ import {
 
 const DraftContext = createContext<{
   mark: (id: string, dirty: boolean) => void;
-  canLeave: () => boolean;
+  canLeave: (exceptId?: string, message?: string) => boolean;
 }>({ mark: () => {}, canLeave: () => true });
 
 export function DraftProvider({ children }: { children: ReactNode }) {
@@ -22,8 +22,9 @@ export function DraftProvider({ children }: { children: ReactNode }) {
     else drafts.current.delete(id);
   }, []);
   const canLeave = useCallback(
-    () =>
-      drafts.current.size === 0 || window.confirm("Discard unsaved changes?"),
+    (exceptId?: string, message = "Discard unsaved changes?") =>
+      !Array.from(drafts.current).some((id) => id !== exceptId) ||
+      window.confirm(message),
     [],
   );
   useEffect(() => {
@@ -47,6 +48,10 @@ export function useDraft() {
   const id = useId();
   const { mark, canLeave } = useContext(DraftContext);
   const setDirty = useCallback((dirty: boolean) => mark(id, dirty), [id, mark]);
+  const canLeaveOtherDrafts = useCallback(
+    (message?: string) => canLeave(id, message),
+    [canLeave, id],
+  );
   useEffect(() => () => mark(id, false), [id, mark]);
-  return { setDirty, canLeave };
+  return { setDirty, canLeave, canLeaveOtherDrafts };
 }

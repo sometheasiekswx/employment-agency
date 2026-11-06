@@ -532,7 +532,7 @@ it("links to the exact submitted version and never prepares another application 
   );
   expect(screen.getByRole("link", { name: "View submission" })).toHaveAttribute(
     "href",
-    "/?section=submitted&application=sent",
+    "/discover?view=applications&section=submitted&application=sent&panel=documents",
   );
   expect(
     screen.queryByRole("button", { name: "Prepare draft" }),
@@ -560,7 +560,10 @@ it("distinguishes an earlier submission record from a preserved local draft", as
   );
   expect(
     screen.getByRole("link", { name: "Review preserved draft" }),
-  ).toHaveAttribute("href", "/?section=active&application=separate-draft");
+  ).toHaveAttribute(
+    "href",
+    "/discover?view=applications&section=active&application=separate-draft&panel=documents",
+  );
   expect(
     screen.queryByRole("link", { name: "View submission" }),
   ).not.toBeInTheDocument();
@@ -619,7 +622,10 @@ it("consumes document focus once, leaving later refreshes and role navigation in
   expect(next).toHaveFocus();
   expect(
     screen.getByRole("link", { name: "Review documents" }),
-  ).toHaveAttribute("href", "/?section=active&application=existing-b");
+  ).toHaveAttribute(
+    "href",
+    "/discover?view=applications&section=active&application=existing-b&panel=documents",
+  );
 });
 
 it("prepares a local draft only after an explicit click", async () => {
@@ -804,5 +810,84 @@ it("offers a retry after ranking fails and requires a profile before any request
   expect(
     screen.getByRole("link", { name: "Create a search profile" }),
   ).toBeInTheDocument();
+  expect(fixture.client.action).not.toHaveBeenCalled();
+});
+
+it("keeps an explicitly chosen decision status when switching to All roles", async () => {
+  render(<DiscoverPage />);
+  await screen.findByRole("button", {
+    name: "Assess Cloud Engineer at Example Cloud",
+  });
+  const status = screen.getByRole("combobox", { name: "Application status" });
+  expect(
+    within(status).queryByRole("option", { name: "Applications" }),
+  ).toBeNull();
+  await userEvent.selectOptions(status, "submitted");
+  expect(new URLSearchParams(fixture.query).get("view")).toBe("all");
+  expect(new URLSearchParams(fixture.query).get("status")).toBe("submitted");
+});
+
+it("changes the Applications stage without leaving Applications when filtering decisions", async () => {
+  fixture.query = "view=applications";
+  render(<DiscoverPage />);
+  await userEvent.selectOptions(
+    screen.getByRole("combobox", { name: "Application status" }),
+    "rejected",
+  );
+  const route = new URLSearchParams(fixture.query);
+  expect(route.get("view")).toBe("applications");
+  expect(route.get("section")).toBe("rejected");
+  expect(route.get("status")).toBe("rejected");
+  expect(fixture.client.action).not.toHaveBeenCalled();
+});
+
+it("keeps a requested application's Overview usable outside the visible filter", async () => {
+  fixture.state.applications = [
+    {
+      id: "app-a",
+      job_id: "job-a",
+      title: "Cloud Engineer",
+      employer: "Example Cloud",
+      status: "draft",
+      comments: [],
+    },
+  ];
+  fixture.query = "view=all&q=unmatched&application=app-a&panel=overview";
+  render(<DiscoverPage />);
+  expect(await screen.findByRole("complementary")).toHaveAccessibleName(
+    "Cloud Engineer",
+  );
+  expect(screen.getByText("Built Python applications")).toBeInTheDocument();
+  expect(
+    screen.getByRole("button", { name: "Previous opportunity" }),
+  ).toBeDisabled();
+  expect(
+    screen.getByRole("button", { name: "Next opportunity" }),
+  ).toBeDisabled();
+});
+
+it("offers saved documents and activity when a requested listing is missing", async () => {
+  fixture.state.applications = [
+    {
+      id: "missing-app",
+      job_id: "missing-job",
+      title: "Preserved role",
+      employer: "Former listing",
+      status: "submitted",
+      comments: [],
+    },
+  ];
+  fixture.state.profiles = [];
+  fixture.profileId = "";
+  fixture.query = "view=applications&application=missing-app&panel=overview";
+  render(<DiscoverPage />);
+  expect(screen.getByRole("dialog", { name: "Preserved role" })).toBeVisible();
+  expect(
+    screen.getByRole("heading", { name: "Listing overview unavailable" }),
+  ).toBeVisible();
+  await userEvent.click(
+    screen.getByRole("button", { name: "Review saved documents" }),
+  );
+  expect(new URLSearchParams(fixture.query).get("panel")).toBe("documents");
   expect(fixture.client.action).not.toHaveBeenCalled();
 });
