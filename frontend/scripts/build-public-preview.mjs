@@ -9,6 +9,15 @@ const root = path.dirname(frontend);
 const destination = path.join(root, "output/public-preview/site");
 const generatedTypes = path.join(frontend, "next-env.d.ts");
 const originalTypes = await readFile(generatedTypes);
+const commit =
+  process.env.GITHUB_SHA ||
+  spawnSync("git", ["rev-parse", "HEAD"], {
+    cwd: root,
+    encoding: "utf8",
+  }).stdout?.trim();
+if (!/^[a-f0-9]{40}$/.test(commit || "")) {
+  throw new Error("A public build requires its exact source commit.");
+}
 const fixture = JSON.parse(
   await readFile(path.join(frontend, "public/demo/preview.json"), "utf8"),
 );
@@ -132,11 +141,20 @@ await writeFile(
             },
           ],
         },
+        {
+          source: "/release.json",
+          headers: [{ key: "Cache-Control", value: "no-cache" }],
+        },
       ],
     },
     null,
     2,
   ) + "\n",
+);
+
+await writeFile(
+  path.join(destination, "release.json"),
+  JSON.stringify({ commit, fixtureRevision: fixture.revision }, null, 2) + "\n",
 );
 
 const manifest = [];
