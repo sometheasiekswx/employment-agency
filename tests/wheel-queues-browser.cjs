@@ -4,6 +4,11 @@ const assert = require("node:assert/strict");
 const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
+const {
+  roleCard,
+  selectApplication,
+  showPanel,
+} = require("./browser-applications.cjs");
 
 (async () => {
   const [base, fixturePath] = process.argv.slice(2);
@@ -25,24 +30,44 @@ const path = require("node:path");
     const initial = await (await page.request.get(base + "/api/state")).json();
     assert.equal(initial.state._workspace.path, fixture.workspace);
     assert.equal(initial.state.applications.length, fixture.versions.length);
-    const card = (app) => page.locator(`[data-application-id="${app.id}"]`);
-    const tab = (name, count) =>
-      page.getByRole("button", { name: `${name} (${count})`, exact: true });
-    const counts = async (submitted = 1) =>
-      assert.deepEqual(
-        await page
-          .locator('[aria-label="Application sections"] button')
-          .allTextContents(),
-        ["Active (2)", `Submitted (${submitted})`, "Rejected (1)"],
-        "Counts represent jobs rather than preserved document versions",
+    for (const key of [
+      "old_draft",
+      "earlier_sent",
+      "sent",
+      "late_draft",
+      "active",
+      "separate",
+      "rejected",
+      "legacy_sent",
+    ]) {
+      const application = initial.state.applications.find(
+        (app) => app.id === fixture[key].id,
       );
+      assert.ok(application, `The installed fixture retains ${key}`);
+      fixture[key] = application;
+    }
+    const card = (app) => page.locator(`[data-application-id="${app.id}"]`);
+    const role = (app) => roleCard(page, app);
+    const tab = (name, count) =>
+      page.getByRole("button", { name: `${name} ${count}`, exact: true });
+    const counts = async (submitted = 1) => {
+      for (const name of ["Active 2", `Submitted ${submitted}`, "Rejected 1"])
+        assert.equal(
+          await page
+            .getByRole("group", { name: "Application stage" })
+            .getByRole("button", { name, exact: true })
+            .count(),
+          1,
+          "Counts represent jobs rather than preserved document versions",
+        );
+    };
 
-    await page.goto(base);
-    await page.locator(".result-count").waitFor();
+    await page.goto(base + "/discover/?view=applications&section=active");
+    await tab("Active", 2).waitFor();
     await counts();
-    assert.equal(await page.locator(".dossier").count(), 2);
-    assert.equal(await card(fixture.active).count(), 1);
-    assert.equal(await card(fixture.separate).count(), 1);
+    assert.equal(await page.locator(".discover-card").count(), 2);
+    assert.equal(await role(fixture.active).count(), 1);
+    assert.equal(await role(fixture.separate).count(), 1);
     for (const app of [
       fixture.old_draft,
       fixture.earlier_sent,
@@ -50,25 +75,30 @@ const path = require("node:path");
       fixture.late_draft,
     ]) {
       assert.equal(
-        await card(app).count(),
+        await role(app).count(),
         0,
         "Submitted job has no active sibling",
       );
     }
     assert.deepEqual(
-      await page.locator(".destinations button").allTextContents(),
-      ["All destinations", "Toronto", "Montreal"],
+      await page
+        .locator(".discover-filters select[aria-label='Location'] option")
+        .allTextContents(),
+      ["All locations", "Toronto", "Montreal"],
     );
-    await page.getByRole("button", { name: "Toronto", exact: true }).click();
+    await page.locator(".discover-filters summary").click();
     await page
-      .getByText("1 of 2 application packages shown", { exact: true })
-      .waitFor();
-    assert.equal(await card(fixture.active).count(), 1);
-    assert.equal(await card(fixture.separate).count(), 0);
+      .getByRole("combobox", { name: "Location", exact: true })
+      .selectOption("Toronto");
+    await page.locator(".discover-filters summary").click();
+    await page.getByText("1 role · 1 location", { exact: true }).waitFor();
+    assert.equal(await role(fixture.active).count(), 1);
+    assert.equal(await role(fixture.separate).count(), 0);
 
     await tab("Submitted", 1).click();
+    await selectApplication(page, fixture.sent, "documents");
     await card(fixture.sent).waitFor();
-    assert.equal(await page.locator(".dossier").count(), 1);
+    assert.equal(await page.locator(".discover-card").count(), 1);
     assert.equal(
       await card(fixture.earlier_sent).count(),
       0,
@@ -79,12 +109,28 @@ const path = require("node:path");
       0,
       "Later edit does not replace a submission",
     );
+    const versionIds = await page
+      .getByRole("combobox", { name: "Document version", exact: true })
+      .locator("option")
+      .evaluateAll((options) => options.map((option) => option.value));
+    for (const application of [
+      fixture.old_draft,
+      fixture.earlier_sent,
+      fixture.sent,
+      fixture.late_draft,
+    ])
+      assert.ok(
+        versionIds.includes(application.id),
+        "The role workspace retains access to every preserved sibling",
+      );
+    await showPanel(page, "activity");
     assert.equal(
       await page
         .getByRole("button", { name: "Apply For Me", exact: true })
         .count(),
       0,
     );
+    await showPanel(page, "documents");
     const resumeLink = card(fixture.sent).getByRole("link", {
       name: "CV PDF",
       exact: true,
@@ -101,23 +147,21 @@ const path = require("node:path");
     );
 
     await page.getByLabel("Include earlier review queues").check();
-    await card(fixture.legacy_sent).waitFor();
+    await role(fixture.legacy_sent).waitFor();
     await counts(2);
-    assert.equal(await page.locator(".dossier").count(), 2);
+    assert.equal(await page.locator(".discover-card").count(), 2);
     await tab("Active", 2).click();
-    await card(fixture.active).waitFor();
+    await role(fixture.active).waitFor();
     assert.equal(
-      await page.locator(".dossier").count(),
+      await page.locator(".discover-card").count(),
       2,
       "Earlier queues do not resurrect drafts",
     );
     await tab("Rejected", 1).click();
-    await card(fixture.rejected).waitFor();
-    assert.equal(await page.locator(".dossier").count(), 1);
+    await role(fixture.rejected).waitFor();
+    assert.equal(await page.locator(".discover-card").count(), 1);
 
-    await page
-      .getByRole("link", { name: "History", exact: true })
-      .click();
+    await page.getByRole("link", { name: "History", exact: true }).click();
     await page.locator(".history-files").first().waitFor({ state: "attached" });
     assert.equal(
       await page.locator(".history-files").count(),

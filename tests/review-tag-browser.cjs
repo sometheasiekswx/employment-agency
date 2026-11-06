@@ -8,6 +8,10 @@ const assert = require("node:assert/strict");
 const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
+const {
+  openApplication,
+  selectApplication,
+} = require("./browser-applications.cjs");
 
 (async () => {
   const base = process.env.TEST_URL;
@@ -111,7 +115,7 @@ const path = require("node:path");
         { id: app.id, state },
       );
 
-    await page.goto(base);
+    await openApplication(page, base, fixture.active, "activity");
     await status(fixture.active).waitFor();
     const tag = status(fixture.active);
     assert.equal(
@@ -380,6 +384,7 @@ const path = require("node:path");
       [fixture.reopened, "Enter"],
       [fixture.separate, "Space"],
     ]) {
+      await openApplication(page, base, app, "activity");
       const control = status(app);
       await control.focus();
       for (const value of ["reviewed", "draft"]) {
@@ -412,7 +417,7 @@ const path = require("node:path");
     });
     const touchPage = await touch.newPage();
     touchPage.on("pageerror", (error) => errors.push(error.message));
-    await touchPage.goto(base);
+    await openApplication(touchPage, base, fixture.active, "activity");
     const touchTag = touchPage.locator(
       `[data-application-id="${fixture.active.id}"] .bell-toggle__button`,
     );
@@ -444,7 +449,7 @@ const path = require("node:path");
     await touch.close();
 
     await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.reload();
+    await openApplication(page, base, fixture.active, "activity");
     await status(fixture.active).waitFor();
     for (const value of ["reviewed", "draft"]) {
       await tag.click();
@@ -492,7 +497,7 @@ const path = require("node:path");
     });
     const videoPage = await videoContext.newPage();
     videoPage.on("pageerror", (error) => errors.push(error.message));
-    await videoPage.goto(base);
+    await openApplication(videoPage, base, fixture.active, "activity");
     const videoTag = videoPage.locator(
       `[data-application-id="${fixture.active.id}"] .bell-toggle__button`,
     );
@@ -522,12 +527,12 @@ const path = require("node:path");
     await video.saveAs(path.resolve(evidence, "bell-toggle.webm"));
 
     await page
-      .getByRole("button", { name: "Submitted (1)", exact: true })
+      .getByRole("button", { name: "Submitted 1", exact: true })
       .click();
+    await selectApplication(page, fixture.sent);
     assert.equal(await card(fixture.sent).locator(".review-status").count(), 0);
-    await page
-      .getByRole("button", { name: "Rejected (1)", exact: true })
-      .click();
+    await page.getByRole("button", { name: "Rejected 1", exact: true }).click();
+    await selectApplication(page, fixture.declined);
     assert.equal(
       await card(fixture.declined).locator(".review-status").count(),
       0,

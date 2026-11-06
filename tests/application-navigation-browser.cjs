@@ -1,4 +1,4 @@
-// Package jumps preserve keyboard context without moving focus on refresh.
+// Role selection and application panels preserve keyboard context through polling.
 const { chromium } = require(
   process.env.PLAYWRIGHT_PATH || "../frontend/node_modules/playwright",
 );
@@ -17,53 +17,69 @@ const assert = require("node:assert/strict");
     });
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));
-    const response = await page.request.get(base + "/api/state");
-    const original = await response.json();
+    const original = await (await page.request.get(base + "/api/state")).json();
     assert.match(original.state._workspace.path, /ea-concept-a-preview-/);
     assert.equal(original.state._workspace.demo, true);
 
-    await page.goto(base + "/");
-    const packages = page.locator(".application-overview-row");
+    await page.goto(base + "/discover/?view=applications&section=active");
+    const packages = page.locator(".discover-card-open");
     await packages.nth(1).waitFor();
+    assert.equal(
+      await page.locator(".opportunities-workbench:visible").count(),
+      0,
+      "The default first package does not open or take focus",
+    );
     assert.notEqual(
       await page.evaluate(() => document.activeElement?.tagName),
       "ARTICLE",
-      "The default first package does not take focus",
     );
     await packages.nth(1).focus();
     await page.keyboard.press("Enter");
-    await page.waitForURL((url) => url.searchParams.has("application"));
-    const selected = new URL(page.url()).searchParams.get("application");
-    const target = page.locator(`[data-application-id="${selected}"]`);
-    await page.waitForFunction(
-      (id) =>
-        document.activeElement?.getAttribute("data-application-id") === id,
-      selected,
+    await page.waitForURL((url) => url.searchParams.has("opportunity"));
+    const selectedJob = new URL(page.url()).searchParams.get("opportunity");
+    const expected = original.state.applications.find(
+      (app) => app.job_id === selectedJob,
     );
-    assert.equal(await target.getAttribute("tabindex"), "-1");
-    const labelId = await target.getAttribute("aria-labelledby");
+    assert.ok(expected);
+    await page
+      .locator(".discover-inspector")
+      .getByRole("button", { name: "Documents", exact: true })
+      .click();
+    const workspace = page.locator(".opportunities-workbench:visible");
+    const target = workspace.locator(`[data-application-id="${expected.id}"]`);
+    await target.waitFor();
+    await page.waitForURL(
+      (url) => url.searchParams.get("application") === expected.id,
+    );
+    assert.equal(
+      new URL(page.url()).searchParams.get("application"),
+      expected.id,
+    );
+    assert.equal(new URL(page.url()).searchParams.get("view"), "applications");
+    await page.waitForFunction(
+      () =>
+        document.activeElement?.getAttribute("aria-label") ===
+        "Close application workspace",
+    );
+    const labelId = await workspace.getAttribute("aria-labelledby");
     assert.equal(
       await page.locator(`[id="${labelId}"]`).textContent(),
-      original.state.applications.find((app) => app.id === selected).title,
+      expected.title,
     );
+    await workspace
+      .getByRole("button", { name: "Documents", exact: true })
+      .focus();
     await page.keyboard.press("Tab");
-    const activePackage = () =>
-      page.evaluate(() =>
-        document.activeElement
-          ?.closest("[data-application-id]")
-          ?.getAttribute("data-application-id"),
-      );
     assert.equal(
-      await activePackage(),
-      selected,
-      "Tab enters the package that was selected, not an earlier package",
+      await workspace.evaluate((element) =>
+        element.contains(document.activeElement),
+      ),
+      true,
+      "Tab remains in the selected role's workspace",
     );
-    const focused = await page.evaluate(() => {
+    await page.evaluate(() => {
       window.__applicationFocusedElement = document.activeElement;
-      return document.activeElement?.tagName;
     });
-    assert.notEqual(focused, "ARTICLE");
-    // The local provider refreshes state every 1.5s. Observe a real refresh.
     await page.waitForResponse(
       (result) => result.url() === base + "/api/state" && result.ok(),
     );
@@ -74,17 +90,35 @@ const assert = require("node:assert/strict");
       true,
       "Polling must leave focus on the user's current control",
     );
+    await workspace
+      .getByRole("button", { name: "Close application workspace", exact: true })
+      .click();
+    await page.waitForFunction(
+      (jobId) =>
+        document.activeElement
+          ?.closest(".discover-card")
+          ?.querySelector("[data-opportunity-id]")
+          ?.getAttribute("data-opportunity-id") === jobId,
+      selectedJob,
+    );
 
+    // Old application bookmarks remain usable, including an invalid target.
     await page.goto(base + "/?application=nonexistent-fixture-package");
+    await page
+      .getByText(
+        "This application is no longer available. Choose another saved application.",
+        { exact: true },
+      )
+      .waitFor();
     await packages.nth(1).waitFor();
-    assert.notEqual(
-      await page.evaluate(() => document.activeElement?.tagName),
-      "ARTICLE",
-      "An invalid requested package must not focus the default package",
+    assert.equal(
+      await page.locator(".opportunities-workbench:visible").count(),
+      0,
+      "An invalid requested package never opens a different application",
     );
     assert.deepEqual(errors, []);
     console.log(
-      "PASS: selecting the second application moves keyboard context into that package; default/invalid selection and polling preserve focus.",
+      "PASS: role selection opens the exact document version; keyboard context, close restoration, invalid legacy links and polling preserve focus.",
     );
   } finally {
     await browser.close();

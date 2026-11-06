@@ -3,6 +3,10 @@ const AxeBuilder =
   require("../frontend/node_modules/@axe-core/playwright").default;
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
+const {
+  openApplication,
+  selectApplication,
+} = require("./browser-applications.cjs");
 (async () => {
   const base = process.env.TEST_URL;
   assert.match(base, /^http:\/\/127\.0\.0\.1:\d+$/);
@@ -23,16 +27,19 @@ const fs = require("node:fs");
       initial.state._workspace.path,
       /employment-agency-apply-fixture-/,
     );
-    const app = page.locator("article").filter({
-      has: page.getByRole("heading", {
-        name: "Software Engineer",
-        exact: true,
-      }),
-    });
+    const emailApplication = initial.state.applications.find(
+      (application) => application.title === "Software Engineer",
+    );
+    const websiteApplication = initial.state.applications.find(
+      (application) => application.title === "Platform Engineer",
+    );
+    assert.ok(emailApplication && websiteApplication);
+    await openApplication(page, base, emailApplication, "activity");
+    const app = page.locator(`[data-application-id="${emailApplication.id}"]`);
     await app
       .getByRole("button", { name: "Apply For Me", exact: true })
       .click();
-    let dialog = page.getByRole("dialog");
+    let dialog = page.locator(".apply-dialog");
     await dialog
       .getByText("alex@example.test", { exact: false })
       .first()
@@ -79,7 +86,7 @@ const fs = require("node:fs");
     }
     await dialog.getByRole("button", { name: "Close", exact: true }).focus();
     await page.keyboard.press("Escape");
-    assert.equal(await page.getByRole("dialog").count(), 0);
+    assert.equal(await page.locator(".apply-dialog").count(), 0);
     assert.equal(
       await page.evaluate(() => document.activeElement?.textContent),
       "Apply For Me",
@@ -87,7 +94,7 @@ const fs = require("node:fs");
     await app
       .getByRole("button", { name: "Apply For Me", exact: true })
       .click();
-    dialog = page.getByRole("dialog");
+    dialog = page.locator(".apply-dialog");
     await dialog.getByText("awaiting approval", { exact: false }).waitFor();
     await page.waitForFunction(() =>
       document.querySelector("dialog iframe")?.src.startsWith("blob:"),
@@ -142,21 +149,23 @@ const fs = require("node:fs");
     });
     await dialog.getByRole("button", { name: "Close", exact: true }).click();
     await page
-      .getByRole("button", { name: "Submitted (1)", exact: true })
+      .getByRole("button", { name: "Submitted 1", exact: true })
       .click();
+    await selectApplication(page, emailApplication);
     await page
       .getByRole("button", { name: "Submission details", exact: true })
       .click();
     await page.getByText("fixture-message", { exact: false }).waitFor();
     await page
-      .getByRole("dialog")
+      .locator(".apply-dialog")
       .getByRole("button", { name: "Close", exact: true })
       .click();
-    await page.getByRole("button", { name: "Active (1)", exact: true }).click();
+    await page.getByRole("button", { name: "Active 1", exact: true }).click();
+    await selectApplication(page, websiteApplication);
     await page
       .getByRole("button", { name: "Apply For Me", exact: true })
       .click();
-    dialog = page.getByRole("dialog");
+    dialog = page.locator(".apply-dialog");
     await dialog
       .getByRole("combobox", { name: "Application method" })
       .selectOption("linkedin");

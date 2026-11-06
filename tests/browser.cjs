@@ -2,6 +2,11 @@
 const { chromium } = require(process.env.PLAYWRIGHT_PATH || "playwright");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
+const {
+  showPanel,
+  selectApplication,
+  workbench,
+} = require("./browser-applications.cjs");
 (async () => {
   const browser = await chromium.launch({
     channel: process.env.BROWSER_CHANNEL || "chrome",
@@ -13,8 +18,9 @@ const fs = require("node:fs");
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto(process.env.TEST_URL || "http://127.0.0.1:8767");
-  await page.getByRole('button', {name: 'Save', exact: true}).click();
-  await page.getByRole('link', {name: 'Career profile'}).click();
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await page.waitForURL((url) => url.pathname === "/discover/");
+  await page.getByRole("link", { name: "Career profile" }).click();
   await page.getByRole("heading", { name: "Your details" }).waitFor();
   await page.getByLabel("Name", { exact: true }).fill("Alex Morgan");
   await page.getByLabel("Email", { exact: true }).fill("alex@example.test");
@@ -59,50 +65,139 @@ const fs = require("node:fs");
       document.querySelector("#runs")?.textContent.includes(" · complete · "),
     { timeout: 20000 },
   );
-  await page.getByRole("link", { name: "Applications" }).click();
+  await page.getByRole("link", { name: "Opportunities", exact: true }).click();
+  await page.getByRole("button", { name: "Applications", exact: true }).click();
   await page
+    .getByRole("button", {
+      name: "Assess Software Engineer at Fictional Systems",
+      exact: true,
+    })
+    .click();
+  await page.waitForURL((url) => Boolean(url.searchParams.get("opportunity")));
+  const selectedJob = new URL(page.url()).searchParams.get("opportunity");
+  await showPanel(page, "documents");
+  await page.waitForURL((url) => Boolean(url.searchParams.get("application")));
+  const selectedApplication = {
+    id: new URL(page.url()).searchParams.get("application"),
+    job_id: selectedJob,
+    status: "draft",
+  };
+  await workbench(page)
     .getByRole("heading", { name: "Software Engineer", exact: true })
     .waitFor();
   assert.equal(await page.locator('a[href^="/files/"]').count(), 8);
-  const pdf = await page.request.get(new URL(await page.getByRole('link', {name:'CV PDF', exact:true}).getAttribute('href'),page.url()).href);
-  assert.equal(pdf.status(),200); assert.match(pdf.url(),/history\/files/);
-  assert.ok((await pdf.body()).subarray(0,4).toString()==='%PDF');
+  const pdf = await page.request.get(
+    new URL(
+      await page
+        .getByRole("link", { name: "CV PDF", exact: true })
+        .getAttribute("href"),
+      page.url(),
+    ).href,
+  );
+  assert.equal(pdf.status(), 200);
+  assert.match(pdf.url(), /history\/files/);
+  assert.ok((await pdf.body()).subarray(0, 4).toString() === "%PDF");
   assert.equal(await page.locator('select[name="status"]').count(), 0);
-  assert.equal(await page.locator('.application-details dd').filter({hasText:/^unknown$/i}).count(),0);
-  await page.locator('.fit-summary').waitFor();
-  fs.mkdirSync('output/playwright',{recursive:true});
-  await page.evaluate(()=>{document.activeElement?.blur();window.scrollTo(0,0)});
-  await page.screenshot({path:'output/playwright/current-applications.png',fullPage:true});
-  await page.getByLabel('Comments', {exact:true}).fill('Reviewed the tailored files.');
-  await page.getByRole('button', {name:'Save comment',exact:true}).click();
-  await page.getByText('Review history (1)', {exact:true}).waitFor();
-  await page.getByRole('button', {name:'Reject',exact:true}).click();
-  await page.getByRole('button', {name:'Rejected (1)',exact:true}).click();
-  await page.getByRole('button', {name:'Return to Active',exact:true}).click();
-  await page.getByRole('button', {name:'Active (1)',exact:true}).click();
-  await page.getByRole('button', {name:'Record submission…',exact:true}).click();
-  await page.getByLabel('Where or how you submitted').fill('Fictional employer website');
-  await page.getByLabel('I have already submitted this application.', {exact:true}).check();
-  await page.getByRole('button', {name:'Confirm submission record',exact:true}).click();
-  await page.getByRole('button', {name:'Submitted (1)',exact:true}).click();
-  await page.locator('article').waitFor();
-  assert.equal(await page.getByRole('button', {name:'Reject',exact:true}).count(),0);
-  await page.getByLabel('Comments', {exact:true}).fill('Saved after submission.');
-  await page.getByRole('button', {name:'Save comment',exact:true}).click();
-  await page.getByText('Review history (5)', {exact:true}).waitFor();
-  await page.reload();
-  await page.getByRole('button', {name:'Submitted (1)',exact:true}).click();
-  await page.locator('article').waitFor();
-  await page.getByText('Review history (5)', {exact:true}).click();
-  await page.getByText('Saved after submission.', {exact:false}).waitFor();
+  await page.locator(".application-context > summary").click();
+  assert.equal(
+    await page
+      .locator(".application-details dd")
+      .filter({ hasText: /^unknown$/i })
+      .count(),
+    0,
+  );
+  await page.locator(".fit-summary").waitFor();
   fs.mkdirSync("output/playwright", { recursive: true });
-  await page.evaluate(()=>window.scrollTo(0,0));
+  await page.evaluate(() => {
+    document.activeElement?.blur();
+    window.scrollTo(0, 0);
+  });
+  await page.screenshot({
+    path: "output/playwright/current-applications.png",
+    fullPage: true,
+  });
+  await showPanel(page, "activity");
+  await page
+    .getByLabel("Comments", { exact: true })
+    .fill("Reviewed the tailored files.");
+  await page.getByRole("button", { name: "Save comment", exact: true }).click();
+  await page.getByText("Review history (1)", { exact: true }).waitFor();
+  await page.getByRole("button", { name: "Reject", exact: true }).click();
+  await page.getByRole("button", { name: "Rejected 1", exact: true }).click();
+  await selectApplication(page, selectedApplication);
+  await page
+    .getByRole("button", { name: "Return to Active", exact: true })
+    .click();
+  await page.getByRole("button", { name: "Active 1", exact: true }).click();
+  await selectApplication(page, selectedApplication);
+  await page
+    .getByRole("button", { name: "Record submission…", exact: true })
+    .click();
+  await page
+    .getByLabel("Where or how you submitted")
+    .fill("Fictional employer website");
+  await page
+    .getByLabel("I have already submitted this application.", { exact: true })
+    .check();
+  await page
+    .getByRole("button", { name: "Confirm submission record", exact: true })
+    .click();
+  await page.waitForURL(
+    (url) =>
+      url.searchParams.get("section") === "submitted" &&
+      url.searchParams.get("panel") === "activity",
+  );
+  assert.equal(
+    await workbench(page)
+      .getByRole("button", { name: "Activity", exact: true })
+      .getAttribute("aria-pressed"),
+    "true",
+    "Recording a submission stays in Activity so its decision is visible",
+  );
+  await page.getByRole("button", { name: "Submitted 1", exact: true }).click();
+  await selectApplication(page, selectedApplication);
+  await workbench(page).locator(".dossier").waitFor();
+  assert.equal(
+    await page.getByRole("button", { name: "Reject", exact: true }).count(),
+    0,
+  );
+  await page
+    .getByLabel("Comments", { exact: true })
+    .fill("Saved after submission.");
+  await page.getByRole("button", { name: "Save comment", exact: true }).click();
+  await page.getByText("Review history (5)", { exact: true }).waitFor();
+  await page.reload();
+  await page
+    .getByRole("button", { name: "Submitted 1", exact: true })
+    .waitFor();
+  await workbench(page).locator(".dossier").waitFor();
+  assert.equal(
+    await page
+      .locator(".application-review-history")
+      .evaluate((element) => element.open),
+    true,
+  );
+  await page.getByText("Saved after submission.", { exact: false }).waitFor();
+  fs.mkdirSync("output/playwright", { recursive: true });
+  await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({
     path: "output/playwright/applications-desktop.png",
     fullPage: true,
   });
   for (const width of [320, 768, 1024, 1440]) {
     await page.setViewportSize({ width, height: 900 });
+    await page.waitForFunction((mobile) => {
+      const surface = document.querySelector(
+        ".opportunities-workbench:not([hidden])",
+      );
+      return surface?.matches("dialog:modal") === mobile;
+    }, width <= 1000);
+    await page.evaluate(
+      () =>
+        new Promise((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(resolve)),
+        ),
+    );
     assert.equal(
       await page.evaluate(
         () => document.documentElement.scrollWidth > innerWidth,
@@ -112,11 +207,14 @@ const fs = require("node:fs");
     );
   }
   await page.setViewportSize({ width: 320, height: 900 });
-  await page.evaluate(()=>window.scrollTo(0,0));
+  await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({
     path: "output/playwright/applications-mobile.png",
     fullPage: true,
   });
+  await workbench(page)
+    .getByRole("button", { name: "Close application workspace", exact: true })
+    .click();
   await page.getByRole("link", { name: "Settings" }).click();
   await page.getByRole("heading", { name: "AI disclosure consent" }).waitFor();
   await page.keyboard.press("Tab");

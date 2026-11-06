@@ -6,6 +6,11 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
+const {
+  roleCard,
+  selectApplication,
+  workbench,
+} = require("./browser-applications.cjs");
 
 (async () => {
   const browser = await chromium.launch({ channel: "chrome", headless: true });
@@ -40,31 +45,39 @@ const crypto = require("node:crypto");
     fs.mkdirSync("output/playwright/queues", { recursive: true });
     const card = (app) => page.locator(`[data-application-id="${app.id}"]`);
     const tab = (name, count) =>
-      page.getByRole("button", { name: `${name} (${count})`, exact: true });
-    await page.goto(base);
+      page
+        .getByRole("group", { name: "Application stage" })
+        .getByRole("button", { name: `${name} ${count}`, exact: true });
+    const role = (app) => roleCard(page, app);
+    await page.goto(base + "/discover/?view=applications&section=active");
     await tab("Active", 3).waitFor();
-    assert.equal(await page.locator(".dossier").count(), 3);
-    assert.equal(await card(fixture.sent).count(), 0);
-    assert.equal(await card(fixture.legacy_sent).count(), 0);
-    assert.equal(await card(fixture.active).count(), 1);
-    assert.equal(await card(fixture.reopened).count(), 1);
+    assert.equal(await page.locator(".discover-card").count(), 3);
+    assert.equal(await role(fixture.sent).count(), 0);
+    assert.equal(await role(fixture.legacy_sent).count(), 0);
+    assert.equal(await role(fixture.active).count(), 1);
+    assert.equal(await role(fixture.reopened).count(), 1);
     assert.equal(
-      await card(fixture.separate).count(),
+      await role(fixture.separate).count(),
       1,
       "identical title/employer in a different requisition stays distinct",
     );
     assert.deepEqual(
-      await page.locator(".destinations button").allTextContents(),
-      ["All destinations", "Montreal", "Toronto"],
+      await page
+        .locator(".discover-filters select[aria-label='Location'] option")
+        .allTextContents(),
+      ["All locations", "Montreal", "Toronto"],
     );
     await page.screenshot({ path: "output/playwright/queues/active.png" });
-    await page.getByRole("button", { name: "Toronto", exact: true }).click();
+    await page.locator(".discover-filters summary").click();
     await page
-      .getByText("2 of 3 application packages shown", { exact: true })
-      .waitFor();
+      .getByRole("combobox", { name: "Location", exact: true })
+      .selectOption("Toronto");
+    await page.locator(".discover-filters summary").click();
+    await page.getByText("2 roles · 1 location", { exact: true }).waitFor();
     await tab("Submitted", 1).click();
+    await selectApplication(page, fixture.sent);
     await card(fixture.sent).waitFor();
-    assert.equal(await page.locator(".dossier").count(), 1);
+    assert.equal(await page.locator(".discover-card").count(), 1);
     assert.equal(
       await card(fixture.sent).locator(".pill").innerText(),
       "submitted",
@@ -78,32 +91,54 @@ const crypto = require("node:crypto");
     await page.screenshot({ path: "output/playwright/queues/submitted.png" });
     await page.getByLabel("Include earlier review queues").check();
     await tab("Submitted", 2).waitFor();
-    await card(fixture.legacy_sent).waitFor();
+    await role(fixture.legacy_sent).waitFor();
     await tab("Active", 3).click();
-    await card(fixture.active).waitFor();
+    await role(fixture.active).waitFor();
     assert.equal(
-      await page.locator(".dossier").count(),
+      await page.locator(".discover-card").count(),
       3,
       "earlier queues never resurrect submitted siblings",
     );
     await page.getByLabel("Include earlier review queues").uncheck();
 
     await tab("Rejected", 1).click();
+    await selectApplication(page, fixture.declined);
     await card(fixture.declined).waitFor();
-    assert.equal(await page.locator(".dossier").count(), 1);
+    assert.equal(await page.locator(".discover-card").count(), 1);
     await card(fixture.declined)
       .getByRole("button", { name: "Return to Active", exact: true })
       .click();
     await tab("Active", 4).click();
+    await selectApplication(page, fixture.declined);
     await card(fixture.declined)
       .getByRole("button", { name: "Reject", exact: true })
       .click();
     await tab("Active", 3).waitFor();
-    assert.equal(await card(fixture.declined).count(), 0);
+    assert.equal(
+      await role(fixture.declined).count(),
+      0,
+      "A rejected role leaves the active board while its selected record remains inspectable",
+    );
+    await workbench(page)
+      .getByRole("button", { name: "Close application workspace", exact: true })
+      .click();
 
+    await selectApplication(page, fixture.active);
     const active = card(fixture.active);
     for (const width of [390, 768, 1024, 1440]) {
       await page.setViewportSize({ width, height: 1100 });
+      await page.waitForFunction(
+        ({ id, mobile }) => {
+          const surface = document.querySelector(
+            ".opportunities-workbench:not([hidden])",
+          );
+          return (
+            surface?.matches("dialog:modal") === mobile &&
+            surface.querySelector(`[data-application-id="${id}"]`)
+          );
+        },
+        { id: fixture.active.id, mobile: width <= 1000 },
+      );
       await active.scrollIntoViewIfNeeded();
       assert.equal(
         await page.evaluate(
@@ -145,21 +180,28 @@ const crypto = require("node:crypto");
       });
     }
     const reviewed = active.locator(".review-status .bell-toggle__button");
-    assert.equal(await reviewed.getAttribute("aria-label"), "Draft — switch to Reviewed");
-    assert.equal(await active.locator('.review-pane button[value="reviewed"]').count(), 0);
+    assert.equal(
+      await reviewed.getAttribute("aria-label"),
+      "Draft — switch to Reviewed",
+    );
+    assert.equal(
+      await active.locator('.review-pane button[value="reviewed"]').count(),
+      0,
+    );
     const submitted = active.getByRole("button", {
       name: "Record submission…",
       exact: true,
     });
     const reject = active.getByRole("button", { name: "Reject", exact: true });
-    const tokenColour = (control, token) => control.evaluate((node, token) => {
-      const probe = document.createElement("span");
-      probe.style.color = `var(${token})`;
-      node.append(probe);
-      const value = getComputedStyle(probe).color;
-      probe.remove();
-      return value;
-    }, token);
+    const tokenColour = (control, token) =>
+      control.evaluate((node, token) => {
+        const probe = document.createElement("span");
+        probe.style.color = `var(${token})`;
+        node.append(probe);
+        const value = getComputedStyle(probe).color;
+        probe.remove();
+        return value;
+      }, token);
     assert.equal(
       await submitted.evaluate((e) => getComputedStyle(e).backgroundColor),
       await tokenColour(submitted, "--positive-ink"),
@@ -176,17 +218,31 @@ const crypto = require("node:crypto");
       true,
     );
     assert.equal(
-      await reviewed.evaluate((e) => getComputedStyle(e.parentElement, "::after").borderTopStyle),
+      await reviewed.evaluate(
+        (e) => getComputedStyle(e.parentElement, "::after").borderTopStyle,
+      ),
       "solid",
     );
     await reviewed.click();
-    await active.locator('.bell-toggle__button[data-status="reviewed"]').waitFor();
+    await active
+      .locator('.bell-toggle__button[data-status="reviewed"]')
+      .waitFor();
     await page.mouse.move(0, 0);
-    await page.waitForTimeout(220);
-    assert.equal(await reviewed.evaluate(e => getComputedStyle(e).backgroundColor),
-      await tokenColour(reviewed, "--accent-soft"));
-    assert.equal(await reviewed.evaluate(e => getComputedStyle(e).color),
-      await tokenColour(reviewed, "--link"));
+    await reviewed.evaluate(async (element) => {
+      await Promise.all(
+        element
+          .getAnimations()
+          .map((animation) => animation.finished.catch(() => {})),
+      );
+    });
+    assert.equal(
+      await reviewed.evaluate((e) => getComputedStyle(e).backgroundColor),
+      await tokenColour(reviewed, "--accent-soft"),
+    );
+    assert.equal(
+      await reviewed.evaluate((e) => getComputedStyle(e).color),
+      await tokenColour(reviewed, "--link"),
+    );
     await active
       .getByLabel("Comments", { exact: true })
       .fill("Checked the fictional evidence.");
@@ -195,19 +251,31 @@ const crypto = require("node:crypto");
       .click();
     await active.getByText("Review history (2)", { exact: false }).waitFor();
     await submitted.click();
-    await active.getByLabel("Where or how you submitted").fill("Fictional employer website");
-    await active.getByLabel("I have already submitted this application.", {exact:true}).check();
-    await active.getByRole("button", {name:"Confirm submission record",exact:true}).click();
-    await page.waitForURL(url => url.searchParams.get("section") === "submitted" && url.searchParams.get("application") === fixture.active.id);
+    await active
+      .getByLabel("Where or how you submitted")
+      .fill("Fictional employer website");
+    await active
+      .getByLabel("I have already submitted this application.", { exact: true })
+      .check();
+    await active
+      .getByRole("button", { name: "Confirm submission record", exact: true })
+      .click();
+    await page.waitForURL(
+      (url) =>
+        url.searchParams.get("section") === "submitted" &&
+        url.searchParams.get("application") === fixture.active.id &&
+        url.searchParams.get("panel") === "activity",
+    );
     await tab("Active", 2).click();
     assert.equal(
-      await card(fixture.active).count(),
+      await role(fixture.active).count(),
       0,
       "submission does not reveal the previous draft",
     );
     await tab("Submitted", 2).click();
+    await selectApplication(page, fixture.active);
     await card(fixture.active).waitFor();
-    assert.equal(await page.locator(".dossier").count(), 2);
+    assert.equal(await page.locator(".discover-card").count(), 2);
     await page.getByRole("link", { name: "History", exact: true }).click();
     await page.waitForURL("**/history/");
     const versions = initial.state.applications.filter(

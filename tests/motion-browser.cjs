@@ -440,22 +440,52 @@ async function selectionBack(page, base, state, label) {
   ).searchParams.get("application");
   await documents.click();
   await page.locator(`[data-application-id="${application}"]`).waitFor();
-  await page.goBack();
-  await page.waitForURL(selected);
+  await page
+    .locator(".opportunities-workbench:visible")
+    .getByRole("button", { name: "Overview", exact: true })
+    .click();
+  await page.waitForURL(
+    (url) =>
+      url.searchParams.get("panel") === "overview" &&
+      url.searchParams.get("opportunity") === params.get("opportunity"),
+  );
   await heading(page, "Cloud Software Engineer").waitFor();
   await settled(page);
   await assertFocused(
     label === "mobile"
       ? inspector(page).locator(".discover-sheet-expand")
       : close(page),
-    `${label}: Back restores inspector focus`,
+    `${label}: Overview restores inspector focus`,
   );
   assert.equal(
     await cloud(page).getAttribute("aria-pressed"),
     "true",
-    `${label}: Back restores the selected card`,
+    `${label}: Overview retains the selected card`,
   );
-  await assertRestingLayout(page, `${label}: Back`);
+  await assertRestingLayout(page, `${label}: Overview`);
+  // Panel changes replace their query state. A separate page journey still
+  // exercises native browser Back and reconstruction of the selected role.
+  const restoredRoute = page.url();
+  await page.goto(base + "/career/");
+  await page
+    .getByRole("heading", { name: "Your details", exact: true })
+    .waitFor();
+  await page.goBack();
+  await page.waitForURL(restoredRoute);
+  await heading(page, "Cloud Software Engineer").waitFor();
+  await settled(page);
+  await assertFocused(
+    label === "mobile"
+      ? inspector(page).locator(".discover-sheet-expand")
+      : close(page),
+    `${label}: browser Back restores selected-role focus`,
+  );
+  assert.equal(
+    await cloud(page).getAttribute("aria-pressed"),
+    "true",
+    `${label}: browser Back restores the selected card`,
+  );
+  await assertRestingLayout(page, `${label}: browser Back`);
   await page.keyboard.press("Escape");
   await inspector(page).waitFor({ state: "detached" });
 }
@@ -701,9 +731,7 @@ async function bookmarkRollback(page, readState, label, mobile) {
     await inspector(page).waitFor({ state: "detached" });
   }
   if (!mobile) {
-    await page
-      .getByRole("button", { name: "All results", exact: true })
-      .click();
+    await page.getByRole("button", { name: "All roles", exact: true }).click();
     await cloud(page).waitFor();
   }
   assert.equal(await bookmark(false).getAttribute("aria-pressed"), "false");

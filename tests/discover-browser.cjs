@@ -152,9 +152,13 @@ const fs = require("node:fs");
       "loading/ranking never prepares an application",
     );
     const initialRankings = rankings;
-    await page.getByRole("link", { name: "Applications", exact: true }).click();
-    await page.waitForURL(base + "/");
-    await page.getByRole("link", { name: "Discover", exact: true }).click();
+    await page
+      .getByRole("button", { name: "Applications", exact: true })
+      .click();
+    await page.waitForURL(
+      (url) => url.searchParams.get("view") === "applications",
+    );
+    await page.getByRole("button", { name: "All roles", exact: true }).click();
     await cloud().waitFor();
     assert.equal(
       rankings,
@@ -167,9 +171,7 @@ const fs = require("node:fs");
         .count(),
       0,
     );
-    await page
-      .getByRole("button", { name: "All results", exact: true })
-      .click();
+    await page.getByRole("button", { name: "All roles", exact: true }).click();
     await page.waitForURL(discovery);
     await page.screenshot({
       path: "output/playwright/concept-a/discover-desktop.png",
@@ -226,8 +228,18 @@ const fs = require("node:fs");
     await page
       .locator(`[data-application-id="${existingApplication}"]`)
       .waitFor();
-    await page.goBack();
-    await page.waitForURL(selectedRoute);
+    assert.equal(new URL(page.url()).searchParams.get("view"), "all");
+    assert.equal(
+      new URL(page.url()).searchParams.get("opportunity"),
+      selectedParams.get("opportunity"),
+    );
+    await page
+      .locator(".opportunities-workbench:visible")
+      .getByRole("button", { name: "Overview", exact: true })
+      .click();
+    await page.waitForURL(
+      (url) => url.searchParams.get("panel") === "overview",
+    );
     await inspector()
       .getByRole("heading", { name: "Cloud Software Engineer", exact: true })
       .waitFor();
@@ -383,6 +395,9 @@ const fs = require("node:fs");
     assert.equal(documentUrl.searchParams.get("application"), created.id);
     await documents.click();
     await page.locator(`[data-application-id="${created.id}"]`).waitFor();
+    await page.waitForURL(
+      (url) => url.searchParams.get("application") === created.id,
+    );
     assert.equal(
       new URL(page.url()).searchParams.get("application"),
       created.id,
@@ -458,8 +473,17 @@ const fs = require("node:fs");
     await page
       .locator(`[data-application-id="${existingApplication}"]`)
       .waitFor();
-    await page.goBack();
-    await page.waitForURL(mobileSelectedRoute);
+    assert.equal(
+      new URL(page.url()).searchParams.get("opportunity"),
+      new URL(mobileSelectedRoute).searchParams.get("opportunity"),
+    );
+    await page
+      .locator(".opportunities-workbench:visible")
+      .getByRole("button", { name: "Overview", exact: true })
+      .click();
+    await page.waitForURL(
+      (url) => url.searchParams.get("panel") === "overview",
+    );
     await modal.waitFor();
     assert.equal(await modal.evaluate((element) => element.open), true);
     await checkKeyboardNavigation();

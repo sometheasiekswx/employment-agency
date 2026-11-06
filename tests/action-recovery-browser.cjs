@@ -8,6 +8,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
+const { showPanel, workbench } = require("./browser-applications.cjs");
 (async () => {
   const base = process.env.TEST_URL;
   assert.match(base, /^http:\/\/127\.0\.0\.1:\d+$/);
@@ -42,7 +43,9 @@ const crypto = require("node:crypto");
     ]) {
       await page.setViewportSize({ width, height: 1000 });
       const bytes = fingerprint(app);
-      await page.goto(`${base}/?section=active&application=${app.id}`);
+      await page.goto(
+        `${base}/?section=active&application=${app.id}&panel=activity`,
+      );
       let card = page.locator(`[data-application-id="${app.id}"]`);
       const record = card.getByRole("button", {
         name: "Record submission…",
@@ -74,6 +77,10 @@ const crypto = require("node:crypto");
         (await read()).applications.find((item) => item.id === app.id).status,
         "draft",
       );
+      const submissionComment = `Fictional ${width}px review note consumed by the submission record.`;
+      await card
+        .getByLabel("Comments", { exact: true })
+        .fill(submissionComment);
       await record.click();
       await card
         .getByLabel("Where or how you submitted")
@@ -87,14 +94,48 @@ const crypto = require("node:crypto");
         .getByRole("button", { name: "Confirm submission record", exact: true })
         .click();
       await page.waitForURL(
-        (url) => url.searchParams.get("section") === "submitted",
+        (url) =>
+          url.searchParams.get("section") === "submitted" &&
+          url.searchParams.get("panel") === "activity",
       );
       card = page.locator(`[data-application-id="${app.id}"]`);
       const submitted = (await read()).applications.find(
         (item) => item.id === app.id,
       );
       assert.equal(submitted.status, "submitted");
+      assert.ok(
+        submitted.comments.some((comment) =>
+          comment.text.includes(submissionComment),
+        ),
+        "Recording a submission persists the existing Activity comment",
+      );
       assert.deepEqual(fingerprint(submitted), bytes);
+      assert.equal(
+        await card.getByLabel("Comments", { exact: true }).inputValue(),
+        "",
+      );
+      const unexpectedPrompts = [];
+      const rejectUnexpectedPrompt = (dialog) => {
+        unexpectedPrompts.push(dialog.message());
+        void dialog.dismiss();
+      };
+      page.on("dialog", rejectUnexpectedPrompt);
+      try {
+        await workbench(page)
+          .getByRole("button", { name: "Documents", exact: true })
+          .click();
+        assert.deepEqual(
+          unexpectedPrompts,
+          [],
+          "A comment consumed by submission no longer prompts on panel navigation",
+        );
+      } finally {
+        page.off("dialog", rejectUnexpectedPrompt);
+      }
+      await page.waitForURL(
+        (url) => url.searchParams.get("panel") === "documents",
+      );
+      await showPanel(page, "activity");
       await card
         .getByRole("button", {
           name: "Correct submission record…",
@@ -167,6 +208,7 @@ const crypto = require("node:crypto");
       const recoveredCard = page.locator(
         `[data-application-id="${recoveredId}"]`,
       );
+      await recoveredCard.locator(".application-context > summary").click();
       await recoveredCard
         .getByText("Original submission record and correction", { exact: true })
         .click();

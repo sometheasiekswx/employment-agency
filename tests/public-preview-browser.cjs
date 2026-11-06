@@ -6,6 +6,7 @@ const AxeBuilder =
   require("../frontend/node_modules/@axe-core/playwright").default;
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
+const { showPanel } = require("./browser-applications.cjs");
 
 (async () => {
   const base = process.env.TEST_URL;
@@ -113,6 +114,8 @@ const fs = require("node:fs");
             exact: true,
           })
           .click();
+        await page.waitForURL((url) => !url.searchParams.has("opportunity"));
+        await page.locator(".discover-inspector").waitFor({ state: "hidden" });
       }
     }
     await page.setViewportSize({ width: 1440, height: 1000 });
@@ -216,8 +219,14 @@ const fs = require("node:fs");
         .waitFor(),
     ]).catch(async (error) => {
       for (const [index, tab] of [firstTab, secondTab].entries()) {
-        await tab.screenshot({path: `output/playwright/public-preview/concurrent-tab-${index}.png`, fullPage: true});
-        fs.writeFileSync(`output/playwright/public-preview/concurrent-tab-${index}.txt`, await tab.locator("body").innerText());
+        await tab.screenshot({
+          path: `output/playwright/public-preview/concurrent-tab-${index}.png`,
+          fullPage: true,
+        });
+        fs.writeFileSync(
+          `output/playwright/public-preview/concurrent-tab-${index}.txt`,
+          await tab.locator("body").innerText(),
+        );
       }
       throw error;
     });
@@ -277,6 +286,7 @@ const fs = require("node:fs");
     await application
       .getByRole("button", { name: "View CV", exact: true })
       .waitFor();
+    await showPanel(page, "activity");
     assert.equal(
       await application
         .getByRole("button", { name: "Record submission…", exact: true })
@@ -289,6 +299,7 @@ const fs = require("node:fs");
         .isDisabled(),
       true,
     );
+    await showPanel(page, "documents");
     const pdfHref = await application
       .getByRole("link", { name: "CV PDF", exact: true })
       .getAttribute("href");

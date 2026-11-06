@@ -90,7 +90,7 @@ const { decideDialog } = require("./browser-dialog.cjs");
     });
     await jobUrl.fill("https://example.com/jobs/unsaved-fixture");
     const discoverLink = page.getByRole("link", {
-      name: "Discover",
+      name: "Opportunities",
       exact: true,
     });
     await decideDialog(page, () => discoverLink.click(), false);
