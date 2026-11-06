@@ -1,0 +1,118 @@
+.removal-feedback {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  margin-block: 12px;
+  color: var(--ink);
+}
+.removal-feedback-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+  padding: 10px 10px 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--accent-soft);
+}
+.removal-feedback-message {
+  flex: 1;
+  min-width: 0;
+}
+.removal-feedback p {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  line-height: 1.55;
+}
+.removal-feedback-message > p {
+  padding-block: 4px;
+}
+.removal-feedback strong {
+  font-weight: 500;
+}
+.removal-feedback-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.removal-feedback-message .removal-feedback-actions:not(:empty) {
+  margin-top: 8px;
+}
+.removal-feedback button {
+  min-width: 44px;
+  min-height: 44px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.removal-feedback .removal-feedback-close {
+  flex: 0 0 44px;
+  width: 44px;
+  padding: 0;
+  border-color: transparent;
+  color: var(--muted);
+}
+.removal-reason-editor {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+}
+.removal-reason-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+.removal-reason-heading > div {
+  flex: 1;
+  min-width: 0;
+}
+.removal-reason-heading h3 {
+  margin: 0 0 4px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+.removal-reason-heading p,
+.removal-reason-footer > p {
+  color: var(--muted);
+}
+.removal-reason-editor > label {
+  min-width: 0;
+  margin: 0;
+  font-size: 13px;
+}
+.removal-reason-editor textarea {
+  min-height: 88px;
+  max-width: 100%;
+}
+.removal-reason-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  min-width: 0;
+}
+.removal-feedback .removal-feedback-error {
+  display: block;
+  margin-top: 4px;
+  color: var(--error);
+}
+@media (max-width: 1000px) {
+  .removal-reason-editor textarea {
+    font-size: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .removal-feedback button,
+  .removal-feedback textarea {
+    transition: none;
+    animation: none;
+  }
+}

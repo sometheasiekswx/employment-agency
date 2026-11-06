@@ -8,7 +8,7 @@ The public web showcase and the installed CLI demo use separate datasets. Both u
 | Candidate           | Alex Morgan, fictional software engineer in Melbourne  | Alex Morgan, fictional software engineer in New York         |
 | Jobs                | Six invented illustrative roles in four locations      | Fourteen real employer-board metadata snapshots              |
 | Application records | Three illustrative records with generated sample files | Twelve generated packages with sample decisions and comments |
-| Changes             | Browser-only saved-role bookmarks                      | Normal local demo-workspace operations                       |
+| Changes             | Browser-local bookmarks, removal and optional reasons  | Normal local demo-workspace operations                       |
 | Runtime             | Static public site; no application backend or sign-in  | Isolated local Python server and workspace                   |
 
 ## Public web showcase
@@ -32,7 +32,7 @@ All people, experience, employers, vacancies, compensation and review decisions 
 
 Seven confirmed sample experience statements cover Python, AWS, Terraform, PostgreSQL, React, TypeScript and CI/CD at **Example Labs (fictional)**. The profile prioritises Singapore, Melbourne, Berlin and Toronto. Work eligibility and sponsorship stay unknown; the fictional listings do not establish live availability. Example listing URLs use the reserved `example.test` domain.
 
-The shared Python `Service` generates the bundled state, requirement assessments and real document files before the static site is built. The browser displays those results. Saving a role changes only the demo's browser bookmark state. Personal uploads, workspace edits, new document generation, external source refreshes, paid providers and employer actions are unavailable in this public showcase. Use the local application for those supported workflows.
+The shared Python `Service` generates the bundled state, requirement assessments and real document files before the static site is built. The browser displays those results. Bookmarks, job removal, restoration and optional reasons stay in the visitor's browser. Removed roles can be restored later; existing application records and documents remain accessible. Personal uploads, career-data edits, new document generation, external source refreshes, paid providers and employer actions are unavailable in this public showcase. Use the local application for those supported workflows.
 
 The sample application records include a reviewed Emberlane package, a Fernbridge draft and a Cedarlight submission record. **The submission is fictional; no employer was contacted.** The documents contain sample content and must not be used as real application material.
 

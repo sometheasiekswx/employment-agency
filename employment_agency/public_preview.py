@@ -138,7 +138,7 @@ def export_preview(destination):
                     row['job']['url'] = ''
             payload = {
                 'public_preview': True, 'schema': 1,
-                'notice': 'Fictional public preview. Only bookmarks change in your browser. No uploads, AI requests, account access or employer submissions.',
+                'notice': 'Fictional public preview. Bookmarks, removed roles and reasons stay in your browser. No uploads, AI requests, account access or employer submissions.',
                 'state': state, 'rankings': rankings, 'history': versions,
                 'files': files, 'documents': documents,
             }

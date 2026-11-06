@@ -8,8 +8,14 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { Form } from "@/components/controls";
 import { DraftProvider, useDraft } from "@/components/unsaved";
-import type { Profile, RankedJob, WorkspaceState } from "@/lib/models";
+import type {
+  Profile,
+  RankedJob,
+  RequestData,
+  WorkspaceState,
+} from "@/lib/models";
 import { DiscoverPage } from "./discover-page";
 
 const fixture = vi.hoisted(() => ({
@@ -243,6 +249,93 @@ it("retains the selected profile and role when a dirty review cancels a profile 
   expect(next.get("q")).toBe("Cloud");
   expect(next.get("location")).toBe("Toronto");
   expect(next.get("view")).toBe("all");
+});
+
+it("protects a dirty form when removal is declined and confirms once before removing the selected role", async () => {
+  fixture.query = "view=all&opportunity=job-a&assessment_profile=profile-a";
+  fixture.client.action.mockImplementation(
+    async (action: string, data: RequestData) => {
+      if (action === "rank") return ranked();
+      if (action === "remove-job")
+        return {
+          id: data.id,
+          removals: [
+            { id: data.removal_id, at: "2026-11-07T01:00:00Z", reason: "" },
+          ],
+        };
+      throw new Error(`Unexpected operation: ${action}`);
+    },
+  );
+  const save = vi.fn().mockResolvedValue(undefined);
+  const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
+  const user = userEvent.setup();
+  render(
+    <DraftProvider>
+      <Form onSave={save}>
+        <label>
+          Pending review note
+          <input name="review-note" />
+        </label>
+      </Form>
+      <DiscoverPage />
+    </DraftProvider>,
+  );
+  const inspector = await screen.findByRole("complementary", {
+    name: "Cloud Engineer",
+  });
+  await user.type(
+    screen.getByLabelText("Pending review note"),
+    "Unfinished review text",
+  );
+  const remove = within(inspector).getByRole("button", {
+    name: "Remove Cloud Engineer",
+  });
+  await user.click(remove);
+  expect(confirm).toHaveBeenCalledExactlyOnceWith("Discard unsaved changes?");
+  expect(fixture.replace).not.toHaveBeenCalled();
+  expect(fixture.query).toBe(
+    "view=all&opportunity=job-a&assessment_profile=profile-a",
+  );
+  expect(fixture.client.action).toHaveBeenCalledExactlyOnceWith("rank", {
+    profile_id: "profile-a",
+  });
+  expect(inspector).toHaveAccessibleName("Cloud Engineer");
+  expect(screen.getByLabelText("Pending review note")).toHaveValue(
+    "Unfinished review text",
+  );
+  expect(save).not.toHaveBeenCalled();
+
+  confirm.mockClear().mockReturnValue(true);
+  await user.click(remove);
+  await waitFor(() => {
+    expect(screen.getByRole("complementary")).toHaveAccessibleName(
+      "Backend Engineer",
+    );
+    expect(fixture.client.action).toHaveBeenCalledWith("remove-job", {
+      id: "job-a",
+      removal_id: expect.stringMatching(/^[a-f0-9]{32}$/),
+    });
+  });
+  expect(confirm).toHaveBeenCalledExactlyOnceWith("Discard unsaved changes?");
+  expect(
+    fixture.client.action.mock.calls.filter(
+      ([action]) => action === "remove-job",
+    ),
+  ).toHaveLength(1);
+  expect(fixture.replace).toHaveBeenCalledExactlyOnceWith(
+    "/discover/?view=all&opportunity=job-b&assessment_profile=profile-a",
+    { scroll: false },
+  );
+  expect(
+    screen.queryByRole("button", {
+      name: "Assess Cloud Engineer at Example Cloud",
+    }),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.getByRole("button", {
+      name: "Assess Backend Engineer at Example Studio",
+    }),
+  ).toBeInTheDocument();
 });
 
 it("shows static card skeletons only while a real initial ranking request is pending", async () => {

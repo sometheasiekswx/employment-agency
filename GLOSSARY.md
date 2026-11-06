@@ -34,6 +34,12 @@ The exact application documents recorded as submitted, preserved with their prov
 **Application decision**:
 A user's recorded review, rejection or manual submission. Recording Submitted also confirms review; it does not send an application. Comments do not change decisions. Active contains Draft and Reviewed packages; Submitted and Rejected have separate sections.
 
+**Removed opportunity**:
+A job the user has taken out of Recommended, All roles and Saved across search profiles, and can restore from the Removed view. Its job details, application documents and decisions remain preserved and accessible in Applications and History; removal is separate from application rejection.
+
+**Removal reason**:
+An optional comment associated with removing an opportunity. Adding it is separate from removal and never a prerequisite for continuing to browse.
+
 **Review status**:
 The reversible Draft or Reviewed state of an active application version. Changing review status records the user's current decision without deleting previous decisions or changing the preserved application documents; a submitted snapshot is not reopened by this control.
 

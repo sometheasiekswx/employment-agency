@@ -430,12 +430,96 @@ const { showPanel } = require("./browser-applications.cjs");
       [],
     );
     await page.keyboard.press("Escape");
+    for (const width of [1440, 390, 320]) {
+      await page.setViewportSize({ width, height: 844 });
+      await page.goto(base + "/discover/?view=all");
+      await assessCloud().click();
+      const inspector = page.locator(".discover-inspector");
+      await inspector
+        .getByRole("button", {
+          name: "Remove Cloud Software Engineer",
+          exact: true,
+        })
+        .click();
+      await inspector
+        .getByRole("heading", { name: "Backend Engineer", exact: true })
+        .waitFor();
+      await inspector
+        .getByRole("button", { name: "Add reason", exact: true })
+        .click();
+      const reason = inspector.getByRole("textbox", {
+        name: "Removal reason (optional)",
+        exact: true,
+      });
+      if (width <= 1000)
+        assert.ok(
+          await reason.evaluate(
+            (node) => parseFloat(getComputedStyle(node).fontSize) >= 16,
+          ),
+          "Mobile reason text avoids Safari's small-input zoom",
+        );
+      const explanation = `Fictional ${width}px check: prefer a role with more product work.`;
+      await reason.fill(explanation);
+      await inspector
+        .getByRole("button", { name: "Save reason", exact: true })
+        .click();
+      await inspector.getByText("Reason saved.", { exact: true }).waitFor();
+      const feedbackAxe = await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+        .analyze();
+      assert.deepEqual(
+        feedbackAxe.violations.map((item) => item.id),
+        [],
+      );
+      await page.keyboard.press("Escape");
+      await page.goto(base + "/discover/?view=all");
+      await page
+        .getByRole("button", { name: /^Removed \(1\)$/, exact: true })
+        .waitFor();
+      assert.equal(
+        await assessCloud().count(),
+        0,
+        "browser-local removal survives reload",
+      );
+      await page
+        .getByRole("button", { name: /^Removed \(1\)$/, exact: true })
+        .click();
+      await assessCloud().waitFor();
+      await page
+        .getByRole("button", {
+          name: "Add removal reason for Cloud Software Engineer",
+          exact: true,
+        })
+        .click();
+      assert.equal(
+        await page
+          .getByRole("textbox", {
+            name: "Removal reason (optional)",
+            exact: true,
+          })
+          .inputValue(),
+        explanation,
+      );
+      await page.screenshot({
+        path: `output/playwright/public-preview/removal-${width}.png`,
+      });
+      await page
+        .getByRole("button", {
+          name: "Restore Cloud Software Engineer",
+          exact: true,
+        })
+        .click();
+      await page
+        .getByRole("button", { name: "Show available roles", exact: true })
+        .click();
+      await assessCloud().waitFor();
+    }
     assert.deepEqual(apiRequests, []);
     assert.deepEqual(externalRequests, []);
     assert.deepEqual(mutations, []);
     assert.deepEqual(errors, []);
     console.log(
-      "Public static preview passed: six routes, fictional PDF/Word views, isolated browser bookmarks, disabled private operations, no API/auth/provider requests and accessible desktop/mobile layouts.",
+      "Public static preview passed: six routes, fictional PDF/Word views, browser-local bookmarks/removal/reasons/restore, disabled private operations, no API/auth/provider requests and accessible desktop/mobile layouts.",
     );
   } finally {
     await browser.close();

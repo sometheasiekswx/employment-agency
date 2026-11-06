@@ -15,6 +15,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowUpRight,
   Bookmark,
+  CircleMinus,
+  MessageSquare,
+  RotateCcw,
   MapPin,
   RefreshCw,
   Search,
@@ -28,7 +31,10 @@ import { OpportunityWorkbench } from "./opportunity-workbench";
 import { Action, Check, Select } from "@/components/controls";
 import { useWorkspace } from "@/components/workspace-provider";
 import { compareDestinations, destination, errorMessage } from "@/lib/format";
-import type { RankedJob } from "@/lib/models";
+import type { Job, JobRemoval, RankedJob } from "@/lib/models";
+import { currentRemoval } from "@/lib/job-removal";
+import { RemovalFeedback } from "./removal-feedback";
+import { useJobRemoval } from "./use-job-removal";
 import {
   advertisedSalary,
   applicationsByJob,
@@ -85,6 +91,7 @@ export function DiscoverPage() {
       ? rawView
       : "recommended";
   const applicationView = view === "applications";
+  const removedView = !applicationView && filters.get("removed") === "true";
   const section = filters.get("section") || "active";
   const includeHistorical = filters.get("history") === "true";
   const panel =
@@ -127,10 +134,10 @@ export function DiscoverPage() {
     [replace, setOptimisticQuery],
   );
   const setSelectedId = useCallback(
-    (id: string) => {
+    (id: string, guardChecked = false) => {
       // Keep the close callback stable so navigation within the inspector does
       // not rerun its initial-focus effect or reopen the native mobile dialog.
-      if (!canLeave()) return false;
+      if (!guardChecked && !canLeave()) return false;
       const current = currentRoute.current;
       const next = new URLSearchParams(current.queryString);
       if (id) {
@@ -153,10 +160,17 @@ export function DiscoverPage() {
     {},
   );
   const [savingIds, setSavingIds] = useState<string[]>([]);
+  const removal = useJobRemoval({ jobs: state.jobs, client, refresh });
+  const closeRemovalReason = removal.closeReason;
   const [saveError, setSaveError] = useState("");
   const saveErrorNotice = useRef<HTMLDivElement>(null);
   const opener = useRef<HTMLButtonElement | null>(null);
   const cardButtons = useRef(new Map<string, HTMLButtonElement>());
+  const triageFocus = useRef<{
+    adjacentId: string;
+    pressed: Element | null;
+    disappearingCard: Element | null;
+  } | null>(null);
   const board = useRef<HTMLDivElement>(null);
   const inspectorLayout = useRef<HTMLDivElement>(null);
   const mobile = useMobileInspector();
@@ -168,7 +182,11 @@ export function DiscoverPage() {
   const rankInput = JSON.stringify({
     profile,
     facts: state.facts,
-    jobs: state.jobs.map((job) => ({ ...job, saved: undefined })),
+    jobs: state.jobs.map((job) => ({
+      ...job,
+      saved: undefined,
+      removals: undefined,
+    })),
   });
   const requestKey = `${profileId}:${attempt}:${rankInput}`;
   const workspacePath = state._workspace.path;
@@ -181,10 +199,13 @@ export function DiscoverPage() {
       ? { key: requestKey, profileId, rows: cached, error: "" }
       : ranking;
   const loading =
-    !applicationView && Boolean(profile) && currentRanking.key !== requestKey;
+    !applicationView &&
+    !removedView &&
+    Boolean(profile) &&
+    currentRanking.key !== requestKey;
 
   useEffect(() => {
-    if (!profileId || applicationView) return;
+    if (!profileId || applicationView || removedView) return;
     let active = true;
     loadRanking(client, workspacePath, profileId, rankInput, attempt > 0).then(
       (rows) => {
@@ -211,13 +232,16 @@ export function DiscoverPage() {
     requestKey,
     attempt,
     applicationView,
+    removedView,
   ]);
 
   const applications = useMemo(
     () => applicationsByJob(state.applications),
     [state.applications],
   );
-  const latestJobs = new Map(state.jobs.map((job) => [job.id, job]));
+  const latestJobs = new Map(
+    state.jobs.map((job) => [job.id, removal.jobWithRemoval(job)]),
+  );
   const rows = (
     currentRanking.profileId === profileId ? currentRanking.rows : []
   ).flatMap((row) => {
@@ -263,9 +287,35 @@ export function DiscoverPage() {
         salary_expectation: {},
       },
     }));
-  const sourceRows = applicationView ? applicationRows : rows;
+  const removedRows: RankedJob[] = [...latestJobs.values()]
+    .filter((job) => currentRemoval(job))
+    .map(
+      (job) =>
+        rows.find((row) => row.job.id === job.id) || {
+          job,
+          match: {
+            eligible_for_preparation: false,
+            hard_conflicts: [],
+            unknowns: [],
+            gaps: [],
+            evidence: [],
+            preferences: [],
+            salary_expectation: {},
+          },
+        },
+    );
+  const sourceRows = applicationView
+    ? applicationRows
+    : removedView
+      ? removedRows
+      : rows;
+  const browsingRows = applicationView
+    ? sourceRows
+    : sourceRows.filter(
+        ({ job }) => Boolean(currentRemoval(job)) === removedView,
+      );
   const locations = [
-    ...new Set(sourceRows.map(({ job }) => destination(job, priorities))),
+    ...new Set(browsingRows.map(({ job }) => destination(job, priorities))),
   ].sort((a, b) => compareDestinations(a, b, priorities));
   const visible = filterOpportunities(
     sourceRows,
@@ -274,6 +324,7 @@ export function DiscoverPage() {
       location:
         location || (applicationView ? filters.get("destination") || "" : ""),
       view,
+      removed: removedView,
     },
     priorities,
   ).filter(
@@ -286,7 +337,9 @@ export function DiscoverPage() {
   const navigationRows = groups.flatMap(([, rows]) => rows);
   const selectedRow = visible.find((row) => row.job.id === selectedId);
   const selected =
-    selectedRow || requestedApplication
+    selectedRow ||
+    requestedApplication ||
+    removal.feedback?.job.id === selectedId
       ? rows.find((row) => row.job.id === selectedId) || selectedRow
       : undefined;
   const assessmentAvailable = rows.some((row) => row.job.id === selectedId);
@@ -307,7 +360,7 @@ export function DiscoverPage() {
     (row) => row.job.id === selectedId,
   );
   const error =
-    !applicationView && currentRanking.key === requestKey
+    !applicationView && !removedView && currentRanking.key === requestKey
       ? currentRanking.error
       : "";
   const boardGroups = JSON.stringify(
@@ -316,6 +369,43 @@ export function DiscoverPage() {
       opportunities.map(({ job }) => job.id),
     ]),
   );
+  useEffect(() => {
+    const intent = triageFocus.current;
+    if (!intent) return;
+    // Outside controls stay inert until the native details dialog has closed.
+    // Consume focus only after the matching optimistic board/selection commits.
+    if (mobile && inspectorOpen) return;
+    const frame = requestAnimationFrame(() => {
+      if (triageFocus.current !== intent) return;
+      const focused = document.activeElement;
+      if (
+        focused !== intent.pressed &&
+        !intent.disappearingCard?.contains(focused) &&
+        focused !== document.body &&
+        focused instanceof HTMLElement &&
+        focused.isConnected &&
+        (focused.tabIndex >= 0 || focused.hasAttribute("tabindex"))
+      ) {
+        triageFocus.current = null;
+        return;
+      }
+      const target =
+        cardButtons.current.get(intent.adjacentId) ||
+        document.querySelector<HTMLButtonElement>(".discover-removed-filter") ||
+        document.querySelector<HTMLButtonElement>(
+          '.discover-views button[aria-pressed="true"]',
+        );
+      target?.focus({ preventScroll: true });
+      if (document.activeElement === target) triageFocus.current = null;
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [
+    boardGroups,
+    inspectorOpen,
+    mobile,
+    selectedId,
+    removal.feedback?.removalId,
+  ]);
 
   useLayoutEffect(() => {
     const element = board.current;
@@ -424,6 +514,7 @@ export function DiscoverPage() {
 
   const closeInspector = useCallback(() => {
     if (!setSelectedId("")) return false;
+    closeRemovalReason();
     window.setTimeout(() => {
       if (opener.current?.isConnected) {
         opener.current.scrollIntoView?.({
@@ -440,7 +531,7 @@ export function DiscoverPage() {
       }
     }, 0);
     return true;
-  }, [setSelectedId]);
+  }, [setSelectedId, closeRemovalReason]);
 
   const updateFilters = (
     values: Record<string, string>,
@@ -449,6 +540,7 @@ export function DiscoverPage() {
     if (!canLeave()) return;
     const next = new URLSearchParams(queryString);
     if (values.view) {
+      next.delete("removed");
       next.delete("location");
       next.delete("status");
       next.delete("destination");
@@ -464,6 +556,100 @@ export function DiscoverPage() {
     next.delete("panel");
     if (next.toString() !== queryString) replaceQuery(next, localSearch);
   };
+
+  const scheduleTriageFocus = (
+    adjacent: RankedJob | undefined,
+    pressed: Element | null,
+    jobId: string,
+  ) => {
+    triageFocus.current = {
+      adjacentId: adjacent?.job.id || "",
+      pressed,
+      disappearingCard:
+        cardButtons.current.get(jobId)?.closest(".discover-card") || null,
+    };
+  };
+  const removeJob = async (job: Job) => {
+    if (!canLeave()) return;
+    const index = navigationRows.findIndex((row) => row.job.id === job.id);
+    const eligible = (row: RankedJob) =>
+      row.job.id !== job.id && (!applicationView || !currentRemoval(row.job));
+    const adjacent =
+      navigationRows.slice(index + 1).find(eligible) ||
+      navigationRows.slice(0, index).reverse().find(eligible);
+    const pressed = document.activeElement;
+    if (
+      !pressed?.closest(".discover-inspector") ||
+      (selectedId === job.id && !adjacent)
+    )
+      scheduleTriageFocus(adjacent, pressed, job.id);
+    let task: Promise<boolean> = Promise.resolve(false);
+    startTransition(() => {
+      if (selectedId === job.id) {
+        setSelectedId(adjacent?.job.id || "", true);
+      }
+      task = removal.remove(job);
+    });
+    await task;
+  };
+  const restoreJob = async (job: Job) => {
+    if (!canLeave()) return;
+    const index = navigationRows.findIndex((row) => row.job.id === job.id);
+    const adjacent = navigationRows[index + 1] || navigationRows[index - 1];
+    const pressed = document.activeElement;
+    if (removedView && (!pressed?.closest(".discover-inspector") || !adjacent))
+      scheduleTriageFocus(adjacent, pressed, job.id);
+    startTransition(() => {
+      if (removedView && selectedId === job.id) {
+        setSelectedId(adjacent?.job.id || "", true);
+      }
+      void removal.restore(job);
+    });
+  };
+  const addRemovalReason = (job: Job, event: JobRemoval) => {
+    removal.addReason(job, event);
+    if (!inspectorOpen)
+      requestAnimationFrame(() => {
+        document
+          .querySelector<HTMLTextAreaElement>(
+            ".discover-removal-inline .removal-reason-editor textarea",
+          )
+          ?.focus();
+      });
+  };
+  const feedbackProps = {
+    onUndo: () => {
+      const item = removal.feedback;
+      const job = item && latestJobs.get(item.job.id);
+      const event = job?.removals?.find(
+        (event) => event.id === item?.removalId,
+      );
+      if (job && event) void removal.restore(job, event);
+    },
+    onAddReason: () => {
+      const item = removal.feedback;
+      const job = item && latestJobs.get(item.job.id);
+      const event = job?.removals?.find(
+        (event) => event.id === item?.removalId,
+      );
+      if (job && event) addRemovalReason(job, event);
+    },
+    onRetryRemoval: () => {
+      void removal.retry();
+    },
+    onDismiss: removal.dismiss,
+    onChangeReason: removal.changeReason,
+    onSaveReason: () => {
+      void removal.saveReason();
+    },
+    onCloseReason: removal.closeReason,
+  };
+  const removalNotice = (
+    <RemovalFeedback {...feedbackProps} feedback={removal.feedback} />
+  );
+  const removalEditor = (
+    <RemovalFeedback {...feedbackProps} editor={removal.editor} />
+  );
 
   const saveJob = async (
     id: string,
@@ -610,7 +796,7 @@ export function DiscoverPage() {
               </button>
             ))}
           </div>
-          {!applicationView && (
+          {!applicationView && !removedView && (
             <Action
               className="discover-refresh"
               previewAllowed
@@ -627,6 +813,22 @@ export function DiscoverPage() {
               Filters
             </summary>
             <div className="discover-filter-panel">
+              {!applicationView && (
+                <Select
+                  label="Opportunity state"
+                  value={removedView ? "removed" : "available"}
+                  options={[
+                    ["available", "Available roles"],
+                    ["removed", "Removed roles"],
+                  ]}
+                  onChange={(event) =>
+                    updateFilters({
+                      view: "all",
+                      removed: event.target.value === "removed" ? "true" : "",
+                    })
+                  }
+                />
+              )}
               {!applicationView && profile && (
                 <Select
                   label="Profile"
@@ -747,9 +949,32 @@ export function DiscoverPage() {
             ? "Loading matches…"
             : error && !rows.length
               ? "Matches unavailable"
-              : `${visible.length} ${visible.length === 1 ? "role" : "roles"} · ${groups.length} ${groups.length === 1 ? "location" : "locations"}`}
+              : `${removedView ? "Removed · " : ""}${visible.length} ${visible.length === 1 ? "role" : "roles"} · ${groups.length} ${groups.length === 1 ? "location" : "locations"}`}
         </span>
+        {!applicationView && (
+          <button
+            type="button"
+            className="discover-removed-filter"
+            aria-pressed={removedView}
+            onClick={() =>
+              updateFilters({ view: "all", removed: removedView ? "" : "true" })
+            }
+          >
+            {removedView
+              ? "Show available roles"
+              : `Removed (${[...latestJobs.values()].filter((job) => currentRemoval(job)).length})`}
+          </button>
+        )}
       </div>
+      {!inspectorOpen && (removal.feedback || removal.editor) && (
+        <div className="discover-removal-inline">
+          <RemovalFeedback
+            {...feedbackProps}
+            feedback={removal.feedback}
+            editor={removal.editor}
+          />
+        </div>
+      )}
       <div
         className="discover-location-tabs"
         role="group"
@@ -833,18 +1058,22 @@ export function DiscoverPage() {
           <h2>
             {applicationView
               ? `No ${section} applications`
-              : !rows.length
-                ? "Add your first opportunity"
-                : view === "saved"
-                  ? "No saved roles here yet"
-                  : "No roles match these filters"}
+              : removedView
+                ? "No removed roles here"
+                : !rows.length
+                  ? "Add your first opportunity"
+                  : view === "saved"
+                    ? "No saved roles here yet"
+                    : "No roles match these filters"}
           </h2>
           <p>
             {applicationView
               ? "Prepare a draft from a role to start an application. Your recorded submissions and decisions stay available in the other stage views."
-              : !rows.length
-                ? "Import a job URL, paste an advert or refresh a configured source in Search preferences."
-                : "Adjust your filters or choose All results to inspect the full assessment."}
+              : removedView
+                ? "Removed roles stay recoverable here. Your application documents and decisions are preserved."
+                : !rows.length
+                  ? "Import a job URL, paste an advert or refresh a configured source in Search preferences."
+                  : "Adjust your filters or choose All results to inspect the full assessment."}
           </p>
           {!profile && !applicationView ? (
             <Link className="button discover-primary" href="/search/">
@@ -925,23 +1154,61 @@ export function DiscoverPage() {
                         <span className={`discover-status ${status.tone}`}>
                           {status.label}
                         </span>
-                        <Action
-                          previewAllowed
-                          keepContentWhileBusy
-                          data-opportunity-id={job.id}
-                          className={`discover-icon-button ${job.saved ? "is-saved" : ""}`}
-                          disabled={savingIds.includes(job.id)}
-                          aria-label={`${job.saved ? "Unsave" : "Save"} ${job.title}`}
-                          aria-pressed={Boolean(job.saved)}
-                          run={async (button) =>
-                            saveJob(job.id, !job.saved, button)
-                          }
-                        >
-                          <Bookmark
-                            size={16}
-                            fill={job.saved ? "currentColor" : "none"}
-                          />
-                        </Action>
+                        <div className="discover-card-tools">
+                          {currentRemoval(job) ? (
+                            <>
+                              <button
+                                type="button"
+                                className="discover-icon-button"
+                                aria-label={`Add removal reason for ${job.title}`}
+                                title="Add removal reason"
+                                onClick={() =>
+                                  addRemovalReason(job, currentRemoval(job)!)
+                                }
+                              >
+                                <MessageSquare size={16} />
+                              </button>
+                              <Action
+                                previewAllowed
+                                keepContentWhileBusy
+                                className="discover-icon-button"
+                                aria-label={`Restore ${job.title}`}
+                                title="Restore role"
+                                run={async () => restoreJob(job)}
+                              >
+                                <RotateCcw size={16} />
+                              </Action>
+                            </>
+                          ) : (
+                            <Action
+                              previewAllowed
+                              keepContentWhileBusy
+                              className="discover-icon-button"
+                              aria-label={`Remove ${job.title}`}
+                              title="Remove role"
+                              run={async () => removeJob(job)}
+                            >
+                              <CircleMinus size={16} />
+                            </Action>
+                          )}
+                          <Action
+                            previewAllowed
+                            keepContentWhileBusy
+                            data-opportunity-id={job.id}
+                            className={`discover-icon-button ${job.saved ? "is-saved" : ""}`}
+                            disabled={savingIds.includes(job.id)}
+                            aria-label={`${job.saved ? "Unsave" : "Save"} ${job.title}`}
+                            aria-pressed={Boolean(job.saved)}
+                            run={async (button) =>
+                              saveJob(job.id, !job.saved, button)
+                            }
+                          >
+                            <Bookmark
+                              size={16}
+                              fill={job.saved ? "currentColor" : "none"}
+                            />
+                          </Action>
+                        </div>
                       </div>
                       <button
                         ref={(element) => {
@@ -985,6 +1252,14 @@ export function DiscoverPage() {
                           {salary}
                         </p>
                       )}
+                      {removedView && currentRemoval(job)?.reason && (
+                        <p
+                          className="discover-removal-reason"
+                          title={currentRemoval(job)?.reason}
+                        >
+                          Reason: {currentRemoval(job)?.reason}
+                        </p>
+                      )}
                     </article>
                   );
                 })}
@@ -1021,10 +1296,21 @@ export function DiscoverPage() {
                   "A new draft is ready for document review.",
                 );
               }}
+              onRemove={() => removeJob(selected.job)}
+              onRestore={() => restoreJob(selected.job)}
+              removalFeedback={removalNotice}
+              removalEditor={removalEditor}
+              reasonEditorId={removal.editor?.removalId}
             />
           )}
           {selectedApplication && (
             <OpportunityWorkbench
+              removalFeedback={
+                <>
+                  {removalNotice}
+                  {removalEditor}
+                </>
+              }
               application={selectedApplication}
               job={
                 latestJobs.get(selectedApplication.job_id) || {

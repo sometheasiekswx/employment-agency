@@ -43,9 +43,21 @@ export interface Salary {
   period?: string;
   basis?: string;
 }
+export interface JobRemoval {
+  id: string;
+  at: string;
+  reason: string;
+  reason_updated_at?: string;
+  restored_at?: string;
+}
+export interface JobRemovalResult {
+  id: string;
+  removals: JobRemoval[];
+}
 export interface Job {
   id: string;
   saved?: boolean;
+  removals?: JobRemoval[];
   title: string;
   employer: string;
   location?: string;

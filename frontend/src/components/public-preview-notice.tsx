@@ -11,9 +11,9 @@ export function PublicPreviewNotice() {
     >
       <ShieldCheck size={18} aria-hidden="true" />
       <p>
-        <strong>Fictional public preview.</strong> No sign-in. Bookmarks stay in
-        this browser; documents are examples. Editing, uploads and employer
-        submissions are disabled.
+        <strong>Fictional public preview.</strong> No sign-in. Bookmarks,
+        removed roles and reasons stay in this browser; documents are examples.
+        Document editing, uploads and employer submissions are disabled.
       </p>
       <a
         href="https://github.com/sometheasiekswx/employment-agency#quickstart"

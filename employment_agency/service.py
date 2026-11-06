@@ -402,6 +402,8 @@ class Service:
             return p
         if action == "job":
             return self.add_job(a)
+        if action in ('remove-job', 'restore-job', 'job-removal-reason'):
+            return self.job_removal(action, a)
         if action == "save-job":
             if not isinstance(a.get("saved"), bool):
                 raise ValueError("Saved must be true or false")
@@ -410,7 +412,7 @@ class Service:
                 job["saved"] = a["saved"]
             return {"id": job["id"], "saved": job["saved"]}
         if action == "url":
-            return self.add_job(sources.url_job(text(a["url"], 2000)))
+            return self.add_job(sources.url_job(text(a["url"], 2000)), match_url=True)
         if action == "source":
             kind = a["kind"]
             board = text(a["board"], 100)
@@ -595,7 +597,36 @@ class Service:
             return {"file": dest.name}
         raise ValueError("Unknown operation")
 
-    def add_job(self, a):
+    def job_removal(self, action, a):
+        job_id, removal_id = a.get('id'), a.get('removal_id')
+        if not isinstance(job_id, str) or not re.fullmatch(r'[a-f0-9]{24,32}', job_id):
+            raise ValueError('Invalid job ID')
+        if not isinstance(removal_id, str) or not re.fullmatch(r'[a-f0-9]{32}', removal_id):
+            raise ValueError('Invalid removal ID')
+        comment = text(a.get('comment'), 4000) if action == 'job-removal-reason' else None
+        with self.w.edit() as s:
+            job = find(s['jobs'], job_id)
+            removals = job.setdefault('removals', [])
+            event = next((item for item in removals if item['id'] == removal_id), None)
+            latest = removals[-1] if removals else None
+            active = latest if latest and not latest.get('restored_at') else None
+            if action == 'remove-job':
+                # A delayed retry must not reapply an event that was restored.
+                if event is None:
+                    if active:
+                        raise ValueError('Job is already removed; reload before removing again')
+                    removals.append({'id': removal_id, 'at': now(), 'reason': ''})
+            elif event is None:
+                raise ValueError('Removal event not found')
+            elif action == 'restore-job':
+                # Undo belongs to one event, never to a subsequent removal.
+                if event is active:
+                    event['restored_at'] = now()
+            elif event['reason'] != comment:
+                event.update({'reason': comment, 'reason_updated_at': now()})
+        return {'id': job_id, 'removals': removals}
+
+    def add_job(self, a, *, match_url=False):
         j = {
             k: text(a.get(k, ""), 40000 if k == "description" else 1000)
             for k in (
@@ -647,9 +678,22 @@ class Service:
             raise ValueError("Invalid job ID")
         with self.w.edit() as s:
             existing = next((x for x in s["jobs"] if x["id"] == j["id"]), None)
+            if j['url'] and (match_url or not a.get('id')):
+                # Imports retain a unique existing listing's identity, including
+                # migrated IDs. Explicit manual IDs still select one record.
+                candidates = [x for x in s['jobs'] if x.get('url') == j['url']]
+                if len(candidates) > 1:
+                    raise ValueError('Multiple jobs share this URL; choose an explicit job ID')
+                if candidates:
+                    existing = candidates[0]
+                    j['id'] = existing['id']
+                elif existing:
+                    raise ValueError('Job ID conflicts with another URL; choose an explicit job ID')
             # A bookmark is the user's decision, not part of an imported advert.
             j["saved"] = existing.get("saved", False) is True if existing else False
             if existing:
+                if 'removals' in existing:
+                    j['removals'] = existing['removals']
                 for key in ('prior_application', 'source', 'checked_at'):
                     if key not in a:
                         j[key] = existing.get(key, j[key])
@@ -665,10 +709,8 @@ class Service:
         src = find(self.state()["sources"], id)
         try:
             jobs = sources.discover(src["kind"], src["board"])
-            for j in jobs:
-                self.add_job(j)
+            ids = {self.add_job(j, match_url=True)['id'] for j in jobs}
             with self.w.edit() as s:
-                ids = {j["id"] for j in jobs}
                 for old in s["jobs"]:
                     if (
                         old["source"] == src["kind"] + ":" + src["board"]

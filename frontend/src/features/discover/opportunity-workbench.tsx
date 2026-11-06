@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useRef } from "react";
+import { useLayoutEffect, useRef, type ReactNode } from "react";
 import { ArrowLeft, X } from "lucide-react";
 import { OpportunityApplication } from "@/features/applications/opportunity-application";
 import { ApplicationVersions } from "@/features/applications/application-versions";
@@ -16,6 +16,7 @@ export function OpportunityWorkbench({
   onPanel,
   onClose,
   onVersion,
+  removalFeedback,
 }: {
   application: Application;
   job: Partial<Job>;
@@ -25,6 +26,7 @@ export function OpportunityWorkbench({
   onPanel: (panel: "overview" | "documents" | "activity") => void;
   onClose: () => boolean | void;
   onVersion: (application: Application) => void;
+  removalFeedback?: ReactNode;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const close = useRef<HTMLButtonElement>(null);
@@ -137,6 +139,7 @@ export function OpportunityWorkbench({
         <ApplicationVersions application={application} onSelect={onVersion} />
       )}
       <div className="opportunities-workbench-scroll">
+        {removalFeedback}
         {panel === "overview" && (
           <section className="opportunities-overview-unavailable">
             <h3>Listing overview unavailable</h3>

@@ -8,11 +8,14 @@ import {
   useLayoutEffect,
   useRef,
   useState,
+  type ReactNode,
 } from "react";
 import { animate, type AnimationOptions } from "motion";
 import {
   ArrowUpRight,
   Bookmark,
+  CircleMinus,
+  RotateCcw,
   Check,
   ChevronLeft,
   ChevronRight,
@@ -27,6 +30,7 @@ import { applicationHref, displayDate, safeUrl } from "@/lib/format";
 import type { Application, Fact, RankedJob } from "@/lib/models";
 import { advertisedSalary, requirementEvidence, roleStatus } from "./discovery";
 import { useSheetGesture } from "./use-sheet-gesture";
+import { currentRemoval } from "@/lib/job-removal";
 import "./inspector-motion.css";
 
 type InspectorAnimation = ReturnType<typeof animate>;
@@ -139,6 +143,11 @@ interface InspectorProps {
   onClose: () => boolean | void;
   onSave: (button?: HTMLButtonElement) => Promise<void>;
   onPrepare: () => Promise<void>;
+  onRemove?: () => Promise<void>;
+  onRestore?: () => Promise<void>;
+  removalFeedback?: ReactNode;
+  removalEditor?: ReactNode;
+  reasonEditorId?: string;
 }
 
 export function OpportunityInspector({
@@ -162,8 +171,14 @@ export function OpportunityInspector({
   onClose,
   onSave,
   onPrepare,
+  onRemove,
+  onRestore,
+  removalFeedback,
+  removalEditor,
+  reasonEditorId,
 }: InspectorProps) {
   const { job, match } = row;
+  const removed = Boolean(currentRemoval(job));
   const titleId = useId();
   const inspector = useRef<HTMLElement>(null);
   const surfaceAnimation = useRef<InspectorAnimation | null>(null);
@@ -177,6 +192,7 @@ export function OpportunityInspector({
     position: number;
     revision: number;
   } | null>(null);
+  const reasonFocusIntent = useRef("");
   const title = useRef<HTMLHeadingElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
   const documentLink = useRef<HTMLAnchorElement>(null);
@@ -204,6 +220,20 @@ export function OpportunityInspector({
     onDismiss: () => requestClose(true),
     onGrab: (element) => freezeSurface(surfaceAnimation, element),
   });
+  useLayoutEffect(() => {
+    if (!reasonEditorId) {
+      reasonFocusIntent.current = "";
+      return;
+    }
+    const intent = `${mobile}:${reasonEditorId}`;
+    if (reasonFocusIntent.current === intent) return;
+    reasonFocusIntent.current = intent;
+    if (mobile) snapSheet(true, animateInteractions);
+    body.current?.scrollTo?.({ top: 0 });
+    body.current
+      ?.querySelector<HTMLTextAreaElement>(".removal-reason-editor textarea")
+      ?.focus({ preventScroll: true });
+  }, [reasonEditorId, mobile, snapSheet, animateInteractions, body]);
   const evidence = requirementEvidence(match.evidence, facts);
   const status = roleStatus(job, application);
   const advert = safeUrl(job.url);
@@ -520,6 +550,7 @@ export function OpportunityInspector({
         {mobile && <div className="discover-sheet-company">{company}</div>}
       </div>
       <div ref={body} className="discover-inspector-body" key={job.id}>
+        {removalEditor}
         {!mobile && company}
         <h2 id={titleId} ref={title} tabIndex={-1}>
           {job.title}
@@ -685,7 +716,11 @@ export function OpportunityInspector({
       </div>
       <footer className="discover-inspector-footer">
         <div className="discover-inspector-actions">
-          {application ? (
+          {removed && onRestore ? (
+            <Action previewAllowed className="discover-primary" run={onRestore}>
+              <RotateCcw size={17} /> Restore role
+            </Action>
+          ) : application ? (
             <Link
               ref={documentLink}
               className="button discover-primary"
@@ -766,7 +801,25 @@ export function OpportunityInspector({
           >
             <Bookmark size={17} fill={job.saved ? "currentColor" : "none"} />
           </Action>
+          {!removed && onRemove && (
+            <button
+              type="button"
+              className="discover-icon-button"
+              aria-label={`Remove ${job.title}`}
+              title="Remove role"
+              onClick={(event) => {
+                navigationFocusIntent.current = {
+                  jobId: job.id,
+                  button: event.currentTarget,
+                };
+                void onRemove();
+              }}
+            >
+              <CircleMinus size={17} />
+            </button>
+          )}
         </div>
+        {removalFeedback}
         {mobile && saveError && (
           <p
             ref={saveErrorNotice}

@@ -193,6 +193,45 @@
   gap: 10px;
   flex-wrap: wrap;
 }
+.discover-card-tools {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-inline-start: auto;
+}
+.discover-removal-reason {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 12px;
+}
+.discover-screen .discover-removed-filter {
+  min-height: 36px;
+  padding: 4px 8px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+}
+.discover-screen .discover-removed-filter[aria-pressed="true"] {
+  color: var(--accent);
+}
+.discover-removal-inline {
+  width: 100%;
+  min-width: 0;
+}
+.discover-removal-inline .removal-feedback {
+  margin-block: 0 16px;
+}
+@media (max-width: 900px) {
+  .discover-screen .discover-card-tools .discover-icon-button {
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+  }
+}
 .discover-status {
   display: inline-flex;
   align-items: center;

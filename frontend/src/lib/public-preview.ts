@@ -1,15 +1,18 @@
 import type {
   HistoryVersion,
+  Job,
+  JobRemoval,
   RankedJob,
   RequestData,
   StateResponse,
   WorkspaceState,
 } from "./models";
+import { currentRemoval } from "./job-removal";
 
 export const publicPreviewEnabled = () =>
   process.env.NEXT_PUBLIC_EA_PUBLIC_PREVIEW === "1";
 export const PREVIEW_READ_ONLY =
-  "This fictional public preview is read-only. Use the local app to import career data, prepare documents or record real decisions.";
+  "This fictional public preview supports browser-local bookmarks, removals and reasons. Use the local app to import career data, prepare documents or record real application decisions.";
 
 interface PublicPreviewBundle {
   public_preview: true;
@@ -28,13 +31,49 @@ const json = (value: unknown, status = 200) =>
     headers: { "Content-Type": "application/json" },
   });
 const clone = <T>(value: T): T => structuredClone(value);
+const validTimestamp = (value: unknown): value is string =>
+  typeof value === "string" &&
+  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/.test(
+    value,
+  ) &&
+  Number.isFinite(Date.parse(value));
+const validReason = (value: unknown): value is string =>
+  typeof value === "string" &&
+  [...value].length <= 4000 &&
+  !value.includes("\0");
 
-/** Static Service-produced data; only a browser-local bookmark overlay mutates. */
+function validRemovalHistory(value: unknown): value is JobRemoval[] {
+  if (!Array.isArray(value)) return false;
+  const ids = new Set<string>();
+  return value.every((event, index) => {
+    if (
+      !event ||
+      typeof event !== "object" ||
+      Array.isArray(event) ||
+      typeof event.id !== "string" ||
+      !/^[a-f0-9]{32}$/.test(event.id) ||
+      ids.has(event.id) ||
+      !validTimestamp(event.at) ||
+      !validReason(event.reason) ||
+      (event.reason_updated_at !== undefined &&
+        !validTimestamp(event.reason_updated_at)) ||
+      (event.restored_at !== undefined && !validTimestamp(event.restored_at)) ||
+      (index < value.length - 1 && !event.restored_at)
+    )
+      return false;
+    ids.add(event.id);
+    return true;
+  });
+}
+
+/** Static Service-produced data with browser-local bookmarks and removal history. */
 export class PublicPreviewTransport {
   private bundle?: PublicPreviewBundle;
   private loading?: Promise<PublicPreviewBundle>;
   private bookmarks: Record<string, boolean> = {};
   private sessionOnly = new Set<string>();
+  private removals = new Map<string, JobRemoval[]>();
+  private sessionOnlyRemovals = new Set<string>();
 
   private async load() {
     if (this.bundle) return this.bundle;
@@ -54,6 +93,8 @@ export class PublicPreviewTransport {
     if (
       bundle.public_preview !== true ||
       bundle.schema !== 1 ||
+      typeof bundle.revision !== "string" ||
+      !bundle.revision ||
       !bundle.state?._workspace?.demo ||
       !Array.isArray(bundle.state.jobs) ||
       !Array.isArray(bundle.state.applications)
@@ -100,6 +141,54 @@ export class PublicPreviewTransport {
     }
   }
 
+  private removalStorageKey(id: string) {
+    return `employment-agency:fictional-removals:${this.bundle!.revision}:job:${id}`;
+  }
+
+  private removalHistory(job: Pick<Job, "id" | "removals">): JobRemoval[] {
+    const fallback = validRemovalHistory(job.removals) ? job.removals : [];
+    if (this.sessionOnlyRemovals.has(job.id))
+      return clone(this.removals.get(job.id) ?? fallback);
+    try {
+      const raw = localStorage.getItem(this.removalStorageKey(job.id));
+      let value: unknown;
+      try {
+        value = raw === null ? undefined : JSON.parse(raw);
+      } catch {
+        // Invalid stored data cannot remove a role or manufacture history.
+      }
+      if (validRemovalHistory(value)) {
+        this.removals.set(job.id, value);
+        return clone(value);
+      }
+      return clone(fallback);
+    } catch {
+      return clone(this.removals.get(job.id) ?? fallback);
+    }
+  }
+
+  private saveRemovalHistory(id: string, removals: JobRemoval[]) {
+    this.removals.set(id, clone(removals));
+    try {
+      localStorage.setItem(
+        this.removalStorageKey(id),
+        JSON.stringify(removals),
+      );
+      this.sessionOnlyRemovals.delete(id);
+    } catch {
+      this.sessionOnlyRemovals.add(id);
+    }
+  }
+
+  private localChoices(job: Job): Job {
+    const source = this.bundle!.state.jobs.find((entry) => entry.id === job.id);
+    return {
+      ...job,
+      saved: this.saved(job.id, source?.saved ?? job.saved),
+      removals: this.removalHistory(source ?? job),
+    };
+  }
+
   fileUrl(id: string, name: string, history = false) {
     return this.bundle?.files[
       `${history ? "history" : "application"}:${id}:${name}`
@@ -110,10 +199,7 @@ export class PublicPreviewTransport {
     const bundle = await this.load();
     if (action === "state") {
       const state = clone(bundle.state);
-      state.jobs = state.jobs.map((job) => ({
-        ...job,
-        saved: this.saved(job.id, job.saved),
-      }));
+      state.jobs = state.jobs.map((job) => this.localChoices(job));
       return json({
         state,
         token: "public-fictional-preview",
@@ -132,7 +218,7 @@ export class PublicPreviewTransport {
       return json({
         result: clone(rows).map((row) => ({
           ...row,
-          job: { ...row.job, saved: this.saved(row.job.id, row.job.saved) },
+          job: this.localChoices(row.job),
         })),
       });
     }
@@ -162,6 +248,61 @@ export class PublicPreviewTransport {
         this.sessionOnly.add(id);
       }
       return json({ result: { id, saved: data.saved } });
+    }
+    if (
+      action === "remove-job" ||
+      action === "restore-job" ||
+      action === "job-removal-reason"
+    ) {
+      const job = bundle.state.jobs.find((entry) => entry.id === data?.id);
+      const removalId = data?.removal_id;
+      if (
+        !job ||
+        typeof removalId !== "string" ||
+        !/^[a-f0-9]{32}$/.test(removalId)
+      )
+        return json(
+          { error: "Choose a fictional role and valid removal ID." },
+          400,
+        );
+      if (action === "job-removal-reason" && !validReason(data?.comment))
+        return json(
+          { error: "Use plain text of up to 4000 characters for the reason." },
+          400,
+        );
+      const removals = this.removalHistory(job);
+      const event = removals.find((entry) => entry.id === removalId);
+      let changed = false;
+      if (action === "remove-job") {
+        if (!event) {
+          if (currentRemoval({ removals }))
+            return json({ error: "This role is already removed." }, 409);
+          removals.push({
+            id: removalId,
+            at: new Date().toISOString(),
+            reason: "",
+          });
+          changed = true;
+        }
+      } else {
+        if (!event)
+          return json({ error: "This removal could not be found." }, 404);
+        if (action === "restore-job") {
+          if (!event.restored_at) {
+            event.restored_at = new Date().toISOString();
+            changed = true;
+          }
+        } else {
+          const reason = (data!.comment as string).trim();
+          if (event.reason !== reason) {
+            event.reason = reason;
+            event.reason_updated_at = new Date().toISOString();
+            changed = true;
+          }
+        }
+      }
+      if (changed) this.saveRemovalHistory(job.id, removals);
+      return json({ result: { id: job.id, removals } });
     }
     if (action === "document-editor") {
       const id = typeof data?.id === "string" ? data.id : "";

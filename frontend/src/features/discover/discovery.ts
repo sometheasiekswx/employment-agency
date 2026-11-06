@@ -1,6 +1,7 @@
 import type { Application, Fact, Job, RankedJob } from "@/lib/models";
 import { compareDestinations, destination } from "@/lib/format";
 import { applicationQueues } from "@/features/applications/queues";
+import { currentRemoval } from "@/lib/job-removal";
 
 export { advertisedSalary } from "@/lib/format";
 
@@ -58,11 +59,21 @@ export function roleStatus(job: Job, app?: Application) {
 
 export function filterOpportunities(
   rows: RankedJob[],
-  filters: { query: string; location: string; view: DiscoveryView },
+  filters: {
+    query: string;
+    location: string;
+    view: DiscoveryView;
+    removed?: boolean;
+  },
   priorities: string[],
 ) {
   const query = filters.query.trim().toLocaleLowerCase();
   return rows.filter(({ job, match }) => {
+    if (
+      filters.view !== "applications" &&
+      Boolean(currentRemoval(job)) !== Boolean(filters.removed)
+    )
+      return false;
     if (filters.view === "saved" && !job.saved) return false;
     if (filters.view === "recommended" && match.hard_conflicts.length)
       return false;

@@ -80,6 +80,8 @@ if __name__ == '__main__':
         browser('mobile-workspace-browser.cjs', url)
     with fixture('serve_concept_fixture.py') as url:
         browser('sheet-scroll-browser.cjs', url)
+    with fixture('serve_concept_fixture.py') as url:
+        browser('opportunity-removal-browser.cjs', url)
     with fixture('serve_queue_fixture.py') as url:
         browser('review-tag-browser.cjs', url)
     with fixture('serve_queue_fixture.py') as url:
