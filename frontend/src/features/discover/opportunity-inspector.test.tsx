@@ -270,6 +270,146 @@ it("supports instant arrow-key resizing without changing focus or replacing the 
   expect(sheetAnimations).toHaveLength(0);
 });
 
+function touchFixture() {
+  const props = { ...inspectorProps(), mobile: true };
+  const view = render(<OpportunityInspector {...props} />);
+  const dialog = screen.getByRole("dialog");
+  const body = dialog.querySelector<HTMLElement>(".discover-inspector-body")!;
+  const height = () =>
+    parseFloat(dialog.style.height) ||
+    (dialog.classList.contains("is-expanded") ? 836 : 506.4);
+  dialog.style.minHeight = "480px";
+  dialog.style.maxHeight = "836px";
+  vi.spyOn(dialog, "getBoundingClientRect").mockImplementation(
+    () => ({ height: height() }) as DOMRect,
+  );
+  Object.defineProperties(body, {
+    clientHeight: { get: () => height() - 230 },
+    scrollHeight: { value: 1400 },
+  });
+  for (const node of [dialog, body]) {
+    node.setPointerCapture = vi.fn();
+    node.hasPointerCapture = () => false;
+  }
+  const point = (
+    type: string,
+    y: number,
+    time: number,
+    target: HTMLElement | Window = body,
+    primary = true,
+  ) => {
+    const event = new Event(type, { bubbles: true });
+    for (const [key, value] of Object.entries({
+      isPrimary: primary,
+      pointerId: primary ? 1 : 2,
+      pointerType: "touch",
+      button: 0,
+      clientX: 190,
+      clientY: y,
+      timeStamp: time,
+    }))
+      Object.defineProperty(event, key, { value });
+    fireEvent(target, event);
+  };
+  return { props, dialog, body, point, view };
+}
+
+it("expands a deliberate short body swipe and sends excess travel into reading before release", async () => {
+  const { body, point } = touchFixture();
+  point("pointerdown", 700, 0);
+  point("pointermove", 630, 100);
+  point("pointerup", 630, 250, window);
+  expect(
+    screen.getByRole("button", { name: "Resize opportunity details" }),
+  ).toHaveAttribute("aria-expanded", "true");
+  await act(async () => sheetAnimations.at(-1)!.finish());
+
+  fireEvent.keyDown(
+    screen.getByRole("button", { name: "Resize opportunity details" }),
+    { key: "ArrowDown" },
+  );
+  point("pointerdown", 700, 300);
+  point("pointermove", 230, 600);
+  expect(body.scrollTop).toBeGreaterThan(100);
+  point("pointerup", 230, 750, window);
+  expect(
+    screen.getByRole("button", { name: "Resize opportunity details" }),
+  ).toHaveAttribute("aria-expanded", "true");
+});
+
+it.each(["pointercancel", "second pointer"])(
+  "restores owned reading and the committed detent after %s",
+  async (cancellation) => {
+    const { body, point } = touchFixture();
+    point("pointerdown", 700, 0);
+    point("pointermove", 220, 150);
+    expect(body.scrollTop).toBeGreaterThan(100);
+    if (cancellation === "pointercancel")
+      point("pointercancel", 220, 200, window);
+    else point("pointerdown", 230, 200, body, false);
+    expect(body.scrollTop).toBe(0);
+    expect(
+      screen.getByRole("button", { name: "Resize opportunity details" }),
+    ).toHaveAttribute("aria-expanded", "false");
+    await act(async () => sheetAnimations.at(-1)!.finish());
+  },
+);
+
+it("undoes only this contact's reading before lowering the sheet on reversal", () => {
+  const { dialog, body, point } = touchFixture();
+  point("pointerdown", 700, 0);
+  point("pointermove", 200, 200);
+  const reading = body.scrollTop;
+  expect(reading).toBeGreaterThan(150);
+  point("pointermove", 250, 250);
+  expect(body.scrollTop).toBeCloseTo(reading - 50);
+  expect(parseFloat(dialog.style.height)).toBe(836);
+  point("pointermove", 450, 350);
+  expect(body.scrollTop).toBe(0);
+  expect(parseFloat(dialog.style.height)).toBeLessThan(836);
+});
+
+it("does not turn small quick downward touch noise into a dismiss", () => {
+  const { props, point } = touchFixture();
+  point("pointerdown", 500, 0);
+  point("pointermove", 512, 10);
+  point("pointerup", 512, 11, window);
+  expect(props.onClose).not.toHaveBeenCalled();
+  expect(animations).toHaveLength(1);
+  expect(sheetAnimations.at(-1)!.to).toBe(506.4);
+});
+
+it("does not transfer the previous role's contact scroll into a newly selected role", () => {
+  const { props, body, point, view, dialog } = touchFixture();
+  body.scrollTop = 40;
+  point("pointerdown", 700, 0);
+  point("pointermove", 200, 200);
+  expect(body.scrollTop).toBeGreaterThan(100);
+  view.rerender(
+    <OpportunityInspector
+      {...props}
+      row={{ ...row, job: { ...row.job, id: "two", title: "Next role" } }}
+    />,
+  );
+  const nextBody = dialog.querySelector<HTMLElement>(
+    ".discover-inspector-body",
+  )!;
+  expect(nextBody).not.toBe(body);
+  expect(nextBody.scrollTop).toBe(0);
+});
+
+it("retains a paused upward reversal instead of dismissing from its earlier downward position", () => {
+  const { props, point } = touchFixture();
+  point("pointerdown", 500, 0);
+  point("pointermove", 700, 200);
+  point("pointermove", 670, 250);
+  point("pointerup", 670, 450, window);
+  expect(props.onClose).not.toHaveBeenCalled();
+  // A dismiss would start another surface exit rather than settling to peek.
+  expect(animations).toHaveLength(1);
+  expect(sheetAnimations.at(-1)!.to).toBe(506.4);
+});
+
 it("retargets a native computed exit matrix to an explicit translation identity", async () => {
   const props = inspectorProps();
   const view = render(<OpportunityInspector {...props} />);

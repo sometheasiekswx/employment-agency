@@ -627,6 +627,17 @@ export function DiscoverPage() {
               Filters
             </summary>
             <div className="discover-filter-panel">
+              {!applicationView && profile && (
+                <Select
+                  label="Profile"
+                  aria-label="Search profile"
+                  value={profileId}
+                  options={state.profiles.map((item) => [item.id, item.name])}
+                  onChange={(event) => {
+                    if (setSelectedId("")) selectProfile(event.target.value);
+                  }}
+                />
+              )}
               <Select
                 label="Location"
                 value={location}
@@ -731,17 +742,6 @@ export function DiscoverPage() {
         </div>
       )}
       <div className="discover-summary">
-        {!applicationView && profile && (
-          <Select
-            label="Profile"
-            aria-label="Search profile"
-            value={profileId}
-            options={state.profiles.map((item) => [item.id, item.name])}
-            onChange={(event) => {
-              if (setSelectedId("")) selectProfile(event.target.value);
-            }}
-          />
-        )}
         <span className="discover-result-count" role="status">
           {loading
             ? "Loading matches…"

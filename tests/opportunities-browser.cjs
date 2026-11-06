@@ -319,6 +319,7 @@ const fs = require("node:fs");
           name: "Search profile",
           exact: true,
         });
+        await page.locator(".discover-filters > summary").click();
         const previousProfile = await profile.inputValue();
         await cancelDiscard(page, () => profile.selectOption(otherProfile));
         assert.equal(
@@ -332,6 +333,7 @@ const fs = require("node:fs");
           "Cancelling a profile switch keeps application context",
         );
         assert.equal(await comment().inputValue(), note);
+        await page.locator(".discover-filters > summary").click();
       }
       await panel(page, "Documents");
       const commentDocumentUrl = page.url();

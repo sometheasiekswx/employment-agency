@@ -419,100 +419,108 @@ export function OpportunityInspector({
       ...match.gaps.map((gap) => `Missing evidence: ${gap}`),
     ]),
   ];
+  const company = (
+    <div className="discover-inspector-company">
+      <span className="discover-employer-mark" aria-hidden="true">
+        {job.employer.slice(0, 1)}
+      </span>
+      <strong>{job.employer}</strong>
+      <span className={`discover-status ${status.tone}`}>{status.label}</span>
+    </div>
+  );
   const content = (
     <>
-      {mobile && (
-        <button
-          ref={sheetHandle}
-          className="discover-sheet-expand"
-          type="button"
-          aria-label="Resize opportunity details"
-          aria-expanded={expanded}
-          onClick={(event) => {
-            stopMotion(bodyAnimation, body.current);
-            snapSheet(!expanded, event.detail > 0);
-          }}
-          onKeyDown={(event) => {
-            if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
-            event.preventDefault();
-            snapSheet(event.key === "ArrowUp", false);
-          }}
-        >
-          <span className="visually-hidden">
-            Drag up to expand or down to close. Tap to resize.
-          </span>
-        </button>
-      )}
-      <header className="discover-inspector-toolbar">
-        <span>{mobile ? "Details" : "Opportunity details"}</span>
-        <div className="discover-inspector-navigation">
+      <div
+        className={
+          mobile ? "discover-sheet-header" : "discover-inspector-header"
+        }
+      >
+        {mobile && (
           <button
+            ref={sheetHandle}
+            className="discover-sheet-expand"
             type="button"
-            className="discover-icon-button"
-            aria-label="Previous opportunity"
-            disabled={position === 0}
-            onClick={(event) => navigate(event.currentTarget, onPrevious)}
+            aria-label="Resize opportunity details"
+            aria-expanded={expanded}
+            onClick={(event) => {
+              stopMotion(bodyAnimation, body.current);
+              snapSheet(!expanded, event.detail > 0);
+            }}
+            onKeyDown={(event) => {
+              if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+              event.preventDefault();
+              snapSheet(event.key === "ArrowUp", false);
+            }}
           >
-            <ChevronLeft size={17} />
+            <span className="visually-hidden">
+              Drag up to expand or down to close. Tap to resize.
+            </span>
           </button>
-          <span aria-live="polite">
-            {position + 1} of {count}
-          </span>
-          <button
-            type="button"
-            className="discover-icon-button"
-            aria-label="Next opportunity"
-            disabled={position === count - 1}
-            onClick={(event) => navigate(event.currentTarget, onNext)}
+        )}
+        <header className="discover-inspector-toolbar">
+          <span>{mobile ? "Details" : "Opportunity details"}</span>
+          <div className="discover-inspector-navigation">
+            <button
+              type="button"
+              className="discover-icon-button"
+              aria-label="Previous opportunity"
+              disabled={position === 0}
+              onClick={(event) => navigate(event.currentTarget, onPrevious)}
+            >
+              <ChevronLeft size={17} />
+            </button>
+            <span aria-live="polite">
+              {position + 1} of {count}
+            </span>
+            <button
+              type="button"
+              className="discover-icon-button"
+              aria-label="Next opportunity"
+              disabled={position === count - 1}
+              onClick={(event) => navigate(event.currentTarget, onNext)}
+            >
+              <ChevronRight size={17} />
+            </button>
+            <button
+              ref={closeButton}
+              type="button"
+              className="discover-icon-button"
+              aria-label="Close opportunity details"
+              onClick={(event) => requestClose(event.detail > 0)}
+            >
+              <X size={19} />
+            </button>
+          </div>
+        </header>
+        {application && onOpenPanel && (
+          <div
+            className="opportunities-detail-tabs"
+            role="group"
+            aria-label="Role workspace"
           >
-            <ChevronRight size={17} />
-          </button>
-          <button
-            ref={closeButton}
-            type="button"
-            className="discover-icon-button"
-            aria-label="Close opportunity details"
-            onClick={(event) => requestClose(event.detail > 0)}
-          >
-            <X size={19} />
-          </button>
-        </div>
-      </header>
-      {application && onOpenPanel && (
-        <div
-          className="opportunities-detail-tabs"
-          role="group"
-          aria-label="Role workspace"
-        >
-          <button type="button" aria-pressed="true">
-            Overview
-          </button>
-          <button
-            type="button"
-            aria-pressed="false"
-            onClick={() => onOpenPanel("documents")}
-          >
-            Documents
-          </button>
-          <button
-            type="button"
-            aria-pressed="false"
-            onClick={() => onOpenPanel("activity")}
-          >
-            Activity
-          </button>
-        </div>
-      )}
+            <button type="button" aria-pressed="true">
+              Overview
+            </button>
+            <button
+              type="button"
+              aria-pressed="false"
+              onClick={() => onOpenPanel("documents")}
+            >
+              Documents
+            </button>
+            <button
+              type="button"
+              aria-pressed="false"
+              onClick={() => onOpenPanel("activity")}
+            >
+              Activity
+            </button>
+          </div>
+        )}
+        {mobile && <div className="discover-sheet-company">{company}</div>}
+      </div>
       <div ref={body} className="discover-inspector-body" key={job.id}>
-        <div className="discover-inspector-company">
-          <span className="discover-employer-mark" aria-hidden="true">
-            {job.employer.slice(0, 1)}
-          </span>
-          <strong>{job.employer}</strong>
-          <span className={`discover-status ${status.tone}`}>
-            {status.label}
-          </span>
-        </div>
+        {!mobile && company}
         <h2 id={titleId} ref={title} tabIndex={-1}>
           {job.title}
         </h2>

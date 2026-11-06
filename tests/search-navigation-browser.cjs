@@ -46,21 +46,20 @@ const { decideDialog } = require("./browser-dialog.cjs");
     assert.notEqual(second.id, original.state.profiles[0].id);
 
     await page.goto(base + "/discover/?view=all");
+    await page.locator(".discover-filters > summary").click();
     await page
       .getByRole("combobox", { name: "Search profile", exact: true })
       .waitFor();
     await page
       .getByLabel("Search profile", { exact: true })
       .selectOption(second.id);
+    await page.locator(".discover-filters > summary").click();
     await page.evaluate(() => {
       window.__searchNavigationSentinel = "same document";
     });
     const assertProfile = async () => {
-      const context = page.getByRole("combobox", {
-        name: "Search profile",
-        exact: true,
-      });
-      await context.waitFor();
+      const context = page.getByLabel("Search profile", { exact: true });
+      await context.waitFor({ state: "attached" });
       assert.equal(
         await page.getByLabel("Search profile", { exact: true }).inputValue(),
         second.id,

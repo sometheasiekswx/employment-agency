@@ -8,6 +8,7 @@ import {
   within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { DraftProvider, useDraft } from "@/components/unsaved";
 import type { Profile, RankedJob, WorkspaceState } from "@/lib/models";
 import { DiscoverPage } from "./discover-page";
 
@@ -183,6 +184,65 @@ it("filters while typing without ranking again or fetching a new route, then cle
     }),
   ).toBeInTheDocument();
   expect(new URLSearchParams(fixture.query).has("q")).toBe(false);
+});
+
+it("keeps profile selection inside Filters while leaving the result count in the workspace", async () => {
+  fixture.mobile = true;
+  const view = render(<DiscoverPage />);
+  await screen.findByRole("button", {
+    name: "Assess Cloud Engineer at Example Cloud",
+  });
+  const filters = view.container.querySelector(".discover-filters")!;
+  const select = screen.getByRole("combobox", {
+    name: "Search profile",
+    hidden: true,
+  });
+  expect(select.closest("details")).toBe(filters);
+  expect(select).not.toBeVisible();
+  expect(view.container.querySelector(".discover-summary select")).toBeNull();
+  expect(screen.getByText("2 roles · 2 locations")).toBeVisible();
+  await userEvent.click(within(filters as HTMLElement).getByText("Filters"));
+  expect(select).toBeVisible();
+  await userEvent.selectOptions(select, "profile-b");
+  expect(fixture.selectProfile).toHaveBeenCalledWith("profile-b");
+});
+
+it("retains the selected profile and role when a dirty review cancels a profile change in Filters", async () => {
+  function ReviewDraft() {
+    const { setDirty } = useDraft();
+    return <button onClick={() => setDirty(true)}>Keep review draft</button>;
+  }
+  fixture.query =
+    "view=all&q=Cloud&location=Toronto&opportunity=job-a&assessment_profile=profile-a";
+  const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
+  const view = render(
+    <DraftProvider>
+      <ReviewDraft />
+      <DiscoverPage />
+    </DraftProvider>,
+  );
+  await screen.findByRole("complementary");
+  await userEvent.click(
+    screen.getByRole("button", { name: "Keep review draft" }),
+  );
+  const filters = view.container.querySelector(".discover-filters")!;
+  await userEvent.click(within(filters as HTMLElement).getByText("Filters"));
+  const select = screen.getByRole("combobox", { name: "Search profile" });
+  await userEvent.selectOptions(select, "profile-b");
+  expect(confirm).toHaveBeenCalledWith("Discard unsaved changes?");
+  expect(select).toHaveValue("profile-a");
+  expect(fixture.selectProfile).not.toHaveBeenCalled();
+  expect(fixture.replace).not.toHaveBeenCalled();
+  expect(new URLSearchParams(fixture.query).get("opportunity")).toBe("job-a");
+
+  confirm.mockReturnValue(true);
+  await userEvent.selectOptions(select, "profile-b");
+  expect(fixture.selectProfile).toHaveBeenCalledWith("profile-b");
+  const next = new URLSearchParams(fixture.query);
+  expect(next.has("opportunity")).toBe(false);
+  expect(next.get("q")).toBe("Cloud");
+  expect(next.get("location")).toBe("Toronto");
+  expect(next.get("view")).toBe("all");
 });
 
 it("shows static card skeletons only while a real initial ranking request is pending", async () => {
