@@ -19,6 +19,7 @@ Existing arrival, close, role-selection and bookmark feedback remain coordinated
 ## Scroll ownership
 
 - The grabber is always a resize surface. Tap remains available for assistive technology and people who prefer buttons. A small static grip reinforces the affordance.
+- A new press clears the preceding drag's click suppression before testing interactive targets. Evidence toggles and links respond on the first tap after a cancelled drag, even when the browser never emits a click for the cancelled contact.
 - Collapsed noninteractive content expands before scrolling. Interactive controls, links, selectable text with an existing selection and mouse text-selection gestures are excluded.
 - In browsers supporting directional `touch-action`, expanded content at scroll position zero permits native scrolling down the content (finger up). A fresh finger-down gesture can collapse it. A 100ms cooldown after native scrolling prevents momentum at the top from unexpectedly resizing the sheet.
 - Declare `touch-action` before contact. Never change ownership mid-gesture or implement artificial content momentum. Preserve pinch zoom and horizontal browser gestures.

@@ -753,6 +753,22 @@ async function mobileGestures(page, session) {
     "true",
     "upward drag on collapsed content expands first",
   );
+  const evidence = body.locator(".discover-evidence-row details").first();
+  await swipeSheet(page, session, toggle, 230, { cancel: true });
+  await settled(page);
+  assert.equal(
+    await expanded(),
+    "true",
+    "a cancelled collapse keeps the committed expansion",
+  );
+  await evidence.locator("summary").click();
+  assert.equal(
+    await evidence.evaluate((element) => element.open),
+    true,
+    "the first evidence tap after a cancelled drag is not swallowed",
+  );
+  await evidence.locator("summary").click();
+  assert.equal(await evidence.evaluate((element) => element.open), false);
   await body.evaluate((element) => {
     element.scrollTop = 120;
   });

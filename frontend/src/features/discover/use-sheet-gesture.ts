@@ -166,6 +166,9 @@ export function useSheetGesture({
         return;
       }
       if (event.button !== 0 || gesture.current) return;
+      // A cancelled drag may never emit a click. A new press must not inherit
+      // its suppression, including presses on controls excluded from dragging.
+      suppressClick.current = false;
       const owner = event.currentTarget as HTMLElement;
       if (
         owner === scroller &&
@@ -178,7 +181,6 @@ export function useSheetGesture({
               performance.now() - lastScroll < scrollCooldown)))
       )
         return;
-      suppressClick.current = false;
       const height = element.getBoundingClientRect().height;
       const bounds = boundsFor(element);
       if (animation.current) {
