@@ -12,7 +12,9 @@ The public showcase at **https://employment-agency-demo.vercel.app/discover/** f
 
 Release jobs are serialized, and queued releases are preserved so that rerunning an older workflow cannot cancel a newer waiting release. The release job compares its SHA with current `main` before staging and before promotion. A push arriving after that final comparison can briefly leave the previous successful revision live until the next checked revision releases. A skipped superseded candidate does not move the alias.
 
-The generated static directory is deployed with its own empty build/install configuration, rather than rebuilding source on Vercel. It is not a `.vercel/output` Build Output API bundle and must not be passed directly to `--prebuilt`. Root `vercel.json` continues to disable native Git deployment and configure the private Flask application.
+The generated static directory is deployed through Vercel's deployment API with its own empty build/install configuration, rather than rebuilding source on Vercel. Files are supplied inline and domain assignment is disabled until verification. API calls use the explicit public project/team and do not request an account profile. Root `vercel.json` continues to disable native Git deployment and configure the private Flask application.
+
+The deployment transport intentionally avoids the CLI: Vercel CLI 65.2.0 requests `/v2/user`, which returns HTTP 404 for this project-scoped token even though project access succeeds. Keeping the token narrow takes precedence over granting CI account-wide access. The staging request follows the official CLI's deployment payload for static configuration and `autoAssignCustomDomains: false`; promotion uses the documented project deployment endpoint.
 
 ## One-time credential setup
 
@@ -30,7 +32,7 @@ Replace the secret when rotating the scoped token, then revoke the old token. An
 
 ## Verify and recover
 
-Run `node --test tests/check-public-demo.test.mjs` for release-verifier failure cases. `npm --prefix frontend run build:preview` builds the candidate with its commit marker. The existing `python tests/run_public_preview_checks.py` exercises the static interface, fictional-data isolation and desktop/mobile behavior before release.
+Run `node --test tests/check-public-demo.test.mjs tests/stage-public-demo.test.mjs tests/promote-public-demo.test.mjs` for release, staging and promotion success/failure cases. `npm --prefix frontend run build:preview` builds the candidate with its commit marker. The existing `python tests/run_public_preview_checks.py` exercises the static interface, fictional-data isolation and desktop/mobile behavior before release.
 
 For an already staged or live release:
 
@@ -44,4 +46,4 @@ If verification after promotion identifies a defect, inspect the Actions log and
 
 To pause public releases, disable the release job in the workflow or revoke its dedicated token. Preserve the previous static deployment until recovery is verified. Reverting the workflow through a normal commit preserves source history. No database migration, personal-workspace restore, private-pilot deployment or wheel publication is part of this process.
 
-References: [Vercel with GitHub Actions](https://vercel.com/kb/guide/how-can-i-use-github-actions-with-vercel), [Vercel token scope](https://vercel.com/docs/cli/tokens), [staged production deployments](https://vercel.com/docs/cli/deploy), [GitHub concurrency](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency).
+References: [Vercel with GitHub Actions](https://vercel.com/kb/guide/how-can-i-use-github-actions-with-vercel), [Vercel token scope](https://vercel.com/docs/cli/tokens), [official static deployment payload](https://github.com/vercel/vercel/blob/main/packages/cli/src/util/index.ts), [production promotion API](https://vercel.com/docs/rest-api/projects/point-production-traffic-to-a-given-deployment), [GitHub concurrency](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency).

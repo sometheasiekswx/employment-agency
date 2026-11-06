@@ -24,7 +24,7 @@ jobs:
       - run: npm --prefix frontend run typecheck
       - run: npm --prefix frontend run lint
       - run: npm --prefix frontend test
-      - run: node --test tests/check-public-demo.test.mjs
+      - run: node --test tests/check-public-demo.test.mjs tests/stage-public-demo.test.mjs tests/promote-public-demo.test.mjs
       - run: npm --prefix frontend run build
       - run: python -m pip install .
       - run: python -m unittest discover -s tests -v
@@ -95,8 +95,6 @@ jobs:
         with:
           name: public-demo-${{ github.sha }}
           path: ${{ runner.temp }}/public-demo
-      - name: Install pinned deployment CLI
-        run: npm install --global vercel@65.2.0 --ignore-scripts
       - name: Skip a superseded revision
         id: candidate
         shell: bash
@@ -119,40 +117,7 @@ jobs:
             echo "Missing VERCEL_DEMO_TOKEN. See docs/public-demo-deployment.md." >&2
             exit 1
           fi
-          node --input-type=module -e '
-            const url = new URL("https://api.vercel.com/v9/projects/" + process.env.VERCEL_PROJECT_ID);
-            url.searchParams.set("teamId", process.env.VERCEL_ORG_ID);
-            const response = await fetch(url, {
-              headers: { Authorization: "Bearer " + process.env.VERCEL_TOKEN },
-              signal: AbortSignal.timeout(20000),
-            });
-            if (!response.ok) throw new Error("Cannot check Vercel promotion status: HTTP " + response.status);
-            const project = await response.json();
-            if (project.id !== process.env.VERCEL_PROJECT_ID || project.accountId !== process.env.VERCEL_ORG_ID) {
-              throw new Error("Unexpected Vercel project or team");
-            }
-            if (["pending", "in-progress"].includes(project.lastAliasRequest?.jobStatus)) {
-              throw new Error("A previous promotion is still pending. Reconcile it before releasing again.");
-            }
-          '
-          node --input-type=module -e '
-            import { readFileSync } from "node:fs";
-            import assert from "node:assert/strict";
-            const site = process.env.RUNNER_TEMP + "/public-demo/";
-            const release = JSON.parse(readFileSync(site + "release.json", "utf8"));
-            const fixture = JSON.parse(readFileSync(site + "demo/preview.json", "utf8"));
-            assert.equal(release.commit, process.env.GITHUB_SHA);
-            assert.equal(release.fixtureRevision, fixture.revision);
-            assert.equal(fixture.public_preview, true);
-            assert.equal(fixture.state._workspace.demo, true);
-          '
-          vercel deploy --cwd "$RUNNER_TEMP/public-demo" \
-            --local-config "$RUNNER_TEMP/public-demo/vercel.json" \
-            --project "$VERCEL_PROJECT_ID" --scope "$VERCEL_ORG_ID" \
-            --prod --skip-domain --yes \
-            --meta "githubCommitSha=$GITHUB_SHA" --meta "githubCommitRef=main" \
-            --meta "githubRepo=${GITHUB_REPOSITORY#*/}" \
-            --meta "githubOrg=${GITHUB_REPOSITORY%/*}" > "$RUNNER_TEMP/public-demo-url"
+          node scripts/stage-public-demo.mjs "$RUNNER_TEMP/public-demo" "$GITHUB_SHA" > "$RUNNER_TEMP/public-demo-url"
           node --input-type=module -e '
             import { readFileSync, appendFileSync } from "node:fs";
             const url = readFileSync(process.env.RUNNER_TEMP + "/public-demo-url", "utf8").trim();
@@ -178,8 +143,8 @@ jobs:
             exit 0
           fi
           echo "attempted=true" >> "$GITHUB_OUTPUT"
-          if ! vercel promote "$STAGED_URL" --scope "$VERCEL_ORG_ID" --yes --timeout 5m; then
-            echo "Promotion command did not confirm completion; the required alias check will determine the result." >&2
+          if ! node scripts/promote-public-demo.mjs "$STAGED_URL" "$GITHUB_SHA"; then
+            echo "Promotion API did not confirm completion; the required alias check will determine the result." >&2
           fi
       - name: Verify the public alias
         if: always() && steps.promote.outputs.attempted == 'true'
