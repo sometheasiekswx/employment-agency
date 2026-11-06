@@ -43,9 +43,11 @@ class JobRemoval(unittest.TestCase):
         archive = self.w.export(self.root / 'backup.zip')
         restore(archive, self.root / 'restored')
         recovered = Workspace(self.root / 'restored')
-        self.addCleanup(recovered.close)
-        self.assertEqual(recovered.read()['schema'], 2)
-        self.assertEqual(recovered.read()['jobs'][0], self.w.read()['jobs'][0])
+        try:
+            self.assertEqual(recovered.read()['schema'], 2)
+            self.assertEqual(recovered.read()['jobs'][0], self.w.read()['jobs'][0])
+        finally:
+            recovered.close()
 
     def test_retries_and_stale_undo_do_not_change_a_newer_removal(self):
         _, _, job = self.seed()
