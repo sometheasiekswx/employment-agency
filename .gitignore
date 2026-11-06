@@ -18,6 +18,7 @@ workspace/
 .DS_Store
 
 output/
+.playwright-cli/
 .vercel/
 frontend/node_modules/
 frontend/.next/

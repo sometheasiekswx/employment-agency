@@ -40,14 +40,17 @@ Explore the screens, inspect sample documents and bookmark roles in your browser
 
 | View                   | What it helps you do                                                                                                                   |
 | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| **Discover**           | Compare roles by location, inspect confirmed evidence and open questions, save opportunities and open the relevant application record. |
-| **Applications**       | Review documents, preview edits, save a new draft, add comments and record decisions.                                                  |
+| **Opportunities**      | Compare and save roles, then assess, edit documents and record decisions in one workspace. Switch between Recommended, All roles, Saved and Applications; filter applications by Active, Submitted or Rejected. |
 | **Career profile**     | Import a résumé, reconcile master changes, confirm facts and retain their sources.                                                     |
 | **Search preferences** | Set roles, locations and work preferences; manage employer sources, imports, matching and preparation runs.                            |
 | **History**            | Search preserved versions by role, employer and location, then open the exact recorded documents.                                      |
 | **Settings**           | Choose a local workspace, manage disclosure consent, export a backup and review recovery options.                                      |
 
 Matching exposes evidence, gaps and unknowns. It does not establish qualifications, work rights or current vacancy availability. Configured Greenhouse and Lever boards, structured job URLs and agent research provide job records; paid AI selection is optional. [Sources, providers, consent and budgets](docs/agents.md).
+
+In the current source build, each role has Overview, Documents and Activity panels. Switching panels keeps an unfinished review with that application; leaving it prompts before discarding changes. The document-version selector opens preserved versions without leaving the role. Application records remain available even when matching is unavailable, and existing application bookmarks continue to work.
+
+Documents and History use matching version numbers, statuses and dates. In the text editor, Move up and Move down let you tailor section order with the keyboard before updating the preview and saving a separate draft.
 
 Recording a submission requires confirmation that you submitted it yourself. A mistaken manual record can be corrected into a draft while preserving the original record and verified documents; active, uncertain or confirmed delivery evidence blocks this correction. Retired career facts can be restored for reconfirmation.
 
@@ -77,7 +80,7 @@ The same role assessment opens in an expandable sheet, with a brief content tran
 
 <a id="quickstart"></a>
 
-The live demo and GIFs show the **current source interface**. The published **v0.6.0 wheel contains its earlier release interface**. Building this checkout does not publish a new wheel or upgrade an existing private workspace.
+The live demo and GIFs show the **published preview interface**. This checkout adds the unified Opportunities workspace described above; it has not yet been deployed to the demo or released in a wheel. The published **v0.6.0 wheel contains its earlier release interface**. Building this checkout does not publish a new wheel or upgrade an existing private workspace.
 
 ### Current source interface
 

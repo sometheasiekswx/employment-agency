@@ -83,15 +83,21 @@ Inter is self-hosted at weights 400, 500, 600 and 700, with its SIL Open Font Li
 
 ## Composition and navigation
 
-At desktop sizes the rail is 272px wide. It carries the brand, the selected profile's actual role/location/arrangement/seniority preferences, the real number of stored opportunities, six navigation destinations and workspace identity. All counts come from runtime state. Do not copy illustrative candidate names, salaries, employers or location counts from the design source into production.
+At desktop sizes the rail is 272px wide. It carries the brand, the selected profile's actual role/location/arrangement/seniority preferences, the real number of stored opportunities, five navigation destinations and workspace identity. All counts come from runtime state. Do not copy illustrative candidate names, salaries, employers or location counts from the design source into production.
 
 The desktop workspace has 24px side padding and an 81px top bar with functional role search and one useful navigation action. The sidebar marks the current view, so the header does not repeat a breadcrumb. Discover groups opportunities by location in a compact grid: later cities fill space beneath shorter groups while each city's cards stay together. Measured row spans respond to content and width changes, preserving source priority and keyboard order without waiting for the tallest city to finish. Tracks have a 17rem readable minimum and location groups a 24rem maximum, so a single filtered location remains left aligned. With the desktop inspector open, the shortlist scrolls vertically and retains the same location order. The inspector grows smoothly from 350px to 430px only as space permits; its evidence scrolls independently of persistent actions. Existing application forms, versioned documents, editor and submission previews retain their behaviour.
 
 Discover keeps one visible profile selector and one result count. Cards show the role, employer, decision status, distinct location or work model and disclosed pay. Missing salary, evidence, retrieval dates and eligibility checks belong in the opportunity inspector. Omit repeated city labels, generic ranking explanations, promotional sidebar copy and repeated instructions to open a role. Keep useful warnings and all review and submission controls intact.
 
-Below 900px the rail becomes a compact header. A fixed bottom dock exposes Discover, Applications, Profile and Settings. The header menu includes all six destinations, including Search preferences and History. The dock and content observe the bottom safe area. Discover review uses a modal sheet with collapse/expand and close controls, preserved shortlist position and restored focus. Other pages retain readable stacked content. Long text and 200% text resizing must not create page-wide horizontal overflow.
+Below 900px the rail becomes a compact header. A fixed bottom dock exposes Opportunities, Profile, History and Settings. The header menu includes all five destinations, including Search preferences and History. The dock and content observe the bottom safe area. Discover review uses a modal sheet with collapse/expand and close controls, preserved shortlist position and restored focus. Other pages retain readable stacked content. Long text and 200% text resizing must not create page-wide horizontal overflow.
 
 Opportunity review changes to the existing modal sheet at 1000px, before the rail collapses, because narrower desktop windows cannot fit a readable shortlist beside a detail panel. Between 901px and 1000px the sheet is bounded to 36rem at the right edge; phones retain the full-width sheet.
+
+## Unified Opportunities workspace
+
+The approved consolidation brings discovery and application management into one Opportunities destination. Recommended, All roles, Saved and Applications share the location board and selected role. Applications exposes Active, Submitted and Rejected queues from recorded applications independently of current matching, profiles or listing availability. Older application links redirect to their selected record in the shared workspace.
+
+Overview preserves in-place evidence assessment. Documents and Activity expand into a workbench beside the board on desktop and a full-screen native dialog on mobile. Switching panels retains comment drafts. Documents identifies every preserved version with its status and date, with access to original versions and History. Saving an edit selects the returned new draft without losing role, view, filters or document context. Native confirmation, cancellation, submission safeguards, immutable submitted snapshots and unsaved-edit protection remain authoritative.
 
 ## Components and states
 
