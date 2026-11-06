@@ -38,7 +38,7 @@
 }
 .discover-sheet-header,
 .discover-dialog .discover-inspector-footer {
-  touch-action: pan-x pinch-zoom;
+  touch-action: pinch-zoom;
 }
 
 .discover-dialog {

@@ -297,6 +297,7 @@ function touchFixture() {
     time: number,
     target: HTMLElement | Window = body,
     primary = true,
+    x = 190,
   ) => {
     const event = new Event(type, { bubbles: true });
     for (const [key, value] of Object.entries({
@@ -304,7 +305,7 @@ function touchFixture() {
       pointerId: primary ? 1 : 2,
       pointerType: "touch",
       button: 0,
-      clientX: 190,
+      clientX: x,
       clientY: y,
       timeStamp: time,
     }))
@@ -313,6 +314,99 @@ function touchFixture() {
   };
   return { props, dialog, body, point, view };
 }
+
+it.each(["body", "grip", "company", "footer"])(
+  "uses the same release distance in the %s region",
+  async (region) => {
+    const { dialog, body, point } = touchFixture();
+    const grip = screen.getByRole("button", {
+      name: "Resize opportunity details",
+    });
+    const target =
+      region === "body"
+        ? body
+        : region === "grip"
+          ? grip
+          : dialog.querySelector<HTMLElement>(
+              region === "company"
+                ? ".discover-inspector-company"
+                : ".discover-inspector-footer",
+            )!;
+    point("pointerdown", 700, 0, target);
+    point("pointermove", 680, 200, target);
+    point("pointerup", 680, 450, window);
+    expect(grip).toHaveAttribute("aria-expanded", "false");
+    await act(async () => sheetAnimations.at(-1)?.finish());
+    point("pointerdown", 700, 600, target);
+    point("pointermove", 630, 800, target);
+    point("pointerup", 630, 1050, window);
+    expect(grip).toHaveAttribute("aria-expanded", "true");
+  },
+);
+
+it("accepts a deliberate upward flick from the grip before its distance threshold", () => {
+  const { point } = touchFixture();
+  const grip = screen.getByRole("button", {
+    name: "Resize opportunity details",
+  });
+  point("pointerdown", 700, 0, grip);
+  point("pointermove", 668, 30, grip);
+  point("pointerup", 668, 40, window);
+  expect(grip).toHaveAttribute("aria-expanded", "true");
+});
+
+it("does not let projected momentum expand a tiny upward flick", () => {
+  const { point } = touchFixture();
+  const grip = screen.getByRole("button", {
+    name: "Resize opportunity details",
+  });
+  point("pointerdown", 700, 0);
+  point("pointermove", 680, 10);
+  point("pointerup", 680, 20, window);
+  expect(grip).toHaveAttribute("aria-expanded", "false");
+});
+
+it.each([false, true])(
+  "keeps a partly expanded body draggable with directional touch support %s",
+  async (directional) => {
+    const supports = vi.spyOn(CSS, "supports").mockReturnValue(directional);
+    try {
+      const { dialog, body, point } = touchFixture();
+      point("pointerdown", 700, 0);
+      point("pointermove", 630, 100);
+      point("pointerup", 630, 250, window);
+      const previous = sheetAnimations.at(-1)!;
+      expect(body.style.touchAction).toBe("pinch-zoom");
+      dialog.style.height = "620px";
+      point("pointerdown", 700, 400);
+      point("pointermove", 660, 500);
+      expect(previous.stop).toHaveBeenCalledOnce();
+      expect(parseFloat(dialog.style.height)).toBe(660);
+      point("pointerup", 660, 650, window);
+      const resumed = sheetAnimations.at(-1)!;
+      await act(async () => previous.finish());
+      expect(dialog.style.height).not.toBe("");
+      await act(async () => resumed.finish());
+      expect(body.style.touchAction).toBe(
+        directional ? "pan-x pan-down pinch-zoom" : "pan-x pan-y pinch-zoom",
+      );
+    } finally {
+      supports.mockRestore();
+    }
+  },
+);
+
+it("lets an upward drag develop after a small initial sideways movement", () => {
+  const { dialog, point } = touchFixture();
+  point("pointerdown", 700, 0);
+  point("pointermove", 696, 50, undefined, true, 204);
+  point("pointermove", 620, 150, undefined, true, 208);
+  expect(parseFloat(dialog.style.height)).toBeCloseTo(586.4);
+  point("pointerup", 620, 350, window);
+  expect(
+    screen.getByRole("button", { name: "Resize opportunity details" }),
+  ).toHaveAttribute("aria-expanded", "true");
+});
 
 it("expands a deliberate short body swipe and sends excess travel into reading before release", async () => {
   const { body, point } = touchFixture();

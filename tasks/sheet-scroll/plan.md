@@ -38,3 +38,9 @@ The user authorized the fix, refreshed desktop/mobile README GIFs, review and pu
 3. Verify native Chromium touch with on-screen coordinates, scoped WebKit checks, desktop/mobile screenshots and recordings. Run units/lint/types/build plus existing browser/public-preview checks.
 4. Refresh the existing fictional showcase captures after the verified export. Show single-contact expansion into reading, footer-origin expansion, native subsequent scrolling and drag-to-close. Keep lossless 2x sources, width-only display caps, correct aspect ratios and reduced-motion posters; inspect GitHub's rendered README.
 5. Obtain an independent review, resolve material findings, commit/push named files, verify all CI gates and the exact live public-demo release. Record limitations without equating desktop WebKit with physical iPhone testing.
+
+## Safari and Xcode follow-up
+
+The user identified Safari and confirmed that a partial sheet follows a contact anywhere inside it, snapping fully open after roughly 20% of the remaining distance or a deliberate flick; smaller drags return to peek. This supersedes the earlier region-dependent short-swipe rule. Preserve native scrolling after settling, taps, cancellation, reversal and guarded dismissal. Small sideways drift must not permanently abandon subsequent upward intent.
+
+The user requested Mac-based testing so their phone remains free. End physical-phone automation; use the installed Xcode iPhone Simulator with native Safari coordinate gestures, retaining baseline/candidate XCTest results and recordings. Keep Simulator results distinct from physical-device acceptance. Run focused browser regression plus existing motion/mobile acceptance, units, lint, types and static export; obtain an independent review before the already-authorized publication. Leave concurrent live-development/Tailscale work unstaged.

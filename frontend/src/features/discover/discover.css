@@ -966,7 +966,7 @@
     color: var(--discover-muted);
     font-size: 11px;
     font-weight: 400;
-    touch-action: pan-x pinch-zoom;
+    touch-action: pinch-zoom;
     user-select: none;
     cursor: ns-resize;
   }

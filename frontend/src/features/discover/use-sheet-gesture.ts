@@ -135,6 +135,7 @@ export function useSheetGesture({
         dialog.current?.style.removeProperty("height");
         dialog.current?.style.removeProperty("transform");
       }
+      updateScrollAction.current();
     },
     [release, stop],
   );
@@ -153,6 +154,7 @@ export function useSheetGesture({
       if (!animated || !motionAllowed.current || Math.abs(from - to) < 1) {
         element.style.removeProperty("height");
         element.style.removeProperty("transform");
+        updateScrollAction.current();
         return;
       }
       const revision = generation.current;
@@ -174,12 +176,14 @@ export function useSheetGesture({
         },
       });
       animation.current = control;
+      updateScrollAction.current();
       void control.finished.then(
         () => {
           if (animation.current !== control) return;
           animation.current = null;
           element.style.removeProperty("height");
           element.style.removeProperty("transform");
+          updateScrollAction.current();
         },
         () => {},
       );
@@ -237,8 +241,12 @@ export function useSheetGesture({
     const updateScrolling = () => {
       // Declare intent BEFORE a touch begins. The browser owns content scrolling
       // for that entire gesture; reaching the top cannot suddenly resize a sheet.
-      scroller.style.touchAction = !destination.current
-        ? "pan-x pinch-zoom"
+      // A target detent is not its presentation. Keep partial/settling contacts
+      // draggable until height settling finishes and the active contact ends.
+      const nativeReading =
+        destination.current && !animation.current && !gesture.current;
+      scroller.style.touchAction = !nativeReading
+        ? "pinch-zoom"
         : directional &&
             scroller.scrollTop <= 0 &&
             performance.now() - lastScroll >= scrollCooldown
@@ -287,6 +295,7 @@ export function useSheetGesture({
       if (
         fromBody &&
         destination.current &&
+        !animation.current &&
         (!directional ||
           scroller.scrollTop > 0 ||
           performance.now() - lastScroll < scrollCooldown)
@@ -319,20 +328,18 @@ export function useSheetGesture({
         active: false,
         samples: [{ y: event.clientY, time: event.timeStamp }],
       };
+      updateScrolling();
     };
     const move = (event: PointerEvent) => {
       const drag = gesture.current;
       if (!drag || drag.pointer !== event.pointerId) return;
       const dy = event.clientY - drag.y;
       if (!drag.active) {
-        if (
-          Math.max(Math.abs(dy), Math.abs(event.clientX - drag.x)) < threshold
-        )
-          return;
-        if (Math.abs(event.clientX - drag.x) > Math.abs(dy)) {
-          snap(destination.current, true);
-          return;
-        }
+        // Small sideways drift must not permanently abandon an upward gesture.
+        // Partial sheets own one-finger panning; pinch zoom remains native.
+        if (Math.abs(event.clientX - drag.x) >= threshold)
+          suppressClick.current = true;
+        if (Math.abs(dy) < threshold) return;
         drag.active = true;
         suppressClick.current = true;
         drag.owner.setPointerCapture(event.pointerId);
@@ -415,14 +422,23 @@ export function useSheetGesture({
         callbacks.current.onDismiss();
         return;
       }
-      const reading =
-        drag.readsContent &&
-        !drag.startedExpanded &&
-        ((height > drag.initialHeight + threshold && drag.direction > 0) ||
-          drag.addedScroll > 0);
+      const growth = height - drag.initialHeight;
+      const expandDistance = Math.max(
+        threshold,
+        (drag.bounds.expanded - drag.initialHeight) * 0.2,
+      );
+      // Every region uses the same release rule. A deliberate flick can commit
+      // before the distance threshold; tiny touch noise cannot.
+      const expanding =
+        drag.direction > 0 &&
+        (drag.startedExpanded ||
+          growth >= expandDistance ||
+          (growth >= 32 && velocity >= 600));
       const next =
-        reading ||
-        projected > (drag.bounds.collapsed + drag.bounds.expanded) / 2;
+        expanding ||
+        drag.addedScroll > 0 ||
+        ((drag.startedExpanded || drag.direction <= 0) &&
+          projected > (drag.bounds.collapsed + drag.bounds.expanded) / 2);
       snap(next, true, velocity);
       if (next && drag.addedScroll > 0)
         continueReading(Math.max(-2500, Math.min(2500, velocity)));

@@ -74,6 +74,7 @@ fs.mkdirSync(output, { recursive: true });
       {
         fraction = 0.7,
         xFraction = 0.5,
+        sidewaysStart = false,
         steps = 24,
         hold = 150,
         beforeEnd,
@@ -93,10 +94,19 @@ fs.mkdirSync(output, { recursive: true });
         type: "touchStart",
         touchPoints: [{ x, y }],
       });
+      if (sidewaysStart) {
+        await session.send("Input.dispatchTouchEvent", {
+          type: "touchMove",
+          touchPoints: [{ x: x + 14, y: y - 4 }],
+        });
+        await page.waitForTimeout(16);
+      }
       for (let i = 1; i <= steps; i++) {
         await session.send("Input.dispatchTouchEvent", {
           type: "touchMove",
-          touchPoints: [{ x, y: y + (delta * i) / steps }],
+          touchPoints: [
+            { x: x + (sidewaysStart ? 14 : 0), y: y + (delta * i) / steps },
+          ],
         });
         await page.waitForTimeout(16);
       }
@@ -114,6 +124,33 @@ fs.mkdirSync(output, { recursive: true });
         touchPoints: [],
       });
     }
+    await open();
+    await drag(body, -20);
+    await settle();
+    assert.equal(
+      await grip.getAttribute("aria-expanded"),
+      "false",
+      "sub-threshold body drag returns to peek",
+    );
+    await drag(grip, -70, { fraction: 0.5 });
+    await settle();
+    assert.equal(
+      await grip.getAttribute("aria-expanded"),
+      "true",
+      "header uses the same expansion distance as the body",
+    );
+    await page.keyboard.press("Escape");
+    await panel.waitFor({ state: "detached" });
+    await open();
+    await drag(body, -80, { sidewaysStart: true });
+    await settle();
+    assert.equal(
+      await grip.getAttribute("aria-expanded"),
+      "true",
+      "upward intent survives small initial sideways drift",
+    );
+    await page.keyboard.press("Escape");
+    await panel.waitFor({ state: "detached" });
     await open();
     await drag(body, -70);
     await settle();
@@ -333,9 +370,16 @@ fs.mkdirSync(output, { recursive: true });
     await workbench.waitFor({ state: "hidden" });
     await page.emulateMedia({ reducedMotion: "reduce" });
     await open();
+    await drag(body, -20);
+    await settle();
+    assert.equal(
+      await grip.getAttribute("aria-expanded"),
+      "false",
+      "reduced motion retains the same sub-threshold return rule",
+    );
     await drag(
       panel.getByRole("link", { name: "Review documents", exact: true }),
-      -60,
+      -70,
       { fraction: 0.5 },
     );
     await settle();
