@@ -49,5 +49,8 @@ One or two sentences describing a role and its strongest supported match to conf
 **Demo workspace**:
 An isolated example career workspace containing an explicitly fictional candidate and dated snapshots of real job listings. Its sample decisions and generated documents demonstrate the application, not a real person's employment or submissions.
 
+**Public showcase**:
+The publicly accessible static website containing entirely fictional career information, vacancies and sample documents. It is separate from the installed demo workspace and private hosted pilot; visitors can explore it and save browser bookmarks without accessing a real career workspace.
+
 **Submission approval**:
 The user's confirmation of one external application attempt in the local Apply For Me preview, bound to its exact documents, recipient, answers and final action. Requesting preparation or recording a review decision does not constitute this approval. The capability is implemented in the unreleased local source preview; the published 0.6 wheel remains draft-only and hosted execution is disabled.

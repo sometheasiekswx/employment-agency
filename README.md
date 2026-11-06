@@ -80,7 +80,7 @@ The same role assessment opens in an expandable sheet, with a brief content tran
 
 <a id="quickstart"></a>
 
-The live demo and GIFs show the **published preview interface**. This checkout adds the unified Opportunities workspace described above; it has not yet been deployed to the demo or released in a wheel. The published **v0.6.0 wheel contains its earlier release interface**. Building this checkout does not publish a new wheel or upgrade an existing private workspace.
+The public demo updates automatically after all checks pass on `main`; its [release marker](https://employment-agency-demo.vercel.app/release.json) identifies the live commit. The GIFs are recorded walkthroughs and may predate the latest interface changes. The published **v0.6.0 wheel contains its earlier release interface**. Public demo releases do not publish a new wheel or upgrade an existing private workspace. [Deployment and recovery](docs/public-demo-deployment.md).
 
 ### Current source interface
 

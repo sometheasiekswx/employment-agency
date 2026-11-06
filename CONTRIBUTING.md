@@ -85,6 +85,8 @@ To style only the header button, add a more specific rule to `globals.css`:
 
 ## Builds and hosted releases
 
+The public fictional showcase deploys automatically after the full `Checks` matrix passes for a current `main` revision. CI publishes the tested static artifact to its dedicated Vercel project and verifies it before and after promotion. See [public deployment and recovery](docs/public-demo-deployment.md). Keep this separate from the private hosted pilot: root `vercel.json` and the local `.vercel` link belong to that Flask deployment, whose releases remain explicit.
+
 Run `npm --prefix frontend run build` before `python -m pip wheel --no-deps .`. The build copies the static export into the Python package. Vercel remains configured as a Flask application; its build command installs and builds the frontend. Select Node.js 24+ for the build environment. Server-side Supabase keys stay in Python environment configuration, never a `NEXT_PUBLIC_` variable.
 
 Run `python tests/check_wheel.py path/to/the-built.whl` to install the candidate outside the checkout and verify packaged routes, document generation and submitted snapshot export/restore. CI performs this check on all three operating systems.
