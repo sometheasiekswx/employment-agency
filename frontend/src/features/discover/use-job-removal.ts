@@ -211,7 +211,7 @@ export function useJobRemoval({
     const revision = revisions.current.get(draft.job.id) || 0;
     setDrafts((old) => ({
       ...old,
-      [key]: { ...old[key], saving: true, error: "", saved: false },
+      [key]: { ...old[key], saving: true, error: "" },
     }));
     try {
       const result = await enqueue(draft.job.id, "job-removal-reason", {
@@ -226,15 +226,19 @@ export function useJobRemoval({
           ...old,
           [draft.job.id]: { removals: result.removals, pending: false },
         }));
-      setDrafts((old) => ({
-        ...old,
-        [key]: {
-          ...old[key],
-          saving: false,
-          saved: old[key].value === value,
-          error: "",
-        },
-      }));
+      setDrafts((old) => {
+        const current = old[key];
+        if (!current) return old;
+        if (current.value !== value)
+          return {
+            ...old,
+            [key]: { ...current, saving: false, error: "" },
+          };
+        // Clearing the saved draft closes only its own editor.
+        const next = { ...old };
+        delete next[key];
+        return next;
+      });
       sync();
     } catch (error) {
       if (active.current)
@@ -244,7 +248,6 @@ export function useJobRemoval({
             ...old[key],
             saving: false,
             error: errorMessage(error),
-            saved: false,
           },
         }));
     }
@@ -262,15 +265,12 @@ export function useJobRemoval({
     dismiss: () => setFeedback(undefined),
     closeReason,
     changeReason: (value: string) =>
-      setDrafts((old) => ({
-        ...old,
-        [editorKey]: {
-          ...old[editorKey],
-          value,
-          saved: false,
-          error: "",
-        },
-      })),
+      setDrafts((old) => {
+        const draft = old[editorKey];
+        return draft
+          ? { ...old, [editorKey]: { ...draft, value, error: "" } }
+          : old;
+      }),
     saveReason,
   };
 }

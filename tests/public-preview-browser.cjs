@@ -463,7 +463,7 @@ const { showPanel } = require("./browser-applications.cjs");
       await inspector
         .getByRole("button", { name: "Save reason", exact: true })
         .click();
-      await inspector.getByText("Reason saved.", { exact: true }).waitFor();
+      await reason.waitFor({ state: "hidden" });
       const feedbackAxe = await new AxeBuilder({ page })
         .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
         .analyze();

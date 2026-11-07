@@ -359,6 +359,8 @@ const label = (job) => `${job.title} · ${job.employer}`;
         return route.continue();
       };
       await page.route("**/api/job-removal-reason", reasonFailure);
+      await assertFits(page, mode);
+      await page.screenshot({ path: `${output}/${mode}-reason.png` });
       await editor(page, first)
         .getByRole("button", { name: "Save reason", exact: true })
         .click();
@@ -382,14 +384,13 @@ const label = (job) => `${job.title} · ${job.employer}`;
       await editor(page, first)
         .getByRole("button", { name: "Retry saving reason", exact: true })
         .click();
-      await editor(page, first)
-        .getByText("Reason saved.", { exact: true })
+      await editor(page, first).waitFor({ state: "hidden" });
+      await notice(page, first)
+        .getByRole("button", { name: "Undo", exact: true })
         .waitFor();
       assert.equal(reasonAttempts, 2);
       assert.equal(current(await jobState(first)).reason, draft);
       await page.unroute("**/api/job-removal-reason", reasonFailure);
-      await assertFits(page, mode);
-      await page.screenshot({ path: `${output}/${mode}-reason.png` });
       await close(page);
       await page.locator(".discover-filters > summary").click();
       await page
@@ -426,6 +427,12 @@ const label = (job) => `${job.title} · ${job.employer}`;
         await editor(page, first).getByRole("textbox").inputValue(),
         draft,
       );
+      const edited = `${draft} Updated from Removed.`;
+      await editor(page, first).getByRole("textbox").fill(edited);
+      await editor(page, first)
+        .getByRole("button", { name: "Save reason", exact: true })
+        .click();
+      await editor(page, first).waitFor({ state: "hidden" });
       await page.reload();
       await card(page, first).waitFor();
       await page
@@ -436,7 +443,7 @@ const label = (job) => `${job.title} · ${job.employer}`;
         .click();
       assert.equal(
         await editor(page, first).getByRole("textbox").inputValue(),
-        draft,
+        edited,
         "Saved reason survives browser reload",
       );
       await card(page, first).click();

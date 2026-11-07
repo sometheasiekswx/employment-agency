@@ -264,7 +264,7 @@ describe("opportunity removal controller", () => {
     });
   });
 
-  it("retains removal and a failed reason draft, then retries only that reason", async () => {
+  it("retains a failed reason draft and closes the editor after a successful retry", async () => {
     const removed = { ...alpha, removals: [event] };
     const { result, requests } = setup([removed]);
     act(() => result.current.addReason(removed, event));
@@ -288,7 +288,6 @@ describe("opportunity removal controller", () => {
     expect(result.current.editor).toMatchObject({
       value: "Outside my preferred location",
       saving: false,
-      saved: false,
       error: "Reason could not be saved",
     });
     expect(currentRemoval(result.current.jobWithRemoval(removed))?.id).toBe(
@@ -307,12 +306,7 @@ describe("opportunity removal controller", () => {
       );
       await save;
     });
-    expect(result.current.editor).toMatchObject({
-      value: "Outside my preferred location",
-      saving: false,
-      saved: true,
-      error: "",
-    });
+    expect(result.current.editor).toBeUndefined();
     expect(currentRemoval(result.current.jobWithRemoval(removed))?.reason).toBe(
       "Outside my preferred location",
     );
@@ -341,7 +335,6 @@ describe("opportunity removal controller", () => {
     expect(result.current.editor).toMatchObject({
       value: "Newer unfinished text",
       saving: false,
-      saved: false,
     });
     expect(currentRemoval(result.current.jobWithRemoval(removed))?.reason).toBe(
       "First saved text",
@@ -356,10 +349,7 @@ describe("opportunity removal controller", () => {
       );
       await save;
     });
-    expect(result.current.editor).toMatchObject({
-      value: "Newer unfinished text",
-      saved: true,
-    });
+    expect(result.current.editor).toBeUndefined();
   });
 
   it("keeps each reason draft while browsing and closes without discarding text", () => {
@@ -500,10 +490,7 @@ describe("opportunity removal controller", () => {
       id: event.id,
       reason: "Keep this confirmed reason",
     });
-    expect(result.current.editor).toMatchObject({
-      value: "Keep this confirmed reason",
-      saved: true,
-    });
+    expect(result.current.editor).toBeUndefined();
   });
 
   it("does not claim a stale Undo restored a newer active removal", async () => {

@@ -24,7 +24,6 @@ export interface RemovalReasonEditor {
   value: string;
   saving: boolean;
   error?: string;
-  saved?: boolean;
 }
 
 export interface RemovalFeedbackProps {
@@ -187,11 +186,7 @@ export function RemovalFeedback({
                 </Action>
               )}
             </div>
-            {editor.saving ? (
-              <p role="status">Saving reason…</p>
-            ) : editor.saved ? (
-              <p role="status">Reason saved.</p>
-            ) : null}
+            {editor.saving && <p role="status">Saving reason…</p>}
           </div>
         </form>
       )}

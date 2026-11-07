@@ -229,7 +229,7 @@ it("supports restored feedback, an empty title and an editor without a notice", 
     <RemovalFeedback
       {...callbacks}
       feedback={undefined}
-      editor={{ ...reasonEditor(), saved: true }}
+      editor={reasonEditor()}
     />,
   );
   expect(
@@ -238,5 +238,4 @@ it("supports restored feedback, an empty title and an editor without a notice", 
   expect(
     screen.getByRole("form", { name: "Reason for removing" }),
   ).toBeVisible();
-  expect(screen.getByRole("status")).toHaveTextContent("Reason saved.");
 });
