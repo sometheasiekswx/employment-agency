@@ -47,6 +47,7 @@ import {
   applicationsByJob,
   filterOpportunities,
   groupOpportunities,
+  remainingEvidenceGaps,
   requirementEvidence,
   roleStatus,
   type DiscoveryView,
@@ -296,6 +297,7 @@ export function DiscoverPage() {
       ...job,
       saved: undefined,
       removals: undefined,
+      matched_skill_evidence: undefined,
     })),
   });
   const requestKey = `${profileId}:${attempt}:${rankInput}`;
@@ -357,6 +359,7 @@ export function DiscoverPage() {
               ...row.job,
               ...latest,
               prior_application: latest.prior_application,
+              matched_skill_evidence: latest.matched_skill_evidence,
               saved: savedOverrides[row.job.id] ?? latest.saved ?? false,
             },
           },
@@ -450,6 +453,9 @@ export function DiscoverPage() {
       ? assessedRow || selectedRow
       : undefined;
   const assessmentAvailable = Boolean(assessedRow);
+  const hasListingRecord = Boolean(
+    selected && state.jobs.some((job) => job.id === selected.job.id),
+  );
   const selectedApplication =
     requestedApplication ||
     (selected ? applications.get(selected.job.id) : undefined);
@@ -1406,18 +1412,23 @@ export function DiscoverPage() {
                   ]
                     .filter(Boolean)
                     .join(" · ");
-                  const gaps = match.gaps.length;
+                  const evidence =
+                    view === "recommended"
+                      ? requirementEvidence(match.evidence, state.facts, job)
+                      : [];
+                  const gaps = remainingEvidenceGaps(
+                    match.gaps,
+                    evidence,
+                  ).length;
                   const caution =
                     match.unknowns[0] ||
                     (gaps
                       ? `${gaps} evidence ${gaps === 1 ? "gap" : "gaps"}`
                       : "");
-                  const related =
-                    view === "recommended"
-                      ? requirementEvidence(match.evidence, state.facts).filter(
-                          (item) => item.facts.length,
-                        ).length
-                      : 0;
+                  const related = evidence.filter(
+                    ({ facts, careerFacts, confirmedForJob }) =>
+                      facts.length || careerFacts.length || confirmedForJob,
+                  ).length;
                   return (
                     <article
                       className={`discover-card ${selectedId === job.id ? "is-selected" : ""}`}
@@ -1571,6 +1582,23 @@ export function DiscoverPage() {
               count={selectedIndex < 0 ? 1 : visible.length}
               rankingCurrent={!loading && !error}
               assessmentAvailable={assessmentAvailable}
+              onAddEvidence={
+                hasListingRecord && !client.preview
+                  ? async (requirement, details) => {
+                      await run(
+                        "requirement-evidence",
+                        {
+                          job_id: selected.job.id,
+                          requirement,
+                          ...(details ? { details } : { save_skill: true }),
+                        },
+                        details
+                          ? "Career evidence saved."
+                          : "Skill saved to career evidence.",
+                      );
+                    }
+                  : undefined
+              }
               saving={savingIds.includes(selected.job.id)}
               saveError={saveError}
               preview={client.preview}

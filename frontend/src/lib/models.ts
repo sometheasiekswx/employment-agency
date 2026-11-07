@@ -67,6 +67,11 @@ export interface Job {
   email?: string;
   description?: string;
   requirements?: string[];
+  requirement_evidence?: Record<
+    string,
+    { confirmed?: boolean; fact_ids?: string[] }
+  >;
+  matched_skill_evidence?: Record<string, string[]>;
   closes?: string;
   posted_at?: string;
   reposted_at?: string;

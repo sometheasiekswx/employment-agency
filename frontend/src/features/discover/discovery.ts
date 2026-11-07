@@ -14,32 +14,76 @@ export interface RequirementEvidence {
   requirement: string;
   assessment: string;
   facts: Fact[];
+  careerFacts: Fact[];
+  confirmedForJob: boolean;
 }
 
 /** Only known, confirmed facts can become visible supporting evidence. */
-export function requirementEvidence(value: unknown, facts: Fact[]) {
+export function requirementEvidence(value: unknown, facts: Fact[], job?: Job) {
   const confirmed = new Map(
     facts
       .filter((fact) => fact.confirmed && !fact.retired && !fact.conflict)
       .map((fact) => [fact.id, fact]),
   );
-  if (!Array.isArray(value)) return [];
-  return value.flatMap((entry): RequirementEvidence[] => {
-    if (!entry || typeof entry !== "object") return [];
-    const item = entry as Record<string, unknown>;
-    if (typeof item.requirement !== "string") return [];
-    const ids = Array.isArray(item.fact_ids) ? item.fact_ids : [];
-    return [
-      {
-        requirement: item.requirement,
-        assessment: typeof item.assessment === "string" ? item.assessment : "",
-        facts: ids.flatMap((id) => {
+  const ranked = new Map<string, Record<string, unknown>>();
+  if (Array.isArray(value)) {
+    for (const entry of value) {
+      if (!entry || typeof entry !== "object") continue;
+      const item = entry as Record<string, unknown>;
+      if (typeof item.requirement === "string")
+        ranked.set(item.requirement, item);
+    }
+  }
+  const resolve = (ids: unknown) =>
+    Array.isArray(ids)
+      ? [...new Set(ids)].flatMap((id) => {
           const fact = typeof id === "string" ? confirmed.get(id) : undefined;
           return fact ? [fact] : [];
-        }),
-      },
-    ];
-  });
+        })
+      : [];
+  const saved = job?.requirement_evidence;
+  const matched = job?.matched_skill_evidence;
+  return [...new Set(job?.requirements ?? ranked.keys())].map(
+    (requirement): RequirementEvidence => {
+      const item = ranked.get(requirement);
+      const recorded =
+        saved && Object.hasOwn(saved, requirement)
+          ? saved[requirement]
+          : undefined;
+      const skillIds =
+        matched && Object.hasOwn(matched, requirement)
+          ? matched[requirement]
+          : undefined;
+      const career = new Map(
+        [...resolve(recorded?.fact_ids), ...resolve(skillIds)].map((fact) => [
+          fact.id,
+          fact,
+        ]),
+      );
+      return {
+        requirement,
+        assessment: typeof item?.assessment === "string" ? item.assessment : "",
+        facts: resolve(item?.fact_ids).filter((fact) => !career.has(fact.id)),
+        careerFacts: [...career.values()],
+        confirmedForJob: recorded?.confirmed === true,
+      };
+    },
+  );
+}
+
+export function remainingEvidenceGaps(
+  gaps: string[],
+  evidence: RequirementEvidence[],
+) {
+  const confirmed = new Set(
+    evidence
+      .filter(
+        ({ careerFacts, confirmedForJob }) =>
+          careerFacts.length || confirmedForJob,
+      )
+      .map(({ requirement }) => requirement),
+  );
+  return gaps.filter((gap) => !confirmed.has(gap));
 }
 
 export function applicationsByJob(applications: Application[]) {

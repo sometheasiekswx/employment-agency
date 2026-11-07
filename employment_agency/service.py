@@ -199,6 +199,7 @@ class Service:
         state = self.w.read()
         submitted = submitted_job_ids(state)
         rejected = legacy_rejections(state)
+        skills = matching.skills_by_key(matching.available(state['facts']))
         unlisted = state.get('unlisted_removals', {})
         receipt_error, receipts = '', []
         if submitted:
@@ -211,6 +212,11 @@ class Service:
                 job['prior_application'] = 'submitted'
             if job['id'] in rejected:
                 include_legacy_removal(job.setdefault('removals', []), rejected.pop(job['id']))
+            skill_evidence = matching.skill_evidence(job.get('requirements'), skills)
+            if skill_evidence:
+                job['matched_skill_evidence'] = skill_evidence
+            else:
+                job.pop('matched_skill_evidence', None)
         for role, app in rejected.items():
             include_legacy_removal(unlisted.setdefault(role, []), app)
         if unlisted:
@@ -358,6 +364,8 @@ class Service:
                     }
                 )
             return {"candidates": min(len(lines), 500), "truncated": len(lines) > 500}
+        if action == "requirement-evidence":
+            return self.record_requirement_evidence(a)
         if action in ("fact", "confirm", "retire", "restore-fact"):
             with self.w.edit() as s:
                 if action == "fact":
@@ -386,6 +394,8 @@ class Service:
                         }
                     )
                     if old:
+                        if old["text"] != f["text"]:
+                            self.unlink_requirement_fact(s, old["id"])
                         s["facts"].remove(old)
                     s["facts"].append(f)
                 else:
@@ -643,6 +653,90 @@ class Service:
             return {"file": dest.name}
         raise ValueError("Unknown operation")
 
+    @staticmethod
+    def unlink_requirement_fact(state, fact_id):
+        """A changed assertion needs its own assessment against the original requirement."""
+        for job in state["jobs"]:
+            records = job.get("requirement_evidence")
+            if not isinstance(records, dict):
+                continue
+            for record in records.values():
+                ids = record.get("fact_ids") if isinstance(record, dict) else None
+                if isinstance(ids, list) and fact_id in ids:
+                    record["fact_ids"] = [
+                        linked_id for linked_id in ids if linked_id != fact_id
+                    ]
+
+    def record_requirement_evidence(self, args):
+        job_id = text(args.get("job_id", ""), 100)
+        requirement = args.get("requirement", "")
+        if not job_id or not text(requirement, 500):
+            raise ValueError("Job and requirement are required")
+        details = text(args.get("details", ""))
+        save_skill = args.get("save_skill", False)
+        if not isinstance(save_skill, bool):
+            raise ValueError("save_skill must be a boolean")
+        if save_skill and details:
+            raise ValueError("Confirm the skill or save a written example")
+        with self.w.edit() as state:
+            job = find(state["jobs"], job_id)
+            requirements = job.get("requirements")
+            if not isinstance(requirements, list) or requirement not in requirements:
+                raise ValueError("Choose a requirement from the current listing")
+            records = job.setdefault("requirement_evidence", {})
+            if not isinstance(records, dict):
+                raise ValueError("Saved requirement evidence is invalid")
+            record = records.setdefault(requirement, {})
+            if not isinstance(record, dict):
+                raise ValueError("Saved requirement evidence is invalid")
+            ids = record.get("fact_ids", [])
+            if not isinstance(ids, list) or any(
+                not isinstance(fact_id, str) for fact_id in ids
+            ):
+                raise ValueError("Saved requirement evidence is invalid")
+            if not details and not save_skill:
+                record["confirmed"] = True
+                return record
+            confirmed = matching.available(state["facts"])
+            if save_skill:
+                skills = matching.skills_by_key(confirmed)
+                matches = skills.get(matching.skill_key(requirement), [])
+                fact = next(
+                    (candidate for candidate in matches if candidate["id"] in ids),
+                    matches[0] if matches else None,
+                )
+                record.pop("confirmed", None)
+            else:
+                fact = next(
+                    (
+                        candidate for candidate in confirmed
+                        if candidate["id"] in ids and candidate["text"] == details
+                    ),
+                    None,
+                )
+            if fact is None:
+                timestamp = now()
+                fact = {
+                    "id": uid(),
+                    "text": requirement if save_skill else details,
+                    "category": "skill" if save_skill else "experience",
+                    "association": "",
+                    "dates": "",
+                    "claim_key": "",
+                    "confirmed": True,
+                    "retired": False,
+                    "conflict": False,
+                    "updated_at": timestamp,
+                    "source": {
+                        "name": matching.USER_CONFIRMED_SKILL_SOURCE if save_skill else "User supplied note",
+                        "at": timestamp,
+                    },
+                }
+                state["facts"].append(fact)
+            if fact["id"] not in ids:
+                record["fact_ids"] = [*ids, fact["id"]]
+            return record
+
     def job_removal(self, action, a):
         job_id, removal_id = a.get('id'), a.get('removal_id')
         if not isinstance(job_id, str) or not re.fullmatch(r'[a-f0-9]{24,32}', job_id):
@@ -759,6 +853,8 @@ class Service:
             if existing:
                 if 'removals' in existing:
                     j['removals'] = existing['removals']
+                if 'requirement_evidence' in existing:
+                    j['requirement_evidence'] = existing['requirement_evidence']
                 for key in ('prior_application', 'source', 'checked_at'):
                     if key not in a:
                         j[key] = existing.get(key, j[key])

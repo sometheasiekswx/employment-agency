@@ -1,0 +1,39 @@
+.discover-evidence-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.discover-evidence-actions button {
+  min-height: 36px;
+}
+.discover-evidence-row .discover-evidence-confirmed {
+  color: var(--discover-green);
+}
+.discover-evidence-mark.confirmed {
+  color: var(--discover-green);
+  background: var(--positive-bg);
+}
+.discover-evidence-row .error {
+  color: var(--negative-ink);
+}
+.discover-evidence-row li {
+  overflow-wrap: anywhere;
+}
+.discover-evidence-editor label {
+  margin-block: 8px;
+  overflow-wrap: anywhere;
+}
+.discover-evidence-editor textarea {
+  min-height: 5rem;
+  font-size: 1rem;
+}
+.discover-evidence-editor button[type="submit"] {
+  margin-top: 8px;
+}
+@media (pointer: coarse) {
+  .discover-evidence-actions button,
+  .discover-evidence-editor button[type="submit"] {
+    min-height: 44px;
+  }
+}

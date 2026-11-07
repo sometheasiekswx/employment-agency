@@ -6,6 +6,7 @@ import {
   applicationsByJob,
   filterOpportunities,
   groupOpportunities,
+  remainingEvidenceGaps,
   requirementEvidence,
 } from "./discovery";
 
@@ -57,6 +58,30 @@ it("only exposes confirmed, active and conflict-free fact IDs as evidence", () =
   );
   expect(evidence[0].facts.map((item) => item.id)).toEqual(["valid"]);
   expect(requirementEvidence({ arbitrary: "untrusted" }, [])).toEqual([]);
+});
+
+it("reconciles stale gaps with direct evidence, an exact skill, or a job-only confirmation", () => {
+  const gaps = ["direct", "skill", "legacy", "partial", "retired"];
+  const evidence = requirementEvidence(
+    [{ requirement: "partial", fact_ids: ["partial-fact"] }],
+    [
+      fact("direct-fact"),
+      fact("skill-fact"),
+      fact("partial-fact"),
+      fact("retired-fact", { retired: true }),
+    ],
+    {
+      ...job,
+      requirements: gaps,
+      requirement_evidence: {
+        direct: { fact_ids: ["direct-fact"] },
+        legacy: { confirmed: true },
+        retired: { fact_ids: ["retired-fact"] },
+      },
+      matched_skill_evidence: { skill: ["skill-fact"] },
+    },
+  );
+  expect(remainingEvidenceGaps(gaps, evidence)).toEqual(["partial", "retired"]);
 });
 
 describe("advertised salary", () => {

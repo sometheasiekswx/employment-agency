@@ -4,6 +4,44 @@ import re
 from datetime import date, datetime, timezone
 
 
+USER_CONFIRMED_SKILL_SOURCE = "User confirmed skill"
+_SKILL_CATEGORIES = ("skill", "skills")
+_SKILL_PREFIX = re.compile(
+    r"^(?:(?:hands[- ]on )?experience (?:with|in|using|working with)|skills? in) "
+)
+_SKILL_SUFFIX = re.compile(
+    r" (?:(?:experience|skills?)(?: required| preferred)?|required|preferred)$"
+)
+
+
+def skill_key(statement):
+    """Normalize common listing phrasing while retaining skill names and qualifiers."""
+    label = " ".join(statement.casefold().split())
+    label = label.rstrip(".!?") or label
+    return _SKILL_SUFFIX.sub("", _SKILL_PREFIX.sub("", label)) or label
+
+
+def skills_by_key(confirmed_facts):
+    skills = {}
+    for fact in confirmed_facts:
+        if fact.get("category") in _SKILL_CATEGORIES:
+            skills.setdefault(skill_key(fact["text"]), []).append(fact)
+    return skills
+
+
+def skill_evidence(requirements, skills):
+    if not skills or not isinstance(requirements, list):
+        return {}
+    evidence = {}
+    for requirement in requirements:
+        if not isinstance(requirement, str):
+            continue
+        matches = skills.get(skill_key(requirement))
+        if matches:
+            evidence[requirement] = [fact["id"] for fact in matches]
+    return evidence
+
+
 def tokens(text):
     return set(re.findall(r"[\w+#.]+", text.casefold())) - {
         "and",
@@ -98,26 +136,58 @@ def match(job, profile, facts):
     evidence = []
     confirmed = available(facts)
     requirements = job.get("requirements", [])
+    matched_skills = skill_evidence(requirements, skills_by_key(confirmed))
+    quick_skill_ids = {
+        fact["id"]
+        for fact in confirmed
+        if fact.get("category") in _SKILL_CATEGORIES
+        and isinstance(fact.get("source"), dict)
+        and fact["source"].get("name") == USER_CONFIRMED_SKILL_SOURCE
+    }
+    records = job.get("requirement_evidence")
+    linked_ids = set()
     for req in requirements:
         words = tokens(req)
+        record = records.get(req) if isinstance(records, dict) else None
+        ids = record.get("fact_ids") if isinstance(record, dict) else None
+        direct = (
+            {fact_id for fact_id in ids if isinstance(fact_id, str)}
+            if isinstance(ids, list)
+            else set()
+        )
+        supported = direct | set(matched_skills.get(req, []))
+        linked_ids.update(supported)
         hits = [
             f["id"]
             for f in confirmed
-            if words and len(words & tokens(f["text"])) / len(words) >= 0.5
+            if f["id"] in supported or (
+                f["id"] not in quick_skill_ids
+                and words and len(words & tokens(f["text"])) / len(words) >= 0.5
+            )
         ]
+        if any(fact_id in direct for fact_id in hits):
+            assessment = "User supplied evidence; verify full requirement"
+        elif hits:
+            assessment = "Related text; verify full requirement"
+        else:
+            assessment = "No confirmed evidence"
         evidence.append(
             {
                 "requirement": req,
                 "fact_ids": hits,
-                "assessment": "Related text; verify full requirement"
-                if hits
-                else "No confirmed evidence",
+                "assessment": assessment,
             }
         )
     relevant = sorted(
-        confirmed, key=lambda f: len(tokens(f["text"]) & tokens(hay)), reverse=True
+        confirmed,
+        key=lambda f: (f["id"] in linked_ids, len(tokens(f["text"]) & tokens(hay))),
+        reverse=True,
     )
-    relevant = [f["id"] for f in relevant if tokens(f["text"]) & tokens(hay)][:16]
+    relevant = [
+        f["id"]
+        for f in relevant
+        if f["id"] in linked_ids or tokens(f["text"]) & tokens(hay)
+    ][:16]
     gaps = [e["requirement"] for e in evidence if not e["fact_ids"]]
     stretch = bool(gaps) or not requirements
     ready = (

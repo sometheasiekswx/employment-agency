@@ -18,18 +18,23 @@ import {
   RotateCcw,
   ChevronLeft,
   ChevronRight,
-  CircleAlert,
   FileText,
-  Link2,
   MapPin,
   ShieldCheck,
   Sparkles,
   X,
 } from "lucide-react";
 import { Action } from "@/components/controls";
+import { useDraft } from "@/components/unsaved";
 import { applicationHref, displayDate, safeUrl } from "@/lib/format";
 import type { Application, Fact, RankedJob } from "@/lib/models";
-import { advertisedSalary, requirementEvidence, roleStatus } from "./discovery";
+import {
+  advertisedSalary,
+  remainingEvidenceGaps,
+  requirementEvidence,
+  roleStatus,
+} from "./discovery";
+import { OpportunityCareerEvidence } from "./opportunity-career-evidence";
 import { useSheetGesture } from "./use-sheet-gesture";
 import { currentRemoval } from "@/lib/job-removal";
 import "./inspector-motion.css";
@@ -133,6 +138,7 @@ interface InspectorProps {
   count: number;
   rankingCurrent: boolean;
   assessmentAvailable?: boolean;
+  onAddEvidence?: (requirement: string, details: string) => Promise<void>;
   saving: boolean;
   saveError: string;
   preview?: boolean;
@@ -161,6 +167,7 @@ export function OpportunityInspector({
   count,
   rankingCurrent,
   assessmentAvailable = true,
+  onAddEvidence,
   saving,
   saveError,
   preview = false,
@@ -178,6 +185,7 @@ export function OpportunityInspector({
   removalEditor,
   reasonEditorId,
 }: InspectorProps) {
+  const { canLeave } = useDraft();
   const { job, match } = row;
   const removed = Boolean(currentRemoval(job));
   const titleId = useId();
@@ -237,7 +245,6 @@ export function OpportunityInspector({
       ?.querySelector<HTMLTextAreaElement>(".removal-reason-editor textarea")
       ?.focus({ preventScroll: true });
   }, [reasonEditorId, mobile, snapSheet, animateInteractions, body]);
-  const evidence = requirementEvidence(match.evidence, facts);
   const status = roleStatus(job, application);
   const advert = safeUrl(job.url);
   const submitted = application?.status === "submitted";
@@ -297,7 +304,26 @@ export function OpportunityInspector({
     };
   }, [mobile, closeImmediately, dialog]);
 
-  const evidenceGaps = match.gaps;
+  const evidence = requirementEvidence(
+    assessmentAvailable ? match.evidence : undefined,
+    facts,
+    job,
+  );
+  const evidenceGaps = remainingEvidenceGaps(match.gaps, evidence);
+  const openPanel = (panel: "documents" | "activity") => {
+    const examples = body.current?.querySelectorAll<HTMLTextAreaElement>(
+      ".discover-evidence-editor textarea",
+    );
+    // Switching panels only unmounts examples from this overview. The
+    // application workbench keeps its own comment draft mounted.
+    if (
+      examples &&
+      Array.from(examples).some((field) => field.value.trim()) &&
+      !canLeave()
+    )
+      return;
+    onOpenPanel?.(panel);
+  };
   const warnings = [
     ...new Set([
       ...match.unknowns,
@@ -597,14 +623,14 @@ export function OpportunityInspector({
             <button
               type="button"
               aria-pressed="false"
-              onClick={() => onOpenPanel("documents")}
+              onClick={() => openPanel("documents")}
             >
               Documents
             </button>
             <button
               type="button"
               aria-pressed="false"
-              onClick={() => onOpenPanel("activity")}
+              onClick={() => openPanel("activity")}
             >
               Activity
             </button>
@@ -646,70 +672,12 @@ export function OpportunityInspector({
         {!advert && (
           <p className="discover-source-label">Source link unavailable</p>
         )}
-        <section className="discover-evidence-section">
-          <h3>
-            <Sparkles size={17} /> Career evidence
-          </h3>
-          {!assessmentAvailable ? (
-            <p className="discover-explanation">
-              Matching is unavailable in this view. Saved documents and
-              decisions remain available.
-            </p>
-          ) : evidence.length ? (
-            evidence.map((item, index) => (
-              <div
-                className="discover-evidence-row"
-                key={`${item.requirement}-${index}`}
-              >
-                <span
-                  aria-hidden="true"
-                  className={
-                    item.facts.length
-                      ? "discover-evidence-mark"
-                      : "discover-evidence-mark missing"
-                  }
-                >
-                  {item.facts.length ? (
-                    <Link2 size={15} />
-                  ) : (
-                    <CircleAlert size={15} />
-                  )}
-                </span>
-                <div>
-                  <strong>{item.requirement}</strong>
-                  <p>
-                    {item.facts.length
-                      ? "Verify the full requirement."
-                      : "No confirmed supporting evidence"}
-                  </p>
-                  {item.facts.length > 0 && (
-                    <details>
-                      <summary>
-                        Related evidence ({item.facts.length}{" "}
-                        {item.facts.length === 1 ? "fact" : "facts"})
-                      </summary>
-                      <ul>
-                        {item.facts.map((fact) => (
-                          <li key={fact.id}>
-                            {fact.text}
-                            {fact.source?.name && (
-                              <small>Source: {fact.source.name}</small>
-                            )}
-                          </li>
-                        ))}
-                      </ul>
-                    </details>
-                  )}
-                </div>
-              </div>
-            ))
-          ) : (
-            <p className="discover-explanation">
-              No structured requirements are available. Read the original
-              listing and add the missing requirements in Search preferences.
-            </p>
-          )}
-        </section>
+        <OpportunityCareerEvidence
+          job={job}
+          rows={evidence}
+          assessmentAvailable={assessmentAvailable}
+          onAddEvidence={onAddEvidence}
+        />
         <section className="discover-evidence-section">
           <h3>Listing details</h3>
           {match.hard_conflicts.length > 0 && (
@@ -821,7 +789,7 @@ export function OpportunityInspector({
                   !event.altKey
                 ) {
                   event.preventDefault();
-                  onOpenPanel("documents");
+                  openPanel("documents");
                 }
               }}
             >

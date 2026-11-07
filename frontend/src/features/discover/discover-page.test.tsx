@@ -199,6 +199,67 @@ it("filters while typing without ranking again or fetching a new route, then cle
   expect(new URLSearchParams(fixture.query).has("q")).toBe(false);
 });
 
+it("saves a quick confirmation as career evidence from the listing details", async () => {
+  fixture.state.jobs[0].requirements = ["Kubernetes"];
+  const user = userEvent.setup();
+  render(<DiscoverPage />);
+  await user.click(
+    await screen.findByRole("button", {
+      name: "Assess Cloud Engineer at Example Cloud",
+    }),
+  );
+  await user.click(
+    screen.getByRole("button", { name: "I have this skill: Kubernetes" }),
+  );
+  expect(fixture.run).toHaveBeenCalledExactlyOnceWith(
+    "requirement-evidence",
+    { job_id: "job-a", requirement: "Kubernetes", save_skill: true },
+    "Skill saved to career evidence.",
+  );
+});
+
+it("keeps an unsaved evidence example when a role panel change is cancelled", async () => {
+  fixture.state.jobs[0].requirements = ["Kubernetes"];
+  fixture.state.applications = [
+    {
+      id: "app-a",
+      job_id: "job-a",
+      title: "Cloud Engineer",
+      employer: "Example Cloud",
+      status: "draft",
+      comments: [],
+    },
+  ];
+  const user = userEvent.setup();
+  render(
+    <DraftProvider>
+      <DiscoverPage />
+    </DraftProvider>,
+  );
+  await user.click(
+    await screen.findByRole("button", {
+      name: "Assess Cloud Engineer at Example Cloud",
+    }),
+  );
+  const inspector = within(screen.getByRole("complementary"));
+  await user.click(
+    inspector.getByRole("button", { name: "Add evidence for Kubernetes" }),
+  );
+  const example = inspector.getByRole("textbox", {
+    name: "Supporting example for Kubernetes",
+  });
+  await user.type(example, "Worked on a cluster rollout.");
+  const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
+  try {
+    await user.click(inspector.getByRole("button", { name: "Documents" }));
+    expect(confirm).toHaveBeenCalledOnce();
+    expect(example).toHaveValue("Worked on a cluster rollout.");
+    expect(new URLSearchParams(fixture.query).has("panel")).toBe(false);
+  } finally {
+    confirm.mockRestore();
+  }
+});
+
 it("keeps profile selection inside Filters while leaving the result count in the workspace", async () => {
   fixture.mobile = true;
   const view = render(<DiscoverPage />);

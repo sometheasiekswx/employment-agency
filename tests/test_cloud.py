@@ -66,6 +66,29 @@ class CloudTests(unittest.TestCase):
         execute(b,OWNER,'confirm',{'id':facts[0]['id']})
         self.assertTrue(execute(b,OWNER,'state',{})['state']['facts'][0]['confirmed'])
 
+    def test_requirement_evidence_is_private_to_the_owner(self):
+        backend = Backend()
+        requirement = 'Manage Kubernetes clusters'
+        job = execute(backend, OWNER, 'job', {
+            'title': 'Platform engineer',
+            'description': 'Build secure services.',
+            'requirements': [requirement],
+        })['result']
+        payload = {'job_id': job['id'], 'requirement': requirement, 'save_skill': True}
+        with self.assertRaisesRegex(ValueError, 'Record not found'):
+            execute(backend, OTHER, 'requirement-evidence', payload)
+        result = execute(backend, OWNER, 'requirement-evidence', payload)['result']
+        owner_state = execute(backend, OWNER, 'state', {})['state']
+        self.assertEqual(owner_state['jobs'][0]['requirement_evidence'][requirement], result)
+        fact, = owner_state['facts']
+        self.assertEqual(result['fact_ids'], [fact['id']])
+        self.assertEqual(fact['text'], requirement)
+        self.assertEqual(fact['category'], 'skill')
+        self.assertTrue(fact['confirmed'])
+        other_state = execute(backend, OTHER, 'state', {})['state']
+        self.assertEqual(other_state['facts'], [])
+        self.assertEqual(other_state['jobs'], [])
+
     def test_hosted_rejects_local_and_paid_actions(self):
         b=Backend()
         for action in ('workspace-open','workspace-browse','agent-package','consent','run','adopt-edits'):

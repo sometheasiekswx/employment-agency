@@ -142,6 +142,15 @@ const { showPanel } = require("./browser-applications.cjs");
     await inspector
       .getByRole("heading", { name: "Cloud Software Engineer", exact: true })
       .waitFor();
+    const evidence = inspector.getByRole("region", { name: "Career evidence" });
+    await evidence.getByText("Kubernetes", { exact: true }).waitFor();
+    assert.equal(
+      await evidence
+        .getByRole("button", { name: /I have this skill|Add evidence/ })
+        .count(),
+      0,
+      "Public preview shows evidence without offering career fact mutations",
+    );
     await inspector
       .getByRole("button", {
         name: "Save Cloud Software Engineer",
