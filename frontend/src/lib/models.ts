@@ -49,6 +49,7 @@ export interface JobRemoval {
   reason: string;
   reason_updated_at?: string;
   restored_at?: string;
+  legacy_application_id?: string;
 }
 export interface JobRemovalResult {
   id: string;
@@ -179,6 +180,7 @@ export interface WorkspaceState {
   facts: Fact[];
   profiles: Profile[];
   jobs: Job[];
+  unlisted_removals?: Record<string, JobRemoval[]>;
   sources: {
     id: string;
     kind: string;

@@ -81,6 +81,11 @@
   color: var(--muted);
   font-size: 13px;
 }
+.opportunities-workbench-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 6px;
+}
 .opportunities-workbench-header h2 {
   margin: 0;
   font-size: 21px;

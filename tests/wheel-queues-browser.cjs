@@ -51,7 +51,7 @@ const {
     const tab = (name, count) =>
       page.getByRole("button", { name: `${name} ${count}`, exact: true });
     const counts = async (submitted = 1) => {
-      for (const name of ["Active 2", `Submitted ${submitted}`, "Rejected 1"])
+      for (const name of ["Active 2", `Submitted ${submitted}`, "Removed 1"])
         assert.equal(
           await page
             .getByRole("group", { name: "Application stage" })
@@ -157,7 +157,7 @@ const {
       2,
       "Earlier queues do not resurrect drafts",
     );
-    await tab("Rejected", 1).click();
+    await tab("Removed", 1).click();
     await role(fixture.rejected).waitFor();
     assert.equal(await page.locator(".discover-card").count(), 1);
 

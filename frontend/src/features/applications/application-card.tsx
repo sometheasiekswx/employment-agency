@@ -314,26 +314,15 @@ export function ApplicationCard({
             />
             <div className="actions">
               {app.status !== "submitted" && (
-                <>
-                  {app.status !== "rejected" ? (
-                    <button name="status" value="rejected">
-                      Reject
-                    </button>
-                  ) : (
-                    <button name="status" value="draft">
-                      Return to Active
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    className="record-submission"
-                    onClick={(event) =>
-                      openDecision("submit", event.currentTarget)
-                    }
-                  >
-                    Record submission…
-                  </button>
-                </>
+                <button
+                  type="button"
+                  className="record-submission"
+                  onClick={(event) =>
+                    openDecision("submit", event.currentTarget)
+                  }
+                >
+                  Record submission…
+                </button>
               )}
               <button>Save comment</button>
             </div>

@@ -18,6 +18,19 @@ import type {
 type Overlay = { removals: JobRemoval[]; pending: boolean };
 const keyFor = (jobId: string, eventId: string) => `${jobId}:${eventId}`;
 
+function includesReceipt(history: JobRemoval[], receipt: JobRemoval[]) {
+  return receipt.every((entry) => {
+    const current = history.find(({ id }) => id === entry.id);
+    return (
+      current &&
+      (!entry.restored_at || current.restored_at) &&
+      (current.reason === entry.reason ||
+        (current.reason_updated_at &&
+          current.reason_updated_at > (entry.reason_updated_at || "")))
+    );
+  });
+}
+
 /** Job-scoped triage, independent of application decisions and dirty documents. */
 export function useJobRemoval({
   jobs,
@@ -36,6 +49,7 @@ export function useJobRemoval({
   const confirmed = useRef(
     new Map(jobs.map((job) => [job.id, job.removals || []])),
   );
+  const receipts = useRef(new Map<string, JobRemoval[]>());
   const queues = useRef(new Map<string, Promise<unknown>>());
   const retry = useRef<() => Promise<boolean>>(async () => false);
   const active = useRef(true);
@@ -48,15 +62,24 @@ export function useJobRemoval({
   }, []);
 
   useEffect(() => {
-    // A fresh provider snapshot is authoritative after a confirmed mutation.
-    // Pending local intent survives unrelated refreshes until its own receipt.
+    // A refresh started before a mutation may arrive just as its receipt does.
+    // Keep that receipt visible until the provider has observed it.
+    const acknowledged = new Set<string>();
     jobs.forEach((job) => {
-      if (!queues.current.has(job.id))
-        confirmed.current.set(job.id, job.removals || []);
+      const history = job.removals || [];
+      const receipt = receipts.current.get(job.id);
+      if (
+        queues.current.has(job.id) ||
+        (receipt && !includesReceipt(history, receipt))
+      )
+        return;
+      confirmed.current.set(job.id, history);
+      receipts.current.delete(job.id);
+      acknowledged.add(job.id);
     });
     setOverlays((previous) => {
       const pending = Object.entries(previous).filter(
-        ([, item]) => item.pending,
+        ([id, item]) => item.pending || !acknowledged.has(id),
       );
       return pending.length === Object.keys(previous).length
         ? previous
@@ -133,6 +156,7 @@ export function useJobRemoval({
       );
       if (!active.current) return false;
       confirmed.current.set(job.id, result.removals);
+      receipts.current.set(job.id, result.removals);
       if (revisions.current.get(job.id) === revision) {
         setOverlays((old) => ({
           ...old,
@@ -221,6 +245,7 @@ export function useJobRemoval({
       });
       if (!active.current) return;
       confirmed.current.set(draft.job.id, result.removals);
+      receipts.current.set(draft.job.id, result.removals);
       if ((revisions.current.get(draft.job.id) || 0) === revision)
         setOverlays((old) => ({
           ...old,

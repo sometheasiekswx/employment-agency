@@ -6,6 +6,7 @@ const {
   showPanel,
   selectApplication,
   workbench,
+  removalControl,
 } = require("./browser-applications.cjs");
 (async () => {
   const browser = await chromium.launch({
@@ -93,6 +94,7 @@ const {
   const selectedApplication = {
     id: new URL(page.url()).searchParams.get("application"),
     job_id: selectedJob,
+    title: "Software Engineer",
     status: "draft",
   };
   await workbench(page)
@@ -128,12 +130,10 @@ const {
     .fill("Reviewed the tailored files.");
   await page.getByRole("button", { name: "Save comment", exact: true }).click();
   await page.getByText("Review history (1)", { exact: true }).waitFor();
-  await page.getByRole("button", { name: "Reject", exact: true }).click();
-  await page.getByRole("button", { name: "Rejected 1", exact: true }).click();
+  await removalControl(page, selectedApplication).click();
+  await page.getByRole("button", { name: "Removed 1", exact: true }).click();
   await selectApplication(page, selectedApplication);
-  await page
-    .getByRole("button", { name: "Return to Active", exact: true })
-    .click();
+  await removalControl(page, selectedApplication, true).click();
   await page.getByRole("button", { name: "Active 1", exact: true }).click();
   await selectApplication(page, selectedApplication);
   await page
@@ -171,7 +171,7 @@ const {
     .getByLabel("Comments", { exact: true })
     .fill("Saved after submission.");
   await page.getByRole("button", { name: "Save comment", exact: true }).click();
-  await page.getByText("Review history (5)", { exact: true }).waitFor();
+  await page.getByText("Review history (3)", { exact: true }).waitFor();
   await page.reload();
   await page
     .getByRole("button", { name: "Submitted 1", exact: true })

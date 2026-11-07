@@ -399,6 +399,34 @@ describe("opportunity removal controller", () => {
     expect(result.current.feedback?.status).toBe("removed");
   });
 
+  it("keeps a removal visible as removed when a pre-mutation refresh arrives late", async () => {
+    const { result, requests, rerender } = setup();
+    let remove!: Promise<boolean>;
+    await act(async () => {
+      remove = result.current.remove(alpha);
+    });
+    const saved = receipt(requests[0].data);
+    await act(async () => {
+      requests[0].pending.resolve(saved);
+      await remove;
+    });
+    rerender({ jobs: [{ ...alpha }] });
+    expect(currentRemoval(result.current.jobWithRemoval(alpha))?.id).toBe(
+      saved.removals[0].id,
+    );
+    const restored = {
+      ...alpha,
+      removals: saved.removals.map((item) => ({
+        ...item,
+        restored_at: "2026-11-07T01:02:00Z",
+      })),
+    };
+    rerender({ jobs: [restored] });
+    expect(
+      currentRemoval(result.current.jobWithRemoval(restored)),
+    ).toBeUndefined();
+  });
+
   it("rolls back a failed Undo to the confirmed removal even when refresh fails", async () => {
     const { result, requests, refresh } = setup();
     refresh.mockRejectedValue(new Error("Refresh is unavailable"));

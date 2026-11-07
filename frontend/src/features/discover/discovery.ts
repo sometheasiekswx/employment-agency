@@ -1,5 +1,9 @@
 import type { Application, Fact, Job, RankedJob } from "@/lib/models";
-import { compareDestinations, destination } from "@/lib/format";
+import {
+  applicationRoleId,
+  compareDestinations,
+  destination,
+} from "@/lib/format";
 import { applicationQueues } from "@/features/applications/queues";
 import { currentRemoval } from "@/lib/job-removal";
 
@@ -40,7 +44,10 @@ export function requirementEvidence(value: unknown, facts: Fact[]) {
 
 export function applicationsByJob(applications: Application[]) {
   return new Map(
-    applicationQueues(applications, true).map((app) => [app.job_id, app]),
+    applicationQueues(applications, true).map((app) => [
+      applicationRoleId(app),
+      app,
+    ]),
   );
 }
 

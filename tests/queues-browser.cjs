@@ -8,6 +8,7 @@ const path = require("node:path");
 const crypto = require("node:crypto");
 const {
   roleCard,
+  removalControl,
   selectApplication,
   workbench,
 } = require("./browser-applications.cjs");
@@ -101,27 +102,23 @@ const {
     );
     await page.getByLabel("Include earlier review queues").uncheck();
 
-    await tab("Rejected", 1).click();
-    await selectApplication(page, fixture.declined);
+    await page.goto(
+      base + "/?section=rejected&application=" + fixture.declined.id,
+    );
+    await tab("Removed", 1).waitFor();
     await card(fixture.declined).waitFor();
     assert.equal(await page.locator(".discover-card").count(), 1);
-    await card(fixture.declined)
-      .getByRole("button", { name: "Return to Active", exact: true })
-      .click();
+    await removalControl(page, fixture.declined, true).click();
     await tab("Active", 4).click();
     await selectApplication(page, fixture.declined);
-    await card(fixture.declined)
-      .getByRole("button", { name: "Reject", exact: true })
-      .click();
+    await removalControl(page, fixture.declined).click();
     await tab("Active", 3).waitFor();
     assert.equal(
       await role(fixture.declined).count(),
       0,
-      "A rejected role leaves the active board while its selected record remains inspectable",
+      "A removed application leaves the active board",
     );
-    await workbench(page)
-      .getByRole("button", { name: "Close application workspace", exact: true })
-      .click();
+    await workbench(page).waitFor({ state: "hidden" });
 
     await selectApplication(page, fixture.active);
     const active = card(fixture.active);
@@ -192,7 +189,6 @@ const {
       name: "Record submission…",
       exact: true,
     });
-    const reject = active.getByRole("button", { name: "Reject", exact: true });
     const tokenColour = (control, token) =>
       control.evaluate((node, token) => {
         const probe = document.createElement("span");
@@ -206,10 +202,7 @@ const {
       await submitted.evaluate((e) => getComputedStyle(e).backgroundColor),
       await tokenColour(submitted, "--positive-ink"),
     );
-    assert.equal(
-      await reject.evaluate((e) => getComputedStyle(e).color),
-      await tokenColour(reject, "--negative-ink"),
-    );
+    assert.equal(await removalControl(page, fixture.active).isEnabled(), true);
     await reviewed.focus();
     await page.keyboard.press("Tab");
     await page.keyboard.press("Shift+Tab");

@@ -32,10 +32,10 @@ Review of proposed career-fact updates and conflicts detected after a master res
 The exact application documents recorded as submitted, preserved with their provenance and submission decision. Later edits or generations do not change what was submitted.
 
 **Application decision**:
-A user's recorded review, rejection or manual submission. Recording Submitted also confirms review; it does not send an application. Comments do not change decisions. Active contains Draft and Reviewed packages; Submitted and Rejected have separate sections.
+A user's recorded review or manual submission. Recording Submitted also confirms review. Active contains available Draft and Reviewed packages. Earlier Rejected decisions are retained in activity.
 
 **Removed opportunity**:
-A job the user has taken out of Recommended, All roles and Saved across search profiles, and can restore from the Removed view. Its job details, application documents and decisions remain preserved and accessible in Applications and History; removal is separate from application rejection.
+A role the user has set aside across search profiles and application lists. Removed holds its listing, application versions, documents and decisions. Restore returns the role and its application to their previous lists. Current applications rejected in an earlier version also appear here and restore as drafts.
 
 **Removal reason**:
 An optional comment associated with removing an opportunity. Adding it is separate from removal and never a prerequisite for continuing to browse.

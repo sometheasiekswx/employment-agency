@@ -1,8 +1,11 @@
 // Application browser journeys share the same public role/panel navigation.
 const applicationRoute = (application, panel = "documents") => {
-  const section = ["submitted", "rejected"].includes(application.status)
-    ? application.status
-    : "active";
+  const section =
+    application.status === "rejected"
+      ? "removed"
+      : application.status === "submitted"
+        ? "submitted"
+        : "active";
   const query = new URLSearchParams({
     view: "applications",
     section,
@@ -14,6 +17,11 @@ const applicationRoute = (application, panel = "documents") => {
 };
 
 const workbench = (page) => page.locator(".opportunities-workbench:visible");
+const removalControl = (page, application, restore = false) =>
+  workbench(page).getByRole("button", {
+    name: `${restore ? "Restore" : "Remove"} ${application.title}`,
+    exact: true,
+  });
 const applicationCard = (page, application) =>
   workbench(page).locator(`[data-application-id="${application.id}"]`);
 const roleCard = (page, application) =>
@@ -49,6 +57,7 @@ module.exports = {
   applicationCard,
   roleCard,
   workbench,
+  removalControl,
   showPanel,
   selectApplication,
   openApplication,

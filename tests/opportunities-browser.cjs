@@ -483,18 +483,20 @@ const fs = require("node:fs");
       await assertAccessible(page, `${label} activity accessibility`);
       await page.screenshot({ path: `${output}/${label}-activity.png` });
 
-      await dossier()
-        .getByRole("button", { name: "Reject", exact: true })
-        .click();
-      await dossier()
-        .getByRole("button", { name: "Return to Active", exact: true })
-        .waitFor();
       await workbench(page)
         .getByRole("button", {
-          name: "Close application workspace",
+          name: `Remove ${cloud.title}`,
           exact: true,
         })
         .click();
+      await workbench(page).waitFor({ state: "hidden" });
+      if (await inspector(page).count())
+        await inspector(page)
+          .getByRole("button", {
+            name: "Close opportunity details",
+            exact: true,
+          })
+          .click();
       await views(page)
         .getByRole("button", { name: "Applications", exact: true })
         .click();
@@ -502,29 +504,20 @@ const fs = require("node:fs");
       assert.equal(
         await card(page, cloud).count(),
         0,
-        "Rejected applications leave Active",
+        "Removed applications leave Active",
       );
       await stages(page)
-        .getByRole("button", { name: /^Rejected\b/ })
+        .getByRole("button", { name: /^Removed\b/ })
         .click();
       await card(page, cloud).waitFor();
       await page.waitForURL(
         (url) =>
           url.searchParams.get("view") === "applications" &&
-          url.searchParams.get("section") === "rejected",
+          url.searchParams.get("section") === "removed",
       );
       await card(page, cloud).click();
       await inspector(page)
         .getByRole("button", { name: "Activity", exact: true })
-        .click();
-      await dossier()
-        .getByRole("button", { name: "Return to Active", exact: true })
-        .click();
-      await dossier()
-        .getByRole("button", {
-          name: "Draft — switch to Reviewed",
-          exact: true,
-        })
         .click();
       await dossier()
         .getByRole("button", {
@@ -534,10 +527,11 @@ const fs = require("node:fs");
         .waitFor();
       await workbench(page)
         .getByRole("button", {
-          name: "Close application workspace",
+          name: `Restore ${cloud.title}`,
           exact: true,
         })
         .click();
+      await workbench(page).waitFor({ state: "hidden" });
       await stages(page)
         .getByRole("button", { name: /^Active\b/ })
         .click();
@@ -554,12 +548,12 @@ const fs = require("node:fs");
         (url) => url.searchParams.get("section") === "submitted",
       );
       await stages(page)
-        .getByRole("button", { name: /^Rejected\b/ })
+        .getByRole("button", { name: /^Removed\b/ })
         .click();
       assert.equal(
         await card(page, cloud).count(),
         0,
-        "Returning to Active removes the rejected entry",
+        "Restoring the role clears its Removed entry",
       );
       await views(page)
         .getByRole("button", { name: "Saved", exact: true })
@@ -584,7 +578,7 @@ const fs = require("node:fs");
         0,
         "The status selector exposes only supported statuses",
       );
-      for (const status of ["submitted", "rejected"]) {
+      for (const status of ["submitted", "new"]) {
         await statusFilter.selectOption(status);
         await page.waitForURL(
           (url) =>
@@ -596,15 +590,14 @@ const fs = require("node:fs");
           status,
           "Selecting a status retains that filter",
         );
-        assert.equal(
-          await page.locator(".discover-card-open").count(),
-          status === "submitted" ? 1 : 0,
-        );
+        if (status === "submitted")
+          assert.equal(await page.locator(".discover-card-open").count(), 1);
+        else assert.equal(await card(page, cloud).count(), 0);
       }
       await views(page)
         .getByRole("button", { name: "Applications", exact: true })
         .click();
-      for (const status of ["submitted", "rejected"]) {
+      for (const status of ["submitted"]) {
         await statusFilter.selectOption(status);
         await page.waitForURL(
           (url) =>

@@ -1,4 +1,5 @@
 import type { Application, Job } from "./models";
+import { currentRemoval } from "./job-removal";
 
 export const splitList = (value: string) =>
   value
@@ -52,14 +53,25 @@ export const decisionDate = (
     (comment) => comment.kind !== "comment" && comment.status === status,
   )?.at ||
   "";
+export const applicationRoleId = (app: Application) => app.job_id || app.id;
+
+export function applicationSection(
+  app: Application,
+  job?: Pick<Job, "removals">,
+) {
+  if (currentRemoval(job)) return "removed";
+  return app.status === "submitted" ? "submitted" : "active";
+}
+
 export function applicationHref(
   app: Application,
   panel: "documents" | "activity" = "documents",
+  job?: Pick<Job, "removals">,
 ) {
   const section =
-    app.status === "submitted" || app.status === "rejected"
-      ? app.status
-      : "active";
+    !job && app.status === "rejected"
+      ? "removed"
+      : applicationSection(app, job);
   const query = new URLSearchParams({
     view: "applications",
     section,

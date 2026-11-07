@@ -30,7 +30,13 @@ import { applicationQueues } from "@/features/applications/queues";
 import { OpportunityWorkbench } from "./opportunity-workbench";
 import { Action, Check, Select } from "@/components/controls";
 import { useWorkspace } from "@/components/workspace-provider";
-import { compareDestinations, destination, errorMessage } from "@/lib/format";
+import {
+  applicationRoleId,
+  applicationSection,
+  compareDestinations,
+  destination,
+  errorMessage,
+} from "@/lib/format";
 import type { Job, JobRemoval, RankedJob } from "@/lib/models";
 import { currentRemoval } from "@/lib/job-removal";
 import { RemovalFeedback } from "./removal-feedback";
@@ -82,17 +88,52 @@ export function DiscoverPage() {
   const { replace } = useRouter();
   const [queryString, setOptimisticQuery] = useOptimistic(params.toString());
   const filters = new URLSearchParams(queryString);
+  const applications = useMemo(
+    () => applicationsByJob(state.applications),
+    [state.applications],
+  );
+  const roleRecords = useMemo(() => {
+    const roles = new Map(state.jobs.map((job) => [job.id, job]));
+    for (const [id, app] of applications) {
+      if (!roles.has(id))
+        roles.set(id, {
+          id,
+          title: app.title,
+          employer: app.employer,
+          removals: state.unlisted_removals?.[id],
+        });
+    }
+    return [...roles.values()];
+  }, [applications, state.jobs, state.unlisted_removals]);
+  const removal = useJobRemoval({ jobs: roleRecords, client, refresh });
+  const latestJobs = new Map(
+    roleRecords.map((job) => [job.id, removal.jobWithRemoval(job)]),
+  );
+  const requestedApplication = state.applications.find(
+    (app) => app.id === filters.get("application"),
+  );
+  const requestedRoleId = requestedApplication
+    ? applicationRoleId(requestedApplication)
+    : "";
   const query = filters.get("q") || "";
   const location = filters.get("location") || "";
-  const statusFilter = filters.get("status") || "";
+  const rawStatus = filters.get("status") || "";
+  const statusFilter = rawStatus === "rejected" ? "" : rawStatus;
   const rawView = filters.get("view");
-  const view: DiscoveryView =
-    rawView === "all" || rawView === "saved" || rawView === "applications"
+  const rawSection = filters.get("section");
+  const removedView =
+    filters.get("removed") === "true" ||
+    rawStatus === "rejected" ||
+    (rawView === "applications" &&
+      (rawSection === "removed" || rawSection === "rejected")) ||
+    Boolean(currentRemoval(latestJobs.get(requestedRoleId)));
+  const view: DiscoveryView = removedView
+    ? "applications"
+    : rawView === "all" || rawView === "saved" || rawView === "applications"
       ? rawView
       : "recommended";
   const applicationView = view === "applications";
-  const removedView = !applicationView && filters.get("removed") === "true";
-  const section = filters.get("section") || "active";
+  const section = removedView ? "removed" : rawSection || "active";
   const includeHistorical = filters.get("history") === "true";
   const panel =
     filters.get("panel") === "activity"
@@ -100,9 +141,6 @@ export function DiscoverPage() {
       : filters.get("panel") === "documents"
         ? "documents"
         : "overview";
-  const requestedApplication = state.applications.find(
-    (app) => app.id === filters.get("application"),
-  );
   const [attempt, setAttempt] = useState(0);
   const [retrying, setRetrying] = useState(false);
   const [ranking, setRanking] = useState<RankingState>({
@@ -112,7 +150,7 @@ export function DiscoverPage() {
     error: "",
   });
   const selectedId =
-    requestedApplication?.job_id ||
+    requestedRoleId ||
     (filters.get("assessment_profile") === profileId
       ? filters.get("opportunity") || ""
       : "");
@@ -160,7 +198,6 @@ export function DiscoverPage() {
     {},
   );
   const [savingIds, setSavingIds] = useState<string[]>([]);
-  const removal = useJobRemoval({ jobs: state.jobs, client, refresh });
   const closeRemovalReason = removal.closeReason;
   const [saveError, setSaveError] = useState("");
   const saveErrorNotice = useRef<HTMLDivElement>(null);
@@ -235,13 +272,6 @@ export function DiscoverPage() {
     removedView,
   ]);
 
-  const applications = useMemo(
-    () => applicationsByJob(state.applications),
-    [state.applications],
-  );
-  const latestJobs = new Map(
-    state.jobs.map((job) => [job.id, removal.jobWithRemoval(job)]),
-  );
   const rows = (
     currentRanking.profileId === profileId ? currentRanking.rows : []
   ).flatMap((row) => {
@@ -262,21 +292,11 @@ export function DiscoverPage() {
   const applicationRecords = applicationQueues(
     state.applications,
     includeHistorical,
-  );
+  ).filter((app) => !currentRemoval(latestJobs.get(applicationRoleId(app))));
   const applicationRows: RankedJob[] = applicationRecords
-    .filter(
-      (app) =>
-        section === "all" ||
-        (section === "active"
-          ? !["submitted", "rejected"].includes(app.status)
-          : app.status === section),
-    )
+    .filter((app) => section === "all" || applicationSection(app) === section)
     .map((app) => ({
-      job: latestJobs.get(app.job_id) || {
-        id: app.job_id || app.id,
-        title: app.title,
-        employer: app.employer,
-      },
+      job: latestJobs.get(applicationRoleId(app))!,
       match: {
         eligible_for_preparation: false,
         hard_conflicts: [],
@@ -304,10 +324,10 @@ export function DiscoverPage() {
           },
         },
     );
-  const sourceRows = applicationView
-    ? applicationRows
-    : removedView
-      ? removedRows
+  const sourceRows = removedView
+    ? removedRows
+    : applicationView
+      ? applicationRows
       : rows;
   const browsingRows = applicationView
     ? sourceRows
@@ -541,11 +561,13 @@ export function DiscoverPage() {
     const next = new URLSearchParams(queryString);
     if (values.view) {
       next.delete("removed");
+      next.delete("section");
       next.delete("location");
       next.delete("status");
       next.delete("destination");
       next.delete("q");
     }
+    if (values.section) next.delete("removed");
     for (const [name, value] of Object.entries(values)) {
       if (value) next.set(name, value);
       else next.delete(name);
@@ -572,8 +594,7 @@ export function DiscoverPage() {
   const removeJob = async (job: Job) => {
     if (!canLeave()) return;
     const index = navigationRows.findIndex((row) => row.job.id === job.id);
-    const eligible = (row: RankedJob) =>
-      row.job.id !== job.id && (!applicationView || !currentRemoval(row.job));
+    const eligible = (row: RankedJob) => row.job.id !== job.id;
     const adjacent =
       navigationRows.slice(index + 1).find(eligible) ||
       navigationRows.slice(0, index).reverse().find(eligible);
@@ -823,8 +844,12 @@ export function DiscoverPage() {
                   ]}
                   onChange={(event) =>
                     updateFilters({
-                      view: "all",
-                      removed: event.target.value === "removed" ? "true" : "",
+                      view:
+                        event.target.value === "removed"
+                          ? "applications"
+                          : "all",
+                      section:
+                        event.target.value === "removed" ? "removed" : "",
                     })
                   }
                 />
@@ -861,13 +886,11 @@ export function DiscoverPage() {
                   ["draft", "Draft"],
                   ["reviewed", "Reviewed"],
                   ["submitted", "Submitted"],
-                  ["rejected", "Rejected"],
                 ]}
                 onChange={(event) =>
                   updateFilters({
                     status: event.target.value,
-                    ...(event.target.value === "submitted" ||
-                    event.target.value === "rejected"
+                    ...(event.target.value === "submitted" && !removedView
                       ? applicationView
                         ? { section: event.target.value }
                         : { view: "all" }
@@ -892,7 +915,7 @@ export function DiscoverPage() {
             {[
               ["active", "Active"],
               ["submitted", "Submitted"],
-              ["rejected", "Rejected"],
+              ["removed", "Removed"],
             ].map(([value, label]) => (
               <button
                 key={value}
@@ -903,30 +926,31 @@ export function DiscoverPage() {
                     section: value,
                     location: "",
                     destination: "",
+                    status: "",
                   })
                 }
               >
                 {label}{" "}
                 <span>
-                  {
-                    applicationRecords.filter((app) =>
-                      value === "active"
-                        ? !["submitted", "rejected"].includes(app.status)
-                        : app.status === value,
-                    ).length
-                  }
+                  {value === "removed"
+                    ? removedRows.length
+                    : applicationRecords.filter(
+                        (app) => applicationSection(app) === value,
+                      ).length}
                 </span>
               </button>
             ))}
           </div>
-          <Check
-            name="history"
-            label="Include earlier review queues"
-            checked={includeHistorical}
-            onChange={(event) =>
-              updateFilters({ history: String(event.target.checked) })
-            }
-          />
+          {!removedView && (
+            <Check
+              name="history"
+              label="Include earlier review queues"
+              checked={includeHistorical}
+              onChange={(event) =>
+                updateFilters({ history: String(event.target.checked) })
+              }
+            />
+          )}
         </div>
       )}
       {filters.has("application") && !requestedApplication && (
@@ -951,18 +975,22 @@ export function DiscoverPage() {
               ? "Matches unavailable"
               : `${removedView ? "Removed · " : ""}${visible.length} ${visible.length === 1 ? "role" : "roles"} · ${groups.length} ${groups.length === 1 ? "location" : "locations"}`}
         </span>
-        {!applicationView && (
+        {(!applicationView || removedView) && (
           <button
             type="button"
             className="discover-removed-filter"
             aria-pressed={removedView}
             onClick={() =>
-              updateFilters({ view: "all", removed: removedView ? "" : "true" })
+              updateFilters(
+                removedView
+                  ? { view: "all" }
+                  : { view: "applications", section: "removed" },
+              )
             }
           >
             {removedView
               ? "Show available roles"
-              : `Removed (${[...latestJobs.values()].filter((job) => currentRemoval(job)).length})`}
+              : `Removed (${removedRows.length})`}
           </button>
         )}
       </div>
@@ -1056,10 +1084,10 @@ export function DiscoverPage() {
         <div className="discover-empty">
           <Search size={27} />
           <h2>
-            {applicationView
-              ? `No ${section} applications`
-              : removedView
-                ? "No removed roles here"
+            {removedView
+              ? "No removed roles here"
+              : applicationView
+                ? `No ${section} applications`
                 : !rows.length
                   ? "Add your first opportunity"
                   : view === "saved"
@@ -1067,10 +1095,10 @@ export function DiscoverPage() {
                     : "No roles match these filters"}
           </h2>
           <p>
-            {applicationView
-              ? "Prepare a draft from a role to start an application. Your recorded submissions and decisions stay available in the other stage views."
-              : removedView
-                ? "Removed roles stay recoverable here. Your application documents and decisions are preserved."
+            {removedView
+              ? "Removed roles and their application documents and activity stay recoverable here."
+              : applicationView
+                ? "Prepare a draft from a role to start an application. Your recorded submissions and decisions stay available in the other stage views."
                 : !rows.length
                   ? "Import a job URL, paste an advert or refresh a configured source in Search preferences."
                   : "Adjust your filters or choose All results to inspect the full assessment."}
@@ -1191,23 +1219,25 @@ export function DiscoverPage() {
                               <CircleMinus size={16} />
                             </Action>
                           )}
-                          <Action
-                            previewAllowed
-                            keepContentWhileBusy
-                            data-opportunity-id={job.id}
-                            className={`discover-icon-button ${job.saved ? "is-saved" : ""}`}
-                            disabled={savingIds.includes(job.id)}
-                            aria-label={`${job.saved ? "Unsave" : "Save"} ${job.title}`}
-                            aria-pressed={Boolean(job.saved)}
-                            run={async (button) =>
-                              saveJob(job.id, !job.saved, button)
-                            }
-                          >
-                            <Bookmark
-                              size={16}
-                              fill={job.saved ? "currentColor" : "none"}
-                            />
-                          </Action>
+                          {state.jobs.some((item) => item.id === job.id) && (
+                            <Action
+                              previewAllowed
+                              keepContentWhileBusy
+                              data-opportunity-id={job.id}
+                              className={`discover-icon-button ${job.saved ? "is-saved" : ""}`}
+                              disabled={savingIds.includes(job.id)}
+                              aria-label={`${job.saved ? "Unsave" : "Save"} ${job.title}`}
+                              aria-pressed={Boolean(job.saved)}
+                              run={async (button) =>
+                                saveJob(job.id, !job.saved, button)
+                              }
+                            >
+                              <Bookmark
+                                size={16}
+                                fill={job.saved ? "currentColor" : "none"}
+                              />
+                            </Action>
+                          )}
                         </div>
                       </div>
                       <button
@@ -1313,7 +1343,7 @@ export function DiscoverPage() {
               }
               application={selectedApplication}
               job={
-                latestJobs.get(selectedApplication.job_id) || {
+                latestJobs.get(applicationRoleId(selectedApplication)) || {
                   title: selectedApplication.title,
                   employer: selectedApplication.employer,
                 }
@@ -1322,6 +1352,16 @@ export function DiscoverPage() {
               overviewAvailable={Boolean(selected)}
               mobile={mobile}
               onPanel={openPanel}
+              onRemove={() =>
+                removeJob(
+                  latestJobs.get(applicationRoleId(selectedApplication))!,
+                )
+              }
+              onRestore={() =>
+                restoreJob(
+                  latestJobs.get(applicationRoleId(selectedApplication))!,
+                )
+              }
               onVersion={(application) => {
                 if (!canLeave()) return;
                 const next = new URLSearchParams(queryString);
@@ -1330,9 +1370,10 @@ export function DiscoverPage() {
                 if (applicationView)
                   next.set(
                     "section",
-                    ["submitted", "rejected"].includes(application.status)
-                      ? application.status
-                      : "active",
+                    applicationSection(
+                      application,
+                      latestJobs.get(applicationRoleId(application)),
+                    ),
                   );
                 replaceQuery(next);
               }}

@@ -8,6 +8,7 @@ import math
 import tempfile
 import json
 import os
+from datetime import datetime, timezone
 from pathlib import Path
 from .store import now, uid, digest, atomic, encode
 from . import imports, sources, matching, documents, providers, packages, master, summaries, editor
@@ -58,6 +59,43 @@ def corrected_submission(app, state):
     return bool(recovery and isinstance(lineage, dict) and lineage.get('original_id') == app['id']
                 and recovery.get('manifest_hash') == app.get('manifest_hash')
                 and recovery.get('folder') == app.get('folder'))
+
+
+def application_role(app):
+    return app.get('job_id') or app['id']
+
+
+def legacy_rejections(state):
+    """Match the application queue's current version before folding old rejections."""
+    current = {}
+    for app in state['applications']:
+        if app['status'] == 'submitted' and corrected_submission(app, state):
+            continue
+        try:
+            created = datetime.fromisoformat(app.get('created_at', '').replace('Z', '+00:00'))
+            stamp = (created if created.tzinfo else created.replace(tzinfo=timezone.utc)).timestamp()
+        except (AttributeError, ValueError, OverflowError, OSError):
+            stamp = -math.inf
+        key = (app['status'] == 'submitted', not app.get('archived'), stamp)
+        role = application_role(app)
+        if role not in current or key >= current[role][0]:
+            current[role] = (key, app)
+    return {role: app for role, (_, app) in current.items() if app['status'] == 'rejected'}
+
+
+def include_legacy_removal(removals, app):
+    if not app:
+        return
+    if removals and not removals[-1].get('restored_at'):
+        removals[-1]['legacy_application_id'] = app['id']
+        return
+    decision = next((entry for entry in reversed(app.get('comments', []))
+                     if entry.get('status') == 'rejected' and entry.get('kind') != 'comment'), {})
+    at = decision.get('at') or app.get('created_at') or '1970-01-01T00:00:00Z'
+    event_id = digest(f"legacy-rejection:{app['id']}:{at}".encode())[:32]
+    if not any(event['id'] == event_id for event in removals):
+        removals.append({'id': event_id, 'at': at, 'reason': '',
+                         'legacy_application_id': app['id']})
 
 
 def submission_token_owner(state, job_id, token):
@@ -160,6 +198,8 @@ class Service:
     def state(self):
         state = self.w.read()
         submitted = submitted_job_ids(state)
+        rejected = legacy_rejections(state)
+        unlisted = state.get('unlisted_removals', {})
         receipt_error, receipts = '', []
         if submitted:
             try:
@@ -169,6 +209,12 @@ class Service:
         for job in state['jobs']:
             if job['id'] in submitted:
                 job['prior_application'] = 'submitted'
+            if job['id'] in rejected:
+                include_legacy_removal(job.setdefault('removals', []), rejected.pop(job['id']))
+        for role, app in rejected.items():
+            include_legacy_removal(unlisted.setdefault(role, []), app)
+        if unlisted:
+            state['unlisted_removals'] = unlisted
         state['_workspace'] = {'path': str(self.w.path), **settings(self.w.path)}
         state['_master'] = master.status(self.w)
         for app in state['applications']:
@@ -605,8 +651,15 @@ class Service:
             raise ValueError('Invalid removal ID')
         comment = text(a.get('comment'), 4000) if action == 'job-removal-reason' else None
         with self.w.edit() as s:
-            job = find(s['jobs'], job_id)
-            removals = job.setdefault('removals', [])
+            job = next((item for item in s['jobs'] if item['id'] == job_id), None)
+            if job is not None:
+                removals = job.setdefault('removals', [])
+            elif any(application_role(app) == job_id for app in s['applications']):
+                removals = s.setdefault('unlisted_removals', {}).setdefault(job_id, [])
+            else:
+                raise ValueError('Record not found')
+            legacy = legacy_rejections(s).get(job_id)
+            include_legacy_removal(removals, legacy)
             event = next((item for item in removals if item['id'] == removal_id), None)
             latest = removals[-1] if removals else None
             active = latest if latest and not latest.get('restored_at') else None
@@ -622,6 +675,18 @@ class Service:
                 # Undo belongs to one event, never to a subsequent removal.
                 if event is active:
                     event['restored_at'] = now()
+                    if legacy and event.get('legacy_application_id') == legacy['id']:
+                        legacy['status'] = 'draft'
+                        legacy.pop('archived', None)
+                        comments = legacy.setdefault('comments', [])
+                        if not any(entry.get('status') == 'rejected' and entry.get('kind') != 'comment'
+                                   for entry in comments):
+                            comments.append({'at': '', 'status': 'rejected',
+                                             'text': 'Earlier rejection recorded for this application.'})
+                        comments.append({
+                            'at': event['restored_at'], 'status': 'draft',
+                            'text': 'Restored from Removed.',
+                        })
             elif event['reason'] != comment:
                 event.update({'reason': comment, 'reason_updated_at': now()})
         return {'id': job_id, 'removals': removals}
@@ -700,6 +765,9 @@ class Service:
                 if 'prior_application' not in a and existing.get('submission_record_token'):
                     j['submission_record_token'] = existing['submission_record_token']
                 s["jobs"].remove(existing)
+            unlisted = s.get('unlisted_removals')
+            if unlisted and j['id'] in unlisted:
+                j.setdefault('removals', unlisted.pop(j['id']))
             if j['id'] in submitted_job_ids(s):
                 j['prior_application'] = 'submitted'
             s["jobs"].append(j)

@@ -1,4 +1,4 @@
-import { decisionDate } from "@/lib/format";
+import { applicationRoleId, decisionDate } from "@/lib/format";
 import type { Application } from "@/lib/models";
 
 function timestamp(value?: string) {
@@ -51,7 +51,7 @@ export function applicationQueues(
       recovery.folder === app.folder
     )
       continue;
-    const key = app.job_id || app.id;
+    const key = applicationRoleId(app);
     const previous = current.get(key);
     if (!previous || replaces(app, previous)) current.set(key, app);
   }

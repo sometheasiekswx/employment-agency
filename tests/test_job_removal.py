@@ -248,6 +248,43 @@ class JobRemoval(unittest.TestCase):
         self.assertEqual(self.s.action('review', {'id': app['id'], 'status': 'reviewed'})['status'], 'reviewed')
         self.assertNotIn('restored_at', self.w.read()['jobs'][0]['removals'][0])
 
+    def test_legacy_rejection_restores_as_draft_with_review_history(self):
+        _, profile, job = self.seed()
+        app = self.s.action('local-package', {'profile_id': profile['id'], 'job_id': job['id']})
+        self.s.action('review', {'id': app['id'], 'status': 'rejected', 'comment': 'Earlier decision.'})
+        before = self.w.read()
+        event = self.s.state()['jobs'][0]['removals'][-1]
+        self.assertEqual(self.w.read(), before)
+        self.assertEqual(event['legacy_application_id'], app['id'])
+        self.operation('job-removal-reason', job, event['id'], comment='Still considering it.')
+        self.operation('restore-job', job, event['id'])
+        restored = self.w.read()['applications'][0]
+        self.assertEqual(restored['status'], 'draft')
+        self.assertEqual(restored['documents'], app['documents'])
+        self.assertEqual(restored['comments'][:-1], before['applications'][0]['comments'])
+        self.assertEqual(restored['comments'][-1]['text'], 'Restored from Removed.')
+        self.assertIn('restored_at', self.s.state()['jobs'][0]['removals'][-1])
+
+    def test_old_rejection_does_not_remove_a_preserved_submission(self):
+        _, profile, job = self.seed()
+        submitted = self.s.action('local-package', {'profile_id': profile['id'], 'job_id': job['id']})
+        rejected = self.s.action('local-package', {'profile_id': profile['id'], 'job_id': job['id']})
+        self.s.action('review', {'id': submitted['id'], 'status': 'submitted'})
+        self.s.action('review', {'id': rejected['id'], 'status': 'rejected'})
+        self.assertFalse(self.s.state()['jobs'][0].get('removals'))
+
+    def test_application_with_no_listing_can_be_removed_and_keeps_removal_after_reimport(self):
+        _, profile, job = self.seed()
+        app = self.s.action('local-package', {'profile_id': profile['id'], 'job_id': job['id']})
+        with self.w.edit() as state:
+            state['jobs'].clear()
+        removed = self.operation('remove-job', job)
+        self.assertEqual(self.s.state()['unlisted_removals'][job['id']], removed['removals'])
+        self.assertEqual(self.w.read()['applications'][0], app)
+        imported = self.s.action('job', job)
+        self.assertEqual(imported['removals'], removed['removals'])
+        self.assertIn('restored_at', self.operation('restore-job', job)['removals'][-1])
+
 
 class HostedJobRemoval(unittest.TestCase):
     def test_removal_restore_and_reasons_are_owner_isolated_and_guarded(self):

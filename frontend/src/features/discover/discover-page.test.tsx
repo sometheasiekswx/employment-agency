@@ -1112,12 +1112,12 @@ it("changes the Applications stage without leaving Applications when filtering d
   render(<DiscoverPage />);
   await userEvent.selectOptions(
     screen.getByRole("combobox", { name: "Application status" }),
-    "rejected",
+    "submitted",
   );
   const route = new URLSearchParams(fixture.query);
   expect(route.get("view")).toBe("applications");
-  expect(route.get("section")).toBe("rejected");
-  expect(route.get("status")).toBe("rejected");
+  expect(route.get("section")).toBe("submitted");
+  expect(route.get("status")).toBe("submitted");
   expect(fixture.client.action).not.toHaveBeenCalled();
 });
 

@@ -269,7 +269,7 @@ const {
       assert.ok(
         Math.abs((await dimensions(tag)).visible - draftSize.visible) < 0.5,
       );
-      for (const name of ["Reject", "Record submission…", "Save comment"])
+      for (const name of ["Record submission…", "Save comment"])
         assert.equal(
           await card(fixture.active)
             .getByRole("button", { name, exact: true })
@@ -531,7 +531,7 @@ const {
       .click();
     await selectApplication(page, fixture.sent);
     assert.equal(await card(fixture.sent).locator(".review-status").count(), 0);
-    await page.getByRole("button", { name: "Rejected 1", exact: true }).click();
+    await page.getByRole("button", { name: "Removed 1", exact: true }).click();
     await selectApplication(page, fixture.declined);
     assert.equal(
       await card(fixture.declined).locator(".review-status").count(),

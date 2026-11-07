@@ -166,7 +166,7 @@ it("moves the review action to the status tag without saving on hover or focus",
   expect(fixture.run).not.toHaveBeenCalled();
   expect(tag()).toHaveAttribute("data-status", "draft");
   expect(tag()).toHaveAttribute("aria-pressed", "false");
-  expect(screen.getByRole("button", { name: "Reject" })).toBeEnabled();
+  expect(screen.queryByRole("button", { name: "Reject" })).toBeNull();
   expect(
     screen.getByRole("button", { name: "Record submission…" }),
   ).toBeEnabled();
@@ -275,7 +275,7 @@ it("blocks duplicate/concurrent saves and waits for persistence before claiming 
   expect(button).toHaveAttribute("data-status", "draft");
   expect(button).toHaveAttribute("aria-busy", "true");
   expect(button).toHaveAttribute("aria-disabled", "true");
-  for (const name of ["Reject", "Record submission…", "Save comment"]) {
+  for (const name of ["Record submission…", "Save comment"]) {
     expect(screen.getByRole("button", { name })).toBeDisabled();
   }
   await user.click(button);

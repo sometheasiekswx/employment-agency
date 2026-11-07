@@ -66,7 +66,7 @@ The recordings use a disposable fictional workspace. The [public demo](https://e
 
 Assessments keep evidence, gaps and unknowns visible. Live search, loading skeletons, save feedback and recoverable errors support the review flow. Keyboard navigation stays immediate; motion follows your reduced-motion preference.
 
-**Clear the shortlist without losing your records.** Remove a role and continue with the next one. Undo mistakes, optionally add a reason, or restore it later from Removed. Application documents and decisions stay available in Applications and History.
+**Clear the shortlist without losing your records.** Remove a role from Opportunities or Applications and continue with the next one. Open Applications → Removed to review its documents and activity, add a reason or restore it to its previous lists.
 
 **Preparing a draft does not submit an application.** You review the documents and control the decision. Work rights, sponsorship and vacancy availability still need verification. The source-only [Apply For Me preview](docs/apply-for-me.md) requires separate, explicit approval for sending or submission.
 

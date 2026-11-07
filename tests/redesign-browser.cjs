@@ -227,11 +227,14 @@ const fs = require("node:fs");
       "Confirmation action keeps readable dark text on green",
     );
     assert.equal(
-      await page
-        .locator(".review-pane button[value=rejected]")
-        .evaluate((n) => getComputedStyle(n).color),
-      await tokenColour("--negative-ink"),
+      await page.getByRole("button", { name: "Reject", exact: true }).count(),
+      0,
+      "Removal replaces the separate rejection action",
     );
+    await page
+      .locator(".opportunities-workbench-header")
+      .getByRole("button", { name: "Remove Software Engineer", exact: true })
+      .waitFor();
     assert.equal(
       await page.locator(".privacy-note, .workspace-footer").count(),
       0,

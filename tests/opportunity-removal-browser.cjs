@@ -206,7 +206,7 @@ const label = (job) => `${job.title} · ${job.employer}`;
         .getByRole("button", { name: /^Removed \(\d+\)$/, exact: true })
         .click();
       await page.waitForURL(
-        (url) => url.searchParams.get("removed") === "true",
+        (url) => url.searchParams.get("section") === "removed",
       );
     };
     const assertFits = async (page, name) => {
@@ -448,7 +448,7 @@ const label = (job) => `${job.title} · ${job.employer}`;
       );
       await card(page, first).click();
       await panel(page)
-        .getByRole("button", { name: "Restore role", exact: true })
+        .getByRole("button", { name: `Restore ${first.title}`, exact: true })
         .click();
       await waitState(
         (value) => !current(value.jobs.find((job) => job.id === first.id)),
@@ -641,6 +641,11 @@ const label = (job) => `${job.title} · ${job.employer}`;
       .getByRole("group", { name: "Opportunity views", exact: true })
       .getByRole("button", { name: "Applications", exact: true })
       .click();
+    assert.equal(await card(page, cloud).count(), 0);
+    await page
+      .getByRole("group", { name: "Application stage" })
+      .getByRole("button", { name: /^Removed\b/ })
+      .click();
     await card(page, cloud).click();
     await panel(page)
       .getByRole("button", { name: "Documents", exact: true })
@@ -730,6 +735,55 @@ const label = (job) => `${job.title} · ${job.employer}`;
     console.log(
       "PASS: removal/restore rollback + Retry, bookmark retention, queued Undo, repeated event identity, failed refresh and preserved Applications/History.",
     );
+
+    // A submitted role uses the same archive and returns to its original stage.
+    await reset();
+    const submittedJob = original.state.jobs.find(
+      (job) => job.id === submitted.job_id,
+    );
+    const stages = page.getByRole("group", { name: "Application stage" });
+    await page.goto(base + "/discover/?view=applications&section=submitted");
+    await card(page, submittedJob).click();
+    await panel(page)
+      .getByRole("button", { name: "Documents", exact: true })
+      .click();
+    await workbench
+      .getByRole("button", {
+        name: `Remove ${submittedJob.title}`,
+        exact: true,
+      })
+      .click();
+    await workbench.waitFor({ state: "hidden" });
+    await stages
+      .getByRole("button", { name: "Submitted 0", exact: true })
+      .waitFor();
+    assert.equal(await card(page, submittedJob).count(), 0);
+    await stages
+      .getByRole("button", { name: "Removed 1", exact: true })
+      .click();
+    await card(page, submittedJob).click();
+    await panel(page)
+      .getByRole("link", { name: "View submission", exact: true })
+      .click();
+    await workbench
+      .getByRole("link", { name: "CV PDF", exact: true })
+      .waitFor();
+    await workbench
+      .getByRole("button", { name: "Activity", exact: true })
+      .click();
+    await workbench.locator(".application-review-history").waitFor();
+    assert.equal(await hashSubmitted(), originalHash);
+    await workbench
+      .getByRole("button", {
+        name: `Restore ${submittedJob.title}`,
+        exact: true,
+      })
+      .click();
+    await stages
+      .getByRole("button", { name: "Submitted 1", exact: true })
+      .click();
+    await card(page, submittedJob).waitFor();
+    assert.deepEqual((await state()).applications, original.state.applications);
 
     // Exhaustion falls back to the previous role, then closes with reachable feedback.
     await reset();

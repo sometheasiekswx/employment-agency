@@ -8,6 +8,7 @@ import type {
   WorkspaceState,
 } from "./models";
 import { currentRemoval } from "./job-removal";
+import { applicationRoleId } from "./format";
 
 export const publicPreviewEnabled = () =>
   process.env.NEXT_PUBLIC_EA_PUBLIC_PREVIEW === "1";
@@ -200,6 +201,41 @@ export class PublicPreviewTransport {
     if (action === "state") {
       const state = clone(bundle.state);
       state.jobs = state.jobs.map((job) => this.localChoices(job));
+      for (const app of state.applications) {
+        if (app.status !== "rejected") continue;
+        const job = state.jobs.find(
+          (entry) => entry.id === applicationRoleId(app),
+        );
+        const original = bundle.state.jobs.find(
+          (entry) => entry.id === job?.id,
+        );
+        const legacy = currentRemoval(original);
+        const restored =
+          legacy?.legacy_application_id === app.id
+            ? job?.removals?.find((event) => event.id === legacy.id)
+                ?.restored_at
+            : undefined;
+        if (restored) {
+          app.status = "draft";
+          delete app.archived;
+          if (
+            !app.comments.some(
+              (entry) =>
+                entry.status === "rejected" && entry.kind !== "comment",
+            )
+          )
+            app.comments.push({
+              at: "",
+              status: "rejected",
+              text: "Earlier rejection recorded for this application.",
+            });
+          app.comments.push({
+            at: restored,
+            status: "draft",
+            text: "Restored from Removed.",
+          });
+        }
+      }
       return json({
         state,
         token: "public-fictional-preview",

@@ -716,15 +716,20 @@ export function OpportunityInspector({
       </div>
       <footer className="discover-inspector-footer">
         <div className="discover-inspector-actions">
-          {removed && onRestore ? (
-            <Action previewAllowed className="discover-primary" run={onRestore}>
+          {removed && !application && onRestore ? (
+            <Action
+              previewAllowed
+              className="discover-primary"
+              aria-label={`Restore ${job.title}`}
+              run={onRestore}
+            >
               <RotateCcw size={17} /> Restore role
             </Action>
           ) : application ? (
             <Link
               ref={documentLink}
               className="button discover-primary"
-              href={applicationHref(application)}
+              href={applicationHref(application, "documents", job)}
               onClick={(event) => {
                 if (
                   onOpenPanel &&
@@ -801,6 +806,18 @@ export function OpportunityInspector({
           >
             <Bookmark size={17} fill={job.saved ? "currentColor" : "none"} />
           </Action>
+          {removed && application && onRestore && (
+            <Action
+              previewAllowed
+              keepContentWhileBusy
+              className="discover-icon-button"
+              aria-label={`Restore ${job.title}`}
+              title="Restore role"
+              run={onRestore}
+            >
+              <RotateCcw size={17} />
+            </Action>
+          )}
           {!removed && onRemove && (
             <button
               type="button"

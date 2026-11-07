@@ -47,7 +47,7 @@ it.each([
   ["draft", "active"],
   ["reviewed", "active"],
   ["submitted", "submitted"],
-  ["rejected", "rejected"],
+  ["rejected", "removed"],
 ] as const)(
   "opens %s application documents in Opportunities",
   (status, section) => {

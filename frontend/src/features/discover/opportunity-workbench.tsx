@@ -1,10 +1,11 @@
 "use client";
 
 import { useLayoutEffect, useRef, type ReactNode } from "react";
-import { ArrowLeft, X } from "lucide-react";
+import { ArrowLeft, CircleMinus, RotateCcw, X } from "lucide-react";
 import { OpportunityApplication } from "@/features/applications/opportunity-application";
 import { ApplicationVersions } from "@/features/applications/application-versions";
 import type { Application, Job } from "@/lib/models";
+import { currentRemoval } from "@/lib/job-removal";
 import "./opportunities.css";
 
 export function OpportunityWorkbench({
@@ -16,6 +17,8 @@ export function OpportunityWorkbench({
   onPanel,
   onClose,
   onVersion,
+  onRemove,
+  onRestore,
   removalFeedback,
 }: {
   application: Application;
@@ -26,11 +29,15 @@ export function OpportunityWorkbench({
   onPanel: (panel: "overview" | "documents" | "activity") => void;
   onClose: () => boolean | void;
   onVersion: (application: Application) => void;
+  onRemove?: () => void;
+  onRestore?: () => void;
   removalFeedback?: ReactNode;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const close = useRef<HTMLButtonElement>(null);
   const active = panel !== "overview" || !overviewAvailable;
+  const removed = Boolean(currentRemoval(job));
+  const removalAction = removed ? onRestore : onRemove;
   const modal = useRef(false);
   const compact = useRef(mobile);
   useLayoutEffect(() => {
@@ -102,15 +109,28 @@ export function OpportunityWorkbench({
           <p>{application.employer}</p>
           <h2 id="opportunity-workbench-title">{application.title}</h2>
         </div>
-        <button
-          ref={close}
-          type="button"
-          className="discover-icon-button"
-          aria-label="Close application workspace"
-          onClick={onClose}
-        >
-          <X size={20} />
-        </button>
+        <div className="opportunities-workbench-actions">
+          {removalAction && (
+            <button
+              type="button"
+              className="discover-icon-button"
+              aria-label={`${removed ? "Restore" : "Remove"} ${application.title}`}
+              title={removed ? "Restore role" : "Remove role"}
+              onClick={removalAction}
+            >
+              {removed ? <RotateCcw size={17} /> : <CircleMinus size={17} />}
+            </button>
+          )}
+          <button
+            ref={close}
+            type="button"
+            className="discover-icon-button"
+            aria-label="Close application workspace"
+            onClick={onClose}
+          >
+            <X size={20} />
+          </button>
+        </div>
       </header>
       <nav className="opportunities-detail-tabs" aria-label="Role workspace">
         <button
