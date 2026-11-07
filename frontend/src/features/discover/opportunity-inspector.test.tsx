@@ -366,35 +366,25 @@ it("does not let projected momentum expand a tiny upward flick", () => {
   expect(grip).toHaveAttribute("aria-expanded", "false");
 });
 
-it.each([false, true])(
-  "keeps a partly expanded body draggable with directional touch support %s",
-  async (directional) => {
-    const supports = vi.spyOn(CSS, "supports").mockReturnValue(directional);
-    try {
-      const { dialog, body, point } = touchFixture();
-      point("pointerdown", 700, 0);
-      point("pointermove", 630, 100);
-      point("pointerup", 630, 250, window);
-      const previous = sheetAnimations.at(-1)!;
-      expect(body.style.touchAction).toBe("pinch-zoom");
-      dialog.style.height = "620px";
-      point("pointerdown", 700, 400);
-      point("pointermove", 660, 500);
-      expect(previous.stop).toHaveBeenCalledOnce();
-      expect(parseFloat(dialog.style.height)).toBe(660);
-      point("pointerup", 660, 650, window);
-      const resumed = sheetAnimations.at(-1)!;
-      await act(async () => previous.finish());
-      expect(dialog.style.height).not.toBe("");
-      await act(async () => resumed.finish());
-      expect(body.style.touchAction).toBe(
-        directional ? "pan-x pan-down pinch-zoom" : "pan-x pan-y pinch-zoom",
-      );
-    } finally {
-      supports.mockRestore();
-    }
-  },
-);
+it("keeps a partly expanded body draggable during settling", async () => {
+  const { dialog, point } = touchFixture();
+  point("pointerdown", 700, 0);
+  point("pointermove", 630, 100);
+  point("pointerup", 630, 250, window);
+  const previous = sheetAnimations.at(-1)!;
+  dialog.style.height = "620px";
+  point("pointerdown", 700, 400);
+  point("pointermove", 660, 500);
+  expect(previous.stop).toHaveBeenCalledOnce();
+  expect(parseFloat(dialog.style.height)).toBe(660);
+  point("pointerup", 660, 650, window);
+  const resumed = sheetAnimations.at(-1)!;
+  await act(async () => previous.finish());
+  expect(dialog.style.height).not.toBe("");
+  await act(async () => resumed.finish());
+  expect(dialog.style.height).toBe("");
+  expect(dialog.getBoundingClientRect().height).toBe(836);
+});
 
 it("lets an upward drag develop after a small initial sideways movement", () => {
   const { dialog, point } = touchFixture();
@@ -492,6 +482,72 @@ it("undoes only this contact's reading before lowering the sheet on reversal", (
   point("pointermove", 450, 350);
   expect(body.scrollTop).toBe(0);
   expect(parseFloat(dialog.style.height)).toBeLessThan(836);
+});
+
+it("scrolls an expanded body to the top and lowers the sheet in the same contact", () => {
+  const { dialog, body, point } = touchFixture();
+  const grip = screen.getByRole("button", {
+    name: "Resize opportunity details",
+  });
+  fireEvent.keyDown(grip, { key: "ArrowUp" });
+  body.scrollTop = 80;
+  point("pointerdown", 300, 0);
+  point("pointermove", 350, 100);
+  expect(body.scrollTop).toBe(30);
+  expect(dialog.getBoundingClientRect().height).toBe(836);
+
+  point("pointermove", 590, 200);
+  expect(body.scrollTop).toBe(0);
+  expect(dialog.getBoundingClientRect().height).toBe(626);
+  point("pointerup", 590, 400, window);
+  expect(grip).toHaveAttribute("aria-expanded", "false");
+});
+
+it("keeps the sheet expanded when a fast scroll barely crosses the top", () => {
+  const { dialog, body, point } = touchFixture();
+  const grip = screen.getByRole("button", {
+    name: "Resize opportunity details",
+  });
+  fireEvent.keyDown(grip, { key: "ArrowUp" });
+  body.scrollTop = 80;
+  point("pointerdown", 300, 0);
+  point("pointermove", 350, 25);
+  point("pointermove", 384, 42);
+  expect(body.scrollTop).toBe(0);
+  expect(dialog.getBoundingClientRect().height).toBe(832);
+  point("pointerup", 384, 45, window);
+  expect(grip).toHaveAttribute("aria-expanded", "true");
+});
+
+it("stops downward reading momentum at the top of the expanded sheet", () => {
+  const { dialog, body, point } = touchFixture();
+  const grip = screen.getByRole("button", {
+    name: "Resize opportunity details",
+  });
+  fireEvent.keyDown(grip, { key: "ArrowUp" });
+  body.scrollTop = 120;
+  point("pointerdown", 300, 0);
+  point("pointermove", 400, 25);
+  point("pointerup", 400, 30, window);
+  expect(body.scrollTop).toBe(20);
+  expect(grip).toHaveAttribute("aria-expanded", "true");
+  expect(dialog.getBoundingClientRect().height).toBe(836);
+  expect(sheetAnimations.at(-1)?.to).toBe(0);
+});
+
+it("restores the expanded reading position when a pull is cancelled", () => {
+  const { body, point } = touchFixture();
+  const grip = screen.getByRole("button", {
+    name: "Resize opportunity details",
+  });
+  fireEvent.keyDown(grip, { key: "ArrowUp" });
+  body.scrollTop = 80;
+  point("pointerdown", 300, 0);
+  point("pointermove", 520, 100);
+  expect(body.scrollTop).toBe(0);
+  point("pointercancel", 520, 130, window);
+  expect(body.scrollTop).toBe(80);
+  expect(grip).toHaveAttribute("aria-expanded", "true");
 });
 
 it("does not turn small quick downward touch noise into a dismiss", () => {

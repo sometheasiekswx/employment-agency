@@ -672,13 +672,7 @@ async function swipeSheet(page, session, source, distance, options = {}) {
     height: element.getBoundingClientRect().height,
     dragging: element.hasAttribute("data-sheet-dragging"),
   }));
-  assert.equal(
-    during.dragging,
-    options.dragging !== false,
-    options.dragging === false
-      ? "native scrolling does not drag the sheet"
-      : "tracks a live drag before release",
-  );
+  assert.equal(during.dragging, true, "tracks a live drag before release");
   await assertFooter(page, "footer remains usable during the gesture");
   await session.send("Input.dispatchTouchEvent", {
     type: options.cancel ? "touchCancel" : "touchEnd",
@@ -718,10 +712,11 @@ async function mobileGestures(page, session) {
     path: path.join(output, "mobile-drag-expanded.png"),
   });
 
-  await swipeSheet(page, session, body, -150, {
+  const reading = await swipeSheet(page, session, body, -150, {
     content: true,
-    dragging: false,
+    pause: 120,
   });
+  assert.ok(Math.abs(reading.height - fullHeight) < 2);
   await page.waitForFunction(
     () => document.querySelector(".discover-inspector-body").scrollTop > 30,
   );
@@ -730,22 +725,21 @@ async function mobileGestures(page, session) {
     "true",
     "upward reading scroll stays expanded",
   );
-  // A downward content scroll that STARTS below the top belongs to the browser
-  // for its entire duration, even if it reaches the top with momentum.
-  await swipeSheet(page, session, body, 160, {
+  const offset = await body.evaluate((element) => element.scrollTop);
+  const returning = await swipeSheet(page, session, body, offset - 12, {
     content: true,
-    dragging: false,
+    duration: 75,
   });
+  assert.ok(Math.abs(returning.height - fullHeight) < 2);
+  await page.waitForFunction(
+    () => document.querySelector(".discover-inspector-body").scrollTop <= 1,
+  );
   await settled(page);
   assert.equal(
     await expanded(),
     "true",
-    "scrolling back to the top does not collapse",
+    "reading momentum reaches the top without moving the sheet",
   );
-  await body.evaluate((element) => {
-    element.scrollTop = 0;
-  });
-  await page.waitForTimeout(150);
   await swipeSheet(page, session, body, 260, { content: true });
   await settled(page);
   assert.equal(

@@ -152,6 +152,7 @@ fs.mkdirSync(output, { recursive: true });
     await page.keyboard.press("Escape");
     await panel.waitFor({ state: "detached" });
     await open();
+    const peekHeight = (await panel.boundingBox()).height;
     await drag(body, -70);
     await settle();
     await page.screenshot({ path: output + "/short-body-swipe.png" });
@@ -163,10 +164,49 @@ fs.mkdirSync(output, { recursive: true });
     await drag(body, -140, { fraction: 0.75 });
     assert.ok(
       (await body.evaluate((e) => e.scrollTop)) > 40,
-      "native upward reading works immediately from the expanded top edge",
+      "upward reading works immediately from the expanded top edge",
     );
-    await page.keyboard.press("Escape");
+    const expanded = await panel.boundingBox();
+    const background = await page.evaluate(() => scrollY);
+    const startingScroll = 80;
+    async function pullPastTop(pull) {
+      await body.evaluate((element, offset) => {
+        element.scrollTop = offset;
+      }, startingScroll);
+      assert.equal(await body.evaluate((e) => e.scrollTop), startingScroll);
+      await drag(body, startingScroll + pull, {
+        fraction: 0.12,
+        beforeEnd: async () => {
+          assert.equal(await body.evaluate((e) => e.scrollTop), 0);
+          const position = (await panel.boundingBox()).y;
+          assert.ok(
+            Math.abs(position - expanded.y - pull) < 4,
+            "Only travel past the top moves the sheet before release",
+          );
+          assert.equal(await page.evaluate(() => scrollY), background);
+        },
+      });
+    }
+    await pullPastTop(32);
+    await settle();
+    assert.equal(await grip.getAttribute("aria-expanded"), "true");
+    await pullPastTop(Math.round((expanded.height - peekHeight) * 0.7));
+    await settle();
+    assert.equal(
+      await grip.getAttribute("aria-expanded"),
+      "false",
+      "A medium pull after reaching the top returns to peek",
+    );
+    await grip.tap();
+    await settle();
+    await pullPastTop(
+      Math.ceil(expanded.height - peekHeight + peekHeight * 0.28),
+    );
     await panel.waitFor({ state: "detached" });
+    assert.equal(
+      await role.evaluate((e) => e === document.activeElement),
+      true,
+    );
     await open();
     await drag(body, 12, { steps: 3 });
     await settle();
@@ -205,13 +245,13 @@ fs.mkdirSync(output, { recursive: true });
     await settle();
     assert.equal(await grip.getAttribute("aria-expanded"), "true");
     await page.screenshot({ path: output + "/same-gesture-reading.png" });
-    // Native reading remains available on subsequent expanded contacts.
+    // Reading remains available on subsequent expanded contacts.
     const previous = await body.evaluate((e) => e.scrollTop);
     await drag(body, -140, { fraction: 0.75 });
     await page.waitForTimeout(350);
     assert.ok(
       (await body.evaluate((e) => e.scrollTop)) > previous + 40,
-      "expanded body scrolling remains native",
+      "expanded body scrolling continues on the next contact",
     );
     // Company row belongs to the enlarged header even when the body is scrolled.
     await body.evaluate((e) => {
@@ -384,6 +424,13 @@ fs.mkdirSync(output, { recursive: true });
     );
     await settle();
     assert.equal(await grip.getAttribute("aria-expanded"), "true");
+    await pullPastTop(Math.round((expanded.height - peekHeight) * 0.7));
+    await settle();
+    assert.equal(
+      await grip.getAttribute("aria-expanded"),
+      "false",
+      "Reduced motion keeps the same scroll handoff and snap point",
+    );
     await page.keyboard.press("Escape");
     await panel.waitFor({ state: "detached" });
     assert.deepEqual(errors, []);
@@ -391,7 +438,7 @@ fs.mkdirSync(output, { recursive: true });
     await context.close();
     await video.saveAs(output + "/native-body-scroll.webm");
     console.log(
-      "PASS: body/footer/disabled-control expansion, same-contact reading, native subsequent scroll, fixed background, company/header collapse, on-screen body/disclosure dismissal, ordinary taps/focus and reduced motion.",
+      "PASS: same-contact reading and expanded top-edge handoff, three release outcomes, body/footer/disabled-control expansion, fixed background, ordinary taps/focus and reduced motion.",
     );
   } finally {
     await browser.close();

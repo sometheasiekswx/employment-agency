@@ -4,7 +4,6 @@ import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { animate } from "motion";
 
 const threshold = 8;
-const scrollCooldown = 100;
 const interactive =
   "button, a, input, textarea, select, summary, [contenteditable], [role='button']";
 const editable = "input, textarea, select, [contenteditable]";
@@ -12,10 +11,11 @@ const headerRegion = ".discover-sheet-header";
 const footerRegion = ".discover-inspector-footer";
 
 type Bounds = { collapsed: number; expanded: number };
-type Sample = { y: number; time: number };
+type Sample = { y: number; height: number; time: number };
 type Gesture = {
   pointer: number;
   owner: HTMLElement;
+  scroller: HTMLElement;
   x: number;
   y: number;
   height: number;
@@ -25,8 +25,9 @@ type Gesture = {
   direction: number;
   readsContent: boolean;
   startedExpanded: boolean;
-  scrollBase: number;
-  addedScroll: number;
+  startingScroll: number;
+  scrollTop: number;
+  scrollFloor: number;
   maximumScroll: number | null;
   bounds: Bounds;
   active: boolean;
@@ -66,6 +67,11 @@ function renderHeight(element: HTMLElement, height: number, bounds: Bounds) {
   element.style.transform = `translate3d(0px, ${Math.max(0, bounds.collapsed - value)}px, 0px)`;
 }
 
+function restoreReading(drag: Gesture) {
+  if (drag.scrollTop !== drag.startingScroll)
+    drag.scroller.scrollTop = drag.startingScroll;
+}
+
 /** Two detents for the existing native opportunity dialog, not a second modal. */
 export function useSheetGesture({
   mobile,
@@ -92,7 +98,6 @@ export function useSheetGesture({
   const generation = useRef(0);
   const gesture = useRef<Gesture | null>(null);
   const suppressClick = useRef(false);
-  const updateScrollAction = useRef(() => {});
   const callbacks = useRef({ onDismiss, onGrab });
   useLayoutEffect(() => {
     callbacks.current = { onDismiss, onGrab };
@@ -122,20 +127,13 @@ export function useSheetGesture({
   const cancel = useCallback(
     (preservePresentation = false) => {
       const active = gesture.current;
-      if (
-        !preservePresentation &&
-        active &&
-        active.addedScroll > 0 &&
-        body.current
-      )
-        body.current.scrollTop = active.scrollBase;
       stop();
       release();
       if (!preservePresentation) {
         dialog.current?.style.removeProperty("height");
         dialog.current?.style.removeProperty("transform");
+        if (active) restoreReading(active);
       }
-      updateScrollAction.current();
     },
     [release, stop],
   );
@@ -154,7 +152,6 @@ export function useSheetGesture({
       if (!animated || !motionAllowed.current || Math.abs(from - to) < 1) {
         element.style.removeProperty("height");
         element.style.removeProperty("transform");
-        updateScrollAction.current();
         return;
       }
       const revision = generation.current;
@@ -176,14 +173,12 @@ export function useSheetGesture({
         },
       });
       animation.current = control;
-      updateScrollAction.current();
       void control.finished.then(
         () => {
           if (animation.current !== control) return;
           animation.current = null;
           element.style.removeProperty("height");
           element.style.removeProperty("transform");
-          updateScrollAction.current();
         },
         () => {},
       );
@@ -199,9 +194,8 @@ export function useSheetGesture({
     const target = Math.max(0, Math.min(maximum, from + velocity * 0.24));
     if (Math.abs(target - from) < 1) return;
     const revision = scrollGeneration.current;
-    // Only the contact that began in peek needs a small inertial continuation.
-    // Its next contact is ordinary native scrolling. Power/timeConstant preserve
-    // the release speed; the bounded target avoids artificial edge bouncing.
+    // Reading momentum stays inside the content, including at the top edge.
+    // Only a finger still in contact can transfer travel to the sheet.
     const control = animate(from, target, {
       type: "inertia",
       velocity,
@@ -232,42 +226,15 @@ export function useSheetGesture({
     const scroller = body.current;
     const grabber = handle.current;
     if (!mobile || !element || !scroller || !grabber) return;
-    const directional =
-      typeof CSS !== "undefined" &&
-      CSS.supports("touch-action", "pan-x pan-down pinch-zoom");
-    let lastScroll = -Infinity;
-    let cooldown: ReturnType<typeof setTimeout>;
-
-    const updateScrolling = () => {
-      // Declare intent BEFORE a touch begins. The browser owns content scrolling
-      // for that entire gesture; reaching the top cannot suddenly resize a sheet.
-      // A target detent is not its presentation. Keep partial/settling contacts
-      // draggable until height settling finishes and the active contact ends.
-      const nativeReading =
-        destination.current && !animation.current && !gesture.current;
-      scroller.style.touchAction = !nativeReading
-        ? "pinch-zoom"
-        : directional &&
-            scroller.scrollTop <= 0 &&
-            performance.now() - lastScroll >= scrollCooldown
-          ? // pan-down permits scrolling down the content (finger moves up).
-            "pan-x pan-down pinch-zoom"
-          : "pan-x pan-y pinch-zoom";
-    };
-    updateScrollAction.current = updateScrolling;
-    const onScroll = () => {
-      lastScroll = performance.now();
-      updateScrolling();
-      clearTimeout(cooldown);
-      cooldown = setTimeout(updateScrolling, scrollCooldown);
+    const abortDrag = () => {
+      const drag = gesture.current;
+      if (!drag) return;
+      restoreReading(drag);
+      snap(destination.current, true);
     };
     const down = (event: PointerEvent) => {
       if (!event.isPrimary) {
-        if (gesture.current) {
-          if (gesture.current.addedScroll > 0)
-            scroller.scrollTop = gesture.current.scrollBase;
-          snap(destination.current, true);
-        }
+        abortDrag();
         return;
       }
       if (event.button !== 0 || gesture.current) return;
@@ -292,26 +259,24 @@ export function useSheetGesture({
         (fromBody || (target !== grabber && target.closest(interactive)))
       )
         return;
-      if (
-        fromBody &&
-        destination.current &&
-        !animation.current &&
-        (!directional ||
-          scroller.scrollTop > 0 ||
-          performance.now() - lastScroll < scrollCooldown)
-      )
-        return;
       const owner = fromBody ? scroller : element;
       callbacks.current.onGrab(element);
-      const height = visibleHeight(element);
       const bounds = boundsFor(element);
+      const presentationHeight = clampHeight(visibleHeight(element), bounds);
+      const fromExpandedBody =
+        fromBody &&
+        destination.current &&
+        bounds.expanded - presentationHeight < 1;
+      const height = fromExpandedBody ? bounds.expanded : presentationHeight;
       stop();
       // Establish transient geometry even for a tap that interrupts arrival.
       // Pointer-up can then settle the frozen presentation back to its detent.
       renderHeight(element, height, bounds);
+      const startingScroll = Math.max(0, scroller.scrollTop);
       gesture.current = {
         pointer: event.pointerId,
         owner,
+        scroller,
         x: event.clientX,
         y: event.clientY,
         height,
@@ -321,14 +286,14 @@ export function useSheetGesture({
         direction: 0,
         readsContent: fromBody || fromFooter,
         startedExpanded: destination.current,
-        scrollBase: scroller.scrollTop,
-        addedScroll: 0,
+        startingScroll,
+        scrollTop: startingScroll,
+        scrollFloor: fromExpandedBody ? 0 : startingScroll,
         maximumScroll: null,
         bounds,
         active: false,
-        samples: [{ y: event.clientY, time: event.timeStamp }],
+        samples: [{ y: event.clientY, height, time: event.timeStamp }],
       };
-      updateScrolling();
     };
     const move = (event: PointerEvent) => {
       const drag = gesture.current;
@@ -336,7 +301,7 @@ export function useSheetGesture({
       const dy = event.clientY - drag.y;
       if (!drag.active) {
         // Small sideways drift must not permanently abandon an upward gesture.
-        // Partial sheets own one-finger panning; pinch zoom remains native.
+        // The sheet owns vertical touch movement; pinch zoom remains native.
         if (Math.abs(event.clientX - drag.x) >= threshold)
           suppressClick.current = true;
         if (Math.abs(dy) < threshold) return;
@@ -348,7 +313,6 @@ export function useSheetGesture({
       drag.samples = drag.samples.filter(
         (sample) => event.timeStamp - sample.time <= 80,
       );
-      drag.samples.push({ y: event.clientY, time: event.timeStamp });
       let remaining = drag.lastY - event.clientY;
       drag.lastY = event.clientY;
       // Keep deliberate reversal intent through a pause without interpreting
@@ -358,18 +322,21 @@ export function useSheetGesture({
         drag.direction = Math.sign(intent);
         drag.intentY = event.clientY;
       }
-      // Reverse only scrolling added by this contact, then lower the surface.
-      // Pre-existing content position must not trap a downward peek gesture.
-      if (remaining < 0 && drag.addedScroll > 0) {
-        const consumed = Math.min(-remaining, drag.addedScroll);
-        drag.addedScroll -= consumed;
-        scroller.scrollTop = drag.scrollBase + drag.addedScroll;
+      // A touch starting in the expanded body unwinds reading to the top.
+      // Peek and grip drags unwind only the reading added by this contact.
+      const availableScroll = drag.scrollTop - drag.scrollFloor;
+      if (remaining < 0 && availableScroll > 0) {
+        const consumed = Math.min(-remaining, availableScroll);
+        drag.scrollTop -= consumed;
+        scroller.scrollTop = drag.scrollTop;
         remaining += consumed;
       }
       const resized = clampHeight(drag.height + remaining, drag.bounds);
-      remaining -= resized - drag.height;
-      drag.height = resized;
-      renderHeight(element, resized, drag.bounds);
+      if (resized !== drag.height) {
+        remaining -= resized - drag.height;
+        drag.height = resized;
+        renderHeight(element, resized, drag.bounds);
+      }
       if (
         drag.readsContent &&
         remaining > 0 &&
@@ -381,15 +348,20 @@ export function useSheetGesture({
             0,
             scroller.scrollHeight - scroller.clientHeight,
           );
-          drag.scrollBase = scroller.scrollTop;
+          drag.scrollTop = Math.max(0, scroller.scrollTop);
+          drag.scrollFloor = Math.min(drag.scrollFloor, drag.scrollTop);
         }
-        const consumed = Math.min(
-          remaining,
-          Math.max(0, drag.maximumScroll - drag.scrollBase - drag.addedScroll),
+        drag.scrollTop = Math.min(
+          drag.maximumScroll,
+          drag.scrollTop + remaining,
         );
-        drag.addedScroll += consumed;
-        scroller.scrollTop = drag.scrollBase + drag.addedScroll;
+        scroller.scrollTop = drag.scrollTop;
       }
+      drag.samples.push({
+        y: event.clientY,
+        height: drag.height,
+        time: event.timeStamp,
+      });
     };
     const up = (event: PointerEvent) => {
       const drag = gesture.current;
@@ -403,19 +375,19 @@ export function useSheetGesture({
         (sample) => event.timeStamp - sample.time <= 80,
       );
       const elapsed = first ? event.timeStamp - first.time : 0;
-      const velocity =
-        first && elapsed > 0
-          ? (-(event.clientY - first.y) / elapsed) * 1000
-          : 0;
+      const rate = elapsed > 0 ? 1000 / elapsed : 0;
+      const fingerVelocity = first ? (first.y - event.clientY) * rate : 0;
       const height = drag.height;
-      // Short flicks and a last-moment reversal use recent velocity, not the
-      // average of the whole drag. Pausing before release removes momentum.
-      const projected = height + velocity * 0.16;
+      const reading = drag.readsContent && height === drag.bounds.expanded;
+      // Project from recent sheet movement so travel consumed by reading
+      // cannot turn a small pull into a flick. A pause clears both velocities.
+      const sheetVelocity = first ? (height - first.height) * rate : 0;
+      const projected = height + sheetVelocity * 0.16;
       const travel = drag.bounds.collapsed - height;
       const distance = travel >= drag.bounds.collapsed * 0.25;
       const flick =
         travel >= 32 &&
-        velocity <= -600 &&
+        sheetVelocity <= -600 &&
         projected < drag.bounds.collapsed * 0.75;
       if (drag.direction < 0 && (distance || flick)) {
         release();
@@ -433,16 +405,16 @@ export function useSheetGesture({
         drag.direction > 0 &&
         (drag.startedExpanded ||
           growth >= expandDistance ||
-          (growth >= 32 && velocity >= 600));
+          (growth >= 32 && sheetVelocity >= 600));
       const next =
+        (reading && drag.startedExpanded) ||
         expanding ||
-        drag.addedScroll > 0 ||
+        drag.scrollTop > drag.scrollFloor ||
         ((drag.startedExpanded || drag.direction <= 0) &&
           projected > (drag.bounds.collapsed + drag.bounds.expanded) / 2);
-      snap(next, true, velocity);
-      if (next && drag.addedScroll > 0)
-        continueReading(Math.max(-2500, Math.min(2500, velocity)));
-      updateScrolling();
+      snap(next, true, sheetVelocity);
+      if (next && reading)
+        continueReading(Math.max(-2500, Math.min(2500, fingerVelocity)));
     };
     const interrupted = (event: PointerEvent) => {
       // Touch starts with implicit capture on the hit child. Transferring it to
@@ -453,12 +425,7 @@ export function useSheetGesture({
         event.target !== gesture.current?.owner
       )
         return;
-      if (gesture.current?.pointer === event.pointerId) {
-        if (gesture.current.addedScroll > 0)
-          scroller.scrollTop = gesture.current.scrollBase;
-        snap(destination.current, true);
-        updateScrolling();
-      }
+      if (gesture.current?.pointer === event.pointerId) abortDrag();
     };
     const click = (event: MouseEvent) => {
       if (!suppressClick.current || event.detail === 0) return;
@@ -466,10 +433,7 @@ export function useSheetGesture({
       event.preventDefault();
       event.stopPropagation();
     };
-    const resize = () => {
-      cancel();
-      updateScrolling();
-    };
+    const resize = () => cancel();
     const wheel = (event: WheelEvent) => {
       stopReading();
       if (
@@ -486,16 +450,12 @@ export function useSheetGesture({
     };
     // One delegated listener covers header, reading content and footer controls.
     // A vertical footer swipe resizes/reads; a tap retains its ordinary action.
-    const targets = [element];
-    for (const target of targets) {
-      target.addEventListener("pointerdown", down);
-      target.addEventListener("pointermove", move);
-      target.addEventListener("pointerup", up);
-      target.addEventListener("pointercancel", interrupted);
-      target.addEventListener("lostpointercapture", interrupted);
-      target.addEventListener("click", click, true);
-    }
-    scroller.addEventListener("scroll", onScroll, { passive: true });
+    element.addEventListener("pointerdown", down);
+    element.addEventListener("pointermove", move);
+    element.addEventListener("pointerup", up);
+    element.addEventListener("pointercancel", interrupted);
+    element.addEventListener("lostpointercapture", interrupted);
+    element.addEventListener("click", click, true);
     element.addEventListener("wheel", wheel, { passive: false });
     // An arrival can move a pending press off its original hit target before
     // the drag threshold is reached. Finish that press even when pointer-up
@@ -504,24 +464,17 @@ export function useSheetGesture({
     window.addEventListener("pointercancel", interrupted);
     window.addEventListener("resize", resize);
     window.visualViewport?.addEventListener("resize", resize);
-    updateScrolling();
     return () => {
       cancel();
-      clearTimeout(cooldown);
-      for (const target of targets) {
-        target.removeEventListener("pointerdown", down);
-        target.removeEventListener("pointermove", move);
-        target.removeEventListener("pointerup", up);
-        target.removeEventListener("pointercancel", interrupted);
-        target.removeEventListener("lostpointercapture", interrupted);
-        target.removeEventListener("click", click, true);
-      }
-      scroller.removeEventListener("scroll", onScroll);
+      element.removeEventListener("pointerdown", down);
+      element.removeEventListener("pointermove", move);
+      element.removeEventListener("pointerup", up);
+      element.removeEventListener("pointercancel", interrupted);
+      element.removeEventListener("lostpointercapture", interrupted);
+      element.removeEventListener("click", click, true);
       element.removeEventListener("wheel", wheel);
       window.removeEventListener("pointerup", up);
       window.removeEventListener("pointercancel", interrupted);
-      updateScrollAction.current = () => {};
-      scroller.style.removeProperty("touch-action");
       window.removeEventListener("resize", resize);
       window.visualViewport?.removeEventListener("resize", resize);
     };
@@ -535,9 +488,6 @@ export function useSheetGesture({
     stopReading,
     continueReading,
   ]);
-
-  // Taps/keyboard commands also change the declared scrolling behavior.
-  useLayoutEffect(() => updateScrollAction.current(), [expanded]);
 
   return { dialog, body, handle, expanded, snap, cancel };
 }

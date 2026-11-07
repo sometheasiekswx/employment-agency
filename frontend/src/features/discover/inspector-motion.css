@@ -37,7 +37,9 @@
   user-select: none;
 }
 .discover-sheet-header,
+.discover-dialog .discover-inspector-body,
 .discover-dialog .discover-inspector-footer {
+  /* Reserve the full touch so reading can hand off to the sheet at the top. */
   touch-action: pinch-zoom;
 }
 

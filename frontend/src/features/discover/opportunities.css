@@ -201,6 +201,10 @@
 .opportunities-workbench .review-pane textarea {
   min-height: 88px;
 }
+.opportunities-workbench-dialog .review-pane textarea {
+  /* Keep the viewport stable when iPhone Safari focuses Comments. */
+  font-size: 1rem;
+}
 .opportunities-workbench .review-header {
   margin-bottom: 16px;
 }
