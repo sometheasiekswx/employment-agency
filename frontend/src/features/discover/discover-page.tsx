@@ -219,8 +219,8 @@ export function DiscoverPage() {
       startTransition(() => {
         setOptimisticQuery(next.toString());
         const href = `/discover/${next.size ? `?${next}` : ""}`;
-        // Search and opening a role stay in the current route. Push the role
-        // entry synchronously so even an immediate Escape returns to the board.
+        // Apply shortlist filters before pushing the role entry so immediate
+        // Back or Escape returns to the board with its filters intact.
         if (mode === "filter") window.history.replaceState(null, "", href);
         else if (mode === "open")
           window.history.pushState({ [shortlistHistoryKey]: true }, "", href);
@@ -711,10 +711,7 @@ export function DiscoverPage() {
     return () => window.clearTimeout(restore);
   }, [inspectorOpen, closeRemovalReason, restoreShortlistFocus]);
 
-  const updateFilters = (
-    values: Record<string, string>,
-    localSearch = false,
-  ) => {
+  const updateFilters = (values: Record<string, string>) => {
     if (!canLeave()) return false;
     const next = new URLSearchParams(queryString);
     if (legacySavedFilter) {
@@ -737,8 +734,7 @@ export function DiscoverPage() {
     next.delete("assessment_profile");
     next.delete("application");
     next.delete("panel");
-    if (next.toString() !== queryString)
-      replaceQuery(next, localSearch ? "filter" : "replace");
+    if (next.toString() !== queryString) replaceQuery(next, "filter");
     return true;
   };
   const clearFilters = () => {
@@ -933,7 +929,7 @@ export function DiscoverPage() {
           aria-label="Filter opportunities"
           onSubmit={(event) => {
             event.preventDefault();
-            updateFilters({ q: query }, true);
+            updateFilters({ q: query });
           }}
         >
           <Search size={18} aria-hidden="true" />
@@ -946,7 +942,7 @@ export function DiscoverPage() {
             name="q"
             type="search"
             value={query}
-            onChange={(event) => updateFilters({ q: event.target.value }, true)}
+            onChange={(event) => updateFilters({ q: event.target.value })}
             placeholder={
               applicationView ? "Search this queue" : "Title, company or skill"
             }
@@ -960,7 +956,7 @@ export function DiscoverPage() {
               type="button"
               aria-label="Clear search"
               onClick={(event) => {
-                updateFilters({ q: "" }, true);
+                updateFilters({ q: "" });
                 event.currentTarget.form
                   ?.querySelector("input")
                   ?.focus({ preventScroll: true });

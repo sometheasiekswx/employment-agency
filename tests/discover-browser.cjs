@@ -144,6 +144,35 @@ const fs = require("node:fs");
     const discovery = base + "/discover/?view=all";
     fs.mkdirSync("output/playwright/concept-a", { recursive: true });
 
+    await page.goto(base + "/discover/");
+    await cloud().waitFor();
+    // Capture the URL in the click task itself, before an asynchronous router
+    // replacement could finish. The next role selection must start from Browse.
+    const browseUrl = await page
+      .getByRole("button", { name: "Browse", exact: true })
+      .evaluate((button) => {
+        button.click();
+        return window.location.href;
+      });
+    assert.equal(
+      browseUrl,
+      discovery,
+      "Browse updates the board URL immediately",
+    );
+    await cloud().click();
+    await inspector()
+      .getByRole("heading", { name: "Cloud Software Engineer", exact: true })
+      .waitFor();
+    await page.waitForURL((url) => url.searchParams.has("opportunity"));
+    await page.goBack();
+    await page.waitForURL(discovery);
+    await inspector().waitFor({ state: "detached" });
+    await page.waitForFunction(
+      () =>
+        document.activeElement?.getAttribute("aria-label") ===
+        "Assess Cloud Software Engineer at Emberlane Systems",
+    );
+
     await page.goto(discovery);
     await cloud().waitFor();
     assert.equal(
