@@ -132,6 +132,7 @@ it("labels the legacy root as Opportunities while its redirect is loading", () =
 });
 
 it("searches Opportunities and respects unsaved changes before navigating", () => {
+  fixture.pathname = "/career/";
   render(shell());
   const input = screen.getByRole("searchbox", { name: "Search roles" });
   fireEvent.change(input, { target: { value: "  platform engineer  " } });

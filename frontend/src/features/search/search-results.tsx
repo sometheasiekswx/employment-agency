@@ -1,38 +1,154 @@
 "use client";
 
-import { useState } from "react";
-import { Action, Form, Json, TextArea, text } from "@/components/controls";
+import { useLayoutEffect, useRef, useState } from "react";
+import { Action, Field, Form, TextArea, text } from "@/components/controls";
+import { useDraft } from "@/components/unsaved";
 import { useWorkspace } from "@/components/workspace-provider";
+import { requirementEvidence } from "@/features/discover/discovery";
 import { downloadJson } from "@/lib/api";
-import { safeUrl } from "@/lib/format";
-import type { RankedJob } from "@/lib/models";
+import { advertisedSalary, safeUrl } from "@/lib/format";
+import type { Fact, Job, RankedJob } from "@/lib/models";
 import { RunForm } from "./runs";
+import styles from "./search-results.module.css";
+
+const jobsPerPage = 12;
+
+function SearchMatchDetails({
+  job,
+  match,
+  facts,
+}: RankedJob & { facts: Fact[] }) {
+  const evidence = requirementEvidence(match.evidence, facts);
+  const preferences = Array.isArray(match.preferences)
+    ? match.preferences.filter((item) => typeof item === "string")
+    : [];
+  const expectation = match.salary_expectation as Job["expectation"];
+  return (
+    <details className={styles.details}>
+      <summary>Requirement evidence and job details</summary>
+      <h4>Career evidence</h4>
+      {evidence.length ? (
+        <ul>
+          {evidence.map(({ requirement, facts }, index) => (
+            <li key={`${requirement}-${index}`}>
+              <strong>{requirement}</strong>
+              {facts.length ? (
+                <ul>
+                  {facts.map((fact) => (
+                    <li key={fact.id}>{fact.text}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No confirmed supporting evidence</p>
+              )}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>No structured requirements are available.</p>
+      )}
+      {preferences.length > 0 && (
+        <>
+          <h4>Profile preferences</h4>
+          <ul>
+            {preferences.map((preference) => (
+              <li key={preference}>{preference}</li>
+            ))}
+          </ul>
+        </>
+      )}
+      <h4>Advertised pay</h4>
+      <p>{advertisedSalary(job)}</p>
+      {typeof expectation?.target === "string" && expectation.target && (
+        <>
+          <h4>Pay guidance</h4>
+          <p>{expectation.target}</p>
+          {typeof expectation.basis === "string" && <p>{expectation.basis}</p>}
+        </>
+      )}
+      {job.description && (
+        <>
+          <h4>Listing description</h4>
+          <p className={styles.description}>{job.description}</p>
+        </>
+      )}
+    </details>
+  );
+}
 
 export function SearchResults() {
-  const { client, run, profileId } = useWorkspace();
+  const { client, run, profileId, state } = useWorkspace();
+  const { canLeave } = useDraft();
   const [ranking, setRanking] = useState<RankedJob[]>();
   const [showRun, setShowRun] = useState(false);
+  const [filterInput, setFilterInput] = useState("");
+  const [query, setQuery] = useState("");
+  const [visibleLimit, setVisibleLimit] = useState(jobsPerPage);
+  const rankTrigger = useRef<HTMLButtonElement>(null);
+  const resultsSummary = useRef<HTMLParagraphElement>(null);
+  const firstNewResult = useRef<HTMLHeadingElement>(null);
+  const terms = query.split(/\s+/);
+  const filtered = query
+    ? (ranking ?? []).filter(({ job }) => {
+        const searchable = [job.title, job.employer, job.location, job.city]
+          .join(" ")
+          .toLocaleLowerCase();
+        return terms.every((term) => searchable.includes(term));
+      })
+    : (ranking ?? []);
+  const visibleRows = filtered.slice(0, visibleLimit);
+  const nextCount = Math.min(jobsPerPage, filtered.length - visibleRows.length);
+
+  const applyFilter = (value: string) => {
+    const nextQuery = value.trim().toLocaleLowerCase();
+    if (nextQuery === query || !canLeave()) return false;
+    setQuery(nextQuery);
+    setVisibleLimit(jobsPerPage);
+    return true;
+  };
+
+  useLayoutEffect(() => {
+    const trigger = rankTrigger.current;
+    rankTrigger.current = null;
+    if (
+      !trigger ||
+      (document.activeElement !== trigger &&
+        document.activeElement !== document.body)
+    )
+      return;
+    resultsSummary.current?.focus({ preventScroll: true });
+    resultsSummary.current?.scrollIntoView?.({ block: "start" });
+  }, [ranking]);
+  useLayoutEffect(() => {
+    if (visibleLimit <= jobsPerPage) return;
+    firstNewResult.current?.focus({ preventScroll: true });
+    firstNewResult.current?.scrollIntoView?.({ block: "start" });
+  }, [visibleLimit]);
+
   const requireProfile = () => {
     if (!profileId) throw new Error("Save a search profile first.");
   };
   return (
     <section>
-      <h2>Find your best matches</h2>
+      <h2 id="rank-jobs" tabIndex={-1} className={styles.resultHeading}>
+        Find your best matches
+      </h2>
       <p>
-        Evidence and constraints guide the ordering. Related words do not prove
-        that a requirement is met.
+        Evidence and constraints guide the ordering. Verify the full requirement
+        before preparing an application.
       </p>
       <div className="actions">
         <Action
           previewAllowed
           className=""
-          run={async () => {
+          run={async (button) => {
             requireProfile();
-            setRanking(
-              await client.action<RankedJob[]>("rank", {
-                profile_id: profileId,
-              }),
-            );
+            const rows = await client.action<RankedJob[]>("rank", {
+              profile_id: profileId,
+            });
+            if (!canLeave()) return;
+            rankTrigger.current = button;
+            setRanking([...rows]);
           }}
         >
           Rank saved jobs
@@ -44,9 +160,71 @@ export function SearchResults() {
         )}
       </div>
       {showRun && !client.hosted && <RunForm />}
-      {ranking?.map(({ job, match }) => (
+      <div role="status">
+        {ranking && (
+          <p ref={resultsSummary} tabIndex={-1} className={styles.resultCount}>
+            {ranking.length === 0
+              ? "No saved jobs match this profile."
+              : `${ranking.length} ${ranking.length === 1 ? "job" : "jobs"} ranked`}
+          </p>
+        )}
+        {ranking?.length && query && filtered.length === 0 ? (
+          <p className={styles.countDetail}>
+            No ranked jobs match this filter.
+          </p>
+        ) : (ranking?.length && query) || nextCount > 0 ? (
+          <p className={styles.countDetail}>
+            Showing {visibleRows.length} of {filtered.length}
+            {query ? " matching" : ""} {filtered.length === 1 ? "job" : "jobs"}
+          </p>
+        ) : null}
+      </div>
+      {Boolean(ranking?.length) && (
+        <form
+          role="search"
+          aria-label="Ranked jobs"
+          className={styles.filter}
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (applyFilter(filterInput))
+              resultsSummary.current?.scrollIntoView?.({ block: "start" });
+          }}
+        >
+          <Field
+            label="Filter ranked jobs"
+            name="ranked_query"
+            type="search"
+            placeholder="Role, firm, city"
+            value={filterInput}
+            onChange={(event) => setFilterInput(event.target.value)}
+          />
+          <button type="submit" className="secondary">
+            Filter
+          </button>
+          {query && (
+            <button
+              type="button"
+              className={`secondary ${styles.clearFilter}`}
+              onClick={() => {
+                if (applyFilter("")) {
+                  setFilterInput("");
+                  resultsSummary.current?.focus({ preventScroll: true });
+                  resultsSummary.current?.scrollIntoView?.({ block: "start" });
+                }
+              }}
+            >
+              Clear filter
+            </button>
+          )}
+        </form>
+      )}
+      {visibleRows.map(({ job, match }, index) => (
         <article key={job.id}>
-          <h3>
+          <h3
+            ref={index === visibleLimit - jobsPerPage ? firstNewResult : null}
+            tabIndex={-1}
+            className={styles.resultHeading}
+          >
             {job.title} · {job.employer}
           </h3>
           <p>
@@ -66,18 +244,7 @@ export function SearchResults() {
           {match.gaps.length > 0 && (
             <p>Missing evidence: {match.gaps.join("; ")}</p>
           )}
-          <details>
-            <summary>Requirement evidence and job details</summary>
-            <Json
-              value={{
-                requirements: match.evidence,
-                preferences: match.preferences,
-                salary: job.salary,
-                expectation: match.salary_expectation,
-                description: job.description,
-              }}
-            />
-          </details>
+          <SearchMatchDetails job={job} match={match} facts={state.facts} />
           {safeUrl(job.url) && (
             <a
               href={safeUrl(job.url)}
@@ -139,12 +306,20 @@ export function SearchResults() {
           )}
         </article>
       ))}
+      {nextCount > 0 && (
+        <button
+          type="button"
+          className="secondary"
+          onClick={() => setVisibleLimit((limit) => limit + jobsPerPage)}
+        >
+          Show {nextCount} more {nextCount === 1 ? "job" : "jobs"}
+        </button>
+      )}
       {!ranking && (
         <p className="empty">
           Choose a search profile and rank your saved jobs.
         </p>
       )}
-      {ranking?.length === 0 && <p>No saved jobs match this profile.</p>}
     </section>
   );
 }

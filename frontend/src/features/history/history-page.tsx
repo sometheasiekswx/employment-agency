@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { startTransition, useEffect, useOptimistic, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { FileText, FolderClock, ShieldCheck } from "lucide-react";
+import { FileText, FolderClock, MapPin, ShieldCheck } from "lucide-react";
 import { Action, Field, Select } from "@/components/controls";
 import { useWorkspace } from "@/components/workspace-provider";
 import { applicationHref, errorMessage } from "@/lib/format";
@@ -14,10 +14,14 @@ import { historyVersionLabel } from "@/features/applications/version-labels";
 export function HistoryPage() {
   const { state, client, run } = useWorkspace();
   const params = useSearchParams();
-  const role = params.get("role") || "";
-  const employer = params.get("employer") || "";
+  const [routeQuery, setOptimisticQuery] = useOptimistic(params.toString());
+  const filters = new URLSearchParams(routeQuery);
+  const role = filters.get("role") || "";
+  const employer = filters.get("employer") || "";
+  const query = filters.get("q") || "";
+  const location = filters.get("location") || "";
   const scoped = Boolean(role || employer);
-  const cleared = new URLSearchParams(params.toString());
+  const cleared = new URLSearchParams(filters);
   cleared.delete("role");
   cleared.delete("employer");
   const clearHref = `/history/${cleared.size ? `?${cleared}` : ""}`;
@@ -28,8 +32,19 @@ export function HistoryPage() {
     versionId: string;
     application: Application;
   }>();
-  const [query, setQuery] = useState("");
-  const [location, setLocation] = useState("");
+  const updateFilter = (name: "q" | "location", value: string) => {
+    const next = new URLSearchParams(filters);
+    if (value) next.set(name, value);
+    else next.delete(name);
+    startTransition(() => {
+      setOptimisticQuery(next.toString());
+      window.history.replaceState(
+        null,
+        "",
+        `/history/${next.size ? `?${next}` : ""}`,
+      );
+    });
+  };
   useEffect(() => {
     let alive = true;
     client
@@ -80,6 +95,7 @@ export function HistoryPage() {
   const allCities = Array.from(
     new Set(scopedVersions.map((item) => item.city)),
   );
+  if (location && !allCities.includes(location)) allCities.push(location);
   const search = query.trim().toLocaleLowerCase();
   const filteredVersions = scopedVersions.filter(
     (version) =>
@@ -100,7 +116,7 @@ export function HistoryPage() {
   return (
     <div className="history-page secondary-page">
       <p className="secondary-page-intro">
-        Every document version, kept in context.
+        Find the exact document version saved for a role.
       </p>
       {scoped && (
         <div
@@ -130,14 +146,14 @@ export function HistoryPage() {
             name="history_search"
             type="search"
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Role, employer or document"
+            onChange={(event) => updateFilter("q", event.target.value)}
+            placeholder="Role, company or file"
           />
           <Select
             label="Location"
             name="history_location"
             value={location}
-            onChange={(event) => setLocation(event.target.value)}
+            onChange={(event) => updateFilter("location", event.target.value)}
             options={[
               ["", "All locations"],
               ...allCities.map((city) => [city, city] as const),
@@ -156,12 +172,18 @@ export function HistoryPage() {
         </section>
       )}
       {versions.length > 0 && !filteredVersions.length && (
-        <p className="empty">No versions match these filters.</p>
+        <section className="secondary-panel history-empty">
+          <FolderClock size={27} aria-hidden="true" />
+          <p>No versions match these filters.</p>
+        </section>
       )}
       {cities.map((city) => (
         <section className="secondary-panel history-city-group" key={city}>
           <div className="secondary-section-heading">
-            <h2>{city}</h2>
+            <h2>
+              <MapPin size={17} aria-hidden="true" />
+              {city}
+            </h2>
             <span className="pill">
               {filteredVersions.filter((item) => item.city === city).length}{" "}
               {filteredVersions.filter((item) => item.city === city).length ===

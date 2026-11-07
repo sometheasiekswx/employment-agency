@@ -155,6 +155,7 @@ const { showPanel } = require("./browser-applications.cjs");
       })
       .waitFor();
     await page.locator("#notice").filter({ hasText: "Role saved." }).waitFor();
+    assert.equal(await assessCloud().count(), 0);
     await page.waitForFunction(
       () =>
         document
@@ -182,6 +183,18 @@ const { showPanel } = require("./browser-applications.cjs");
       Object.values(overlay).map((value) => JSON.parse(value)),
       [true],
     );
+    assert.equal(await assessCloud().count(), 0);
+    await inspector
+      .getByRole("button", {
+        name: "Unsave Cloud Software Engineer",
+        exact: true,
+      })
+      .click();
+    await page
+      .locator("#notice")
+      .filter({ hasText: "Role removed from Saved." })
+      .waitFor();
+    await assessCloud().waitFor();
 
     const independent = await browser.newContext({
       viewport: { width: 1440, height: 1000 },
@@ -249,6 +262,7 @@ const { showPanel } = require("./browser-applications.cjs");
       .waitFor();
     for (const tab of [firstTab, secondTab]) {
       await tab.reload();
+      await tab.getByRole("button", { name: "Saved", exact: true }).click();
       await tab
         .getByRole("button", {
           name: "Unsave Cloud Software Engineer",
@@ -312,7 +326,13 @@ const { showPanel } = require("./browser-applications.cjs");
       .click();
     const viewer = page.getByRole("dialog", { name: "CV", exact: true });
     await viewer.waitFor();
-    assert.match(await viewer.locator("iframe").getAttribute("src"), /^blob:/);
+    await viewer.getByRole("img", { name: /^PDF page 1 of / }).waitFor();
+    assert.match(
+      await viewer
+        .locator(".editor-pdf-actions a[download]")
+        .getAttribute("href"),
+      /^blob:/,
+    );
     assert.equal(
       await viewer
         .getByRole("button", { name: "Save as new draft", exact: true })

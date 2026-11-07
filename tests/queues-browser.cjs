@@ -92,6 +92,15 @@ const {
     await page.screenshot({ path: "output/playwright/queues/submitted.png" });
     await page.getByLabel("Include earlier review queues").check();
     await tab("Submitted", 2).waitFor();
+    assert.equal(new URL(page.url()).searchParams.get("location"), "Toronto");
+    assert.equal(
+      await role(fixture.legacy_sent).count(),
+      0,
+      "The London submission is outside the retained Toronto filter",
+    );
+    await page
+      .getByRole("button", { name: "Clear filters", exact: true })
+      .click();
     await role(fixture.legacy_sent).waitFor();
     await tab("Active", 3).click();
     await role(fixture.active).waitFor();

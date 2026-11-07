@@ -147,6 +147,12 @@ const {
     );
 
     await page.getByLabel("Include earlier review queues").check();
+    await tab("Submitted", 2).waitFor();
+    assert.equal(new URL(page.url()).searchParams.get("location"), "Toronto");
+    assert.equal(await role(fixture.legacy_sent).count(), 0);
+    await page
+      .getByRole("button", { name: "Clear filters", exact: true })
+      .click();
     await role(fixture.legacy_sent).waitFor();
     await counts(2);
     assert.equal(await page.locator(".discover-card").count(), 2);

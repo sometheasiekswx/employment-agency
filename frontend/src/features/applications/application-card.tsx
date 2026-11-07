@@ -83,6 +83,7 @@ export function ApplicationCard({
   const files = Object.entries(fileLabels).filter(
     ([file]) => app.documents?.[file],
   );
+  const canChangeReview = app.status === "draft" || app.status === "reviewed";
   const reviewHistory = app.comments.length > 0 && (
     <details className="application-review-history" open={view === "activity"}>
       <summary>Review history ({app.comments.length})</summary>
@@ -150,6 +151,32 @@ export function ApplicationCard({
                 {document === "resume" ? "CV" : "cover letter"}
               </Action>
             ))}
+          {view === "documents" && !client.preview && canChangeReview && (
+            <Action
+              disabled={reviewBusy || decisionBusy || Boolean(decision)}
+              run={async () => {
+                setReviewBusy(true);
+                try {
+                  await run(
+                    "review",
+                    {
+                      id: app.id,
+                      status: app.status === "draft" ? "reviewed" : "draft",
+                    },
+                    app.status === "draft"
+                      ? "This version is marked reviewed."
+                      : "This version is marked draft.",
+                  );
+                } finally {
+                  setReviewBusy(false);
+                }
+              }}
+            >
+              {app.status === "draft"
+                ? "Mark this version reviewed"
+                : "Return this version to draft"}
+            </Action>
+          )}
         </div>
         <div className="actions">
           {files.slice(0, 2).map(([file, label]) => (

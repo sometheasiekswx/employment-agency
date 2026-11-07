@@ -106,9 +106,9 @@ const { decideDialog } = require("./browser-dialog.cjs");
     await page.waitForURL(base + "/discover/");
     await assertProfile();
 
-    const globalSearch = page.locator(".workspace-search input[name=q]");
-    await globalSearch.fill("Backend");
-    await globalSearch.press("Enter");
+    const localSearch = page.getByLabel("Filter roles", { exact: true });
+    await localSearch.fill("Backend");
+    await localSearch.press("Enter");
     await page.waitForURL(
       (url) =>
         url.pathname === "/discover/" &&
@@ -116,8 +116,23 @@ const { decideDialog } = require("./browser-dialog.cjs");
     );
     await assertProfile();
 
+    await page
+      .getByRole("button", { name: "Applications", exact: true })
+      .click();
+    await page.getByRole("button", { name: /^Submitted / }).click();
+    await localSearch.fill("Cedarlight");
+    await page.waitForURL(
+      (url) =>
+        url.searchParams.get("q") === "Cedarlight" &&
+        url.searchParams.get("section") === "submitted",
+    );
+    await page
+      .getByRole("button", { name: /Assess .* at Cedarlight/ })
+      .waitFor();
+
     await page.setViewportSize({ width: 390, height: 844 });
-    const localSearch = page.getByLabel("Filter roles", { exact: true });
+    await page.getByRole("button", { name: "Saved", exact: true }).click();
+    await page.waitForURL((url) => url.searchParams.get("view") === "saved");
     assert.equal(
       await localSearch.isVisible(),
       true,
@@ -149,6 +164,16 @@ const { decideDialog } = require("./browser-dialog.cjs");
     await localSearch.press("Enter");
     await assertProfile();
 
+    await page.locator(".mobile-menu > summary").click();
+    await page
+      .getByRole("navigation", { name: "All workspace pages" })
+      .getByRole("link", { name: "Add opportunities" })
+      .click();
+    await page.waitForURL(base + "/search/#add-opportunity");
+    await page.waitForFunction(
+      () => document.activeElement?.id === "add-opportunity",
+    );
+
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page
       .getByRole("link", { name: "Career profile", exact: true })
@@ -156,6 +181,7 @@ const { decideDialog } = require("./browser-dialog.cjs");
     await page
       .getByLabel("Name", { exact: true })
       .fill("Unsaved search fixture name");
+    const globalSearch = page.locator(".workspace-search input[name=q]");
     await globalSearch.fill("Python");
     await decideDialog(page, () => globalSearch.press("Enter"), false);
     assert.equal(

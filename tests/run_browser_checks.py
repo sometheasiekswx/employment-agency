@@ -48,6 +48,7 @@ def fixture(script):
 
 def browser(script, url, hosted=False):
     env = {**os.environ, 'TEST_URL': url}
+    env.setdefault('TEST_PYTHON', sys.executable)
     env.setdefault('PLAYWRIGHT_PATH', str(ROOT / 'frontend/node_modules/playwright'))
     if hosted: env['HOSTED'] = '1'
     else: env.pop('HOSTED', None)
@@ -68,6 +69,7 @@ def seed_hosted_draft(url):
 
 if __name__ == '__main__':
     with fixture('serve_concept_fixture.py') as url:
+        browser('appearance-browser.cjs', url)
         browser('opportunities-browser.cjs', url)
     with fixture('serve_concept_fixture.py') as url:
         browser('discover-layout-browser.cjs', url)

@@ -163,7 +163,7 @@ const fs = require("node:fs");
       .click();
 
     await page.setViewportSize({ width: 1440, height: 1000 });
-    await page.goto(base + "/discover/?view=all&location=Berlin");
+    await page.goto(base + "/discover/?view=saved&location=Berlin");
     await page
       .getByRole("button", {
         name: "Assess DevOps Engineer at Northglass Works",
@@ -269,13 +269,19 @@ const fs = require("node:fs");
     }));
     layoutState._workspace.preferred_locations = cities;
     layoutState.applications = [];
+    const longJob = layoutState.jobs.find((job) => job.city === "Helsinki");
+    longJob.title =
+      "Senior Platform Engineer for Cloud Reliability and Developer Enablement";
     const layoutRows = layoutState.jobs.map((job) => ({
       job,
       match: {
         eligible_for_preparation: true,
         hard_conflicts: [],
-        unknowns: [],
-        gaps: [],
+        unknowns:
+          job === longJob
+            ? ["Work rights need confirmation", "Availability not verified"]
+            : [],
+        gaps: job === longJob ? ["Kubernetes"] : [],
         evidence: [],
         preferences: [],
         salary_expectation: {},
@@ -464,6 +470,26 @@ const fs = require("node:fs");
       restoredCard.y >= 0 && restoredCard.y < 1000,
       "Closing mobile assessment restores visible focus across packed city groups",
     );
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page
+      .getByRole("combobox", { name: "Filter by city" })
+      .selectOption("Helsinki");
+    await page
+      .getByRole("button", {
+        name: `Assess ${longJob.title} at ${longJob.employer}`,
+        exact: true,
+      })
+      .click();
+    await page.waitForFunction(() => {
+      const summary = document.querySelector(".discover-assessment-summary");
+      const footer = document.querySelector(".discover-inspector-footer");
+      return (
+        summary?.textContent.includes("Evidence gap: Kubernetes") &&
+        footer &&
+        summary.getBoundingClientRect().bottom <=
+          footer.getBoundingClientRect().top
+      );
+    });
     assert.deepEqual(errors, []);
     console.log(
       "Discover layout passed: compact uneven cities, complete readable groups, responsive inspector, focus restoration, single/empty locations and long content.",

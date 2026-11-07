@@ -26,7 +26,6 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
   useSearchParams: () => new URLSearchParams(),
 }));
-vi.mock("./unsaved", () => ({ useDraft: () => ({ canLeave: () => true }) }));
 vi.mock("./react-bits/dock", () => ({ default: () => null }));
 
 const state = (path = "/fictional-workspace"): WorkspaceState => ({

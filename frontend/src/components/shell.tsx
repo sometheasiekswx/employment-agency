@@ -24,11 +24,14 @@ import {
   UserRound,
 } from "lucide-react";
 import Dock from "./react-bits/dock";
+import { useAppearance } from "./appearance";
+import { Select } from "./controls";
 import { useWorkspace } from "./workspace-provider";
 import { useDraft } from "./unsaved";
 import { applicationQueues } from "@/features/applications/queues";
 import { WorkspaceSetup } from "@/features/settings/workspace-settings";
 import { PublicPreviewNotice } from "./public-preview-notice";
+import { appearanceOptions } from "@/lib/appearance";
 import "./shell-motion.css";
 
 const pages = [
@@ -122,6 +125,8 @@ export function Shell({ children }: { children: ReactNode }) {
   const { state, client, notice, notify, refreshError, profileId } =
     useWorkspace();
   const { canLeave } = useDraft();
+  const { appearance, setAppearance } = useAppearance();
+  const workspaceHeader = useRef<HTMLElement>(null);
   const mobileMenu = useRef<HTMLDetailsElement>(null);
   const noticeElement = useRef<HTMLParagraphElement>(null);
   const errorElement = useRef<HTMLParagraphElement>(null);
@@ -173,7 +178,11 @@ export function Shell({ children }: { children: ReactNode }) {
     return stop;
   }, [refreshError]);
   const guardedNavigation = (event: { preventDefault: () => void }) => {
-    if (!canLeave()) event.preventDefault();
+    if (!canLeave()) {
+      event.preventDefault();
+      return;
+    }
+    if (mobileMenu.current) mobileMenu.current.open = false;
   };
   const searchRoles = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -184,6 +193,14 @@ export function Shell({ children }: { children: ReactNode }) {
       search.set("q", query.trim());
     router.push(`/discover/${search.size ? `?${search}` : ""}`);
   };
+  const themeControl = (
+    <Select
+      label="Color theme"
+      options={appearanceOptions}
+      value={appearance}
+      onChange={(event) => setAppearance(event.target.value)}
+    />
+  );
   return (
     <div
       className="workspace"
@@ -197,12 +214,41 @@ export function Shell({ children }: { children: ReactNode }) {
         keyboardInput.current = false;
         event.currentTarget.dataset.feedbackInput = "pointer";
       }}
+      onFocusCapture={({ target }) => {
+        const header = workspaceHeader.current;
+        if (
+          !header ||
+          !keyboardInput.current ||
+          !(target instanceof HTMLElement) ||
+          !target.closest("main") ||
+          target.closest("dialog[open]") ||
+          !window.matchMedia?.("(max-width: 900px)").matches
+        )
+          return;
+        requestAnimationFrame(() => {
+          if (document.activeElement !== target) return;
+          // WebKit can leave an in-viewport focus target behind sticky chrome.
+          const bounds = target.getBoundingClientRect();
+          const top = header.getBoundingClientRect().bottom + 8;
+          const dock = header.querySelector(".dock-panel");
+          const bottom = (dock?.getBoundingClientRect().top ?? innerHeight) - 8;
+          const offset =
+            bounds.top < top
+              ? bounds.top - top
+              : Math.max(0, bounds.bottom - bottom);
+          if (offset) window.scrollBy({ top: offset, behavior: "instant" });
+        });
+      }}
       data-page={current.href.split("/")[1]}
     >
       <a className="skip-link" href="#content">
         Skip to content
       </a>
-      <aside className="workspace-header" aria-label="Workspace navigation">
+      <aside
+        ref={workspaceHeader}
+        className="workspace-header"
+        aria-label="Workspace navigation"
+      >
         <Link
           href="/discover/"
           className="brand"
@@ -219,6 +265,11 @@ export function Shell({ children }: { children: ReactNode }) {
           />
           <span>Agency</span>
         </Link>
+        {state._workspace.demo === true && (
+          <span className="demo-label mobile-demo-label">
+            Demo<span className="visually-hidden"> · fictional profile</span>
+          </span>
+        )}
 
         <div className="rail-context">
           <p className="rail-context-label">
@@ -259,6 +310,7 @@ export function Shell({ children }: { children: ReactNode }) {
 
         <Dock items={pages} pathname={current.href} canLeave={canLeave} />
 
+        <div className="rail-appearance">{themeControl}</div>
         <div className="rail-bottom">
           <span className="workspace-avatar" aria-hidden="true">
             {initials(state.identity.name || "Employment Agency")}
@@ -302,6 +354,13 @@ export function Shell({ children }: { children: ReactNode }) {
               <Menu aria-hidden="true" />
             </summary>
             <nav aria-label="All workspace pages">
+              <Link
+                href="/search/#add-opportunity"
+                onNavigate={guardedNavigation}
+              >
+                <Sparkles aria-hidden="true" />
+                Add opportunities
+              </Link>
               {pages.map((page) => (
                 <Link
                   key={page.href}
@@ -313,68 +372,64 @@ export function Shell({ children }: { children: ReactNode }) {
                   {page.label}
                 </Link>
               ))}
+              <div className="mobile-appearance">{themeControl}</div>
               <p>{label}</p>
             </nav>
           </details>
         </div>
-
-        {state._workspace.demo === true && (
-          <span className="demo-label mobile-demo-label">
-            Demo · fictional profile
-          </span>
-        )}
       </aside>
       <div className="workspace-main">
         <header className="workspace-topbar">
+          <div className="page-heading">
+            <h1>{current.label}</h1>
+          </div>
           {state._workspace.demo === true && (
             <span className="demo-label">Demo · fictional profile</span>
           )}
-          <form
-            className="workspace-search"
-            role="search"
-            aria-label="Search roles"
-            action="/discover/"
-            method="get"
-            onSubmit={searchRoles}
-          >
-            <Search aria-hidden="true" />
-            <label className="visually-hidden" htmlFor="workspace-role-search">
-              Search roles
-            </label>
-            <input
-              id="workspace-role-search"
-              type="search"
-              name="q"
-              placeholder="Search roles"
-            />
-            <button
-              type="submit"
-              className="secondary"
+          {!isDiscover && (
+            <form
+              className="workspace-search"
+              role="search"
               aria-label="Search roles"
+              action="/discover/"
+              method="get"
+              onSubmit={searchRoles}
             >
               <Search aria-hidden="true" />
-            </button>
-          </form>
-          <Link
-            className="button primary workspace-primary-action"
-            href={isDiscover ? "/search/#add-opportunity" : "/discover/"}
-            onNavigate={guardedNavigation}
-          >
-            {isDiscover ? (
+              <label
+                className="visually-hidden"
+                htmlFor="workspace-role-search"
+              >
+                Search roles
+              </label>
+              <input
+                id="workspace-role-search"
+                type="search"
+                name="q"
+                placeholder="Search roles"
+              />
+              <button
+                type="submit"
+                className="secondary"
+                aria-label="Search roles"
+              >
+                <Search aria-hidden="true" />
+              </button>
+            </form>
+          )}
+          {isDiscover && (
+            <Link
+              className="button primary workspace-primary-action"
+              href="/search/#add-opportunity"
+              onNavigate={guardedNavigation}
+            >
               <Sparkles aria-hidden="true" />
-            ) : (
-              <Compass aria-hidden="true" />
-            )}
-            {isDiscover ? "Add opportunities" : "Explore opportunities"}
-          </Link>
+              Add opportunities
+            </Link>
+          )}
         </header>
         <div className="desk">
           {client.preview && <PublicPreviewNotice />}
-          <div className={isDiscover ? "visually-hidden" : "page-heading"}>
-            <div>
-              <h1>{current.label}</h1>
-            </div>
-          </div>
           <p
             ref={noticeElement}
             id="notice"

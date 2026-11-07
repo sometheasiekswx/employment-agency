@@ -81,7 +81,11 @@ export function filterOpportunities(
       Boolean(currentRemoval(job)) !== Boolean(filters.removed)
     )
       return false;
-    if (filters.view === "saved" && !job.saved) return false;
+    if (
+      filters.view !== "applications" &&
+      Boolean(job.saved) !== (filters.view === "saved")
+    )
+      return false;
     if (filters.view === "recommended" && match.hard_conflicts.length)
       return false;
     if (filters.location && destination(job, priorities) !== filters.location)

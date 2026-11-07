@@ -34,6 +34,7 @@ export function OpportunityWorkbench({
   removalFeedback?: ReactNode;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
+  const heading = useRef<HTMLHeadingElement>(null);
   const close = useRef<HTMLButtonElement>(null);
   const active = panel !== "overview" || !overviewAvailable;
   const removed = Boolean(currentRemoval(job));
@@ -64,8 +65,10 @@ export function OpportunityWorkbench({
       element.addEventListener("cancel", cancel);
       element.addEventListener("close", closed);
       modal.current = compact.current;
-      if (modal.current) element.showModal();
-      else {
+      if (modal.current) {
+        element.showModal();
+        heading.current?.focus({ preventScroll: true });
+      } else {
         element.show();
         close.current?.focus({ preventScroll: true });
       }
@@ -107,20 +110,11 @@ export function OpportunityWorkbench({
       <header className="opportunities-workbench-header">
         <div>
           <p>{application.employer}</p>
-          <h2 id="opportunity-workbench-title">{application.title}</h2>
+          <h2 id="opportunity-workbench-title" ref={heading} tabIndex={-1}>
+            {application.title}
+          </h2>
         </div>
         <div className="opportunities-workbench-actions">
-          {removalAction && (
-            <button
-              type="button"
-              className="discover-icon-button"
-              aria-label={`${removed ? "Restore" : "Remove"} ${application.title}`}
-              title={removed ? "Restore role" : "Remove role"}
-              onClick={removalAction}
-            >
-              {removed ? <RotateCcw size={17} /> : <CircleMinus size={17} />}
-            </button>
-          )}
           <button
             ref={close}
             type="button"
@@ -181,6 +175,23 @@ export function OpportunityWorkbench({
             tab={panel === "activity" ? "activity" : "documents"}
           />
         </div>
+        {removalAction && (
+          <div className="opportunities-role-actions">
+            <button
+              type="button"
+              className="secondary"
+              aria-label={`${removed ? "Restore" : "Remove"} ${application.title}`}
+              onClick={removalAction}
+            >
+              {removed ? (
+                <RotateCcw size={17} aria-hidden="true" />
+              ) : (
+                <CircleMinus size={17} aria-hidden="true" />
+              )}
+              {removed ? "Restore" : "Remove"}
+            </button>
+          </div>
+        )}
       </div>
     </>
   );

@@ -148,13 +148,16 @@ const fs = require("node:fs");
       const preview = editor.getByRole("tab", { name: "Preview", exact: true });
       await preview.waitFor();
       assert.equal(await preview.getAttribute("aria-selected"), "true");
-      const iframe = editor.locator("iframe");
-      await iframe.waitFor({ state: "visible" });
-      const bounds = await iframe.boundingBox();
-      assert.ok(bounds.height >= 180, "Mobile PDF has a readable visible area");
+      const pdfPage = editor.getByRole("img", { name: /^PDF page 1 of / });
+      await pdfPage.waitFor();
+      const bounds = await pdfPage.boundingBox();
+      const visibleHeight = Math.min(
+        bounds.height,
+        page.viewportSize().height - bounds.y,
+      );
+      assert.ok(visibleHeight >= 180, "Mobile PDF has a readable visible area");
       assert.ok(
-        bounds.y >= 0 &&
-          bounds.y + bounds.height <= page.viewportSize().height + 1,
+        bounds.y >= 0 && bounds.y < page.viewportSize().height,
         "Mobile PDF is visible immediately without scrolling through edit blocks",
       );
       assert.equal(await editor.evaluate((element) => element.scrollTop), 0);
@@ -192,9 +195,8 @@ const fs = require("node:fs");
         "true",
       );
       await views(page)
-        .getByRole("button", { name: "All roles", exact: true })
+        .getByRole("button", { name: "Browse", exact: true })
         .click();
-      await card(page, cloud).waitFor();
       await page.waitForURL(
         (url) =>
           url.pathname === "/discover/" &&
@@ -204,12 +206,15 @@ const fs = require("node:fs");
         name: `Save ${cloud.title}`,
         exact: true,
       });
-      if (await save.count()) {
+      if (!(await read()).jobs.find((job) => job.id === cloud.id).saved) {
+        await card(page, cloud).waitFor();
         await save.click();
         await page
-          .getByRole("button", { name: `Unsave ${cloud.title}`, exact: true })
+          .locator("#notice")
+          .filter({ hasText: "Role saved." })
           .waitFor();
       }
+      await card(page, cloud).waitFor({ state: "detached" });
       await views(page)
         .getByRole("button", { name: "Saved", exact: true })
         .click();
@@ -250,7 +255,9 @@ const fs = require("node:fs");
       const editor = page.getByRole("dialog", { name: "CV", exact: true });
       await editor.waitFor();
       assert.match(
-        await editor.locator("iframe").getAttribute("src"),
+        await editor
+          .locator(".editor-pdf-actions a[download]")
+          .getAttribute("href"),
         /^blob:/,
       );
       await assertEditorPreview(page, editor, width);
@@ -563,13 +570,14 @@ const fs = require("node:fs");
       await assertFits(page, `${label} saved shortlist fits`);
       await page.screenshot({ path: `${output}/${label}-saved.png` });
       await views(page)
-        .getByRole("button", { name: "All roles", exact: true })
+        .getByRole("button", { name: "Browse", exact: true })
         .click();
-      await card(page, cloud).waitFor();
+      await card(page, cloud).waitFor({ state: "detached" });
       await page.locator(".discover-filters > summary").click();
       const statusFilter = page.getByRole("combobox", {
         name: "Application status",
         exact: true,
+        includeHidden: true,
       });
       assert.equal(
         await statusFilter
@@ -578,43 +586,55 @@ const fs = require("node:fs");
         0,
         "The status selector exposes only supported statuses",
       );
-      for (const status of ["submitted", "new"]) {
-        await statusFilter.selectOption(status);
-        await page.waitForURL(
-          (url) =>
-            url.searchParams.get("view") === "all" &&
-            url.searchParams.get("status") === status,
-        );
-        assert.equal(
-          await statusFilter.inputValue(),
-          status,
-          "Selecting a status retains that filter",
-        );
-        if (status === "submitted")
-          assert.equal(await page.locator(".discover-card-open").count(), 1);
-        else assert.equal(await card(page, cloud).count(), 0);
-      }
-      await views(page)
-        .getByRole("button", { name: "Applications", exact: true })
-        .click();
-      for (const status of ["submitted"]) {
-        await statusFilter.selectOption(status);
+      await statusFilter.selectOption("new");
+      await page.waitForURL(
+        (url) =>
+          url.searchParams.get("view") === "all" &&
+          url.searchParams.get("status") === "new",
+      );
+      assert.equal(await statusFilter.inputValue(), "new");
+      assert.equal(await card(page, cloud).count(), 0);
+      const assertSubmittedFilter = async () => {
         await page.waitForURL(
           (url) =>
             url.searchParams.get("view") === "applications" &&
-            url.searchParams.get("section") === status &&
-            url.searchParams.get("status") === status,
+            url.searchParams.get("section") === "submitted" &&
+            url.searchParams.get("status") === "submitted",
+        );
+        await card(page, submitted).waitFor();
+        const submittedStage = stages(page).getByRole("button", {
+          name: /^Submitted\b/,
+        });
+        assert.equal(
+          await submittedStage.getAttribute("aria-pressed"),
+          "true",
+          "Selecting Submitted opens the matching application queue",
         );
         assert.equal(
-          await statusFilter.inputValue(),
-          status,
-          "Application status filtering keeps the Applications view and matching stage",
+          await submittedStage.evaluate(
+            (element) => element === document.activeElement,
+          ),
+          true,
+          "The Submitted queue takes focus when its source filter is removed",
         );
+        assert.equal(await page.locator(".discover-card-open").count(), 1);
+        assert.equal(await card(page, cloud).count(), 0);
         assert.equal(
-          await page.locator(".discover-card-open").count(),
-          status === "submitted" ? 1 : 0,
+          await statusFilter.count(),
+          0,
+          "Submitted does not offer an incompatible status filter",
         );
-      }
+      };
+      await statusFilter.focus();
+      await statusFilter.selectOption("submitted");
+      await assertSubmittedFilter();
+      await views(page)
+        .getByRole("button", { name: "Applications", exact: true })
+        .click();
+      await page.locator(".discover-filters > summary").click();
+      await statusFilter.focus();
+      await statusFilter.selectOption("submitted");
+      await assertSubmittedFilter();
       await context.close();
     }
     // Saving an editor version keeps the role, filters and Documents workspace.
@@ -813,25 +833,37 @@ const fs = require("node:fs");
           exact: true,
         });
       assert.equal(await versions().inputValue(), draft.id);
-      const selectedVersionLabel = await versions()
+      const selectedVersionTitle = await versions()
         .locator("option:checked")
         .textContent();
-      const [
-        selectedVersionNumber,
-        selectedVersionStatus,
-        ...selectedVersionDate
-      ] = selectedVersionLabel.split(" · ");
-      const selectedVersionTitle = `${selectedVersionNumber} · ${selectedVersionStatus}`;
+      const selectedVersionDate = await versions().evaluate(
+        (select) =>
+          document.getElementById(select.getAttribute("aria-describedby"))
+            ?.textContent,
+      );
+      assert.ok(
+        selectedVersionDate,
+        "Documents exposes the date for the selected version",
+      );
+      await versions().focus();
       await versions().selectOption(current.id);
       await page.waitForURL(
         (url) =>
           url.searchParams.get("application") === current.id &&
           url.searchParams.get("panel") === "documents",
       );
-      await workbench(page)
+      const originalEditorButton = workbench(page)
         .locator(`[data-application-id="${current.id}"]`)
-        .getByRole("button", { name: "View / edit CV", exact: true })
-        .click();
+        .getByRole("button", { name: "View / edit CV", exact: true });
+      await originalEditorButton.waitFor();
+      assert.equal(
+        await versions().evaluate(
+          (select) => select === document.activeElement,
+        ),
+        true,
+        "Switching to an earlier document version retains keyboard focus",
+      );
+      await originalEditorButton.click();
       await editor.waitFor();
       await assertEditorPreview(page, editor, width);
       await editPane(editor, width);
@@ -902,7 +934,7 @@ const fs = require("node:fs");
       );
       assert.equal(
         await historyVersion.locator(".history-version-date").textContent(),
-        selectedVersionDate.join(" · "),
+        selectedVersionDate,
         "History uses the same version date as Documents",
       );
       await historyVersion.locator("summary").click();
@@ -1157,6 +1189,23 @@ const fs = require("node:fs");
         .filter((app) => app.job_id === targetJob.id)
         .at(-1);
       assert.notEqual(target.status, "submitted");
+      const bookmarked = width <= 1000;
+      if (Boolean(targetJob.saved) !== bookmarked) {
+        await page.goto(`${base}/discover/?view=applications&section=active`);
+        await card(page, targetJob).waitFor();
+        const [response] = await Promise.all([
+          page.waitForResponse(`${base}/api/save-job`),
+          page
+            .getByRole("button", {
+              name: `${bookmarked ? "Save" : "Unsave"} ${targetJob.title}`,
+              exact: true,
+            })
+            .click(),
+        ]);
+        assert.equal(response.status(), 200);
+      }
+      await page.goto(`${base}/discover/?view=${bookmarked ? "saved" : "all"}`);
+      await card(page, targetJob).waitFor();
       await page.goto(
         `${base}/discover/?view=applications&section=active&application=${target.id}&panel=activity`,
       );
@@ -1253,10 +1302,18 @@ const fs = require("node:fs");
         "",
         "A successful manual submission consumes its comment draft",
       );
-      const saved = (await read()).applications.find(
+      const afterSubmission = await read();
+      const saved = afterSubmission.applications.find(
         (app) => app.id === target.id,
       );
       assert.equal(saved.status, "submitted");
+      assert.equal(
+        Boolean(
+          afterSubmission.jobs.find((job) => job.id === targetJob.id).saved,
+        ),
+        bookmarked,
+        "Recording a submission preserves the existing bookmark",
+      );
       assert.equal(
         saved.comments.filter(
           (entry) => entry.text.includes(note) && entry.text.includes(method),
@@ -1286,6 +1343,18 @@ const fs = require("node:fs");
           !url.searchParams.has("panel"),
       );
       page.off("dialog", unexpectedWarning);
+      await card(page, targetJob).waitFor();
+      for (const view of ["all", "recommended", "saved"]) {
+        await page.goto(`${base}/discover/?view=${view}`);
+        await page
+          .locator("button.discover-refresh:enabled")
+          .waitFor({ state: "attached" });
+        assert.equal(
+          await card(page, targetJob).count(),
+          0,
+          `A submitted role leaves the ${view} board`,
+        );
+      }
       await context.close();
     }
     assert.equal(

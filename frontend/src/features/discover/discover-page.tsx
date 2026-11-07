@@ -21,12 +21,12 @@ import {
   MapPin,
   RefreshCw,
   Search,
+  ShieldAlert,
   SlidersHorizontal,
   Sparkles,
   X,
 } from "lucide-react";
 import { useDraft } from "@/components/unsaved";
-import { applicationQueues } from "@/features/applications/queues";
 import { OpportunityWorkbench } from "./opportunity-workbench";
 import { Action, Check, Select } from "@/components/controls";
 import { useWorkspace } from "@/components/workspace-provider";
@@ -36,6 +36,7 @@ import {
   compareDestinations,
   destination,
   errorMessage,
+  hasRecordedSubmission,
 } from "@/lib/format";
 import type { Job, JobRemoval, RankedJob } from "@/lib/models";
 import { currentRemoval } from "@/lib/job-removal";
@@ -46,6 +47,7 @@ import {
   applicationsByJob,
   filterOpportunities,
   groupOpportunities,
+  requirementEvidence,
   roleStatus,
   type DiscoveryView,
 } from "./discovery";
@@ -61,6 +63,23 @@ interface RankingState {
   error: string;
 }
 
+const shortlistHistoryKey = "employmentAgencyShortlistInspector";
+
+function unassessedRole(job: Job): RankedJob {
+  return {
+    job,
+    match: {
+      eligible_for_preparation: false,
+      hard_conflicts: [],
+      unknowns: [],
+      gaps: [],
+      evidence: [],
+      preferences: [],
+      salary_expectation: {},
+    },
+  };
+}
+
 function useMobileInspector() {
   const [mobile, setMobile] = useState(false);
   useEffect(() => {
@@ -74,7 +93,7 @@ function useMobileInspector() {
 }
 
 export function DiscoverPage() {
-  const { canLeave } = useDraft();
+  const { canLeave, registerHistoryGuard } = useDraft();
   const animateInteractions = useInteractionMotion();
   const [motionRevision, setMotionRevision] = useState(0);
   const bookmarkAnimations = useRef(new Set<Animation>());
@@ -85,9 +104,9 @@ export function DiscoverPage() {
   const { state, client, run, refresh, profileId, selectProfile } =
     useWorkspace();
   const params = useSearchParams();
-  const { replace } = useRouter();
-  const [queryString, setOptimisticQuery] = useOptimistic(params.toString());
-  const filters = new URLSearchParams(queryString);
+  const { back, replace } = useRouter();
+  const [routeQuery, setOptimisticQuery] = useOptimistic(params.toString());
+  const filters = new URLSearchParams(routeQuery);
   const applications = useMemo(
     () => applicationsByJob(state.applications),
     [state.applications],
@@ -115,10 +134,9 @@ export function DiscoverPage() {
   const requestedRoleId = requestedApplication
     ? applicationRoleId(requestedApplication)
     : "";
+  const requestedJob = latestJobs.get(requestedRoleId);
   const query = filters.get("q") || "";
-  const location = filters.get("location") || "";
   const rawStatus = filters.get("status") || "";
-  const statusFilter = rawStatus === "rejected" ? "" : rawStatus;
   const rawView = filters.get("view");
   const rawSection = filters.get("section");
   const removedView =
@@ -126,14 +144,47 @@ export function DiscoverPage() {
     rawStatus === "rejected" ||
     (rawView === "applications" &&
       (rawSection === "removed" || rawSection === "rejected")) ||
-    Boolean(currentRemoval(latestJobs.get(requestedRoleId)));
+    Boolean(currentRemoval(requestedJob));
+  const legacySubmittedFilter =
+    rawView !== "applications" && rawStatus === "submitted";
+  const linkedListingSubmission =
+    requestedJob?.prior_application === "submitted" &&
+    applications.get(requestedRoleId)?.status !== "submitted";
+  if (!removedView && (legacySubmittedFilter || linkedListingSubmission)) {
+    filters.set("view", "applications");
+    filters.set("section", "submitted");
+  }
+  const queryString = filters.toString();
+  const legacySavedFilter =
+    !removedView &&
+    filters.get("view") !== "applications" &&
+    rawStatus === "saved";
+  const requestedView = legacySavedFilter ? "saved" : filters.get("view");
   const view: DiscoveryView = removedView
     ? "applications"
-    : rawView === "all" || rawView === "saved" || rawView === "applications"
-      ? rawView
+    : requestedView === "all" ||
+        requestedView === "saved" ||
+        requestedView === "applications"
+      ? requestedView
       : "recommended";
   const applicationView = view === "applications";
-  const section = removedView ? "removed" : rawSection || "active";
+  const section = removedView ? "removed" : filters.get("section") || "active";
+  const location =
+    filters.get("location") ||
+    (applicationView ? filters.get("destination") : "") ||
+    "";
+  const statusFilter =
+    rawStatus === "rejected" ||
+    rawStatus === "saved" ||
+    (applicationView && section === "submitted" && rawStatus !== "submitted")
+      ? ""
+      : rawStatus;
+  const hasActiveFilters = Boolean(
+    query.trim() ||
+    location ||
+    (statusFilter &&
+      !(section === "submitted" && statusFilter === "submitted")),
+  );
   const includeHistorical = filters.get("history") === "true";
   const panel =
     filters.get("panel") === "activity"
@@ -155,24 +206,31 @@ export function DiscoverPage() {
       ? filters.get("opportunity") || ""
       : "");
   const currentRoute = useRef({ queryString, profileId });
+  const openedFromShortlist = useRef(false);
+  const closingWithBack = useRef(false);
   useLayoutEffect(() => {
     currentRoute.current = { queryString, profileId };
   }, [queryString, profileId]);
   const replaceQuery = useCallback(
-    (next: URLSearchParams, localSearch = false) => {
+    (
+      next: URLSearchParams,
+      mode: "replace" | "filter" | "open" = "replace",
+    ) => {
       startTransition(() => {
         setOptimisticQuery(next.toString());
         const href = `/discover/${next.size ? `?${next}` : ""}`;
-        // Next's native-history integration updates useSearchParams without a
-        // router fetch for every character. Ranking inputs do not change.
-        if (localSearch) window.history.replaceState(null, "", href);
+        // Search and opening a role stay in the current route. Push the role
+        // entry synchronously so even an immediate Escape returns to the board.
+        if (mode === "filter") window.history.replaceState(null, "", href);
+        else if (mode === "open")
+          window.history.pushState({ [shortlistHistoryKey]: true }, "", href);
         else replace(href, { scroll: false });
       });
     },
     [replace, setOptimisticQuery],
   );
   const setSelectedId = useCallback(
-    (id: string, guardChecked = false) => {
+    (id: string, guardChecked = false, openFromShortlist = false) => {
       // Keep the close callback stable so navigation within the inspector does
       // not rerun its initial-focus effect or reopen the native mobile dialog.
       if (!guardChecked && !canLeave()) return false;
@@ -189,7 +247,8 @@ export function DiscoverPage() {
         next.delete("application");
         next.delete("panel");
       }
-      replaceQuery(next);
+      if (openFromShortlist) openedFromShortlist.current = true;
+      replaceQuery(next, openFromShortlist ? "open" : "replace");
       return true;
     },
     [replaceQuery, canLeave],
@@ -201,12 +260,26 @@ export function DiscoverPage() {
   const closeRemovalReason = removal.closeReason;
   const [saveError, setSaveError] = useState("");
   const saveErrorNotice = useRef<HTMLDivElement>(null);
+  const searchInput = useRef<HTMLInputElement>(null);
+  const submittedStage = useRef<HTMLButtonElement>(null);
+  const focusSubmittedStage = useRef(false);
+  useLayoutEffect(() => {
+    if (
+      !applicationView ||
+      section !== "submitted" ||
+      !focusSubmittedStage.current
+    )
+      return;
+    focusSubmittedStage.current = false;
+    submittedStage.current?.focus();
+  }, [applicationView, section]);
   const opener = useRef<HTMLButtonElement | null>(null);
   const cardButtons = useRef(new Map<string, HTMLButtonElement>());
   const triageFocus = useRef<{
     adjacentId: string;
     pressed: Element | null;
     disappearingCard: Element | null;
+    fallbackToRemoved: boolean;
   } | null>(null);
   const board = useRef<HTMLDivElement>(null);
   const inspectorLayout = useRef<HTMLDivElement>(null);
@@ -215,7 +288,7 @@ export function DiscoverPage() {
   const priorities = profile?.locations.length
     ? profile.locations
     : state._workspace.preferred_locations;
-  // Saving a role or refreshing application decisions must not reload the board.
+  // Bookmark and removal changes leave the current matching intact.
   const rankInput = JSON.stringify({
     profile,
     facts: state.facts,
@@ -283,86 +356,100 @@ export function DiscoverPage() {
             job: {
               ...row.job,
               ...latest,
+              prior_application: latest.prior_application,
               saved: savedOverrides[row.job.id] ?? latest.saved ?? false,
             },
           },
         ]
       : [];
   });
-  const applicationRecords = applicationQueues(
-    state.applications,
-    includeHistorical,
-  ).filter((app) => !currentRemoval(latestJobs.get(applicationRoleId(app))));
-  const applicationRows: RankedJob[] = applicationRecords
-    .filter((app) => section === "all" || applicationSection(app) === section)
-    .map((app) => ({
-      job: latestJobs.get(applicationRoleId(app))!,
-      match: {
-        eligible_for_preparation: false,
-        hard_conflicts: [],
-        unknowns: [],
-        gaps: [],
-        evidence: [],
-        preferences: [],
-        salary_expectation: {},
-      },
-    }));
+  const applicationJobs = {
+    active: new Map<string, Job>(),
+    submitted: new Map<string, Job>(),
+  };
+  for (const [id, app] of applications) {
+    if (app.archived && !includeHistorical) continue;
+    const job = latestJobs.get(id)!;
+    const stage = applicationSection(app, job);
+    if (stage !== "removed") applicationJobs[stage].set(id, job);
+  }
+  // A listing can record an earlier submission independently of any saved version.
+  for (const [id, job] of latestJobs) {
+    if (
+      job.prior_application === "submitted" &&
+      applications.get(id)?.status !== "submitted" &&
+      !currentRemoval(job)
+    )
+      applicationJobs.submitted.set(id, job);
+  }
+  const applicationRows = (
+    section === "all"
+      ? [
+          ...applicationJobs.active.values(),
+          ...applicationJobs.submitted.values(),
+        ]
+      : section === "active" || section === "submitted"
+        ? [...applicationJobs[section].values()]
+        : []
+  ).map(unassessedRole);
   const removedRows: RankedJob[] = [...latestJobs.values()]
     .filter((job) => currentRemoval(job))
     .map(
-      (job) =>
-        rows.find((row) => row.job.id === job.id) || {
-          job,
-          match: {
-            eligible_for_preparation: false,
-            hard_conflicts: [],
-            unknowns: [],
-            gaps: [],
-            evidence: [],
-            preferences: [],
-            salary_expectation: {},
-          },
-        },
+      (job) => rows.find((row) => row.job.id === job.id) || unassessedRole(job),
     );
   const sourceRows = removedView
     ? removedRows
     : applicationView
       ? applicationRows
-      : rows;
-  const browsingRows = applicationView
-    ? sourceRows
-    : sourceRows.filter(
-        ({ job }) => Boolean(currentRemoval(job)) === removedView,
-      );
+      : rows.filter(
+          ({ job }) =>
+            !currentRemoval(job) &&
+            !hasRecordedSubmission(applications.get(job.id), job),
+        );
+  const scopedRows = filterOpportunities(
+    sourceRows,
+    { query: "", location: "", view, removed: removedView },
+    priorities,
+  );
   const locations = [
-    ...new Set(browsingRows.map(({ job }) => destination(job, priorities))),
+    ...new Set([
+      ...scopedRows.map(({ job }) => destination(job, priorities)),
+      ...(location ? [location] : []),
+    ]),
   ].sort((a, b) => compareDestinations(a, b, priorities));
   const visible = filterOpportunities(
-    sourceRows,
+    scopedRows,
     {
       query,
-      location:
-        location || (applicationView ? filters.get("destination") || "" : ""),
+      location,
       view,
       removed: removedView,
     },
     priorities,
-  ).filter(
-    ({ job }) =>
-      !statusFilter ||
-      roleStatus(job, applications.get(job.id)).label.toLowerCase() ===
-        statusFilter,
-  );
+  ).filter(({ job }) => {
+    if (!statusFilter) return true;
+    const app = applications.get(job.id);
+    return statusFilter === "submitted"
+      ? hasRecordedSubmission(app, job)
+      : roleStatus(job, app).label.toLowerCase() === statusFilter;
+  });
   const groups = groupOpportunities(visible, priorities);
   const navigationRows = groups.flatMap(([, rows]) => rows);
   const selectedRow = visible.find((row) => row.job.id === selectedId);
+  const assessedRow = rows.find((row) => row.job.id === selectedId);
+  const keepSavedDetails =
+    !applicationView &&
+    view !== "saved" &&
+    assessedRow?.job.saved &&
+    !currentRemoval(assessedRow.job);
   const selected =
     selectedRow ||
     requestedApplication ||
-    removal.feedback?.job.id === selectedId
-      ? rows.find((row) => row.job.id === selectedId) || selectedRow
+    removal.feedback?.job.id === selectedId ||
+    keepSavedDetails
+      ? assessedRow || selectedRow
       : undefined;
-  const assessmentAvailable = rows.some((row) => row.job.id === selectedId);
+  const assessmentAvailable = Boolean(assessedRow);
   const selectedApplication =
     requestedApplication ||
     (selected ? applications.get(selected.job.id) : undefined);
@@ -411,7 +498,10 @@ export function DiscoverPage() {
       }
       const target =
         cardButtons.current.get(intent.adjacentId) ||
-        document.querySelector<HTMLButtonElement>(".discover-removed-filter") ||
+        (intent.fallbackToRemoved &&
+          document.querySelector<HTMLButtonElement>(
+            ".discover-removed-filter[aria-pressed]",
+          )) ||
         document.querySelector<HTMLButtonElement>(
           '.discover-views button[aria-pressed="true"]',
         );
@@ -532,10 +622,8 @@ export function DiscoverPage() {
       saveErrorNotice.current?.focus({ preventScroll: true });
   }, [saveError, inspectorOpen, mobile]);
 
-  const closeInspector = useCallback(() => {
-    if (!setSelectedId("")) return false;
-    closeRemovalReason();
-    window.setTimeout(() => {
+  const restoreShortlistFocus = useCallback(() => {
+    return window.setTimeout(() => {
       if (opener.current?.isConnected) {
         opener.current.scrollIntoView?.({
           block: "nearest",
@@ -550,23 +638,96 @@ export function DiscoverPage() {
           ?.focus({ preventScroll: true });
       }
     }, 0);
+  }, []);
+  const closeInspector = useCallback(() => {
+    if (closingWithBack.current) return true;
+    if (!canLeave()) return false;
+    if (openedFromShortlist.current) {
+      closingWithBack.current = true;
+      back();
+    } else {
+      setSelectedId("", true);
+      restoreShortlistFocus();
+    }
+    closeRemovalReason();
     return true;
-  }, [setSelectedId, closeRemovalReason]);
+  }, [
+    back,
+    canLeave,
+    setSelectedId,
+    closeRemovalReason,
+    restoreShortlistFocus,
+  ]);
+
+  useEffect(() => {
+    const guardShortlistBack = (event: PopStateEvent) => {
+      const url = new URL(window.location.href);
+      if (url.pathname !== "/discover/") return;
+      if (
+        url.searchParams.has("opportunity") ||
+        url.searchParams.has("application")
+      ) {
+        openedFromShortlist.current =
+          event.state?.[shortlistHistoryKey] === true;
+        closingWithBack.current = false;
+        return;
+      }
+      if (!openedFromShortlist.current) return;
+      if (closingWithBack.current || canLeave()) {
+        closingWithBack.current = true;
+      } else {
+        event.stopImmediatePropagation();
+        window.history.forward();
+      }
+    };
+    return registerHistoryGuard(guardShortlistBack);
+  }, [canLeave, registerHistoryGuard]);
+
+  useLayoutEffect(() => {
+    if (!inspectorOpen || closingWithBack.current) return;
+    const historyState = window.history.state;
+    if (historyState?.[shortlistHistoryKey] === true) {
+      openedFromShortlist.current = true;
+    } else if (openedFromShortlist.current) {
+      // Activity, Documents, and version changes can replace this same entry.
+      // Keep its shortlist ownership alongside the router's history metadata.
+      window.history.replaceState(
+        { ...historyState, [shortlistHistoryKey]: true },
+        "",
+      );
+    }
+  }, [inspectorOpen, params]);
+
+  useLayoutEffect(() => {
+    if (inspectorOpen || !openedFromShortlist.current) return;
+    const returnedWithBack = closingWithBack.current;
+    openedFromShortlist.current = false;
+    closingWithBack.current = false;
+    closeRemovalReason();
+    // Triage and filter changes have their own focus target. Restoring the
+    // original opener here can focus a card that is about to disappear.
+    if (!returnedWithBack) return;
+    const restore = restoreShortlistFocus();
+    return () => window.clearTimeout(restore);
+  }, [inspectorOpen, closeRemovalReason, restoreShortlistFocus]);
 
   const updateFilters = (
     values: Record<string, string>,
     localSearch = false,
   ) => {
-    if (!canLeave()) return;
+    if (!canLeave()) return false;
     const next = new URLSearchParams(queryString);
+    if (legacySavedFilter) {
+      next.set("view", "saved");
+      next.delete("status");
+    }
     if (values.view) {
       next.delete("removed");
       next.delete("section");
-      next.delete("location");
       next.delete("status");
-      next.delete("destination");
-      next.delete("q");
     }
+    if (location) next.set("location", location);
+    next.delete("destination");
     if (values.section) next.delete("removed");
     for (const [name, value] of Object.entries(values)) {
       if (value) next.set(name, value);
@@ -576,19 +737,27 @@ export function DiscoverPage() {
     next.delete("assessment_profile");
     next.delete("application");
     next.delete("panel");
-    if (next.toString() !== queryString) replaceQuery(next, localSearch);
+    if (next.toString() !== queryString)
+      replaceQuery(next, localSearch ? "filter" : "replace");
+    return true;
+  };
+  const clearFilters = () => {
+    if (updateFilters({ q: "", location: "", status: "" }))
+      searchInput.current?.focus({ preventScroll: true });
   };
 
   const scheduleTriageFocus = (
     adjacent: RankedJob | undefined,
     pressed: Element | null,
     jobId: string,
+    fallbackToRemoved = true,
   ) => {
     triageFocus.current = {
       adjacentId: adjacent?.job.id || "",
       pressed,
       disappearingCard:
         cardButtons.current.get(jobId)?.closest(".discover-card") || null,
+      fallbackToRemoved,
     };
   };
   const removeJob = async (job: Job) => {
@@ -677,6 +846,17 @@ export function DiscoverPage() {
     saved: boolean,
     button?: HTMLButtonElement,
   ) => {
+    const leavesView = !applicationView && saved !== (view === "saved");
+    if (leavesView && (!saved || button?.closest(".discover-card"))) {
+      const index = navigationRows.findIndex((row) => row.job.id === id);
+      if (index >= 0)
+        scheduleTriageFocus(
+          navigationRows[index + 1] || navigationRows[index - 1],
+          button || null,
+          id,
+          false,
+        );
+    }
     setSaveError("");
     setSavedOverrides((previous) => ({ ...previous, [id]: saved }));
     setSavingIds((previous) => [...previous, id]);
@@ -761,12 +941,15 @@ export function DiscoverPage() {
             Filter roles
           </label>
           <input
+            ref={searchInput}
             id="discover-role-search"
             name="q"
             type="search"
             value={query}
             onChange={(event) => updateFilters({ q: event.target.value }, true)}
-            placeholder="Search role, employer or skill"
+            placeholder={
+              applicationView ? "Search this queue" : "Title, company or skill"
+            }
             autoComplete="off"
             autoCapitalize="none"
             spellCheck={false}
@@ -801,7 +984,7 @@ export function DiscoverPage() {
             {(
               [
                 ["recommended", "Recommended"],
-                ["all", "All roles"],
+                ["all", "Browse"],
                 ["saved", "Saved"],
                 ["applications", "Applications"],
               ] as const
@@ -876,28 +1059,39 @@ export function DiscoverPage() {
                   updateFilters({ location: event.target.value })
                 }
               />
-              <Select
-                label="Application status"
-                value={statusFilter}
-                options={[
-                  ["", "Any status"],
-                  ["new", "New"],
-                  ["saved", "Saved"],
-                  ["draft", "Draft"],
-                  ["reviewed", "Reviewed"],
-                  ["submitted", "Submitted"],
-                ]}
-                onChange={(event) =>
-                  updateFilters({
-                    status: event.target.value,
-                    ...(event.target.value === "submitted" && !removedView
-                      ? applicationView
-                        ? { section: event.target.value }
-                        : { view: "all" }
-                      : {}),
-                  })
-                }
-              />
+              {(!applicationView || section !== "submitted") && (
+                <Select
+                  label="Application status"
+                  value={statusFilter}
+                  options={[
+                    ["", "Any status"],
+                    ["new", "New"],
+                    ["draft", "Draft"],
+                    ["reviewed", "Reviewed"],
+                    ["submitted", "Submitted"],
+                  ]}
+                  onChange={(event) => {
+                    const status = event.target.value;
+                    if (status === "submitted" && !removedView) {
+                      const disclosure = event.currentTarget.closest("details");
+                      focusSubmittedStage.current = true;
+                      const changed = updateFilters(
+                        applicationView
+                          ? { status, section: "submitted" }
+                          : {
+                              status,
+                              view: "applications",
+                              section: "submitted",
+                            },
+                      );
+                      if (changed && disclosure) disclosure.open = false;
+                      if (!changed) focusSubmittedStage.current = false;
+                    } else {
+                      updateFilters({ status });
+                    }
+                  }}
+                />
+              )}
               <Link href="/search/">
                 Manage profiles and job sources <ArrowUpRight size={14} />
               </Link>
@@ -912,20 +1106,21 @@ export function DiscoverPage() {
             role="group"
             aria-label="Application stage"
           >
-            {[
-              ["active", "Active"],
-              ["submitted", "Submitted"],
-              ["removed", "Removed"],
-            ].map(([value, label]) => (
+            {(
+              [
+                ["active", "Active"],
+                ["submitted", "Submitted"],
+                ["removed", "Removed"],
+              ] as const
+            ).map(([value, label]) => (
               <button
                 key={value}
+                ref={value === "submitted" ? submittedStage : undefined}
                 type="button"
                 aria-pressed={section === value}
                 onClick={() =>
                   updateFilters({
                     section: value,
-                    location: "",
-                    destination: "",
                     status: "",
                   })
                 }
@@ -934,9 +1129,7 @@ export function DiscoverPage() {
                 <span>
                   {value === "removed"
                     ? removedRows.length
-                    : applicationRecords.filter(
-                        (app) => applicationSection(app) === value,
-                      ).length}
+                    : applicationJobs[value].size}
                 </span>
               </button>
             ))}
@@ -975,6 +1168,15 @@ export function DiscoverPage() {
               ? "Matches unavailable"
               : `${removedView ? "Removed · " : ""}${visible.length} ${visible.length === 1 ? "role" : "roles"} · ${groups.length} ${groups.length === 1 ? "location" : "locations"}`}
         </span>
+        {hasActiveFilters && visible.length > 0 && (
+          <button
+            type="button"
+            className="discover-removed-filter"
+            onClick={clearFilters}
+          >
+            Clear filters
+          </button>
+        )}
         {(!applicationView || removedView) && (
           <button
             type="button"
@@ -994,6 +1196,11 @@ export function DiscoverPage() {
           </button>
         )}
       </div>
+      {view === "all" && (
+        <p className="discover-browse-scope">
+          Saved roles and submitted applications have their own views.
+        </p>
+      )}
       {!inspectorOpen && (removal.feedback || removal.editor) && (
         <div className="discover-removal-inline">
           <RemovalFeedback
@@ -1003,29 +1210,45 @@ export function DiscoverPage() {
           />
         </div>
       )}
-      <div
-        className="discover-location-tabs"
-        role="group"
-        aria-label="Filter roles by location"
-      >
-        <button
-          type="button"
-          aria-pressed={!location}
-          onClick={() => updateFilters({ location: "" })}
+      {locations.length > 4 ? (
+        <div className="discover-location-select">
+          <Select
+            label="Filter by city"
+            value={location}
+            options={[
+              ["", "All locations"],
+              ...locations.map((city) => [city, city] as const),
+            ]}
+            onChange={(event) =>
+              updateFilters({ location: event.target.value })
+            }
+          />
+        </div>
+      ) : (
+        <div
+          className="discover-location-tabs"
+          role="group"
+          aria-label="Filter roles by location"
         >
-          All locations
-        </button>
-        {locations.map((city) => (
           <button
-            key={city}
             type="button"
-            aria-pressed={location === city}
-            onClick={() => updateFilters({ location: city })}
+            aria-pressed={!location}
+            onClick={() => updateFilters({ location: "" })}
           >
-            {city}
+            All locations
           </button>
-        ))}
-      </div>
+          {locations.map((city) => (
+            <button
+              key={city}
+              type="button"
+              aria-pressed={location === city}
+              onClick={() => updateFilters({ location: city })}
+            >
+              {city}
+            </button>
+          ))}
+        </div>
+      )}
       {error && (
         <div className="discover-request-error" role="alert">
           <p>{error}</p>
@@ -1080,30 +1303,44 @@ export function DiscoverPage() {
           ))}
         </div>
       )}
-      {!loading && !error && !visible.length && !requestedApplication && (
+      {!loading && !error && !visible.length && !inspectorOpen && (
         <div className="discover-empty">
           <Search size={27} />
           <h2>
-            {removedView
-              ? "No removed roles here"
-              : applicationView
-                ? `No ${section} applications`
-                : !rows.length
-                  ? "Add your first opportunity"
-                  : view === "saved"
-                    ? "No saved roles here yet"
-                    : "No roles match these filters"}
+            {hasActiveFilters && scopedRows.length
+              ? applicationView
+                ? "No applications match these filters"
+                : "No roles match these filters"
+              : removedView
+                ? "No removed roles here"
+                : applicationView
+                  ? `No ${section} applications`
+                  : !rows.length
+                    ? "Add your first opportunity"
+                    : view === "saved"
+                      ? "No saved roles here yet"
+                      : "No roles match these filters"}
           </h2>
           <p>
-            {removedView
-              ? "Removed roles and their application documents and activity stay recoverable here."
-              : applicationView
-                ? "Prepare a draft from a role to start an application. Your recorded submissions and decisions stay available in the other stage views."
-                : !rows.length
-                  ? "Import a job URL, paste an advert or refresh a configured source in Search preferences."
-                  : "Adjust your filters or choose All results to inspect the full assessment."}
+            {hasActiveFilters && scopedRows.length
+              ? "Clear the search and filters to see everything in this view."
+              : removedView
+                ? "Removed roles and their application documents and activity stay recoverable here."
+                : applicationView
+                  ? "Prepare a draft from a role to start an application. Your recorded submissions and decisions stay available in the other stage views."
+                  : !rows.length
+                    ? "Import a job URL, paste an advert or refresh a configured source in Search preferences."
+                    : "Adjust your filters or choose All results to inspect the full assessment."}
           </p>
-          {!profile && !applicationView ? (
+          {hasActiveFilters && scopedRows.length ? (
+            <button
+              type="button"
+              className="discover-primary"
+              onClick={clearFilters}
+            >
+              Clear filters
+            </button>
+          ) : !profile && !applicationView ? (
             <Link className="button discover-primary" href="/search/">
               Create a search profile
             </Link>
@@ -1134,7 +1371,7 @@ export function DiscoverPage() {
           )}
         </div>
       )}
-      {(visible.length > 0 || requestedApplication) && (
+      {(visible.length > 0 || inspectorOpen) && (
         <div
           ref={inspectorLayout}
           className={`discover-layout ${inspectorOpen && !mobile ? "has-inspector" : ""} ${expandedApplication ? "has-workbench" : ""}`}
@@ -1160,7 +1397,7 @@ export function DiscoverPage() {
                   <span>{opportunities.length}</span>
                 </header>
                 {opportunities.map((row) => {
-                  const { job } = row;
+                  const { job, match } = row;
                   const status = roleStatus(job, applications.get(job.id));
                   const salary = advertisedSalary(job, {
                     compact: true,
@@ -1173,6 +1410,18 @@ export function DiscoverPage() {
                   ]
                     .filter(Boolean)
                     .join(" · ");
+                  const gaps = match.gaps.length;
+                  const caution =
+                    match.unknowns[0] ||
+                    (gaps
+                      ? `${gaps} evidence ${gaps === 1 ? "gap" : "gaps"}`
+                      : "");
+                  const related =
+                    view === "recommended"
+                      ? requirementEvidence(match.evidence, state.facts).filter(
+                          (item) => item.facts.length,
+                        ).length
+                      : 0;
                   return (
                     <article
                       className={`discover-card ${selectedId === job.id ? "is-selected" : ""}`}
@@ -1254,7 +1503,7 @@ export function DiscoverPage() {
                         aria-label={`Assess ${job.title} at ${job.employer}`}
                         aria-pressed={selectedId === job.id}
                         onClick={(event) => {
-                          if (setSelectedId(job.id)) {
+                          if (setSelectedId(job.id, false, !inspectorOpen)) {
                             opener.current = event.currentTarget;
                             setMotionRevision((value) => value + 1);
                           }
@@ -1281,6 +1530,22 @@ export function DiscoverPage() {
                         >
                           {salary}
                         </p>
+                      )}
+                      {view === "recommended" && (related > 0 || caution) && (
+                        <div className="discover-card-fit">
+                          {related > 0 && (
+                            <p>
+                              Related evidence for {related}{" "}
+                              {related === 1 ? "requirement" : "requirements"}
+                            </p>
+                          )}
+                          {caution && (
+                            <p className="discover-card-check">
+                              <ShieldAlert size={14} aria-hidden="true" />
+                              <span>{caution}</span>
+                            </p>
+                          )}
+                        </div>
                       )}
                       {removedView && currentRemoval(job)?.reason && (
                         <p

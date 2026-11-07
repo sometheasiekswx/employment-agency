@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import {
   Check,
   Field,
@@ -13,13 +14,18 @@ import { splitList } from "@/lib/format";
 import type { Profile, RequestData } from "@/lib/models";
 
 const listFields = [
-  ["roles", "Roles, comma separated"],
-  ["locations", "Locations, highest priority first"],
-  ["seniority", "Seniority levels"],
-  ["arrangements", "Work arrangements"],
-  ["hard", "Hard filter categories: roles, locations, seniority, arrangements"],
-  ["exclude", "Exclude employers, industries or keywords"],
-  ["work_rights", "Confirmed work rights (context for your review)"],
+  ["roles", "Target roles", "e.g. Engineer, Analyst"],
+  ["locations", "Locations in priority order", "e.g. Toronto, Melbourne"],
+  ["seniority", "Seniority levels", "e.g. Junior, Mid-level"],
+  ["arrangements", "Work arrangements", "e.g. Remote, Hybrid"],
+  ["exclude", "Employers, industries or keywords to exclude"],
+  ["work_rights", "Confirmed work rights"],
+] as const;
+const matchFields = [
+  ["roles", "Role"],
+  ["locations", "Location"],
+  ["seniority", "Seniority"],
+  ["arrangements", "Work arrangement"],
 ] as const;
 export const payPeriods = [
   ["month", "Monthly"],
@@ -29,6 +35,9 @@ export const payPeriods = [
 
 export function ProfileForm({ profile }: { profile?: Profile }) {
   const { run, selectProfile } = useWorkspace();
+  const listHelpId = useId();
+  const matchHelpId = useId();
+  const hard = profile?.hard || ["roles", "locations"];
   return (
     <Form
       className="search-profile-form"
@@ -40,6 +49,7 @@ export function ProfileForm({ profile }: { profile?: Profile }) {
           currency: text(data, "currency"),
           period: text(data, "period"),
           template: text(data, "template"),
+          hard: data.getAll("hard").map(String),
         };
         for (const [key] of listFields) input[key] = splitList(text(data, key));
         for (const key of [
@@ -58,16 +68,50 @@ export function ProfileForm({ profile }: { profile?: Profile }) {
         defaultValue={profile?.name}
         required
       />
-      {listFields.map(([name, label]) => (
+      <p className="search-profile-help" id={listHelpId}>
+        Separate multiple entries with commas.
+      </p>
+      {listFields.map(([name, label, placeholder]) => (
         <Field
           key={name}
           name={name}
           label={label}
-          defaultValue={(
-            profile?.[name] || (name === "hard" ? ["roles", "locations"] : [])
-          ).join(", ")}
+          placeholder={placeholder}
+          aria-describedby={listHelpId}
+          defaultValue={profile?.[name]?.join(", ")}
         />
       ))}
+      <fieldset
+        className="search-required-matches"
+        aria-describedby={matchHelpId}
+      >
+        <legend>Required matches</legend>
+        <p id={matchHelpId}>
+          Recommended excludes listings with a known mismatch on a checked
+          preference. Missing details remain marked for review.
+        </p>
+        <div className="search-match-options">
+          {matchFields.map(([value, label]) => (
+            <Check
+              key={value}
+              name="hard"
+              value={value}
+              label={label}
+              defaultChecked={hard.includes(value)}
+            />
+          ))}
+          {hard
+            .filter((value) => !matchFields.some(([known]) => known === value))
+            .map((value, index) => (
+              <input
+                key={`${value}-${index}`}
+                type="hidden"
+                name="hard"
+                value={value}
+              />
+            ))}
+        </div>
+      </fieldset>
       <Check
         label="Require employer sponsorship"
         name="needs_sponsorship"
@@ -75,7 +119,7 @@ export function ProfileForm({ profile }: { profile?: Profile }) {
       />
       <div className="grid">
         <Field
-          label="Private minimum gross base"
+          label="Private minimum base pay before tax"
           name="minimum"
           type="number"
           min="0"

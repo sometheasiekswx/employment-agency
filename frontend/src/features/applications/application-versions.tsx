@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useId } from "react";
 import { Select } from "@/components/controls";
 import { useDraft } from "@/components/unsaved";
 import { useWorkspace } from "@/components/workspace-provider";
@@ -16,10 +17,14 @@ export function ApplicationVersions({
 }) {
   const { state } = useWorkspace();
   const { canLeave } = useDraft();
+  const dateId = useId();
   const versions = applicationVersionLabels(
     state.applications,
     application,
     state._workspace.timezone,
+  );
+  const selected = versions.find(
+    (version) => version.application.id === application.id,
   );
   // History groups use the preserved folder names, which can differ from
   // original job labels after filesystem punctuation has been normalized.
@@ -36,9 +41,10 @@ export function ApplicationVersions({
         label="Document version"
         name="document_version"
         value={application.id}
+        aria-describedby={selected ? dateId : undefined}
         options={versions.map((version) => [
           version.application.id,
-          version.label,
+          version === selected ? version.title : version.label,
         ])}
         onChange={(event) => {
           const version = versions.find(
@@ -49,7 +55,10 @@ export function ApplicationVersions({
         }}
       />
       <p className="application-version-help">
-        New drafts keep the original. Submitted snapshots stay unchanged.
+        {selected && <span id={dateId}>{selected.date}</span>}
+        <span>
+          New drafts keep the original. Submitted snapshots stay unchanged.
+        </span>
       </p>
       <Link
         href={`/history/?${historyQuery}`}

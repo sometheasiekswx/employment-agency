@@ -189,6 +189,24 @@ it("keeps the navigation guard while activity is hidden and saves the same draft
   confirm.mockRestore();
 });
 
+it("marks the displayed document version reviewed without saving a pending Activity comment", async () => {
+  const view = render(workspace("activity"));
+  await userEvent.type(screen.getByLabelText("Comments"), "Pending comment");
+  view.rerender(workspace("documents"));
+  await userEvent.click(
+    screen.getByRole("button", { name: "Mark this version reviewed" }),
+  );
+  await waitFor(() =>
+    expect(fixture.run).toHaveBeenCalledWith(
+      "review",
+      { id: application.id, status: "reviewed" },
+      "This version is marked reviewed.",
+    ),
+  );
+  view.rerender(workspace("activity"));
+  expect(screen.getByLabelText("Comments")).toHaveValue("Pending comment");
+});
+
 it("preserves the explicit submission confirmation when switching tabs without recording anything", async () => {
   const view = render(workspace("activity"));
   await userEvent.click(

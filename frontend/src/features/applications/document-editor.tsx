@@ -2,7 +2,13 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ArrowDown, ArrowUp } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  Download,
+  ExternalLink,
+  ZoomIn,
+} from "lucide-react";
 import { useWorkspace } from "@/components/workspace-provider";
 import { useDraft } from "@/components/unsaved";
 import { applicationHref, errorMessage, isConnectionError } from "@/lib/format";
@@ -12,6 +18,7 @@ import type {
   EditorDocument,
   RequestData,
 } from "@/lib/models";
+import { EditorPdfPreview } from "./editor-pdf-preview";
 import "./editor-navigation.css";
 
 const styles = [
@@ -39,6 +46,8 @@ export function DocumentEditor({
   const [blocks, setBlocks] = useState<Block[]>(document.blocks || []);
   const [source, setSource] = useState(document.source || "");
   const [pdf, setPdf] = useState(document.pdf);
+  const [zoomed, setZoomed] = useState(false);
+  const [readingText, setReadingText] = useState(false);
   const [compact, setCompact] = useState(false);
   const [pane, setPane] = useState<"edit" | "preview">("preview");
   const [blockIndex, setBlockIndex] = useState(0);
@@ -46,8 +55,12 @@ export function DocumentEditor({
   const pendingBlock = useRef<number | null>(null);
   const paneTabs = useRef<(HTMLButtonElement | null)[]>([]);
   const navigationId = useId();
-  const iframe = useRef<HTMLIFrameElement>(null);
   const previewLink = useRef<HTMLAnchorElement>(null);
+  const downloadLink = useRef<HTMLAnchorElement>(null);
+  // WebKit can block the native blob PDF tab under the app's framing policy.
+  const canOpenNativeTab =
+    typeof navigator === "undefined" ||
+    navigator.vendor !== "Apple Computer, Inc.";
   const [dirty, setDirty] = useState(false);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState("");
@@ -99,8 +112,8 @@ export function DocumentEditor({
     const url = URL.createObjectURL(
       new Blob([bytes], { type: "application/pdf" }),
     );
-    if (iframe.current) iframe.current.src = url;
     if (previewLink.current) previewLink.current.href = url;
+    if (downloadLink.current) downloadLink.current.href = url;
     return () => URL.revokeObjectURL(url);
   }, [pdf]);
   useEffect(() => {
@@ -482,10 +495,56 @@ export function DocumentEditor({
             }
             hidden={document.mode !== "view" && compact && pane !== "preview"}
           >
-            <a ref={previewLink} target="_blank" rel="noopener">
-              Open preview in another tab
-            </a>
-            <iframe ref={iframe} title="Document PDF preview" />
+            <div className="editor-pdf-actions">
+              <a
+                ref={downloadLink}
+                className="button secondary editor-pdf-file-action"
+                aria-label="Download PDF"
+                title="Download PDF"
+                download={
+                  document.document === "resume" ? "cv.pdf" : "cover-letter.pdf"
+                }
+              >
+                <Download aria-hidden="true" />
+                <span>Download PDF</span>
+              </a>
+              {canOpenNativeTab && (
+                <a
+                  ref={previewLink}
+                  target="_blank"
+                  rel="noopener"
+                  className="button secondary editor-pdf-file-action"
+                  aria-label="Open in new tab"
+                  title="Open in new tab"
+                >
+                  <ExternalLink aria-hidden="true" />
+                  <span>Open in new tab</span>
+                </a>
+              )}
+              <button
+                type="button"
+                className="secondary editor-pdf-zoom"
+                aria-label="Zoom PDF"
+                aria-pressed={zoomed}
+                disabled={readingText}
+                title={zoomed ? "Fit PDF to width" : "Zoom PDF"}
+                onClick={() => setZoomed(!zoomed)}
+              >
+                <ZoomIn aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                className="secondary"
+                onClick={() => setReadingText(!readingText)}
+              >
+                {readingText ? "View page" : "Read text"}
+              </button>
+            </div>
+            <EditorPdfPreview
+              pdf={pdf}
+              zoomed={zoomed}
+              readingText={readingText}
+            />
           </section>
         </div>
         {document.mode !== "view" && (
@@ -493,7 +552,11 @@ export function DocumentEditor({
             <button disabled={busy} onClick={() => build(false)}>
               Update preview
             </button>
-            <button disabled={busy} onClick={() => build(true)}>
+            <button
+              className="primary"
+              disabled={busy}
+              onClick={() => build(true)}
+            >
               Save as new draft
             </button>
           </footer>

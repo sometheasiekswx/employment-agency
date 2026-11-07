@@ -111,15 +111,16 @@ it("preserves the submitted snapshot even when a later draft exists", () => {
 it("keeps conflict records available in All results and combines saved, text and city filters", () => {
   const saved = row("a", "Toronto", { saved: true });
   const conflict = row("b", "Berlin");
+  const recommended = row("c", "Berlin");
   conflict.match.hard_conflicts = ["Confirmed eligibility conflict"];
-  const rows = [saved, conflict];
+  const rows = [saved, conflict, recommended];
   expect(
     filterOpportunities(
       rows,
       { query: "", location: "", view: "recommended" },
       [],
     ).map((item) => item.job.id),
-  ).toEqual(["a"]);
+  ).toEqual(["c"]);
   expect(
     filterOpportunities(
       rows,
@@ -129,7 +130,14 @@ it("keeps conflict records available in All results and combines saved, text and
   ).toEqual([saved]);
   expect(
     filterOpportunities(rows, { query: "", location: "", view: "all" }, []),
-  ).toHaveLength(2);
+  ).toEqual([conflict, recommended]);
+  expect(
+    filterOpportunities(
+      rows,
+      { query: "", location: "", view: "applications" },
+      [],
+    ),
+  ).toEqual(rows);
   expect(
     groupOpportunities(rows, ["Berlin", "Toronto"]).map(([city]) => city),
   ).toEqual(["Berlin", "Toronto"]);

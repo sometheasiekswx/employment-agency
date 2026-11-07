@@ -47,8 +47,8 @@ const {
   await page.getByRole("link", { name: "Search preferences" }).click();
   await page.getByText("Create another profile", { exact: true }).click();
   await page.getByLabel("Profile name").fill("Software engineering");
-  await page.getByLabel("Roles, comma separated").fill("Engineer");
-  await page.getByLabel("Locations, highest priority first").fill("Toronto");
+  await page.getByLabel("Target roles").fill("Engineer");
+  await page.getByLabel("Locations in priority order").fill("Toronto");
   await page.getByLabel("Include stretch roles").check();
   await page.getByLabel("Prepare drafts when eligibility").check();
   await page.getByRole("button", { name: "Save profile" }).click();

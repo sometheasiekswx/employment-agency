@@ -88,10 +88,13 @@ it("lists every role version chronologically, including preserved drafts and arc
     screen.getByRole("combobox", { name: "Document version" }),
   ).toHaveValue(submitted.id);
   expect(
+    screen.getByRole("combobox", { name: "Document version" }),
+  ).toHaveAccessibleDescription("30 Oct 2026");
+  expect(
     screen.getAllByRole("option").map((option) => option.textContent),
   ).toEqual([
     "Version 1 · Draft · 29 Oct 2026",
-    "Version 2 · Submitted · 30 Oct 2026",
+    "Version 2 · Submitted",
     "Version 3 · Reviewed · 2 Nov 2026",
     "Version 4 · Draft · 6 Nov 2026",
   ]);

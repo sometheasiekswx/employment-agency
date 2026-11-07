@@ -4,30 +4,30 @@
   gap: 12px;
   padding: 12px 20px;
   margin: 0 0 18px;
-  border: 1px solid #52445f;
+  border: 1px solid var(--accent-border);
   border-radius: 9px;
-  background: #2d2734;
-  color: #d0c7d8;
+  background: var(--accent-soft);
+  color: var(--muted);
   font-size: 12px;
   line-height: 1.55;
 }
 .public-preview-notice > svg {
   flex-shrink: 0;
-  color: #d4a0f3;
+  color: var(--accent);
 }
 .public-preview-notice p {
   flex: 1;
   margin: 0;
 }
 .public-preview-notice strong {
-  color: #f3edf7;
+  color: var(--ink);
   font-weight: 500;
 }
 .public-preview-notice a {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: #deb1f8;
+  color: var(--link);
   white-space: nowrap;
 }
 @media (max-width: 650px) {

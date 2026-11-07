@@ -203,8 +203,18 @@ async function drag(page, control, delta, session) {
       );
       await page.keyboard.press("Escape");
       await panel.waitFor({ state: "detached" });
+      assert.equal(
+        page.url(),
+        base + "/discover/?view=all",
+        "Escape during reduced motion returns to the current shortlist",
+      );
       await page.emulateMedia({ reducedMotion: "no-preference" });
       await role.click();
+      await settled(page);
+      await page.goBack();
+      await panel.waitFor({ state: "detached" });
+      await page.goForward();
+      await panel.waitFor({ state: "visible" });
       await settled(page);
       await panel
         .getByRole("button", { name: "Activity", exact: true })
@@ -272,6 +282,7 @@ async function drag(page, control, delta, session) {
         session ? page.touchscreen.tap(180, 200) : page.mouse.click(180, 200),
       );
       await cancelDismissal(() => drag(page, grip, 330, session));
+      await cancelDismissal(() => page.goBack());
       await panel
         .getByRole("button", { name: "Activity", exact: true })
         .click();
@@ -293,6 +304,31 @@ async function drag(page, control, delta, session) {
       await panel.waitFor({ state: "detached" });
       page.off("dialog", discardCleanup);
       await page.setViewportSize({ width: 320, height: 700 });
+      await page.goto(base + "/discover/");
+      await role.click();
+      const gap = panel
+        .locator(".discover-assessment-check")
+        .filter({ hasText: "Evidence gap: Kubernetes" });
+      await gap.waitFor();
+      await page.evaluate(() => document.fonts.ready);
+      await page.waitForFunction(
+        () => {
+          const check = [
+            ...document.querySelectorAll(".discover-assessment-check"),
+          ].find((element) =>
+            element.textContent.includes("Evidence gap: Kubernetes"),
+          );
+          const footer = document.querySelector(".discover-inspector-footer");
+          return (
+            check &&
+            footer &&
+            check.getBoundingClientRect().bottom <=
+              footer.getBoundingClientRect().top
+          );
+        },
+        undefined,
+        { timeout: 3000 },
+      );
       await page.screenshot({ path: path.join(output, `${label}-320.png`) });
       assert.equal(
         await page.evaluate(

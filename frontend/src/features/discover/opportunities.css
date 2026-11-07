@@ -86,6 +86,17 @@
   flex-shrink: 0;
   gap: 6px;
 }
+.opportunities-role-actions {
+  border-top: 1px solid var(--line);
+  margin-top: 24px;
+  padding-top: 16px;
+}
+.opportunities-workbench-dialog
+  :is(.opportunities-workbench-actions, .opportunities-role-actions)
+  button {
+  min-width: 44px;
+  min-height: 44px;
+}
 .opportunities-workbench-header h2 {
   margin: 0;
   font-size: 21px;
@@ -123,7 +134,7 @@
   flex: 1;
   padding: 22px 24px;
   scrollbar-width: thin;
-  scrollbar-color: #55545f #29292d;
+  scrollbar-color: var(--scroll-thumb) var(--surface);
 }
 .opportunities-workbench-dialog {
   position: fixed;
@@ -142,7 +153,7 @@
   display: none;
 }
 .opportunities-workbench-dialog::backdrop {
-  background: #0009;
+  background: var(--scrim);
 }
 .opportunities-historical {
   margin-top: 24px;
@@ -270,10 +281,16 @@
   padding-bottom: 9px;
 }
 .application-version-help {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.85rem;
   grid-column: 1 / -1;
   margin: 0;
   font-size: 12px;
   color: var(--muted);
+}
+.application-version-help span:first-child {
+  font-variant-numeric: tabular-nums;
 }
 @media (max-width: 700px) {
   .application-versions {

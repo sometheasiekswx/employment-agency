@@ -6,6 +6,10 @@ Original implementation is MIT. No code or history from the private application 
 
 The current workspace self-hosts Inter at weights 400, 500, 600 and 700. The font copyright and SIL Open Font License are included in [Inter-OFL.txt](../frontend/public/licenses/Inter-OFL.txt) and the packaged export. The interface does not request fonts from an external service. Earlier Manrope assets and their licence remain in the bundle.
 
+## Document preview
+
+The editor uses [Mozilla PDF.js 6.5.438](https://github.com/mozilla/pdf.js/releases/tag/v6.5.438) to fit one page to the preview pane at a time. It loads when a document opens and requests its worker and character maps from the same application. The build copies the character maps and their Adobe redistribution notice from the pinned dependency into `/pdfjs/cmaps/`. The [PDF.js Apache 2.0 licence](../frontend/public/licenses/pdfjs.txt) also ships with the export. The editor passes the current PDF bytes directly to the renderer and keeps those exact bytes available for download. The app renders page images without a PDF scripting viewer.
+
 ## Development glob-matching security patch
 
 The frontend overrides transitive `minimatch` to 11.0.1 for [GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249). The pinned ESLint and TypeScript ESLint packages still request version 10; their named matcher APIs are checked with a fresh install, lint, type checks, unit tests and build before accepting this override. Remove it when those parent packages adopt a patched compatible dependency. CI audits development as well as production dependencies.

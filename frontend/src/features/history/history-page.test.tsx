@@ -51,6 +51,15 @@ const version = (
 
 beforeEach(() => {
   fixture.query = "";
+  vi.spyOn(window.history, "replaceState").mockImplementation(
+    (_state, _unused, href) => {
+      if (href)
+        fixture.query = new URL(
+          String(href),
+          "http://localhost",
+        ).searchParams.toString();
+    },
+  );
   fixture.applications = [];
   fixture.client.action
     .mockReset()
@@ -122,6 +131,54 @@ it("scopes the exact role and employer and exposes context and a clear link", as
   expect(screen.getByText("other-employer")).toBeInTheDocument();
   expect(screen.getByText("longer-role")).toBeInTheDocument();
   expect(fixture.client.action).toHaveBeenCalledExactlyOnceWith("history");
+});
+
+it("restores shared filters and replaces the URL while retaining the role scope", async () => {
+  fixture.query = new URLSearchParams({
+    role: "Software Engineer",
+    employer: "Fictional Systems",
+    q: "new-version",
+    location: "Berlin",
+  }).toString();
+  const { unmount } = render(<HistoryPage />);
+  await screen.findByText("new-version");
+  const search = screen.getByRole("searchbox", { name: "Search history" });
+  const location = screen.getByRole("combobox", { name: "Location" });
+  expect(search).toHaveValue("new-version");
+  expect(location).toHaveValue("Berlin");
+  expect(screen.queryByText("original-version")).not.toBeInTheDocument();
+
+  const user = userEvent.setup();
+  await user.clear(search);
+  await user.type(search, "Fictional Systems & Co");
+  await user.selectOptions(location, "Toronto");
+  const filters = new URLSearchParams(fixture.query);
+  expect(filters.get("role")).toBe("Software Engineer");
+  expect(filters.get("employer")).toBe("Fictional Systems");
+  expect(filters.get("q")).toBe("Fictional Systems & Co");
+  expect(filters.get("location")).toBe("Toronto");
+  expect(window.history.replaceState).toHaveBeenLastCalledWith(
+    null,
+    "",
+    `/history/?${filters}`,
+  );
+  filters.delete("role");
+  filters.delete("employer");
+  expect(
+    screen.getByRole("link", { name: "Clear role filter" }),
+  ).toHaveAttribute("href", `/history/?${filters}`);
+
+  unmount();
+  render(<HistoryPage />);
+  expect(
+    await screen.findByRole("searchbox", { name: "Search history" }),
+  ).toHaveValue("Fictional Systems & Co");
+  expect(screen.getByRole("combobox", { name: "Location" })).toHaveValue(
+    "Toronto",
+  );
+  expect(
+    screen.getByText("No versions match these filters."),
+  ).toBeInTheDocument();
 });
 
 it("combines scoped history with search and preserves verified file and adoption operations", async () => {
@@ -223,9 +280,12 @@ it("identifies a generated version with the same number, status and date as Docu
   });
   expect(
     screen.getByRole("option", {
-      name: `${title.textContent} · ${date.textContent}`,
+      name: title.textContent || "",
     }),
   ).toHaveAttribute("value", submitted.id);
+  expect(
+    screen.getByRole("combobox", { name: "Document version" }),
+  ).toHaveAccessibleDescription(date.textContent || "");
   expect(entry.querySelector("summary")).not.toHaveTextContent(preserved.label);
   await userEvent.setup().click(title);
   expect(within(entry).getByText("Storage label:")).toBeVisible();

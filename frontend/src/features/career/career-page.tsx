@@ -72,7 +72,8 @@ export function CareerPage() {
   return (
     <div className="career-page secondary-page">
       <p className="secondary-page-intro">
-        The evidence behind your application drafts.
+        Manage your profile and review the evidence used in your application
+        drafts.
       </p>
       <div className="career-profile-summary">
         <div className="career-avatar" aria-hidden="true">
@@ -89,10 +90,21 @@ export function CareerPage() {
             review
           </span>
         </div>
-        <a href="#career-details" className="button secondary">
-          <UserRound size={15} aria-hidden="true" />
-          Edit profile
-        </a>
+        <nav
+          className="career-profile-actions"
+          aria-label="Career profile sections"
+        >
+          <a href="#career-details" className="button secondary">
+            <UserRound size={15} aria-hidden="true" />
+            Edit profile
+          </a>
+          <a href="#master-resume" className="button secondary">
+            Master resume
+          </a>
+          <a href="#import-resume" className="button primary">
+            Import resume
+          </a>
+        </nav>
       </div>
       <div className="career-evidence-grid">
         <div className="career-evidence-main">
@@ -168,7 +180,7 @@ export function CareerPage() {
                   )}
                   <button
                     type="button"
-                    className="danger"
+                    className="secondary"
                     disabled={preview || factActionPending}
                     title={preview ? PREVIEW_READ_ONLY : undefined}
                     aria-expanded={retiringId === fact.id}
@@ -382,7 +394,9 @@ export function CareerPage() {
         </section>
         <section className="secondary-panel">
           <div className="secondary-section-heading">
-            <h2>Build your career evidence</h2>
+            <h2 id="import-resume" tabIndex={-1}>
+              Build your career evidence
+            </h2>
             <FileText size={18} aria-hidden="true" />
           </div>
           <p>

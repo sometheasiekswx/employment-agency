@@ -58,11 +58,11 @@ The recordings use a disposable fictional workspace. The [public demo](https://e
 
 | View                   | What you can do                                                                                             |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------- |
-| **Opportunities**      | Compare Recommended, All roles, Saved and Applications. Review evidence, documents and activity in context. |
+| **Opportunities**      | Compare Recommended, Browse, Saved and Applications. Review evidence, documents and activity in context.   |
 | **Career profile**     | Import your résumé, confirm experience and retain its sources.                                              |
 | **Search preferences** | Choose roles, locations and work models; manage sources and matching.                                       |
 | **History**            | Open the exact preserved version of a document.                                                             |
-| **Settings**           | Select a private workspace, manage consent and export a backup.                                             |
+| **Settings**           | Choose Dark, Light or System, select a workspace, manage consent and export a backup.                       |
 
 Assessments keep evidence, gaps and unknowns visible. Live search, loading skeletons, save feedback and recoverable errors support the review flow. Keyboard navigation stays immediate; motion follows your reduced-motion preference.
 

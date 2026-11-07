@@ -2,13 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import {
-  ArrowUpRight,
-  Check as CheckIcon,
-  Compass,
-  MapPin,
-  ShieldCheck,
-} from "lucide-react";
+import { Compass, MapPin, Plus, ShieldCheck } from "lucide-react";
 import {
   Action,
   Field,
@@ -44,55 +38,30 @@ export function SearchPage() {
     <div className="search-preferences-page secondary-page">
       <div className="secondary-page-intro-row">
         <p className="secondary-page-intro">
-          Choose where your next role could take you.
+          Set your role and location preferences, connect employer boards, or{" "}
+          <a href="#rank-jobs">rank saved jobs</a>.
         </p>
-        <Link
-          href="/discover/"
-          className="button secondary"
-          onNavigate={(event) => {
-            if (!canLeave()) event.preventDefault();
-          }}
-        >
-          <Compass size={16} aria-hidden="true" />
-          Discover roles
-          <ArrowUpRight size={14} aria-hidden="true" />
-        </Link>
+        <div className="secondary-intro-actions">
+          <Link
+            href="/discover/"
+            className="button secondary"
+            onNavigate={(event) => {
+              if (!canLeave()) event.preventDefault();
+            }}
+          >
+            <Compass size={16} aria-hidden="true" />
+            Discover roles
+          </Link>
+          <a href="#add-opportunity" className="button primary">
+            <Plus size={16} aria-hidden="true" />
+            Add opportunity
+          </a>
+        </div>
       </div>
       <div className="search-preferences-grid">
-        <section className="secondary-panel search-locations-panel">
-          <h2>Preferred locations</h2>
-          <p className="muted">
-            Location and work eligibility are checked separately.
-          </p>
-          <div className="search-location-list">
-            {profile?.locations.map((location, index) => (
-              <div className="search-location" key={`${location}-${index}`}>
-                <span className="search-location-icon">
-                  <MapPin size={20} aria-hidden="true" />
-                </span>
-                <div>
-                  <strong>{location}</strong>
-                  <span>Priority {index + 1}</span>
-                </div>
-                <CheckIcon size={17} aria-label="Included" />
-              </div>
-            ))}
-            {!profile?.locations.length && (
-              <p className="empty">
-                Add locations to a search profile to shape your shortlist.
-              </p>
-            )}
-          </div>
-          <div className="secondary-inline-note">
-            <ShieldCheck size={17} aria-hidden="true" />
-            <p>
-              Unknown eligibility remains explicit. Only confirmed work rights
-              belong in your profile.
-            </p>
-          </div>
-        </section>
         <section className="secondary-panel search-profile-panel">
-          <h2>What you are looking for</h2>
+          <h2>Search profiles</h2>
+          <p>Choose a profile to set which roles appear in Recommended.</p>
           <Select
             label="Active profile"
             name="active_profile"
@@ -117,6 +86,36 @@ export function SearchPage() {
           ) : (
             <p>Start by saving your first search profile.</p>
           )}
+        </section>
+        <section className="secondary-panel search-locations-panel">
+          <h2>Preferred locations</h2>
+          <p>Shown in the priority order set in the active profile.</p>
+          {profile?.locations.length ? (
+            <ol className="search-location-list" role="list">
+              {profile.locations.map((location, index) => (
+                <li className="search-location" key={`${location}-${index}`}>
+                  <span className="search-location-icon">
+                    <MapPin size={18} aria-hidden="true" />
+                  </span>
+                  <div>
+                    <strong>{location}</strong>
+                    <span>Priority {index + 1}</span>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <p className="empty">
+              Add locations to a search profile to shape your shortlist.
+            </p>
+          )}
+          <div className="secondary-inline-note">
+            <ShieldCheck size={17} aria-hidden="true" />
+            <p>
+              Location preferences and work rights are checked separately. Add
+              only work rights you can confirm.
+            </p>
+          </div>
         </section>
       </div>
       <div className="secondary-two-column search-tools-grid">
@@ -168,6 +167,10 @@ export function SearchPage() {
           <h2 id="add-opportunity" ref={opportunityHeading} tabIndex={-1}>
             Add an opportunity
           </h2>
+          <p>
+            Import a supported listing URL or paste the advert to enter its
+            details yourself.
+          </p>
           <Form
             onSave={async (data) => {
               await run("url", { url: text(data, "url") });

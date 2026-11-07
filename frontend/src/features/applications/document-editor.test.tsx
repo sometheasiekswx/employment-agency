@@ -13,6 +13,8 @@ import { DraftProvider, useDraft } from "@/components/unsaved";
 import type { EditorDocument } from "@/lib/models";
 import { DocumentEditor } from "./document-editor";
 
+vi.mock("./editor-pdf-preview", () => ({ EditorPdfPreview: () => null }));
+
 const fixture = vi.hoisted(() => ({
   action: vi.fn(),
   refresh: vi.fn(),
@@ -542,10 +544,17 @@ it("shows a PDF-only version without offering an unsupported save", () => {
     screen.queryByRole("button", { name: "Save as new draft" }),
   ).toBeNull();
   expect(screen.queryByRole("button", { name: "Update preview" })).toBeNull();
-  expect(screen.getByTitle("Document PDF preview")).toHaveAttribute(
-    "src",
+  expect(screen.getByText("Download PDF").closest("a")!).toHaveAttribute(
+    "href",
     "blob:fixture-pdf",
   );
+});
+
+it("offers the current preview as a PDF download", () => {
+  render(<DocumentEditor document={document} onClose={() => {}} />);
+  const download = screen.getByRole("link", { name: "Download PDF" });
+  expect(download).toHaveAttribute("download", "cv.pdf");
+  expect(download).toHaveAttribute("href", "blob:fixture-pdf");
 });
 
 it.each(["blocks", "tex"] as const)(
@@ -559,8 +568,8 @@ it.each(["blocks", "tex"] as const)(
     const label = mode === "tex" ? "LaTeX source" : "Text";
     const input = screen.getByLabelText(label, { exact: true });
     const editor = screen.getByRole("dialog");
-    const pdf = screen.getByTitle("Document PDF preview");
-    const pdfSource = pdf.getAttribute("src");
+    const pdf = screen.getByText("Download PDF").closest("a")!;
+    const pdfSource = pdf.getAttribute("href");
     fireEvent.change(input, {
       target: { value: "Unsaved evidence stays here" },
     });
@@ -577,8 +586,8 @@ it.each(["blocks", "tex"] as const)(
     expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
     expect(input).toHaveValue("Unsaved evidence stays here");
     expect(input).toHaveFocus();
-    expect(screen.getByTitle("Document PDF preview")).toBe(pdf);
-    expect(pdf).toHaveAttribute("src", pdfSource);
+    expect(screen.getByText("Download PDF").closest("a")!).toBe(pdf);
+    expect(pdf).toHaveAttribute("href", pdfSource);
     expect(URL.createObjectURL).toHaveBeenCalledTimes(1);
 
     fireEvent.keyDown(editor, { key: "Escape" });
@@ -695,8 +704,8 @@ it("switches directly between mobile editing and the same PDF without losing blo
   const edit = screen.getByRole("tab", { name: "Edit" });
   const preview = screen.getByRole("tab", { name: "Preview", selected: true });
   const input = screen.getByLabelText("Text", { exact: true });
-  const pdf = screen.getByTitle("Document PDF preview");
-  const source = pdf.getAttribute("src");
+  const pdf = screen.getByText("Download PDF").closest("a")!;
+  const source = pdf.getAttribute("href");
   expect(screen.getByRole("tabpanel", { name: "Preview" })).toBeVisible();
   expect(preview).toHaveAttribute("aria-selected", "true");
   expect(input).not.toBeVisible();
@@ -712,8 +721,8 @@ it("switches directly between mobile editing and the same PDF without losing blo
   expect(input).toHaveValue("Unsaved mobile wording");
   await userEvent.keyboard("{End}");
   expect(preview).toHaveFocus();
-  expect(screen.getByTitle("Document PDF preview")).toBe(pdf);
-  expect(pdf).toHaveAttribute("src", source);
+  expect(screen.getByText("Download PDF").closest("a")!).toBe(pdf);
+  expect(pdf).toHaveAttribute("href", source);
   expect(URL.createObjectURL).toHaveBeenCalledOnce();
   expect(fixture.action).not.toHaveBeenCalled();
 });
@@ -810,7 +819,7 @@ it("preserves the mobile LaTeX source across Preview and Edit without inventing 
   const input = screen.getByLabelText("LaTeX source");
   fireEvent.change(input, { target: { value: "Revised LaTeX source" } });
   await userEvent.click(screen.getByRole("tab", { name: "Preview" }));
-  expect(screen.getByTitle("Document PDF preview")).toBeVisible();
+  expect(screen.getByText("Download PDF").closest("a")!).toBeVisible();
   await userEvent.click(screen.getByRole("tab", { name: "Edit" }));
   expect(input).toHaveValue("Revised LaTeX source");
   expect(

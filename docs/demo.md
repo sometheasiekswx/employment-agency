@@ -4,7 +4,7 @@ The public web showcase and the installed CLI demo use separate datasets. Both u
 
 |                     | Public web showcase                                    | Existing CLI demo                                            |
 | ------------------- | ------------------------------------------------------ | ------------------------------------------------------------ |
-| Interface           | Current charcoal and lavender source interface         | The interface bundled with the version you install           |
+| Interface           | Current light and dark interface         | The interface bundled with the version you install           |
 | Candidate           | Alex Morgan, fictional software engineer in Melbourne  | Alex Morgan, fictional software engineer in New York         |
 | Jobs                | Six invented illustrative roles in four locations      | Fourteen real employer-board metadata snapshots              |
 | Application records | Three illustrative records with generated sample files | Twelve generated packages with sample decisions and comments |
@@ -15,7 +15,7 @@ The public web showcase and the installed CLI demo use separate datasets. Both u
 
 [**Explore the live demo →**](https://employment-agency-demo.vercel.app/discover/)
 
-The showcase presents the approved location board and opportunity inspector on desktop, plus an expandable opportunity sheet on mobile. **Opportunities** combines Recommended, All roles, Saved and Applications, alongside **Career profile, Search preferences, History and Settings**. The interface uses the project's briefcase/person mark, charcoal surfaces, lavender accents and self-hosted Inter fonts.
+The showcase presents the approved location board and opportunity inspector on desktop, plus an expandable opportunity sheet on mobile. **Opportunities** combines Recommended, Browse, Saved and Applications, alongside **Career profile, Search preferences, History and Settings**. The interface uses the project's briefcase/person mark, light and dark surfaces, lavender accents and self-hosted Inter fonts.
 
 The public site releases automatically after all checks pass on `main`. Its [release marker](https://employment-agency-demo.vercel.app/release.json) records the deployed commit. The [deployment runbook](public-demo-deployment.md) explains the fictional static artifact, public-only credential, verification and recovery; the private hosted pilot remains separately deployed.
 

@@ -55,18 +55,25 @@ export const decisionDate = (
   "";
 export const applicationRoleId = (app: Application) => app.job_id || app.id;
 
+export function hasRecordedSubmission(
+  app?: Pick<Application, "status">,
+  job?: Pick<Job, "prior_application">,
+) {
+  return app?.status === "submitted" || job?.prior_application === "submitted";
+}
+
 export function applicationSection(
   app: Application,
-  job?: Pick<Job, "removals">,
+  job?: Pick<Job, "removals" | "prior_application">,
 ) {
   if (currentRemoval(job)) return "removed";
-  return app.status === "submitted" ? "submitted" : "active";
+  return hasRecordedSubmission(app, job) ? "submitted" : "active";
 }
 
 export function applicationHref(
   app: Application,
   panel: "documents" | "activity" = "documents",
-  job?: Pick<Job, "removals">,
+  job?: Pick<Job, "removals" | "prior_application">,
 ) {
   const section =
     !job && app.status === "rejected"

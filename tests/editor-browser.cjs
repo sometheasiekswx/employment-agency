@@ -1,5 +1,8 @@
 const { chromium } = require(process.env.PLAYWRIGHT_PATH || "playwright");
 const assert = require("node:assert/strict");
+const { execFileSync } = require("node:child_process");
+const { readFile } = require("node:fs/promises");
+const { join } = require("node:path");
 const AxeBuilder =
   require("../frontend/node_modules/@axe-core/playwright").default;
 const { openApplication, workbench } = require("./browser-applications.cjs");
@@ -78,7 +81,12 @@ const { openApplication, workbench } = require("./browser-applications.cjs");
     await dialog.evaluate((element) => element.matches("dialog:modal")),
     true,
   );
-  assert.match(await dialog.locator("iframe").getAttribute("src"), /^blob:/);
+  assert.match(
+    await dialog
+      .locator(".editor-pdf-actions a[download]")
+      .getAttribute("href"),
+    /^blob:/,
+  );
   const resizeDraft = "Fictional draft retained across responsive layouts.";
   await dialog.getByLabel("Text", { exact: true }).first().fill(resizeDraft);
   for (const width of [320, 768, 1440]) {
@@ -166,8 +174,8 @@ const { openApplication, workbench } = require("./browser-applications.cjs");
     .fill("Unsaved draft text");
   const retainedPdf = await page
     .locator(".document-editor")
-    .locator("iframe")
-    .getAttribute("src");
+    .locator(".editor-pdf-actions a[download]")
+    .getAttribute("href");
   const confirmation = page.getByRole("alertdialog", {
     name: "Discard unsaved document edits?",
   });
@@ -231,13 +239,16 @@ const { openApplication, workbench } = require("./browser-applications.cjs");
   assert.equal(
     await page
       .locator(".document-editor")
-      .locator("iframe")
-      .getAttribute("src"),
+      .locator(".editor-pdf-actions a[download]")
+      .getAttribute("href"),
     retainedPdf,
     "Keep editing retains the same PDF blob",
   );
   assert.equal(
-    await page.locator(".document-editor").locator("iframe").isVisible(),
+    await page
+      .locator(".document-editor")
+      .locator(".editor-pdf-page canvas")
+      .isVisible(),
     true,
   );
   await page.keyboard.press("Escape");
@@ -256,12 +267,15 @@ const { openApplication, workbench } = require("./browser-applications.cjs");
   assert.equal(
     await page
       .locator(".document-editor")
-      .locator("iframe")
-      .getAttribute("src"),
+      .locator(".editor-pdf-actions a[download]")
+      .getAttribute("href"),
     retainedPdf,
   );
   assert.equal(
-    await page.locator(".document-editor").locator("iframe").isVisible(),
+    await page
+      .locator(".document-editor")
+      .locator(".editor-pdf-page canvas")
+      .isVisible(),
     true,
   );
   await page.locator(".document-editor").evaluate((d) => d.close());
@@ -304,6 +318,69 @@ const { openApplication, workbench } = require("./browser-applications.cjs");
   );
   await page.waitForFunction(
     () => document.activeElement?.textContent === "View / edit cover letter",
+  );
+  const syntheticPdf = execFileSync(process.env.TEST_PYTHON || "python3", [
+    join(__dirname, "synthetic_cid_pdf.py"),
+  ]).toString("base64");
+  await page.route("**/api/document-editor", async (route) => {
+    const response = await route.fetch();
+    const body = await response.json();
+    assert.ok(response.ok() && body.result?.pdf);
+    body.result.pdf = syntheticPdf;
+    await route.fulfill({ response, json: body });
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page
+    .getByRole("button", { name: "View / edit CV", exact: true })
+    .click();
+  const canvas = dialog.getByRole("img", { name: "PDF page 1 of 2" });
+  await canvas.waitFor();
+  assert.equal(
+    await canvas.evaluate((surface) => {
+      // The two fixture lines use separate bands. Only the CJK line is here.
+      const start = Math.floor(surface.height * 0.15);
+      const height = Math.ceil(surface.height * 0.027);
+      const { data } = surface
+        .getContext("2d")
+        .getImageData(0, start, surface.width, height);
+      return data.some(
+        (red, offset) => offset % 4 === 0 && red < 128 && data[offset + 3] > 0,
+      );
+    }),
+    true,
+    "The unembedded CID line contributes visible ink to the preview",
+  );
+  await dialog.getByRole("button", { name: "Read text", exact: true }).click();
+  const firstPage = dialog.getByRole("region", { name: "PDF text, page 1" });
+  assert.match(await firstPage.textContent(), /Fictional career profile/);
+  assert.match(await firstPage.textContent(), /你好世界，工作履历/);
+  const nextPdf = dialog.getByRole("button", { name: "Next PDF page" });
+  const previousPdf = dialog.getByRole("button", { name: "Previous PDF page" });
+  await nextPdf.press("Enter");
+  const secondPage = dialog.getByRole("region", { name: "PDF text, page 2" });
+  assert.match(await secondPage.textContent(), /Fictional second page/);
+  assert.equal(await nextPdf.getAttribute("aria-disabled"), "true");
+  assert.equal(
+    await nextPdf.evaluate((e) => e === document.activeElement),
+    true,
+  );
+  await nextPdf.press("Enter");
+  assert.equal(await secondPage.isVisible(), true);
+  await previousPdf.press("Enter");
+  await firstPage.waitFor();
+  assert.equal(await previousPdf.getAttribute("aria-disabled"), "true");
+  assert.equal(
+    await previousPdf.evaluate((e) => e === document.activeElement),
+    true,
+  );
+  const [download] = await Promise.all([
+    page.waitForEvent("download"),
+    dialog.getByRole("link", { name: "Download PDF" }).click(),
+  ]);
+  assert.equal(
+    (await readFile(await download.path())).toString("base64"),
+    syntheticPdf,
+    "The original synthetic PDF bytes are available for download",
   );
   assert.deepEqual(errors, []);
   await browser.close();

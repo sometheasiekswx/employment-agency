@@ -1,26 +1,26 @@
 ---
 name: "Employment Agency"
-description: "Concept A: a charcoal opportunity workspace with a contextual rail, lavender selection and review in place."
+description: "Agency's light and charcoal opportunity workspace with a contextual rail, lavender selection and review in place."
 colors:
-  ink: "#f0f0f3"
-  muted: "#aaaab3"
-  faint: "#96969f"
-  line: "#393a40"
+  ink: "#f1eff4"
+  muted: "#b6b1bf"
+  faint: "#a09ba9"
+  line: "#3c3a44"
   paper: "#1e1f21"
-  surface: "#26272a"
+  surface: "#26272b"
   rail: "#171819"
   accent: "#c994f3"
-  accent-soft: "#302736"
-  secondary: "#303136"
-  secondary-hover: "#3a3b42"
-  positive-bg: "#203b32"
-  positive-ink: "#8dd6b5"
-  negative-bg: "#41272c"
-  negative-ink: "#ffadb9"
-  link: "#d7aaf8"
-  error: "#ffadb9"
-  warning: "#efc181"
-  field-border: "#71737d"
+  accent-soft: "#342b3e"
+  secondary: "#303137"
+  secondary-hover: "#3a3a43"
+  positive-bg: "#233b32"
+  positive-ink: "#a0e0c2"
+  negative-bg: "#422b31"
+  negative-ink: "#ffc0c8"
+  link: "#e1b9fa"
+  error: "#ffc0c8"
+  warning: "#f0c785"
+  field-border: "#787381"
 typography:
   headline:
     fontFamily: "Inter, sans-serif"
@@ -73,11 +73,15 @@ spacing:
 
 The user selected Concept A and its second revision: the Orax-inspired location board, with opportunity review in a docked inspector on desktop and an expandable sheet on phones. This replaces the former white and sky-blue visual direction. The application remains a private, evidence-led tool: the design does not change submission authority, document integrity or the local/hosted boundary.
 
-The visual language is a near-black contextual sidebar, a charcoal workspace, subtly raised cards, restrained lavender selection and a pink-to-lavender primary action. The mark is a rounded employment briefcase containing a person; the visible wordmark is **Agency**, while metadata retains **Employment Agency**. Keep the supplied SVG proportions and colours. Do not restore the O mark or use decorative project-management metrics.
+The visual language uses a contextual rail, raised cards, restrained lavender selection and a lilac primary action. Dark uses charcoal surfaces. Light uses a cool paper canvas with white working surfaces and deeper violet text and actions. The mark is a rounded employment briefcase containing a person. The visible wordmark is **Agency**, while metadata retains **Employment Agency**. Keep the supplied SVG proportions and colours.
+
+## Appearance
+
+Dark is the default. **Light** and **System** are available in **Settings → Appearance**, the desktop rail and the phone menu. System follows changes to the device setting while the app is open. The choice belongs to the browser, so each device can keep its own setting. The root applies the saved appearance before the app loads. Document pages keep their own paper surface.
 
 ## Colour and type
 
-The frontmatter and CSS variables are the shared values. Most of the interface uses neutral surfaces and off-white text. Lavender identifies selected navigation, tabs and cards. The gradient is confined to the employment mark and primary actions; primary-action text is dark for contrast. Green identifies confirmed evidence and reviewed badges; the interactive review toggle retains lavender for its selected state. Amber highlights requirements to check and red identifies rejection or errors. Recording a confirmed submission uses a green action with dark text, while its saved Submitted badge stays neutral and explicitly labelled. A numeric score or progress bar must represent real, explained data.
+The frontmatter describes the default palette. The shared CSS variables define both palettes, including text, fields, borders, focus, selection and feedback. Lavender identifies selected navigation, tabs and cards. The gradient is confined to the employment mark and primary actions. Green identifies confirmed evidence and reviewed badges. Amber highlights requirements to check and red identifies rejection or errors. Recording a confirmed submission uses a green action, while its saved Submitted badge stays neutral and explicitly labelled. A numeric score or progress bar must represent real, explained data.
 
 Inter is self-hosted at weights 400, 500, 600 and 700, with its SIL Open Font License included in `frontend/public/licenses/Inter-OFL.txt`. Body text is 14px, labels 13px and decision-relevant metadata at least 12px where space permits. Use regular or medium weight for role titles and compact controls; reserve 600 for page headings and important actions. Heading tracking stops at -0.035em. Counts and record metadata use tabular numerals.
 
@@ -95,7 +99,7 @@ Opportunity review changes to the existing modal sheet at 1000px, before the rai
 
 ## Unified Opportunities workspace
 
-The approved consolidation brings discovery and application management into one Opportunities destination. Recommended, All roles, Saved and Applications share the location board and selected role. Applications exposes Active, Submitted and Rejected queues from recorded applications independently of current matching, profiles or listing availability. Older application links redirect to their selected record in the shared workspace.
+The approved consolidation brings discovery and application management into one Opportunities destination. Recommended, Browse, Saved and Applications share the location board and selected role. Applications exposes Active, Submitted and Removed queues independently of current matching, profiles or listing availability. Browse contains roles available to assess. Saved roles, submitted applications and removed roles have separate views. Older application links redirect to their selected record in the shared workspace.
 
 Overview preserves in-place evidence assessment. Documents and Activity expand into a workbench beside the board on desktop and a full-screen native dialog on mobile. Switching panels retains comment drafts. Documents identifies every preserved version with its status and date, with access to original versions and History. Saving an edit selects the returned new draft without losing role, view, filters or document context. Native confirmation, cancellation, submission safeguards, immutable submitted snapshots and unsaved-edit protection remain authoritative.
 

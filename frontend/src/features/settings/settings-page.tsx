@@ -1,13 +1,16 @@
 "use client";
 
-import { ArchiveRestore, Cloud, ShieldCheck } from "lucide-react";
+import { ArchiveRestore, Cloud, Monitor, ShieldCheck } from "lucide-react";
+import { useAppearance } from "@/components/appearance";
 import { useWorkspace } from "@/components/workspace-provider";
-import { Action, Field, Form, text } from "@/components/controls";
+import { Action, Field, Form, Select, text } from "@/components/controls";
 import { WorkspaceSettings } from "./workspace-settings";
 import { downloadBlob } from "@/lib/api";
+import { appearanceOptions } from "@/lib/appearance";
 
 export function SettingsPage() {
   const { state, client, run, notify, clearSession } = useWorkspace();
+  const { appearance, setAppearance } = useAppearance();
   const exportWorkspace = async () => {
     if (client.hosted) await client.binary("export");
     else {
@@ -22,8 +25,30 @@ export function SettingsPage() {
   return (
     <div className="settings-page secondary-page">
       <p className="secondary-page-intro">
-        Your workspace, privacy and recovery options.
+        Appearance, workspace, privacy and recovery options.
       </p>
+      <section
+        className="secondary-panel settings-appearance-panel"
+        aria-labelledby="appearance-heading"
+      >
+        <div className="settings-appearance-copy">
+          <div className="secondary-section-heading">
+            <Monitor size={18} aria-hidden="true" />
+            <h2 id="appearance-heading">Appearance</h2>
+          </div>
+          <p id="appearance-help" className="muted">
+            System follows your device’s appearance. Your choice applies to this
+            browser.
+          </p>
+        </div>
+        <Select
+          label="Color theme"
+          options={appearanceOptions}
+          value={appearance}
+          onChange={(event) => setAppearance(event.target.value)}
+          aria-describedby="appearance-help"
+        />
+      </section>
       <WorkspaceSettings />
       <div className="secondary-inline-note settings-control-note">
         <ShieldCheck size={21} aria-hidden="true" />

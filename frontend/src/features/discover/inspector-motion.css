@@ -23,7 +23,7 @@
   width: 28px;
   height: 4px;
   border-radius: 3px;
-  background: #6b6a74;
+  background: var(--scroll-thumb);
 }
 
 .discover-screen .discover-sheet-expand {
@@ -58,7 +58,10 @@
 
 @media (max-width: 1000px) {
   .discover-screen .discover-dialog.discover-inspector {
-    min-height: min(480px, calc(100dvh - 8px));
+    min-height: min(
+      max(480px, var(--discover-peek-content, 0px)),
+      calc(100dvh - 8px)
+    );
   }
   .discover-screen .discover-dialog:not(.is-expanded) {
     height: 60dvh;
@@ -120,5 +123,23 @@
     width: 44px;
     height: 44px;
     min-height: 44px;
+  }
+}
+
+@media (max-width: 360px) {
+  .discover-screen .discover-dialog.discover-inspector:not(.is-expanded) {
+    min-height: min(
+      max(520px, var(--discover-peek-content, 0px)),
+      calc(100dvh - 8px)
+    );
+  }
+  .discover-dialog .discover-inspector-toolbar {
+    padding-block: 0.25rem;
+  }
+  .discover-dialog .discover-inspector-body {
+    padding-block-start: 0.625rem;
+  }
+  .discover-dialog .discover-inspector-body > h2 {
+    font-size: 1.25rem;
   }
 }

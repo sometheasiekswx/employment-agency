@@ -27,11 +27,15 @@ const fixture = vi.hoisted(() => ({
   run: vi.fn(),
   refresh: vi.fn(),
   replace: vi.fn(),
+  back: vi.fn(),
   selectProfile: vi.fn(),
 }));
 vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(fixture.query),
-  useRouter: () => ({ replace: fixture.replace }),
+  useRouter: () => ({
+    replace: fixture.replace,
+    back: fixture.back,
+  }),
 }));
 vi.mock("@/components/workspace-provider", () => ({
   useWorkspace: () => ({
@@ -133,14 +137,17 @@ beforeEach(() => {
   fixture.replace.mockReset().mockImplementation((href: string) => {
     fixture.query = new URL(href, "http://localhost").searchParams.toString();
   });
-  vi.spyOn(window.history, "replaceState").mockImplementation(
-    (_state, _unused, href) => {
-      fixture.query = new URL(
-        String(href),
-        "http://localhost",
-      ).searchParams.toString();
-    },
-  );
+  fixture.back.mockReset();
+  for (const method of ["pushState", "replaceState"] as const)
+    vi.spyOn(window.history, method).mockImplementation(
+      (_state, _unused, href) => {
+        if (!href) return;
+        fixture.query = new URL(
+          String(href),
+          "http://localhost",
+        ).searchParams.toString();
+      },
+    );
   fixture.selectProfile.mockReset();
   vi.stubGlobal(
     "matchMedia",
@@ -472,7 +479,11 @@ it.each(["facts", "jobs", "profiles"] as const)(
 );
 
 it("cycles across locations in place and restores focus to the current role when closed", async () => {
-  render(<DiscoverPage />);
+  const { rerender } = render(<DiscoverPage />);
+  fixture.back.mockImplementation(() => {
+    fixture.query = "";
+    rerender(<DiscoverPage />);
+  });
   fireEvent.click(
     await screen.findByRole("button", {
       name: "Assess Cloud Engineer at Example Cloud",
@@ -494,17 +505,18 @@ it("cycles across locations in place and restores focus to the current role when
       }),
     ).toHaveFocus(),
   );
+  expect(window.history.pushState).toHaveBeenCalledExactlyOnceWith(
+    { employmentAgencyShortlistInspector: true },
+    "",
+    "/discover/?opportunity=job-a&assessment_profile=profile-a",
+  );
   expect(fixture.replace.mock.calls).toEqual([
-    [
-      "/discover/?opportunity=job-a&assessment_profile=profile-a",
-      { scroll: false },
-    ],
     [
       "/discover/?opportunity=job-b&assessment_profile=profile-a",
       { scroll: false },
     ],
-    ["/discover/", { scroll: false }],
   ]);
+  expect(fixture.back).toHaveBeenCalledOnce();
 });
 
 it.each([false, true])(
@@ -736,7 +748,56 @@ it("resizes the inspector to remaining viewport space when preceding content or 
   );
 });
 
+it.each(["recommended", "all", "saved"])(
+  "moves recorded submissions and tagged listings out of %s",
+  async (view) => {
+    fixture.query = `view=${view}`;
+    fixture.state.jobs = fixture.state.jobs.map((job) => ({
+      ...job,
+      saved: view === "saved",
+    }));
+    fixture.state.applications = [
+      {
+        id: "app-a",
+        job_id: "job-a",
+        title: "Cloud Engineer",
+        employer: "Example Cloud",
+        status: "draft",
+        comments: [],
+      },
+    ];
+    const cloud = "Assess Cloud Engineer at Example Cloud";
+    const backend = "Assess Backend Engineer at Example Studio";
+    const { rerender } = render(<DiscoverPage />);
+    await screen.findByRole("button", { name: cloud });
+    expect(screen.getByRole("button", { name: backend })).toBeVisible();
+
+    fixture.state = {
+      ...fixture.state,
+      jobs: fixture.state.jobs.map((job) =>
+        job.id === "job-b" ? { ...job, prior_application: "submitted" } : job,
+      ),
+      applications: [{ ...fixture.state.applications[0], status: "submitted" }],
+    };
+    rerender(<DiscoverPage />);
+    expect(
+      screen.queryByRole("button", { name: cloud }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: backend }),
+    ).not.toBeInTheDocument();
+
+    fixture.query = "view=applications&section=submitted";
+    rerender(<DiscoverPage />);
+    expect(screen.getByRole("button", { name: "Submitted 2" })).toBeVisible();
+    expect(screen.getByRole("button", { name: cloud })).toBeVisible();
+    const listing = screen.getByRole("button", { name: backend });
+    expect(listing.closest("article")).toHaveTextContent("Submission recorded");
+  },
+);
+
 it("links to the exact submitted version and never prepares another application for that job", async () => {
+  fixture.query = "view=applications&section=submitted";
   fixture.state.applications = [
     {
       id: "sent",
@@ -773,7 +834,7 @@ it("links to the exact submitted version and never prepares another application 
 });
 
 it("distinguishes an earlier submission record from a preserved local draft", async () => {
-  fixture.query = "view=all";
+  fixture.query = "view=applications&section=active";
   fixture.state.jobs[0].prior_application = "submitted";
   fixture.state.applications = [
     {
@@ -785,7 +846,14 @@ it("distinguishes an earlier submission record from a preserved local draft", as
       comments: [],
     },
   ];
-  render(<DiscoverPage />);
+  const { rerender } = render(<DiscoverPage />);
+  expect(screen.getByRole("button", { name: "Active 0" })).toBeVisible();
+  expect(
+    screen.queryByRole("button", {
+      name: "Assess Cloud Engineer at Example Cloud",
+    }),
+  ).not.toBeInTheDocument();
+  await userEvent.click(screen.getByRole("button", { name: "Submitted 1" }));
   fireEvent.click(
     await screen.findByRole("button", {
       name: "Assess Cloud Engineer at Example Cloud",
@@ -795,7 +863,7 @@ it("distinguishes an earlier submission record from a preserved local draft", as
     screen.getByRole("link", { name: "Review preserved draft" }),
   ).toHaveAttribute(
     "href",
-    "/discover?view=applications&section=active&application=separate-draft&panel=documents",
+    "/discover?view=applications&section=submitted&application=separate-draft&panel=documents",
   );
   expect(
     screen.queryByRole("link", { name: "View submission" }),
@@ -806,6 +874,14 @@ it("distinguishes an earlier submission record from a preserved local draft", as
   expect(
     screen.queryByRole("button", { name: "Prepare draft" }),
   ).not.toBeInTheDocument();
+
+  fixture.query =
+    "view=applications&section=active&application=separate-draft&panel=documents";
+  rerender(<DiscoverPage />);
+  expect(screen.getByRole("button", { name: "Submitted 1" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
 });
 
 it("consumes document focus once, leaving later refreshes and role navigation in control", async () => {
@@ -878,6 +954,59 @@ it("prepares a local draft only after an explicit click", async () => {
   );
 });
 
+it.each(["recommended", "all"])(
+  "keeps the last selected role open when a Save moves it out of %s",
+  async (view) => {
+    fixture.query = `view=${view}&q=Cloud`;
+    fixture.run.mockImplementationOnce(async () => {
+      fixture.state.jobs = fixture.state.jobs.map((job) =>
+        job.id === "job-a" ? { ...job, saved: true } : job,
+      );
+    });
+    render(<DiscoverPage />);
+    const assess = { name: "Assess Cloud Engineer at Example Cloud" };
+    fireEvent.click(await screen.findByRole("button", assess));
+    const inspector = screen.getByRole("complementary");
+    fireEvent.click(
+      within(inspector).getByRole("button", { name: "Save Cloud Engineer" }),
+    );
+    await waitFor(() =>
+      expect(
+        within(inspector).getByRole("button", {
+          name: "Unsave Cloud Engineer",
+        }),
+      ).toBeEnabled(),
+    );
+    expect(screen.queryByRole("button", assess)).not.toBeInTheDocument();
+    expect(
+      within(inspector).getByRole("heading", { name: "Cloud Engineer" }),
+    ).toBeVisible();
+    expect(new URLSearchParams(fixture.query).get("view")).toBe(view);
+    fireEvent.click(screen.getByRole("button", { name: "Saved" }));
+    expect(await screen.findByRole("button", assess)).toBeVisible();
+  },
+);
+
+it("opens Saved for an earlier saved-status filter URL", async () => {
+  fixture.query = "view=all&status=saved";
+  fixture.state.jobs[0].saved = true;
+  render(<DiscoverPage />);
+  expect(
+    await screen.findByRole("button", {
+      name: "Assess Cloud Engineer at Example Cloud",
+    }),
+  ).toBeVisible();
+  expect(screen.getByRole("button", { name: "Saved" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  expect(
+    screen.queryByRole("button", {
+      name: "Assess Backend Engineer at Example Studio",
+    }),
+  ).not.toBeInTheDocument();
+});
+
 it("keeps an unsave failure visible after optimistic removal from Saved and restores the saved role", async () => {
   fixture.query = "view=saved";
   fixture.state.jobs[0].saved = true;
@@ -922,11 +1051,12 @@ it("keeps an unsave failure visible after optimistic removal from Saved and rest
 
 it("uses a native mobile dialog, supports expansion and restores focus after cancellation", async () => {
   fixture.mobile = true;
-  render(<DiscoverPage />);
+  const view = render(<DiscoverPage />);
   const opener = await screen.findByRole("button", {
     name: "Assess Cloud Engineer at Example Cloud",
   });
   fireEvent.click(opener);
+  expect(window.history.pushState).toHaveBeenCalledOnce();
   const dialog = screen.getByRole("dialog", { name: "Cloud Engineer" });
   expect(dialog).toHaveAttribute("open");
   fireEvent.click(
@@ -936,6 +1066,10 @@ it("uses a native mobile dialog, supports expansion and restores focus after can
     screen.getByRole("button", { name: "Resize opportunity details" }),
   ).toHaveAttribute("aria-expanded", "true");
   fireEvent(dialog, new Event("cancel", { cancelable: true }));
+  fireEvent(dialog, new Event("cancel", { cancelable: true }));
+  expect(fixture.back).toHaveBeenCalledOnce();
+  fixture.query = "";
+  view.rerender(<DiscoverPage />);
   await waitFor(() =>
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
   );
@@ -1055,7 +1189,7 @@ it("offers a retry after ranking fails and requires a profile before any request
   expect(fixture.client.action).not.toHaveBeenCalled();
 });
 
-it("keeps an explicitly chosen decision status when switching to All roles", async () => {
+it("opens the Submitted stage when filtering discovery for submitted roles", async () => {
   render(<DiscoverPage />);
   await screen.findByRole("button", {
     name: "Assess Cloud Engineer at Example Cloud",
@@ -1065,8 +1199,50 @@ it("keeps an explicitly chosen decision status when switching to All roles", asy
     within(status).queryByRole("option", { name: "Applications" }),
   ).toBeNull();
   await userEvent.selectOptions(status, "submitted");
-  expect(new URLSearchParams(fixture.query).get("view")).toBe("all");
-  expect(new URLSearchParams(fixture.query).get("status")).toBe("submitted");
+  const route = new URLSearchParams(fixture.query);
+  expect(route.get("view")).toBe("applications");
+  expect(route.get("section")).toBe("submitted");
+  expect(route.get("status")).toBe("submitted");
+});
+
+it("opens listing-only submissions from an earlier submitted-status URL", () => {
+  fixture.query = "view=all&status=submitted";
+  fixture.state.jobs[0].prior_application = "submitted";
+  render(<DiscoverPage />);
+  expect(screen.getByRole("button", { name: "Submitted 1" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  expect(
+    screen.getByRole("button", {
+      name: "Assess Cloud Engineer at Example Cloud",
+    }),
+  ).toBeVisible();
+});
+
+it("keeps search and location across views and can clear a filtered Submitted queue without leaving it", async () => {
+  fixture.query = "view=all&q=NoMatch&location=Berlin";
+  fixture.state.jobs[0].prior_application = "submitted";
+  render(<DiscoverPage />);
+  await userEvent.click(screen.getByRole("button", { name: "Applications" }));
+  await userEvent.click(screen.getByRole("button", { name: "Submitted 1" }));
+  expect(new URLSearchParams(fixture.query).get("location")).toBe("Berlin");
+  expect(screen.getByLabelText("Filter roles")).toHaveValue("NoMatch");
+  expect(
+    screen.getByRole("heading", {
+      name: "No applications match these filters",
+    }),
+  ).toBeVisible();
+  await userEvent.click(screen.getByRole("button", { name: "Clear filters" }));
+  expect(screen.getByRole("button", { name: "Submitted 1" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  expect(
+    screen.getByRole("button", {
+      name: "Assess Cloud Engineer at Example Cloud",
+    }),
+  ).toBeVisible();
 });
 
 it.each(["all", "applications"])(
@@ -1138,6 +1314,7 @@ it("keeps a requested application's Overview usable outside the visible filter",
     "Cloud Engineer",
   );
   expect(screen.getByText("Built Python applications")).toBeInTheDocument();
+  expect(screen.getByText("Verify the full requirement.")).toBeVisible();
   expect(
     screen.getByRole("button", { name: "Previous opportunity" }),
   ).toBeDisabled();

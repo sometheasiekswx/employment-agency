@@ -80,9 +80,16 @@ const fs = require("node:fs");
         ["/settings/", "Settings"],
       ]) {
         await page.goto(url + route);
-        await page
-          .getByRole("heading", { name: title, exact: true, level: 1 })
-          .waitFor();
+        const heading = page.getByRole("heading", {
+          name: title,
+          exact: true,
+          level: 1,
+        });
+        await heading.waitFor();
+        assert.ok(
+          (await heading.boundingBox()).height >= 20,
+          `${route} has a visible page title at ${width}px`,
+        );
         assert.equal(
           await page.evaluate(
             () => document.documentElement.scrollWidth > innerWidth,
@@ -107,10 +114,25 @@ const fs = require("node:fs");
             name: "All workspace pages",
             exact: true,
           });
+          assert.deepEqual(
+            (await menu.getByRole("link").allTextContents()).map((text) =>
+              text.trim(),
+            ),
+            [
+              "Add opportunities",
+              "Opportunities",
+              "Career profile",
+              "Search preferences",
+              "History",
+              "Settings",
+            ],
+            "All routes and the direct import shortcut remain available on phones",
+          );
           assert.equal(
-            await menu.getByRole("link").count(),
-            5,
-            "All routes remain available on phones",
+            await menu
+              .getByRole("link", { name: "Add opportunities", exact: true })
+              .getAttribute("href"),
+            "/search/#add-opportunity",
           );
           const overflowCurrent = menu.locator('[aria-current="page"]');
           assert.equal(await overflowCurrent.count(), 1);
@@ -213,27 +235,49 @@ const fs = require("node:fs");
         probe.remove();
         return value;
       }, token);
-    assert.equal(
-      await page
-        .locator(".review-pane .record-submission")
-        .evaluate((n) => getComputedStyle(n).backgroundColor),
-      await tokenColour("--positive-ink"),
-    );
-    assert.equal(
-      await page
-        .locator(".review-pane .record-submission")
-        .evaluate((n) => getComputedStyle(n).color),
-      "rgb(22, 40, 31)",
-      "Confirmation action keeps readable dark text on green",
+    const confirmationColors = await page
+      .locator(".review-pane .record-submission")
+      .evaluate((button) => {
+        const style = getComputedStyle(button);
+        return [style.backgroundColor, style.color];
+      });
+    assert.deepEqual(confirmationColors, [
+      await tokenColour("--confirm-bg"),
+      await tokenColour("--confirm-ink"),
+    ]);
+    const luminance = (color) => {
+      const rgb = /^rgb\((\d+), (\d+), (\d+)\)$/.exec(color);
+      assert.ok(rgb, `Expected an opaque RGB color: ${color}`);
+      const [red, green, blue] = rgb.slice(1).map((value) => {
+        const channel = Number(value) / 255;
+        return channel <= 0.04045
+          ? channel / 12.92
+          : ((channel + 0.055) / 1.055) ** 2.4;
+      });
+      return 0.2126 * red + 0.7152 * green + 0.0722 * blue;
+    };
+    const [background, foreground] = confirmationColors.map(luminance);
+    assert.ok(
+      (background + 0.05) / (foreground + 0.05) >= 4.5,
+      "Dark appearance uses readable dark text on the confirmation fill",
     );
     assert.equal(
       await page.getByRole("button", { name: "Reject", exact: true }).count(),
       0,
       "Removal replaces the separate rejection action",
     );
+    const removeRole = { name: "Remove Software Engineer", exact: true };
+    assert.equal(
+      await page
+        .locator(".opportunities-workbench-header")
+        .getByRole("button", removeRole)
+        .count(),
+      0,
+      "Role removal stays away from the workbench's Close button",
+    );
     await page
-      .locator(".opportunities-workbench-header")
-      .getByRole("button", { name: "Remove Software Engineer", exact: true })
+      .locator(".opportunities-role-actions")
+      .getByRole("button", removeRole)
       .waitFor();
     assert.equal(
       await page.locator(".privacy-note, .workspace-footer").count(),

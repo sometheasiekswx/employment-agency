@@ -259,16 +259,19 @@ const label = (job) => `${job.title} · ${job.employer}`;
       );
       const first = jobs[0],
         next = jobs[1];
-      const saveFirst = page.getByRole("button", {
-        name: `Save ${first.title}`,
-        exact: true,
-      });
-      if (await saveFirst.count()) await saveFirst.click();
       await card(page, first).focus();
       await page.keyboard.press("Enter");
       await panel(page)
         .getByRole("heading", { name: first.title, exact: true })
         .waitFor();
+      await panel(page)
+        .getByRole("button", { name: `Save ${first.title}`, exact: true })
+        .click();
+      await waitState(
+        (value) => value.jobs.find((job) => job.id === first.id).saved,
+        "The open role is bookmarked before removal",
+      );
+      await card(page, first).waitFor({ state: "detached" });
       const resize = panel(page).getByRole("button", {
         name: "Resize opportunity details",
         exact: true,
@@ -397,7 +400,7 @@ const label = (job) => `${job.title} · ${job.employer}`;
         .getByRole("combobox", { name: "Search profile", exact: true })
         .selectOption(secondProfile.id);
       await page.locator(".discover-filters > summary").click();
-      for (const view of ["Recommended", "All roles", "Saved"]) {
+      for (const view of ["Recommended", "Browse", "Saved"]) {
         await page
           .getByRole("group", { name: "Opportunity views", exact: true })
           .getByRole("button", { name: view, exact: true })
@@ -413,7 +416,7 @@ const label = (job) => `${job.title} · ${job.employer}`;
       }
       await page
         .getByRole("group", { name: "Opportunity views", exact: true })
-        .getByRole("button", { name: "All roles", exact: true })
+        .getByRole("button", { name: "Browse", exact: true })
         .click();
       await removed(page);
       await card(page, first).waitFor();
@@ -468,7 +471,16 @@ const label = (job) => `${job.title} · ${job.employer}`;
       await page
         .getByRole("button", { name: "Show available roles", exact: true })
         .click();
+      await card(page, first).waitFor({ state: "detached" });
+      await page.getByRole("button", { name: "Saved", exact: true }).click();
       await card(page, first).waitFor();
+      await page
+        .getByRole("button", { name: `Unsave ${first.title}`, exact: true })
+        .click();
+      await waitState(
+        (value) => !value.jobs.find((job) => job.id === first.id).saved,
+        "Reset the bookmark before the next triage journey",
+      );
       console.log(
         `PASS: ${mode} triage, advance/detent, exact-job feedback, reason draft/save retry, profile isolation, reload and Restore.`,
       );
@@ -477,7 +489,7 @@ const label = (job) => `${job.title} · ${job.employer}`;
 
     await reset();
     const { page } = await contextFor(1440);
-    await all(page);
+    await page.goto(base + "/discover/?view=saved");
     const saved = original.state.jobs.find((job) => job.saved);
     assert.ok(saved);
     let removalAttempts = 0;
@@ -838,7 +850,7 @@ const label = (job) => `${job.title} · ${job.employer}`;
     await page.screenshot({ path: `${output}/desktop-last-role.png` });
     await page.reload();
     await page
-      .getByRole("button", { name: /^Removed \(6\)$/, exact: true })
+      .getByRole("button", { name: `Removed (${ids.length})`, exact: true })
       .click();
     await card(page, previous).waitFor();
     await page.close();

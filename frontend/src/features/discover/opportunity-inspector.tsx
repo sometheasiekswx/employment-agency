@@ -16,10 +16,11 @@ import {
   Bookmark,
   CircleMinus,
   RotateCcw,
-  Check,
   ChevronLeft,
   ChevronRight,
+  CircleAlert,
   FileText,
+  Link2,
   MapPin,
   ShieldCheck,
   Sparkles,
@@ -194,6 +195,8 @@ export function OpportunityInspector({
   } | null>(null);
   const reasonFocusIntent = useRef("");
   const title = useRef<HTMLHeadingElement>(null);
+  const assessmentSummary = useRef<HTMLParagraphElement>(null);
+  const footer = useRef<HTMLElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
   const documentLink = useRef<HTMLAnchorElement>(null);
   const saveErrorNotice = useRef<HTMLParagraphElement>(null);
@@ -293,6 +296,72 @@ export function OpportunityInspector({
       if (element.open) element.close();
     };
   }, [mobile, closeImmediately, dialog]);
+
+  const evidenceGaps = match.gaps;
+  const warnings = [
+    ...new Set([
+      ...match.unknowns,
+      ...evidenceGaps.map((gap) => `Missing evidence: ${gap}`),
+    ]),
+  ];
+  const checks = [
+    ...new Set([
+      ...match.hard_conflicts,
+      ...match.unknowns,
+      ...(assessmentAvailable || job.eligibility === "confirmed"
+        ? []
+        : [
+            job.eligibility === "conflict"
+              ? "Confirmed work-rights conflict"
+              : "Work rights / sponsorship need confirmation",
+          ]),
+    ]),
+  ];
+  const summary = [
+    ...checks.slice(0, evidenceGaps.length ? 2 : 3),
+    ...(evidenceGaps.length ? [`Evidence gap: ${evidenceGaps[0]}`] : []),
+  ];
+  const hasAssessmentSummary = summary.length > 0;
+  useLayoutEffect(() => {
+    const sheet = dialog.current;
+    const reading = body.current;
+    const summary = assessmentSummary.current;
+    const actions = footer.current;
+    if (!mobile || !sheet || !reading) return;
+    if (!summary || !actions) {
+      sheet.style.removeProperty("--discover-peek-content");
+      return;
+    }
+
+    function fitAssessment() {
+      if (
+        !sheet?.open ||
+        sheet.style.height ||
+        !reading ||
+        !summary ||
+        !actions
+      )
+        return;
+      const summaryEnd =
+        summary.getBoundingClientRect().bottom -
+        sheet.getBoundingClientRect().top +
+        reading.scrollTop;
+      // Leave a little space between the final check and the action bar.
+      const height = `${Math.ceil(summaryEnd + actions.offsetHeight + 12)}px`;
+      if (sheet.style.getPropertyValue("--discover-peek-content") !== height)
+        sheet.style.setProperty("--discover-peek-content", height);
+    }
+
+    fitAssessment();
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(fitAssessment);
+    observer.observe(summary);
+    observer.observe(actions);
+    if (title.current) observer.observe(title.current);
+    if (reading.previousElementSibling)
+      observer.observe(reading.previousElementSibling);
+    return () => observer.disconnect();
+  }, [mobile, dialog, body, job.id, expanded, hasAssessmentSummary]);
 
   useLayoutEffect(() => {
     const element = mobile ? dialog.current : inspector.current;
@@ -443,12 +512,6 @@ export function OpportunityInspector({
     change();
   };
 
-  const warnings = [
-    ...new Set([
-      ...match.unknowns,
-      ...match.gaps.map((gap) => `Missing evidence: ${gap}`),
-    ]),
-  ];
   const company = (
     <div className="discover-inspector-company">
       <span className="discover-employer-mark" aria-hidden="true">
@@ -563,6 +626,23 @@ export function OpportunityInspector({
           <span>{job.work_arrangement || "Work arrangement unconfirmed"}</span>
         </p>
         <p className="discover-inspector-salary">{advertisedSalary(job)}</p>
+        {hasAssessmentSummary && (
+          <p ref={assessmentSummary} className="discover-assessment-summary">
+            <ShieldCheck size={16} aria-hidden="true" />
+            <span>
+              <strong>
+                {match.hard_conflicts.length
+                  ? "Preparation blocked"
+                  : "Check before applying"}
+              </strong>
+              {summary.map((check) => (
+                <span key={check} className="discover-assessment-check">
+                  {check}
+                </span>
+              ))}
+            </span>
+          </p>
+        )}
         {!advert && (
           <p className="discover-source-label">Source link unavailable</p>
         )}
@@ -572,8 +652,7 @@ export function OpportunityInspector({
           </h3>
           {!assessmentAvailable ? (
             <p className="discover-explanation">
-              Matching is not loaded for this application. Use All roles to
-              assess it against your search profile. Saved documents and
+              Matching is unavailable in this view. Saved documents and
               decisions remain available.
             </p>
           ) : evidence.length ? (
@@ -583,6 +662,7 @@ export function OpportunityInspector({
                 key={`${item.requirement}-${index}`}
               >
                 <span
+                  aria-hidden="true"
                   className={
                     item.facts.length
                       ? "discover-evidence-mark"
@@ -590,19 +670,21 @@ export function OpportunityInspector({
                   }
                 >
                   {item.facts.length ? (
-                    <Check size={15} />
+                    <Link2 size={15} />
                   ) : (
-                    <ShieldCheck size={15} />
+                    <CircleAlert size={15} />
                   )}
                 </span>
                 <div>
                   <strong>{item.requirement}</strong>
-                  {!item.facts.length && (
-                    <p>No confirmed supporting evidence</p>
-                  )}
+                  <p>
+                    {item.facts.length
+                      ? "Verify the full requirement."
+                      : "No confirmed supporting evidence"}
+                  </p>
                   {item.facts.length > 0 && (
                     <details>
-                      <summary title={item.assessment}>
+                      <summary>
                         Related evidence ({item.facts.length}{" "}
                         {item.facts.length === 1 ? "fact" : "facts"})
                       </summary>
@@ -714,7 +796,7 @@ export function OpportunityInspector({
           </p>
         )}
       </div>
-      <footer className="discover-inspector-footer">
+      <footer ref={footer} className="discover-inspector-footer">
         <div className="discover-inspector-actions">
           {removed && !application && onRestore ? (
             <Action

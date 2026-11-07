@@ -12,7 +12,9 @@ export function MasterPanel() {
   if (!master.exists)
     return (
       <section className="secondary-panel career-master-panel">
-        <h2>Master resume</h2>
+        <h2 id="master-resume" tabIndex={-1}>
+          Master resume
+        </h2>
         <p>
           Import a resume below or place it at <code>{master.path}</code> in
           your workspace.
@@ -21,7 +23,9 @@ export function MasterPanel() {
     );
   return (
     <section className="secondary-panel career-master-panel">
-      <h2>Master resume</h2>
+      <h2 id="master-resume" tabIndex={-1}>
+        Master resume
+      </h2>
       <p>
         <code>{master.path}</code> ·{" "}
         {master.changed

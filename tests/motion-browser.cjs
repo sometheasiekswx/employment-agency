@@ -462,6 +462,27 @@ async function selectionBack(page, base, state, label) {
   ).searchParams.get("application");
   await documents.click();
   await page.locator(`[data-application-id="${application}"]`).waitFor();
+  if (label === "mobile") {
+    const workbench = page.locator(".opportunities-workbench:visible");
+    await assertFocused(
+      workbench.getByRole("heading", {
+        name: "Cloud Software Engineer",
+        exact: true,
+      }),
+      "mobile: opening documents focuses the role heading",
+    );
+    await page.goBack();
+    await page.waitForURL(base + "/discover/?view=all");
+    await workbench.waitFor({ state: "hidden" });
+    await assertFocused(
+      cloud(page),
+      "mobile: Back restores the shortlist opener",
+    );
+    await cloud(page).click();
+    await heading(page, "Cloud Software Engineer").waitFor();
+    await documents.click();
+    await page.locator(`[data-application-id="${application}"]`).waitFor();
+  }
   await page
     .locator(".opportunities-workbench:visible")
     .getByRole("button", { name: "Overview", exact: true })
@@ -908,13 +929,16 @@ async function bookmarkRollback(page, readState, label, mobile) {
   if (!initialSaved) {
     await bookmark(false).click();
     await page.locator("#notice").filter({ hasText: "Role saved." }).waitFor();
-    await bookmark(true).waitFor();
+    await cloud(page).waitFor({ state: "detached" });
   }
-  if (!mobile) {
-    await page.getByRole("button", { name: "Saved", exact: true }).click();
-    await cloud(page).waitFor();
-  }
+  await page.getByRole("button", { name: "Saved", exact: true }).click();
   await cloud(page).click();
+  if (mobile) {
+    await page.waitForURL((url) => url.searchParams.has("opportunity"));
+    const details = new URL(page.url());
+    details.searchParams.set("view", "all");
+    await page.goto(details.href);
+  }
   await heading(page, "Cloud Software Engineer").waitFor();
   await settled(page);
   const arrived = deferred();
@@ -975,7 +999,7 @@ async function bookmarkRollback(page, readState, label, mobile) {
     .filter({ hasText: "Fictional delayed bookmark failure" })
     .first();
   await error.waitFor();
-  await cloud(page).waitFor();
+  await cloud(page).waitFor({ state: mobile ? "detached" : "visible" });
   assert.equal(
     (await readState()).jobs.find(
       (job) => job.title === "Cloud Software Engineer",
@@ -984,7 +1008,7 @@ async function bookmarkRollback(page, readState, label, mobile) {
     "failure rolls back the persisted value",
   );
   assert.equal(
-    await bookmark(true).getAttribute("aria-pressed"),
+    await (mobile ? toggle : bookmark(true)).getAttribute("aria-pressed"),
     "true",
     "failure rolls back aria-pressed",
   );
@@ -1023,13 +1047,14 @@ async function bookmarkRollback(page, readState, label, mobile) {
     await inspector(page).waitFor({ state: "detached" });
   }
   if (!mobile) {
-    await page.getByRole("button", { name: "All roles", exact: true }).click();
+    await page.getByRole("button", { name: "Browse", exact: true }).click();
     await cloud(page).waitFor();
   }
   assert.equal(await bookmark(false).getAttribute("aria-pressed"), "false");
   if (initialSaved) {
     await bookmark(false).click();
     await page.locator("#notice").filter({ hasText: "Role saved." }).waitFor();
+    await page.getByRole("button", { name: "Saved", exact: true }).click();
     await bookmark(true).waitFor();
   }
   await assertRestingLayout(page, `${label}: bookmark retry`);

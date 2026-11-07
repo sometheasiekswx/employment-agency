@@ -158,7 +158,7 @@ const fs = require("node:fs");
     await page.waitForURL(
       (url) => url.searchParams.get("view") === "applications",
     );
-    await page.getByRole("button", { name: "All roles", exact: true }).click();
+    await page.getByRole("button", { name: "Browse", exact: true }).click();
     await cloud().waitFor();
     assert.equal(
       rankings,
@@ -171,7 +171,7 @@ const fs = require("node:fs");
         .count(),
       0,
     );
-    await page.getByRole("button", { name: "All roles", exact: true }).click();
+    await page.getByRole("button", { name: "Browse", exact: true }).click();
     await page.waitForURL(discovery);
     await page.screenshot({
       path: "output/playwright/concept-a/discover-desktop.png",
@@ -267,27 +267,45 @@ const fs = require("node:fs");
     await page.waitForURL(discovery);
     assert.equal(page.url(), discovery, "assessment keeps the shortlist route");
 
+    const filteredDiscovery = discovery + "&q=Cloud";
+    await page.goto(filteredDiscovery);
+    await cloud().click();
+    await page.waitForURL((url) => url.searchParams.has("opportunity"));
+    await page.goBack();
+    await page.waitForURL(filteredDiscovery);
+    await page.waitForFunction(
+      () =>
+        document.activeElement?.getAttribute("aria-label") ===
+        "Assess Cloud Software Engineer at Emberlane Systems",
+    );
+
     // Persist a bookmark through a full reload before testing rollback in Saved.
     await page
       .getByRole("button", {
         name: "Save Cloud Software Engineer",
         exact: true,
       })
-      .click();
-    await page
-      .getByRole("button", {
-        name: "Unsave Cloud Software Engineer",
-        exact: true,
-      })
-      .waitFor();
+      .focus();
+    await page.keyboard.press("Enter");
+    await cloud().waitFor({ state: "detached" });
     await page.locator("#notice").filter({ hasText: "Role saved." }).waitFor();
+    const allRoles = page.getByRole("button", {
+      name: "Browse",
+      exact: true,
+    });
+    await page.waitForFunction(
+      () => document.activeElement?.textContent.trim() === "Browse",
+    );
+    assert.equal(await allRoles.getAttribute("aria-pressed"), "true");
     await page.reload();
     await page
-      .getByRole("button", {
-        name: "Unsave Cloud Software Engineer",
-        exact: true,
-      })
+      .getByRole("heading", { name: "No roles match these filters" })
       .waitFor();
+    assert.equal(
+      await cloud().count(),
+      0,
+      "Saved remains separate after reload",
+    );
     await page.getByRole("button", { name: "Saved", exact: true }).click();
     await cloud().waitFor();
     await cloud().click();
@@ -402,7 +420,7 @@ const fs = require("node:fs");
       new URL(page.url()).searchParams.get("application"),
       created.id,
     );
-    await page.goto(discovery);
+    await page.goto(`${base}/discover/?view=applications&section=submitted`);
     await page
       .getByRole("button", {
         name: "Assess Backend Software Engineer at Cedarlight Software",
