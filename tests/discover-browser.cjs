@@ -245,6 +245,64 @@ const fs = require("node:fs");
       selectedParams.get("opportunity"),
       initial.jobs.find((job) => job.employer === "Emberlane Systems").id,
     );
+    const listingUrl = initial.jobs.find(
+      (job) => job.id === selectedParams.get("opportunity"),
+    ).url;
+    const company = inspector().getByRole("link", {
+      name: "Emberlane Systems",
+      exact: true,
+    });
+    await company.click();
+    const companyPreview = page.getByRole("dialog", {
+      name: "Company preview",
+    });
+    await companyPreview.waitFor();
+    assert.equal(
+      await companyPreview
+        .getByRole("link", { name: "Open in new tab" })
+        .getAttribute("href"),
+      new URL("/", listingUrl).href,
+    );
+    await companyPreview
+      .getByRole("button", { name: "Close", exact: true })
+      .click();
+    await companyPreview.waitFor({ state: "detached" });
+    assert.equal(
+      await company.evaluate((link) => link === document.activeElement),
+      true,
+    );
+
+    const listing = inspector().getByRole("link", {
+      name: "Cloud Software Engineer",
+      exact: true,
+    });
+    await listing.press("Enter");
+    const listingPreview = page.getByRole("dialog", {
+      name: "Listing preview",
+    });
+    await listingPreview.waitFor();
+    assert.equal(page.url(), selectedRoute);
+    assert.equal(context.pages().length, 1);
+    const externalListing = listingPreview.getByRole("link", {
+      name: "Open in new tab",
+    });
+    assert.equal(await externalListing.getAttribute("href"), listingUrl);
+    await context.route(listingUrl, (route) =>
+      route.fulfill({ body: "Fictional original listing" }),
+    );
+    const popupPromise = page.waitForEvent("popup");
+    await externalListing.click();
+    const popup = await popupPromise;
+    await popup.waitForURL(listingUrl);
+    await popup.close();
+    await context.unroute(listingUrl);
+    await page.keyboard.press("Escape");
+    await listingPreview.waitFor({ state: "detached" });
+    assert.equal(
+      await listing.evaluate((link) => link === document.activeElement),
+      true,
+    );
+
     const existingDocuments = inspector().getByRole("link", {
       name: "Review documents",
       exact: true,
@@ -309,6 +367,7 @@ const fs = require("node:fs");
     );
 
     // Persist a bookmark through a full reload before testing rollback in Saved.
+    await page.goto(discovery + "&q=Cloud");
     await page
       .getByRole("button", {
         name: "Save Cloud Software Engineer",
@@ -592,6 +651,34 @@ const fs = require("node:fs");
     await page.screenshot({
       path: "output/playwright/concept-a/discover-mobile-inspector-expanded.png",
     });
+    const advert = modal.getByRole("link", {
+      name: "View advert",
+      exact: true,
+    });
+    await advert.click();
+    await listingPreview.waitFor();
+    assert.equal(
+      await listingPreview
+        .getByRole("link", { name: "Open in new tab" })
+        .getAttribute("href"),
+      listingUrl,
+    );
+    const previewAxe = await new AxeBuilder({ page })
+      .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+      .analyze();
+    assert.deepEqual(
+      previewAxe.violations.map((violation) => violation.id),
+      [],
+    );
+    await page.screenshot({
+      path: "output/playwright/concept-a/source-preview-mobile.png",
+    });
+    await page.keyboard.press("Escape");
+    await listingPreview.waitFor({ state: "detached" });
+    assert.equal(
+      await advert.evaluate((link) => link === document.activeElement),
+      true,
+    );
 
     // Failure feedback must remain inside the modal's accessible focus context.
     const mobileSaveFailure = (route) =>

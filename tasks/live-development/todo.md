@@ -1,0 +1,3 @@
+- [x] Secure gateway and development-readiness regression checks: real Caddy HTTP/WS owner checks and worker-draining shutdown.
+- [x] Supervised Next/Caddy/Python development: selected workspace survives reload, active work defers it, same-size saves load fresh source, syntax corrections recover, Ctrl+C/SIGTERM release all ports/locks.
+- [x] Real Chrome/Next Fast Refresh through Caddy before/after a Python behavior edit. Existing local dev browser check, all 180 Python tests, TypeScript, ESLint and diff whitespace checks pass. Local review covered owner boundaries, bytecode freshness, accepted mutations, child cleanup and workspace ownership; Windows private gateway lifecycle remains unverified.

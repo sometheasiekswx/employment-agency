@@ -13,6 +13,17 @@ const config: NextConfig = {
 };
 
 if (process.env.NODE_ENV === "development") {
+  const privateOrigin = process.env.EA_TAILSCALE_ORIGIN;
+  if (privateOrigin) {
+    const origin = new URL(privateOrigin);
+    if (
+      origin.protocol !== "https:" ||
+      !origin.hostname.endsWith(".ts.net") ||
+      origin.origin !== privateOrigin
+    )
+      throw new Error("EA_TAILSCALE_ORIGIN must be an exact HTTPS tailnet origin");
+    config.allowedDevOrigins = [origin.hostname];
+  }
   config.rewrites = async () => {
     const backend = process.env.EA_BACKEND_URL || "http://127.0.0.1:8766";
     const url = new URL(backend);

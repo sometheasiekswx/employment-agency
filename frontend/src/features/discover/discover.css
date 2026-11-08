@@ -498,6 +498,27 @@
   font-weight: 500;
   letter-spacing: -0.4px;
 }
+.discover-job-reference {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-block: 0.6rem;
+}
+.discover-job-reference > button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2.75rem;
+}
+.discover-job-reference > label {
+  flex: 1 0 100%;
+  min-width: 0;
+}
+.discover-job-reference textarea {
+  width: 100%;
+  font-size: 1rem;
+}
 .discover-role-location {
   display: flex;
   align-items: center;
@@ -543,6 +564,16 @@
 .discover-source-label {
   color: var(--discover-muted);
   font-size: 12px;
+}
+.discover-source-link {
+  color: inherit;
+  overflow-wrap: anywhere;
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-underline-offset: 0.18em;
+}
+.discover-source-link:hover {
+  color: var(--accent);
 }
 .discover-screen .discover-evidence-section {
   margin: 27px 0 0;

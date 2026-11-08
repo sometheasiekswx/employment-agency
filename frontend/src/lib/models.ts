@@ -64,6 +64,7 @@ export interface Job {
   location?: string;
   city?: string;
   url?: string;
+  careers_url?: string;
   email?: string;
   description?: string;
   requirements?: string[];

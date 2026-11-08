@@ -32,7 +32,22 @@ Review of proposed career-fact updates and conflicts detected after a master res
 The exact application documents recorded as submitted, preserved with their provenance and submission decision. Later edits or generations do not change what was submitted.
 
 **Application decision**:
-A user's recorded review or manual submission. Recording Submitted also confirms review. Active contains available Draft and Reviewed packages. Earlier Rejected decisions are retained in activity.
+A user's recorded review or manual submission. Recording Submitted also confirms review. Active contains Draft and Reviewed packages for roles without a recorded submission. Earlier Rejected decisions are retained in activity.
+
+**Recorded submission**:
+A submitted application snapshot or a listing tagged Already submitted. It moves the role from Recommended, All roles and Saved into Applications → Submitted. A listing tag leaves the submitted document version unknown. Any unfinished draft for that listing is accessible from Submitted as a separate version.
+
+**Saved role**:
+An opportunity bookmarked by the user. The bookmark places the role in Saved while it is available to browse. If a correction returns a role to browsing, its bookmark determines whether it goes back to Saved.
+
+**Job reference**:
+The title, company and full workspace job ID copied from a listing, with its original link when available. The ID identifies the exact role when titles and companies repeat.
+
+**Requirement evidence**:
+The user's confirmation or written example for a specific requirement on a job. A quick confirmation saves the requirement as a reusable, self-confirmed skill. A written example adds a separate confirmed career fact.
+
+**Source preview**:
+An in-app view of a listing, careers site or source site. A listing preview can show the live page alongside recorded listing details. A company preview shows recorded information and its destination.
 
 **Removed opportunity**:
 A role the user has set aside across search profiles and application lists. Removed holds its listing, application versions, documents and decisions. Restore returns the role and its application to their previous lists. Current applications rejected in an earlier version also appear here and restore as drafts.

@@ -29,7 +29,9 @@ export function CareerPage() {
   const retired = state.facts.filter((fact) => fact.retired);
   const confirmed = facts.filter((fact) => fact.confirmed && !fact.conflict);
   const needsReview = facts.filter((fact) => !fact.confirmed || fact.conflict);
-  const skills = confirmed.filter((fact) => fact.category === "skill");
+  const skills = confirmed.filter(
+    (fact) => fact.category === "skill" || fact.category === "skills",
+  );
   const [retiringId, setRetiringId] = useState("");
   const [factActionPending, setFactActionPending] = useState(false);
   const [focusSignal, setFocusSignal] = useState(0);

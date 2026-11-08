@@ -10,6 +10,7 @@ import json
 import os
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import urlsplit
 from .store import now, uid, digest, atomic, encode
 from . import imports, sources, matching, documents, providers, packages, master, summaries, editor
 from .workspaces import settings, configure, inside
@@ -809,6 +810,25 @@ class Service:
             raise ValueError("Headers must be single lines")
         if j["url"] and not j["url"].startswith("https://"):
             raise ValueError("Job URL must use HTTPS")
+        if "careers_url" in a:
+            careers_url = text(a["careers_url"], 2000)
+            if careers_url:
+                try:
+                    destination = urlsplit(careers_url)
+                    valid = (
+                        destination.scheme == "https"
+                        and bool(destination.hostname)
+                        and destination.username is None
+                        and destination.password is None
+                        and destination.port != 0
+                        and "\\" not in careers_url
+                        and not any(character.isspace() for character in careers_url)
+                    )
+                except ValueError:
+                    valid = False
+                if not valid:
+                    raise ValueError("Company careers URL must be an HTTPS address without credentials")
+            j["careers_url"] = careers_url
         j["requirements"] = strings(a.get("requirements", []))
         j["eligibility"] = a.get("eligibility", "unknown")
         if j["eligibility"] not in ("unknown", "confirmed", "conflict"):
@@ -855,6 +875,8 @@ class Service:
                     j['removals'] = existing['removals']
                 if 'requirement_evidence' in existing:
                     j['requirement_evidence'] = existing['requirement_evidence']
+                if 'careers_url' in existing:
+                    j.setdefault('careers_url', existing['careers_url'])
                 for key in ('prior_application', 'source', 'checked_at'):
                     if key not in a:
                         j[key] = existing.get(key, j[key])

@@ -59,6 +59,8 @@ The launcher configures the exact frontend origin and API/file proxy automatical
 
 The launcher lifecycle is covered by `python -m unittest discover -s tests -p test_development.py -v`. On macOS/Linux with Chrome installed, `python tests/check_development.py` checks the actual Next.js proxy, CSS Fast Refresh and shutdown/restart using a separate temporary source tree and fictional workspace. Local verification was performed on macOS; Windows console cleanup has not been verified locally.
 
+For live changes through an existing private phone URL, use the [Tailscale development gateway](docs/tailscale.md#live-code-changes-on-the-same-private-url). It adds Caddy and Python source reloads while retaining the owner/origin/token checks. `python -m unittest discover -s tests -p 'test_live_*.py' -v` verifies private gateway access, WebSockets and reload lifecycle; `python tests/check_private_development.py` proves real Next Fast Refresh before and after a Python behavior change in an isolated fictional workspace. These checks require Caddy, and the browser check requires Chrome. Normal local `dev` remains a two-process option.
+
 ## Editing button colours
 
 The **Apply For Me** and **Submission details** labels belong to the same button in `frontend/src/features/applications/application-card.tsx`. Its default fill/text colours currently come from `.review-pane button:not([name])` in `frontend/src/app/globals.css`. That rule also styles Save comment.

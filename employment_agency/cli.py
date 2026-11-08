@@ -18,9 +18,14 @@ def main():
     serve = sub.add_parser("serve")
     serve.add_argument("--port", type=int, default=8766)
     serve.add_argument('--frontend-origin', help='Development only: exact http://127.0.0.1:PORT origin for a Next.js dev proxy')
+    serve.add_argument('--tailscale-origin', help='Private Serve access: exact https://MACHINE.TAILNET.ts.net origin')
+    serve.add_argument('--tailscale-user', help='Private Serve access: exact Tailscale owner login; requires --tailscale-origin')
     dev = sub.add_parser('dev', help='Run Python and the live Next.js frontend together; Ctrl+C stops both')
     dev.add_argument('--port', type=int, default=8766, help='Python backend port (default: 8766)')
     dev.add_argument('--frontend-port', type=int, default=3000, help='Live frontend port (default: 3000)')
+    dev.add_argument('--gateway-port', type=int, help='Private live gateway port; requires paired Tailscale settings')
+    dev.add_argument('--tailscale-origin', help='Exact private HTTPS Serve origin for live development')
+    dev.add_argument('--tailscale-user', help='Exact Tailscale owner login for live development')
     demo = sub.add_parser('demo', help='Create a new isolated fictional demo workspace; no API key or network needed')
     demo.add_argument('destination', help='New folder; existing destinations are never overwritten')
     demo.add_argument('--serve', action='store_true', help='Start the demo without changing the remembered workspace')
@@ -44,9 +49,21 @@ def main():
     migration.add_argument('destination')
     migration.add_argument('--settings', help='JSON workspace settings file')
     a = p.parse_args()
+    if a.command in ('serve', 'dev'):
+        from .server import validate_tailscale_access
+        try:
+            validate_tailscale_access(a.tailscale_origin, a.tailscale_user)
+        except ValueError as exc:
+            p.error(str(exc))
+        if a.command == 'dev' and bool(a.tailscale_origin) != bool(a.gateway_port is not None):
+            p.error('Private live development requires --gateway-port and paired Tailscale settings')
     if a.command == 'dev':
         from .development import run
         try:
+            if a.tailscale_origin:
+                from .live_development import run as run_private
+                p.exit(run_private(selected_workspace(a.workspace), a.port, a.frontend_port,
+                                   a.gateway_port, a.tailscale_origin, a.tailscale_user))
             p.exit(run(selected_workspace(a.workspace), a.port, a.frontend_port))
         except (ValueError, OSError) as exc:
             p.exit(2, f'Development app not started: {exc}\n')
@@ -94,7 +111,8 @@ def main():
             from .server import server
 
             remember(w.path)
-            http = server(service, a.port, frontend_origin=a.frontend_origin)
+            http = server(service, a.port, frontend_origin=a.frontend_origin,
+                          tailscale_origin=a.tailscale_origin, tailscale_user=a.tailscale_user)
             print(f"Employment Agency: http://127.0.0.1:{http.server_port}", flush=True)
             try:
                 http.serve_forever()

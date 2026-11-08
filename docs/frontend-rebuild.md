@@ -12,7 +12,7 @@ Replace all hand-built HTML string templates, document-wide event dispatch and p
 | Career | Identity, PDF/Word/TeX/text import and size limits, supplemental facts, edit/confirm/retire/conflict states, master diff/identity/facts/conflicts/confirmation |
 | Search | Multiple profiles, filters/expectations, manual jobs with all metadata and salary evidence, edit jobs, URL import, sources/status/refresh, ranking/evidence/gaps, agent handoff/selection |
 | Runs | Bounded local/OpenAI runs, consent, model/prices/budget approval, progress/errors, cancel/resume |
-| Applications | Active/Submitted/Rejected, destination filters, historical queues, evidence/gaps/dates, file downloads, decisions/comments, immutable submitted records, external-edit validation |
+| Applications | Active/Submitted/Removed, destination filters, historical queues, evidence/gaps/dates, file downloads, decisions/comments, immutable submitted records, external-edit validation. Submitted contains recorded snapshots and listings tagged Already submitted. A tagged listing's draft is accessible there as a separate version. |
 | Documents | PDF preview, blocks/TeX/view modes, add/remove/style, preview without saving, preserved new drafts, errors, stale-base rejection, unsaved-close warning, keyboard/focus and object-URL cleanup |
 | History | All canonical versions by city/company/job/date, source/uncertain dates, integrity-checked files and external-edit adoption |
 | Hosted | Google PKCE/session refresh, errors/logout, authenticated downloads/export/delete, isolation, capability restrictions; local paths/pickers/runs/TeX/paid actions remain unavailable |

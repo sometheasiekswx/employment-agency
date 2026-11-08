@@ -1068,6 +1068,38 @@ it("opens Saved for an earlier saved-status filter URL", async () => {
   ).not.toBeInTheDocument();
 });
 
+it("uses the recorded careers page for the company preview", async () => {
+  const careersUrl = "https://company.example.test/team/careers";
+  fixture.state.jobs[0].careers_url = careersUrl;
+  render(<DiscoverPage />);
+  fireEvent.click(
+    await screen.findByRole("button", {
+      name: "Assess Cloud Engineer at Example Cloud",
+    }),
+  );
+  const company = within(screen.getByRole("complementary")).getByRole("link", {
+    name: "Example Cloud",
+  });
+  expect(company).toHaveAttribute("href", careersUrl);
+  fireEvent.click(company);
+  const preview = screen.getByRole("dialog", { name: "Company preview" });
+  expect(preview).toHaveTextContent("Careers site · company.example.test");
+  expect(
+    within(preview).getByRole("link", { name: "Open in new tab" }),
+  ).toHaveAttribute("href", careersUrl);
+});
+
+it("leaves an unnamed employer without a link", async () => {
+  fixture.state.jobs[0].employer = "";
+  render(<DiscoverPage />);
+  fireEvent.click(
+    await screen.findByRole("button", { name: /^Assess Cloud Engineer/ }),
+  );
+  const inspector = within(screen.getByRole("complementary"));
+  expect(inspector.queryByRole("link", { name: "" })).not.toBeInTheDocument();
+  expect(inspector.getByRole("link", { name: "Cloud Engineer" })).toBeVisible();
+});
+
 it("keeps an unsave failure visible after optimistic removal from Saved and restores the saved role", async () => {
   fixture.query = "view=saved";
   fixture.state.jobs[0].saved = true;

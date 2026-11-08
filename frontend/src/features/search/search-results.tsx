@@ -6,7 +6,8 @@ import { useDraft } from "@/components/unsaved";
 import { useWorkspace } from "@/components/workspace-provider";
 import { requirementEvidence } from "@/features/discover/discovery";
 import { downloadJson } from "@/lib/api";
-import { advertisedSalary, safeUrl } from "@/lib/format";
+import { OpportunityListingLink } from "@/features/discover/opportunity-source-preview";
+import { advertisedSalary } from "@/lib/format";
 import type { Fact, Job, RankedJob } from "@/lib/models";
 import { RunForm } from "./runs";
 import styles from "./search-results.module.css";
@@ -245,15 +246,9 @@ export function SearchResults() {
             <p>Missing evidence: {match.gaps.join("; ")}</p>
           )}
           <SearchMatchDetails job={job} match={match} facts={state.facts} />
-          {safeUrl(job.url) && (
-            <a
-              href={safeUrl(job.url)}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Original listing
-            </a>
-          )}
+          <OpportunityListingLink job={job}>
+            Original listing
+          </OpportunityListingLink>
           <div className="actions">
             <Action
               disabled={!match.eligible_for_preparation}

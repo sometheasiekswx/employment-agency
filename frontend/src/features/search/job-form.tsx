@@ -66,6 +66,12 @@ export function JobForm({ job, onSaved }: { job?: Job; onSaved?: () => void }) {
       />
       <Field label="Source URL" name="url" type="url" defaultValue={job?.url} />
       <Field
+        label="Company careers URL (optional)"
+        name="careers_url"
+        type="url"
+        defaultValue={job?.careers_url}
+      />
+      <Field
         label="Recruiter email — if the advert requests email"
         name="email"
         type="email"

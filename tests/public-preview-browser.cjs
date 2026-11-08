@@ -151,6 +151,13 @@ const { showPanel } = require("./browser-applications.cjs");
       0,
       "Public preview shows evidence without offering career fact mutations",
     );
+    assert.equal(
+      await inspector
+        .getByRole("link", { name: "Cloud Software Engineer", exact: true })
+        .count(),
+      0,
+      "Fictional roles with no original listing URL show a plain title",
+    );
     await inspector
       .getByRole("button", {
         name: "Save Cloud Software Engineer",

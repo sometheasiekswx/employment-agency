@@ -1,0 +1,6 @@
+- [x] Move bookmarked roles into Saved and preserve open details and focus. Verified by the discovery tests, the keyboard save and rollback journey, and the iPhone Simulator.
+- [x] Record and resolve an optional company careers URL. The provenance tests cover validation, explicit clearing and preservation during import. The inspector tests verify that the recorded careers URL takes precedence.
+- [x] Open company and listing links in an in-app preview. The browser checks cover focus return, explicit tab opening, and immediate reopening after Close. Native Safari verified both previews with fictional data.
+- [x] Verify the normal and public builds, review the diff, and check release readiness. Passed 333 frontend tests, 180 Python tests, TypeScript, lint, both builds, installed-wheel browser checks, and the local, hosted and public preview browser scenarios. The review found and fixed a late close event that could dismiss a newly opened preview. The repeated keyboard sequence and native Safari retest passed.
+
+Simulator evidence is under `output/playwright/source-preview-native.CCuDk4/`. The feature is ready in the local source checkout. A public release follows the [existing release workflow](../../docs/public-demo-deployment.md).

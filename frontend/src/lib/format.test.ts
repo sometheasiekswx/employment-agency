@@ -87,6 +87,7 @@ it("preserves approximate source dates and formats date-only values without time
 it("rejects executable and insecure listing URLs", () => {
   expect(safeUrl("javascript:alert(1)")).toBeUndefined();
   expect(safeUrl("http://example.test")).toBeUndefined();
+  expect(safeUrl("https://user:pass@example.test/job")).toBeUndefined();
   expect(safeUrl("https://example.test/job")).toBe("https://example.test/job");
 });
 it("normalizes list inputs and keeps unknown metadata hidden", () => {

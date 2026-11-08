@@ -13,6 +13,7 @@ import {
 } from "@/components/controls";
 import { useWorkspace } from "@/components/workspace-provider";
 import { useDraft } from "@/components/unsaved";
+import { OpportunityListingLink } from "@/features/discover/opportunity-source-preview";
 import { applicationHref, displayDate, safeUrl } from "@/lib/format";
 import type { Application, EditorDocument, Job } from "@/lib/models";
 import { FileLink } from "./file-link";
@@ -286,15 +287,17 @@ export function ApplicationCard({
           <p className="error">{app.migration_warning}</p>
         )}
         {safeUrl(job.url) && (
-          <p>
-            <a
-              href={safeUrl(job.url)}
-              target="_blank"
-              rel="noopener noreferrer"
+          <div>
+            <OpportunityListingLink
+              job={{
+                ...job,
+                title: job.title || app.title,
+                employer: job.employer || app.employer,
+              }}
             >
               Open application listing
-            </a>
-          </p>
+            </OpportunityListingLink>
+          </div>
         )}
       </div>
       <div className="review-pane" hidden={view === "documents"}>

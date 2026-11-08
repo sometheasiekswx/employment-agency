@@ -109,6 +109,72 @@ it("keeps a same-role reselection open when the earlier close finishes late", as
   expect(surface.style.willChange).toBe("");
 });
 
+it.each([true, false])(
+  "copies the exact job reference or exposes it for manual copy (clipboard available: %s)",
+  async (available) => {
+    const original = Object.getOwnPropertyDescriptor(navigator, "clipboard");
+    const writeText = vi.fn().mockImplementation(async () => {
+      if (!available) throw new Error("Clipboard denied");
+    });
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText },
+    });
+    const url = available
+      ? "https://jobs.example.test/positions/42"
+      : undefined;
+    const label =
+      "Cloud Engineer — Example Company (job ID: 0123456789abcdef0123456789abcdef)";
+    const reference = url ? `${label}\n${url}` : label;
+    try {
+      const props = inspectorProps();
+      const view = render(
+        <OpportunityInspector
+          {...props}
+          row={{
+            ...row,
+            job: {
+              ...row.job,
+              id: "0123456789abcdef0123456789abcdef",
+              title: "Cloud\nEngineer",
+              url,
+            },
+          }}
+        />,
+      );
+      fireEvent.click(
+        screen.getByRole("button", { name: "Copy job reference" }),
+      );
+      expect(writeText).toHaveBeenCalledExactlyOnceWith(reference);
+      if (available) await screen.findByText("Copied");
+      else {
+        expect(
+          await screen.findByRole("textbox", {
+            name: "Select and copy the job reference",
+          }),
+        ).toHaveValue(reference);
+      }
+      view.rerender(
+        <OpportunityInspector
+          {...props}
+          row={{ ...row, job: { ...row.job, id: "two", employer: "" } }}
+        />,
+      );
+      expect(screen.queryByText("Copied")).not.toBeInTheDocument();
+      expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+      fireEvent.click(
+        screen.getByRole("button", { name: "Copy job reference" }),
+      );
+      expect(writeText).toHaveBeenLastCalledWith("Engineer (job ID: two)");
+      if (available) await screen.findByText("Copied");
+      else await screen.findByRole("textbox");
+    } finally {
+      if (original) Object.defineProperty(navigator, "clipboard", original);
+      else Reflect.deleteProperty(navigator, "clipboard");
+    }
+  },
+);
+
 it("completes an intended close immediately when keyboard input or reduced motion disables animation", async () => {
   const props = inspectorProps();
   const view = render(<OpportunityInspector {...props} />);

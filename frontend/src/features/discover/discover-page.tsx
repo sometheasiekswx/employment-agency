@@ -289,7 +289,7 @@ export function DiscoverPage() {
   const priorities = profile?.locations.length
     ? profile.locations
     : state._workspace.preferred_locations;
-  // Bookmark and removal changes leave the current matching intact.
+  // Bookmark, removal and source link changes leave the current matching intact.
   const rankInput = JSON.stringify({
     profile,
     facts: state.facts,
@@ -297,6 +297,7 @@ export function DiscoverPage() {
       ...job,
       saved: undefined,
       removals: undefined,
+      careers_url: undefined,
       matched_skill_evidence: undefined,
     })),
   });
@@ -1582,6 +1583,7 @@ export function DiscoverPage() {
               count={selectedIndex < 0 ? 1 : visible.length}
               rankingCurrent={!loading && !error}
               assessmentAvailable={assessmentAvailable}
+              hasListingRecord={hasListingRecord}
               onAddEvidence={
                 hasListingRecord && !client.preview
                   ? async (requirement, details) => {

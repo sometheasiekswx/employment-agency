@@ -23,7 +23,9 @@ export const errorMessage = (error: unknown) =>
 export function safeUrl(value?: string) {
   try {
     const url = new URL(value || "");
-    return url.protocol === "https:" ? url.href : undefined;
+    return url.protocol === "https:" && !url.username && !url.password
+      ? url.href
+      : undefined;
   } catch {
     return undefined;
   }

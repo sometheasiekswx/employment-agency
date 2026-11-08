@@ -8,6 +8,7 @@ import {
   useLayoutEffect,
   useRef,
   useState,
+  type MouseEvent,
   type ReactNode,
 } from "react";
 import { animate, type AnimationOptions } from "motion";
@@ -18,6 +19,7 @@ import {
   RotateCcw,
   ChevronLeft,
   ChevronRight,
+  Copy,
   FileText,
   MapPin,
   ShieldCheck,
@@ -36,6 +38,10 @@ import {
 } from "./discovery";
 import { OpportunityCareerEvidence } from "./opportunity-career-evidence";
 import { useSheetGesture } from "./use-sheet-gesture";
+import {
+  OpportunitySourcePreview,
+  type OpportunitySourceKind,
+} from "./opportunity-source-preview";
 import { currentRemoval } from "@/lib/job-removal";
 import "./inspector-motion.css";
 
@@ -138,6 +144,7 @@ interface InspectorProps {
   count: number;
   rankingCurrent: boolean;
   assessmentAvailable?: boolean;
+  hasListingRecord?: boolean;
   onAddEvidence?: (requirement: string, details: string) => Promise<void>;
   saving: boolean;
   saveError: string;
@@ -157,6 +164,53 @@ interface InspectorProps {
   reasonEditorId?: string;
 }
 
+function CopyJobReference({ job }: { job: RankedJob["job"] }) {
+  const [result, setResult] = useState<"copied" | "manual">();
+  const title = job.title.replace(/\s+/g, " ").trim();
+  const company = job.employer.replace(/\s+/g, " ").trim();
+  const role = [title, company].filter(Boolean).join(" — ");
+  const label = `${role} (job ID: ${job.id})`;
+  const listing = safeUrl(job.url);
+  const reference = listing ? `${label}\n${listing}` : label;
+
+  return (
+    <div className="discover-job-reference">
+      <button
+        type="button"
+        className="secondary"
+        onClick={async () => {
+          try {
+            await navigator.clipboard.writeText(reference);
+            setResult("copied");
+          } catch {
+            setResult("manual");
+          }
+        }}
+      >
+        <Copy size={16} aria-hidden="true" /> Copy job reference
+      </button>
+      <span role="status">
+        {result === "copied"
+          ? "Copied"
+          : result === "manual"
+            ? "Clipboard access unavailable"
+            : ""}
+      </span>
+      {result === "manual" && (
+        <label>
+          Select and copy the job reference
+          <textarea
+            readOnly
+            rows={listing ? 3 : 2}
+            value={reference}
+            onFocus={(event) => event.currentTarget.select()}
+          />
+        </label>
+      )}
+    </div>
+  );
+}
+
 export function OpportunityInspector({
   row,
   application,
@@ -167,6 +221,7 @@ export function OpportunityInspector({
   count,
   rankingCurrent,
   assessmentAvailable = true,
+  hasListingRecord = true,
   onAddEvidence,
   saving,
   saveError,
@@ -217,6 +272,18 @@ export function OpportunityInspector({
     button: HTMLButtonElement;
   } | null>(null);
   const [prepareFocusSignal, setPrepareFocusSignal] = useState(0);
+  const [sourcePreview, setSourcePreview] = useState<{
+    jobId: string;
+    mobile: boolean;
+    kind: OpportunitySourceKind;
+    url: string;
+    opener: HTMLAnchorElement;
+  } | null>(null);
+  if (
+    sourcePreview &&
+    (sourcePreview.jobId !== job.id || sourcePreview.mobile !== mobile)
+  )
+    setSourcePreview(null);
   const {
     dialog,
     body,
@@ -247,6 +314,20 @@ export function OpportunityInspector({
   }, [reasonEditorId, mobile, snapSheet, animateInteractions, body]);
   const status = roleStatus(job, application);
   const advert = safeUrl(job.url);
+  const careers = safeUrl(job.careers_url);
+  const companyUrl = job.employer.trim()
+    ? careers || (advert && new URL(advert).origin)
+    : undefined;
+  const openSource = (
+    event: MouseEvent<HTMLAnchorElement>,
+    kind: OpportunitySourceKind,
+  ) => {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+      return;
+    event.preventDefault();
+    const opener = event.currentTarget;
+    setSourcePreview({ jobId: job.id, mobile, kind, url: opener.href, opener });
+  };
   const submitted = application?.status === "submitted";
   const historicalSubmission =
     job.prior_application === "submitted" && !submitted;
@@ -543,7 +624,23 @@ export function OpportunityInspector({
       <span className="discover-employer-mark" aria-hidden="true">
         {job.employer.slice(0, 1)}
       </span>
-      <strong>{job.employer}</strong>
+      <strong>
+        {companyUrl ? (
+          <a
+            className="discover-source-link"
+            href={companyUrl}
+            rel="noreferrer"
+            aria-haspopup="dialog"
+            onClick={(event) =>
+              openSource(event, careers ? "careers" : "source")
+            }
+          >
+            {job.employer}
+          </a>
+        ) : (
+          job.employer
+        )}
+      </strong>
       <span className={`discover-status ${status.tone}`}>{status.label}</span>
     </div>
   );
@@ -642,7 +739,19 @@ export function OpportunityInspector({
         {removalEditor}
         {!mobile && company}
         <h2 id={titleId} ref={title} tabIndex={-1}>
-          {job.title}
+          {advert ? (
+            <a
+              className="discover-source-link"
+              href={advert}
+              rel="noreferrer"
+              aria-haspopup="dialog"
+              onClick={(event) => openSource(event, "listing")}
+            >
+              {job.title}
+            </a>
+          ) : (
+            job.title
+          )}
         </h2>
         <p className="discover-role-location">
           <span>
@@ -669,6 +778,7 @@ export function OpportunityInspector({
             </span>
           </p>
         )}
+        {hasListingRecord && <CopyJobReference key={job.id} job={job} />}
         {!advert && (
           <p className="discover-source-label">Source link unavailable</p>
         )}
@@ -759,8 +869,10 @@ export function OpportunityInspector({
         {historicalSubmission && (
           <p className="discover-submission-note">
             <ShieldCheck size={17} />
-            An earlier submission is recorded. Local draft documents remain a
-            separate version.
+            An earlier submission is recorded.
+            {application
+              ? " The local draft is a separate version."
+              : " The submitted document version is unknown."}
           </p>
         )}
       </div>
@@ -802,15 +914,12 @@ export function OpportunityInspector({
                     ? "Review preserved draft"
                     : "Review documents"}
             </Link>
-          ) : hasDecision ? (
-            <Link
-              className="button discover-primary"
-              href={`/?section=${job.prior_application === "rejected" ? "rejected" : "submitted"}`}
-            >
+          ) : job.prior_application === "rejected" ? (
+            <Link className="button discover-primary" href="/?section=rejected">
               <FileText size={17} />
               View application records
             </Link>
-          ) : (
+          ) : historicalSubmission ? null : (
             <Action
               className="discover-primary"
               disabled={!rankingCurrent || !match.eligible_for_preparation}
@@ -837,8 +946,9 @@ export function OpportunityInspector({
               className="button discover-advert"
               aria-label="View advert"
               href={advert}
-              target="_blank"
-              rel="noopener noreferrer"
+              rel="noreferrer"
+              aria-haspopup="dialog"
+              onClick={(event) => openSource(event, "listing")}
             >
               <ArrowUpRight size={17} />
               <span>View advert</span>
@@ -914,42 +1024,40 @@ export function OpportunityInspector({
     </>
   );
 
-  if (mobile)
-    return (
-      <dialog
-        ref={dialog}
-        data-inspector-motion={animateInteractions ? "on" : "off"}
-        aria-labelledby={titleId}
-        className={`discover-inspector discover-dialog ${expanded ? "is-expanded" : ""}`}
-        onPointerDown={(event) => {
-          const rect = event.currentTarget.getBoundingClientRect();
-          outsidePress.current =
-            event.target === event.currentTarget &&
-            (event.clientX < rect.left ||
-              event.clientX > rect.right ||
-              event.clientY < rect.top ||
-              event.clientY > rect.bottom);
-        }}
-        onClick={(event) => {
-          if (!outsidePress.current || event.target !== event.currentTarget)
-            return;
-          const rect = event.currentTarget.getBoundingClientRect();
-          if (
-            outsidePress.current &&
-            event.target === event.currentTarget &&
-            (event.clientX < rect.left ||
-              event.clientX > rect.right ||
-              event.clientY < rect.top ||
-              event.clientY > rect.bottom)
-          )
-            requestClose(true);
-          outsidePress.current = false;
-        }}
-      >
-        {content}
-      </dialog>
-    );
-  return (
+  const surface = mobile ? (
+    <dialog
+      ref={dialog}
+      data-inspector-motion={animateInteractions ? "on" : "off"}
+      aria-labelledby={titleId}
+      className={`discover-inspector discover-dialog ${expanded ? "is-expanded" : ""}`}
+      onPointerDown={(event) => {
+        const rect = event.currentTarget.getBoundingClientRect();
+        outsidePress.current =
+          event.target === event.currentTarget &&
+          (event.clientX < rect.left ||
+            event.clientX > rect.right ||
+            event.clientY < rect.top ||
+            event.clientY > rect.bottom);
+      }}
+      onClick={(event) => {
+        if (!outsidePress.current || event.target !== event.currentTarget)
+          return;
+        const rect = event.currentTarget.getBoundingClientRect();
+        if (
+          outsidePress.current &&
+          event.target === event.currentTarget &&
+          (event.clientX < rect.left ||
+            event.clientX > rect.right ||
+            event.clientY < rect.top ||
+            event.clientY > rect.bottom)
+        )
+          requestClose(true);
+        outsidePress.current = false;
+      }}
+    >
+      {content}
+    </dialog>
+  ) : (
     <aside
       ref={inspector}
       data-inspector-motion={animateInteractions ? "on" : "off"}
@@ -964,5 +1072,22 @@ export function OpportunityInspector({
     >
       {content}
     </aside>
+  );
+  return (
+    <>
+      {surface}
+      {sourcePreview?.jobId === job.id && (
+        <OpportunitySourcePreview
+          job={job}
+          kind={sourcePreview.kind}
+          url={sourcePreview.url}
+          onClose={() => {
+            setSourcePreview(null);
+            if (sourcePreview.opener.isConnected)
+              sourcePreview.opener.focus({ preventScroll: true });
+          }}
+        />
+      )}
+    </>
   );
 }

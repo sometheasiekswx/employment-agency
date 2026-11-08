@@ -4,6 +4,7 @@ import os
 from flask import Flask, request, Response, jsonify
 from werkzeug.exceptions import HTTPException
 from .cloud import config, Supabase, execute, CloudError
+from .listing_frame import listing_frame
 from .web_assets import asset, script_policy, MissingFrontendError
 
 app = Flask(__name__, static_folder=None)
@@ -15,8 +16,9 @@ def headers(response):
     response.headers['Cache-Control'] = 'no-store'
     response.headers['X-Content-Type-Options'] = 'nosniff'
     response.headers['Referrer-Policy'] = 'no-referrer'
-    scripts = script_policy(response.get_data(as_text=True)) if response.mimetype == 'text/html' else "script-src 'self'"
-    response.headers['Content-Security-Policy'] = "default-src 'self'; " + scripts + "; style-src 'self'; connect-src 'self' https://*.supabase.co; img-src 'self' blob:; object-src 'none'; frame-src 'self' blob:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"
+    if 'Content-Security-Policy' not in response.headers:
+        scripts = script_policy(response.get_data(as_text=True)) if response.mimetype == 'text/html' else "script-src 'self'"
+        response.headers['Content-Security-Policy'] = "default-src 'self'; " + scripts + "; style-src 'self'; connect-src 'self' https://*.supabase.co; img-src 'self' blob:; object-src 'none'; frame-src 'self' blob:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"
     return response
 
 
@@ -45,6 +47,16 @@ def static_file(name):
 @app.get('/api/runtime')
 def runtime():
     return jsonify(mode='hosted')
+
+
+@app.get('/api/listing-preview-frame')
+def preview_frame():
+    hosts = request.args.getlist('host')
+    try:
+        html, headers = listing_frame(hosts[0] if len(hosts) == 1 else None)
+    except ValueError:
+        return jsonify(error='Invalid website preview host'), 400
+    return Response(html, headers=headers, mimetype='text/html')
 
 
 @app.get('/api/config')
