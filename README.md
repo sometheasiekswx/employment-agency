@@ -18,7 +18,7 @@ Find roles in your chosen locations, assess the match and prepare applications y
 
 Six fictional roles · Four locations · No sign-in
 
-[The workspace](#the-workspace) · [Run locally](#run-locally) · [Use your agent](#use-your-agent) · [Documentation](#documentation)
+[The workspace](#the-workspace) · [Run locally](#run-locally) · [Test locally](#test-locally) · [Use your agent](#use-your-agent) · [Documentation](#documentation)
 
 </div>
 
@@ -74,7 +74,11 @@ Assessments keep evidence, gaps and unknowns visible. Live search, loading skele
 
 <a id="quickstart"></a>
 
-For the interface shown above, build the current source with **Python 3.11+**, **Node.js 24+** and npm:
+Use live development to see frontend changes as you save. You’ll need **Python 3.11+**, **Node.js 24+** and npm.
+
+### Set up once
+
+If you already cloned the repository, open its folder in Terminal and start at `python3 -m venv .venv`.
 
 ```sh
 git clone https://github.com/sometheasiekswx/employment-agency.git
@@ -83,14 +87,35 @@ python3 -m venv .venv
 npm --prefix frontend ci --ignore-scripts
 npm --prefix frontend run build
 .venv/bin/python -m pip install .
-.venv/bin/python -m employment_agency --workspace ../career-workspace serve
 ```
 
-Open **http://127.0.0.1:8766**. Keep Terminal open; Ctrl+C stops the app. `../career-workspace` keeps personal data outside the public software checkout. On Windows, use `py -3` and `.venv\Scripts\python`. Node is needed to build the interface; the installed app runs on Python.
+The initial build gives the Python package its browser assets. On Windows, use `py -3` and `.\.venv\Scripts\python.exe`.
 
-For private iPhone access while the Mac runs the app, use the source checkout's [Tailscale setup](docs/tailscale.md).
+### Start the app
 
-The public demo follows checked `main` releases. The published **v0.6.0 wheel contains its earlier interface**; updating the public demo does not upgrade an installed workspace. Export a backup and test a restored copy before upgrading. [Installation, Windows guidance and recovery](docs/running-locally.md) · [Release downloads](https://github.com/sometheasiekswx/employment-agency/releases) · [Offline demo](docs/demo.md#existing-cli-demo).
+```sh
+EA_CONFIG_HOME=.dev-config .venv/bin/python -m employment_agency --workspace workspace-dev dev
+```
+
+Open **http://127.0.0.1:3000**. This uses a separate development workspace and settings. Frontend changes appear as you save. Restart after Python changes. Press **Ctrl+C** to stop both servers. [Windows PowerShell and alternate ports](CONTRIBUTING.md#live-frontend-development).
+
+[Use your career workspace or serve the built app](docs/running-locally.md) · [Try sample jobs locally](docs/demo.md#existing-cli-demo) · [Open privately on iPhone via Tailscale](docs/tailscale.md).
+
+The public demo follows checked `main` releases. The published v0.6.0 wheel contains an earlier interface. [Release downloads](https://github.com/sometheasiekswx/employment-agency/releases) · [Upgrade and recovery](docs/running-locally.md#existing-environments-and-upgrades).
+
+## Test locally
+
+After setup, run these from the software checkout. Stop the dev server before rebuilding.
+
+```sh
+npm --prefix frontend run typecheck
+npm --prefix frontend run lint
+npm --prefix frontend test
+npm --prefix frontend run build
+.venv/bin/python -m unittest discover -s tests -q
+```
+
+The Python checks use the built frontend. For end-to-end checks with fictional data, see [browser test setup](CONTRIBUTING.md#browser-checks).
 
 ## Use your agent
 
@@ -111,26 +136,9 @@ Keep personal data out of the public repository and its screenshots.
 
 [Agent cookbook, operations and provider consent](docs/agents.md).
 
-## Contribute
-
-React, Next.js and TypeScript own the interface; Python owns validation, matching, documents and workspace state. Production uses a static frontend export served by Python, with no second Node server. Career workspaces remain separate data folders.
-
-Use fictional data and run the existing checks:
-
-```sh
-npm --prefix frontend run typecheck
-npm --prefix frontend run lint
-npm --prefix frontend test
-npm --prefix frontend run build
-.venv/bin/python -m unittest discover -s tests -v
-.venv/bin/python tests/run_browser_checks.py
-```
-
-[Contributor setup and live development](CONTRIBUTING.md) includes browser prerequisites and an isolated workspace. Preserve submitted snapshots and keep credentials, personal documents and browser sessions out of Git.
-
 ## Documentation
 
-[System design](docs/system-design.md) · [Design system](DESIGN.md) · [Document editing](docs/document-editor.md) · [Security](SECURITY.md) · [Deployment and recovery](docs/public-demo-deployment.md) · [Private hosted pilot](docs/hosted-pilot.md)
+[Contributing](CONTRIBUTING.md) · [System design](docs/system-design.md) · [Design system](DESIGN.md) · [Document editing](docs/document-editor.md) · [Security](SECURITY.md) · [Deployment and recovery](docs/public-demo-deployment.md) · [Private hosted pilot](docs/hosted-pilot.md)
 
 <details>
 <summary>See document review and preserved history</summary>

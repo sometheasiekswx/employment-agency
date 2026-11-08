@@ -20,40 +20,32 @@ The frontend uses React and TypeScript with Next.js App Router. Production uses 
 
 ## Setup and checks
 
-Follow the source setup in README.md. Node.js 24+ and Python 3.11+ are required for development. Dependencies are pinned in `frontend/package-lock.json`; use `npm --prefix frontend ci --ignore-scripts`.
+Follow the [source setup](README.md#run-locally) and [local checks](README.md#test-locally) in the README.
 
-Run TypeScript, lint, frontend unit tests, the production build, and Python tests using the README commands. `python tests/run_browser_checks.py` then runs the production UI against temporary local and hosted services. Install Chrome through Playwright first, or provide an existing compatible installation with `PLAYWRIGHT_PATH`. This runner never uses the remembered private workspace or real hosted credentials. CI runs contracts on Linux/macOS/Windows and browser acceptance on Linux.
+## Browser checks
+
+After setup, stop the dev server and run these from the software checkout:
+
+```sh
+npm --prefix frontend run build
+npx --prefix frontend playwright install chrome
+.venv/bin/python tests/run_browser_checks.py
+```
+
+Skip the install command if Chrome is already installed. On Linux, use `npx --prefix frontend playwright install --with-deps chrome` to install Chrome and its system dependencies. The suite uses temporary local and hosted services with fictional data. CI runs contract checks on Linux, macOS and Windows, and browser checks on Linux.
 
 ## Live frontend development
 
-Run both servers in one terminal from the software checkout (macOS/Linux):
-
-```sh
-.venv/bin/python -m employment_agency dev
-```
-
-Open **http://127.0.0.1:3000**. The command opens your remembered workspace, starts Python on port 8766 and Next.js on port 3000, and enables Fast Refresh. Saving `frontend/src/app/globals.css` or a React component updates the browser automatically. **Ctrl+C stops both servers and releases the workspace.** Python changes require restarting the command.
-
-Stop any separately running Python/Next servers first. The command reports an occupied port or workspace instead of stopping an existing process. Use `--workspace /absolute/path/to/workspace` **before** `dev` to select a different folder. Development requires a source checkout, its Python environment, Node.js 24+ and the installed frontend dependencies; it does not install anything automatically.
-
-For contributions, use a disposable workspace and isolated remembered-folder settings:
-
-```sh
-EA_CONFIG_HOME=.dev-config .venv/bin/python -m employment_agency --workspace workspace-dev dev
-```
-
-Windows PowerShell:
+Use the [README startup command](README.md#start-the-app) on macOS or Linux. In Windows PowerShell, start the same isolated development workspace from the software checkout:
 
 ```powershell
 $env:EA_CONFIG_HOME = '.dev-config'
-.venv\Scripts\python -m employment_agency --workspace workspace-dev dev
+.\.venv\Scripts\python.exe -m employment_agency --workspace workspace-dev dev
 ```
 
-To choose different ports:
+Open **http://127.0.0.1:3000**. Next.js runs on port 3000 and Python runs on port 8766. **Ctrl+C stops both and releases the workspace.** If a port is occupied, stop the other app or append `--port 8767 --frontend-port 3001` to the startup command and open **http://127.0.0.1:3001**.
 
-```sh
-.venv/bin/python -m employment_agency dev --port 8767 --frontend-port 3001
-```
+To open a different folder, replace `workspace-dev` with its path. Keep `--workspace` before `dev`.
 
 The launcher configures the exact frontend origin and API/file proxy automatically, preserving origin/token checks. For a manual two-terminal setup, `serve --frontend-origin http://127.0.0.1:3000` and `npm --prefix frontend run dev -- --hostname 127.0.0.1 --port 3000` remain available. Test final behavior using the production export too.
 
