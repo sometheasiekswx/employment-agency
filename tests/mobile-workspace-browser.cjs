@@ -187,8 +187,16 @@ async function drag(page, control, delta, session) {
       );
       await role.click();
       await settled(page);
-      if (session) await page.touchscreen.tap(180, 200);
-      else await page.mouse.click(180, 200);
+      if (session) {
+        // The pointer release must work even when touch produces no click.
+        await panel.evaluate((sheet) => {
+          sheet.addEventListener("touchend", (event) => event.preventDefault(), {
+            once: true,
+            passive: false,
+          });
+        });
+        await page.touchscreen.tap(180, 200);
+      } else await page.mouse.click(180, 200);
       await panel.waitFor({ state: "detached" });
       await role.click();
       await settled(page);

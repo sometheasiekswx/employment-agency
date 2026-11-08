@@ -9,6 +9,7 @@ import {
   useRef,
   useState,
   type MouseEvent,
+  type PointerEvent,
   type ReactNode,
 } from "react";
 import { animate, type AnimationOptions } from "motion";
@@ -52,6 +53,18 @@ type InspectorFrame = { x: number; y: number; opacity: number };
 const arrival = { type: "spring", duration: 0.46, bounce: 0.08 } as const;
 const settle = { duration: 0.2, ease: [0.16, 1, 0.3, 1] } as const;
 const restingFrame = { x: 0, y: 0, opacity: 1 };
+
+function isBackdropPointer(event: PointerEvent<HTMLDialogElement>) {
+  if (event.target !== event.currentTarget) return false;
+  const { left, right, top, bottom } =
+    event.currentTarget.getBoundingClientRect();
+  return (
+    event.clientX < left ||
+    event.clientX > right ||
+    event.clientY < top ||
+    event.clientY > bottom
+  );
+}
 
 function frameTransform({ x, y }: InspectorFrame) {
   return `translate3d(${x}px, ${y}px, 0px)`;
@@ -249,7 +262,9 @@ export function OpportunityInspector({
   const bodyAnimation = useRef<InspectorAnimation | null>(null);
   const closeGeneration = useRef(0);
   const closing = useRef(false);
-  const outsidePress = useRef(false);
+  const backdropPress = useRef<{ id: number; x: number; y: number } | null>(
+    null,
+  );
   const previousMotion = useRef<{
     surface: HTMLElement;
     jobId: string;
@@ -1031,28 +1046,28 @@ export function OpportunityInspector({
       aria-labelledby={titleId}
       className={`discover-inspector discover-dialog ${expanded ? "is-expanded" : ""}`}
       onPointerDown={(event) => {
-        const rect = event.currentTarget.getBoundingClientRect();
-        outsidePress.current =
-          event.target === event.currentTarget &&
-          (event.clientX < rect.left ||
-            event.clientX > rect.right ||
-            event.clientY < rect.top ||
-            event.clientY > rect.bottom);
+        backdropPress.current =
+          event.isPrimary && event.button === 0 && isBackdropPointer(event)
+            ? { id: event.pointerId, x: event.clientX, y: event.clientY }
+            : null;
       }}
-      onClick={(event) => {
-        if (!outsidePress.current || event.target !== event.currentTarget)
-          return;
-        const rect = event.currentTarget.getBoundingClientRect();
+      onPointerMove={(event) => {
+        const press = backdropPress.current;
         if (
-          outsidePress.current &&
-          event.target === event.currentTarget &&
-          (event.clientX < rect.left ||
-            event.clientX > rect.right ||
-            event.clientY < rect.top ||
-            event.clientY > rect.bottom)
+          press?.id === event.pointerId &&
+          Math.hypot(event.clientX - press.x, event.clientY - press.y) >= 8
         )
+          backdropPress.current = null;
+      }}
+      onPointerCancel={() => {
+        backdropPress.current = null;
+      }}
+      onPointerUp={(event) => {
+        const press = backdropPress.current;
+        backdropPress.current = null;
+        // Some touch sequences end without a compatibility click.
+        if (press?.id === event.pointerId && isBackdropPointer(event))
           requestClose(true);
-        outsidePress.current = false;
       }}
     >
       {content}
