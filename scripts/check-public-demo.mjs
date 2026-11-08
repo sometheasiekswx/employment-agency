@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import path from "node:path";
+import { setTimeout as delay } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
 
 const routes = [
@@ -146,7 +147,7 @@ function checkFixture(fixture, revision) {
 export async function verifyPublicDemo(
   base,
   expectedCommit,
-  { fetchImpl = fetch } = {},
+  { fetchImpl = fetch, waitForAlias = false, sleep = delay } = {},
 ) {
   const origin = new URL(base);
   requireValue(
@@ -188,23 +189,34 @@ export async function verifyPublicDemo(
       `${pathname}: expected Content-Type ${contentType}`,
     );
     const security = readPolicy(response, pathname);
-    if (releasePolicy === undefined) releasePolicy = security.policy;
     requireValue(
-      security.policy === releasePolicy,
+      releasePolicy === undefined || security.policy === releasePolicy,
       `${pathname}: inconsistent release CSP`,
     );
-    return { response, hashes: security.scripts };
+    return { response, policy: security.policy, hashes: security.scripts };
   }
 
-  const { response: releaseResponse } = await request(
-    "/release.json",
-    "application/json",
-  );
-  const release = await releaseResponse.json();
-  requireValue(
-    release?.commit === expectedCommit.toLowerCase(),
-    "The deployed commit does not match the expected commit",
-  );
+  const attempts = waitForAlias ? 11 : 1;
+  const expected = expectedCommit.toLowerCase();
+  let release;
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    const { response, policy } = await request(
+      "/release.json",
+      "application/json",
+    );
+    release = await response.json();
+    if (release?.commit === expected) {
+      releasePolicy = policy;
+      break;
+    }
+    requireValue(
+      attempt < attempts &&
+        typeof release?.commit === "string" &&
+        /^[a-f0-9]{40}$/.test(release.commit),
+      "The deployed commit does not match the expected commit",
+    );
+    await sleep(3_000);
+  }
   requireValue(
     typeof release.fixtureRevision === "string" &&
       /^[a-f0-9]{20}$/.test(release.fixtureRevision),
@@ -243,11 +255,14 @@ if (
   path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 ) {
   try {
+    const waitForAlias = process.argv[4] === "--wait-for-alias";
     requireValue(
-      process.argv.length === 4,
-      "Usage: node scripts/check-public-demo.mjs <https-url> <40hex-sha>",
+      process.argv.length === (waitForAlias ? 5 : 4),
+      "Usage: node scripts/check-public-demo.mjs <https-url> <40hex-sha> [--wait-for-alias]",
     );
-    const result = await verifyPublicDemo(process.argv[2], process.argv[3]);
+    const result = await verifyPublicDemo(process.argv[2], process.argv[3], {
+      waitForAlias,
+    });
     console.log(
       `Verified public demo ${result.commit} (${result.fixtureRevision}): ${result.routes.length} routes and sample PDF`,
     );

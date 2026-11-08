@@ -8,7 +8,7 @@ The public showcase at **https://employment-agency-demo.vercel.app/discover/** f
 2. Linux builds and browser-tests the fictional static site, then uploads that exact directory as a commit-named artifact. A failed check prevents the deployment job from running.
 3. After the entire matrix succeeds, the release job downloads the artifact into an isolated runner directory. It checks the commit and fictional markers, then stages a production deployment with domain assignment disabled.
 4. A dependency-free HTTP check verifies the exact source commit, fictional fixture, routes, a sample PDF and security headers on the staged URL. Only a verified candidate that still matches `main` is promoted.
-5. The same check runs on the public alias. The Actions job summary records the source SHA and public URL. Inspect [/release.json](https://employment-agency-demo.vercel.app/release.json) to identify the live source commit and fixture revision.
+5. The same check runs on the public alias. It retries a stale release marker up to ten times at three-second intervals while promotion propagates. The Actions job summary records the source SHA and public URL. Inspect [/release.json](https://employment-agency-demo.vercel.app/release.json) to identify the live source commit and fixture revision.
 
 Release jobs are serialized, and queued releases are preserved so that rerunning an older workflow cannot cancel a newer waiting release. The release job compares its SHA with current `main` before staging and before promotion. A push arriving after that final comparison can briefly leave the previous successful revision live until the next checked revision releases. A skipped superseded candidate does not move the alias.
 

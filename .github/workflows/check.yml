@@ -149,5 +149,5 @@ jobs:
       - name: Verify the public alias
         if: always() && steps.promote.outputs.attempted == 'true'
         run: |
-          node scripts/check-public-demo.mjs https://employment-agency-demo.vercel.app "$GITHUB_SHA"
+          node scripts/check-public-demo.mjs https://employment-agency-demo.vercel.app "$GITHUB_SHA" --wait-for-alias
           echo "Public demo verified for $GITHUB_SHA: https://employment-agency-demo.vercel.app/discover/" >> "$GITHUB_STEP_SUMMARY"

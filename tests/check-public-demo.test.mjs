@@ -125,6 +125,48 @@ test("rejects an unexpected deployed commit before reading fixture links", async
   assert.equal(server.calls.length, 1);
 });
 
+test("waits for the public alias to serve the expected commit and its CSP", async () => {
+  const server = releaseServer();
+  const marker = server.records.get("/release.json");
+  marker.body.commit = "c".repeat(40);
+  marker.headers["content-security-policy"] = policy.replace(
+    scriptHash,
+    `'sha256-${createHash("sha256").update("previous release").digest("base64")}'`,
+  );
+  const result = await verifyPublicDemo(base, commit, {
+    fetchImpl: server.fetchImpl,
+    waitForAlias: true,
+    sleep: async () => {
+      assert.equal(server.calls.length, 1);
+      marker.body.commit = commit;
+      marker.headers["content-security-policy"] = policy;
+    },
+  });
+  assert.equal(result.commit, commit);
+  assert.deepEqual(
+    server.calls.slice(0, 3).map(({ url }) => new URL(url).pathname),
+    ["/release.json", "/release.json", "/demo/preview.json"],
+  );
+});
+
+test("bounds alias polling and keeps stale releases from passing", async () => {
+  const server = releaseServer();
+  const waits = [];
+  await assert.rejects(
+    verifyPublicDemo(base, "c".repeat(40), {
+      fetchImpl: server.fetchImpl,
+      waitForAlias: true,
+      sleep: async (milliseconds) => waits.push(milliseconds),
+    }),
+    /deployed commit/,
+  );
+  assert.deepEqual(waits, Array(10).fill(3_000));
+  assert.deepEqual(
+    server.calls.map(({ url }) => new URL(url).pathname),
+    Array(11).fill("/release.json"),
+  );
+});
+
 test("rejects a missing or mismatched fixture revision", async (t) => {
   for (const value of [undefined, "c".repeat(20)]) {
     await t.test(String(value), async () => {
