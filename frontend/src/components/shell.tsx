@@ -29,6 +29,7 @@ import { Select } from "./controls";
 import { useWorkspace } from "./workspace-provider";
 import { useDraft } from "./unsaved";
 import { applicationQueues } from "@/features/applications/queues";
+import { OpportunitySourceProvider } from "@/features/discover/opportunity-source-preview";
 import { WorkspaceSetup } from "@/features/settings/workspace-settings";
 import { PublicPreviewNotice } from "./public-preview-notice";
 import { appearanceOptions } from "@/lib/appearance";
@@ -444,9 +445,13 @@ export function Shell({ children }: { children: ReactNode }) {
               {refreshError}
             </p>
           )}
-          <main id="content" tabIndex={-1}>
-            {state._workspace.setup_complete ? children : <WorkspaceSetup />}
-          </main>
+          <OpportunitySourceProvider
+            key={JSON.stringify([pathname, state._workspace.path])}
+          >
+            <main id="content" tabIndex={-1}>
+              {state._workspace.setup_complete ? children : <WorkspaceSetup />}
+            </main>
+          </OpportunitySourceProvider>
         </div>
       </div>
     </div>

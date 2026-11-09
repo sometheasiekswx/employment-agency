@@ -1,4 +1,4 @@
-"""Same-origin shell for a read-only third-party listing frame."""
+"""Same-origin shell for a read-only third-party opportunity source frame."""
 
 from base64 import b64encode
 from hashlib import sha256
@@ -32,7 +32,7 @@ def listing_frame(host):
     html = ('<!doctype html><html lang="en"><head><meta charset="utf-8">'
             '<meta name="viewport" content="width=device-width, initial-scale=1">'
             f'<title>Website preview</title><style>{_STYLE}</style></head>'
-            f'<body data-origin="{origin}"><iframe title="Listing website" sandbox '
+            f'<body data-origin="{origin}"><iframe title="Source website" sandbox '
             f'referrerpolicy="no-referrer"></iframe><script>{_SCRIPT}</script></body></html>')
     policy = (f"default-src 'none'; script-src 'sha256-{_SCRIPT_HASH}'; style-src 'sha256-{_STYLE_HASH}'; "
               f"frame-src {origin}; frame-ancestors 'self'; base-uri 'none'; form-action 'none'")

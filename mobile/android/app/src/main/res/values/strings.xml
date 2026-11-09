@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Employment Agency</string>
+    <string name="connecting">Connecting to your workspace…</string>
+    <string name="try_again">Try again</string>
+    <string name="missing_workspace">This build needs a workspace HTTPS address.</string>
+    <string name="workspace_unavailable">Couldn’t open your workspace. Check Tailscale and try again.</string>
+    <string name="custom_tab_unavailable">Your phone has no browser available for in-app viewing.</string>
+    <string name="open_in_browser">Open in browser</string>
+    <string name="browser_unavailable">No browser is available to open this link.</string>
+</resources>

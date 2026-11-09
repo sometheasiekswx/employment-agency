@@ -1,0 +1,3 @@
+// Supply EA_WORKSPACE_ORIGIN when building or in the ignored local config.
+EA_WORKSPACE_ORIGIN =
+#include? "Workspace.local.xcconfig"

@@ -1,9 +1,9 @@
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, expect, it, vi } from "vitest";
 import {
   OpportunityListingLink,
-  OpportunitySourcePreview,
+  OpportunitySourceProvider,
 } from "./opportunity-source-preview";
 
 const job = {
@@ -13,15 +13,60 @@ const job = {
   url: "https://preview.example.com/jobs/example?ref=saved",
 };
 
-afterEach(() => vi.unstubAllEnvs());
+function renderLink(url = job.url) {
+  return render(
+    <OpportunityListingLink job={{ ...job, url }}>
+      Original listing
+    </OpportunityListingLink>,
+    { wrapper: OpportunitySourceProvider },
+  );
+}
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.unstubAllEnvs();
+  vi.unstubAllGlobals();
+});
+
+it("follows the original link in a new tab on desktop", () => {
+  vi.stubGlobal(
+    "matchMedia",
+    vi.fn(() => ({ matches: false })),
+  );
+  renderLink();
+  const link = screen.getByRole("link", { name: "Original listing" });
+  expect(link).toHaveAttribute("href", job.url);
+  expect(link).toHaveAttribute("target", "_blank");
+  expect(fireEvent.click(link)).toBe(true);
+  expect(screen.queryByRole("dialog")).toBeNull();
+});
+
+it("lets the installed mobile app handle the original link navigation", () => {
+  vi.stubGlobal(
+    "matchMedia",
+    vi.fn(() => ({ matches: true })),
+  );
+  vi.spyOn(navigator, "userAgent", "get").mockReturnValue(
+    "Mozilla/5.0 EmploymentAgencyMobile/1",
+  );
+  renderLink();
+  const link = screen.getByRole("link", { name: "Original listing" });
+  expect(link).toHaveAttribute("href", job.url);
+  expect(fireEvent.click(link)).toBe(true);
+  expect(screen.queryByRole("dialog")).toBeNull();
+});
 
 it("opens a website preview only after an ordinary listing click and retains saved details", async () => {
-  const user = userEvent.setup();
-  render(
-    <OpportunityListingLink job={job}>Original listing</OpportunityListingLink>,
+  vi.stubGlobal(
+    "matchMedia",
+    vi.fn(() => ({ matches: true })),
   );
+  const user = userEvent.setup();
+  renderLink();
   const opener = screen.getByRole("link", { name: "Original listing" });
   expect(screen.queryByTitle("Listing website preview")).toBeNull();
+  expect(fireEvent.click(opener, { metaKey: true })).toBe(true);
+  expect(screen.queryByRole("dialog")).toBeNull();
   await user.click(opener);
 
   const dialog = screen.getByRole("dialog", { name: "Listing preview" });
@@ -32,13 +77,24 @@ it("opens a website preview only after an ordinary listing click and retains sav
   expect(decodeURIComponent(relay.hash.slice(1))).toBe(job.url);
   expect(frame).toHaveAttribute("referrerpolicy", "no-referrer");
   expect(within(dialog).getByText(job.description)).toBeVisible();
+  expect(frame).not.toBeVisible();
+  await user.click(
+    within(dialog).getByRole("button", { name: "Show website" }),
+  );
+  expect(frame).toBeVisible();
+  expect(within(dialog).getByTitle("Listing website preview")).toBe(frame);
   expect(
     within(dialog).getByRole("link", { name: "Open in new tab" }),
   ).toHaveAttribute("href", job.url);
 
-  await user.click(within(dialog).getByRole("button", { name: "Close" }));
+  await user.click(within(dialog).getByRole("button", { name: "Done" }));
   expect(screen.queryByRole("dialog")).toBeNull();
   expect(opener).toHaveFocus();
+
+  await user.click(opener);
+  expect(screen.getByText(job.description)).toBeVisible();
+  expect(screen.getByTitle("Listing website preview")).toBe(frame);
+  expect(frame).not.toBeVisible();
 });
 
 it.each([
@@ -48,38 +104,24 @@ it.each([
   "https://machine.net.ts.net/job",
   "https://preview.example.com:444/job",
 ])("uses the saved preview for %s", (url) => {
-  render(
-    <OpportunitySourcePreview
-      job={job}
-      kind="listing"
-      url={url}
-      onClose={vi.fn()}
-    />,
+  vi.stubGlobal(
+    "matchMedia",
+    vi.fn(() => ({ matches: true })),
   );
+  renderLink(url);
+  fireEvent.click(screen.getByRole("link", { name: "Original listing" }));
   expect(screen.queryByTitle("Listing website preview")).toBeNull();
   expect(screen.getByText(job.description)).toBeVisible();
 });
 
-it("keeps the public showcase and company previews on recorded details", () => {
+it("keeps the public showcase on recorded details", () => {
   vi.stubEnv("NEXT_PUBLIC_EA_PUBLIC_PREVIEW", "1");
-  const { rerender } = render(
-    <OpportunitySourcePreview
-      job={job}
-      kind="listing"
-      url={job.url}
-      onClose={vi.fn()}
-    />,
+  vi.stubGlobal(
+    "matchMedia",
+    vi.fn(() => ({ matches: true })),
   );
+  renderLink();
+  fireEvent.click(screen.getByRole("link", { name: "Original listing" }));
   expect(screen.queryByTitle("Listing website preview")).toBeNull();
-  vi.stubEnv("NEXT_PUBLIC_EA_PUBLIC_PREVIEW", "0");
-  rerender(
-    <OpportunitySourcePreview
-      job={job}
-      kind="careers"
-      url={job.url}
-      onClose={vi.fn()}
-    />,
-  );
-  expect(screen.getByRole("dialog", { name: "Company preview" })).toBeVisible();
-  expect(screen.queryByTitle("Listing website preview")).toBeNull();
+  expect(screen.getByText(job.description)).toBeVisible();
 });

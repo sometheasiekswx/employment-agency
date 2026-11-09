@@ -8,7 +8,6 @@ import {
   useLayoutEffect,
   useRef,
   useState,
-  type MouseEvent,
   type PointerEvent,
   type ReactNode,
 } from "react";
@@ -39,10 +38,7 @@ import {
 } from "./discovery";
 import { OpportunityCareerEvidence } from "./opportunity-career-evidence";
 import { useSheetGesture } from "./use-sheet-gesture";
-import {
-  OpportunitySourcePreview,
-  type OpportunitySourceKind,
-} from "./opportunity-source-preview";
+import { useOpenOpportunitySource } from "./opportunity-source-preview";
 import { currentRemoval } from "@/lib/job-removal";
 import "./inspector-motion.css";
 
@@ -255,6 +251,7 @@ export function OpportunityInspector({
 }: InspectorProps) {
   const { canLeave } = useDraft();
   const { job, match } = row;
+  const openSource = useOpenOpportunitySource();
   const removed = Boolean(currentRemoval(job));
   const titleId = useId();
   const inspector = useRef<HTMLElement>(null);
@@ -287,18 +284,6 @@ export function OpportunityInspector({
     button: HTMLButtonElement;
   } | null>(null);
   const [prepareFocusSignal, setPrepareFocusSignal] = useState(0);
-  const [sourcePreview, setSourcePreview] = useState<{
-    jobId: string;
-    mobile: boolean;
-    kind: OpportunitySourceKind;
-    url: string;
-    opener: HTMLAnchorElement;
-  } | null>(null);
-  if (
-    sourcePreview &&
-    (sourcePreview.jobId !== job.id || sourcePreview.mobile !== mobile)
-  )
-    setSourcePreview(null);
   const {
     dialog,
     body,
@@ -333,16 +318,6 @@ export function OpportunityInspector({
   const companyUrl = job.employer.trim()
     ? careers || (advert && new URL(advert).origin)
     : undefined;
-  const openSource = (
-    event: MouseEvent<HTMLAnchorElement>,
-    kind: OpportunitySourceKind,
-  ) => {
-    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
-      return;
-    event.preventDefault();
-    const opener = event.currentTarget;
-    setSourcePreview({ jobId: job.id, mobile, kind, url: opener.href, opener });
-  };
   const submitted = application?.status === "submitted";
   const historicalSubmission =
     job.prior_application === "submitted" && !submitted;
@@ -644,10 +619,10 @@ export function OpportunityInspector({
           <a
             className="discover-source-link"
             href={companyUrl}
-            rel="noreferrer"
-            aria-haspopup="dialog"
+            target="_blank"
+            rel="noopener noreferrer"
             onClick={(event) =>
-              openSource(event, careers ? "careers" : "source")
+              openSource(event, job, careers ? "careers" : "source")
             }
           >
             {job.employer}
@@ -758,9 +733,9 @@ export function OpportunityInspector({
             <a
               className="discover-source-link"
               href={advert}
-              rel="noreferrer"
-              aria-haspopup="dialog"
-              onClick={(event) => openSource(event, "listing")}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(event) => openSource(event, job, "listing")}
             >
               {job.title}
             </a>
@@ -961,9 +936,9 @@ export function OpportunityInspector({
               className="button discover-advert"
               aria-label="View advert"
               href={advert}
-              rel="noreferrer"
-              aria-haspopup="dialog"
-              onClick={(event) => openSource(event, "listing")}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(event) => openSource(event, job, "listing")}
             >
               <ArrowUpRight size={17} />
               <span>View advert</span>
@@ -1088,21 +1063,5 @@ export function OpportunityInspector({
       {content}
     </aside>
   );
-  return (
-    <>
-      {surface}
-      {sourcePreview?.jobId === job.id && (
-        <OpportunitySourcePreview
-          job={job}
-          kind={sourcePreview.kind}
-          url={sourcePreview.url}
-          onClose={() => {
-            setSourcePreview(null);
-            if (sourcePreview.opener.isConnected)
-              sourcePreview.opener.focus({ preventScroll: true });
-          }}
-        />
-      )}
-    </>
-  );
+  return surface;
 }

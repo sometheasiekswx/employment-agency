@@ -1,0 +1,11 @@
+[versions]
+androidGradlePlugin = "9.2.1"
+activity = "1.13.0"
+browser = "1.10.0"
+
+[libraries]
+androidx-activity = { module = "androidx.activity:activity", version.ref = "activity" }
+androidx-browser = { module = "androidx.browser:browser", version.ref = "browser" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }

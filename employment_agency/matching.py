@@ -135,6 +135,8 @@ def match(job, profile, facts):
         unknown.append("Availability not verified")
     evidence = []
     confirmed = available(facts)
+    hay_tokens = tokens(hay)
+    confirmed_tokens = [(f["id"], tokens(f["text"])) for f in confirmed]
     requirements = job.get("requirements", [])
     matched_skills = skill_evidence(requirements, skills_by_key(confirmed))
     quick_skill_ids = {
@@ -158,11 +160,11 @@ def match(job, profile, facts):
         supported = direct | set(matched_skills.get(req, []))
         linked_ids.update(supported)
         hits = [
-            f["id"]
-            for f in confirmed
-            if f["id"] in supported or (
-                f["id"] not in quick_skill_ids
-                and words and len(words & tokens(f["text"])) / len(words) >= 0.5
+            fact_id
+            for fact_id, fact_tokens in confirmed_tokens
+            if fact_id in supported or (
+                fact_id not in quick_skill_ids
+                and words and len(words & fact_tokens) / len(words) >= 0.5
             )
         ]
         if any(fact_id in direct for fact_id in hits):
@@ -179,14 +181,12 @@ def match(job, profile, facts):
             }
         )
     relevant = sorted(
-        confirmed,
-        key=lambda f: (f["id"] in linked_ids, len(tokens(f["text"]) & tokens(hay))),
+        ((fact_id, len(fact_tokens & hay_tokens)) for fact_id, fact_tokens in confirmed_tokens),
+        key=lambda item: (item[0] in linked_ids, item[1]),
         reverse=True,
     )
     relevant = [
-        f["id"]
-        for f in relevant
-        if f["id"] in linked_ids or tokens(f["text"]) & tokens(hay)
+        fact_id for fact_id, overlap in relevant if fact_id in linked_ids or overlap
     ][:16]
     gaps = [e["requirement"] for e in evidence if not e["fact_ids"]]
     stretch = bool(gaps) or not requirements

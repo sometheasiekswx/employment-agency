@@ -47,7 +47,10 @@ The title, company and full workspace job ID copied from a listing, with its ori
 The user's confirmation or written example for a specific requirement on a job. A quick confirmation saves the requirement as a reusable, self-confirmed skill. A written example adds a separate confirmed career fact.
 
 **Source preview**:
-An in-app view of a listing, careers site or source site. A listing preview can show the live page alongside recorded listing details. A company preview shows recorded information and its destination.
+A view in the mobile web app for a listing, company careers site or listing source. It offers saved details, the live page when available and a link to the original site.
+
+**Native source browser**:
+The system browser view opened from an installed mobile app when following a listing or company link. Closing it returns to the workspace.
 
 **Removed opportunity**:
 A role the user has set aside across search profiles and application lists. Removed holds its listing, application versions, documents and decisions. Restore returns the role and its application to their previous lists. Current applications rejected in an earlier version also appear here and restore as drafts.

@@ -77,6 +77,7 @@ if __name__ == '__main__':
         browser('requirement-evidence-browser.cjs', url)
     with fixture('serve_concept_fixture.py') as url:
         browser('discover-browser.cjs', url)
+        browser('source-viewer-browser.cjs', url)
         browser('search-navigation-browser.cjs', url)
         browser('application-navigation-browser.cjs', url)
     with fixture('serve_concept_fixture.py') as url:

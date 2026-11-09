@@ -252,56 +252,29 @@ const fs = require("node:fs");
       name: "Emberlane Systems",
       exact: true,
     });
-    await company.click();
-    const companyPreview = page.getByRole("dialog", {
-      name: "Company preview",
-    });
-    await companyPreview.waitFor();
-    assert.equal(
-      await companyPreview
-        .getByRole("link", { name: "Open in new tab" })
-        .getAttribute("href"),
-      new URL("/", listingUrl).href,
-    );
-    await companyPreview
-      .getByRole("button", { name: "Close", exact: true })
-      .click();
-    await companyPreview.waitFor({ state: "detached" });
-    assert.equal(
-      await company.evaluate((link) => link === document.activeElement),
-      true,
-    );
-
     const listing = inspector().getByRole("link", {
       name: "Cloud Software Engineer",
       exact: true,
     });
-    await listing.press("Enter");
-    const listingPreview = page.getByRole("dialog", {
-      name: "Listing preview",
-    });
-    await listingPreview.waitFor();
-    assert.equal(page.url(), selectedRoute);
-    assert.equal(context.pages().length, 1);
-    const externalListing = listingPreview.getByRole("link", {
-      name: "Open in new tab",
-    });
-    assert.equal(await externalListing.getAttribute("href"), listingUrl);
-    await context.route(listingUrl, (route) =>
-      route.fulfill({ body: "Fictional original listing" }),
-    );
-    const popupPromise = page.waitForEvent("popup");
-    await externalListing.click();
-    const popup = await popupPromise;
-    await popup.waitForURL(listingUrl);
-    await popup.close();
-    await context.unroute(listingUrl);
-    await page.keyboard.press("Escape");
-    await listingPreview.waitFor({ state: "detached" });
-    assert.equal(
-      await listing.evaluate((link) => link === document.activeElement),
-      true,
-    );
+    const openSourceTab = async (link, url) => {
+      const appUrl = page.url();
+      assert.equal(await link.evaluate((anchor) => anchor.href), url);
+      assert.equal(await link.getAttribute("target"), "_blank");
+      await context.route(url, (route) =>
+        route.fulfill({ body: "Fictional opportunity website" }),
+      );
+      const [popup] = await Promise.all([
+        page.waitForEvent("popup"),
+        link.press("Enter"),
+      ]);
+      await popup.waitForURL(url);
+      assert.equal(page.url(), appUrl);
+      assert.equal(await page.locator(".discover-source-preview").count(), 0);
+      await popup.close();
+      await context.unroute(url);
+    };
+    await openSourceTab(company, new URL("/", listingUrl).href);
+    await openSourceTab(listing, listingUrl);
 
     const existingDocuments = inspector().getByRole("link", {
       name: "Review documents",
@@ -655,30 +628,8 @@ const fs = require("node:fs");
       name: "View advert",
       exact: true,
     });
-    await advert.click();
-    await listingPreview.waitFor();
-    assert.equal(
-      await listingPreview
-        .getByRole("link", { name: "Open in new tab" })
-        .getAttribute("href"),
-      listingUrl,
-    );
-    const previewAxe = await new AxeBuilder({ page })
-      .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
-      .analyze();
-    assert.deepEqual(
-      previewAxe.violations.map((violation) => violation.id),
-      [],
-    );
-    await page.screenshot({
-      path: "output/playwright/concept-a/source-preview-mobile.png",
-    });
-    await page.keyboard.press("Escape");
-    await listingPreview.waitFor({ state: "detached" });
-    assert.equal(
-      await advert.evaluate((link) => link === document.activeElement),
-      true,
-    );
+    // A narrow desktop window still uses the browser's new-tab behavior.
+    await openSourceTab(advert, listingUrl);
 
     // Failure feedback must remain inside the modal's accessible focus context.
     const mobileSaveFailure = (route) =>

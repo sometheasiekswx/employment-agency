@@ -13,3 +13,9 @@
 - [x] Match reusable skills across listings by normalizing case and common requirement phrasing. Browser checks verified equivalent wording in Browse, Applications and newly added listings. A requirement with an additional skill still showed a gap.
 - [x] Show the saved skill beneath the requirement and in Career Profile. Earlier job-only confirmations offer an explicit add action when the role lacks reusable evidence.
 - [x] Build and test the shared app in fictional workspaces. Production export, lint, 356 frontend tests, 207 Python tests, desktop Chromium and mobile WebKit passed.
+
+## Mobile source viewer
+
+- [x] Use normal new-tab links on desktop and intercept ordinary activations on touch-first browsers. Desktop Chromium covered the company and listing links, including a phone-width desktop window.
+- [x] Present the sandboxed site and saved details in a full-screen mobile dialog. Android Chromium and iPhone WebKit emulation covered delayed loading, denied framing, focus return and the explicit new-tab action. Native Safari in the iPhone 18 Pro Simulator covered both links and returning to the same role with fictional data.
+- [x] Build and review the local and public variants. Passed TypeScript, lint, 366 frontend tests, 208 Python tests and the local, hosted and public browser suites. The verified candidate is ready locally.

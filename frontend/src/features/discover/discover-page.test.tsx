@@ -17,6 +17,7 @@ import type {
   WorkspaceState,
 } from "@/lib/models";
 import { DiscoverPage } from "./discover-page";
+import { OpportunitySourceProvider } from "./opportunity-source-preview";
 
 const fixture = vi.hoisted(() => ({
   query: "",
@@ -1069,21 +1070,26 @@ it("opens Saved for an earlier saved-status filter URL", async () => {
 });
 
 it("uses the recorded careers page for the company preview", async () => {
-  const careersUrl = "https://company.example.test/team/careers";
+  const careersUrl = "https://company.example.com/team/careers";
+  fixture.mobile = true;
   fixture.state.jobs[0].careers_url = careersUrl;
-  render(<DiscoverPage />);
+  render(<DiscoverPage />, { wrapper: OpportunitySourceProvider });
   fireEvent.click(
     await screen.findByRole("button", {
       name: "Assess Cloud Engineer at Example Cloud",
     }),
   );
-  const company = within(screen.getByRole("complementary")).getByRole("link", {
-    name: "Example Cloud",
-  });
+  const company = within(
+    screen.getByRole("dialog", { name: "Cloud Engineer" }),
+  ).getByRole("link", { name: "Example Cloud" });
   expect(company).toHaveAttribute("href", careersUrl);
   fireEvent.click(company);
   const preview = screen.getByRole("dialog", { name: "Company preview" });
-  expect(preview).toHaveTextContent("Careers site · company.example.test");
+  expect(preview).toHaveTextContent("Careers site · company.example.com");
+  expect(within(preview).getByTitle("Company website preview")).toHaveAttribute(
+    "src",
+    `/api/listing-preview-frame?host=company.example.com#${encodeURIComponent(careersUrl)}`,
+  );
   expect(
     within(preview).getByRole("link", { name: "Open in new tab" }),
   ).toHaveAttribute("href", careersUrl);
