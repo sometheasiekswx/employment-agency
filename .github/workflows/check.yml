@@ -37,7 +37,21 @@ jobs:
         shell: bash
         run: python tests/check_wheel.py dist/*.whl
       - if: runner.os == 'Linux'
-        run: npx --prefix frontend playwright install --with-deps chrome
+        name: Verify Chrome for the browser checks
+        shell: bash
+        timeout-minutes: 5
+        run: |
+          chrome_ready() {
+            node --input-type=module <<'JS'
+          import { chromium } from "./frontend/node_modules/playwright/index.mjs";
+          const browser = await chromium.launch({ channel: "chrome", timeout: 15_000 });
+          await browser.close();
+          JS
+          }
+          if ! chrome_ready; then
+            npx --prefix frontend playwright install --with-deps chrome
+            chrome_ready
+          fi
       - if: runner.os == 'Linux'
         shell: bash
         run: python tests/check_wheel.py --browser dist/*.whl

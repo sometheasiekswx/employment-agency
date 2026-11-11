@@ -48,6 +48,8 @@ Review the rendered PDF and text in the output directory. For automatic releases
 
 Run `node --test tests/check-public-demo.test.mjs tests/stage-public-demo.test.mjs tests/promote-public-demo.test.mjs` for release, staging and promotion success/failure cases. `npm --prefix frontend run build:preview` builds the candidate with its commit marker. The existing `python tests/run_public_preview_checks.py` exercises the static interface, fictional-data isolation and desktop/mobile behavior before release.
 
+The Linux workflow checks that the runner’s Chrome launches through Playwright. It installs Chrome and its dependencies if that check fails.
+
 For an already staged or live release:
 
 ```sh
