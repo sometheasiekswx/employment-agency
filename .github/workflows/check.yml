@@ -37,7 +37,7 @@ jobs:
         shell: bash
         run: python tests/check_wheel.py dist/*.whl
       - if: runner.os == 'Linux'
-        name: Prepare Chrome and video recording for the browser checks
+        name: Prepare Chrome, video recording and PDF fonts
         shell: bash
         timeout-minutes: 5
         run: |
@@ -53,6 +53,15 @@ jobs:
             chrome_ready
           fi
           npx --prefix frontend playwright install ffmpeg
+          cjk_font_dir="${XDG_DATA_HOME:-$HOME/.local/share}/fonts"
+          cjk_font_file="$RUNNER_TEMP/NotoSansCJKsc-Regular.otf"
+          mkdir -p "$cjk_font_dir"
+          curl --fail --location --silent --show-error --retry 2 --max-time 60 \
+            --output "$cjk_font_file" \
+            https://raw.githubusercontent.com/notofonts/noto-cjk/523d033d6cb47f4a80c58a35753646f5c3608a78/Sans/OTF/SimplifiedChinese/NotoSansCJKsc-Regular.otf
+          printf '%s  %s\n' '2c76254f6fc379fddfce0a7e84fb5385bb135d3e399294f6eeb6680d0365b74b' "$cjk_font_file" | sha256sum --check -
+          install -m 0644 "$cjk_font_file" "$cjk_font_dir/"
+          fc-cache -f "$cjk_font_dir"
       - if: runner.os == 'Linux'
         shell: bash
         run: python tests/check_wheel.py --browser dist/*.whl
