@@ -19,6 +19,15 @@ Find the Mac's exact DNS name and your login with `tailscale status --json`. Sto
 
 Use the actual HTTPS origin without a path or trailing slash and the exact Tailscale login. Keep machine-specific values outside source control. The default localhost address continues to work.
 
+To rebuild the frontend and start the same service from source, run the following with your workspace path, port, origin, and login. The build assets are staged for this server process. Use an available port or stop the previous server when reusing its port.
+
+```sh
+.venv/bin/python scripts/rebuild-tailscale.py \
+  --workspace "/absolute/path/to/workspace" --port 8766 \
+  --tailscale-origin https://your-mac.your-tailnet.ts.net \
+  --tailscale-user your-tailscale-login@example.com
+```
+
 In another terminal, use the Tailscale client's executable:
 
 ```sh
