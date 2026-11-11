@@ -173,6 +173,17 @@ function deploymentIdentity(deployment, projectId, expectedCommit) {
   };
 }
 
+function inlineFile(file, bytes) {
+  const text = bytes.toString("utf8");
+  const base64 = bytes.toString("base64");
+  if (
+    Buffer.from(text, "utf8").equals(bytes) &&
+    Buffer.byteLength(JSON.stringify(text)) < base64.length + 2
+  )
+    return { file, data: text, encoding: "utf-8" };
+  return { file, data: base64, encoding: "base64" };
+}
+
 /** Stage the checked public demo artifact with domain assignment disabled. */
 export async function stagePublicDemo(
   site,
@@ -219,6 +230,7 @@ export async function stagePublicDemo(
   async function request(endpoint, method = "GET", body) {
     const url = new URL(endpoint, api);
     url.searchParams.set("teamId", teamId);
+    const payload = body && JSON.stringify(body);
     let response;
     try {
       response = await fetchImpl(url.href, {
@@ -230,7 +242,7 @@ export async function stagePublicDemo(
           ...(body ? { "Content-Type": "application/json" } : {}),
         },
         signal: AbortSignal.timeout(Math.max(1, Math.min(20_000, remaining()))),
-        ...(body ? { body: JSON.stringify(body) } : {}),
+        ...(payload ? { body: payload } : {}),
       });
     } catch {
       remaining();
@@ -238,7 +250,8 @@ export async function stagePublicDemo(
     }
     requireValue(
       response.ok,
-      `Vercel ${method} request failed with HTTP ${response.status}`,
+      `Vercel ${method} request failed with HTTP ${response.status}` +
+        (payload ? ` (${Buffer.byteLength(payload)} request bytes)` : ""),
     );
     try {
       return await response.json();
@@ -278,11 +291,7 @@ export async function stagePublicDemo(
       headers: config.headers,
       trailingSlash: config.trailingSlash,
       meta: { githubCommitSha: expectedCommit, githubCommitRef: "main" },
-      files: [...files].map(([file, data]) => ({
-        file,
-        data: data.toString("base64"),
-        encoding: "base64",
-      })),
+      files: [...files].map(([file, bytes]) => inlineFile(file, bytes)),
     },
   );
   const identity = deploymentIdentity(created, projectId, expectedCommit);

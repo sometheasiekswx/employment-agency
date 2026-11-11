@@ -170,6 +170,7 @@ function creates(mock) {
 
 test("stages exact captured bytes and generated CSP once without assigning domains", async (t) => {
   const local = await artifact(t);
+  await local.save("readme.txt", "Sample résumé\r\nExample documents\r\n");
   const mock = server();
   const result = await stagePublicDemo(local.site, commit, mock.options);
   assert.deepEqual(result, {
@@ -198,11 +199,15 @@ test("stages exact captured bytes and generated CSP once without assigning domai
     githubCommitSha: commit,
     githubCommitRef: "main",
   });
-  assert.equal(body.files.length, 10);
+  assert.equal(body.files.length, 11);
+  assert.equal(
+    body.files.find(({ file }) => file === "readme.txt").encoding,
+    "utf-8",
+  );
+  assert.equal(body.files.find(({ file }) => file === pdf).encoding, "base64");
   for (const file of body.files) {
-    assert.equal(file.encoding, "base64");
     assert.deepEqual(
-      Buffer.from(file.data, "base64"),
+      Buffer.from(file.data, file.encoding),
       await readFile(path.join(local.site, file.file)),
     );
   }
@@ -372,6 +377,7 @@ test("never retries a failed create and never exposes raw provider errors", asyn
     stagePublicDemo(local.site, commit, mock.options),
     (error) => {
       assert.match(error.message, /HTTP 500/);
+      assert.match(error.message, /\(\d+ request bytes\)/);
       assert.equal(error.message.includes(token), false);
       return true;
     },
