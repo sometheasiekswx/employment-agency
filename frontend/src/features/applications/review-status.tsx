@@ -2,21 +2,24 @@
 
 import type { Application } from "@/lib/models";
 import BellToggle from "./bell-toggle";
+import { applicationStatusLabel } from "./version-labels";
 export function ReviewStatus({
   status,
   form,
   busy,
   readOnly = false,
+  preview = false,
 }: {
   status: Application["status"];
   form: string;
   busy: boolean;
   readOnly?: boolean;
+  preview?: boolean;
 }) {
   if (readOnly || (status !== "draft" && status !== "reviewed")) {
     return (
       <span className="pill" data-status={status}>
-        {status}
+        {preview ? applicationStatusLabel(status, preview) : status}
       </span>
     );
   }

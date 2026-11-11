@@ -1402,7 +1402,11 @@ export function DiscoverPage() {
                 </header>
                 {opportunities.map((row) => {
                   const { job, match } = row;
-                  const status = roleStatus(job, applications.get(job.id));
+                  const status = roleStatus(
+                    job,
+                    applications.get(job.id),
+                    client.preview,
+                  );
                   const salary = advertisedSalary(job, {
                     compact: true,
                     missing: "",

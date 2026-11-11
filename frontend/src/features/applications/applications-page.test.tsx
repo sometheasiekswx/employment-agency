@@ -13,6 +13,7 @@ vi.mock("next/navigation", () => ({
 }));
 vi.mock("@/components/workspace-provider", () => ({
   useWorkspace: () => ({
+    client: { preview: false },
     state: {
       applications: fixture.applications,
       jobs: [{ id: "job-a", location: "Toronto" }],

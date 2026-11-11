@@ -13,6 +13,7 @@ const fixture = vi.hoisted(() => ({
 
 vi.mock("@/components/workspace-provider", () => ({
   useWorkspace: () => ({
+    client: { preview: false },
     state: {
       applications: fixture.applications,
       _workspace: { timezone: "UTC" },

@@ -8,6 +8,15 @@ const statuses = {
   rejected: "Rejected",
 };
 
+export function applicationStatusLabel(
+  status: Application["status"],
+  preview = false,
+) {
+  return preview && status === "submitted"
+    ? "Sample submission"
+    : statuses[status];
+}
+
 export interface VersionLabel {
   application: Application;
   title: string;
@@ -26,6 +35,7 @@ export function applicationVersionLabels(
   applications: Application[],
   current: Application,
   timezone: string,
+  preview = false,
 ): VersionLabel[] {
   const versions = applications.filter((application) =>
     current.job_id
@@ -41,7 +51,7 @@ export function applicationVersionLabels(
     return first === second ? 0 : first < second ? -1 : 1;
   });
   return versions.map((application, index) => {
-    const title = `Version ${index + 1} · ${statuses[application.status]}`;
+    const title = `Version ${index + 1} · ${applicationStatusLabel(application.status, preview)}`;
     const date = application.created_at
       ? displayDate(application.created_at, timezone)
       : "Date not recorded";
@@ -59,6 +69,7 @@ export function historyVersionLabel(
   version: HistoryVersion,
   applications: Application[],
   timezone: string,
+  preview = false,
 ) {
   const folder = [
     "applications",
@@ -71,7 +82,7 @@ export function historyVersionLabel(
     (application) => application.folder === folder,
   );
   const labels = records.map((record) =>
-    applicationVersionLabels(applications, record, timezone).find(
+    applicationVersionLabels(applications, record, timezone, preview).find(
       (label) => label.application.id === record.id,
     )!,
   );

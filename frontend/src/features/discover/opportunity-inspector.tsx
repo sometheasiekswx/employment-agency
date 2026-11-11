@@ -312,7 +312,7 @@ export function OpportunityInspector({
       ?.querySelector<HTMLTextAreaElement>(".removal-reason-editor textarea")
       ?.focus({ preventScroll: true });
   }, [reasonEditorId, mobile, snapSheet, animateInteractions, body]);
-  const status = roleStatus(job, application);
+  const status = roleStatus(job, application, preview);
   const advert = safeUrl(job.url);
   const careers = safeUrl(job.careers_url);
   const companyUrl = job.employer.trim()
@@ -853,7 +853,9 @@ export function OpportunityInspector({
         {submitted && (
           <p className="discover-submission-note">
             <ShieldCheck size={17} />
-            The recorded submission keeps its exact document snapshot.
+            {preview
+              ? "No application was sent."
+              : "The recorded submission keeps its exact document snapshot."}
           </p>
         )}
         {historicalSubmission && (
@@ -897,7 +899,9 @@ export function OpportunityInspector({
             >
               <FileText size={17} />
               {submitted
-                ? "View submission"
+                ? preview
+                  ? "View sample submission"
+                  : "View submission"
                 : application.status === "rejected"
                   ? "View decision"
                   : historicalSubmission

@@ -5,6 +5,7 @@ import {
   destination,
 } from "@/lib/format";
 import { applicationQueues } from "@/features/applications/queues";
+import { applicationStatusLabel } from "@/features/applications/version-labels";
 import { currentRemoval } from "@/lib/job-removal";
 
 export { advertisedSalary } from "@/lib/format";
@@ -95,8 +96,12 @@ export function applicationsByJob(applications: Application[]) {
   );
 }
 
-export function roleStatus(job: Job, app?: Application) {
-  if (app?.status === "submitted") return { label: "Submitted", tone: "muted" };
+export function roleStatus(job: Job, app?: Application, preview = false) {
+  if (app?.status === "submitted")
+    return {
+      label: applicationStatusLabel(app.status, preview),
+      tone: "muted",
+    };
   if (job.prior_application === "submitted")
     return { label: "Submission recorded", tone: "muted" };
   if (app?.status === "rejected") return { label: "Rejected", tone: "warning" };

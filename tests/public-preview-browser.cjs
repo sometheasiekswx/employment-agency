@@ -5,6 +5,7 @@ const { chromium } = require(
 const AxeBuilder =
   require("../frontend/node_modules/@axe-core/playwright").default;
 const assert = require("node:assert/strict");
+const { createHash } = require("node:crypto");
 const fs = require("node:fs");
 const { showPanel } = require("./browser-applications.cjs");
 
@@ -354,7 +355,13 @@ const { showPanel } = require("./browser-applications.cjs");
     assert.match(pdfHref, /^\/demo\/files\/[a-f0-9]+\.pdf$/);
     const pdf = await page.request.get(new URL(pdfHref, base).href);
     assert.equal(pdf.status(), 200);
-    assert.equal((await pdf.body()).subarray(0, 4).toString(), "%PDF");
+    const cv = await pdf.body();
+    assert.equal(cv.subarray(0, 4).toString(), "%PDF");
+    if (snapshot.demo_resume)
+      assert.equal(
+        createHash("sha256").update(cv).digest("hex"),
+        snapshot.demo_resume.sha256,
+      );
     await application
       .getByRole("button", { name: "View CV", exact: true })
       .click();
@@ -417,8 +424,27 @@ const { showPanel } = require("./browser-applications.cjs");
         .isDisabled(),
       true,
     );
+    await page.goto(base + "/discover/?view=applications&section=submitted");
+    const sampleCount = snapshot.state.applications.filter(
+      (app) => app.status === "submitted",
+    ).length;
+    const sampleSubmissions = page
+      .locator(".discover-card")
+      .getByText("Sample submission", { exact: true });
+    await sampleSubmissions.first().waitFor();
+    assert.equal(await sampleSubmissions.count(), sampleCount);
     await page.goto(base + "/history/");
     await page.getByRole("heading", { name: "History", exact: true }).waitFor();
+    await page
+      .getByText("Sample application documents by city, company, role and date. No applications were sent.", {
+        exact: true,
+      })
+      .waitFor();
+    await page
+      .locator(".history-version-title")
+      .filter({ hasText: "Sample submission" })
+      .first()
+      .waitFor();
     await page.locator(".history-version summary").first().click();
     const historical = page
       .locator('.history-files a[href^="/demo/files/"]')

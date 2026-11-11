@@ -122,6 +122,7 @@ export function ApplicationCard({
           {view === "all" && <>{app.employer} </>}
           <ReviewStatus
             readOnly={client.preview || view === "documents"}
+            preview={client.preview}
             status={app.status}
             form={reviewForm}
             busy={reviewBusy || decisionBusy || Boolean(decision)}
@@ -138,7 +139,9 @@ export function ApplicationCard({
         )}
         {client.preview && !app.demo_draft && (
           <p className="muted">
-            Sample application. No employer was contacted.
+            {app.status === "submitted"
+              ? "Sample submission. No application was sent."
+              : "Sample application. No application was sent."}
           </p>
         )}
         {Boolean(app.warnings?.length) && (

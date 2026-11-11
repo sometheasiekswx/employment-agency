@@ -15,13 +15,14 @@ export function ApplicationVersions({
   application: Application;
   onSelect: (application: Application) => void;
 }) {
-  const { state } = useWorkspace();
+  const { state, client } = useWorkspace();
   const { canLeave } = useDraft();
   const dateId = useId();
   const versions = applicationVersionLabels(
     state.applications,
     application,
     state._workspace.timezone,
+    client.preview,
   );
   const selected = versions.find(
     (version) => version.application.id === application.id,
@@ -57,7 +58,9 @@ export function ApplicationVersions({
       <p className="application-version-help">
         {selected && <span id={dateId}>{selected.date}</span>}
         <span>
-          New drafts keep the original. Submitted snapshots stay unchanged.
+          {client.preview
+            ? "Preloaded versions are sample documents."
+            : "New drafts keep the original. Submitted snapshots stay unchanged."}
         </span>
       </p>
       <Link

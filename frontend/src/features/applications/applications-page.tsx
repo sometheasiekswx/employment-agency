@@ -13,6 +13,7 @@ import { DocumentEditor } from "./document-editor";
 import Link from "next/link";
 import { ArrowUpRight, FolderOpen, MapPin } from "lucide-react";
 import { applicationQueues, applicationTime } from "./queues";
+import { applicationStatusLabel } from "./version-labels";
 import "./applications.css";
 
 const sections = [
@@ -24,7 +25,7 @@ const group = (app: Application) =>
   ["submitted", "rejected"].includes(app.status) ? app.status : "active";
 
 export function ApplicationsPage() {
-  const { state } = useWorkspace();
+  const { state, client } = useWorkspace();
   const params = useSearchParams();
   const [optimisticQuery, setOptimisticQuery] = useOptimistic(
     params.toString(),
@@ -177,9 +178,7 @@ export function ApplicationsPage() {
                 </span>
               </span>
               <span className="pill" data-status={app.status}>
-                {app.status === "reviewed"
-                  ? "Reviewed"
-                  : app.status.charAt(0).toUpperCase() + app.status.slice(1)}
+                {applicationStatusLabel(app.status, client.preview)}
               </span>
               <span className="application-overview-date">
                 {app.created_at

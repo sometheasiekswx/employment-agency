@@ -85,6 +85,7 @@ export function HistoryPage() {
       version,
       state.applications,
       state._workspace.timezone,
+      client.preview,
     ),
   }));
   const scopedVersions = labelledVersions.filter(
@@ -134,9 +135,9 @@ export function HistoryPage() {
       <div className="secondary-inline-note history-preservation-note">
         <ShieldCheck size={18} aria-hidden="true" />
         <p>
-          Preserved documents by city, company, role and date. Historical
-          versions do not imply that a job is open or an application was
-          submitted.
+          {client.preview
+            ? "Sample application documents by city, company, role and date. No applications were sent."
+            : "Preserved documents by city, company, role and date. Historical versions do not imply that a job is open or an application was submitted."}
         </p>
       </div>
       {versions.length > 0 && (
