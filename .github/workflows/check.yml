@@ -37,7 +37,7 @@ jobs:
         shell: bash
         run: python tests/check_wheel.py dist/*.whl
       - if: runner.os == 'Linux'
-        name: Verify Chrome for the browser checks
+        name: Prepare Chrome and video recording for the browser checks
         shell: bash
         timeout-minutes: 5
         run: |
@@ -52,6 +52,7 @@ jobs:
             npx --prefix frontend playwright install --with-deps chrome
             chrome_ready
           fi
+          npx --prefix frontend playwright install ffmpeg
       - if: runner.os == 'Linux'
         shell: bash
         run: python tests/check_wheel.py --browser dist/*.whl
