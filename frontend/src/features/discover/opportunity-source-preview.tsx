@@ -98,13 +98,7 @@ export function OpportunitySourceProvider({
     showWebsite: false,
   });
   const openSource = useCallback<OpenSource>((event, job, kind) => {
-    const mobile = isMobileSourceClick(event);
-    if (publicPreviewEnabled()) {
-      // Follow the anchor as a top-level page so employer frame rules apply normally.
-      event.currentTarget.target = mobile ? "_self" : "_blank";
-      return;
-    }
-    if (!mobile) return;
+    if (publicPreviewEnabled() || !isMobileSourceClick(event)) return;
     event.preventDefault();
     const opener = event.currentTarget;
     const url = opener.href;

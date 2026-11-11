@@ -120,7 +120,7 @@ it.each([
   expect(screen.getByText(job.description)).toBeVisible();
 });
 
-it("opens the real site in the current tab on the public mobile demo", () => {
+it("opens the real site in a new tab on the public mobile demo", () => {
   vi.stubEnv("NEXT_PUBLIC_EA_PUBLIC_PREVIEW", "1");
   vi.stubGlobal(
     "matchMedia",
@@ -130,10 +130,8 @@ it("opens the real site in the current tab on the public mobile demo", () => {
   const link = screen.getByRole("link", { name: "Original listing" });
   expect(fireEvent.click(link)).toBe(true);
   expect(link).toHaveAttribute("href", job.url);
-  expect(link).toHaveAttribute("target", "_self");
+  expect(link).toHaveAttribute("target", "_blank");
   expect(link).toHaveAttribute("rel", "noopener noreferrer");
   expect(screen.queryByRole("dialog")).toBeNull();
   expect(screen.queryByText(job.description)).toBeNull();
-  expect(fireEvent.click(link, { metaKey: true })).toBe(true);
-  expect(link).toHaveAttribute("target", "_blank");
 });

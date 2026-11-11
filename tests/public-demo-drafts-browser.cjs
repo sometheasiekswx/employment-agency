@@ -304,23 +304,35 @@ async function main() {
     const listing = page.getByRole("link", {
       name: "View listing for Feed Test Engineer at Bosch Group",
     });
-    async function followSource(link, url, heading) {
+    async function followSourceInNewTab(link, url, heading) {
       assert.equal(await link.getAttribute("href"), url);
       const previous = page.url();
-      await link.tap();
-      await page.waitForURL(url, { timeout: 8_000 });
-      assert.equal(context.pages().length, 1);
-      await page.getByRole("heading", { name: heading, exact: true }).waitFor();
-      await page.goBack();
-      await page.waitForURL(previous);
+      const [tab] = await Promise.all([
+        context.waitForEvent("page", { timeout: 8_000 }),
+        link.tap(),
+      ]);
+      try {
+        await tab.waitForURL(url, { timeout: 8_000 });
+        await tab.getByRole("heading", { name: heading, exact: true }).waitFor();
+        assert.equal(context.pages().length, 2);
+        assert.equal(page.url(), previous);
+        assert.ok(await link.isVisible());
+      } finally {
+        await tab.close();
+      }
     }
-    await followSource(listing, advertUrl, "Live job advert");
+    await followSourceInNewTab(listing, advertUrl, "Live job advert");
     await role.click();
     await page.waitForURL((url) => url.searchParams.has("opportunity"));
     const inspector = page.locator(".discover-inspector");
     const titleLink = inspector.getByRole("link", { name: "Feed Test Engineer" });
-    await followSource(titleLink, advertUrl, "Live job advert");
-    await followSource(
+    await followSourceInNewTab(titleLink, advertUrl, "Live job advert");
+    await followSourceInNewTab(
+      inspector.getByRole("link", { name: "View advert", exact: true }),
+      advertUrl,
+      "Live job advert",
+    );
+    await followSourceInNewTab(
       inspector.getByRole("link", { name: "Bosch Group", exact: true }),
       careersUrl,
       "Employer careers",
@@ -343,7 +355,7 @@ async function main() {
     assert.ok(reads >= snapshot.job_sources.length);
     assert.deepEqual(errors, []);
     console.log(
-      "Static demo passed employer refresh, mobile site navigation and Back, preserved closed bookmark, PDF/DOCX imports, editable draft exports and tab privacy.",
+      "Static demo passed employer refresh, mobile employer links in new tabs, preserved closed bookmark, PDF/DOCX imports, editable draft exports and tab privacy.",
     );
   } finally {
     await browser.close();
