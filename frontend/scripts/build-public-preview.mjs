@@ -56,9 +56,9 @@ await mkdir(destination, { recursive: true });
 await cp(path.join(frontend, ".next-public-preview"), destination, {
   recursive: true,
 });
-const exportedFixture = JSON.parse(
-  await readFile(path.join(destination, "demo/preview.json"), "utf8"),
-);
+const demo = path.join(destination, "demo");
+const fixturePath = path.join(demo, "preview.json");
+let exportedFixture = JSON.parse(await readFile(fixturePath, "utf8"));
 if (
   exportedFixture.public_preview !== true ||
   exportedFixture.revision !== fixture.revision
@@ -66,6 +66,32 @@ if (
   throw new Error(
     "The exported site does not contain the current fictional snapshot.",
   );
+}
+if (process.env.EA_PUBLIC_DEMO_RESUME_DIR) {
+  const { resume, pdf } = await readShowcaseResume(
+    process.env.EA_PUBLIC_DEMO_RESUME_DIR,
+  );
+  const publication = spawnSync(
+    process.env.EA_PUBLIC_DEMO_PYTHON || "python3",
+    [
+      "-m",
+      "employment_agency.public_preview",
+      "--publish-resume",
+      "--output",
+      demo,
+    ],
+    {
+      cwd: root,
+      input: JSON.stringify({ resume, pdf: pdf.toString("base64") }),
+      encoding: "utf8",
+      maxBuffer: 4 * 1024 * 1024,
+    },
+  );
+  if (publication.error || publication.status !== 0)
+    throw new Error(
+      "Could not build the public profile and sample documents from the approved résumé.",
+    );
+  exportedFixture = JSON.parse(await readFile(fixturePath, "utf8"));
 }
 for (const url of Object.values(exportedFixture.files)) {
   if (
@@ -75,36 +101,6 @@ for (const url of Object.values(exportedFixture.files)) {
     throw new Error("Unexpected public document asset path.");
   }
   await readFile(path.join(destination, url));
-}
-if (process.env.EA_PUBLIC_DEMO_RESUME_DIR) {
-  const { resume, pdf } = await readShowcaseResume(
-    process.env.EA_PUBLIC_DEMO_RESUME_DIR,
-  );
-  const profile = spawnSync(
-    process.env.EA_PUBLIC_DEMO_PYTHON || "python3",
-    ["-m", "employment_agency.public_preview", "--profile-from-resume"],
-    {
-      cwd: root,
-      input: JSON.stringify({ state: exportedFixture.state, resume }),
-      encoding: "utf8",
-      maxBuffer: 4 * 1024 * 1024,
-    },
-  );
-  if (profile.error || profile.status !== 0)
-    throw new Error(
-      "Could not build the public profile from the approved résumé.",
-    );
-  Object.assign(exportedFixture, JSON.parse(profile.stdout));
-  exportedFixture.demo_resume = { ...resume, pdf: "/demo/master-resume.pdf" };
-  exportedFixture.revision = createHash("sha256")
-    .update(JSON.stringify(exportedFixture))
-    .digest("hex")
-    .slice(0, 20);
-  await writeFile(path.join(destination, "demo/master-resume.pdf"), pdf);
-  await writeFile(
-    path.join(destination, "demo/preview.json"),
-    JSON.stringify(exportedFixture) + "\n",
-  );
 }
 
 async function filesIn(directory, prefix = "") {

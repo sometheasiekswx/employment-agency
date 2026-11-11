@@ -61,9 +61,11 @@ async function documents(page, snapshot) {
   await input.waitFor();
   await accessible(page, ".demo-resume-panel");
   for (const ext of ["pdf", "docx"]) {
-    const asset = Object.values(snapshot.files).find((url) =>
-      url.endsWith("." + ext),
+    const key = Object.keys(snapshot.files).find(
+      (key) => key.startsWith("application:") && key.endsWith(":resume." + ext),
     );
+    assert.ok(key, "A sample CV is available in " + ext);
+    const asset = snapshot.files[key];
     const bytes = await (await page.request.get(base + asset)).body();
     await input.setInputFiles({
       name: "sample." + ext,
@@ -75,7 +77,12 @@ async function documents(page, snapshot) {
       .click();
     const review = page.getByLabel("Review extracted résumé text");
     await review.waitFor();
-    assert.match(await review.inputValue(), /Fictional sample profile/i);
+    const extracted = await review.inputValue();
+    if (snapshot.demo_resume)
+      assert.ok(
+        extracted.replace(/\s+/g, " ").includes(snapshot.demo_resume.name),
+      );
+    else assert.match(extracted, /Fictional sample profile/i);
     await page
       .getByRole("button", { name: "Use this résumé", exact: true })
       .click();

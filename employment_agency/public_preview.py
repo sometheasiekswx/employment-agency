@@ -1,10 +1,12 @@
 """Build the public snapshot through shared application services.
 
-Exports always start with an empty temporary workspace, fictional career data
-and the reviewed employer-listing snapshot. No private workspace is opened.
+The offline export uses a fictional profile and the reviewed employer listings.
+The release build can replace the profile and sample documents from an approved
+redacted résumé. Neither build opens a private workspace.
 """
 from pathlib import Path
 import argparse
+import base64
 import hashlib
 import json
 import os
@@ -15,14 +17,15 @@ import tempfile
 
 from .demo import DemoWorkspace
 from .service import Service
-from . import history, matching, packages
-from .store import uid
+from . import documents, history, matching, packages, summaries
+from .store import digest, encode, uid
 from .workspaces import configure
 
 
 SAMPLE_LOCATIONS = ('Singapore', 'Melbourne', 'Berlin', 'Toronto')
 SHOWCASE_LOCATIONS = ('Singapore', 'Melbourne', 'New York', 'London', 'China', 'Berlin', 'Toronto')
 PUBLIC_MASTER_PATH = 'demo/master-resume.pdf'
+SAMPLE_NOTICE = 'No application was sent.'
 
 
 def publish_resume_profile(state, resume):
@@ -146,6 +149,34 @@ def _write_asset(stage, files, key, path):
     return files[key]
 
 
+def _export_documents(stage, workspace, applications):
+    files, previews = {}, {}
+    for app in applications:
+        key = f'application:{app["id"]}'
+        for role in app['documents']:
+            path = packages.path_for(workspace, app, role)
+            _write_asset(stage, files, f'{key}:{role}', path)
+        previews[app['id']] = {
+            stem: {'base': app['manifest_hash'], 'url': files[f'{key}:{stem}.pdf']}
+            for stem in ('resume', 'cover-letter')
+        }
+    versions = history.versions(workspace)
+    for version in versions:
+        for name in version['files']:
+            path = history.verified_file(workspace, version['id'], name)
+            _write_asset(stage, files, f'history:{version["id"]}:{name}', path)
+    return {'files': files, 'documents': previews, 'history': versions}
+
+
+def _write_bundle(stage, bundle):
+    bundle.pop('revision', None)
+    serialized = json.dumps(bundle, ensure_ascii=False, sort_keys=True)
+    bundle['revision'] = hashlib.sha256(serialized.encode()).hexdigest()[:20]
+    (stage / 'preview.json').write_text(
+        json.dumps(bundle, ensure_ascii=False, indent=2) + '\n', encoding='utf-8',
+    )
+
+
 def _check_owned_export(destination):
     if not destination.exists():
         return
@@ -163,6 +194,85 @@ def _check_owned_export(destination):
     actual = {path.relative_to(destination).as_posix() for path in destination.rglob('*') if path.is_file()}
     if actual - allowed:
         raise ValueError('The export directory contains unrelated files; no data changed')
+
+
+def publish_resume_bundle(destination, resume, pdf):
+    """Replace the exported profile and all sample files using reviewed inputs."""
+    destination = Path(destination)
+    _check_owned_export(destination)
+    bundle = json.loads((destination / 'preview.json').read_text(encoding='utf-8'))
+    if digest(pdf) != resume['sha256']:
+        raise ValueError('The approved résumé PDF does not match its checksum')
+    state = bundle['state']
+    bundle.update(publish_resume_profile(state, resume))
+    identity = state['identity']
+    name = identity['name']
+    facts = state['facts']
+    summary = next((fact['text'] for fact in facts if fact['category'] == 'summary'), '')
+    jobs = {job['id']: job for job in state['jobs']}
+    generated = {version['id']: version['generated_at'] for version in bundle['history']}
+    workspace_settings = state['_workspace']
+    headings = {'Profile', 'Professional Experience', 'Key Skills', 'Education and Recognition'}
+    resume_blocks = [
+        ('title' if line == name else 'heading' if line in headings else 'text', line)
+        for line in map(str.strip, resume['text'].splitlines()) if line and not line.isdecimal()
+    ]
+    with tempfile.TemporaryDirectory(prefix='ea-public-documents-') as temporary:
+        root = Path(temporary).resolve()
+        package = root / 'package'
+        stage = root / 'export'
+        workspace = root / 'workspace'
+        for path in (package, stage, workspace):
+            path.mkdir()
+        config = configure(workspace, {
+            key: workspace_settings[key]
+            for key in ('timezone', 'preferred_locations', 'resume_pages', 'cover_letter_pages')
+        })
+        documents.render_blocks(
+            package, 'resume', resume_blocks, config['resume_pages'], 'plain', approved_pdf=pdf,
+        )
+        for app in state['applications']:
+            job = jobs[app['job_id']]
+            target = f'{job["title"]} at {job["employer"]}'
+            label = 'Sample submission' if app['status'] == 'submitted' else 'Sample application'
+            if app['status'] == 'submitted':
+                for comment in app['comments']:
+                    if comment['status'] == 'submitted':
+                        comment['text'] = f'{label}. {SAMPLE_NOTICE}'
+            letter = [
+                ('title', name), ('heading', label), ('text', SAMPLE_NOTICE),
+                ('heading', f'Cover letter for {target}'), ('text', 'Dear Hiring Team,'),
+                ('text', f'I am interested in the {job["title"]} role at {job["employer"]}.'),
+            ]
+            if summary:
+                letter.append(('text', summary))
+            letter += [('text', 'Thank you for considering my application.'),
+                       ('text', 'Kind regards,'), ('text', name)]
+            documents.render_blocks(package, 'cover-letter', letter, config['cover_letter_pages'], 'plain')
+            documents.write_email_draft(
+                package, f'{label} for {target} - {name}',
+                f'{label}. {SAMPLE_NOTICE}\n\nThe example CV and cover letter for {target} are attached.\n\n{name}',
+            )
+            assessment = matching.match(job, {}, facts)
+            (package / 'evidence.json').write_bytes(encode({
+                'job': job, 'facts': facts, 'matching': assessment,
+                'template': 'plain', 'notice': f'{label}. {SAMPLE_NOTICE}',
+            }))
+            files = {role: (package / role).read_bytes() for role in documents.FILES}
+            packages.validate(files, config)
+            previous_version = digest(app['folder'].encode())[:24]
+            app.update(packages.publish(
+                workspace, files, job, identity,
+                generated_at=generated[previous_version], source=label,
+            ))
+            app['fact_ids'] = [fact['id'] for fact in facts]
+            app['fit_summary'] = summaries.summarize(job, facts)
+        bundle.update(_export_documents(stage, workspace, state['applications']))
+        bundle['demo_resume'] = {**resume, 'pdf': '/' + PUBLIC_MASTER_PATH}
+        (stage / Path(PUBLIC_MASTER_PATH).name).write_bytes(pdf)
+        _write_bundle(stage, bundle)
+        shutil.rmtree(destination)
+        shutil.copytree(stage, destination)
 
 
 def export_preview(destination):
@@ -187,26 +297,8 @@ def export_preview(destination):
             seed_showcase(service, listing_data)
             state = service.state()
             rankings = {profile['id']: service.action('rank', {'profile_id': profile['id']}) for profile in state['profiles']}
-            versions = service.action('history', {})
             stage = root / 'export'
             stage.mkdir()
-            files = {}
-            documents = {}
-            for app in state['applications']:
-                for name in app.get('documents', {}):
-                    path = packages.path_for(workspace.path, app, name)
-                    _write_asset(stage, files, f'application:{app["id"]}:{name}', path)
-                documents[app['id']] = {}
-                for stem in ('resume', 'cover-letter'):
-                    editor = service.action('document-editor', {'id': app['id'], 'document': stem})
-                    documents[app['id']][stem] = {
-                        'base': editor['base'],
-                        'url': files[f'application:{app["id"]}:{stem}.pdf'],
-                    }
-            for version in versions:
-                for name in version['files']:
-                    path = history.verified_file(workspace.path, version['id'], name)
-                    _write_asset(stage, files, f'history:{version["id"]}:{name}', path)
             # Absolute build paths, machine permissions and provider consent do
             # not belong in this public snapshot, even in a fictional workspace.
             state['_workspace']['path'] = 'public-fictional-preview'
@@ -223,20 +315,19 @@ def export_preview(destination):
             payload = {
                 'public_preview': True, 'schema': 1,
                 'notice': 'Public demo with employer listings and sample application records. No applications are sent.',
-                'state': state, 'rankings': rankings, 'history': versions,
-                'files': files, 'documents': documents, 'job_sources': listing_data['sources'],
+                'state': state, 'rankings': rankings, 'job_sources': listing_data['sources'],
+                **_export_documents(stage, workspace.path, state['applications']),
             }
             serialized = json.dumps(payload, ensure_ascii=False, sort_keys=True)
             if str(root) in serialized or '/Users/' in serialized:
                 raise ValueError('A machine-specific path reached the public preview')
-            payload['revision'] = hashlib.sha256(serialized.encode()).hexdigest()[:20]
-            (stage / 'preview.json').write_text(json.dumps(payload, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+            _write_bundle(stage, payload)
             _check_owned_export(destination)
             if destination.exists():
                 shutil.rmtree(destination)
             shutil.copytree(stage, destination)
             return {'jobs': len(state['jobs']), 'applications': len(state['applications']),
-                    'assets': len(set(files.values())), 'revision': payload['revision']}
+                    'assets': len(set(payload['files'].values())), 'revision': payload['revision']}
         finally:
             workspace.close()
             if previous_config is None:
@@ -247,12 +338,14 @@ def export_preview(destination):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--output', type=Path, default=Path('frontend/public/demo'))
-    parser.add_argument('--profile-from-resume', action='store_true',
-                        help='Build the public profile from a JSON payload on stdin')
+    parser.add_argument('--output', type=Path)
+    parser.add_argument('--publish-resume', action='store_true',
+                        help='Replace the profile and sample documents from approved JSON inputs on stdin')
     arguments = parser.parse_args()
-    if arguments.profile_from_resume:
+    if arguments.publish_resume:
+        if arguments.output is None:
+            parser.error('--publish-resume requires an explicit --output directory')
         data = json.load(sys.stdin)
-        print(json.dumps(publish_resume_profile(data['state'], data['resume'])))
+        publish_resume_bundle(arguments.output, data['resume'], base64.b64decode(data['pdf'], validate=True))
     else:
-        print(json.dumps(export_preview(arguments.output), indent=2))
+        print(json.dumps(export_preview(arguments.output or Path('frontend/public/demo')), indent=2))

@@ -149,6 +149,30 @@ function checkFixture(fixture, revision) {
   }
   const pdf = files.find((url) => url.endsWith(".pdf"));
   requireValue(pdf, "The public fixture has no sample PDF");
+  if (master !== undefined) {
+    requireValue(
+      !/alex\s*morgan|alex@example\.test/i.test(JSON.stringify(fixture)),
+      "The approved demo still contains the fictional candidate",
+    );
+    const applications = fixture.state.applications;
+    const approvedPdf =
+      typeof master.sha256 === "string"
+        ? "/demo/files/" + master.sha256.slice(0, 24) + ".pdf"
+        : "";
+    requireValue(
+      Array.isArray(applications) &&
+        applications.length > 0 &&
+        applications.every(
+          (app) =>
+            isRecord(app) &&
+            fixture.files["application:" + app.id + ":resume.pdf"] ===
+              approvedPdf &&
+            fixture.documents[app.id]?.resume?.url === approvedPdf,
+        ),
+      "Sample applications must use the approved résumé PDF",
+    );
+    return approvedPdf;
+  }
   return pdf;
 }
 
@@ -267,6 +291,12 @@ export async function verifyPublicDemo(
     pdfBytes.subarray(0, 5).toString("ascii") === "%PDF-",
     `${pdf}: invalid PDF signature`,
   );
+  if (fixture.demo_resume !== undefined)
+    requireValue(
+      createHash("sha256").update(pdfBytes).digest("hex") ===
+        fixture.demo_resume.sha256,
+      "The sample CV PDF does not match the approved résumé checksum",
+    );
 
   return {
     commit: release.commit,

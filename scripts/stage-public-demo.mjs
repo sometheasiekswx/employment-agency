@@ -173,7 +173,7 @@ function deploymentIdentity(deployment, projectId, expectedCommit) {
   };
 }
 
-/** Stage only the checked fictional static artifact; never move production domains. */
+/** Stage the checked public demo artifact with domain assignment disabled. */
 export async function stagePublicDemo(
   site,
   expectedCommit,

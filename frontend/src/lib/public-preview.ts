@@ -141,7 +141,7 @@ export class PublicPreviewTransport {
       this.drafts.demoResume = {
         name: bundle.state.identity.name || "Sample résumé",
         text: [
-          bundle.state.identity.name || "Alex Morgan",
+          bundle.state.identity.name || "Sample résumé",
           "Fictional sample profile",
           ...bundle.state.facts
             .filter((fact) => fact.confirmed)

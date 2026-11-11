@@ -208,7 +208,7 @@ test("rejects non-fictional profile and false demo markers", async (t) => {
   }
 });
 
-test("verifies the approved résumé PDF and rejects a mismatched public profile", async () => {
+test("verifies the approved résumé PDF in the profile and sample applications", async () => {
   const server = releaseServer();
   const master = "/demo/master-resume.pdf";
   const bytes = "%PDF-1.7\nPublic resume fixture\n%%EOF";
@@ -219,9 +219,30 @@ test("verifies the approved résumé PDF and rejects a mismatched public profile
     pdf: master,
     sha256: createHash("sha256").update(bytes).digest("hex"),
   };
+  const samplePdf =
+    "/demo/files/" + server.fixture.demo_resume.sha256.slice(0, 24) + ".pdf";
+  server.fixture.state.applications = [{ id: "sample" }];
+  server.fixture.files["application:sample:resume.pdf"] = samplePdf;
+  server.fixture.documents.sample.resume.url = samplePdf;
   server.records.set(master, { ...server.records.get(pdf), body: bytes });
+  server.records.set(samplePdf, { ...server.records.get(pdf), body: bytes });
   await verifyPublicDemo(base, commit, server);
   assert.ok(server.calls.some(({ url }) => new URL(url).pathname === master));
+  server.records.get(samplePdf).body = server.records.get(pdf).body;
+  await assert.rejects(verifyPublicDemo(base, commit, server), /sample CV PDF/);
+  server.records.get(samplePdf).body = bytes;
+  server.fixture.files["history:sample:AlexMorgan-CV.pdf"] = samplePdf;
+  await assert.rejects(
+    verifyPublicDemo(base, commit, server),
+    /fictional candidate/,
+  );
+  delete server.fixture.files["history:sample:AlexMorgan-CV.pdf"];
+  server.fixture.files["application:sample:resume.pdf"] = pdf;
+  server.fixture.documents.sample.resume.url = pdf;
+  await assert.rejects(
+    verifyPublicDemo(base, commit, server),
+    /must use the approved résumé PDF/,
+  );
   server.fixture.state.identity.name = "Alex Morgan";
   await assert.rejects(
     verifyPublicDemo(base, commit, server),

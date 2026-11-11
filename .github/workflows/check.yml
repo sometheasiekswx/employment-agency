@@ -138,7 +138,7 @@ jobs:
             echo "current=false" >> "$GITHUB_OUTPUT"
             echo "A newer main revision exists; this release is skipped." >> "$GITHUB_STEP_SUMMARY"
           fi
-      - name: Stage the tested fictional site
+      - name: Stage the tested public demo
         id: stage
         if: steps.candidate.outputs.current == 'true'
         env:

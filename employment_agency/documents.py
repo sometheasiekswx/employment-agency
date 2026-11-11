@@ -98,24 +98,13 @@ def render(directory, identity, job, facts, evidence, template="navy"):
     ]
     for stem, blocks, limit in [("resume", resume, 2), ("cover-letter", letter, 1)]:
         render_blocks(p, stem, blocks, limit, template)
-    msg = EmailMessage(policy=SMTP)
-    if job.get("email"):
-        msg["To"] = job["email"]
-    msg["Subject"] = "Application for " + target + " - " + name
-    if identity.get("email"):
-        msg["From"] = identity["email"]
-    msg["X-Unsent"] = "1"
-    msg.set_content(
-        f"Dear Hiring Team,\n\nPlease find my resume and cover letter attached for the {job['title']} position. I would welcome the opportunity to discuss my suitability.\n\nKind regards,\n{name}\n{contact}"
+    write_email_draft(
+        p,
+        "Application for " + target + " - " + name,
+        f"Dear Hiring Team,\n\nPlease find my resume and cover letter attached for the {job['title']} position. I would welcome the opportunity to discuss my suitability.\n\nKind regards,\n{name}\n{contact}",
+        sender=identity.get("email"),
+        recipient=job.get("email"),
     )
-    for filename in ("resume.pdf", "cover-letter.pdf"):
-        msg.add_attachment(
-            (p / filename).read_bytes(),
-            maintype="application",
-            subtype="pdf",
-            filename=filename,
-        )
-    (p / "application.eml").write_bytes(msg.as_bytes())
     (p / "evidence.json").write_bytes(
         encode(
             {
@@ -132,6 +121,25 @@ def render(directory, identity, job, facts, evidence, template="navy"):
     )
 
 
+def write_email_draft(p, subject, body, *, sender=None, recipient=None):
+    msg = EmailMessage(policy=SMTP)
+    if recipient:
+        msg["To"] = recipient
+    msg["Subject"] = subject
+    if sender:
+        msg["From"] = sender
+    msg["X-Unsent"] = "1"
+    msg.set_content(body)
+    for filename in ("resume.pdf", "cover-letter.pdf"):
+        msg.add_attachment(
+            (p / filename).read_bytes(),
+            maintype="application",
+            subtype="pdf",
+            filename=filename,
+        )
+    (p / "application.eml").write_bytes(msg.as_bytes())
+
+
 def intact(p):
     try:
         return json.loads((p / "checksums.json").read_text(encoding="utf-8")) == {
@@ -141,40 +149,23 @@ def intact(p):
         return False
 
 
-def render_blocks(p, stem, blocks, limit, template="navy"):
+def render_blocks(p, stem, blocks, limit, template="navy", *, approved_pdf=None):
     """Render user-editable semantic blocks using the same standard template."""
     from docx import Document
-    from docx.shared import Pt, RGBColor
-    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
-    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-    from reportlab.lib.colors import HexColor
-    from reportlab.lib.pagesizes import A4
-    from pypdf import PdfReader
+    from docx.enum.style import WD_STYLE_TYPE
+    from docx.shared import Mm, Pt, RGBColor
+
     color = "17384D" if template == "navy" else "222222"
     (p / (stem + ".txt")).write_text(
         "\n\n".join(t for _, t in blocks), encoding="utf-8"
     )
     d = Document()
-    from docx.enum.style import WD_STYLE_TYPE
     d.styles.add_style("Contact", WD_STYLE_TYPE.PARAGRAPH)
     section = d.sections[0]
-    from docx.shared import Mm
-
     section.top_margin = section.bottom_margin = Mm(17)
     section.left_margin = section.right_margin = Mm(18)
     d.styles["Normal"].font.name = "Calibri"
     d.styles["Normal"].font.size = Pt(10)
-    styles = getSampleStyleSheet()
-    styles.add(
-        ParagraphStyle(
-            "Contact", parent=styles["Normal"], fontSize=9, leading=12, spaceAfter=3
-        )
-    )
-    styles["Title"].textColor = HexColor("#" + color)
-    styles["Heading2"].textColor = HexColor("#" + color)
-    styles["Normal"].fontSize = 10
-    styles["Normal"].leading = 13
-    story = []
     for typ, text in blocks:
         para = d.add_paragraph(
             text,
@@ -188,45 +179,12 @@ def render_blocks(p, stem, blocks, limit, template="navy"):
         )
         if typ in ("title", "heading"):
             para.runs[0].font.color.rgb = RGBColor.from_string(color)
-        sty = styles[
-            "Title"
-            if typ == "title"
-            else "Heading2"
-            if typ == "heading"
-            else "Contact"
-            if typ == "contact"
-            else "Normal"
-        ]
-        story.append(
-            Paragraph(
-                escape(text), sty, bulletText="•" if typ == "bullet" else None
-            )
-        )
-        story.append(Spacer(1, 5))
     d.save(p / (stem + ".docx"))
-    SimpleDocTemplate(
-        str(p / (stem + ".pdf")),
-        pagesize=A4,
-        leftMargin=51,
-        rightMargin=51,
-        topMargin=48,
-        bottomMargin=48,
-    ).build(story)
-    reader = PdfReader(p / (stem + ".pdf"))
-    pages = len(reader.pages)
-    extracted = " ".join(page.extract_text() for page in reader.pages)
-
-    def squash(value):
-        return "".join(value.split()).replace("–", "-").replace("—", "-")
-
-    if any(squash(t) not in squash(extracted) for _, t in blocks):
-        raise ValueError(
-            "PDF font cannot faithfully render this text. Use Latin-script text or configure a Unicode-capable template before applying."
-        )
-    if pages > limit:
-        raise ValueError(
-            f"{stem} exceeds {limit} pages; shorten confirmed facts or select fewer facts"
-        )
+    pdf_path = p / (stem + ".pdf")
+    if approved_pdf is None:
+        _render_pdf(pdf_path, blocks, limit, color)
+    else:
+        pdf_path.write_bytes(approved_pdf)
     tex = (
         r"\documentclass[10pt,a4paper]{article}"
         + "\n"
@@ -252,3 +210,62 @@ def render_blocks(p, stem, blocks, limit, template="navy"):
     (p / (stem + ".tex")).write_text(
         tex + r"\end{document}" + "\n", encoding="utf-8"
     )
+
+
+def _render_pdf(path, blocks, limit, color):
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.colors import HexColor
+    from reportlab.lib.pagesizes import A4
+    from pypdf import PdfReader
+
+    styles = getSampleStyleSheet()
+    styles.add(
+        ParagraphStyle(
+            "Contact", parent=styles["Normal"], fontSize=9, leading=12, spaceAfter=3
+        )
+    )
+    styles["Title"].textColor = HexColor("#" + color)
+    styles["Heading2"].textColor = HexColor("#" + color)
+    styles["Normal"].fontSize = 10
+    styles["Normal"].leading = 13
+    story = []
+    for typ, text in blocks:
+        sty = styles[
+            "Title"
+            if typ == "title"
+            else "Heading2"
+            if typ == "heading"
+            else "Contact"
+            if typ == "contact"
+            else "Normal"
+        ]
+        story.append(
+            Paragraph(
+                escape(text), sty, bulletText="•" if typ == "bullet" else None
+            )
+        )
+        story.append(Spacer(1, 5))
+    SimpleDocTemplate(
+        str(path),
+        pagesize=A4,
+        leftMargin=51,
+        rightMargin=51,
+        topMargin=48,
+        bottomMargin=48,
+    ).build(story)
+    reader = PdfReader(path)
+    pages = len(reader.pages)
+    extracted = " ".join(page.extract_text() for page in reader.pages)
+
+    def squash(value):
+        return "".join(value.split()).replace("–", "-").replace("—", "-")
+
+    if any(squash(t) not in squash(extracted) for _, t in blocks):
+        raise ValueError(
+            "PDF font cannot faithfully render this text. Use Latin-script text or configure a Unicode-capable template before applying."
+        )
+    if pages > limit:
+        raise ValueError(
+            f"{path.stem} exceeds {limit} pages; shorten confirmed facts or select fewer facts"
+        )

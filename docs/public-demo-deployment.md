@@ -6,8 +6,8 @@ The public showcase at **https://employment-agency-demo.vercel.app/discover/** f
 
 1. A push runs the existing `Checks` workflow on Linux, macOS and Windows. Pull requests run checks without deployment access.
 2. Linux builds and browser-tests the static site, then uploads that exact directory as a commit-named artifact. Production includes the public employer snapshots and the approved redacted master résumé. A failed check prevents the deployment job from running.
-3. After the entire matrix succeeds, the release job downloads the artifact into an isolated runner directory. It checks the commit and fictional markers, then stages a production deployment with domain assignment disabled.
-4. A dependency-free HTTP check verifies the exact source commit, fictional fixture, routes, a sample PDF and security headers on the staged URL. Only a verified candidate that still matches `main` is promoted.
+3. After the entire matrix succeeds, the release job downloads the artifact into an isolated runner directory. It checks the commit and demo markers, then stages a production deployment with domain assignment disabled.
+4. A dependency-free HTTP check verifies the exact source commit, public fixture, routes, sample CV checksum and security headers on the staged URL. Only a verified candidate that still matches `main` is promoted.
 5. The same check runs on the public alias. It retries a stale release marker up to ten times at three-second intervals while promotion propagates. The Actions job summary records the source SHA and public URL. Inspect [/release.json](https://employment-agency-demo.vercel.app/release.json) to identify the live source commit and fixture revision.
 
 Release jobs are serialized, and queued releases are preserved so that rerunning an older workflow cannot cancel a newer waiting release. The release job compares its SHA with current `main` before staging and before promotion. A push arriving after that final comparison can briefly leave the previous successful revision live until the next checked revision releases. A skipped superseded candidate does not move the alias.
@@ -42,7 +42,7 @@ EA_PUBLIC_DEMO_RESUME_DIR="$EA_PUBLIC_RESUME_OUT" EA_PUBLIC_DEMO_PYTHON="$PWD/.v
 node scripts/showcase-resume.mjs "$EA_PUBLIC_RESUME_OUT"
 ```
 
-Review the rendered PDF and text in the output directory. For automatic releases, store the four files in its `release-inputs` directory as GitHub Actions secrets with their exact filenames. Supply all four for the same résumé. The Linux production build verifies the checksum and uses the approved input for the profile, evidence and downloadable PDF. A production build with missing or invalid inputs fails before deployment. Local and pull-request builds can use the sample fixture. Keep the source LaTeX and the release input files outside Git.
+Review the rendered PDF and text in the output directory. For automatic releases, store the four files in its `release-inputs` directory as GitHub Actions secrets with their exact filenames. Supply all four for the same résumé. The Linux production build verifies the checksum and uses the approved input for the profile and all sample application packages. The original sample files are replaced in the build output. A production build with missing or invalid inputs fails before deployment. Local and pull-request builds can use the sample fixture. Keep the source LaTeX and the release input files outside Git.
 
 ## Verify and recover
 
