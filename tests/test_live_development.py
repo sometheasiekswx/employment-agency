@@ -85,6 +85,8 @@ class PrivateDevelopment(unittest.TestCase):
                        '--frontend-port', str(next_port), '--gateway-port', str(gateway),
                        '--tailscale-origin', ORIGIN, '--tailscale-user', OWNER]
             env = {**os.environ, 'PYTHONPATH': str(stage), 'EA_CONFIG_HOME': str(stage / 'config')}
+            with patch.dict(os.environ, {'EA_CONFIG_HOME': env['EA_CONFIG_HOME']}):
+                Workspace(workspace).close()
 
             def get(path, port=gateway):
                 with urllib.request.urlopen(f'http://127.0.0.1:{port}{path}', timeout=2) as response:

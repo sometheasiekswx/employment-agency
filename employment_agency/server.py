@@ -11,7 +11,7 @@ import threading
 from urllib.parse import parse_qs, urlsplit, unquote, quote
 from .store import Workspace, encode, digest
 from .service import Service
-from .workspaces import inside, remember, configure
+from .workspaces import inside, remember, configure, can_create_workspace
 from .folders import choose_folder
 from .listing_frame import listing_frame
 from .web_assets import asset, script_policy
@@ -223,29 +223,33 @@ def server(service, port=8766, frontend_origin=None, tailscale_origin=None, tail
             if action in ('workspace-open', 'workspace-create'):
                 self.check_run()
                 target = Path(data['path']).expanduser().resolve()
+                next_token = secrets.token_urlsafe(32)
                 if target == service.w.path:
                     configure(target, {'setup_complete': True})
+                    remember(target)
+                    token = next_token
                 else:
-                    if action == 'workspace-open' and not (target / 'state.json').is_file():
-                        raise ValueError('Choose an existing career workspace, or an empty folder to create one.')
-                    if action == 'workspace-create' and target.exists() and any(target.iterdir()):
-                        raise ValueError('This folder has files but no career workspace. Choose an existing workspace or an empty folder.')
-                    replacement = Workspace(target)
+                    creating = action == 'workspace-create'
+                    if creating and not can_create_workspace(target):
+                        raise ValueError('This folder has files but no career workspace. Choose an existing workspace, an empty folder, or a new Git repository.')
+                    replacement = Workspace(target, create=creating)
                     try:
                         if replacement.read()['schema'] != 2:
                             raise ValueError('Migrate this older workspace using the CLI before opening it')
                         configure(target, {'setup_complete': True})
+                        next_service = Service(replacement)
                         if service.delivery:
                             service.delivery.close()
+                            service.delivery = None
+                        remember(target)
                     except Exception:
                         replacement.close()
                         raise
                     previous = service.w
-                    service = Service(replacement)
+                    service = next_service
                     self.server.active_service = service
+                    token = next_token
                     previous.close()
-                remember(target)
-                token = secrets.token_urlsafe(32)
                 result = {'path': str(target), 'reload': True}
             else:
                 result = service.action(action, data)

@@ -6,7 +6,9 @@ from email import policy
 from email.parser import BytesParser
 import io
 import json
+import os
 import re
+import subprocess
 import tempfile
 import shutil
 from .store import atomic, encode, digest, now
@@ -48,24 +50,29 @@ def changed(root, app):
         return ['Missing or invalid application version']
 
 
-def seal(root, folder):
+def seal(root, folder, expected_hash=None):
     """Preserve originals before they can be edited outside the app."""
     folder = inside(root, Path(folder).relative_to(root).as_posix())
     raw = inside(folder, 'version.json').read_bytes()
+    key = digest(raw)
+    if expected_hash is not None and key != expected_hash:
+        raise ValueError('Version manifest differs from its recorded checksum')
     data = json.loads(raw)
+    originals = {}
     for name, sha in data['files'].items():
         if not isinstance(sha, str) or not re.fullmatch('[a-f0-9]{64}', sha):
             raise ValueError('Invalid document checksum')
         body = inside(folder, name).read_bytes()
         if digest(body) != sha:
             raise ValueError('Cannot preserve an altered version: ' + name)
+        originals[sha] = body
+    for sha, body in originals.items():
         dest = inside(root, '.recovery/objects/' + sha)
         if dest.exists():
             if digest(dest.read_bytes()) != sha:
                 raise ValueError('Recovery object checksum mismatch')
         else:
             atomic(dest, body)
-    key = digest(raw)
     atomic(inside(root, '.recovery/versions/' + key + '.json'), raw)
     index_path = inside(root, '.recovery/index.json')
     index = json.loads(index_path.read_text()) if index_path.exists() else {}
@@ -75,6 +82,7 @@ def seal(root, folder):
 
 
 def catalogue(root):
+    root = Path(root).resolve()
     items = {}
     base = inside(root, 'applications')
     for p in base.rglob('version.json') if base.exists() else []:
@@ -82,11 +90,67 @@ def catalogue(root):
             rel = p.parent.relative_to(root).as_posix()
             inside(root, rel + '/version.json')
             data = json.loads(p.read_text())
-            if isinstance(data.get('files'), dict):
+            if isinstance(data, dict) and isinstance(data.get('files'), dict):
                 items[digest(rel.encode())[:24]] = (rel, data)
         except (ValueError, OSError):
             continue
     return items
+
+
+def restore_recovery(root, applications):
+    """Rebuild recovery metadata for intact versions with an independent manifest."""
+    index_path = inside(root, '.recovery/index.json')
+    has_index = index_path.is_file()
+    if has_index:
+        try:
+            index = json.loads(index_path.read_text())
+        except (OSError, ValueError):
+            return
+        if not isinstance(index, dict):
+            return
+    else:
+        index = {}
+    recorded = {}
+    for app in applications:
+        folder = app.get('folder')
+        if folder:
+            recorded.setdefault(folder, set()).add(app.get('manifest_hash'))
+    if has_index and recorded.keys() <= index.keys():
+        return
+
+    # Git is optional. A history-only version can use its committed manifest
+    # when a clone has no recovery index. Never authenticate a working copy
+    # solely from checksums stored in that same working copy.
+    git = shutil.which('git') if not has_index else None
+    environment = {key: value for key, value in os.environ.items() if not key.startswith('GIT_')}
+    environment['GIT_NO_LAZY_FETCH'] = '1'
+    for folder, _ in catalogue(root).values():
+        if folder in index:
+            continue
+        hashes = recorded.get(folder)
+        if hashes is not None:
+            if len(hashes) != 1 or None in hashes:
+                continue
+            expected = next(iter(hashes))
+        elif git:
+            try:
+                committed = subprocess.run(
+                    [git, '-C', str(root), 'cat-file', 'blob', f'HEAD:./{folder}/version.json'],
+                    env=environment, capture_output=True, timeout=5,
+                )
+            except (OSError, subprocess.TimeoutExpired):
+                continue
+            if committed.returncode:
+                continue
+            expected = digest(committed.stdout)
+        else:
+            continue
+        try:
+            seal(root, inside(root, folder), expected)
+        except (OSError, ValueError, KeyError, TypeError):
+            # Changed or incomplete versions remain unverified and their files
+            # remain in place for recovery from a known-good copy.
+            continue
 
 
 def rewrite_email(files, mapping=None):

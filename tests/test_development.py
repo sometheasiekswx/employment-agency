@@ -86,6 +86,8 @@ class Development(unittest.TestCase):
 
     @contextmanager
     def launch(self, **extra):
+        with patch.dict(os.environ, {'EA_CONFIG_HOME': str(self.root / 'config')}):
+            Workspace(self.workspace).close()
         with tempfile.TemporaryFile() as log:
             process = subprocess.Popen(self.command(), cwd=self.root, env=self.environment(**extra),
                                        stdout=log, stderr=log,
@@ -175,9 +177,14 @@ class Development(unittest.TestCase):
         self.assert_released()
 
     def test_frontend_failure_returns_its_error_and_releases_backend(self):
+        location = self.root / 'config/location.json'
+        location.parent.mkdir()
+        original = json.dumps({'path': str(self.root / 'remembered')})
+        location.write_text(original)
         with self.launch(EA_FIXTURE_EXIT='1') as process:
             self.assertEqual(process.wait(timeout=10), 7)
         self.assert_released()
+        self.assertEqual(location.read_text(), original)
 
     def test_occupied_ports_leave_the_existing_listener_untouched(self):
         for target in ('backend_port', 'frontend_port'):
@@ -255,10 +262,10 @@ class Development(unittest.TestCase):
 
     def test_cli_uses_remembered_workspace_by_default(self):
         with patch.object(sys, 'argv', ['employment-agency', 'dev']), \
-                patch('employment_agency.cli.selected_workspace', return_value=self.workspace) as selection, \
+                patch('employment_agency.cli.selected_workspace', return_value=(self.workspace, False)) as selection, \
                 patch('employment_agency.development.run', return_value=0) as run, redirect_stderr(io.StringIO()):
             with self.assertRaises(SystemExit) as done:
                 cli.main()
         self.assertEqual(done.exception.code, 0)
         selection.assert_called_once_with(None)
-        run.assert_called_once_with(self.workspace, 8766, 3000)
+        run.assert_called_once_with(self.workspace, 8766, 3000, create=False)

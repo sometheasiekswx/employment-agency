@@ -8,6 +8,25 @@ from employment_agency.master import plain, word_copy
 
 
 class WordCompanion(unittest.TestCase):
+    def test_plain_latex_profile_section_uses_generic_word_conversion(self):
+        source = r"""\documentclass{article}
+\begin{document}
+\section{Profile}
+Built APIs for a regional business.
+\subsection*{Skills}
+\begin{itemize}
+\item Python and SQL
+\end{itemize}
+\end{document}"""
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'resume.docx'
+            word_copy(source, path)
+            paragraphs = [(p.text, p.style.name) for p in Document(path).paragraphs]
+        self.assertEqual(paragraphs, [
+            ('Profile', 'Heading 1'), ('Built APIs for a regional business.', 'Normal'),
+            ('Skills', 'Heading 2'), ('Python and SQL', 'List Bullet'),
+        ])
+
     def test_cover_preserves_prose_without_layout_arguments(self):
         source = r"""\documentclass{article}
 \usepackage{xcolor}\definecolor{navy}{HTML}{17384D}

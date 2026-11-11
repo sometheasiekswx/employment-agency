@@ -21,12 +21,26 @@ def default_workspace():
 
 
 def selected_workspace(explicit=None):
-    if explicit:
-        return Path(explicit).expanduser().resolve()
-    try:
-        return Path(json.loads((config_home() / 'location.json').read_text())['path']).expanduser().resolve()
-    except (OSError, ValueError, KeyError):
-        return default_workspace()
+    """Return the selected path and whether first-run creation is allowed."""
+    if explicit is None:
+        try:
+            explicit = json.loads((config_home() / 'location.json').read_text())['path']
+        except FileNotFoundError:
+            return default_workspace(), True
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            raise ValueError('Could not read the remembered workspace. Specify --workspace to open a folder.') from exc
+        if not isinstance(explicit, str) or not explicit.strip():
+            raise ValueError('Invalid remembered workspace. Specify --workspace to open a folder.')
+    if not str(explicit).strip():
+        raise ValueError('Specify a workspace path.')
+    return Path(explicit).expanduser().resolve(), False
+
+
+def can_create_workspace(path):
+    if not path.exists():
+        return True
+    entries = {child.name for child in path.iterdir()}
+    return not entries or ('.git' in entries and entries <= {'.git', '.gitignore', '.gitattributes', 'README.md'})
 
 
 def remember(path):
@@ -52,7 +66,14 @@ def inside(root, relative):
 DEFAULTS = {'schema': 1, 'label': 'My career workspace', 'master': 'master/main.tex',
             'demo': False, 'master_template': False, 'timezone': 'UTC', 'preferred_locations': [],
             'location_aliases': {}, 'supplementary_skills': [], 'setup_complete': False,
-            'resume_pages': 2, 'cover_letter_pages': 1}
+            'resume_pages': 2, 'cover_letter_pages': 1, 'backup_paths': []}
+
+
+def validate_backup_paths(root, paths):
+    if not isinstance(paths, list) or any(not isinstance(path, str) for path in paths):
+        raise ValueError('Backup paths must be a list of workspace-relative paths')
+    for path in paths:
+        inside(root, path)
 
 
 def settings(root):
@@ -63,6 +84,7 @@ def settings(root):
     if result['schema'] != 1:
         raise ValueError('Unsupported workspace settings version')
     inside(root, result['master'])
+    validate_backup_paths(root, result['backup_paths'])
     time_zone(result['timezone'])
     return result
 
@@ -87,6 +109,7 @@ def configure(root, changes):
         if type(result[key]) is not int or not 1 <= result[key] <= 10:
             raise ValueError('Page limit must be 1–10')
     inside(root, result['master'])
+    validate_backup_paths(root, result['backup_paths'])
     time_zone(result['timezone'])
     atomic(inside(root, 'workspace.json'), encode(result))
     return result

@@ -15,6 +15,7 @@ from . import development
 from .development_gateway import configuration
 from .server import validate_tailscale_access
 from .store import Workspace
+from .workspaces import remember
 
 
 def source_signature():
@@ -61,7 +62,7 @@ def stop_backend(process, stopping=None):
         development.stop_frontend(process)
 
 
-def run(workspace_path, backend_port, frontend_port, gateway_port, origin, user):
+def run(workspace_path, backend_port, frontend_port, gateway_port, origin, user, *, create=True):
     validate_tailscale_access(origin, user)
     frontend, frontend_command = development.frontend_command(frontend_port)
     if len({backend_port, frontend_port, gateway_port}) != 3:
@@ -85,7 +86,7 @@ def run(workspace_path, backend_port, frontend_port, gateway_port, origin, user)
         # into the alternate, empty search path.
         return spawn([sys.executable, '-B', '-X', f'pycache_prefix={directory}/bytecode',
                       '-m', 'employment_agency', '--workspace', str(path),
-                      'serve', '--port', str(backend_port), '--frontend-origin', local_origin,
+                      'serve', '--port', str(backend_port), '--frontend-origin', local_origin, '--skip-remember',
                       '--tailscale-origin', origin, '--tailscale-user', user], root, environment)
 
     with tempfile.TemporaryDirectory(prefix='employment-agency-live-') as directory:
@@ -99,7 +100,7 @@ def run(workspace_path, backend_port, frontend_port, gateway_port, origin, user)
                              + validation.stderr.strip())
         # Detect lock/schema errors before starting any child or changing remembered selection.
         try:
-            store = Workspace(workspace_path)
+            store = Workspace(workspace_path, create=create)
         except ValueError as exc:
             if str(exc) == 'Workspace is already open in another process':
                 raise ValueError(f'{exc}. Stop the existing app before starting live development.') from exc
@@ -136,9 +137,7 @@ def run(workspace_path, backend_port, frontend_port, gateway_port, origin, user)
                  'EA_TAILSCALE_ORIGIN': origin})
             gateway = spawn([caddy, 'run', '--adapter', 'caddyfile', '--config', str(config)],
                             root, environment)
-            print(f'Private live app: {origin}\nLocal live app: {local_origin}\n'
-                  'Frontend saves refresh automatically. Python saves reload the backend when idle.',
-                  flush=True)
+            ready = False
             changed_at = 0
             backend_ready = True
             waiting_for_work = False
@@ -154,6 +153,12 @@ def run(workspace_path, backend_port, frontend_port, gateway_port, origin, user)
                     print('Python reload failed. Correct the source and save to retry.',
                           file=sys.stderr, flush=True)
                     backend = None
+                if not ready and development.listening(frontend_port) and development.listening(gateway_port):
+                    remember(backend_info(backend_port)['workspace'])
+                    ready = True
+                    print(f'Private live app: {origin}\nLocal live app: {local_origin}\n'
+                          'Frontend saves refresh automatically. Python saves reload the backend when idle.',
+                          flush=True)
                 signature = source_signature()
                 if signature != observed:
                     observed, changed_at = signature, time.monotonic()

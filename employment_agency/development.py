@@ -47,6 +47,12 @@ def check_ports(backend, frontend):
                                  'or choose --port and --frontend-port.') from exc
 
 
+def listening(port):
+    with socket.socket() as probe:
+        probe.settimeout(.2)
+        return probe.connect_ex(('127.0.0.1', port)) == 0
+
+
 def stop_frontend(process):
     """Next forks a worker; stop the owned group, including on parent failure."""
     if os.name == 'nt':
@@ -83,7 +89,7 @@ def stop_frontend(process):
         process.wait(timeout=5)
 
 
-def run(workspace_path, backend_port=8766, frontend_port=3000):
+def run(workspace_path, backend_port=8766, frontend_port=3000, *, create=True):
     frontend, command = frontend_command(frontend_port)
     check_ports(backend_port, frontend_port)
     workspace = None
@@ -94,7 +100,7 @@ def run(workspace_path, backend_port=8766, frontend_port=3000):
     previous_signals = {}
     try:
         try:
-            workspace = Workspace(workspace_path)
+            workspace = Workspace(workspace_path, create=create)
         except ValueError as exc:
             if str(exc) == 'Workspace is already open in another process':
                 raise ValueError(f'{exc}. Stop the existing app with Ctrl+C, then run dev again.') from exc
@@ -109,20 +115,21 @@ def run(workspace_path, backend_port=8766, frontend_port=3000):
         for name in signals:
             previous_signals[name] = signal.signal(name, lambda *_: stopping.set())
         thread = threading.Thread(target=http.serve_forever, kwargs={'poll_interval': .1}, daemon=True)
-        thread.start()
         options = {'creationflags': subprocess.CREATE_NEW_PROCESS_GROUP} if os.name == 'nt' else {'start_new_session': True}
         process = subprocess.Popen(command, cwd=frontend,
             env={**os.environ, 'NODE_ENV': 'development', 'EA_BACKEND_URL': f'http://127.0.0.1:{backend_port}'},
             **options)
-        remember(workspace.path)
-        print(f'Development app: {origin}\nWorkspace: {workspace.path}\n'
-              'Save frontend files for live updates. Ctrl+C stops both servers.', flush=True)
         while not stopping.wait(.1):
             code = process.poll()
             if code is not None:
                 print('Next.js stopped; stopping the Python backend.', file=sys.stderr, flush=True)
                 return code if code > 0 else 1
-            if not thread.is_alive():
+            if thread.ident is None and listening(frontend_port):
+                remember(workspace.path)
+                thread.start()
+                print(f'Development app: {origin}\nWorkspace: {workspace.path}\n'
+                      'Save frontend files for live updates. Ctrl+C stops both servers.', flush=True)
+            if thread.ident is not None and not thread.is_alive():
                 print('Python backend stopped; stopping Next.js.', file=sys.stderr, flush=True)
                 return 1
         return 0

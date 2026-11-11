@@ -3,16 +3,21 @@ import io
 import json
 import os
 from pathlib import Path
+import shutil
+import socket
+import subprocess
+import sys
 import tempfile
 import unittest
+import zipfile
 from unittest.mock import patch
 import threading
 import urllib.request
 import urllib.error
-from employment_agency.store import Workspace, restore, digest
+from employment_agency.store import Workspace, restore, digest, encode
 from employment_agency.service import Service
 from employment_agency.workspaces import configure, inside, selected_workspace, default_workspace
-from employment_agency import packages, master
+from employment_agency import history, packages, master
 from employment_agency.server import server
 import test_workflow
 
@@ -109,15 +114,135 @@ class WorkspaceContracts(unittest.TestCase):
         (self.w.path / 'master/source.txt').write_text('Personal source')
         (self.w.path / 'personal-notes').mkdir()
         (self.w.path / 'personal-notes/extra.md').write_text('Additional experience')
+        configure(self.w.path, {'backup_paths': ['personal-notes']})
+        (self.w.path / '.npmrc').write_text('project configuration')
+        (self.w.path / 'checksums.json').write_text('{}')
         archive = self.w.export(self.root / 'complete.zip')
+        with zipfile.ZipFile(archive) as exported:
+            self.assertNotIn('.npmrc', exported.namelist())
+            self.assertEqual(exported.namelist().count('checksums.json'), 1)
         dest = self.root / 'copy'
         restore(archive, dest)
         restored = Workspace(dest)
         try:
             self.assertEqual(restored.read()['consents'], {})
+            self.assertNotEqual(restored.read()['workspace_id'], self.w.read()['workspace_id'])
             self.assertEqual((dest / 'master/source.txt').read_text(), 'Personal source')
             self.assertEqual((dest / 'personal-notes/extra.md').read_text(), 'Additional experience')
             self.assertEqual(packages.changed(dest, app), [])
+        finally:
+            restored.close()
+
+    def test_backup_includes_configured_master_and_excludes_nested_machine_settings(self):
+        path = self.root / 'alternate'
+        nested = path / 'docs' / 'machine'
+        with patch.dict(os.environ, {'EA_CONFIG_HOME': str(nested)}):
+            workspace = Workspace(path)
+        try:
+            configure(path, {'master': 'custom-source.txt', 'backup_paths': ['docs/machine']})
+            (path / 'custom-source.txt').write_text('Workspace source')
+            with workspace.edit() as state:
+                state['consents']['agent'] = {'purpose': 'select_application_facts'}
+            self.assertTrue(workspace.permissions_path().is_file())
+            archive = workspace.export(self.root / 'scoped.zip')
+            with zipfile.ZipFile(archive) as exported:
+                self.assertEqual(exported.read('custom-source.txt'), b'Workspace source')
+                self.assertFalse(any(name.startswith('docs/machine/') for name in exported.namelist()))
+        finally:
+            workspace.close()
+
+    def test_replacement_at_same_path_requires_its_own_consent(self):
+        with self.w.edit() as state:
+            state['consents']['agent'] = {'purpose': 'select_application_facts'}
+        path = self.w.path
+        original_grant_path = self.w.permissions_path()
+        self.w.close()
+        reopened = Workspace(path, create=False)
+        try:
+            self.assertIn('agent', reopened.read()['consents'])
+        finally:
+            reopened.close()
+        replacement = Workspace(self.root / 'replacement')
+        replacement.close()
+        shutil.copyfile(replacement.path / 'state.json', path / 'state.json')
+        self.w = Workspace(path, create=False)
+        self.assertEqual(self.w.read()['consents'], {})
+        self.assertNotEqual(self.w.permissions_path(), original_grant_path)
+
+    def test_legacy_path_only_consent_cannot_authorize_existing_records(self):
+        path = self.w.path
+        state = self.w.read()
+        state.pop('workspace_id')
+        self.w.close()
+        (path / 'state.json').write_bytes(encode(state))
+        legacy = self.root / 'config' / 'permissions' / (digest(str(path).encode()) + '.json')
+        legacy.parent.mkdir(parents=True)
+        legacy.write_bytes(encode({'agent': {'purpose': 'select_application_facts'}}))
+        self.w = Workspace(path, create=False)
+        self.assertEqual(self.w.read()['consents'], {})
+        self.assertEqual(len(self.w.read()['workspace_id']), 32)
+
+    def test_failed_start_preserves_remembered_folder_and_moved_path_is_not_created(self):
+        location = self.root / 'config/location.json'
+        location.parent.mkdir()
+        location.write_bytes(encode({'path': str(self.w.path)}))
+        before = location.read_bytes()
+        alternate = Workspace(self.root / 'alternate')
+        alternate.close()
+        command = [sys.executable, '-m', 'employment_agency']
+        with socket.socket() as listener:
+            listener.bind(('127.0.0.1', 0))
+            listener.listen()
+            port = str(listener.getsockname()[1])
+            failed = subprocess.run([*command, '--workspace', str(alternate.path), 'serve', '--port', port],
+                                    capture_output=True, text=True, timeout=10)
+        self.assertEqual(failed.returncode, 2)
+        self.assertIn('Application not started', failed.stderr)
+        self.assertEqual(location.read_bytes(), before)
+        self.w.close()
+        old = self.w.path
+        old.rename(self.root / 'moved')
+        failed = subprocess.run([*command, 'state'], capture_output=True, text=True, timeout=10)
+        self.assertEqual(failed.returncode, 2)
+        self.assertIn('Workspace state is missing', failed.stderr)
+        self.assertFalse(old.exists())
+
+    @unittest.skipUnless(shutil.which('git'), 'Git clone recovery')
+    def test_git_clone_rebuilds_only_verified_document_recovery(self):
+        _, profile, job = self.seed()
+        application = self.s.action('local-package', {'job_id': job['id'], 'profile_id': profile['id']})
+        original = packages.path_for(self.w.path, application, 'resume.pdf').read_bytes()
+        files = {role: packages.path_for(self.w.path, application, role).read_bytes()
+                 for role in application['documents']}
+        standalone = packages.publish(self.w.path, files, {**job, 'title': 'Historical role'}, self.w.read()['identity'])
+        self.w.close()
+        root = self.w.path
+        subprocess.run(['git', 'init', '-q', str(root)], check=True)
+        git = ['git', '-C', str(root), '-c', 'core.autocrlf=false']
+        subprocess.run([*git, 'add', 'state.json', 'applications'], check=True)
+        subprocess.run([*git, '-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.test',
+                        'commit', '-qm', 'Fictional workspace'], check=True)
+        dest = self.root / 'cloned repo'
+        subprocess.run(['git', '-c', 'core.autocrlf=false', 'clone', '-q', str(root), str(dest)], check=True)
+        self.assertFalse((dest / '.recovery').exists())
+        restored = Workspace(dest, create=False)
+        try:
+            self.assertEqual(packages.path_for(dest, application, 'resume.pdf').read_bytes(), original)
+            for record in (application, standalone):
+                key = digest(record['folder'].encode())[:24]
+                self.assertEqual(history.verified_file(dest, key, record['documents']['resume.pdf']).read_bytes(), original)
+        finally:
+            restored.close()
+        shutil.rmtree(dest / '.recovery')
+        manifest = dest / standalone['folder'] / 'version.json'
+        manifest.write_bytes(manifest.read_bytes() + b'\n')
+        edited = dest / application['folder'] / application['documents']['resume.pdf']
+        edited.write_bytes(original + b'changed')
+        restored = Workspace(dest, create=False)
+        try:
+            self.assertTrue(packages.changed(dest, application))
+            with self.assertRaises(ValueError):
+                history.verified_file(dest, digest(standalone['folder'].encode())[:24], standalone['documents']['resume.pdf'])
         finally:
             restored.close()
 
@@ -134,8 +259,20 @@ class WorkspaceContracts(unittest.TestCase):
             req = urllib.request.Request(url + '/api/' + action, data=json.dumps(data).encode(), headers={'Origin': url, 'Content-Type': 'application/json', 'X-Workspace-Token': token})
             return json.load(urllib.request.urlopen(req))
         try:
-            token = json.load(urllib.request.urlopen(url + '/api/state'))['token']
-            request('workspace-create', {'path': str(self.root / 'second')}, token)
+            initial = json.load(urllib.request.urlopen(url + '/api/state'))
+            token = initial['token']
+            alternate = self.root / 'second'
+            alternate.mkdir()
+            (alternate / '.git').mkdir()
+            with patch('employment_agency.server.remember', side_effect=OSError('Fixture location failure')):
+                with self.assertRaises(urllib.error.HTTPError) as error:
+                    request('workspace-create', {'path': str(alternate)}, token)
+            self.assertEqual(error.exception.code, 400)
+            active = json.load(urllib.request.urlopen(url + '/api/state'))
+            self.assertEqual(active['state']['_workspace']['path'], initial['state']['_workspace']['path'])
+            self.assertEqual(active['token'], token)
+            request('identity', {'name': 'Original workspace'}, token)
+            request('workspace-open', {'path': str(alternate)}, token)
             self.assertEqual(
                 json.loads((self.root / 'config/location.json').read_text())['path'],
                 str((self.root / 'second').resolve()),

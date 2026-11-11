@@ -53,15 +53,23 @@ def word_copy(tex, dest):
     sec.top_margin=sec.bottom_margin=sec.left_margin=sec.right_margin=Mm(17)
     d.styles['Normal'].font.name='Latin Modern Roman'; d.styles['Normal'].font.size=Pt(11)
     d.styles['Normal'].paragraph_format.space_after=Pt(2)
-    if r'\section{Profile}' not in tex:
-        # The supported letter template uses one semantic block per line.
-        # Generic TeX extraction retains layout arguments such as "navy" and
-        # "12pt". Read the body and remove its formatting before copying prose.
+    fields = None
+    if r'\section{Profile}' in tex:
+        try:
+            fields = header_fields(tex)
+        except (IndexError, ValueError):
+            pass
+    if fields is None:
+        # Read semantic blocks from the document body and remove formatting.
         body = tex.split(r'\begin{document}', 1)[1].split(r'\end{document}', 1)[0]
         literal_braces = {r'\{': '{', r'\}': '}', r'\\': r'\\'}
         for line in body.splitlines():
             line = re.sub(r'\\(?:begin|end)\{[A-Za-z*]+\}', '', line).strip()
             if not line:
+                continue
+            heading = re.fullmatch(r'\\(subsection|section)\*?\{(.+)\}', line)
+            if heading:
+                d.add_heading(plain(heading[2]), level=1 if heading[1] == 'section' else 2)
                 continue
             line = re.sub(r'\\fontsize\s*\{[^{}]*\}\s*\{[^{}]*\}', '', line)
             line = re.sub(r'\\(?:color|vspace)\*?\{[^{}]*\}', '', line)
@@ -76,7 +84,6 @@ def word_copy(tex, dest):
         d.save(dest)
         return
     body=tex.split(r'\section{Profile}',1)[1]
-    fields = header_fields(tex)
     d.add_heading(fields['name'], 0)
     for line in [fields['headline'], fields['location'], fields['email']+' | '+fields['phone']]:
         d.add_paragraph(line)

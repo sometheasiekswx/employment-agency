@@ -29,7 +29,10 @@ def verified_file(root, key, name):
     if not item or name not in item[1]['files']:
         raise ValueError('Historical document not found')
     relative, record = item
-    index = json.loads(inside(root, '.recovery/index.json').read_text())
+    index_path = inside(root, '.recovery/index.json')
+    if not index_path.is_file():
+        raise ValueError('No verified recovery data for this version. Restore its original files.')
+    index = json.loads(index_path.read_text())
     baseline = index.get(relative)
     if not baseline or digest(inside(root, relative + '/version.json').read_bytes()) != baseline:
         raise ValueError('Version manifest changed; recovery review is required')

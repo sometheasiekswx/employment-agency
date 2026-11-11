@@ -40,6 +40,7 @@ Use the [README startup command](README.md#start-the-app) on macOS or Linux. In 
 
 ```powershell
 $env:EA_CONFIG_HOME = '.dev-config'
+.\.venv\Scripts\python.exe -m employment_agency --workspace workspace-dev init
 .\.venv\Scripts\python.exe -m employment_agency --workspace workspace-dev dev
 ```
 

@@ -59,7 +59,7 @@ function WorkspaceLocation() {
         </button>
       </div>
       <p className="muted">
-        Choose an existing workspace, or an empty folder to start a new one.
+        Open an existing workspace or start one in an empty folder or a new Git repository.
         Your files stay on this computer.
       </p>
     </>

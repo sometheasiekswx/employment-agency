@@ -4,10 +4,10 @@ import json
 import sys
 from .store import Workspace, restore, encode
 from .service import Service
-from .workspaces import selected_workspace, remember
+from .workspaces import selected_workspace, remember, settings
 
 
-def main():
+def main(argv=None):
     p = argparse.ArgumentParser(
         description="Private career workspace; external applications require explicit approval"
     )
@@ -20,6 +20,7 @@ def main():
     serve.add_argument('--frontend-origin', help='Development only: exact http://127.0.0.1:PORT origin for a Next.js dev proxy')
     serve.add_argument('--tailscale-origin', help='Private Serve access: exact https://MACHINE.TAILNET.ts.net origin')
     serve.add_argument('--tailscale-user', help='Private Serve access: exact Tailscale owner login; requires --tailscale-origin')
+    serve.add_argument('--skip-remember', action='store_true', help=argparse.SUPPRESS)
     dev = sub.add_parser('dev', help='Run Python and the live Next.js frontend together; Ctrl+C stops both')
     dev.add_argument('--port', type=int, default=8766, help='Python backend port (default: 8766)')
     dev.add_argument('--frontend-port', type=int, default=3000, help='Live frontend port (default: 3000)')
@@ -35,6 +36,7 @@ def main():
     gmail.add_argument('client_json')
     sub.add_parser('disconnect-gmail', help='Remove local Gmail credentials from macOS Keychain')
     sub.add_parser('apply-doctor', help='Check optional local application dependencies without contacting employers')
+    sub.add_parser('init', help='Initialize a career workspace at an explicit --workspace path')
     sub.add_parser("state")
     act = sub.add_parser("action")
     act.add_argument("operation")
@@ -48,7 +50,7 @@ def main():
     migration.add_argument('source')
     migration.add_argument('destination')
     migration.add_argument('--settings', help='JSON workspace settings file')
-    a = p.parse_args()
+    a = p.parse_args(argv)
     if a.command in ('serve', 'dev'):
         from .server import validate_tailscale_access
         try:
@@ -60,11 +62,12 @@ def main():
     if a.command == 'dev':
         from .development import run
         try:
+            path, create = selected_workspace(a.workspace)
             if a.tailscale_origin:
                 from .live_development import run as run_private
-                p.exit(run_private(selected_workspace(a.workspace), a.port, a.frontend_port,
-                                   a.gateway_port, a.tailscale_origin, a.tailscale_user))
-            p.exit(run(selected_workspace(a.workspace), a.port, a.frontend_port))
+                p.exit(run_private(path, a.port, a.frontend_port, a.gateway_port,
+                                   a.tailscale_origin, a.tailscale_user, create=create))
+            p.exit(run(path, a.port, a.frontend_port, create=create))
         except (ValueError, OSError) as exc:
             p.exit(2, f'Development app not started: {exc}\n')
     if a.command in ('connect-gmail', 'disconnect-gmail', 'apply-doctor'):
@@ -102,7 +105,19 @@ def main():
     if a.command == "restore":
         restore(a.archive, a.destination)
         return
-    w = Workspace(selected_workspace(a.workspace))
+    if a.command == 'init' and not a.workspace:
+        p.error('init requires --workspace before the command')
+    try:
+        path, create = selected_workspace(a.workspace)
+        if a.command == 'init':
+            settings(path)
+        w = Workspace(path, create=create or a.command == 'init')
+    except (ValueError, OSError) as exc:
+        p.exit(2, f'Workspace not opened: {exc}\n')
+    if a.command == 'init':
+        w.close()
+        print(f'Workspace ready: {w.path}')
+        return
     try:
         service = Service(w)
         if a.command == "serve":
@@ -110,16 +125,20 @@ def main():
                 raise ValueError("Migrate the older workspace to a new folder with migrate-legacy before serving it")
             from .server import server
 
-            remember(w.path)
-            http = server(service, a.port, frontend_origin=a.frontend_origin,
-                          tailscale_origin=a.tailscale_origin, tailscale_user=a.tailscale_user)
-            print(f"Employment Agency: http://127.0.0.1:{http.server_port}", flush=True)
             try:
-                http.serve_forever()
-            except KeyboardInterrupt:
-                pass
-            finally:
-                http.server_close()
+                http = server(service, a.port, frontend_origin=a.frontend_origin,
+                              tailscale_origin=a.tailscale_origin, tailscale_user=a.tailscale_user)
+                try:
+                    if not a.skip_remember:
+                        remember(w.path)
+                    print(f"Employment Agency: http://127.0.0.1:{http.server_port}", flush=True)
+                    http.serve_forever()
+                except KeyboardInterrupt:
+                    pass
+                finally:
+                    http.server_close()
+            except OSError as exc:
+                p.exit(2, f'Application not started: {exc}\n')
         elif a.command == "state":
             sys.stdout.buffer.write(encode(service.state()))
         elif a.command == "export":

@@ -94,6 +94,7 @@ The initial build gives the Python package its browser assets. On Windows, use `
 ### Start the app
 
 ```sh
+EA_CONFIG_HOME=.dev-config .venv/bin/python -m employment_agency --workspace workspace-dev init
 EA_CONFIG_HOME=.dev-config .venv/bin/python -m employment_agency --workspace workspace-dev dev
 ```
 

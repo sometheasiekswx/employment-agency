@@ -198,6 +198,7 @@ class Service:
 
     def state(self):
         state = self.w.read()
+        state.pop('workspace_id', None)
         submitted = submitted_job_ids(state)
         rejected = legacy_rejections(state)
         skills = matching.skills_by_key(matching.available(state['facts']))

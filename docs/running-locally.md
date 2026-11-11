@@ -44,7 +44,11 @@ The first run opens the remembered workspace, or a default new workspace when no
 .venv/bin/python -m employment_agency --workspace "/absolute/path/to/private-workspace" serve
 ```
 
-Use the exact existing data path. A new or mistyped folder can produce a new empty workspace. If the queue is empty, inspect Settings → Workspace location before generating anything. Stop the app and reopen the correct location; do not delete either folder.
+If an explicit or remembered workspace is missing, startup asks for an existing path. To create a workspace in a plain folder or Git repository, run the following once. Settings → Open Folder can also initialize an empty folder or new Git repository.
+
+```sh
+.venv/bin/python -m employment_agency --workspace "/absolute/path/to/new-workspace" init
+```
 
 ## Existing environments and upgrades
 
@@ -65,7 +69,9 @@ Before opening real data with a new release, stop the old app, export with the o
 .venv-next/bin/python -m employment_agency --workspace "/absolute/path/to/restored-copy" serve
 ```
 
-Export refuses an existing archive path; restore refuses an existing destination. Backups contain private data; store them outside the public software checkout and keep an off-device copy. Permissions must be regranted after restore. A workspace's `workspace.lock.json` is a human-maintained installation record, not an automatic version manager. Update it only after deliberately accepting an upgrade. Versions 0.2 and 0.3 share workspace schema 2.
+Export covers the workspace's career data directories, settings, root Markdown files, configured master, and verified recovery copies. Set `backup_paths` in `workspace.json` to include additional workspace-relative files or folders. Machine settings and hidden project configuration stay outside the archive. Export requires a new archive path and restore requires a new destination. Store backups outside the public software checkout. Restoring a backup or upgrading a workspace with legacy provider grants requires fresh consent.
+
+When a Git clone lacks recovery metadata, opening it can verify recorded documents against their application manifest hashes. History-only documents can use the manifest committed in Git. Keep a portable backup for original bytes or versions that Git did not preserve. A workspace's `workspace.lock.json` records the accepted installation. Update it after deliberately accepting an upgrade.
 
 Rebuilding the checkout does not update a running process or an installed wheel. If an installed app still shows older behavior, stop it and install the tested candidate with the interpreter used to launch it. For the separate environment above, use `.venv-next/bin/python -m pip install --force-reinstall /absolute/path/to/candidate.whl`, then launch with `.venv-next/bin/python`. Record the package version, source revision and wheel SHA-256 in the workspace lock; local builds can differ even when their base release version is the same. Keep the previous environment and wheel until the restored copy and the real workspace have passed verification.
 

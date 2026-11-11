@@ -59,13 +59,13 @@ Vercel bootstraps Python dependencies before its configured frontend build. `[to
 
 ## Local startup and workspace selection
 
-The CLI selects an explicit `--workspace`, otherwise the remembered location in `$EA_CONFIG_HOME/location.json` (default `~/.config/employment-agency`), otherwise a default workspace. A source checkout normally defaults to its ignored `workspace/`; an installed package outside a checkout defaults to `~/EmploymentAgency/workspace`. A missing explicit or remembered directory is currently created as a new workspace: check the selected location if data appears absent. `workspace.lock.json` records a user's accepted installation; the CLI does not automatically enforce or update it.
+The CLI selects an explicit `--workspace`, otherwise the remembered location in `$EA_CONFIG_HOME/location.json` (default `~/.config/employment-agency`), otherwise a default workspace. A source checkout normally defaults to its ignored `workspace/`. An installed package outside a checkout defaults to `~/EmploymentAgency/workspace`. Use `--workspace PATH init` to create a workspace at an explicit path. Startup remembers the selected folder after binding its port. `workspace.lock.json` records a user's accepted installation.
 
 Opening a workspace acquires an operating-system advisory lock in `.lock`. Another process cannot open that workspace through this application until the first closes. A thread lock serializes file-state edits inside the process. Startup initializes a new schema-2 state when missing and pauses interrupted runs. It does not accept unknown schemas; serving schema 1 requires explicit migration first. Opening is therefore a write operation, which is why upgrade checks should use a restored copy.
 
-The server binds only `127.0.0.1`. A request gate coordinates operations with workspace switching. Switching is blocked during an active run. A replacement workspace is opened and validated before the previous one is closed; the remembered location is updated and the request token rotated. A native folder dialog runs without holding the request gate, so state reads remain available. Only one chooser may run; its result is rejected if another switch occurred while it was open.
+The server binds only `127.0.0.1`. A request gate coordinates operations with workspace switching. Switching is blocked during an active run. The server validates a replacement and saves the selection before changing the active workspace and rotating the token. If saving the selection fails, the previous workspace and token stay active. A native folder dialog runs without holding the request gate, so state reads remain available. The server accepts one chooser at a time and rejects a result if a workspace switch occurred while it was open.
 
-The UI displays location and Save. Open Folder asks the operating system to select a folder: macOS AppleScript, Windows PowerShell/Forms, Linux Zenity or KDialog. Cancellation keeps the selection. Existing workspace folders are opened; an empty folder may become a new workspace. Arbitrary nonempty folders without workspace state are rejected by the picker flow.
+Open Folder uses the native chooser on macOS, Windows, or Linux. Cancellation keeps the selection. Select an existing workspace, an empty folder, or a new Git repository. Use `init` when deliberately initializing a folder that already holds other files.
 
 ## Browser state and API contracts
 
@@ -114,9 +114,9 @@ These are logical relationships in JSON and files, not database-enforced foreign
 | `.recovery/objects/{sha256}` | Content-addressed verified original bytes |
 | `.recovery/versions/`, `.recovery/index.json` | Verified manifests and folder-to-manifest associations |
 | `.runtime/` | Disposable exports and build/preview artifacts; excluded from backups/Git |
-| External configuration directory | Remembered workspace and path-keyed provider permissions; credentials remain in launcher environment |
+| External configuration directory | Remembered workspace and provider permissions keyed to workspace ID and local path |
 
-Schema-2 `state.json` retains an empty consent field; live consent is read from external permission files. A transferred workspace does not carry transferable authority. API-only fields such as `_workspace`, `_master`, fit summaries and file-change warnings are derived rather than independently persisted.
+Schema-2 `state.json` retains a workspace ID and an empty consent field. First open assigns an ID to older workspaces. Legacy path-only grants require new consent. Restore assigns a new ID to local copies. API-only fields such as `_workspace`, `_master`, fit summaries and file-change warnings are derived on read.
 
 Individual file writes use a temporary file in the same directory, flush/fsync, then `os.replace`. Document publication stages a complete folder and renames it into place, then seals recovery bytes and appends application state. **The entire operation is not a database transaction across all files.** A crash between stages can leave a version discoverable in history without its queue record. Recovery manifests, original bytes and explicit adoption preserve inspectable evidence; off-device backups are still required. External editors do not honor the application's locks.
 
@@ -209,7 +209,7 @@ Both adapters restrict assets to the packaged web root and use CSP hashes for th
 
 ## Backup, migration and operation
 
-Export writes a new ZIP with workspace files and SHA-256 manifest, excluding executable/runtime/secret-like material and clearing transferable consent. Restore rejects an existing destination, unsafe paths, duplicate paths, unsupported schema and checksum failures before publishing a restored directory. It writes payloads as regular files rather than recreating archive symlinks. Legacy migration copies into a new workspace, retains decision/source history and reports uncertainty; it does not delete the source.
+Export writes a new ZIP containing workspace data and a SHA-256 manifest. Use `backup_paths` for additional workspace-relative files. Both export and restore enforce archive path, duplicate, and size checks. Restore also checks the schema and file digests before publishing regular files into a new directory. On open, missing recovery data can be rebuilt from intact versions that match application manifest hashes or committed Git manifests. Legacy migration copies source records into a new workspace and reports uncertainty.
 
 For upgrades: stop the old server, export using the accepted installation, restore to a new folder, install the new build in a separate environment, verify the copy and deliberately switch. Preserve the previous environment and backup until accepted. Do not regenerate submitted documents merely to test an upgrade. See [local runbook](running-locally.md).
 
