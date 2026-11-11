@@ -28,7 +28,7 @@ const policy = [
   `script-src 'self' ${hash}`,
   "style-src 'self'",
   "font-src 'self'",
-  "connect-src 'self'",
+  "connect-src 'self' https://api.smartrecruiters.com",
   "img-src 'self' blob: data:",
   "frame-src 'self' blob:",
   "object-src 'none'",

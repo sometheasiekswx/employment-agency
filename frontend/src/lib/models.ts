@@ -65,6 +65,7 @@ export interface Job {
   city?: string;
   url?: string;
   careers_url?: string;
+  source?: string;
   email?: string;
   description?: string;
   requirements?: string[];
@@ -103,6 +104,7 @@ export interface Application {
   title: string;
   employer: string;
   status: "draft" | "reviewed" | "submitted" | "rejected";
+  demo_draft?: boolean;
   created_at?: string;
   reviewed_at?: string;
   submitted_at?: string;

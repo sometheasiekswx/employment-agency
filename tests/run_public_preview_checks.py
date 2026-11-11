@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import sys
 import threading
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -38,13 +39,12 @@ if __name__ == '__main__':
     thread.start()
     try:
         environment = {
-            **os.environ,
+            **os.environ, 'PYTHON_EXECUTABLE': sys.executable,
             'TEST_URL': f'http://127.0.0.1:{server.server_port}',
         }
-        subprocess.run(
-            ['node', str(ROOT / 'tests/public-preview-browser.cjs')],
-            cwd=ROOT, env=environment, check=True,
-        )
+        for script in ['public-preview-browser.cjs', 'public-demo-drafts-browser.cjs']:
+            subprocess.run(['node', str(ROOT / 'tests' / script)],
+                           cwd=ROOT, env=environment, check=True)
     finally:
         server.shutdown()
         server.server_close()

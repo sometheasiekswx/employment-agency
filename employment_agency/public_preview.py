@@ -1,23 +1,68 @@
-"""Build a public, fictional snapshot through shared application services.
+"""Build the public snapshot through shared application services.
 
-No workspace input is accepted: exports always start with an empty temporary
-workspace and the fixed fictional seed also used by browser acceptance.
+Exports always start with an empty temporary workspace, fictional career data
+and the reviewed employer-listing snapshot. No private workspace is opened.
 """
 from pathlib import Path
 import argparse
 import hashlib
 import json
 import os
+import re
 import shutil
+import sys
 import tempfile
 
 from .demo import DemoWorkspace
 from .service import Service
-from . import history, packages
+from . import history, matching, packages
+from .store import uid
 from .workspaces import configure
 
 
-def seed(service):
+SAMPLE_LOCATIONS = ('Singapore', 'Melbourne', 'Berlin', 'Toronto')
+SHOWCASE_LOCATIONS = ('Singapore', 'Melbourne', 'New York', 'London', 'China', 'Berlin', 'Toronto')
+PUBLIC_MASTER_PATH = 'demo/master-resume.pdf'
+
+
+def publish_resume_profile(state, resume):
+    """Use only statements visible in the approved redacted master."""
+    lines = [line.strip() for line in resume['text'].splitlines()]
+
+    def section(start, end):
+        try:
+            first = lines.index(start) + 1
+            return ' '.join(lines[first:lines.index(end, first)]).strip()
+        except ValueError:
+            return ''
+
+    summary = section('Profile', 'Professional Experience')
+    skills = section('Key Skills', 'Education and Recognition')
+    skills = re.sub(r'\b(?:Technical|Management):\s*', ',', skills)
+    entries = [('summary', summary)]
+    entries.extend(('skill', item.strip()) for item in skills.split(','))
+    facts = []
+    for category, text in dict.fromkeys(entries):
+        if not text:
+            continue
+        identifier = hashlib.sha256(f'{category}:{text}'.encode()).hexdigest()[:32]
+        facts.append({'id': identifier, 'text': text, 'category': category,
+                      'confirmed': True, 'source': {'name': 'Public master résumé'}})
+    state['identity'] = {'name': resume['name']}
+    state['facts'] = facts
+    state['_workspace'].update(
+        path='public-showcase', label='Public demo', master=PUBLIC_MASTER_PATH,
+    )
+    state['_master'] = {'path': PUBLIC_MASTER_PATH, 'exists': True, 'changed': False}
+    skills_by_key = matching.skills_by_key(facts)
+    for job in state['jobs']:
+        job['matched_skill_evidence'] = matching.skill_evidence(job.get('requirements'), skills_by_key)
+    rankings = {profile['id']: matching.ranked(state['jobs'], profile, facts)
+                for profile in state['profiles']}
+    return {'state': state, 'rankings': rankings}
+
+
+def seed(service, locations=SAMPLE_LOCATIONS):
     service.action('identity', {'name': 'Alex Morgan', 'email': 'alex@example.test',
                                'location': 'Melbourne, Australia · Fictional sample profile', 'languages': 'English'})
     for skill in ('Python', 'AWS', 'Terraform', 'PostgreSQL', 'React', 'TypeScript', 'CI/CD'):
@@ -26,7 +71,7 @@ def seed(service):
                                       'dates': '2022–2026'})
         service.action('confirm', {'id': fact['id']})
     profile = service.action('profile', {'name': 'Cloud & software', 'roles': ['Engineer'],
-        'locations': ['Singapore', 'Melbourne', 'Berlin', 'Toronto'], 'hard': ['locations'],
+        'locations': list(locations), 'hard': ['locations'],
         'include_unknown': True, 'include_stretch': True, 'template': 'plain'})
     rows = [
         ('Cloud Software Engineer', 'Emberlane Systems', 'Singapore', 'Hybrid', 'SGD', 100000, 130000, ['Python', 'AWS', 'Terraform', 'Kubernetes']),
@@ -53,6 +98,42 @@ def seed(service):
         if index == 5:
             service.action('review', {'id': app['id'], 'status': 'submitted', 'comment': 'Fictional submission record for UI verification. No employer was contacted.'})
     service.action('save-job', {'id': jobs[4]['id'], 'saved': True})
+    return profile
+
+
+def seed_showcase(service, listing_data):
+    profile = seed(service, SHOWCASE_LOCATIONS)
+    for job in listing_data['jobs']:
+        service.action('job', job)
+    examples = (
+        ('Site Reliability Engineer', 'Dovetail Cloud', 'Berlin', 'saved', 'AWS'),
+        ('Software Test Engineer', 'Pineframe Tools', 'Toronto', 'saved', 'Python'),
+        ('Data Platform Engineer', 'Juniper Bridge', 'Berlin', 'active', 'PostgreSQL'),
+        ('Frontend Engineer', 'Lumen Field Software', 'Toronto', 'active', 'React'),
+        ('Cloud Operations Engineer', 'Kestrel Stack', 'Berlin', 'submitted', 'Terraform'),
+        ('Application Engineer', 'Blue Finch Labs', 'Toronto', 'submitted', 'TypeScript'),
+        ('Integration Engineer', 'Arborline Systems', 'Berlin', 'removed', 'Python'),
+        ('Release Engineer', 'Brookstone Digital', 'Toronto', 'removed', 'CI/CD'),
+    )
+    for title, employer, city, status, skill in examples:
+        job = service.action('job', {
+            'title': title, 'employer': employer, 'location': city,
+            'description': f'Fictional example. Help an engineering team build and support services using {skill}.',
+            'availability': 'Illustrative example', 'requirements': [skill],
+        })
+        if status == 'saved':
+            service.action('save-job', {'id': job['id'], 'saved': True})
+        elif status == 'removed':
+            removal = {'id': job['id'], 'removal_id': uid()}
+            service.action('remove-job', removal)
+            service.action('job-removal-reason', {**removal, 'comment': 'Sample decision. Focus on other roles.'})
+        else:
+            app = service.action('local-package', {'profile_id': profile['id'], 'job_id': job['id']})
+            if status == 'submitted':
+                service.action('review', {
+                    'id': app['id'], 'status': 'submitted',
+                    'comment': 'Fictional submission record. No employer was contacted.',
+                })
 
 
 def _write_asset(stage, files, key, path):
@@ -85,7 +166,8 @@ def _check_owned_export(destination):
 
 
 def export_preview(destination):
-    """Generate documents/matching once; the public browser never executes them."""
+    """Generate the checked fallback listings and fictional application records."""
+    listing_data = json.loads(Path(__file__).with_name('demo_data').joinpath('showcase_jobs.json').read_text(encoding='utf-8'))
     destination = Path(destination).expanduser().absolute()
     _check_owned_export(destination)
     destination.parent.mkdir(parents=True, exist_ok=True)
@@ -99,10 +181,10 @@ def export_preview(destination):
                 'label': 'Public preview · Alex Morgan', 'demo': True,
                 'setup_complete': True, 'timezone': 'Australia/Melbourne',
                 'master_template': False,
-                'preferred_locations': ['Singapore', 'Melbourne', 'Berlin', 'Toronto'],
+                'preferred_locations': list(SHOWCASE_LOCATIONS),
             })
             service = Service(workspace)
-            seed(service)
+            seed_showcase(service, listing_data)
             state = service.state()
             rankings = {profile['id']: service.action('rank', {'profile_id': profile['id']}) for profile in state['profiles']}
             versions = service.action('history', {})
@@ -132,15 +214,17 @@ def export_preview(destination):
             state['consents'] = {}
             state['runs'] = []
             for job in state['jobs']:
-                job['url'] = ''  # Fictional adverts are displayed in the inspector.
+                if not job.get('source', '').startswith('smartrecruiters:'):
+                    job['url'] = ''
             for rows in rankings.values():
                 for row in rows:
-                    row['job']['url'] = ''
+                    if not row['job'].get('source', '').startswith('smartrecruiters:'):
+                        row['job']['url'] = ''
             payload = {
                 'public_preview': True, 'schema': 1,
-                'notice': 'Fictional public preview. Bookmarks, removed roles and reasons stay in your browser. No uploads, AI requests, account access or employer submissions.',
+                'notice': 'Public demo with employer listings and sample application records. No applications are sent.',
                 'state': state, 'rankings': rankings, 'history': versions,
-                'files': files, 'documents': documents,
+                'files': files, 'documents': documents, 'job_sources': listing_data['sources'],
             }
             serialized = json.dumps(payload, ensure_ascii=False, sort_keys=True)
             if str(root) in serialized or '/Users/' in serialized:
@@ -164,5 +248,11 @@ def export_preview(destination):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, default=Path('frontend/public/demo'))
+    parser.add_argument('--profile-from-resume', action='store_true',
+                        help='Build the public profile from a JSON payload on stdin')
     arguments = parser.parse_args()
-    print(json.dumps(export_preview(arguments.output), indent=2))
+    if arguments.profile_from_resume:
+        data = json.load(sys.stdin)
+        print(json.dumps(publish_resume_profile(data['state'], data['resume'])))
+    else:
+        print(json.dumps(export_preview(arguments.output), indent=2))

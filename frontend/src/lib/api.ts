@@ -22,6 +22,9 @@ export class ApiClient {
   get preview() {
     return Boolean(this.previewTransport);
   }
+  get demoDrafts() {
+    return this.previewTransport?.drafts;
+  }
   previewFileUrl(id: string, name: string, history = false) {
     return this.previewTransport?.fileUrl(id, name, history);
   }

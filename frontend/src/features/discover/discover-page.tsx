@@ -53,6 +53,7 @@ import {
   type DiscoveryView,
 } from "./discovery";
 import { OpportunityInspector } from "./opportunity-inspector";
+import { OpportunityListingLink } from "./opportunity-source-preview";
 import { useInteractionMotion } from "./interaction-motion";
 import { cachedRanking, loadRanking } from "./rankings";
 import "./discover.css";
@@ -1530,6 +1531,15 @@ export function DiscoverPage() {
                       </p>
                       {metadata && (
                         <p className="discover-card-location">{metadata}</p>
+                      )}
+                      {client.preview && (
+                        <OpportunityListingLink
+                          job={job}
+                          className="discover-card-listing"
+                          label={`View listing for ${job.title} at ${job.employer}`}
+                        >
+                          View listing
+                        </OpportunityListingLink>
                       )}
                       {salary && (
                         <p

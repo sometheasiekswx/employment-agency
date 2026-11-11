@@ -16,7 +16,7 @@ const requiredDirectives = {
   "default-src": ["'self'"],
   "style-src": ["'self'"],
   "font-src": ["'self'"],
-  "connect-src": ["'self'"],
+  "connect-src": ["'self'", "https://api.smartrecruiters.com"],
   "img-src": ["'self'", "blob:", "data:"],
   "frame-src": ["'self'", "blob:"],
   "object-src": ["'none'"],
@@ -96,14 +96,23 @@ function checkInlineScripts(html, hashes, pathname) {
 }
 
 function checkFixture(fixture, revision) {
+  const identity = fixture?.state?.identity;
+  const master = fixture?.demo_resume;
+  const profileMatches =
+    master === undefined
+      ? identity?.name === "Alex Morgan" &&
+        typeof identity?.email === "string" &&
+        /^[^\s@]+@example\.test$/.test(identity.email)
+      : isRecord(identity) &&
+        Object.keys(identity).length === 1 &&
+        typeof master?.name === "string" &&
+        identity.name === master.name;
   requireValue(
     fixture?.public_preview === true &&
       fixture.schema === 1 &&
       fixture.state?._workspace?.demo === true &&
-      fixture.state?.identity?.name === "Alex Morgan" &&
-      typeof fixture.state?.identity?.email === "string" &&
-      /^[^\s@]+@example\.test$/.test(fixture.state.identity.email),
-    "The public fixture must contain the marked fictional Alex Morgan profile",
+      profileMatches,
+    "The public fixture must contain the approved résumé owner or the marked fictional Alex Morgan profile",
   );
   requireValue(
     fixture.revision === revision,
@@ -220,16 +229,33 @@ export async function verifyPublicDemo(
   requireValue(
     typeof release.fixtureRevision === "string" &&
       /^[a-f0-9]{20}$/.test(release.fixtureRevision),
-    "release.json must contain the fictional fixture revision",
+    "release.json must contain the public fixture revision",
   );
   const { response: fixtureResponse } = await request(
     "/demo/preview.json",
     "application/json",
   );
-  const pdf = checkFixture(
-    await fixtureResponse.json(),
-    release.fixtureRevision,
-  );
+  const fixture = await fixtureResponse.json();
+  const pdf = checkFixture(fixture, release.fixtureRevision);
+  if (fixture.demo_resume !== undefined) {
+    const master = fixture.demo_resume;
+    requireValue(
+      isRecord(master) &&
+        master.pdf === "/demo/master-resume.pdf" &&
+        typeof master.name === "string" &&
+        typeof master.text === "string" &&
+        master.text.includes(master.name) &&
+        /^[a-f0-9]{64}$/.test(master.sha256),
+      "The demo master résumé has invalid metadata",
+    );
+    const { response } = await request(master.pdf, "application/pdf");
+    const bytes = Buffer.from(await response.arrayBuffer());
+    requireValue(
+      bytes.subarray(0, 5).toString("ascii") === "%PDF-" &&
+        createHash("sha256").update(bytes).digest("hex") === master.sha256,
+      "The demo master résumé PDF does not match its checksum",
+    );
+  }
 
   for (const pathname of routes) {
     const { response, hashes } = await request(pathname, "text/html");

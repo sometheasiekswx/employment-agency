@@ -30,6 +30,24 @@
   color: var(--link);
   white-space: nowrap;
 }
+.public-preview-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+.public-preview-links a:first-child {
+  font-weight: 600;
+}
+.demo-resume-panel form,
+.demo-draft-editor {
+  display: grid;
+  gap: 10px;
+  margin-block: 12px;
+}
+.demo-draft-editor textarea,
+.demo-resume-panel textarea {
+  width: 100%;
+}
 @media (max-width: 650px) {
   .public-preview-notice {
     flex-wrap: wrap;
@@ -40,7 +58,7 @@
   .public-preview-notice p {
     flex-basis: calc(100% - 30px);
   }
-  .public-preview-notice a {
+  .public-preview-links {
     margin-left: 26px;
   }
 }

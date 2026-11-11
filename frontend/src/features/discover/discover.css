@@ -347,6 +347,18 @@
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+.discover-card-listing {
+  position: relative;
+  z-index: 2;
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  color: var(--link);
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
 .discover-card-open h3 {
   margin: 10px 0 8px;
   font-size: 16px;

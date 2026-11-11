@@ -533,7 +533,6 @@ it("fails closed for every private mutation or provider operation without networ
   const client = new ApiClient(false, undefined, new PublicPreviewTransport());
   await client.state();
   for (const operation of [
-    "local-package",
     "review",
     "import",
     "identity",
@@ -553,6 +552,38 @@ it("fails closed for every private mutation or provider operation without networ
     ).rejects.toThrow(PREVIEW_READ_ONLY);
   }
   expect(fetch).toHaveBeenCalledTimes(1);
+});
+
+it("prepares one editable draft per job with the reviewed résumé in the current tab", async () => {
+  const fixture = bundle();
+  const data = {
+    ...fixture,
+    state: { ...fixture.state, profiles: [{ id: "profile-a" }] },
+  };
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async () => new Response(JSON.stringify(data))),
+  );
+  const client = new ApiClient(false, undefined, new PublicPreviewTransport());
+  await client.state();
+  const resume =
+    "Visitor Name\nBuilt reliable APIs and maintained production services.";
+  client.demoDrafts!.useResume(resume);
+  const input = { profile_id: "profile-a", job_id: "job-a" };
+  const draft = await client.action<{ id: string }>("local-package", input);
+  expect(await client.action("local-package", input)).toEqual(
+    expect.objectContaining({ id: draft.id }),
+  );
+  expect(client.demoDrafts!.document(draft.id, "resume")).toEqual(resume);
+  expect(client.demoDrafts!.document(draft.id, "coverLetter")).toContain(
+    "Engineer role",
+  );
+  expect((await client.state()).state.applications).toHaveLength(2);
+  expect(JSON.stringify(localStorage)).not.toContain(resume);
+  const reload = new ApiClient(false, undefined, new PublicPreviewTransport());
+  expect((await reload.state()).state.applications).toHaveLength(1);
+  expect(reload.demoDrafts!.usingVisitorResume).toBe(false);
+  expect(fetch).toHaveBeenCalledTimes(2);
 });
 
 it("returns actual static PDFs in view mode and maps downloads under demo only", async () => {

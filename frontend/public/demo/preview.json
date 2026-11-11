@@ -1,7 +1,7 @@
 {
   "public_preview": true,
   "schema": 1,
-  "notice": "Fictional public preview. Only bookmarks change in your browser. No uploads, AI requests, account access or employer submissions.",
+  "notice": "Public demo with employer listings and sample application records. No applications are sent.",
   "state": {
     "schema": 2,
     "identity": {
@@ -18,13 +18,13 @@
         "association": "Example Labs (fictional)",
         "dates": "2022–2026",
         "claim_key": "",
-        "id": "a2e5df26240b45c095c90b8ec1249792",
+        "id": "db7ef7311b784dedac82860859eb81fa",
         "confirmed": true,
         "retired": false,
-        "updated_at": "2026-11-04T20:08:34.402782+00:00",
+        "updated_at": "2026-11-11T13:16:02.457946+00:00",
         "source": {
           "name": "User supplied note",
-          "at": "2026-11-04T20:08:34.402893+00:00"
+          "at": "2026-11-11T13:16:02.458053+00:00"
         },
         "conflict": false
       },
@@ -34,13 +34,13 @@
         "association": "Example Labs (fictional)",
         "dates": "2022–2026",
         "claim_key": "",
-        "id": "4f5c9eba62d2407288a00aced4cee1bb",
+        "id": "341ecf1ad80e4980a2642811f7c27bf9",
         "confirmed": true,
         "retired": false,
-        "updated_at": "2026-11-04T20:08:34.403739+00:00",
+        "updated_at": "2026-11-11T13:16:02.458701+00:00",
         "source": {
           "name": "User supplied note",
-          "at": "2026-11-04T20:08:34.403742+00:00"
+          "at": "2026-11-11T13:16:02.458704+00:00"
         },
         "conflict": false
       },
@@ -50,13 +50,13 @@
         "association": "Example Labs (fictional)",
         "dates": "2022–2026",
         "claim_key": "",
-        "id": "f17585a08abb4c8a80be78a745d62367",
+        "id": "b79a50395a0c45cea69a59e0fe084d11",
         "confirmed": true,
         "retired": false,
-        "updated_at": "2026-11-04T20:08:34.404523+00:00",
+        "updated_at": "2026-11-11T13:16:02.459194+00:00",
         "source": {
           "name": "User supplied note",
-          "at": "2026-11-04T20:08:34.404526+00:00"
+          "at": "2026-11-11T13:16:02.459196+00:00"
         },
         "conflict": false
       },
@@ -66,13 +66,13 @@
         "association": "Example Labs (fictional)",
         "dates": "2022–2026",
         "claim_key": "",
-        "id": "18f751b4f64141979de590ed56a81fe4",
+        "id": "73b2d556fa644873b8a2ceabaac10cda",
         "confirmed": true,
         "retired": false,
-        "updated_at": "2026-11-04T20:08:34.405757+00:00",
+        "updated_at": "2026-11-11T13:16:02.459800+00:00",
         "source": {
           "name": "User supplied note",
-          "at": "2026-11-04T20:08:34.405762+00:00"
+          "at": "2026-11-11T13:16:02.459803+00:00"
         },
         "conflict": false
       },
@@ -82,13 +82,13 @@
         "association": "Example Labs (fictional)",
         "dates": "2022–2026",
         "claim_key": "",
-        "id": "514bb0a10a9743a0b4acf3d8c3b85be0",
+        "id": "4d4cfaed8041454f95771444a4e37d90",
         "confirmed": true,
         "retired": false,
-        "updated_at": "2026-11-04T20:08:34.406812+00:00",
+        "updated_at": "2026-11-11T13:16:02.460417+00:00",
         "source": {
           "name": "User supplied note",
-          "at": "2026-11-04T20:08:34.406815+00:00"
+          "at": "2026-11-11T13:16:02.460418+00:00"
         },
         "conflict": false
       },
@@ -98,13 +98,13 @@
         "association": "Example Labs (fictional)",
         "dates": "2022–2026",
         "claim_key": "",
-        "id": "e59c701c5c5f4e5e865123cdd04bc3e2",
+        "id": "afe9c12f83d54babbe15f779c318084f",
         "confirmed": true,
         "retired": false,
-        "updated_at": "2026-11-04T20:08:34.407608+00:00",
+        "updated_at": "2026-11-11T13:16:02.461230+00:00",
         "source": {
           "name": "User supplied note",
-          "at": "2026-11-04T20:08:34.407610+00:00"
+          "at": "2026-11-11T13:16:02.461255+00:00"
         },
         "conflict": false
       },
@@ -114,13 +114,13 @@
         "association": "Example Labs (fictional)",
         "dates": "2022–2026",
         "claim_key": "",
-        "id": "2aaf8617f82e43458339521cb4d782d6",
+        "id": "045d826ab2044774a659b7f5b1877e43",
         "confirmed": true,
         "retired": false,
-        "updated_at": "2026-11-04T20:08:34.408448+00:00",
+        "updated_at": "2026-11-11T13:16:02.461838+00:00",
         "source": {
           "name": "User supplied note",
-          "at": "2026-11-04T20:08:34.408449+00:00"
+          "at": "2026-11-11T13:16:02.461840+00:00"
         },
         "conflict": false
       }
@@ -133,6 +133,9 @@
         "locations": [
           "Singapore",
           "Melbourne",
+          "New York",
+          "London",
+          "China",
           "Berlin",
           "Toronto"
         ],
@@ -146,7 +149,7 @@
         "include_stretch": true,
         "include_unknown": true,
         "needs_sponsorship": false,
-        "id": "2ffb29500420427d8087d0b807d959a1",
+        "id": "8f9986c4f2574667a5cfb4d072521e90",
         "name": "Cloud & software",
         "minimum": 0.0,
         "currency": "USD",
@@ -389,36 +392,1260 @@
         "source": "manual",
         "checked_at": "2026-11-05T00:00:00Z",
         "prior_application": "submitted",
+        "saved": false,
+        "submission_record_token": "68ac31c360994023bf893e9066b5ca1a"
+      },
+      {
+        "title": "Key User Sales and Support Manager",
+        "employer": "Bosch Group",
+        "location": "Singapore, , Singapore",
+        "description": "Key User Sales and Support Manager at Bosch Group in Singapore, , Singapore. See the original advert for the full role and current requirements.",
+        "url": "https://jobs.smartrecruiters.com/BoschGroup/744000160126689",
+        "email": "",
+        "closes": "",
+        "posted_at": "2026-11-06",
+        "reposted_at": "",
+        "seniority": "",
+        "work_arrangement": "",
+        "sponsorship": "",
+        "careers_url": "https://careers.smartrecruiters.com/BoschGroup",
+        "requirements": [],
+        "eligibility": "unknown",
+        "salary": {
+          "currency": "",
+          "period": "",
+          "basis": "",
+          "min": 0.0,
+          "max": 0.0
+        },
+        "expectation": {
+          "target": "",
+          "basis": "",
+          "source": "",
+          "confidence": ""
+        },
+        "id": "0e991284d2dc46d5b799a54a1026bed0",
+        "availability": "Employer snapshot",
+        "source": "smartrecruiters:BoschGroup:sg",
+        "checked_at": "2026-11-11T13:12:59.866939+00:00",
+        "prior_application": "none",
         "saved": false
+      },
+      {
+        "title": "Intern, AIot Software Developer",
+        "employer": "Bosch Group",
+        "location": "Singapore, , Singapore",
+        "description": "Intern, AIot Software Developer at Bosch Group in Singapore, , Singapore. See the original advert for the full role and current requirements.",
+        "url": "https://jobs.smartrecruiters.com/BoschGroup/744000159821219",
+        "email": "",
+        "closes": "",
+        "posted_at": "2026-11-05",
+        "reposted_at": "",
+        "seniority": "",
+        "work_arrangement": "",
+        "sponsorship": "",
+        "careers_url": "https://careers.smartrecruiters.com/BoschGroup",
+        "requirements": [
+          "Python",
+          "Java",
+          "JavaScript",
+          "React",
+          "API"
+        ],
+        "eligibility": "unknown",
+        "salary": {
+          "currency": "",
+          "period": "",
+          "basis": "",
+          "min": 0.0,
+          "max": 0.0
+        },
+        "expectation": {
+          "target": "",
+          "basis": "",
+          "source": "",
+          "confidence": ""
+        },
+        "id": "91093541a8e44ba89179bf317d123abb",
+        "availability": "Employer snapshot",
+        "source": "smartrecruiters:BoschGroup:sg",
+        "checked_at": "2026-11-11T13:12:59.866939+00:00",
+        "prior_application": "none",
+        "saved": false
+      },
+      {
+        "title": "Quantity Surveyor, M&E",
+        "employer": "AECOM",
+        "location": "Singapore, , Singapore",
+        "description": "Quantity Surveyor, M&E at AECOM in Singapore, , Singapore. See the original advert for the full role and current requirements.",
+        "url": "https://jobs.smartrecruiters.com/AECOM2/744000161019169",
+        "email": "",
+        "closes": "",
+        "posted_at": "2026-11-11",
+        "reposted_at": "",
+        "seniority": "",
+        "work_arrangement": "",
+        "sponsorship": "",
+        "careers_url": "https://careers.smartrecruiters.com/AECOM2",
+        "requirements": [
+          "project management"
+        ],
+        "eligibility": "unknown",
+        "salary": {
+          "currency": "",
+          "period": "",
+          "basis": "",
+          "min": 0.0,
+          "max": 0.0
+        },
+        "expectation": {
+          "target": "",
+          "basis": "",
+          "source": "",
+          "confidence": ""
+        },
+        "id": "e84ffc921a8f4ae7ab2e63e6134f10e9",
+        "availability": "Employer snapshot",
+        "source": "smartrecruiters:AECOM2:sg",
+        "checked_at": "2026-11-11T13:12:59.866939+00:00",
+        "prior_application": "none",
+        "saved": false
+      },
+      {
+        "title": "Executive Quantity Surveyor, M&E",
+        "employer": "AECOM",
+        "location": "Singapore, , Singapore",
+        "description": "Executive Quantity Surveyor, M&E at AECOM in Singapore, , Singapore. See the original advert for the full role and current requirements.",
+        "url": "https://jobs.smartrecruiters.com/AECOM2/744000161019049",
+        "email": "",
+        "closes": "",
+        "posted_at": "2026-11-11",
+        "reposted_at": "",
+        "seniority": "",
+        "work_arrangement": "",
+        "sponsorship": "",
+        "careers_url": "https://careers.smartrecruiters.com/AECOM2",
+        "requirements": [
+          "project management"
+        ],
+        "eligibility": "unknown",
+        "salary": {
+          "currency": "",
+          "period": "",
+          "basis": "",
+          "min": 0.0,
+          "max": 0.0
+        },
+        "expectation": {
+          "target": "",
+          "basis": "",
+          "source": "",
+          "confidence": ""
+        },
+        "id": "901501d4c9b242d8872d4cbde620bf11",
+        "availability": "Employer snapshot",
+        "source": "smartrecruiters:AECOM2:sg",
+        "checked_at": "2026-11-11T13:12:59.866939+00:00",
+        "prior_application": "none",
+        "saved": false
+      },
+      {
+        "title": "Senior Quantity Surveyor, M&E",
+        "employer": "AECOM",
+        "location": "Singapore, , Singapore",
+        "description": "Senior Quantity Surveyor, M&E at AECOM in Singapore, , Singapore. See the original advert for the full role and current requirements.",
+        "url": "https://jobs.smartrecruiters.com/AECOM2/744000161019009",
+        "email": "",
+        "closes": "",
+        "posted_at": "2026-11-11",
+        "reposted_at": "",
+        "seniority": "",
+        "work_arrangement": "Hybrid",
+        "sponsorship": "",
+        "careers_url": "https://careers.smartrecruiters.com/AECOM2",
+        "requirements": [
+          "project management"
+        ],
+        "eligibility": "unknown",
+        "salary": {
+          "currency": "",
+          "period": "",
+          "basis": "",
+          "min": 0.0,
+          "max": 0.0
+        },
+        "expectation": {
+          "target": "",
+          "basis": "",
+          "source": "",
+          "confidence": ""
+        },
+        "id": "4ba8aa0283054ecf8b923d48bc7d501d",
+        "availability": "Employer snapshot",
+        "source": "smartrecruiters:AECOM2:sg",
+        "checked_at": "2026-11-11T13:12:59.866939+00:00",
+        "prior_application": "none",
+        "saved": false
+      },
+      {
+        "title": "Principal Civil Engineer – Water Infrastructure",
+        "employer": "AECOM",
+        "location": "Melbourne, VIC, Australia",
+        "description": "Principal Civil Engineer – Water Infrastructure at AECOM in Melbourne, VIC, Australia. See the original advert for the full role and current requirements.",
+        "url": "https://jobs.smartrecruiters.com/AECOM2/744000158217819",
+        "email": "",
+        "closes": "",
+        "posted_at": "2026-10-28",
+        "reposted_at": "",
+        "seniority": "",
+        "work_arrangement": "",
+        "sponsorship": "",
+        "careers_url": "https://careers.smartrecruiters.com/AECOM2",
+        "requirements": [],
+        "eligibility": "unknown",
+        "salary": {
+          "currency": "",
+          "period": "",
+          "basis": "",
+          "min": 0.0,
+          "max": 0.0
+        },
+        "expectation": {
+          "target": "",
+          "basis": "",
+          "source": "",
+          "confidence": ""
+        },
+        "id": "1dd00ad22f5c4b4680ac25f56b64066f",
+        "availability": "Employer snapshot",
+        "source": "smartrecruiters:AECOM2:au",
+        "checked_at": "2026-11-11T13:12:59.866939+00:00",
+        "prior_application": "none",
+        "saved": false
+      },
+      {
+        "title": "Senior Civil Engineer - Water Infrastructure",
+        "employer": "AECOM",
+        "location": "Melbourne, VIC, Australia",
+        "description": "Senior Civil Engineer - Water Infrastructure at AECOM in Melbourne, VIC, Australia. See the original advert for the full role and current requirements.",
+        "url": "https://jobs.smartrecruiters.com/AECOM2/744000158215764",
+        "email": "",
+        "closes": "",
+        "posted_at": "2026-10-28",
+        "reposted_at": "",
+        "seniority": "",
+        "work_arrangement": "",
+        "sponsorship": "",
+        "careers_url": "https://careers.smartrecruiters.com/AECOM2",
+        "requirements": [],
+        "eligibility": "unknown",
+        "salary": {
+          "currency": "",
+          "period": "",
+          "basis": "",
+          "min": 0.0,
+          "max": 0.0
+        },
+        "expectation": {
+          "target": "",
+          "basis": "",
+          "source": "",
+          "confidence": ""
+        },
+        "id": "9689829137fc47bf9ff354342669272d",
+        "availability": "Employer snapshot",
+        "source": "smartrecruiters:AECOM2:au",
+        "checked_at": "2026-11-11T13:12:59.866939+00:00",
+        "prior_application": "none",
+        "saved": false
+      },
+      {
+        "title": "Cost Manager - MEP - Data Centre",
+        "employer": "Turner & Townsend",
+        "location": "Melbourne, Australia & New Zealand, Australia",
+        "description": "Cost Manager - MEP - Data Centre at Turner & Townsend in Melbourne, Australia & New Zealand, Australia. See the original advert for the full role and current requirements.",
+        "url": "https://jobs.smartrecruiters.com/TurnerTownsend/744000161024509",
+        "email": "",
+        "closes": "",
+        "posted_at": "2026-11-11",
+        "reposted_at": "",
+        "seniority": "",
+        "work_arrangement": "",
+        "sponsorship": "",
+        "careers_url": "https://careers.smartrecruiters.com/TurnerTownsend",
+        "requirements": [
+          "data centre"
+        ],
+        "eligibility": "unknown",
+        "salary": {
+          "currency": "",
+          "period": "",
+          "basis": "",
+          "min": 0.0,
+          "max": 0.0
+        },
+        "expectation": {
+          "target": "",
+          "basis": "",
+          "source": "",
+          "confidence": ""
+        },
+        "id": "e64e4b67850548bc96af09904c00da6f",
+        "availability": "Employer snapshot",
+        "source": "smartrecruiters:TurnerTownsend:au",
+        "checked_at": "2026-11-11T13:12:59.866939+00:00",
+        "prior_application": "none",
+        "saved": false
+      },
+      {
+        "title": "Planner / Scheduler - MEP - Data Centre",
+        "employer": "Turner & Townsend",
+        "location": "Melbourne, Australia & New Zealand, Australia",
+        "description": "Planner / Scheduler - MEP - Data Centre at Turner & Townsend in Melbourne, Australia & New Zealand, Australia. See the original advert for the full role and current requirements.",
+        "url": "https://jobs.smartrecruiters.com/TurnerTownsend/744000160988520",
+        "email": "",
+        "closes": "",
+        "posted_at": "2026-11-11",
+        "reposted_at": "",
+        "seniority": "",
+        "work_arrangement": "Hybrid",
+        "sponsorship": "",
+        "careers_url": "https://careers.smartrecruiters.com/TurnerTownsend",
+        "requirements": [],
+        "eligibility": "unknown",
+        "salary": {
+          "currency": "",
+          "period": "",
+          "basis": "",
+          "min": 0.0,
+          "max": 0.0
+        },
+        "expectation": {
+          "target": "",
+          "basis": "",
+          "source": "",
+          "confidence": ""
+        },
+        "id": "4609c5e52fa74550afb9878e26410fdc",
+        "availability": "Employer snapshot",
+        "source": "smartrecruiters:TurnerTownsend:au",
+        "checked_at": "2026-11-11T13:12:59.866939+00:00",
+        "prior_application": "none",
+        "saved": false
+      },
+      {
+        "title": "Associate Counsel, Business & Legal Affairs",
+        "employer": "NBCUniversal",
+        "location": "New York, NEW YORK, United States",
+        "description": "Associate Counsel, Business & Legal Affairs at NBCUniversal in New York, NEW YORK, United States. See the original advert for the full role and current requirements.",
+        "url": "https://jobs.smartrecruiters.com/NBCUniversal3/744000160961279",
+        "email": "",
+        "closes": "",
+        "posted_at": "2026-11-10",
+        "reposted_at": "",
+        "seniority": "",
+        "work_arrangement": "Hybrid",
+        "sponsorship": "",
+        "careers_url": "https://careers.smartrecruiters.com/NBCUniversal3",
+        "requirements": [],
+        "eligibility": "unknown",
+        "salary": {
+          "currency": "",
+          "period": "",
+          "basis": "",
+          "min": 0.0,
+          "max": 0.0
+        },
+        "expectation": {
+          "target": "",
+          "basis": "",
+          "source": "",
+          "confidence": ""
+        },
+        "id": "66bd15dc08ea4c3db4c57e5e22b75779",
+        "availability": "Employer snapshot",
+        "source": "smartrecruiters:NBCUniversal3:us",
+        "checked_at": "2026-11-11T13:12:59.866939+00:00",
+        "prior_application": "none",
+        "saved": false
+      },
+      {
+        "title": "Associate Design Engineer",
+        "employer": "NBCUniversal",
+        "location": "New York, NEW YORK, United States",
+        "description": "Associate Design Engineer at NBCUniversal in New York, NEW YORK, United States. See the original advert for the full role and current requirements.",
+        "url": "https://jobs.smartrecruiters.com/NBCUniversal3/744000160955954",
+        "email": "",
+        "closes": "",
+        "posted_at": "2026-11-10",
+        "reposted_at": "",
+        "seniority": "",
+        "work_arrangement": "Hybrid",
+        "sponsorship": "",
+        "careers_url": "https://careers.smartrecruiters.com/NBCUniversal3",
+        "requirements": [
+          "JavaScript",
+          "TypeScript",
+          "React",
+          "AWS",
+          "Azure",
+          "API"
+        ],
+        "eligibility": "unknown",
+        "salary": {
+          "currency": "",
+          "period": "",
+          "basis": "",
+          "min": 0.0,
+          "max": 0.0
+        },
+        "expectation": {
+          "target": "",
+          "basis": "",
+          "source": "",
+          "confidence": ""
+        },
+        "id": "8008e26e45f646ed9e73b3e791cb914d",
+        "availability": "Employer snapshot",
+        "source": "smartrecruiters:NBCUniversal3:us",
+        "checked_at": "2026-11-11T13:12:59.866939+00:00",
+        "prior_application": "none",
+        "saved": false
+      },
+      {
+        "title": "Engineering Manager, VOD Media",
+        "employer": "NBCUniversal",
+        "location": "New York, NEW YORK, United States",
+        "description": "Engineering Manager, VOD Media at NBCUniversal in New York, NEW YORK, United States. See the original advert for the full role and current requirements.",
+        "url": "https://jobs.smartrecruiters.com/NBCUniversal3/744000160942119",
+        "email": "",
+        "closes": "",
+        "posted_at": "2026-11-10",
+        "reposted_at": "",
+        "seniority": "",
+        "work_arrangement": "Hybrid",
+        "sponsorship": "",
+        "careers_url": "https://careers.smartrecruiters.com/NBCUniversal3",
+        "requirements": [
+          "Python",
+          "Java",
+          "AWS",
+          "Kubernetes"
+        ],
+        "eligibility": "unknown",
+        "salary": {
+          "currency": "",
+          "period": "",
+          "basis": "",
+          "min": 0.0,
+          "max": 0.0
+        },
+        "expectation": {
+          "target": "",
+          "basis": "",
+          "source": "",
+          "confidence": ""
+        },
+        "id": "53de9d56ba284e7aa0f926b3d70bed27",
+        "availability": "Employer snapshot",
+        "source": "smartrecruiters:NBCUniversal3:us",
+        "checked_at": "2026-11-11T13:12:59.866939+00:00",
+        "prior_application": "none",
+        "saved": false
+      },
+      {
+        "title": "Structural Engineer I",
+        "employer": "AECOM",
+        "location": "New York, NY, United States",
+        "description": "Structural Engineer I at AECOM in New York, NY, United States. See the original advert for the full role and current requirements.",
+        "url": "https://jobs.smartrecruiters.com/AECOM2/744000160939959",
+        "email": "",
+        "closes": "",
+        "posted_at": "2026-11-10",
+        "reposted_at": "",
+        "seniority": "",
+        "work_arrangement": "Hybrid",
+        "sponsorship": "",
+        "careers_url": "https://careers.smartrecruiters.com/AECOM2",
+        "requirements": [],
+        "eligibility": "unknown",
+        "salary": {
+          "currency": "",
+          "period": "",
+          "basis": "",
+          "min": 0.0,
+          "max": 0.0
+        },
+        "expectation": {
+          "target": "",
+          "basis": "",
+          "source": "",
+          "confidence": ""
+        },
+        "id": "13ec47b521b6467a8f10a4c8ccf015ed",
+        "availability": "Employer snapshot",
+        "source": "smartrecruiters:AECOM2:us",
+        "checked_at": "2026-11-11T13:12:59.866939+00:00",
+        "prior_application": "none",
+        "saved": false
+      },
+      {
+        "title": "Civil Inspector",
+        "employer": "AECOM",
+        "location": "New York, NY, United States",
+        "description": "Civil Inspector at AECOM in New York, NY, United States. See the original advert for the full role and current requirements.",
+        "url": "https://jobs.smartrecruiters.com/AECOM2/744000160640501",
+        "email": "",
+        "closes": "",
+        "posted_at": "2026-11-09",
+        "reposted_at": "",
+        "seniority": "",
+        "work_arrangement": "",
+        "sponsorship": "",
+        "careers_url": "https://careers.smartrecruiters.com/AECOM2",
+        "requirements": [],
+        "eligibility": "unknown",
+        "salary": {
+          "currency": "",
+          "period": "",
+          "basis": "",
+          "min": 0.0,
+          "max": 0.0
+        },
+        "expectation": {
+          "target": "",
+          "basis": "",
+          "source": "",
+          "confidence": ""
+        },
+        "id": "c8183386586e406fb9d9e3ea7c237041",
+        "availability": "Employer snapshot",
+        "source": "smartrecruiters:AECOM2:us",
+        "checked_at": "2026-11-11T13:12:59.866939+00:00",
+        "prior_application": "none",
+        "saved": false
+      },
+      {
+        "title": "Principal Electrical Engineer (Solar/Renewables)",
+        "employer": "AECOM",
+        "location": "London, , United Kingdom",
+        "description": "Principal Electrical Engineer (Solar/Renewables) at AECOM in London, , United Kingdom. See the original advert for the full role and current requirements.",
+        "url": "https://jobs.smartrecruiters.com/AECOM2/744000161051849",
+        "email": "",
+        "closes": "",
+        "posted_at": "2026-11-11",
+        "reposted_at": "",
+        "seniority": "",
+        "work_arrangement": "Hybrid",
+        "sponsorship": "",
+        "careers_url": "https://careers.smartrecruiters.com/AECOM2",
+        "requirements": [],
+        "eligibility": "unknown",
+        "salary": {
+          "currency": "",
+          "period": "",
+          "basis": "",
+          "min": 0.0,
+          "max": 0.0
+        },
+        "expectation": {
+          "target": "",
+          "basis": "",
+          "source": "",
+          "confidence": ""
+        },
+        "id": "c2df5083939b45e1892bea5f5674faaa",
+        "availability": "Employer snapshot",
+        "source": "smartrecruiters:AECOM2:gb",
+        "checked_at": "2026-11-11T13:12:59.866939+00:00",
+        "prior_application": "none",
+        "saved": false
+      },
+      {
+        "title": "Technical Director and Electrical Team Lead (Data Centre)",
+        "employer": "AECOM",
+        "location": "London, , United Kingdom",
+        "description": "Technical Director and Electrical Team Lead (Data Centre) at AECOM in London, , United Kingdom. See the original advert for the full role and current requirements.",
+        "url": "https://jobs.smartrecruiters.com/AECOM2/744000160913429",
+        "email": "",
+        "closes": "",
+        "posted_at": "2026-11-10",
+        "reposted_at": "",
+        "seniority": "",
+        "work_arrangement": "Hybrid",
+        "sponsorship": "",
+        "careers_url": "https://careers.smartrecruiters.com/AECOM2",
+        "requirements": [
+          "data centre"
+        ],
+        "eligibility": "unknown",
+        "salary": {
+          "currency": "",
+          "period": "",
+          "basis": "",
+          "min": 0.0,
+          "max": 0.0
+        },
+        "expectation": {
+          "target": "",
+          "basis": "",
+          "source": "",
+          "confidence": ""
+        },
+        "id": "1cca5e1bb5a04c6e8a702e77676f785c",
+        "availability": "Employer snapshot",
+        "source": "smartrecruiters:AECOM2:gb",
+        "checked_at": "2026-11-11T13:12:59.866939+00:00",
+        "prior_application": "none",
+        "saved": false
+      },
+      {
+        "title": "Digital Optimisation Lead, England & Wales",
+        "employer": "AECOM",
+        "location": "London, England, United Kingdom",
+        "description": "Digital Optimisation Lead, England & Wales at AECOM in London, England, United Kingdom. See the original advert for the full role and current requirements.",
+        "url": "https://jobs.smartrecruiters.com/AECOM2/744000160819609",
+        "email": "",
+        "closes": "",
+        "posted_at": "2026-11-10",
+        "reposted_at": "",
+        "seniority": "",
+        "work_arrangement": "Hybrid",
+        "sponsorship": "",
+        "careers_url": "https://careers.smartrecruiters.com/AECOM2",
+        "requirements": [
+          "Python",
+          "Azure"
+        ],
+        "eligibility": "unknown",
+        "salary": {
+          "currency": "",
+          "period": "",
+          "basis": "",
+          "min": 0.0,
+          "max": 0.0
+        },
+        "expectation": {
+          "target": "",
+          "basis": "",
+          "source": "",
+          "confidence": ""
+        },
+        "id": "9459b19dc6af4e2f9991ec8be35af7a5",
+        "availability": "Employer snapshot",
+        "source": "smartrecruiters:AECOM2:gb",
+        "checked_at": "2026-11-11T13:12:59.866939+00:00",
+        "prior_application": "none",
+        "saved": false
+      },
+      {
+        "title": "Director of Foundation",
+        "employer": "Experian",
+        "location": "London, , United Kingdom",
+        "description": "Director of Foundation at Experian in London, , United Kingdom. See the original advert for the full role and current requirements.",
+        "url": "https://jobs.smartrecruiters.com/Experian/744000161066654",
+        "email": "",
+        "closes": "",
+        "posted_at": "2026-11-11",
+        "reposted_at": "",
+        "seniority": "",
+        "work_arrangement": "",
+        "sponsorship": "",
+        "careers_url": "https://careers.smartrecruiters.com/Experian",
+        "requirements": [],
+        "eligibility": "unknown",
+        "salary": {
+          "currency": "",
+          "period": "",
+          "basis": "",
+          "min": 0.0,
+          "max": 0.0
+        },
+        "expectation": {
+          "target": "",
+          "basis": "",
+          "source": "",
+          "confidence": ""
+        },
+        "id": "a81b2d9aa5f8441e8b068dc939b02d62",
+        "availability": "Employer snapshot",
+        "source": "smartrecruiters:Experian:gb",
+        "checked_at": "2026-11-11T13:12:59.866939+00:00",
+        "prior_application": "none",
+        "saved": false
+      },
+      {
+        "title": "Junior Information Security Officer",
+        "employer": "Experian",
+        "location": "London, , United Kingdom",
+        "description": "Junior Information Security Officer at Experian in London, , United Kingdom. See the original advert for the full role and current requirements.",
+        "url": "https://jobs.smartrecruiters.com/Experian/744000160836896",
+        "email": "",
+        "closes": "",
+        "posted_at": "2026-11-10",
+        "reposted_at": "",
+        "seniority": "",
+        "work_arrangement": "Hybrid",
+        "sponsorship": "",
+        "careers_url": "https://careers.smartrecruiters.com/Experian",
+        "requirements": [],
+        "eligibility": "unknown",
+        "salary": {
+          "currency": "",
+          "period": "",
+          "basis": "",
+          "min": 0.0,
+          "max": 0.0
+        },
+        "expectation": {
+          "target": "",
+          "basis": "",
+          "source": "",
+          "confidence": ""
+        },
+        "id": "076711510db94e2ba4c4351cb76dd4cb",
+        "availability": "Employer snapshot",
+        "source": "smartrecruiters:Experian:gb",
+        "checked_at": "2026-11-11T13:12:59.866939+00:00",
+        "prior_application": "none",
+        "saved": false
+      },
+      {
+        "title": "软件项目管理/SW PCM_VM",
+        "employer": "Bosch Group",
+        "location": "Suzhou, Jiangsu, China",
+        "description": "软件项目管理/SW PCM_VM at Bosch Group in Suzhou, Jiangsu, China. See the original advert for the full role and current requirements.",
+        "url": "https://jobs.smartrecruiters.com/BoschGroup/744000160749639",
+        "email": "",
+        "closes": "",
+        "posted_at": "2026-11-10",
+        "reposted_at": "",
+        "seniority": "",
+        "work_arrangement": "",
+        "sponsorship": "",
+        "careers_url": "https://careers.smartrecruiters.com/BoschGroup",
+        "requirements": [
+          "project management"
+        ],
+        "eligibility": "unknown",
+        "salary": {
+          "currency": "",
+          "period": "",
+          "basis": "",
+          "min": 0.0,
+          "max": 0.0
+        },
+        "expectation": {
+          "target": "",
+          "basis": "",
+          "source": "",
+          "confidence": ""
+        },
+        "id": "6022dd11990c43938b70cd310af70453",
+        "availability": "Employer snapshot",
+        "source": "smartrecruiters:BoschGroup:cn",
+        "checked_at": "2026-11-11T13:12:59.866939+00:00",
+        "prior_application": "none",
+        "saved": false
+      },
+      {
+        "title": "软件项目经理PCM_XC",
+        "employer": "Bosch Group",
+        "location": "shanghai, , China",
+        "description": "软件项目经理PCM_XC at Bosch Group in shanghai, , China. See the original advert for the full role and current requirements.",
+        "url": "https://jobs.smartrecruiters.com/BoschGroup/744000159585069",
+        "email": "",
+        "closes": "",
+        "posted_at": "2026-11-04",
+        "reposted_at": "",
+        "seniority": "",
+        "work_arrangement": "",
+        "sponsorship": "",
+        "careers_url": "https://careers.smartrecruiters.com/BoschGroup",
+        "requirements": [],
+        "eligibility": "unknown",
+        "salary": {
+          "currency": "",
+          "period": "",
+          "basis": "",
+          "min": 0.0,
+          "max": 0.0
+        },
+        "expectation": {
+          "target": "",
+          "basis": "",
+          "source": "",
+          "confidence": ""
+        },
+        "id": "d410e7da42ef467e8d844f8a7e4bf707",
+        "availability": "Employer snapshot",
+        "source": "smartrecruiters:BoschGroup:cn",
+        "checked_at": "2026-11-11T13:12:59.866939+00:00",
+        "prior_application": "none",
+        "saved": false
+      },
+      {
+        "title": "Project Manager（Onboard Charger and DCDC Converter）_EM",
+        "employer": "Bosch Group",
+        "location": "Shanghai, Shanghai, China",
+        "description": "Project Manager（Onboard Charger and DCDC Converter）_EM at Bosch Group in Shanghai, Shanghai, China. See the original advert for the full role and current requirements.",
+        "url": "https://jobs.smartrecruiters.com/BoschGroup/744000158208459",
+        "email": "",
+        "closes": "",
+        "posted_at": "2026-10-28",
+        "reposted_at": "",
+        "seniority": "",
+        "work_arrangement": "",
+        "sponsorship": "",
+        "careers_url": "https://careers.smartrecruiters.com/BoschGroup",
+        "requirements": [
+          "cybersecurity"
+        ],
+        "eligibility": "unknown",
+        "salary": {
+          "currency": "",
+          "period": "",
+          "basis": "",
+          "min": 0.0,
+          "max": 0.0
+        },
+        "expectation": {
+          "target": "",
+          "basis": "",
+          "source": "",
+          "confidence": ""
+        },
+        "id": "766696cf44d741bf866f7882a2ae6a1d",
+        "availability": "Employer snapshot",
+        "source": "smartrecruiters:BoschGroup:cn",
+        "checked_at": "2026-11-11T13:12:59.866939+00:00",
+        "prior_application": "none",
+        "saved": false
+      },
+      {
+        "title": "ME/ECO-CN Group Manager_ME",
+        "employer": "Bosch Group",
+        "location": "Suzhou, Jiangsu, China",
+        "description": "ME/ECO-CN Group Manager_ME at Bosch Group in Suzhou, Jiangsu, China. See the original advert for the full role and current requirements.",
+        "url": "https://jobs.smartrecruiters.com/BoschGroup/744000158198869",
+        "email": "",
+        "closes": "",
+        "posted_at": "2026-10-28",
+        "reposted_at": "",
+        "seniority": "",
+        "work_arrangement": "",
+        "sponsorship": "",
+        "careers_url": "https://careers.smartrecruiters.com/BoschGroup",
+        "requirements": [
+          "Kubernetes",
+          "Docker",
+          "CI/CD"
+        ],
+        "eligibility": "unknown",
+        "salary": {
+          "currency": "",
+          "period": "",
+          "basis": "",
+          "min": 0.0,
+          "max": 0.0
+        },
+        "expectation": {
+          "target": "",
+          "basis": "",
+          "source": "",
+          "confidence": ""
+        },
+        "id": "325f157c4e5242948e006c099198e733",
+        "availability": "Employer snapshot",
+        "source": "smartrecruiters:BoschGroup:cn",
+        "checked_at": "2026-11-11T13:12:59.866939+00:00",
+        "prior_application": "none",
+        "saved": false
+      },
+      {
+        "title": "Information Security Expert_C",
+        "employer": "Bosch Group",
+        "location": "Suzhou, Jiangsu, China",
+        "description": "Information Security Expert_C at Bosch Group in Suzhou, Jiangsu, China. See the original advert for the full role and current requirements.",
+        "url": "https://jobs.smartrecruiters.com/BoschGroup/744000157670819",
+        "email": "",
+        "closes": "",
+        "posted_at": "2026-10-25",
+        "reposted_at": "",
+        "seniority": "",
+        "work_arrangement": "",
+        "sponsorship": "",
+        "careers_url": "https://careers.smartrecruiters.com/BoschGroup",
+        "requirements": [
+          "Python",
+          "AWS",
+          "Azure",
+          "cybersecurity",
+          "networking"
+        ],
+        "eligibility": "unknown",
+        "salary": {
+          "currency": "",
+          "period": "",
+          "basis": "",
+          "min": 0.0,
+          "max": 0.0
+        },
+        "expectation": {
+          "target": "",
+          "basis": "",
+          "source": "",
+          "confidence": ""
+        },
+        "id": "47c4907a19b44d3d9089e1efda804673",
+        "availability": "Employer snapshot",
+        "source": "smartrecruiters:BoschGroup:cn",
+        "checked_at": "2026-11-11T13:12:59.866939+00:00",
+        "prior_application": "none",
+        "saved": false
+      },
+      {
+        "title": "Site Reliability Engineer",
+        "employer": "Dovetail Cloud",
+        "location": "Berlin",
+        "description": "Fictional example. Help an engineering team build and support services using AWS.",
+        "url": "",
+        "email": "",
+        "closes": "",
+        "posted_at": "",
+        "reposted_at": "",
+        "seniority": "",
+        "work_arrangement": "",
+        "sponsorship": "",
+        "requirements": [
+          "AWS"
+        ],
+        "eligibility": "unknown",
+        "salary": {
+          "currency": "",
+          "period": "",
+          "basis": "",
+          "min": 0.0,
+          "max": 0.0
+        },
+        "expectation": {
+          "target": "",
+          "basis": "",
+          "source": "",
+          "confidence": ""
+        },
+        "id": "18073023582a4b1e8dc645ba33464ca6",
+        "availability": "Illustrative example",
+        "source": "manual",
+        "checked_at": "2026-11-11T13:16:03.112724+00:00",
+        "prior_application": "none",
+        "saved": true
+      },
+      {
+        "title": "Software Test Engineer",
+        "employer": "Pineframe Tools",
+        "location": "Toronto",
+        "description": "Fictional example. Help an engineering team build and support services using Python.",
+        "url": "",
+        "email": "",
+        "closes": "",
+        "posted_at": "",
+        "reposted_at": "",
+        "seniority": "",
+        "work_arrangement": "",
+        "sponsorship": "",
+        "requirements": [
+          "Python"
+        ],
+        "eligibility": "unknown",
+        "salary": {
+          "currency": "",
+          "period": "",
+          "basis": "",
+          "min": 0.0,
+          "max": 0.0
+        },
+        "expectation": {
+          "target": "",
+          "basis": "",
+          "source": "",
+          "confidence": ""
+        },
+        "id": "7f78aa97a5b34707bef4503eeb9e6bba",
+        "availability": "Illustrative example",
+        "source": "manual",
+        "checked_at": "2026-11-11T13:16:03.118291+00:00",
+        "prior_application": "none",
+        "saved": true
+      },
+      {
+        "title": "Data Platform Engineer",
+        "employer": "Juniper Bridge",
+        "location": "Berlin",
+        "description": "Fictional example. Help an engineering team build and support services using PostgreSQL.",
+        "url": "",
+        "email": "",
+        "closes": "",
+        "posted_at": "",
+        "reposted_at": "",
+        "seniority": "",
+        "work_arrangement": "",
+        "sponsorship": "",
+        "requirements": [
+          "PostgreSQL"
+        ],
+        "eligibility": "unknown",
+        "salary": {
+          "currency": "",
+          "period": "",
+          "basis": "",
+          "min": 0.0,
+          "max": 0.0
+        },
+        "expectation": {
+          "target": "",
+          "basis": "",
+          "source": "",
+          "confidence": ""
+        },
+        "id": "1f91a277e179408ebcf5867f1f24ff09",
+        "availability": "Illustrative example",
+        "source": "manual",
+        "checked_at": "2026-11-11T13:16:03.122099+00:00",
+        "prior_application": "none",
+        "saved": false
+      },
+      {
+        "title": "Frontend Engineer",
+        "employer": "Lumen Field Software",
+        "location": "Toronto",
+        "description": "Fictional example. Help an engineering team build and support services using React.",
+        "url": "",
+        "email": "",
+        "closes": "",
+        "posted_at": "",
+        "reposted_at": "",
+        "seniority": "",
+        "work_arrangement": "",
+        "sponsorship": "",
+        "requirements": [
+          "React"
+        ],
+        "eligibility": "unknown",
+        "salary": {
+          "currency": "",
+          "period": "",
+          "basis": "",
+          "min": 0.0,
+          "max": 0.0
+        },
+        "expectation": {
+          "target": "",
+          "basis": "",
+          "source": "",
+          "confidence": ""
+        },
+        "id": "e8582b5d37f745f89dc7b88496697d3f",
+        "availability": "Illustrative example",
+        "source": "manual",
+        "checked_at": "2026-11-11T13:16:03.228934+00:00",
+        "prior_application": "none",
+        "saved": false
+      },
+      {
+        "title": "Cloud Operations Engineer",
+        "employer": "Kestrel Stack",
+        "location": "Berlin",
+        "description": "Fictional example. Help an engineering team build and support services using Terraform.",
+        "url": "",
+        "email": "",
+        "closes": "",
+        "posted_at": "",
+        "reposted_at": "",
+        "seniority": "",
+        "work_arrangement": "",
+        "sponsorship": "",
+        "requirements": [
+          "Terraform"
+        ],
+        "eligibility": "unknown",
+        "salary": {
+          "currency": "",
+          "period": "",
+          "basis": "",
+          "min": 0.0,
+          "max": 0.0
+        },
+        "expectation": {
+          "target": "",
+          "basis": "",
+          "source": "",
+          "confidence": ""
+        },
+        "id": "6d798a1733ba43e091a0552c4e8dd1c7",
+        "availability": "Illustrative example",
+        "source": "manual",
+        "checked_at": "2026-11-11T13:16:03.327287+00:00",
+        "prior_application": "submitted",
+        "saved": false,
+        "submission_record_token": "f081eed232b84c4786a8a6dc32128c8d"
+      },
+      {
+        "title": "Application Engineer",
+        "employer": "Blue Finch Labs",
+        "location": "Toronto",
+        "description": "Fictional example. Help an engineering team build and support services using TypeScript.",
+        "url": "",
+        "email": "",
+        "closes": "",
+        "posted_at": "",
+        "reposted_at": "",
+        "seniority": "",
+        "work_arrangement": "",
+        "sponsorship": "",
+        "requirements": [
+          "TypeScript"
+        ],
+        "eligibility": "unknown",
+        "salary": {
+          "currency": "",
+          "period": "",
+          "basis": "",
+          "min": 0.0,
+          "max": 0.0
+        },
+        "expectation": {
+          "target": "",
+          "basis": "",
+          "source": "",
+          "confidence": ""
+        },
+        "id": "a04220081a794e0e8a03d008c2f8e533",
+        "availability": "Illustrative example",
+        "source": "manual",
+        "checked_at": "2026-11-11T13:16:03.453263+00:00",
+        "prior_application": "submitted",
+        "saved": false,
+        "submission_record_token": "7faa81805dcf40f786cbb2fe25d54121"
+      },
+      {
+        "title": "Integration Engineer",
+        "employer": "Arborline Systems",
+        "location": "Berlin",
+        "description": "Fictional example. Help an engineering team build and support services using Python.",
+        "url": "",
+        "email": "",
+        "closes": "",
+        "posted_at": "",
+        "reposted_at": "",
+        "seniority": "",
+        "work_arrangement": "",
+        "sponsorship": "",
+        "requirements": [
+          "Python"
+        ],
+        "eligibility": "unknown",
+        "salary": {
+          "currency": "",
+          "period": "",
+          "basis": "",
+          "min": 0.0,
+          "max": 0.0
+        },
+        "expectation": {
+          "target": "",
+          "basis": "",
+          "source": "",
+          "confidence": ""
+        },
+        "id": "e75541e4f0da4a9881af697a21773000",
+        "availability": "Illustrative example",
+        "source": "manual",
+        "checked_at": "2026-11-11T13:16:03.583234+00:00",
+        "prior_application": "none",
+        "saved": false,
+        "removals": [
+          {
+            "id": "2f526e2f60344b0ea67aadff989d1fbc",
+            "at": "2026-11-11T13:16:03.584638+00:00",
+            "reason": "Sample decision. Focus on other roles.",
+            "reason_updated_at": "2026-11-11T13:16:03.586065+00:00"
+          }
+        ]
+      },
+      {
+        "title": "Release Engineer",
+        "employer": "Brookstone Digital",
+        "location": "Toronto",
+        "description": "Fictional example. Help an engineering team build and support services using CI/CD.",
+        "url": "",
+        "email": "",
+        "closes": "",
+        "posted_at": "",
+        "reposted_at": "",
+        "seniority": "",
+        "work_arrangement": "",
+        "sponsorship": "",
+        "requirements": [
+          "CI/CD"
+        ],
+        "eligibility": "unknown",
+        "salary": {
+          "currency": "",
+          "period": "",
+          "basis": "",
+          "min": 0.0,
+          "max": 0.0
+        },
+        "expectation": {
+          "target": "",
+          "basis": "",
+          "source": "",
+          "confidence": ""
+        },
+        "id": "0843c36e23f443c5ae8bff799fc47e9d",
+        "availability": "Illustrative example",
+        "source": "manual",
+        "checked_at": "2026-11-11T13:16:03.590623+00:00",
+        "prior_application": "none",
+        "saved": false,
+        "removals": [
+          {
+            "id": "73f32d17c1a44d0d94279fd95219b16c",
+            "at": "2026-11-11T13:16:03.592325+00:00",
+            "reason": "Sample decision. Focus on other roles.",
+            "reason_updated_at": "2026-11-11T13:16:03.593448+00:00"
+          }
+        ]
       }
     ],
     "sources": [],
     "runs": [],
     "applications": [
       {
-        "id": "268eafe04e6a4937b060ec2dec0c1cd7",
+        "id": "a36522d5e7234328a1330bcc823a5a4d",
         "job_id": "5cd3efe2e8ad5c9497d4640f",
         "title": "Cloud Software Engineer",
         "employer": "Emberlane Systems",
-        "created_at": "2026-11-04T20:08:34.613315+00:00",
+        "created_at": "2026-11-11T13:16:02.892669+00:00",
         "status": "reviewed",
         "comments": [
           {
-            "at": "2026-11-04T20:08:34.616717+00:00",
+            "at": "2026-11-11T13:16:02.897556+00:00",
             "text": "Fictional review. Check eligibility before applying.",
             "status": "reviewed"
           }
         ],
         "fact_ids": [
-          "a2e5df26240b45c095c90b8ec1249792",
-          "4f5c9eba62d2407288a00aced4cee1bb",
-          "f17585a08abb4c8a80be78a745d62367",
-          "18f751b4f64141979de590ed56a81fe4",
-          "514bb0a10a9743a0b4acf3d8c3b85be0",
-          "e59c701c5c5f4e5e865123cdd04bc3e2",
-          "2aaf8617f82e43458339521cb4d782d6"
+          "db7ef7311b784dedac82860859eb81fa",
+          "341ecf1ad80e4980a2642811f7c27bf9",
+          "b79a50395a0c45cea69a59e0fe084d11",
+          "73b2d556fa644873b8a2ceabaac10cda",
+          "4d4cfaed8041454f95771444a4e37d90",
+          "afe9c12f83d54babbe15f779c318084f",
+          "045d826ab2044774a659b7f5b1877e43"
         ],
-        "folder": "applications/Singapore/Emberlane Systems/Cloud Software Engineer/05-11-2026",
+        "folder": "applications/Singapore/Emberlane Systems/Cloud Software Engineer/12-11-2026",
         "documents": {
           "resume.pdf": "AlexMorgan-CV-Singapore.pdf",
           "cover-letter.pdf": "AlexMorgan-CoverLetter-Singapore.pdf",
@@ -431,33 +1658,34 @@
           "resume.txt": "AlexMorgan-CV-Singapore.txt",
           "cover-letter.txt": "AlexMorgan-CoverLetter-Singapore.txt"
         },
-        "manifest_hash": "108ec62c46ca7ec387a9754adc442a636825459b52f5d7de42ed6b12c0653f06",
-        "reviewed_at": "2026-11-04T20:08:34.616713+00:00",
+        "manifest_hash": "21067f21d946f43f3a34622dfef9443f9266d7d6aa3140a9a809db3cf2730bd2",
+        "reviewed_at": "2026-11-11T13:16:02.897547+00:00",
         "fit_summary": "Cloud Software Engineer has related evidence in your confirmed experience: “Used Python to build and maintain software services”. Confirm the requirement “Kubernetes”; it is not established by the saved evidence.",
         "warnings": [
           "Work rights / sponsorship need confirmation",
+          "Listing needs a fresh check",
           "Availability not verified"
         ],
         "file_changes": []
       },
       {
-        "id": "143d2db84ac84b6cb9e8fe8063d7e799",
+        "id": "d5d20a2ae5bc42f7a21eded2248f281a",
         "job_id": "e84870bbe48fe62c76677e90",
         "title": "Platform Engineer",
         "employer": "Fernbridge Digital",
-        "created_at": "2026-11-04T20:08:34.676399+00:00",
+        "created_at": "2026-11-11T13:16:02.965738+00:00",
         "status": "draft",
         "comments": [],
         "fact_ids": [
-          "2aaf8617f82e43458339521cb4d782d6",
-          "4f5c9eba62d2407288a00aced4cee1bb",
-          "f17585a08abb4c8a80be78a745d62367",
-          "a2e5df26240b45c095c90b8ec1249792",
-          "18f751b4f64141979de590ed56a81fe4",
-          "514bb0a10a9743a0b4acf3d8c3b85be0",
-          "e59c701c5c5f4e5e865123cdd04bc3e2"
+          "045d826ab2044774a659b7f5b1877e43",
+          "341ecf1ad80e4980a2642811f7c27bf9",
+          "b79a50395a0c45cea69a59e0fe084d11",
+          "db7ef7311b784dedac82860859eb81fa",
+          "73b2d556fa644873b8a2ceabaac10cda",
+          "4d4cfaed8041454f95771444a4e37d90",
+          "afe9c12f83d54babbe15f779c318084f"
         ],
-        "folder": "applications/Melbourne/Fernbridge Digital/Platform Engineer/05-11-2026",
+        "folder": "applications/Melbourne/Fernbridge Digital/Platform Engineer/12-11-2026",
         "documents": {
           "resume.pdf": "AlexMorgan-CV-Melbourne.pdf",
           "cover-letter.pdf": "AlexMorgan-CoverLetter-Melbourne.pdf",
@@ -470,38 +1698,39 @@
           "resume.txt": "AlexMorgan-CV-Melbourne.txt",
           "cover-letter.txt": "AlexMorgan-CoverLetter-Melbourne.txt"
         },
-        "manifest_hash": "462f96ea482a8739af2afa27f919cce48917d45ce33713261b14baa9fe49f24c",
+        "manifest_hash": "51838685d6987860417261ca471999946d8e728f76394ca9ee1effbad6206cac",
         "fit_summary": "Platform Engineer has related evidence in your confirmed experience: “Used Python to build and maintain software services”. Confirm the requirement “Kubernetes”; it is not established by the saved evidence.",
         "warnings": [
           "Work rights / sponsorship need confirmation",
+          "Listing needs a fresh check",
           "Availability not verified"
         ],
         "file_changes": []
       },
       {
-        "id": "4dff7224bb7240059abcf8a4882a21b0",
+        "id": "d9e4c864ad4648eb87fabce8ff426e19",
         "job_id": "afb3122d5d4655d08d385a21",
         "title": "Backend Software Engineer",
         "employer": "Cedarlight Software",
-        "created_at": "2026-11-04T20:08:34.742280+00:00",
+        "created_at": "2026-11-11T13:16:03.043238+00:00",
         "status": "submitted",
         "comments": [
           {
-            "at": "2026-11-04T20:08:34.745662+00:00",
+            "at": "2026-11-11T13:16:03.049795+00:00",
             "text": "Fictional submission record for UI verification. No employer was contacted.",
             "status": "submitted"
           }
         ],
         "fact_ids": [
-          "a2e5df26240b45c095c90b8ec1249792",
-          "18f751b4f64141979de590ed56a81fe4",
-          "4f5c9eba62d2407288a00aced4cee1bb",
-          "f17585a08abb4c8a80be78a745d62367",
-          "514bb0a10a9743a0b4acf3d8c3b85be0",
-          "e59c701c5c5f4e5e865123cdd04bc3e2",
-          "2aaf8617f82e43458339521cb4d782d6"
+          "db7ef7311b784dedac82860859eb81fa",
+          "73b2d556fa644873b8a2ceabaac10cda",
+          "341ecf1ad80e4980a2642811f7c27bf9",
+          "b79a50395a0c45cea69a59e0fe084d11",
+          "4d4cfaed8041454f95771444a4e37d90",
+          "afe9c12f83d54babbe15f779c318084f",
+          "045d826ab2044774a659b7f5b1877e43"
         ],
-        "folder": "applications/Toronto/Cedarlight Software/Backend Software Engineer/05-11-2026",
+        "folder": "applications/Toronto/Cedarlight Software/Backend Software Engineer/12-11-2026",
         "documents": {
           "resume.pdf": "AlexMorgan-CV-Toronto.pdf",
           "cover-letter.pdf": "AlexMorgan-CoverLetter-Toronto.pdf",
@@ -514,10 +1743,199 @@
           "resume.txt": "AlexMorgan-CV-Toronto.txt",
           "cover-letter.txt": "AlexMorgan-CoverLetter-Toronto.txt"
         },
-        "manifest_hash": "dbab64c40965b2e769c66e469d3bac942201e90c25990552fc079c215f11ba63",
-        "reviewed_at": "2026-11-04T20:08:34.745652+00:00",
-        "submitted_at": "2026-11-04T20:08:34.745652+00:00",
+        "manifest_hash": "514b098f76240d5327330856506176b81c9ff77287bbd5b3b46c66e3e7b0752a",
+        "reviewed_at": "2026-11-11T13:16:03.049760+00:00",
+        "submitted_at": "2026-11-11T13:16:03.049760+00:00",
+        "submission_record": {
+          "at": "2026-11-11T13:16:03.049760+00:00",
+          "previous_status": "draft",
+          "prior_application": "none",
+          "token": "68ac31c360994023bf893e9066b5ca1a"
+        },
         "fit_summary": "Backend Software Engineer has related evidence in your confirmed experience: “Used Python to build and maintain software services”. Review the full requirements before applying; related wording does not establish every qualification.",
+        "warnings": [
+          "Prior application recorded as submitted",
+          "Work rights / sponsorship need confirmation",
+          "Listing needs a fresh check",
+          "Availability not verified"
+        ],
+        "file_changes": []
+      },
+      {
+        "id": "e739fcf08052449eac44b9608f2e8fa5",
+        "job_id": "1f91a277e179408ebcf5867f1f24ff09",
+        "title": "Data Platform Engineer",
+        "employer": "Juniper Bridge",
+        "created_at": "2026-11-11T13:16:03.227204+00:00",
+        "status": "draft",
+        "comments": [],
+        "fact_ids": [
+          "db7ef7311b784dedac82860859eb81fa",
+          "341ecf1ad80e4980a2642811f7c27bf9",
+          "b79a50395a0c45cea69a59e0fe084d11",
+          "73b2d556fa644873b8a2ceabaac10cda",
+          "4d4cfaed8041454f95771444a4e37d90",
+          "afe9c12f83d54babbe15f779c318084f",
+          "045d826ab2044774a659b7f5b1877e43"
+        ],
+        "folder": "applications/Berlin/Juniper Bridge/Data Platform Engineer/12-11-2026",
+        "documents": {
+          "resume.pdf": "AlexMorgan-CV-Berlin.pdf",
+          "cover-letter.pdf": "AlexMorgan-CoverLetter-Berlin.pdf",
+          "resume.docx": "AlexMorgan-CV-Berlin.docx",
+          "cover-letter.docx": "AlexMorgan-CoverLetter-Berlin.docx",
+          "resume.tex": "AlexMorgan-CV-Berlin.tex",
+          "cover-letter.tex": "AlexMorgan-CoverLetter-Berlin.tex",
+          "application.eml": "AlexMorgan-Application-Berlin.eml",
+          "evidence.json": "evidence.json",
+          "resume.txt": "AlexMorgan-CV-Berlin.txt",
+          "cover-letter.txt": "AlexMorgan-CoverLetter-Berlin.txt"
+        },
+        "manifest_hash": "034e7eec982d6790c5b3386f1f862781783f8694a4ccb3768fcb9bbfbfbc40d6",
+        "fit_summary": "Data Platform Engineer has related evidence in your confirmed experience: “Used Python to build and maintain software services”. Review the full requirements before applying; related wording does not establish every qualification.",
+        "warnings": [
+          "Work rights / sponsorship need confirmation",
+          "Availability not verified"
+        ],
+        "file_changes": []
+      },
+      {
+        "id": "22f4c97ebaa34f36bdaac964e76c23aa",
+        "job_id": "e8582b5d37f745f89dc7b88496697d3f",
+        "title": "Frontend Engineer",
+        "employer": "Lumen Field Software",
+        "created_at": "2026-11-11T13:16:03.325595+00:00",
+        "status": "draft",
+        "comments": [],
+        "fact_ids": [
+          "db7ef7311b784dedac82860859eb81fa",
+          "341ecf1ad80e4980a2642811f7c27bf9",
+          "b79a50395a0c45cea69a59e0fe084d11",
+          "73b2d556fa644873b8a2ceabaac10cda",
+          "4d4cfaed8041454f95771444a4e37d90",
+          "afe9c12f83d54babbe15f779c318084f",
+          "045d826ab2044774a659b7f5b1877e43"
+        ],
+        "folder": "applications/Toronto/Lumen Field Software/Frontend Engineer/12-11-2026",
+        "documents": {
+          "resume.pdf": "AlexMorgan-CV-Toronto.pdf",
+          "cover-letter.pdf": "AlexMorgan-CoverLetter-Toronto.pdf",
+          "resume.docx": "AlexMorgan-CV-Toronto.docx",
+          "cover-letter.docx": "AlexMorgan-CoverLetter-Toronto.docx",
+          "resume.tex": "AlexMorgan-CV-Toronto.tex",
+          "cover-letter.tex": "AlexMorgan-CoverLetter-Toronto.tex",
+          "application.eml": "AlexMorgan-Application-Toronto.eml",
+          "evidence.json": "evidence.json",
+          "resume.txt": "AlexMorgan-CV-Toronto.txt",
+          "cover-letter.txt": "AlexMorgan-CoverLetter-Toronto.txt"
+        },
+        "manifest_hash": "9ebea0124a808af65832e59f7e21b6d885f593b9703b3ff76948ff355d7df179",
+        "fit_summary": "Frontend Engineer has related evidence in your confirmed experience: “Used Python to build and maintain software services”. Review the full requirements before applying; related wording does not establish every qualification.",
+        "warnings": [
+          "Work rights / sponsorship need confirmation",
+          "Availability not verified"
+        ],
+        "file_changes": []
+      },
+      {
+        "id": "d86dffe40f184e74b842ca136174cdfc",
+        "job_id": "6d798a1733ba43e091a0552c4e8dd1c7",
+        "title": "Cloud Operations Engineer",
+        "employer": "Kestrel Stack",
+        "created_at": "2026-11-11T13:16:03.438949+00:00",
+        "status": "submitted",
+        "comments": [
+          {
+            "at": "2026-11-11T13:16:03.451418+00:00",
+            "text": "Fictional submission record. No employer was contacted.",
+            "status": "submitted"
+          }
+        ],
+        "fact_ids": [
+          "db7ef7311b784dedac82860859eb81fa",
+          "341ecf1ad80e4980a2642811f7c27bf9",
+          "b79a50395a0c45cea69a59e0fe084d11",
+          "73b2d556fa644873b8a2ceabaac10cda",
+          "4d4cfaed8041454f95771444a4e37d90",
+          "afe9c12f83d54babbe15f779c318084f",
+          "045d826ab2044774a659b7f5b1877e43"
+        ],
+        "folder": "applications/Berlin/Kestrel Stack/Cloud Operations Engineer/12-11-2026",
+        "documents": {
+          "resume.pdf": "AlexMorgan-CV-Berlin.pdf",
+          "cover-letter.pdf": "AlexMorgan-CoverLetter-Berlin.pdf",
+          "resume.docx": "AlexMorgan-CV-Berlin.docx",
+          "cover-letter.docx": "AlexMorgan-CoverLetter-Berlin.docx",
+          "resume.tex": "AlexMorgan-CV-Berlin.tex",
+          "cover-letter.tex": "AlexMorgan-CoverLetter-Berlin.tex",
+          "application.eml": "AlexMorgan-Application-Berlin.eml",
+          "evidence.json": "evidence.json",
+          "resume.txt": "AlexMorgan-CV-Berlin.txt",
+          "cover-letter.txt": "AlexMorgan-CoverLetter-Berlin.txt"
+        },
+        "manifest_hash": "9c89c6f0cf436d823ae869555adaf5a925077a10140e8b648f825653dde8837e",
+        "reviewed_at": "2026-11-11T13:16:03.451374+00:00",
+        "submitted_at": "2026-11-11T13:16:03.451374+00:00",
+        "submission_record": {
+          "at": "2026-11-11T13:16:03.451374+00:00",
+          "previous_status": "draft",
+          "prior_application": "none",
+          "token": "f081eed232b84c4786a8a6dc32128c8d"
+        },
+        "fit_summary": "Cloud Operations Engineer has related evidence in your confirmed experience: “Used Python to build and maintain software services”. Review the full requirements before applying; related wording does not establish every qualification.",
+        "warnings": [
+          "Prior application recorded as submitted",
+          "Work rights / sponsorship need confirmation",
+          "Availability not verified"
+        ],
+        "file_changes": []
+      },
+      {
+        "id": "6bcfb754dff34a4db28568da8c680cea",
+        "job_id": "a04220081a794e0e8a03d008c2f8e533",
+        "title": "Application Engineer",
+        "employer": "Blue Finch Labs",
+        "created_at": "2026-11-11T13:16:03.576682+00:00",
+        "status": "submitted",
+        "comments": [
+          {
+            "at": "2026-11-11T13:16:03.581600+00:00",
+            "text": "Fictional submission record. No employer was contacted.",
+            "status": "submitted"
+          }
+        ],
+        "fact_ids": [
+          "db7ef7311b784dedac82860859eb81fa",
+          "341ecf1ad80e4980a2642811f7c27bf9",
+          "b79a50395a0c45cea69a59e0fe084d11",
+          "73b2d556fa644873b8a2ceabaac10cda",
+          "4d4cfaed8041454f95771444a4e37d90",
+          "afe9c12f83d54babbe15f779c318084f",
+          "045d826ab2044774a659b7f5b1877e43"
+        ],
+        "folder": "applications/Toronto/Blue Finch Labs/Application Engineer/12-11-2026",
+        "documents": {
+          "resume.pdf": "AlexMorgan-CV-Toronto.pdf",
+          "cover-letter.pdf": "AlexMorgan-CoverLetter-Toronto.pdf",
+          "resume.docx": "AlexMorgan-CV-Toronto.docx",
+          "cover-letter.docx": "AlexMorgan-CoverLetter-Toronto.docx",
+          "resume.tex": "AlexMorgan-CV-Toronto.tex",
+          "cover-letter.tex": "AlexMorgan-CoverLetter-Toronto.tex",
+          "application.eml": "AlexMorgan-Application-Toronto.eml",
+          "evidence.json": "evidence.json",
+          "resume.txt": "AlexMorgan-CV-Toronto.txt",
+          "cover-letter.txt": "AlexMorgan-CoverLetter-Toronto.txt"
+        },
+        "manifest_hash": "bbcec38f279547d230b4dbc58909c7f8801cca0126dc5fd0e1aa7cecc845ceb7",
+        "reviewed_at": "2026-11-11T13:16:03.581569+00:00",
+        "submitted_at": "2026-11-11T13:16:03.581569+00:00",
+        "submission_record": {
+          "at": "2026-11-11T13:16:03.581569+00:00",
+          "previous_status": "draft",
+          "prior_application": "none",
+          "token": "7faa81805dcf40f786cbb2fe25d54121"
+        },
+        "fit_summary": "Application Engineer has related evidence in your confirmed experience: “Used Python to build and maintain software services”. Review the full requirements before applying; related wording does not establish every qualification.",
         "warnings": [
           "Prior application recorded as submitted",
           "Work rights / sponsorship need confirmation",
@@ -539,6 +1957,9 @@
       "preferred_locations": [
         "Singapore",
         "Melbourne",
+        "New York",
+        "London",
+        "China",
         "Berlin",
         "Toronto"
       ],
@@ -546,7 +1967,8 @@
       "supplementary_skills": [],
       "setup_complete": true,
       "resume_pages": 2,
-      "cover_letter_pages": 1
+      "cover_letter_pages": 1,
+      "backup_paths": []
     },
     "_master": {
       "path": "master/fictional-resume",
@@ -555,7 +1977,7 @@
     }
   },
   "rankings": {
-    "2ffb29500420427d8087d0b807d959a1": [
+    "8f9986c4f2574667a5cfb4d072521e90": [
       {
         "job": {
           "title": "Cloud Software Engineer",
@@ -601,6 +2023,7 @@
           "hard_conflicts": [],
           "unknowns": [
             "Work rights / sponsorship need confirmation",
+            "Listing needs a fresh check",
             "Availability not verified"
           ],
           "preferences": [],
@@ -608,21 +2031,21 @@
             {
               "requirement": "Python",
               "fact_ids": [
-                "a2e5df26240b45c095c90b8ec1249792"
+                "db7ef7311b784dedac82860859eb81fa"
               ],
               "assessment": "Related text; verify full requirement"
             },
             {
               "requirement": "AWS",
               "fact_ids": [
-                "4f5c9eba62d2407288a00aced4cee1bb"
+                "341ecf1ad80e4980a2642811f7c27bf9"
               ],
               "assessment": "Related text; verify full requirement"
             },
             {
               "requirement": "Terraform",
               "fact_ids": [
-                "f17585a08abb4c8a80be78a745d62367"
+                "b79a50395a0c45cea69a59e0fe084d11"
               ],
               "assessment": "Related text; verify full requirement"
             },
@@ -638,13 +2061,13 @@
           "stretch": true,
           "eligible_for_preparation": true,
           "fact_ids": [
-            "a2e5df26240b45c095c90b8ec1249792",
-            "4f5c9eba62d2407288a00aced4cee1bb",
-            "f17585a08abb4c8a80be78a745d62367",
-            "18f751b4f64141979de590ed56a81fe4",
-            "514bb0a10a9743a0b4acf3d8c3b85be0",
-            "e59c701c5c5f4e5e865123cdd04bc3e2",
-            "2aaf8617f82e43458339521cb4d782d6"
+            "db7ef7311b784dedac82860859eb81fa",
+            "341ecf1ad80e4980a2642811f7c27bf9",
+            "b79a50395a0c45cea69a59e0fe084d11",
+            "73b2d556fa644873b8a2ceabaac10cda",
+            "4d4cfaed8041454f95771444a4e37d90",
+            "afe9c12f83d54babbe15f779c318084f",
+            "045d826ab2044774a659b7f5b1877e43"
           ],
           "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
           "salary_expectation": {
@@ -699,6 +2122,7 @@
           "hard_conflicts": [],
           "unknowns": [
             "Work rights / sponsorship need confirmation",
+            "Listing needs a fresh check",
             "Availability not verified"
           ],
           "preferences": [],
@@ -706,14 +2130,14 @@
             {
               "requirement": "Python",
               "fact_ids": [
-                "a2e5df26240b45c095c90b8ec1249792"
+                "db7ef7311b784dedac82860859eb81fa"
               ],
               "assessment": "Related text; verify full requirement"
             },
             {
               "requirement": "PostgreSQL",
               "fact_ids": [
-                "18f751b4f64141979de590ed56a81fe4"
+                "73b2d556fa644873b8a2ceabaac10cda"
               ],
               "assessment": "Related text; verify full requirement"
             },
@@ -729,19 +2153,127 @@
           "stretch": true,
           "eligible_for_preparation": true,
           "fact_ids": [
-            "a2e5df26240b45c095c90b8ec1249792",
-            "18f751b4f64141979de590ed56a81fe4",
-            "4f5c9eba62d2407288a00aced4cee1bb",
-            "f17585a08abb4c8a80be78a745d62367",
-            "514bb0a10a9743a0b4acf3d8c3b85be0",
-            "e59c701c5c5f4e5e865123cdd04bc3e2",
-            "2aaf8617f82e43458339521cb4d782d6"
+            "db7ef7311b784dedac82860859eb81fa",
+            "73b2d556fa644873b8a2ceabaac10cda",
+            "341ecf1ad80e4980a2642811f7c27bf9",
+            "b79a50395a0c45cea69a59e0fe084d11",
+            "4d4cfaed8041454f95771444a4e37d90",
+            "afe9c12f83d54babbe15f779c318084f",
+            "045d826ab2044774a659b7f5b1877e43"
           ],
           "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
           "salary_expectation": {
             "target": "Up to 120000 SGD gross base per year",
             "basis": "Advertised upper bound, not a market percentile. Stretch fit: discuss the band before quoting the maximum.",
             "source": "https://example.test/concept/role-2",
+            "confidence": "low"
+          }
+        }
+      },
+      {
+        "job": {
+          "title": "Intern, AIot Software Developer",
+          "employer": "Bosch Group",
+          "location": "Singapore, , Singapore",
+          "description": "Intern, AIot Software Developer at Bosch Group in Singapore, , Singapore. See the original advert for the full role and current requirements.",
+          "url": "https://jobs.smartrecruiters.com/BoschGroup/744000159821219",
+          "email": "",
+          "closes": "",
+          "posted_at": "2026-11-05",
+          "reposted_at": "",
+          "seniority": "",
+          "work_arrangement": "",
+          "sponsorship": "",
+          "careers_url": "https://careers.smartrecruiters.com/BoschGroup",
+          "requirements": [
+            "Python",
+            "Java",
+            "JavaScript",
+            "React",
+            "API"
+          ],
+          "eligibility": "unknown",
+          "salary": {
+            "currency": "",
+            "period": "",
+            "basis": "",
+            "min": 0.0,
+            "max": 0.0
+          },
+          "expectation": {
+            "target": "",
+            "basis": "",
+            "source": "",
+            "confidence": ""
+          },
+          "id": "91093541a8e44ba89179bf317d123abb",
+          "availability": "Employer snapshot",
+          "source": "smartrecruiters:BoschGroup:sg",
+          "checked_at": "2026-11-11T13:12:59.866939+00:00",
+          "prior_application": "none",
+          "saved": false
+        },
+        "match": {
+          "hard_conflicts": [],
+          "unknowns": [
+            "Work rights / sponsorship need confirmation",
+            "Availability not verified"
+          ],
+          "preferences": [
+            "roles outside preferences"
+          ],
+          "evidence": [
+            {
+              "requirement": "Python",
+              "fact_ids": [
+                "db7ef7311b784dedac82860859eb81fa"
+              ],
+              "assessment": "Related text; verify full requirement"
+            },
+            {
+              "requirement": "Java",
+              "fact_ids": [],
+              "assessment": "No confirmed evidence"
+            },
+            {
+              "requirement": "JavaScript",
+              "fact_ids": [],
+              "assessment": "No confirmed evidence"
+            },
+            {
+              "requirement": "React",
+              "fact_ids": [
+                "4d4cfaed8041454f95771444a4e37d90"
+              ],
+              "assessment": "Related text; verify full requirement"
+            },
+            {
+              "requirement": "API",
+              "fact_ids": [],
+              "assessment": "No confirmed evidence"
+            }
+          ],
+          "gaps": [
+            "Java",
+            "JavaScript",
+            "API"
+          ],
+          "stretch": true,
+          "eligible_for_preparation": true,
+          "fact_ids": [
+            "db7ef7311b784dedac82860859eb81fa",
+            "341ecf1ad80e4980a2642811f7c27bf9",
+            "b79a50395a0c45cea69a59e0fe084d11",
+            "73b2d556fa644873b8a2ceabaac10cda",
+            "4d4cfaed8041454f95771444a4e37d90",
+            "afe9c12f83d54babbe15f779c318084f",
+            "045d826ab2044774a659b7f5b1877e43"
+          ],
+          "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+          "salary_expectation": {
+            "target": "Unresolved — request the employer band or add comparable local salary evidence",
+            "basis": "No comparable gross-base band is available; no precise expectation invented.",
+            "source": "https://jobs.smartrecruiters.com/BoschGroup/744000159821219",
             "confidence": "low"
           }
         }
@@ -790,6 +2322,7 @@
           "hard_conflicts": [],
           "unknowns": [
             "Work rights / sponsorship need confirmation",
+            "Listing needs a fresh check",
             "Availability not verified"
           ],
           "preferences": [],
@@ -797,21 +2330,21 @@
             {
               "requirement": "React",
               "fact_ids": [
-                "514bb0a10a9743a0b4acf3d8c3b85be0"
+                "4d4cfaed8041454f95771444a4e37d90"
               ],
               "assessment": "Related text; verify full requirement"
             },
             {
               "requirement": "TypeScript",
               "fact_ids": [
-                "e59c701c5c5f4e5e865123cdd04bc3e2"
+                "afe9c12f83d54babbe15f779c318084f"
               ],
               "assessment": "Related text; verify full requirement"
             },
             {
               "requirement": "PostgreSQL",
               "fact_ids": [
-                "18f751b4f64141979de590ed56a81fe4"
+                "73b2d556fa644873b8a2ceabaac10cda"
               ],
               "assessment": "Related text; verify full requirement"
             }
@@ -820,13 +2353,13 @@
           "stretch": false,
           "eligible_for_preparation": true,
           "fact_ids": [
-            "514bb0a10a9743a0b4acf3d8c3b85be0",
-            "e59c701c5c5f4e5e865123cdd04bc3e2",
-            "a2e5df26240b45c095c90b8ec1249792",
-            "4f5c9eba62d2407288a00aced4cee1bb",
-            "f17585a08abb4c8a80be78a745d62367",
-            "18f751b4f64141979de590ed56a81fe4",
-            "2aaf8617f82e43458339521cb4d782d6"
+            "4d4cfaed8041454f95771444a4e37d90",
+            "afe9c12f83d54babbe15f779c318084f",
+            "db7ef7311b784dedac82860859eb81fa",
+            "341ecf1ad80e4980a2642811f7c27bf9",
+            "b79a50395a0c45cea69a59e0fe084d11",
+            "73b2d556fa644873b8a2ceabaac10cda",
+            "045d826ab2044774a659b7f5b1877e43"
           ],
           "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
           "salary_expectation": {
@@ -882,6 +2415,7 @@
           "hard_conflicts": [],
           "unknowns": [
             "Work rights / sponsorship need confirmation",
+            "Listing needs a fresh check",
             "Availability not verified"
           ],
           "preferences": [],
@@ -889,21 +2423,21 @@
             {
               "requirement": "AWS",
               "fact_ids": [
-                "4f5c9eba62d2407288a00aced4cee1bb"
+                "341ecf1ad80e4980a2642811f7c27bf9"
               ],
               "assessment": "Related text; verify full requirement"
             },
             {
               "requirement": "Terraform",
               "fact_ids": [
-                "f17585a08abb4c8a80be78a745d62367"
+                "b79a50395a0c45cea69a59e0fe084d11"
               ],
               "assessment": "Related text; verify full requirement"
             },
             {
               "requirement": "CI/CD",
               "fact_ids": [
-                "2aaf8617f82e43458339521cb4d782d6"
+                "045d826ab2044774a659b7f5b1877e43"
               ],
               "assessment": "Related text; verify full requirement"
             },
@@ -919,13 +2453,13 @@
           "stretch": true,
           "eligible_for_preparation": true,
           "fact_ids": [
-            "2aaf8617f82e43458339521cb4d782d6",
-            "4f5c9eba62d2407288a00aced4cee1bb",
-            "f17585a08abb4c8a80be78a745d62367",
-            "a2e5df26240b45c095c90b8ec1249792",
-            "18f751b4f64141979de590ed56a81fe4",
-            "514bb0a10a9743a0b4acf3d8c3b85be0",
-            "e59c701c5c5f4e5e865123cdd04bc3e2"
+            "045d826ab2044774a659b7f5b1877e43",
+            "341ecf1ad80e4980a2642811f7c27bf9",
+            "b79a50395a0c45cea69a59e0fe084d11",
+            "db7ef7311b784dedac82860859eb81fa",
+            "73b2d556fa644873b8a2ceabaac10cda",
+            "4d4cfaed8041454f95771444a4e37d90",
+            "afe9c12f83d54babbe15f779c318084f"
           ],
           "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
           "salary_expectation": {
@@ -980,6 +2514,7 @@
           "hard_conflicts": [],
           "unknowns": [
             "Work rights / sponsorship need confirmation",
+            "Listing needs a fresh check",
             "Availability not verified"
           ],
           "preferences": [],
@@ -987,21 +2522,21 @@
             {
               "requirement": "AWS",
               "fact_ids": [
-                "4f5c9eba62d2407288a00aced4cee1bb"
+                "341ecf1ad80e4980a2642811f7c27bf9"
               ],
               "assessment": "Related text; verify full requirement"
             },
             {
               "requirement": "Terraform",
               "fact_ids": [
-                "f17585a08abb4c8a80be78a745d62367"
+                "b79a50395a0c45cea69a59e0fe084d11"
               ],
               "assessment": "Related text; verify full requirement"
             },
             {
               "requirement": "CI/CD",
               "fact_ids": [
-                "2aaf8617f82e43458339521cb4d782d6"
+                "045d826ab2044774a659b7f5b1877e43"
               ],
               "assessment": "Related text; verify full requirement"
             }
@@ -1010,13 +2545,13 @@
           "stretch": false,
           "eligible_for_preparation": true,
           "fact_ids": [
-            "4f5c9eba62d2407288a00aced4cee1bb",
-            "f17585a08abb4c8a80be78a745d62367",
-            "2aaf8617f82e43458339521cb4d782d6",
-            "a2e5df26240b45c095c90b8ec1249792",
-            "18f751b4f64141979de590ed56a81fe4",
-            "514bb0a10a9743a0b4acf3d8c3b85be0",
-            "e59c701c5c5f4e5e865123cdd04bc3e2"
+            "341ecf1ad80e4980a2642811f7c27bf9",
+            "b79a50395a0c45cea69a59e0fe084d11",
+            "045d826ab2044774a659b7f5b1877e43",
+            "db7ef7311b784dedac82860859eb81fa",
+            "73b2d556fa644873b8a2ceabaac10cda",
+            "4d4cfaed8041454f95771444a4e37d90",
+            "afe9c12f83d54babbe15f779c318084f"
           ],
           "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
           "salary_expectation": {
@@ -1024,6 +2559,2152 @@
             "basis": "Advertised upper bound, not a market percentile. Opening negotiation target only; confirm the full requirements and benefits.",
             "source": "https://example.test/concept/role-5",
             "confidence": "medium"
+          }
+        }
+      },
+      {
+        "job": {
+          "title": "Site Reliability Engineer",
+          "employer": "Dovetail Cloud",
+          "location": "Berlin",
+          "description": "Fictional example. Help an engineering team build and support services using AWS.",
+          "url": "",
+          "email": "",
+          "closes": "",
+          "posted_at": "",
+          "reposted_at": "",
+          "seniority": "",
+          "work_arrangement": "",
+          "sponsorship": "",
+          "requirements": [
+            "AWS"
+          ],
+          "eligibility": "unknown",
+          "salary": {
+            "currency": "",
+            "period": "",
+            "basis": "",
+            "min": 0.0,
+            "max": 0.0
+          },
+          "expectation": {
+            "target": "",
+            "basis": "",
+            "source": "",
+            "confidence": ""
+          },
+          "id": "18073023582a4b1e8dc645ba33464ca6",
+          "availability": "Illustrative example",
+          "source": "manual",
+          "checked_at": "2026-11-11T13:16:03.112724+00:00",
+          "prior_application": "none",
+          "saved": true
+        },
+        "match": {
+          "hard_conflicts": [],
+          "unknowns": [
+            "Work rights / sponsorship need confirmation",
+            "Availability not verified"
+          ],
+          "preferences": [],
+          "evidence": [
+            {
+              "requirement": "AWS",
+              "fact_ids": [
+                "341ecf1ad80e4980a2642811f7c27bf9"
+              ],
+              "assessment": "Related text; verify full requirement"
+            }
+          ],
+          "gaps": [],
+          "stretch": false,
+          "eligible_for_preparation": true,
+          "fact_ids": [
+            "db7ef7311b784dedac82860859eb81fa",
+            "341ecf1ad80e4980a2642811f7c27bf9",
+            "b79a50395a0c45cea69a59e0fe084d11",
+            "73b2d556fa644873b8a2ceabaac10cda",
+            "4d4cfaed8041454f95771444a4e37d90",
+            "afe9c12f83d54babbe15f779c318084f",
+            "045d826ab2044774a659b7f5b1877e43"
+          ],
+          "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+          "salary_expectation": {
+            "target": "Unresolved — request the employer band or add comparable local salary evidence",
+            "basis": "No comparable gross-base band is available; no precise expectation invented.",
+            "source": "",
+            "confidence": "low"
+          }
+        }
+      },
+      {
+        "job": {
+          "title": "Data Platform Engineer",
+          "employer": "Juniper Bridge",
+          "location": "Berlin",
+          "description": "Fictional example. Help an engineering team build and support services using PostgreSQL.",
+          "url": "",
+          "email": "",
+          "closes": "",
+          "posted_at": "",
+          "reposted_at": "",
+          "seniority": "",
+          "work_arrangement": "",
+          "sponsorship": "",
+          "requirements": [
+            "PostgreSQL"
+          ],
+          "eligibility": "unknown",
+          "salary": {
+            "currency": "",
+            "period": "",
+            "basis": "",
+            "min": 0.0,
+            "max": 0.0
+          },
+          "expectation": {
+            "target": "",
+            "basis": "",
+            "source": "",
+            "confidence": ""
+          },
+          "id": "1f91a277e179408ebcf5867f1f24ff09",
+          "availability": "Illustrative example",
+          "source": "manual",
+          "checked_at": "2026-11-11T13:16:03.122099+00:00",
+          "prior_application": "none",
+          "saved": false
+        },
+        "match": {
+          "hard_conflicts": [],
+          "unknowns": [
+            "Work rights / sponsorship need confirmation",
+            "Availability not verified"
+          ],
+          "preferences": [],
+          "evidence": [
+            {
+              "requirement": "PostgreSQL",
+              "fact_ids": [
+                "73b2d556fa644873b8a2ceabaac10cda"
+              ],
+              "assessment": "Related text; verify full requirement"
+            }
+          ],
+          "gaps": [],
+          "stretch": false,
+          "eligible_for_preparation": true,
+          "fact_ids": [
+            "db7ef7311b784dedac82860859eb81fa",
+            "341ecf1ad80e4980a2642811f7c27bf9",
+            "b79a50395a0c45cea69a59e0fe084d11",
+            "73b2d556fa644873b8a2ceabaac10cda",
+            "4d4cfaed8041454f95771444a4e37d90",
+            "afe9c12f83d54babbe15f779c318084f",
+            "045d826ab2044774a659b7f5b1877e43"
+          ],
+          "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+          "salary_expectation": {
+            "target": "Unresolved — request the employer band or add comparable local salary evidence",
+            "basis": "No comparable gross-base band is available; no precise expectation invented.",
+            "source": "",
+            "confidence": "low"
+          }
+        }
+      },
+      {
+        "job": {
+          "title": "Integration Engineer",
+          "employer": "Arborline Systems",
+          "location": "Berlin",
+          "description": "Fictional example. Help an engineering team build and support services using Python.",
+          "url": "",
+          "email": "",
+          "closes": "",
+          "posted_at": "",
+          "reposted_at": "",
+          "seniority": "",
+          "work_arrangement": "",
+          "sponsorship": "",
+          "requirements": [
+            "Python"
+          ],
+          "eligibility": "unknown",
+          "salary": {
+            "currency": "",
+            "period": "",
+            "basis": "",
+            "min": 0.0,
+            "max": 0.0
+          },
+          "expectation": {
+            "target": "",
+            "basis": "",
+            "source": "",
+            "confidence": ""
+          },
+          "id": "e75541e4f0da4a9881af697a21773000",
+          "availability": "Illustrative example",
+          "source": "manual",
+          "checked_at": "2026-11-11T13:16:03.583234+00:00",
+          "prior_application": "none",
+          "saved": false,
+          "removals": [
+            {
+              "id": "2f526e2f60344b0ea67aadff989d1fbc",
+              "at": "2026-11-11T13:16:03.584638+00:00",
+              "reason": "Sample decision. Focus on other roles.",
+              "reason_updated_at": "2026-11-11T13:16:03.586065+00:00"
+            }
+          ]
+        },
+        "match": {
+          "hard_conflicts": [],
+          "unknowns": [
+            "Work rights / sponsorship need confirmation",
+            "Availability not verified"
+          ],
+          "preferences": [],
+          "evidence": [
+            {
+              "requirement": "Python",
+              "fact_ids": [
+                "db7ef7311b784dedac82860859eb81fa"
+              ],
+              "assessment": "Related text; verify full requirement"
+            }
+          ],
+          "gaps": [],
+          "stretch": false,
+          "eligible_for_preparation": true,
+          "fact_ids": [
+            "db7ef7311b784dedac82860859eb81fa",
+            "341ecf1ad80e4980a2642811f7c27bf9",
+            "b79a50395a0c45cea69a59e0fe084d11",
+            "73b2d556fa644873b8a2ceabaac10cda",
+            "4d4cfaed8041454f95771444a4e37d90",
+            "afe9c12f83d54babbe15f779c318084f",
+            "045d826ab2044774a659b7f5b1877e43"
+          ],
+          "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+          "salary_expectation": {
+            "target": "Unresolved — request the employer band or add comparable local salary evidence",
+            "basis": "No comparable gross-base band is available; no precise expectation invented.",
+            "source": "",
+            "confidence": "low"
+          }
+        }
+      },
+      {
+        "job": {
+          "title": "Software Test Engineer",
+          "employer": "Pineframe Tools",
+          "location": "Toronto",
+          "description": "Fictional example. Help an engineering team build and support services using Python.",
+          "url": "",
+          "email": "",
+          "closes": "",
+          "posted_at": "",
+          "reposted_at": "",
+          "seniority": "",
+          "work_arrangement": "",
+          "sponsorship": "",
+          "requirements": [
+            "Python"
+          ],
+          "eligibility": "unknown",
+          "salary": {
+            "currency": "",
+            "period": "",
+            "basis": "",
+            "min": 0.0,
+            "max": 0.0
+          },
+          "expectation": {
+            "target": "",
+            "basis": "",
+            "source": "",
+            "confidence": ""
+          },
+          "id": "7f78aa97a5b34707bef4503eeb9e6bba",
+          "availability": "Illustrative example",
+          "source": "manual",
+          "checked_at": "2026-11-11T13:16:03.118291+00:00",
+          "prior_application": "none",
+          "saved": true
+        },
+        "match": {
+          "hard_conflicts": [],
+          "unknowns": [
+            "Work rights / sponsorship need confirmation",
+            "Availability not verified"
+          ],
+          "preferences": [],
+          "evidence": [
+            {
+              "requirement": "Python",
+              "fact_ids": [
+                "db7ef7311b784dedac82860859eb81fa"
+              ],
+              "assessment": "Related text; verify full requirement"
+            }
+          ],
+          "gaps": [],
+          "stretch": false,
+          "eligible_for_preparation": true,
+          "fact_ids": [
+            "db7ef7311b784dedac82860859eb81fa",
+            "341ecf1ad80e4980a2642811f7c27bf9",
+            "b79a50395a0c45cea69a59e0fe084d11",
+            "73b2d556fa644873b8a2ceabaac10cda",
+            "4d4cfaed8041454f95771444a4e37d90",
+            "afe9c12f83d54babbe15f779c318084f",
+            "045d826ab2044774a659b7f5b1877e43"
+          ],
+          "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+          "salary_expectation": {
+            "target": "Unresolved — request the employer band or add comparable local salary evidence",
+            "basis": "No comparable gross-base band is available; no precise expectation invented.",
+            "source": "",
+            "confidence": "low"
+          }
+        }
+      },
+      {
+        "job": {
+          "title": "Frontend Engineer",
+          "employer": "Lumen Field Software",
+          "location": "Toronto",
+          "description": "Fictional example. Help an engineering team build and support services using React.",
+          "url": "",
+          "email": "",
+          "closes": "",
+          "posted_at": "",
+          "reposted_at": "",
+          "seniority": "",
+          "work_arrangement": "",
+          "sponsorship": "",
+          "requirements": [
+            "React"
+          ],
+          "eligibility": "unknown",
+          "salary": {
+            "currency": "",
+            "period": "",
+            "basis": "",
+            "min": 0.0,
+            "max": 0.0
+          },
+          "expectation": {
+            "target": "",
+            "basis": "",
+            "source": "",
+            "confidence": ""
+          },
+          "id": "e8582b5d37f745f89dc7b88496697d3f",
+          "availability": "Illustrative example",
+          "source": "manual",
+          "checked_at": "2026-11-11T13:16:03.228934+00:00",
+          "prior_application": "none",
+          "saved": false
+        },
+        "match": {
+          "hard_conflicts": [],
+          "unknowns": [
+            "Work rights / sponsorship need confirmation",
+            "Availability not verified"
+          ],
+          "preferences": [],
+          "evidence": [
+            {
+              "requirement": "React",
+              "fact_ids": [
+                "4d4cfaed8041454f95771444a4e37d90"
+              ],
+              "assessment": "Related text; verify full requirement"
+            }
+          ],
+          "gaps": [],
+          "stretch": false,
+          "eligible_for_preparation": true,
+          "fact_ids": [
+            "db7ef7311b784dedac82860859eb81fa",
+            "341ecf1ad80e4980a2642811f7c27bf9",
+            "b79a50395a0c45cea69a59e0fe084d11",
+            "73b2d556fa644873b8a2ceabaac10cda",
+            "4d4cfaed8041454f95771444a4e37d90",
+            "afe9c12f83d54babbe15f779c318084f",
+            "045d826ab2044774a659b7f5b1877e43"
+          ],
+          "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+          "salary_expectation": {
+            "target": "Unresolved — request the employer band or add comparable local salary evidence",
+            "basis": "No comparable gross-base band is available; no precise expectation invented.",
+            "source": "",
+            "confidence": "low"
+          }
+        }
+      },
+      {
+        "job": {
+          "title": "Release Engineer",
+          "employer": "Brookstone Digital",
+          "location": "Toronto",
+          "description": "Fictional example. Help an engineering team build and support services using CI/CD.",
+          "url": "",
+          "email": "",
+          "closes": "",
+          "posted_at": "",
+          "reposted_at": "",
+          "seniority": "",
+          "work_arrangement": "",
+          "sponsorship": "",
+          "requirements": [
+            "CI/CD"
+          ],
+          "eligibility": "unknown",
+          "salary": {
+            "currency": "",
+            "period": "",
+            "basis": "",
+            "min": 0.0,
+            "max": 0.0
+          },
+          "expectation": {
+            "target": "",
+            "basis": "",
+            "source": "",
+            "confidence": ""
+          },
+          "id": "0843c36e23f443c5ae8bff799fc47e9d",
+          "availability": "Illustrative example",
+          "source": "manual",
+          "checked_at": "2026-11-11T13:16:03.590623+00:00",
+          "prior_application": "none",
+          "saved": false,
+          "removals": [
+            {
+              "id": "73f32d17c1a44d0d94279fd95219b16c",
+              "at": "2026-11-11T13:16:03.592325+00:00",
+              "reason": "Sample decision. Focus on other roles.",
+              "reason_updated_at": "2026-11-11T13:16:03.593448+00:00"
+            }
+          ]
+        },
+        "match": {
+          "hard_conflicts": [],
+          "unknowns": [
+            "Work rights / sponsorship need confirmation",
+            "Availability not verified"
+          ],
+          "preferences": [],
+          "evidence": [
+            {
+              "requirement": "CI/CD",
+              "fact_ids": [
+                "045d826ab2044774a659b7f5b1877e43"
+              ],
+              "assessment": "Related text; verify full requirement"
+            }
+          ],
+          "gaps": [],
+          "stretch": false,
+          "eligible_for_preparation": true,
+          "fact_ids": [
+            "045d826ab2044774a659b7f5b1877e43",
+            "db7ef7311b784dedac82860859eb81fa",
+            "341ecf1ad80e4980a2642811f7c27bf9",
+            "b79a50395a0c45cea69a59e0fe084d11",
+            "73b2d556fa644873b8a2ceabaac10cda",
+            "4d4cfaed8041454f95771444a4e37d90",
+            "afe9c12f83d54babbe15f779c318084f"
+          ],
+          "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+          "salary_expectation": {
+            "target": "Unresolved — request the employer band or add comparable local salary evidence",
+            "basis": "No comparable gross-base band is available; no precise expectation invented.",
+            "source": "",
+            "confidence": "low"
+          }
+        }
+      },
+      {
+        "job": {
+          "title": "Key User Sales and Support Manager",
+          "employer": "Bosch Group",
+          "location": "Singapore, , Singapore",
+          "description": "Key User Sales and Support Manager at Bosch Group in Singapore, , Singapore. See the original advert for the full role and current requirements.",
+          "url": "https://jobs.smartrecruiters.com/BoschGroup/744000160126689",
+          "email": "",
+          "closes": "",
+          "posted_at": "2026-11-06",
+          "reposted_at": "",
+          "seniority": "",
+          "work_arrangement": "",
+          "sponsorship": "",
+          "careers_url": "https://careers.smartrecruiters.com/BoschGroup",
+          "requirements": [],
+          "eligibility": "unknown",
+          "salary": {
+            "currency": "",
+            "period": "",
+            "basis": "",
+            "min": 0.0,
+            "max": 0.0
+          },
+          "expectation": {
+            "target": "",
+            "basis": "",
+            "source": "",
+            "confidence": ""
+          },
+          "id": "0e991284d2dc46d5b799a54a1026bed0",
+          "availability": "Employer snapshot",
+          "source": "smartrecruiters:BoschGroup:sg",
+          "checked_at": "2026-11-11T13:12:59.866939+00:00",
+          "prior_application": "none",
+          "saved": false
+        },
+        "match": {
+          "hard_conflicts": [],
+          "unknowns": [
+            "Work rights / sponsorship need confirmation",
+            "Availability not verified"
+          ],
+          "preferences": [
+            "roles outside preferences"
+          ],
+          "evidence": [],
+          "gaps": [],
+          "stretch": true,
+          "eligible_for_preparation": false,
+          "fact_ids": [],
+          "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+          "salary_expectation": {
+            "target": "Unresolved — request the employer band or add comparable local salary evidence",
+            "basis": "No comparable gross-base band is available; no precise expectation invented.",
+            "source": "https://jobs.smartrecruiters.com/BoschGroup/744000160126689",
+            "confidence": "low"
+          }
+        }
+      },
+      {
+        "job": {
+          "title": "Quantity Surveyor, M&E",
+          "employer": "AECOM",
+          "location": "Singapore, , Singapore",
+          "description": "Quantity Surveyor, M&E at AECOM in Singapore, , Singapore. See the original advert for the full role and current requirements.",
+          "url": "https://jobs.smartrecruiters.com/AECOM2/744000161019169",
+          "email": "",
+          "closes": "",
+          "posted_at": "2026-11-11",
+          "reposted_at": "",
+          "seniority": "",
+          "work_arrangement": "",
+          "sponsorship": "",
+          "careers_url": "https://careers.smartrecruiters.com/AECOM2",
+          "requirements": [
+            "project management"
+          ],
+          "eligibility": "unknown",
+          "salary": {
+            "currency": "",
+            "period": "",
+            "basis": "",
+            "min": 0.0,
+            "max": 0.0
+          },
+          "expectation": {
+            "target": "",
+            "basis": "",
+            "source": "",
+            "confidence": ""
+          },
+          "id": "e84ffc921a8f4ae7ab2e63e6134f10e9",
+          "availability": "Employer snapshot",
+          "source": "smartrecruiters:AECOM2:sg",
+          "checked_at": "2026-11-11T13:12:59.866939+00:00",
+          "prior_application": "none",
+          "saved": false
+        },
+        "match": {
+          "hard_conflicts": [],
+          "unknowns": [
+            "Work rights / sponsorship need confirmation",
+            "Availability not verified"
+          ],
+          "preferences": [
+            "roles outside preferences"
+          ],
+          "evidence": [
+            {
+              "requirement": "project management",
+              "fact_ids": [],
+              "assessment": "No confirmed evidence"
+            }
+          ],
+          "gaps": [
+            "project management"
+          ],
+          "stretch": true,
+          "eligible_for_preparation": false,
+          "fact_ids": [],
+          "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+          "salary_expectation": {
+            "target": "Unresolved — request the employer band or add comparable local salary evidence",
+            "basis": "No comparable gross-base band is available; no precise expectation invented.",
+            "source": "https://jobs.smartrecruiters.com/AECOM2/744000161019169",
+            "confidence": "low"
+          }
+        }
+      },
+      {
+        "job": {
+          "title": "Executive Quantity Surveyor, M&E",
+          "employer": "AECOM",
+          "location": "Singapore, , Singapore",
+          "description": "Executive Quantity Surveyor, M&E at AECOM in Singapore, , Singapore. See the original advert for the full role and current requirements.",
+          "url": "https://jobs.smartrecruiters.com/AECOM2/744000161019049",
+          "email": "",
+          "closes": "",
+          "posted_at": "2026-11-11",
+          "reposted_at": "",
+          "seniority": "",
+          "work_arrangement": "",
+          "sponsorship": "",
+          "careers_url": "https://careers.smartrecruiters.com/AECOM2",
+          "requirements": [
+            "project management"
+          ],
+          "eligibility": "unknown",
+          "salary": {
+            "currency": "",
+            "period": "",
+            "basis": "",
+            "min": 0.0,
+            "max": 0.0
+          },
+          "expectation": {
+            "target": "",
+            "basis": "",
+            "source": "",
+            "confidence": ""
+          },
+          "id": "901501d4c9b242d8872d4cbde620bf11",
+          "availability": "Employer snapshot",
+          "source": "smartrecruiters:AECOM2:sg",
+          "checked_at": "2026-11-11T13:12:59.866939+00:00",
+          "prior_application": "none",
+          "saved": false
+        },
+        "match": {
+          "hard_conflicts": [],
+          "unknowns": [
+            "Work rights / sponsorship need confirmation",
+            "Availability not verified"
+          ],
+          "preferences": [
+            "roles outside preferences"
+          ],
+          "evidence": [
+            {
+              "requirement": "project management",
+              "fact_ids": [],
+              "assessment": "No confirmed evidence"
+            }
+          ],
+          "gaps": [
+            "project management"
+          ],
+          "stretch": true,
+          "eligible_for_preparation": false,
+          "fact_ids": [],
+          "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+          "salary_expectation": {
+            "target": "Unresolved — request the employer band or add comparable local salary evidence",
+            "basis": "No comparable gross-base band is available; no precise expectation invented.",
+            "source": "https://jobs.smartrecruiters.com/AECOM2/744000161019049",
+            "confidence": "low"
+          }
+        }
+      },
+      {
+        "job": {
+          "title": "Senior Quantity Surveyor, M&E",
+          "employer": "AECOM",
+          "location": "Singapore, , Singapore",
+          "description": "Senior Quantity Surveyor, M&E at AECOM in Singapore, , Singapore. See the original advert for the full role and current requirements.",
+          "url": "https://jobs.smartrecruiters.com/AECOM2/744000161019009",
+          "email": "",
+          "closes": "",
+          "posted_at": "2026-11-11",
+          "reposted_at": "",
+          "seniority": "",
+          "work_arrangement": "Hybrid",
+          "sponsorship": "",
+          "careers_url": "https://careers.smartrecruiters.com/AECOM2",
+          "requirements": [
+            "project management"
+          ],
+          "eligibility": "unknown",
+          "salary": {
+            "currency": "",
+            "period": "",
+            "basis": "",
+            "min": 0.0,
+            "max": 0.0
+          },
+          "expectation": {
+            "target": "",
+            "basis": "",
+            "source": "",
+            "confidence": ""
+          },
+          "id": "4ba8aa0283054ecf8b923d48bc7d501d",
+          "availability": "Employer snapshot",
+          "source": "smartrecruiters:AECOM2:sg",
+          "checked_at": "2026-11-11T13:12:59.866939+00:00",
+          "prior_application": "none",
+          "saved": false
+        },
+        "match": {
+          "hard_conflicts": [],
+          "unknowns": [
+            "Work rights / sponsorship need confirmation",
+            "Availability not verified"
+          ],
+          "preferences": [
+            "roles outside preferences"
+          ],
+          "evidence": [
+            {
+              "requirement": "project management",
+              "fact_ids": [],
+              "assessment": "No confirmed evidence"
+            }
+          ],
+          "gaps": [
+            "project management"
+          ],
+          "stretch": true,
+          "eligible_for_preparation": false,
+          "fact_ids": [],
+          "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+          "salary_expectation": {
+            "target": "Unresolved — request the employer band or add comparable local salary evidence",
+            "basis": "No comparable gross-base band is available; no precise expectation invented.",
+            "source": "https://jobs.smartrecruiters.com/AECOM2/744000161019009",
+            "confidence": "low"
+          }
+        }
+      },
+      {
+        "job": {
+          "title": "Principal Civil Engineer – Water Infrastructure",
+          "employer": "AECOM",
+          "location": "Melbourne, VIC, Australia",
+          "description": "Principal Civil Engineer – Water Infrastructure at AECOM in Melbourne, VIC, Australia. See the original advert for the full role and current requirements.",
+          "url": "https://jobs.smartrecruiters.com/AECOM2/744000158217819",
+          "email": "",
+          "closes": "",
+          "posted_at": "2026-10-28",
+          "reposted_at": "",
+          "seniority": "",
+          "work_arrangement": "",
+          "sponsorship": "",
+          "careers_url": "https://careers.smartrecruiters.com/AECOM2",
+          "requirements": [],
+          "eligibility": "unknown",
+          "salary": {
+            "currency": "",
+            "period": "",
+            "basis": "",
+            "min": 0.0,
+            "max": 0.0
+          },
+          "expectation": {
+            "target": "",
+            "basis": "",
+            "source": "",
+            "confidence": ""
+          },
+          "id": "1dd00ad22f5c4b4680ac25f56b64066f",
+          "availability": "Employer snapshot",
+          "source": "smartrecruiters:AECOM2:au",
+          "checked_at": "2026-11-11T13:12:59.866939+00:00",
+          "prior_application": "none",
+          "saved": false
+        },
+        "match": {
+          "hard_conflicts": [],
+          "unknowns": [
+            "Work rights / sponsorship need confirmation",
+            "Availability not verified"
+          ],
+          "preferences": [],
+          "evidence": [],
+          "gaps": [],
+          "stretch": true,
+          "eligible_for_preparation": false,
+          "fact_ids": [],
+          "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+          "salary_expectation": {
+            "target": "Unresolved — request the employer band or add comparable local salary evidence",
+            "basis": "No comparable gross-base band is available; no precise expectation invented.",
+            "source": "https://jobs.smartrecruiters.com/AECOM2/744000158217819",
+            "confidence": "low"
+          }
+        }
+      },
+      {
+        "job": {
+          "title": "Senior Civil Engineer - Water Infrastructure",
+          "employer": "AECOM",
+          "location": "Melbourne, VIC, Australia",
+          "description": "Senior Civil Engineer - Water Infrastructure at AECOM in Melbourne, VIC, Australia. See the original advert for the full role and current requirements.",
+          "url": "https://jobs.smartrecruiters.com/AECOM2/744000158215764",
+          "email": "",
+          "closes": "",
+          "posted_at": "2026-10-28",
+          "reposted_at": "",
+          "seniority": "",
+          "work_arrangement": "",
+          "sponsorship": "",
+          "careers_url": "https://careers.smartrecruiters.com/AECOM2",
+          "requirements": [],
+          "eligibility": "unknown",
+          "salary": {
+            "currency": "",
+            "period": "",
+            "basis": "",
+            "min": 0.0,
+            "max": 0.0
+          },
+          "expectation": {
+            "target": "",
+            "basis": "",
+            "source": "",
+            "confidence": ""
+          },
+          "id": "9689829137fc47bf9ff354342669272d",
+          "availability": "Employer snapshot",
+          "source": "smartrecruiters:AECOM2:au",
+          "checked_at": "2026-11-11T13:12:59.866939+00:00",
+          "prior_application": "none",
+          "saved": false
+        },
+        "match": {
+          "hard_conflicts": [],
+          "unknowns": [
+            "Work rights / sponsorship need confirmation",
+            "Availability not verified"
+          ],
+          "preferences": [],
+          "evidence": [],
+          "gaps": [],
+          "stretch": true,
+          "eligible_for_preparation": false,
+          "fact_ids": [],
+          "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+          "salary_expectation": {
+            "target": "Unresolved — request the employer band or add comparable local salary evidence",
+            "basis": "No comparable gross-base band is available; no precise expectation invented.",
+            "source": "https://jobs.smartrecruiters.com/AECOM2/744000158215764",
+            "confidence": "low"
+          }
+        }
+      },
+      {
+        "job": {
+          "title": "Planner / Scheduler - MEP - Data Centre",
+          "employer": "Turner & Townsend",
+          "location": "Melbourne, Australia & New Zealand, Australia",
+          "description": "Planner / Scheduler - MEP - Data Centre at Turner & Townsend in Melbourne, Australia & New Zealand, Australia. See the original advert for the full role and current requirements.",
+          "url": "https://jobs.smartrecruiters.com/TurnerTownsend/744000160988520",
+          "email": "",
+          "closes": "",
+          "posted_at": "2026-11-11",
+          "reposted_at": "",
+          "seniority": "",
+          "work_arrangement": "Hybrid",
+          "sponsorship": "",
+          "careers_url": "https://careers.smartrecruiters.com/TurnerTownsend",
+          "requirements": [],
+          "eligibility": "unknown",
+          "salary": {
+            "currency": "",
+            "period": "",
+            "basis": "",
+            "min": 0.0,
+            "max": 0.0
+          },
+          "expectation": {
+            "target": "",
+            "basis": "",
+            "source": "",
+            "confidence": ""
+          },
+          "id": "4609c5e52fa74550afb9878e26410fdc",
+          "availability": "Employer snapshot",
+          "source": "smartrecruiters:TurnerTownsend:au",
+          "checked_at": "2026-11-11T13:12:59.866939+00:00",
+          "prior_application": "none",
+          "saved": false
+        },
+        "match": {
+          "hard_conflicts": [],
+          "unknowns": [
+            "Work rights / sponsorship need confirmation",
+            "Availability not verified"
+          ],
+          "preferences": [
+            "roles outside preferences"
+          ],
+          "evidence": [],
+          "gaps": [],
+          "stretch": true,
+          "eligible_for_preparation": false,
+          "fact_ids": [],
+          "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+          "salary_expectation": {
+            "target": "Unresolved — request the employer band or add comparable local salary evidence",
+            "basis": "No comparable gross-base band is available; no precise expectation invented.",
+            "source": "https://jobs.smartrecruiters.com/TurnerTownsend/744000160988520",
+            "confidence": "low"
+          }
+        }
+      },
+      {
+        "job": {
+          "title": "Cost Manager - MEP - Data Centre",
+          "employer": "Turner & Townsend",
+          "location": "Melbourne, Australia & New Zealand, Australia",
+          "description": "Cost Manager - MEP - Data Centre at Turner & Townsend in Melbourne, Australia & New Zealand, Australia. See the original advert for the full role and current requirements.",
+          "url": "https://jobs.smartrecruiters.com/TurnerTownsend/744000161024509",
+          "email": "",
+          "closes": "",
+          "posted_at": "2026-11-11",
+          "reposted_at": "",
+          "seniority": "",
+          "work_arrangement": "",
+          "sponsorship": "",
+          "careers_url": "https://careers.smartrecruiters.com/TurnerTownsend",
+          "requirements": [
+            "data centre"
+          ],
+          "eligibility": "unknown",
+          "salary": {
+            "currency": "",
+            "period": "",
+            "basis": "",
+            "min": 0.0,
+            "max": 0.0
+          },
+          "expectation": {
+            "target": "",
+            "basis": "",
+            "source": "",
+            "confidence": ""
+          },
+          "id": "e64e4b67850548bc96af09904c00da6f",
+          "availability": "Employer snapshot",
+          "source": "smartrecruiters:TurnerTownsend:au",
+          "checked_at": "2026-11-11T13:12:59.866939+00:00",
+          "prior_application": "none",
+          "saved": false
+        },
+        "match": {
+          "hard_conflicts": [],
+          "unknowns": [
+            "Work rights / sponsorship need confirmation",
+            "Availability not verified"
+          ],
+          "preferences": [
+            "roles outside preferences"
+          ],
+          "evidence": [
+            {
+              "requirement": "data centre",
+              "fact_ids": [],
+              "assessment": "No confirmed evidence"
+            }
+          ],
+          "gaps": [
+            "data centre"
+          ],
+          "stretch": true,
+          "eligible_for_preparation": false,
+          "fact_ids": [],
+          "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+          "salary_expectation": {
+            "target": "Unresolved — request the employer band or add comparable local salary evidence",
+            "basis": "No comparable gross-base band is available; no precise expectation invented.",
+            "source": "https://jobs.smartrecruiters.com/TurnerTownsend/744000161024509",
+            "confidence": "low"
+          }
+        }
+      },
+      {
+        "job": {
+          "title": "Associate Counsel, Business & Legal Affairs",
+          "employer": "NBCUniversal",
+          "location": "New York, NEW YORK, United States",
+          "description": "Associate Counsel, Business & Legal Affairs at NBCUniversal in New York, NEW YORK, United States. See the original advert for the full role and current requirements.",
+          "url": "https://jobs.smartrecruiters.com/NBCUniversal3/744000160961279",
+          "email": "",
+          "closes": "",
+          "posted_at": "2026-11-10",
+          "reposted_at": "",
+          "seniority": "",
+          "work_arrangement": "Hybrid",
+          "sponsorship": "",
+          "careers_url": "https://careers.smartrecruiters.com/NBCUniversal3",
+          "requirements": [],
+          "eligibility": "unknown",
+          "salary": {
+            "currency": "",
+            "period": "",
+            "basis": "",
+            "min": 0.0,
+            "max": 0.0
+          },
+          "expectation": {
+            "target": "",
+            "basis": "",
+            "source": "",
+            "confidence": ""
+          },
+          "id": "66bd15dc08ea4c3db4c57e5e22b75779",
+          "availability": "Employer snapshot",
+          "source": "smartrecruiters:NBCUniversal3:us",
+          "checked_at": "2026-11-11T13:12:59.866939+00:00",
+          "prior_application": "none",
+          "saved": false
+        },
+        "match": {
+          "hard_conflicts": [],
+          "unknowns": [
+            "Work rights / sponsorship need confirmation",
+            "Availability not verified"
+          ],
+          "preferences": [
+            "roles outside preferences"
+          ],
+          "evidence": [],
+          "gaps": [],
+          "stretch": true,
+          "eligible_for_preparation": false,
+          "fact_ids": [],
+          "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+          "salary_expectation": {
+            "target": "Unresolved — request the employer band or add comparable local salary evidence",
+            "basis": "No comparable gross-base band is available; no precise expectation invented.",
+            "source": "https://jobs.smartrecruiters.com/NBCUniversal3/744000160961279",
+            "confidence": "low"
+          }
+        }
+      },
+      {
+        "job": {
+          "title": "Structural Engineer I",
+          "employer": "AECOM",
+          "location": "New York, NY, United States",
+          "description": "Structural Engineer I at AECOM in New York, NY, United States. See the original advert for the full role and current requirements.",
+          "url": "https://jobs.smartrecruiters.com/AECOM2/744000160939959",
+          "email": "",
+          "closes": "",
+          "posted_at": "2026-11-10",
+          "reposted_at": "",
+          "seniority": "",
+          "work_arrangement": "Hybrid",
+          "sponsorship": "",
+          "careers_url": "https://careers.smartrecruiters.com/AECOM2",
+          "requirements": [],
+          "eligibility": "unknown",
+          "salary": {
+            "currency": "",
+            "period": "",
+            "basis": "",
+            "min": 0.0,
+            "max": 0.0
+          },
+          "expectation": {
+            "target": "",
+            "basis": "",
+            "source": "",
+            "confidence": ""
+          },
+          "id": "13ec47b521b6467a8f10a4c8ccf015ed",
+          "availability": "Employer snapshot",
+          "source": "smartrecruiters:AECOM2:us",
+          "checked_at": "2026-11-11T13:12:59.866939+00:00",
+          "prior_application": "none",
+          "saved": false
+        },
+        "match": {
+          "hard_conflicts": [],
+          "unknowns": [
+            "Work rights / sponsorship need confirmation",
+            "Availability not verified"
+          ],
+          "preferences": [],
+          "evidence": [],
+          "gaps": [],
+          "stretch": true,
+          "eligible_for_preparation": false,
+          "fact_ids": [],
+          "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+          "salary_expectation": {
+            "target": "Unresolved — request the employer band or add comparable local salary evidence",
+            "basis": "No comparable gross-base band is available; no precise expectation invented.",
+            "source": "https://jobs.smartrecruiters.com/AECOM2/744000160939959",
+            "confidence": "low"
+          }
+        }
+      },
+      {
+        "job": {
+          "title": "Civil Inspector",
+          "employer": "AECOM",
+          "location": "New York, NY, United States",
+          "description": "Civil Inspector at AECOM in New York, NY, United States. See the original advert for the full role and current requirements.",
+          "url": "https://jobs.smartrecruiters.com/AECOM2/744000160640501",
+          "email": "",
+          "closes": "",
+          "posted_at": "2026-11-09",
+          "reposted_at": "",
+          "seniority": "",
+          "work_arrangement": "",
+          "sponsorship": "",
+          "careers_url": "https://careers.smartrecruiters.com/AECOM2",
+          "requirements": [],
+          "eligibility": "unknown",
+          "salary": {
+            "currency": "",
+            "period": "",
+            "basis": "",
+            "min": 0.0,
+            "max": 0.0
+          },
+          "expectation": {
+            "target": "",
+            "basis": "",
+            "source": "",
+            "confidence": ""
+          },
+          "id": "c8183386586e406fb9d9e3ea7c237041",
+          "availability": "Employer snapshot",
+          "source": "smartrecruiters:AECOM2:us",
+          "checked_at": "2026-11-11T13:12:59.866939+00:00",
+          "prior_application": "none",
+          "saved": false
+        },
+        "match": {
+          "hard_conflicts": [],
+          "unknowns": [
+            "Work rights / sponsorship need confirmation",
+            "Availability not verified"
+          ],
+          "preferences": [
+            "roles outside preferences"
+          ],
+          "evidence": [],
+          "gaps": [],
+          "stretch": true,
+          "eligible_for_preparation": false,
+          "fact_ids": [],
+          "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+          "salary_expectation": {
+            "target": "Unresolved — request the employer band or add comparable local salary evidence",
+            "basis": "No comparable gross-base band is available; no precise expectation invented.",
+            "source": "https://jobs.smartrecruiters.com/AECOM2/744000160640501",
+            "confidence": "low"
+          }
+        }
+      },
+      {
+        "job": {
+          "title": "Engineering Manager, VOD Media",
+          "employer": "NBCUniversal",
+          "location": "New York, NEW YORK, United States",
+          "description": "Engineering Manager, VOD Media at NBCUniversal in New York, NEW YORK, United States. See the original advert for the full role and current requirements.",
+          "url": "https://jobs.smartrecruiters.com/NBCUniversal3/744000160942119",
+          "email": "",
+          "closes": "",
+          "posted_at": "2026-11-10",
+          "reposted_at": "",
+          "seniority": "",
+          "work_arrangement": "Hybrid",
+          "sponsorship": "",
+          "careers_url": "https://careers.smartrecruiters.com/NBCUniversal3",
+          "requirements": [
+            "Python",
+            "Java",
+            "AWS",
+            "Kubernetes"
+          ],
+          "eligibility": "unknown",
+          "salary": {
+            "currency": "",
+            "period": "",
+            "basis": "",
+            "min": 0.0,
+            "max": 0.0
+          },
+          "expectation": {
+            "target": "",
+            "basis": "",
+            "source": "",
+            "confidence": ""
+          },
+          "id": "53de9d56ba284e7aa0f926b3d70bed27",
+          "availability": "Employer snapshot",
+          "source": "smartrecruiters:NBCUniversal3:us",
+          "checked_at": "2026-11-11T13:12:59.866939+00:00",
+          "prior_application": "none",
+          "saved": false
+        },
+        "match": {
+          "hard_conflicts": [],
+          "unknowns": [
+            "Work rights / sponsorship need confirmation",
+            "Availability not verified"
+          ],
+          "preferences": [],
+          "evidence": [
+            {
+              "requirement": "Python",
+              "fact_ids": [
+                "db7ef7311b784dedac82860859eb81fa"
+              ],
+              "assessment": "Related text; verify full requirement"
+            },
+            {
+              "requirement": "Java",
+              "fact_ids": [],
+              "assessment": "No confirmed evidence"
+            },
+            {
+              "requirement": "AWS",
+              "fact_ids": [
+                "341ecf1ad80e4980a2642811f7c27bf9"
+              ],
+              "assessment": "Related text; verify full requirement"
+            },
+            {
+              "requirement": "Kubernetes",
+              "fact_ids": [],
+              "assessment": "No confirmed evidence"
+            }
+          ],
+          "gaps": [
+            "Java",
+            "Kubernetes"
+          ],
+          "stretch": true,
+          "eligible_for_preparation": false,
+          "fact_ids": [],
+          "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+          "salary_expectation": {
+            "target": "Unresolved — request the employer band or add comparable local salary evidence",
+            "basis": "No comparable gross-base band is available; no precise expectation invented.",
+            "source": "https://jobs.smartrecruiters.com/NBCUniversal3/744000160942119",
+            "confidence": "low"
+          }
+        }
+      },
+      {
+        "job": {
+          "title": "Associate Design Engineer",
+          "employer": "NBCUniversal",
+          "location": "New York, NEW YORK, United States",
+          "description": "Associate Design Engineer at NBCUniversal in New York, NEW YORK, United States. See the original advert for the full role and current requirements.",
+          "url": "https://jobs.smartrecruiters.com/NBCUniversal3/744000160955954",
+          "email": "",
+          "closes": "",
+          "posted_at": "2026-11-10",
+          "reposted_at": "",
+          "seniority": "",
+          "work_arrangement": "Hybrid",
+          "sponsorship": "",
+          "careers_url": "https://careers.smartrecruiters.com/NBCUniversal3",
+          "requirements": [
+            "JavaScript",
+            "TypeScript",
+            "React",
+            "AWS",
+            "Azure",
+            "API"
+          ],
+          "eligibility": "unknown",
+          "salary": {
+            "currency": "",
+            "period": "",
+            "basis": "",
+            "min": 0.0,
+            "max": 0.0
+          },
+          "expectation": {
+            "target": "",
+            "basis": "",
+            "source": "",
+            "confidence": ""
+          },
+          "id": "8008e26e45f646ed9e73b3e791cb914d",
+          "availability": "Employer snapshot",
+          "source": "smartrecruiters:NBCUniversal3:us",
+          "checked_at": "2026-11-11T13:12:59.866939+00:00",
+          "prior_application": "none",
+          "saved": false
+        },
+        "match": {
+          "hard_conflicts": [],
+          "unknowns": [
+            "Work rights / sponsorship need confirmation",
+            "Availability not verified"
+          ],
+          "preferences": [],
+          "evidence": [
+            {
+              "requirement": "JavaScript",
+              "fact_ids": [],
+              "assessment": "No confirmed evidence"
+            },
+            {
+              "requirement": "TypeScript",
+              "fact_ids": [
+                "afe9c12f83d54babbe15f779c318084f"
+              ],
+              "assessment": "Related text; verify full requirement"
+            },
+            {
+              "requirement": "React",
+              "fact_ids": [
+                "4d4cfaed8041454f95771444a4e37d90"
+              ],
+              "assessment": "Related text; verify full requirement"
+            },
+            {
+              "requirement": "AWS",
+              "fact_ids": [
+                "341ecf1ad80e4980a2642811f7c27bf9"
+              ],
+              "assessment": "Related text; verify full requirement"
+            },
+            {
+              "requirement": "Azure",
+              "fact_ids": [],
+              "assessment": "No confirmed evidence"
+            },
+            {
+              "requirement": "API",
+              "fact_ids": [],
+              "assessment": "No confirmed evidence"
+            }
+          ],
+          "gaps": [
+            "JavaScript",
+            "Azure",
+            "API"
+          ],
+          "stretch": true,
+          "eligible_for_preparation": false,
+          "fact_ids": [],
+          "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+          "salary_expectation": {
+            "target": "Unresolved — request the employer band or add comparable local salary evidence",
+            "basis": "No comparable gross-base band is available; no precise expectation invented.",
+            "source": "https://jobs.smartrecruiters.com/NBCUniversal3/744000160955954",
+            "confidence": "low"
+          }
+        }
+      },
+      {
+        "job": {
+          "title": "Principal Electrical Engineer (Solar/Renewables)",
+          "employer": "AECOM",
+          "location": "London, , United Kingdom",
+          "description": "Principal Electrical Engineer (Solar/Renewables) at AECOM in London, , United Kingdom. See the original advert for the full role and current requirements.",
+          "url": "https://jobs.smartrecruiters.com/AECOM2/744000161051849",
+          "email": "",
+          "closes": "",
+          "posted_at": "2026-11-11",
+          "reposted_at": "",
+          "seniority": "",
+          "work_arrangement": "Hybrid",
+          "sponsorship": "",
+          "careers_url": "https://careers.smartrecruiters.com/AECOM2",
+          "requirements": [],
+          "eligibility": "unknown",
+          "salary": {
+            "currency": "",
+            "period": "",
+            "basis": "",
+            "min": 0.0,
+            "max": 0.0
+          },
+          "expectation": {
+            "target": "",
+            "basis": "",
+            "source": "",
+            "confidence": ""
+          },
+          "id": "c2df5083939b45e1892bea5f5674faaa",
+          "availability": "Employer snapshot",
+          "source": "smartrecruiters:AECOM2:gb",
+          "checked_at": "2026-11-11T13:12:59.866939+00:00",
+          "prior_application": "none",
+          "saved": false
+        },
+        "match": {
+          "hard_conflicts": [],
+          "unknowns": [
+            "Work rights / sponsorship need confirmation",
+            "Availability not verified"
+          ],
+          "preferences": [],
+          "evidence": [],
+          "gaps": [],
+          "stretch": true,
+          "eligible_for_preparation": false,
+          "fact_ids": [],
+          "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+          "salary_expectation": {
+            "target": "Unresolved — request the employer band or add comparable local salary evidence",
+            "basis": "No comparable gross-base band is available; no precise expectation invented.",
+            "source": "https://jobs.smartrecruiters.com/AECOM2/744000161051849",
+            "confidence": "low"
+          }
+        }
+      },
+      {
+        "job": {
+          "title": "Director of Foundation",
+          "employer": "Experian",
+          "location": "London, , United Kingdom",
+          "description": "Director of Foundation at Experian in London, , United Kingdom. See the original advert for the full role and current requirements.",
+          "url": "https://jobs.smartrecruiters.com/Experian/744000161066654",
+          "email": "",
+          "closes": "",
+          "posted_at": "2026-11-11",
+          "reposted_at": "",
+          "seniority": "",
+          "work_arrangement": "",
+          "sponsorship": "",
+          "careers_url": "https://careers.smartrecruiters.com/Experian",
+          "requirements": [],
+          "eligibility": "unknown",
+          "salary": {
+            "currency": "",
+            "period": "",
+            "basis": "",
+            "min": 0.0,
+            "max": 0.0
+          },
+          "expectation": {
+            "target": "",
+            "basis": "",
+            "source": "",
+            "confidence": ""
+          },
+          "id": "a81b2d9aa5f8441e8b068dc939b02d62",
+          "availability": "Employer snapshot",
+          "source": "smartrecruiters:Experian:gb",
+          "checked_at": "2026-11-11T13:12:59.866939+00:00",
+          "prior_application": "none",
+          "saved": false
+        },
+        "match": {
+          "hard_conflicts": [],
+          "unknowns": [
+            "Work rights / sponsorship need confirmation",
+            "Availability not verified"
+          ],
+          "preferences": [
+            "roles outside preferences"
+          ],
+          "evidence": [],
+          "gaps": [],
+          "stretch": true,
+          "eligible_for_preparation": false,
+          "fact_ids": [],
+          "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+          "salary_expectation": {
+            "target": "Unresolved — request the employer band or add comparable local salary evidence",
+            "basis": "No comparable gross-base band is available; no precise expectation invented.",
+            "source": "https://jobs.smartrecruiters.com/Experian/744000161066654",
+            "confidence": "low"
+          }
+        }
+      },
+      {
+        "job": {
+          "title": "Junior Information Security Officer",
+          "employer": "Experian",
+          "location": "London, , United Kingdom",
+          "description": "Junior Information Security Officer at Experian in London, , United Kingdom. See the original advert for the full role and current requirements.",
+          "url": "https://jobs.smartrecruiters.com/Experian/744000160836896",
+          "email": "",
+          "closes": "",
+          "posted_at": "2026-11-10",
+          "reposted_at": "",
+          "seniority": "",
+          "work_arrangement": "Hybrid",
+          "sponsorship": "",
+          "careers_url": "https://careers.smartrecruiters.com/Experian",
+          "requirements": [],
+          "eligibility": "unknown",
+          "salary": {
+            "currency": "",
+            "period": "",
+            "basis": "",
+            "min": 0.0,
+            "max": 0.0
+          },
+          "expectation": {
+            "target": "",
+            "basis": "",
+            "source": "",
+            "confidence": ""
+          },
+          "id": "076711510db94e2ba4c4351cb76dd4cb",
+          "availability": "Employer snapshot",
+          "source": "smartrecruiters:Experian:gb",
+          "checked_at": "2026-11-11T13:12:59.866939+00:00",
+          "prior_application": "none",
+          "saved": false
+        },
+        "match": {
+          "hard_conflicts": [],
+          "unknowns": [
+            "Work rights / sponsorship need confirmation",
+            "Availability not verified"
+          ],
+          "preferences": [
+            "roles outside preferences"
+          ],
+          "evidence": [],
+          "gaps": [],
+          "stretch": true,
+          "eligible_for_preparation": false,
+          "fact_ids": [],
+          "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+          "salary_expectation": {
+            "target": "Unresolved — request the employer band or add comparable local salary evidence",
+            "basis": "No comparable gross-base band is available; no precise expectation invented.",
+            "source": "https://jobs.smartrecruiters.com/Experian/744000160836896",
+            "confidence": "low"
+          }
+        }
+      },
+      {
+        "job": {
+          "title": "Technical Director and Electrical Team Lead (Data Centre)",
+          "employer": "AECOM",
+          "location": "London, , United Kingdom",
+          "description": "Technical Director and Electrical Team Lead (Data Centre) at AECOM in London, , United Kingdom. See the original advert for the full role and current requirements.",
+          "url": "https://jobs.smartrecruiters.com/AECOM2/744000160913429",
+          "email": "",
+          "closes": "",
+          "posted_at": "2026-11-10",
+          "reposted_at": "",
+          "seniority": "",
+          "work_arrangement": "Hybrid",
+          "sponsorship": "",
+          "careers_url": "https://careers.smartrecruiters.com/AECOM2",
+          "requirements": [
+            "data centre"
+          ],
+          "eligibility": "unknown",
+          "salary": {
+            "currency": "",
+            "period": "",
+            "basis": "",
+            "min": 0.0,
+            "max": 0.0
+          },
+          "expectation": {
+            "target": "",
+            "basis": "",
+            "source": "",
+            "confidence": ""
+          },
+          "id": "1cca5e1bb5a04c6e8a702e77676f785c",
+          "availability": "Employer snapshot",
+          "source": "smartrecruiters:AECOM2:gb",
+          "checked_at": "2026-11-11T13:12:59.866939+00:00",
+          "prior_application": "none",
+          "saved": false
+        },
+        "match": {
+          "hard_conflicts": [],
+          "unknowns": [
+            "Work rights / sponsorship need confirmation",
+            "Availability not verified"
+          ],
+          "preferences": [
+            "roles outside preferences"
+          ],
+          "evidence": [
+            {
+              "requirement": "data centre",
+              "fact_ids": [],
+              "assessment": "No confirmed evidence"
+            }
+          ],
+          "gaps": [
+            "data centre"
+          ],
+          "stretch": true,
+          "eligible_for_preparation": false,
+          "fact_ids": [],
+          "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+          "salary_expectation": {
+            "target": "Unresolved — request the employer band or add comparable local salary evidence",
+            "basis": "No comparable gross-base band is available; no precise expectation invented.",
+            "source": "https://jobs.smartrecruiters.com/AECOM2/744000160913429",
+            "confidence": "low"
+          }
+        }
+      },
+      {
+        "job": {
+          "title": "Digital Optimisation Lead, England & Wales",
+          "employer": "AECOM",
+          "location": "London, England, United Kingdom",
+          "description": "Digital Optimisation Lead, England & Wales at AECOM in London, England, United Kingdom. See the original advert for the full role and current requirements.",
+          "url": "https://jobs.smartrecruiters.com/AECOM2/744000160819609",
+          "email": "",
+          "closes": "",
+          "posted_at": "2026-11-10",
+          "reposted_at": "",
+          "seniority": "",
+          "work_arrangement": "Hybrid",
+          "sponsorship": "",
+          "careers_url": "https://careers.smartrecruiters.com/AECOM2",
+          "requirements": [
+            "Python",
+            "Azure"
+          ],
+          "eligibility": "unknown",
+          "salary": {
+            "currency": "",
+            "period": "",
+            "basis": "",
+            "min": 0.0,
+            "max": 0.0
+          },
+          "expectation": {
+            "target": "",
+            "basis": "",
+            "source": "",
+            "confidence": ""
+          },
+          "id": "9459b19dc6af4e2f9991ec8be35af7a5",
+          "availability": "Employer snapshot",
+          "source": "smartrecruiters:AECOM2:gb",
+          "checked_at": "2026-11-11T13:12:59.866939+00:00",
+          "prior_application": "none",
+          "saved": false
+        },
+        "match": {
+          "hard_conflicts": [],
+          "unknowns": [
+            "Work rights / sponsorship need confirmation",
+            "Availability not verified"
+          ],
+          "preferences": [
+            "roles outside preferences"
+          ],
+          "evidence": [
+            {
+              "requirement": "Python",
+              "fact_ids": [
+                "db7ef7311b784dedac82860859eb81fa"
+              ],
+              "assessment": "Related text; verify full requirement"
+            },
+            {
+              "requirement": "Azure",
+              "fact_ids": [],
+              "assessment": "No confirmed evidence"
+            }
+          ],
+          "gaps": [
+            "Azure"
+          ],
+          "stretch": true,
+          "eligible_for_preparation": false,
+          "fact_ids": [],
+          "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+          "salary_expectation": {
+            "target": "Unresolved — request the employer band or add comparable local salary evidence",
+            "basis": "No comparable gross-base band is available; no precise expectation invented.",
+            "source": "https://jobs.smartrecruiters.com/AECOM2/744000160819609",
+            "confidence": "low"
+          }
+        }
+      },
+      {
+        "job": {
+          "title": "软件项目经理PCM_XC",
+          "employer": "Bosch Group",
+          "location": "shanghai, , China",
+          "description": "软件项目经理PCM_XC at Bosch Group in shanghai, , China. See the original advert for the full role and current requirements.",
+          "url": "https://jobs.smartrecruiters.com/BoschGroup/744000159585069",
+          "email": "",
+          "closes": "",
+          "posted_at": "2026-11-04",
+          "reposted_at": "",
+          "seniority": "",
+          "work_arrangement": "",
+          "sponsorship": "",
+          "careers_url": "https://careers.smartrecruiters.com/BoschGroup",
+          "requirements": [],
+          "eligibility": "unknown",
+          "salary": {
+            "currency": "",
+            "period": "",
+            "basis": "",
+            "min": 0.0,
+            "max": 0.0
+          },
+          "expectation": {
+            "target": "",
+            "basis": "",
+            "source": "",
+            "confidence": ""
+          },
+          "id": "d410e7da42ef467e8d844f8a7e4bf707",
+          "availability": "Employer snapshot",
+          "source": "smartrecruiters:BoschGroup:cn",
+          "checked_at": "2026-11-11T13:12:59.866939+00:00",
+          "prior_application": "none",
+          "saved": false
+        },
+        "match": {
+          "hard_conflicts": [],
+          "unknowns": [
+            "Work rights / sponsorship need confirmation",
+            "Availability not verified"
+          ],
+          "preferences": [
+            "roles outside preferences"
+          ],
+          "evidence": [],
+          "gaps": [],
+          "stretch": true,
+          "eligible_for_preparation": false,
+          "fact_ids": [],
+          "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+          "salary_expectation": {
+            "target": "Unresolved — request the employer band or add comparable local salary evidence",
+            "basis": "No comparable gross-base band is available; no precise expectation invented.",
+            "source": "https://jobs.smartrecruiters.com/BoschGroup/744000159585069",
+            "confidence": "low"
+          }
+        }
+      },
+      {
+        "job": {
+          "title": "软件项目管理/SW PCM_VM",
+          "employer": "Bosch Group",
+          "location": "Suzhou, Jiangsu, China",
+          "description": "软件项目管理/SW PCM_VM at Bosch Group in Suzhou, Jiangsu, China. See the original advert for the full role and current requirements.",
+          "url": "https://jobs.smartrecruiters.com/BoschGroup/744000160749639",
+          "email": "",
+          "closes": "",
+          "posted_at": "2026-11-10",
+          "reposted_at": "",
+          "seniority": "",
+          "work_arrangement": "",
+          "sponsorship": "",
+          "careers_url": "https://careers.smartrecruiters.com/BoschGroup",
+          "requirements": [
+            "project management"
+          ],
+          "eligibility": "unknown",
+          "salary": {
+            "currency": "",
+            "period": "",
+            "basis": "",
+            "min": 0.0,
+            "max": 0.0
+          },
+          "expectation": {
+            "target": "",
+            "basis": "",
+            "source": "",
+            "confidence": ""
+          },
+          "id": "6022dd11990c43938b70cd310af70453",
+          "availability": "Employer snapshot",
+          "source": "smartrecruiters:BoschGroup:cn",
+          "checked_at": "2026-11-11T13:12:59.866939+00:00",
+          "prior_application": "none",
+          "saved": false
+        },
+        "match": {
+          "hard_conflicts": [],
+          "unknowns": [
+            "Work rights / sponsorship need confirmation",
+            "Availability not verified"
+          ],
+          "preferences": [
+            "roles outside preferences"
+          ],
+          "evidence": [
+            {
+              "requirement": "project management",
+              "fact_ids": [],
+              "assessment": "No confirmed evidence"
+            }
+          ],
+          "gaps": [
+            "project management"
+          ],
+          "stretch": true,
+          "eligible_for_preparation": false,
+          "fact_ids": [],
+          "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+          "salary_expectation": {
+            "target": "Unresolved — request the employer band or add comparable local salary evidence",
+            "basis": "No comparable gross-base band is available; no precise expectation invented.",
+            "source": "https://jobs.smartrecruiters.com/BoschGroup/744000160749639",
+            "confidence": "low"
+          }
+        }
+      },
+      {
+        "job": {
+          "title": "Project Manager（Onboard Charger and DCDC Converter）_EM",
+          "employer": "Bosch Group",
+          "location": "Shanghai, Shanghai, China",
+          "description": "Project Manager（Onboard Charger and DCDC Converter）_EM at Bosch Group in Shanghai, Shanghai, China. See the original advert for the full role and current requirements.",
+          "url": "https://jobs.smartrecruiters.com/BoschGroup/744000158208459",
+          "email": "",
+          "closes": "",
+          "posted_at": "2026-10-28",
+          "reposted_at": "",
+          "seniority": "",
+          "work_arrangement": "",
+          "sponsorship": "",
+          "careers_url": "https://careers.smartrecruiters.com/BoschGroup",
+          "requirements": [
+            "cybersecurity"
+          ],
+          "eligibility": "unknown",
+          "salary": {
+            "currency": "",
+            "period": "",
+            "basis": "",
+            "min": 0.0,
+            "max": 0.0
+          },
+          "expectation": {
+            "target": "",
+            "basis": "",
+            "source": "",
+            "confidence": ""
+          },
+          "id": "766696cf44d741bf866f7882a2ae6a1d",
+          "availability": "Employer snapshot",
+          "source": "smartrecruiters:BoschGroup:cn",
+          "checked_at": "2026-11-11T13:12:59.866939+00:00",
+          "prior_application": "none",
+          "saved": false
+        },
+        "match": {
+          "hard_conflicts": [],
+          "unknowns": [
+            "Work rights / sponsorship need confirmation",
+            "Availability not verified"
+          ],
+          "preferences": [
+            "roles outside preferences"
+          ],
+          "evidence": [
+            {
+              "requirement": "cybersecurity",
+              "fact_ids": [],
+              "assessment": "No confirmed evidence"
+            }
+          ],
+          "gaps": [
+            "cybersecurity"
+          ],
+          "stretch": true,
+          "eligible_for_preparation": false,
+          "fact_ids": [],
+          "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+          "salary_expectation": {
+            "target": "Unresolved — request the employer band or add comparable local salary evidence",
+            "basis": "No comparable gross-base band is available; no precise expectation invented.",
+            "source": "https://jobs.smartrecruiters.com/BoschGroup/744000158208459",
+            "confidence": "low"
+          }
+        }
+      },
+      {
+        "job": {
+          "title": "ME/ECO-CN Group Manager_ME",
+          "employer": "Bosch Group",
+          "location": "Suzhou, Jiangsu, China",
+          "description": "ME/ECO-CN Group Manager_ME at Bosch Group in Suzhou, Jiangsu, China. See the original advert for the full role and current requirements.",
+          "url": "https://jobs.smartrecruiters.com/BoschGroup/744000158198869",
+          "email": "",
+          "closes": "",
+          "posted_at": "2026-10-28",
+          "reposted_at": "",
+          "seniority": "",
+          "work_arrangement": "",
+          "sponsorship": "",
+          "careers_url": "https://careers.smartrecruiters.com/BoschGroup",
+          "requirements": [
+            "Kubernetes",
+            "Docker",
+            "CI/CD"
+          ],
+          "eligibility": "unknown",
+          "salary": {
+            "currency": "",
+            "period": "",
+            "basis": "",
+            "min": 0.0,
+            "max": 0.0
+          },
+          "expectation": {
+            "target": "",
+            "basis": "",
+            "source": "",
+            "confidence": ""
+          },
+          "id": "325f157c4e5242948e006c099198e733",
+          "availability": "Employer snapshot",
+          "source": "smartrecruiters:BoschGroup:cn",
+          "checked_at": "2026-11-11T13:12:59.866939+00:00",
+          "prior_application": "none",
+          "saved": false
+        },
+        "match": {
+          "hard_conflicts": [],
+          "unknowns": [
+            "Work rights / sponsorship need confirmation",
+            "Availability not verified"
+          ],
+          "preferences": [
+            "roles outside preferences"
+          ],
+          "evidence": [
+            {
+              "requirement": "Kubernetes",
+              "fact_ids": [],
+              "assessment": "No confirmed evidence"
+            },
+            {
+              "requirement": "Docker",
+              "fact_ids": [],
+              "assessment": "No confirmed evidence"
+            },
+            {
+              "requirement": "CI/CD",
+              "fact_ids": [
+                "045d826ab2044774a659b7f5b1877e43"
+              ],
+              "assessment": "Related text; verify full requirement"
+            }
+          ],
+          "gaps": [
+            "Kubernetes",
+            "Docker"
+          ],
+          "stretch": true,
+          "eligible_for_preparation": false,
+          "fact_ids": [],
+          "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+          "salary_expectation": {
+            "target": "Unresolved — request the employer band or add comparable local salary evidence",
+            "basis": "No comparable gross-base band is available; no precise expectation invented.",
+            "source": "https://jobs.smartrecruiters.com/BoschGroup/744000158198869",
+            "confidence": "low"
+          }
+        }
+      },
+      {
+        "job": {
+          "title": "Information Security Expert_C",
+          "employer": "Bosch Group",
+          "location": "Suzhou, Jiangsu, China",
+          "description": "Information Security Expert_C at Bosch Group in Suzhou, Jiangsu, China. See the original advert for the full role and current requirements.",
+          "url": "https://jobs.smartrecruiters.com/BoschGroup/744000157670819",
+          "email": "",
+          "closes": "",
+          "posted_at": "2026-10-25",
+          "reposted_at": "",
+          "seniority": "",
+          "work_arrangement": "",
+          "sponsorship": "",
+          "careers_url": "https://careers.smartrecruiters.com/BoschGroup",
+          "requirements": [
+            "Python",
+            "AWS",
+            "Azure",
+            "cybersecurity",
+            "networking"
+          ],
+          "eligibility": "unknown",
+          "salary": {
+            "currency": "",
+            "period": "",
+            "basis": "",
+            "min": 0.0,
+            "max": 0.0
+          },
+          "expectation": {
+            "target": "",
+            "basis": "",
+            "source": "",
+            "confidence": ""
+          },
+          "id": "47c4907a19b44d3d9089e1efda804673",
+          "availability": "Employer snapshot",
+          "source": "smartrecruiters:BoschGroup:cn",
+          "checked_at": "2026-11-11T13:12:59.866939+00:00",
+          "prior_application": "none",
+          "saved": false
+        },
+        "match": {
+          "hard_conflicts": [],
+          "unknowns": [
+            "Work rights / sponsorship need confirmation",
+            "Availability not verified"
+          ],
+          "preferences": [
+            "roles outside preferences"
+          ],
+          "evidence": [
+            {
+              "requirement": "Python",
+              "fact_ids": [
+                "db7ef7311b784dedac82860859eb81fa"
+              ],
+              "assessment": "Related text; verify full requirement"
+            },
+            {
+              "requirement": "AWS",
+              "fact_ids": [
+                "341ecf1ad80e4980a2642811f7c27bf9"
+              ],
+              "assessment": "Related text; verify full requirement"
+            },
+            {
+              "requirement": "Azure",
+              "fact_ids": [],
+              "assessment": "No confirmed evidence"
+            },
+            {
+              "requirement": "cybersecurity",
+              "fact_ids": [],
+              "assessment": "No confirmed evidence"
+            },
+            {
+              "requirement": "networking",
+              "fact_ids": [],
+              "assessment": "No confirmed evidence"
+            }
+          ],
+          "gaps": [
+            "Azure",
+            "cybersecurity",
+            "networking"
+          ],
+          "stretch": true,
+          "eligible_for_preparation": false,
+          "fact_ids": [],
+          "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+          "salary_expectation": {
+            "target": "Unresolved — request the employer band or add comparable local salary evidence",
+            "basis": "No comparable gross-base band is available; no precise expectation invented.",
+            "source": "https://jobs.smartrecruiters.com/BoschGroup/744000157670819",
+            "confidence": "low"
+          }
+        }
+      },
+      {
+        "job": {
+          "title": "Cloud Operations Engineer",
+          "employer": "Kestrel Stack",
+          "location": "Berlin",
+          "description": "Fictional example. Help an engineering team build and support services using Terraform.",
+          "url": "",
+          "email": "",
+          "closes": "",
+          "posted_at": "",
+          "reposted_at": "",
+          "seniority": "",
+          "work_arrangement": "",
+          "sponsorship": "",
+          "requirements": [
+            "Terraform"
+          ],
+          "eligibility": "unknown",
+          "salary": {
+            "currency": "",
+            "period": "",
+            "basis": "",
+            "min": 0.0,
+            "max": 0.0
+          },
+          "expectation": {
+            "target": "",
+            "basis": "",
+            "source": "",
+            "confidence": ""
+          },
+          "id": "6d798a1733ba43e091a0552c4e8dd1c7",
+          "availability": "Illustrative example",
+          "source": "manual",
+          "checked_at": "2026-11-11T13:16:03.327287+00:00",
+          "prior_application": "submitted",
+          "saved": false,
+          "submission_record_token": "f081eed232b84c4786a8a6dc32128c8d"
+        },
+        "match": {
+          "hard_conflicts": [
+            "Prior application recorded as submitted"
+          ],
+          "unknowns": [
+            "Work rights / sponsorship need confirmation",
+            "Availability not verified"
+          ],
+          "preferences": [],
+          "evidence": [
+            {
+              "requirement": "Terraform",
+              "fact_ids": [
+                "b79a50395a0c45cea69a59e0fe084d11"
+              ],
+              "assessment": "Related text; verify full requirement"
+            }
+          ],
+          "gaps": [],
+          "stretch": false,
+          "eligible_for_preparation": false,
+          "fact_ids": [
+            "db7ef7311b784dedac82860859eb81fa",
+            "341ecf1ad80e4980a2642811f7c27bf9",
+            "b79a50395a0c45cea69a59e0fe084d11",
+            "73b2d556fa644873b8a2ceabaac10cda",
+            "4d4cfaed8041454f95771444a4e37d90",
+            "afe9c12f83d54babbe15f779c318084f",
+            "045d826ab2044774a659b7f5b1877e43"
+          ],
+          "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+          "salary_expectation": {
+            "target": "Unresolved — request the employer band or add comparable local salary evidence",
+            "basis": "No comparable gross-base band is available; no precise expectation invented.",
+            "source": "",
+            "confidence": "low"
           }
         }
       },
@@ -1065,7 +4746,101 @@
           "source": "manual",
           "checked_at": "2026-11-05T00:00:00Z",
           "prior_application": "submitted",
-          "saved": false
+          "saved": false,
+          "submission_record_token": "68ac31c360994023bf893e9066b5ca1a"
+        },
+        "match": {
+          "hard_conflicts": [
+            "Prior application recorded as submitted"
+          ],
+          "unknowns": [
+            "Work rights / sponsorship need confirmation",
+            "Listing needs a fresh check",
+            "Availability not verified"
+          ],
+          "preferences": [],
+          "evidence": [
+            {
+              "requirement": "Python",
+              "fact_ids": [
+                "db7ef7311b784dedac82860859eb81fa"
+              ],
+              "assessment": "Related text; verify full requirement"
+            },
+            {
+              "requirement": "PostgreSQL",
+              "fact_ids": [
+                "73b2d556fa644873b8a2ceabaac10cda"
+              ],
+              "assessment": "Related text; verify full requirement"
+            },
+            {
+              "requirement": "AWS",
+              "fact_ids": [
+                "341ecf1ad80e4980a2642811f7c27bf9"
+              ],
+              "assessment": "Related text; verify full requirement"
+            }
+          ],
+          "gaps": [],
+          "stretch": false,
+          "eligible_for_preparation": false,
+          "fact_ids": [
+            "db7ef7311b784dedac82860859eb81fa",
+            "73b2d556fa644873b8a2ceabaac10cda",
+            "341ecf1ad80e4980a2642811f7c27bf9",
+            "b79a50395a0c45cea69a59e0fe084d11",
+            "4d4cfaed8041454f95771444a4e37d90",
+            "afe9c12f83d54babbe15f779c318084f",
+            "045d826ab2044774a659b7f5b1877e43"
+          ],
+          "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+          "salary_expectation": {
+            "target": "Up to 140000 CAD gross base per year",
+            "basis": "Advertised upper bound, not a market percentile. Opening negotiation target only; confirm the full requirements and benefits.",
+            "source": "https://example.test/concept/role-6",
+            "confidence": "medium"
+          }
+        }
+      },
+      {
+        "job": {
+          "title": "Application Engineer",
+          "employer": "Blue Finch Labs",
+          "location": "Toronto",
+          "description": "Fictional example. Help an engineering team build and support services using TypeScript.",
+          "url": "",
+          "email": "",
+          "closes": "",
+          "posted_at": "",
+          "reposted_at": "",
+          "seniority": "",
+          "work_arrangement": "",
+          "sponsorship": "",
+          "requirements": [
+            "TypeScript"
+          ],
+          "eligibility": "unknown",
+          "salary": {
+            "currency": "",
+            "period": "",
+            "basis": "",
+            "min": 0.0,
+            "max": 0.0
+          },
+          "expectation": {
+            "target": "",
+            "basis": "",
+            "source": "",
+            "confidence": ""
+          },
+          "id": "a04220081a794e0e8a03d008c2f8e533",
+          "availability": "Illustrative example",
+          "source": "manual",
+          "checked_at": "2026-11-11T13:16:03.453263+00:00",
+          "prior_application": "submitted",
+          "saved": false,
+          "submission_record_token": "7faa81805dcf40f786cbb2fe25d54121"
         },
         "match": {
           "hard_conflicts": [
@@ -1078,23 +4853,9 @@
           "preferences": [],
           "evidence": [
             {
-              "requirement": "Python",
+              "requirement": "TypeScript",
               "fact_ids": [
-                "a2e5df26240b45c095c90b8ec1249792"
-              ],
-              "assessment": "Related text; verify full requirement"
-            },
-            {
-              "requirement": "PostgreSQL",
-              "fact_ids": [
-                "18f751b4f64141979de590ed56a81fe4"
-              ],
-              "assessment": "Related text; verify full requirement"
-            },
-            {
-              "requirement": "AWS",
-              "fact_ids": [
-                "4f5c9eba62d2407288a00aced4cee1bb"
+                "afe9c12f83d54babbe15f779c318084f"
               ],
               "assessment": "Related text; verify full requirement"
             }
@@ -1103,20 +4864,20 @@
           "stretch": false,
           "eligible_for_preparation": false,
           "fact_ids": [
-            "a2e5df26240b45c095c90b8ec1249792",
-            "18f751b4f64141979de590ed56a81fe4",
-            "4f5c9eba62d2407288a00aced4cee1bb",
-            "f17585a08abb4c8a80be78a745d62367",
-            "514bb0a10a9743a0b4acf3d8c3b85be0",
-            "e59c701c5c5f4e5e865123cdd04bc3e2",
-            "2aaf8617f82e43458339521cb4d782d6"
+            "db7ef7311b784dedac82860859eb81fa",
+            "341ecf1ad80e4980a2642811f7c27bf9",
+            "b79a50395a0c45cea69a59e0fe084d11",
+            "73b2d556fa644873b8a2ceabaac10cda",
+            "4d4cfaed8041454f95771444a4e37d90",
+            "afe9c12f83d54babbe15f779c318084f",
+            "045d826ab2044774a659b7f5b1877e43"
           ],
           "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
           "salary_expectation": {
-            "target": "Up to 140000 CAD gross base per year",
-            "basis": "Advertised upper bound, not a market percentile. Opening negotiation target only; confirm the full requirements and benefits.",
-            "source": "https://example.test/concept/role-6",
-            "confidence": "medium"
+            "target": "Unresolved — request the employer band or add comparable local salary evidence",
+            "basis": "No comparable gross-base band is available; no precise expectation invented.",
+            "source": "",
+            "confidence": "low"
           }
         }
       }
@@ -1124,12 +4885,12 @@
   },
   "history": [
     {
-      "id": "1979c343672ae9215f8a66f5",
+      "id": "91d9fe3f99769d267fa90722",
       "city": "Singapore",
       "company": "Emberlane Systems",
       "job": "Cloud Software Engineer",
-      "label": "05-11-2026",
-      "generated_at": "2026-11-04T20:08:34.605584+00:00",
+      "label": "12-11-2026",
+      "generated_at": "2026-11-11T13:16:02.882998+00:00",
       "date_uncertain": false,
       "source": "Generated application",
       "files": [
@@ -1146,12 +4907,12 @@
       ]
     },
     {
-      "id": "88850adc05fbdf479913caa7",
+      "id": "0b501f7b9c4f391da1901e58",
       "city": "Melbourne",
       "company": "Fernbridge Digital",
       "job": "Platform Engineer",
-      "label": "05-11-2026",
-      "generated_at": "2026-11-04T20:08:34.668766+00:00",
+      "label": "12-11-2026",
+      "generated_at": "2026-11-11T13:16:02.957753+00:00",
       "date_uncertain": false,
       "source": "Generated application",
       "files": [
@@ -1168,12 +4929,100 @@
       ]
     },
     {
-      "id": "d29a0889c44bdc8c19d300e9",
+      "id": "006f44bcb69abe2f0ce6a943",
+      "city": "Berlin",
+      "company": "Juniper Bridge",
+      "job": "Data Platform Engineer",
+      "label": "12-11-2026",
+      "generated_at": "2026-11-11T13:16:03.218713+00:00",
+      "date_uncertain": false,
+      "source": "Generated application",
+      "files": [
+        "AlexMorgan-Application-Berlin.eml",
+        "AlexMorgan-CV-Berlin.docx",
+        "AlexMorgan-CV-Berlin.pdf",
+        "AlexMorgan-CV-Berlin.tex",
+        "AlexMorgan-CV-Berlin.txt",
+        "AlexMorgan-CoverLetter-Berlin.docx",
+        "AlexMorgan-CoverLetter-Berlin.pdf",
+        "AlexMorgan-CoverLetter-Berlin.tex",
+        "AlexMorgan-CoverLetter-Berlin.txt",
+        "evidence.json"
+      ]
+    },
+    {
+      "id": "e0fe0f2189cf0cb551c9d828",
+      "city": "Berlin",
+      "company": "Kestrel Stack",
+      "job": "Cloud Operations Engineer",
+      "label": "12-11-2026",
+      "generated_at": "2026-11-11T13:16:03.414369+00:00",
+      "date_uncertain": false,
+      "source": "Generated application",
+      "files": [
+        "AlexMorgan-Application-Berlin.eml",
+        "AlexMorgan-CV-Berlin.docx",
+        "AlexMorgan-CV-Berlin.pdf",
+        "AlexMorgan-CV-Berlin.tex",
+        "AlexMorgan-CV-Berlin.txt",
+        "AlexMorgan-CoverLetter-Berlin.docx",
+        "AlexMorgan-CoverLetter-Berlin.pdf",
+        "AlexMorgan-CoverLetter-Berlin.tex",
+        "AlexMorgan-CoverLetter-Berlin.txt",
+        "evidence.json"
+      ]
+    },
+    {
+      "id": "0a0d675cf459e84feb9f7edf",
+      "city": "Toronto",
+      "company": "Blue Finch Labs",
+      "job": "Application Engineer",
+      "label": "12-11-2026",
+      "generated_at": "2026-11-11T13:16:03.566601+00:00",
+      "date_uncertain": false,
+      "source": "Generated application",
+      "files": [
+        "AlexMorgan-Application-Toronto.eml",
+        "AlexMorgan-CV-Toronto.docx",
+        "AlexMorgan-CV-Toronto.pdf",
+        "AlexMorgan-CV-Toronto.tex",
+        "AlexMorgan-CV-Toronto.txt",
+        "AlexMorgan-CoverLetter-Toronto.docx",
+        "AlexMorgan-CoverLetter-Toronto.pdf",
+        "AlexMorgan-CoverLetter-Toronto.tex",
+        "AlexMorgan-CoverLetter-Toronto.txt",
+        "evidence.json"
+      ]
+    },
+    {
+      "id": "08de6a74bac96772ae7ffc4d",
       "city": "Toronto",
       "company": "Cedarlight Software",
       "job": "Backend Software Engineer",
-      "label": "05-11-2026",
-      "generated_at": "2026-11-04T20:08:34.733761+00:00",
+      "label": "12-11-2026",
+      "generated_at": "2026-11-11T13:16:03.028558+00:00",
+      "date_uncertain": false,
+      "source": "Generated application",
+      "files": [
+        "AlexMorgan-Application-Toronto.eml",
+        "AlexMorgan-CV-Toronto.docx",
+        "AlexMorgan-CV-Toronto.pdf",
+        "AlexMorgan-CV-Toronto.tex",
+        "AlexMorgan-CV-Toronto.txt",
+        "AlexMorgan-CoverLetter-Toronto.docx",
+        "AlexMorgan-CoverLetter-Toronto.pdf",
+        "AlexMorgan-CoverLetter-Toronto.tex",
+        "AlexMorgan-CoverLetter-Toronto.txt",
+        "evidence.json"
+      ]
+    },
+    {
+      "id": "7b1b0eed22776c738cdcadbc",
+      "city": "Toronto",
+      "company": "Lumen Field Software",
+      "job": "Frontend Engineer",
+      "label": "12-11-2026",
+      "generated_at": "2026-11-11T13:16:03.315160+00:00",
       "date_uncertain": false,
       "source": "Generated application",
       "files": [
@@ -1191,98 +5040,301 @@
     }
   ],
   "files": {
-    "application:268eafe04e6a4937b060ec2dec0c1cd7:resume.pdf": "/demo/files/f25344bf56544e359e10b05b.pdf",
-    "application:268eafe04e6a4937b060ec2dec0c1cd7:cover-letter.pdf": "/demo/files/b024b98d4ad77fd246e6ba51.pdf",
-    "application:268eafe04e6a4937b060ec2dec0c1cd7:resume.docx": "/demo/files/6f73a5e41b68c6b054665dbb.docx",
-    "application:268eafe04e6a4937b060ec2dec0c1cd7:cover-letter.docx": "/demo/files/6a05e8ba6261c52601ce1b9e.docx",
-    "application:268eafe04e6a4937b060ec2dec0c1cd7:resume.tex": "/demo/files/658715c6fe92a28fd84989b5.tex",
-    "application:268eafe04e6a4937b060ec2dec0c1cd7:cover-letter.tex": "/demo/files/2a05928626c685398d3448c9.tex",
-    "application:268eafe04e6a4937b060ec2dec0c1cd7:application.eml": "/demo/files/b21bbd7b3acf3d3e61f29a3b.eml",
-    "application:268eafe04e6a4937b060ec2dec0c1cd7:evidence.json": "/demo/files/240d3d99566af35b5d46fdbb.json",
-    "application:268eafe04e6a4937b060ec2dec0c1cd7:resume.txt": "/demo/files/44aebcf487c31f6411134480.txt",
-    "application:268eafe04e6a4937b060ec2dec0c1cd7:cover-letter.txt": "/demo/files/ecd0710c19ca97ffad88fd62.txt",
-    "application:143d2db84ac84b6cb9e8fe8063d7e799:resume.pdf": "/demo/files/7a96a5c301d9ad4ec74cf3f8.pdf",
-    "application:143d2db84ac84b6cb9e8fe8063d7e799:cover-letter.pdf": "/demo/files/eb284ebca35121e3cad1b8c6.pdf",
-    "application:143d2db84ac84b6cb9e8fe8063d7e799:resume.docx": "/demo/files/f088bd1fe4669d23c02b599c.docx",
-    "application:143d2db84ac84b6cb9e8fe8063d7e799:cover-letter.docx": "/demo/files/27f545837c59af02af89a4b9.docx",
-    "application:143d2db84ac84b6cb9e8fe8063d7e799:resume.tex": "/demo/files/11e3cd495d433decaee70abd.tex",
-    "application:143d2db84ac84b6cb9e8fe8063d7e799:cover-letter.tex": "/demo/files/cb1f49e253cb406f26005b8c.tex",
-    "application:143d2db84ac84b6cb9e8fe8063d7e799:application.eml": "/demo/files/b9832863785646dded668a58.eml",
-    "application:143d2db84ac84b6cb9e8fe8063d7e799:evidence.json": "/demo/files/95acdc3a9c240d01a21f2946.json",
-    "application:143d2db84ac84b6cb9e8fe8063d7e799:resume.txt": "/demo/files/7310ef065035219bcff598cd.txt",
-    "application:143d2db84ac84b6cb9e8fe8063d7e799:cover-letter.txt": "/demo/files/e99c94f5586425fd9b475632.txt",
-    "application:4dff7224bb7240059abcf8a4882a21b0:resume.pdf": "/demo/files/e130929faadeabac3696f722.pdf",
-    "application:4dff7224bb7240059abcf8a4882a21b0:cover-letter.pdf": "/demo/files/c66973c5e17f35e9fd3127c9.pdf",
-    "application:4dff7224bb7240059abcf8a4882a21b0:resume.docx": "/demo/files/4b14e0755970014657bdc923.docx",
-    "application:4dff7224bb7240059abcf8a4882a21b0:cover-letter.docx": "/demo/files/6739f053621dc76ee94a9e5b.docx",
-    "application:4dff7224bb7240059abcf8a4882a21b0:resume.tex": "/demo/files/71a7830e9ea50fcb5059f011.tex",
-    "application:4dff7224bb7240059abcf8a4882a21b0:cover-letter.tex": "/demo/files/634b79082d71bc4d05199c1b.tex",
-    "application:4dff7224bb7240059abcf8a4882a21b0:application.eml": "/demo/files/519b22513e1d2be8ccbf26d7.eml",
-    "application:4dff7224bb7240059abcf8a4882a21b0:evidence.json": "/demo/files/742f41d31eda32aafa9e1172.json",
-    "application:4dff7224bb7240059abcf8a4882a21b0:resume.txt": "/demo/files/299f0b3d7615999d3d9f0907.txt",
-    "application:4dff7224bb7240059abcf8a4882a21b0:cover-letter.txt": "/demo/files/3bae4f1f77e5846a84ba916a.txt",
-    "history:1979c343672ae9215f8a66f5:AlexMorgan-Application-Singapore.eml": "/demo/files/b21bbd7b3acf3d3e61f29a3b.eml",
-    "history:1979c343672ae9215f8a66f5:AlexMorgan-CV-Singapore.docx": "/demo/files/6f73a5e41b68c6b054665dbb.docx",
-    "history:1979c343672ae9215f8a66f5:AlexMorgan-CV-Singapore.pdf": "/demo/files/f25344bf56544e359e10b05b.pdf",
-    "history:1979c343672ae9215f8a66f5:AlexMorgan-CV-Singapore.tex": "/demo/files/658715c6fe92a28fd84989b5.tex",
-    "history:1979c343672ae9215f8a66f5:AlexMorgan-CV-Singapore.txt": "/demo/files/44aebcf487c31f6411134480.txt",
-    "history:1979c343672ae9215f8a66f5:AlexMorgan-CoverLetter-Singapore.docx": "/demo/files/6a05e8ba6261c52601ce1b9e.docx",
-    "history:1979c343672ae9215f8a66f5:AlexMorgan-CoverLetter-Singapore.pdf": "/demo/files/b024b98d4ad77fd246e6ba51.pdf",
-    "history:1979c343672ae9215f8a66f5:AlexMorgan-CoverLetter-Singapore.tex": "/demo/files/2a05928626c685398d3448c9.tex",
-    "history:1979c343672ae9215f8a66f5:AlexMorgan-CoverLetter-Singapore.txt": "/demo/files/ecd0710c19ca97ffad88fd62.txt",
-    "history:1979c343672ae9215f8a66f5:evidence.json": "/demo/files/240d3d99566af35b5d46fdbb.json",
-    "history:88850adc05fbdf479913caa7:AlexMorgan-Application-Melbourne.eml": "/demo/files/b9832863785646dded668a58.eml",
-    "history:88850adc05fbdf479913caa7:AlexMorgan-CV-Melbourne.docx": "/demo/files/f088bd1fe4669d23c02b599c.docx",
-    "history:88850adc05fbdf479913caa7:AlexMorgan-CV-Melbourne.pdf": "/demo/files/7a96a5c301d9ad4ec74cf3f8.pdf",
-    "history:88850adc05fbdf479913caa7:AlexMorgan-CV-Melbourne.tex": "/demo/files/11e3cd495d433decaee70abd.tex",
-    "history:88850adc05fbdf479913caa7:AlexMorgan-CV-Melbourne.txt": "/demo/files/7310ef065035219bcff598cd.txt",
-    "history:88850adc05fbdf479913caa7:AlexMorgan-CoverLetter-Melbourne.docx": "/demo/files/27f545837c59af02af89a4b9.docx",
-    "history:88850adc05fbdf479913caa7:AlexMorgan-CoverLetter-Melbourne.pdf": "/demo/files/eb284ebca35121e3cad1b8c6.pdf",
-    "history:88850adc05fbdf479913caa7:AlexMorgan-CoverLetter-Melbourne.tex": "/demo/files/cb1f49e253cb406f26005b8c.tex",
-    "history:88850adc05fbdf479913caa7:AlexMorgan-CoverLetter-Melbourne.txt": "/demo/files/e99c94f5586425fd9b475632.txt",
-    "history:88850adc05fbdf479913caa7:evidence.json": "/demo/files/95acdc3a9c240d01a21f2946.json",
-    "history:d29a0889c44bdc8c19d300e9:AlexMorgan-Application-Toronto.eml": "/demo/files/519b22513e1d2be8ccbf26d7.eml",
-    "history:d29a0889c44bdc8c19d300e9:AlexMorgan-CV-Toronto.docx": "/demo/files/4b14e0755970014657bdc923.docx",
-    "history:d29a0889c44bdc8c19d300e9:AlexMorgan-CV-Toronto.pdf": "/demo/files/e130929faadeabac3696f722.pdf",
-    "history:d29a0889c44bdc8c19d300e9:AlexMorgan-CV-Toronto.tex": "/demo/files/71a7830e9ea50fcb5059f011.tex",
-    "history:d29a0889c44bdc8c19d300e9:AlexMorgan-CV-Toronto.txt": "/demo/files/299f0b3d7615999d3d9f0907.txt",
-    "history:d29a0889c44bdc8c19d300e9:AlexMorgan-CoverLetter-Toronto.docx": "/demo/files/6739f053621dc76ee94a9e5b.docx",
-    "history:d29a0889c44bdc8c19d300e9:AlexMorgan-CoverLetter-Toronto.pdf": "/demo/files/c66973c5e17f35e9fd3127c9.pdf",
-    "history:d29a0889c44bdc8c19d300e9:AlexMorgan-CoverLetter-Toronto.tex": "/demo/files/634b79082d71bc4d05199c1b.tex",
-    "history:d29a0889c44bdc8c19d300e9:AlexMorgan-CoverLetter-Toronto.txt": "/demo/files/3bae4f1f77e5846a84ba916a.txt",
-    "history:d29a0889c44bdc8c19d300e9:evidence.json": "/demo/files/742f41d31eda32aafa9e1172.json"
+    "application:a36522d5e7234328a1330bcc823a5a4d:resume.pdf": "/demo/files/d261115d7b59e18e8dd1e866.pdf",
+    "application:a36522d5e7234328a1330bcc823a5a4d:cover-letter.pdf": "/demo/files/caf7e419ca893a6e9406191e.pdf",
+    "application:a36522d5e7234328a1330bcc823a5a4d:resume.docx": "/demo/files/fd6e8d1512fdf7d33cc9d3d3.docx",
+    "application:a36522d5e7234328a1330bcc823a5a4d:cover-letter.docx": "/demo/files/20decbca7d90c7f5e95cefb7.docx",
+    "application:a36522d5e7234328a1330bcc823a5a4d:resume.tex": "/demo/files/658715c6fe92a28fd84989b5.tex",
+    "application:a36522d5e7234328a1330bcc823a5a4d:cover-letter.tex": "/demo/files/2a05928626c685398d3448c9.tex",
+    "application:a36522d5e7234328a1330bcc823a5a4d:application.eml": "/demo/files/d805b8ad076e3e5da2d4956e.eml",
+    "application:a36522d5e7234328a1330bcc823a5a4d:evidence.json": "/demo/files/de45e89a3cc44ac744e17475.json",
+    "application:a36522d5e7234328a1330bcc823a5a4d:resume.txt": "/demo/files/44aebcf487c31f6411134480.txt",
+    "application:a36522d5e7234328a1330bcc823a5a4d:cover-letter.txt": "/demo/files/ecd0710c19ca97ffad88fd62.txt",
+    "application:d5d20a2ae5bc42f7a21eded2248f281a:resume.pdf": "/demo/files/6603251937814e03f57f8415.pdf",
+    "application:d5d20a2ae5bc42f7a21eded2248f281a:cover-letter.pdf": "/demo/files/bd0b8f99da442e515523f17f.pdf",
+    "application:d5d20a2ae5bc42f7a21eded2248f281a:resume.docx": "/demo/files/d4a65b3d76cdcdd3e9d5d5d4.docx",
+    "application:d5d20a2ae5bc42f7a21eded2248f281a:cover-letter.docx": "/demo/files/b678c1d3d24bffbc2cac464d.docx",
+    "application:d5d20a2ae5bc42f7a21eded2248f281a:resume.tex": "/demo/files/11e3cd495d433decaee70abd.tex",
+    "application:d5d20a2ae5bc42f7a21eded2248f281a:cover-letter.tex": "/demo/files/cb1f49e253cb406f26005b8c.tex",
+    "application:d5d20a2ae5bc42f7a21eded2248f281a:application.eml": "/demo/files/b9ff8ac1914d6ce7a4c51fd9.eml",
+    "application:d5d20a2ae5bc42f7a21eded2248f281a:evidence.json": "/demo/files/c29e2b92bc144cd0a689f3d6.json",
+    "application:d5d20a2ae5bc42f7a21eded2248f281a:resume.txt": "/demo/files/7310ef065035219bcff598cd.txt",
+    "application:d5d20a2ae5bc42f7a21eded2248f281a:cover-letter.txt": "/demo/files/e99c94f5586425fd9b475632.txt",
+    "application:d9e4c864ad4648eb87fabce8ff426e19:resume.pdf": "/demo/files/48bd10db2b1022d2ff8fe4c3.pdf",
+    "application:d9e4c864ad4648eb87fabce8ff426e19:cover-letter.pdf": "/demo/files/b0f76fba1a7f2e5c918e8d65.pdf",
+    "application:d9e4c864ad4648eb87fabce8ff426e19:resume.docx": "/demo/files/f881274c0702c888cba27e5e.docx",
+    "application:d9e4c864ad4648eb87fabce8ff426e19:cover-letter.docx": "/demo/files/c5cafb7c47334b6d745fc729.docx",
+    "application:d9e4c864ad4648eb87fabce8ff426e19:resume.tex": "/demo/files/71a7830e9ea50fcb5059f011.tex",
+    "application:d9e4c864ad4648eb87fabce8ff426e19:cover-letter.tex": "/demo/files/634b79082d71bc4d05199c1b.tex",
+    "application:d9e4c864ad4648eb87fabce8ff426e19:application.eml": "/demo/files/91469a279e1d2d1001c177b1.eml",
+    "application:d9e4c864ad4648eb87fabce8ff426e19:evidence.json": "/demo/files/324fce0ed4cd6fe17e62d998.json",
+    "application:d9e4c864ad4648eb87fabce8ff426e19:resume.txt": "/demo/files/299f0b3d7615999d3d9f0907.txt",
+    "application:d9e4c864ad4648eb87fabce8ff426e19:cover-letter.txt": "/demo/files/3bae4f1f77e5846a84ba916a.txt",
+    "application:e739fcf08052449eac44b9608f2e8fa5:resume.pdf": "/demo/files/ff852357fd6f5e88582273ea.pdf",
+    "application:e739fcf08052449eac44b9608f2e8fa5:cover-letter.pdf": "/demo/files/3a837e6a3dd30cc227add614.pdf",
+    "application:e739fcf08052449eac44b9608f2e8fa5:resume.docx": "/demo/files/fd6e8d1512fdf7d33cc9d3d3.docx",
+    "application:e739fcf08052449eac44b9608f2e8fa5:cover-letter.docx": "/demo/files/52ce5993a1a10bbaa4034526.docx",
+    "application:e739fcf08052449eac44b9608f2e8fa5:resume.tex": "/demo/files/658715c6fe92a28fd84989b5.tex",
+    "application:e739fcf08052449eac44b9608f2e8fa5:cover-letter.tex": "/demo/files/8a8e443edb343a563011a567.tex",
+    "application:e739fcf08052449eac44b9608f2e8fa5:application.eml": "/demo/files/f367b5d5fc60a9ee861f9a71.eml",
+    "application:e739fcf08052449eac44b9608f2e8fa5:evidence.json": "/demo/files/9e57c0406c37936f7f1528f2.json",
+    "application:e739fcf08052449eac44b9608f2e8fa5:resume.txt": "/demo/files/44aebcf487c31f6411134480.txt",
+    "application:e739fcf08052449eac44b9608f2e8fa5:cover-letter.txt": "/demo/files/2830a665395951e50b5fe027.txt",
+    "application:22f4c97ebaa34f36bdaac964e76c23aa:resume.pdf": "/demo/files/e448b97f708338916466f6e5.pdf",
+    "application:22f4c97ebaa34f36bdaac964e76c23aa:cover-letter.pdf": "/demo/files/f6984e9a14d98b0782e09bac.pdf",
+    "application:22f4c97ebaa34f36bdaac964e76c23aa:resume.docx": "/demo/files/fd6e8d1512fdf7d33cc9d3d3.docx",
+    "application:22f4c97ebaa34f36bdaac964e76c23aa:cover-letter.docx": "/demo/files/2e2c627071765822920b9219.docx",
+    "application:22f4c97ebaa34f36bdaac964e76c23aa:resume.tex": "/demo/files/658715c6fe92a28fd84989b5.tex",
+    "application:22f4c97ebaa34f36bdaac964e76c23aa:cover-letter.tex": "/demo/files/1a0a8ca411165a758137b448.tex",
+    "application:22f4c97ebaa34f36bdaac964e76c23aa:application.eml": "/demo/files/3f1d8c66eabd4f8004569923.eml",
+    "application:22f4c97ebaa34f36bdaac964e76c23aa:evidence.json": "/demo/files/a5bf3b61a628519cbe8bdc50.json",
+    "application:22f4c97ebaa34f36bdaac964e76c23aa:resume.txt": "/demo/files/44aebcf487c31f6411134480.txt",
+    "application:22f4c97ebaa34f36bdaac964e76c23aa:cover-letter.txt": "/demo/files/5fe184354a3b7b2e8e61beac.txt",
+    "application:d86dffe40f184e74b842ca136174cdfc:resume.pdf": "/demo/files/3da83db685c9aa99406f1759.pdf",
+    "application:d86dffe40f184e74b842ca136174cdfc:cover-letter.pdf": "/demo/files/f2d3dac4f95dd46fd8f1b176.pdf",
+    "application:d86dffe40f184e74b842ca136174cdfc:resume.docx": "/demo/files/fd6e8d1512fdf7d33cc9d3d3.docx",
+    "application:d86dffe40f184e74b842ca136174cdfc:cover-letter.docx": "/demo/files/c99dbf791a1257f75c62f218.docx",
+    "application:d86dffe40f184e74b842ca136174cdfc:resume.tex": "/demo/files/658715c6fe92a28fd84989b5.tex",
+    "application:d86dffe40f184e74b842ca136174cdfc:cover-letter.tex": "/demo/files/2e5b8ab91889b1e07bdddae0.tex",
+    "application:d86dffe40f184e74b842ca136174cdfc:application.eml": "/demo/files/e05e642c322a3cf5ee910b0f.eml",
+    "application:d86dffe40f184e74b842ca136174cdfc:evidence.json": "/demo/files/15b74e18b0e05526f76c8a3f.json",
+    "application:d86dffe40f184e74b842ca136174cdfc:resume.txt": "/demo/files/44aebcf487c31f6411134480.txt",
+    "application:d86dffe40f184e74b842ca136174cdfc:cover-letter.txt": "/demo/files/5d6c676e445843fdce562ac6.txt",
+    "application:6bcfb754dff34a4db28568da8c680cea:resume.pdf": "/demo/files/27209b649255f8342a4e49f9.pdf",
+    "application:6bcfb754dff34a4db28568da8c680cea:cover-letter.pdf": "/demo/files/95b9d8dae2ab166712de3f5f.pdf",
+    "application:6bcfb754dff34a4db28568da8c680cea:resume.docx": "/demo/files/fd6e8d1512fdf7d33cc9d3d3.docx",
+    "application:6bcfb754dff34a4db28568da8c680cea:cover-letter.docx": "/demo/files/48373ad37a15b17ea4ab3d34.docx",
+    "application:6bcfb754dff34a4db28568da8c680cea:resume.tex": "/demo/files/658715c6fe92a28fd84989b5.tex",
+    "application:6bcfb754dff34a4db28568da8c680cea:cover-letter.tex": "/demo/files/476523150d247da2b162b501.tex",
+    "application:6bcfb754dff34a4db28568da8c680cea:application.eml": "/demo/files/724b65894d21100bd285daf7.eml",
+    "application:6bcfb754dff34a4db28568da8c680cea:evidence.json": "/demo/files/b7f0497423087fb25b89dd6c.json",
+    "application:6bcfb754dff34a4db28568da8c680cea:resume.txt": "/demo/files/44aebcf487c31f6411134480.txt",
+    "application:6bcfb754dff34a4db28568da8c680cea:cover-letter.txt": "/demo/files/d397f912b8def52828ad05bf.txt",
+    "history:91d9fe3f99769d267fa90722:AlexMorgan-Application-Singapore.eml": "/demo/files/d805b8ad076e3e5da2d4956e.eml",
+    "history:91d9fe3f99769d267fa90722:AlexMorgan-CV-Singapore.docx": "/demo/files/fd6e8d1512fdf7d33cc9d3d3.docx",
+    "history:91d9fe3f99769d267fa90722:AlexMorgan-CV-Singapore.pdf": "/demo/files/d261115d7b59e18e8dd1e866.pdf",
+    "history:91d9fe3f99769d267fa90722:AlexMorgan-CV-Singapore.tex": "/demo/files/658715c6fe92a28fd84989b5.tex",
+    "history:91d9fe3f99769d267fa90722:AlexMorgan-CV-Singapore.txt": "/demo/files/44aebcf487c31f6411134480.txt",
+    "history:91d9fe3f99769d267fa90722:AlexMorgan-CoverLetter-Singapore.docx": "/demo/files/20decbca7d90c7f5e95cefb7.docx",
+    "history:91d9fe3f99769d267fa90722:AlexMorgan-CoverLetter-Singapore.pdf": "/demo/files/caf7e419ca893a6e9406191e.pdf",
+    "history:91d9fe3f99769d267fa90722:AlexMorgan-CoverLetter-Singapore.tex": "/demo/files/2a05928626c685398d3448c9.tex",
+    "history:91d9fe3f99769d267fa90722:AlexMorgan-CoverLetter-Singapore.txt": "/demo/files/ecd0710c19ca97ffad88fd62.txt",
+    "history:91d9fe3f99769d267fa90722:evidence.json": "/demo/files/de45e89a3cc44ac744e17475.json",
+    "history:0b501f7b9c4f391da1901e58:AlexMorgan-Application-Melbourne.eml": "/demo/files/b9ff8ac1914d6ce7a4c51fd9.eml",
+    "history:0b501f7b9c4f391da1901e58:AlexMorgan-CV-Melbourne.docx": "/demo/files/d4a65b3d76cdcdd3e9d5d5d4.docx",
+    "history:0b501f7b9c4f391da1901e58:AlexMorgan-CV-Melbourne.pdf": "/demo/files/6603251937814e03f57f8415.pdf",
+    "history:0b501f7b9c4f391da1901e58:AlexMorgan-CV-Melbourne.tex": "/demo/files/11e3cd495d433decaee70abd.tex",
+    "history:0b501f7b9c4f391da1901e58:AlexMorgan-CV-Melbourne.txt": "/demo/files/7310ef065035219bcff598cd.txt",
+    "history:0b501f7b9c4f391da1901e58:AlexMorgan-CoverLetter-Melbourne.docx": "/demo/files/b678c1d3d24bffbc2cac464d.docx",
+    "history:0b501f7b9c4f391da1901e58:AlexMorgan-CoverLetter-Melbourne.pdf": "/demo/files/bd0b8f99da442e515523f17f.pdf",
+    "history:0b501f7b9c4f391da1901e58:AlexMorgan-CoverLetter-Melbourne.tex": "/demo/files/cb1f49e253cb406f26005b8c.tex",
+    "history:0b501f7b9c4f391da1901e58:AlexMorgan-CoverLetter-Melbourne.txt": "/demo/files/e99c94f5586425fd9b475632.txt",
+    "history:0b501f7b9c4f391da1901e58:evidence.json": "/demo/files/c29e2b92bc144cd0a689f3d6.json",
+    "history:006f44bcb69abe2f0ce6a943:AlexMorgan-Application-Berlin.eml": "/demo/files/f367b5d5fc60a9ee861f9a71.eml",
+    "history:006f44bcb69abe2f0ce6a943:AlexMorgan-CV-Berlin.docx": "/demo/files/fd6e8d1512fdf7d33cc9d3d3.docx",
+    "history:006f44bcb69abe2f0ce6a943:AlexMorgan-CV-Berlin.pdf": "/demo/files/ff852357fd6f5e88582273ea.pdf",
+    "history:006f44bcb69abe2f0ce6a943:AlexMorgan-CV-Berlin.tex": "/demo/files/658715c6fe92a28fd84989b5.tex",
+    "history:006f44bcb69abe2f0ce6a943:AlexMorgan-CV-Berlin.txt": "/demo/files/44aebcf487c31f6411134480.txt",
+    "history:006f44bcb69abe2f0ce6a943:AlexMorgan-CoverLetter-Berlin.docx": "/demo/files/52ce5993a1a10bbaa4034526.docx",
+    "history:006f44bcb69abe2f0ce6a943:AlexMorgan-CoverLetter-Berlin.pdf": "/demo/files/3a837e6a3dd30cc227add614.pdf",
+    "history:006f44bcb69abe2f0ce6a943:AlexMorgan-CoverLetter-Berlin.tex": "/demo/files/8a8e443edb343a563011a567.tex",
+    "history:006f44bcb69abe2f0ce6a943:AlexMorgan-CoverLetter-Berlin.txt": "/demo/files/2830a665395951e50b5fe027.txt",
+    "history:006f44bcb69abe2f0ce6a943:evidence.json": "/demo/files/9e57c0406c37936f7f1528f2.json",
+    "history:e0fe0f2189cf0cb551c9d828:AlexMorgan-Application-Berlin.eml": "/demo/files/e05e642c322a3cf5ee910b0f.eml",
+    "history:e0fe0f2189cf0cb551c9d828:AlexMorgan-CV-Berlin.docx": "/demo/files/fd6e8d1512fdf7d33cc9d3d3.docx",
+    "history:e0fe0f2189cf0cb551c9d828:AlexMorgan-CV-Berlin.pdf": "/demo/files/3da83db685c9aa99406f1759.pdf",
+    "history:e0fe0f2189cf0cb551c9d828:AlexMorgan-CV-Berlin.tex": "/demo/files/658715c6fe92a28fd84989b5.tex",
+    "history:e0fe0f2189cf0cb551c9d828:AlexMorgan-CV-Berlin.txt": "/demo/files/44aebcf487c31f6411134480.txt",
+    "history:e0fe0f2189cf0cb551c9d828:AlexMorgan-CoverLetter-Berlin.docx": "/demo/files/c99dbf791a1257f75c62f218.docx",
+    "history:e0fe0f2189cf0cb551c9d828:AlexMorgan-CoverLetter-Berlin.pdf": "/demo/files/f2d3dac4f95dd46fd8f1b176.pdf",
+    "history:e0fe0f2189cf0cb551c9d828:AlexMorgan-CoverLetter-Berlin.tex": "/demo/files/2e5b8ab91889b1e07bdddae0.tex",
+    "history:e0fe0f2189cf0cb551c9d828:AlexMorgan-CoverLetter-Berlin.txt": "/demo/files/5d6c676e445843fdce562ac6.txt",
+    "history:e0fe0f2189cf0cb551c9d828:evidence.json": "/demo/files/15b74e18b0e05526f76c8a3f.json",
+    "history:0a0d675cf459e84feb9f7edf:AlexMorgan-Application-Toronto.eml": "/demo/files/724b65894d21100bd285daf7.eml",
+    "history:0a0d675cf459e84feb9f7edf:AlexMorgan-CV-Toronto.docx": "/demo/files/fd6e8d1512fdf7d33cc9d3d3.docx",
+    "history:0a0d675cf459e84feb9f7edf:AlexMorgan-CV-Toronto.pdf": "/demo/files/27209b649255f8342a4e49f9.pdf",
+    "history:0a0d675cf459e84feb9f7edf:AlexMorgan-CV-Toronto.tex": "/demo/files/658715c6fe92a28fd84989b5.tex",
+    "history:0a0d675cf459e84feb9f7edf:AlexMorgan-CV-Toronto.txt": "/demo/files/44aebcf487c31f6411134480.txt",
+    "history:0a0d675cf459e84feb9f7edf:AlexMorgan-CoverLetter-Toronto.docx": "/demo/files/48373ad37a15b17ea4ab3d34.docx",
+    "history:0a0d675cf459e84feb9f7edf:AlexMorgan-CoverLetter-Toronto.pdf": "/demo/files/95b9d8dae2ab166712de3f5f.pdf",
+    "history:0a0d675cf459e84feb9f7edf:AlexMorgan-CoverLetter-Toronto.tex": "/demo/files/476523150d247da2b162b501.tex",
+    "history:0a0d675cf459e84feb9f7edf:AlexMorgan-CoverLetter-Toronto.txt": "/demo/files/d397f912b8def52828ad05bf.txt",
+    "history:0a0d675cf459e84feb9f7edf:evidence.json": "/demo/files/b7f0497423087fb25b89dd6c.json",
+    "history:08de6a74bac96772ae7ffc4d:AlexMorgan-Application-Toronto.eml": "/demo/files/91469a279e1d2d1001c177b1.eml",
+    "history:08de6a74bac96772ae7ffc4d:AlexMorgan-CV-Toronto.docx": "/demo/files/f881274c0702c888cba27e5e.docx",
+    "history:08de6a74bac96772ae7ffc4d:AlexMorgan-CV-Toronto.pdf": "/demo/files/48bd10db2b1022d2ff8fe4c3.pdf",
+    "history:08de6a74bac96772ae7ffc4d:AlexMorgan-CV-Toronto.tex": "/demo/files/71a7830e9ea50fcb5059f011.tex",
+    "history:08de6a74bac96772ae7ffc4d:AlexMorgan-CV-Toronto.txt": "/demo/files/299f0b3d7615999d3d9f0907.txt",
+    "history:08de6a74bac96772ae7ffc4d:AlexMorgan-CoverLetter-Toronto.docx": "/demo/files/c5cafb7c47334b6d745fc729.docx",
+    "history:08de6a74bac96772ae7ffc4d:AlexMorgan-CoverLetter-Toronto.pdf": "/demo/files/b0f76fba1a7f2e5c918e8d65.pdf",
+    "history:08de6a74bac96772ae7ffc4d:AlexMorgan-CoverLetter-Toronto.tex": "/demo/files/634b79082d71bc4d05199c1b.tex",
+    "history:08de6a74bac96772ae7ffc4d:AlexMorgan-CoverLetter-Toronto.txt": "/demo/files/3bae4f1f77e5846a84ba916a.txt",
+    "history:08de6a74bac96772ae7ffc4d:evidence.json": "/demo/files/324fce0ed4cd6fe17e62d998.json",
+    "history:7b1b0eed22776c738cdcadbc:AlexMorgan-Application-Toronto.eml": "/demo/files/3f1d8c66eabd4f8004569923.eml",
+    "history:7b1b0eed22776c738cdcadbc:AlexMorgan-CV-Toronto.docx": "/demo/files/fd6e8d1512fdf7d33cc9d3d3.docx",
+    "history:7b1b0eed22776c738cdcadbc:AlexMorgan-CV-Toronto.pdf": "/demo/files/e448b97f708338916466f6e5.pdf",
+    "history:7b1b0eed22776c738cdcadbc:AlexMorgan-CV-Toronto.tex": "/demo/files/658715c6fe92a28fd84989b5.tex",
+    "history:7b1b0eed22776c738cdcadbc:AlexMorgan-CV-Toronto.txt": "/demo/files/44aebcf487c31f6411134480.txt",
+    "history:7b1b0eed22776c738cdcadbc:AlexMorgan-CoverLetter-Toronto.docx": "/demo/files/2e2c627071765822920b9219.docx",
+    "history:7b1b0eed22776c738cdcadbc:AlexMorgan-CoverLetter-Toronto.pdf": "/demo/files/f6984e9a14d98b0782e09bac.pdf",
+    "history:7b1b0eed22776c738cdcadbc:AlexMorgan-CoverLetter-Toronto.tex": "/demo/files/1a0a8ca411165a758137b448.tex",
+    "history:7b1b0eed22776c738cdcadbc:AlexMorgan-CoverLetter-Toronto.txt": "/demo/files/5fe184354a3b7b2e8e61beac.txt",
+    "history:7b1b0eed22776c738cdcadbc:evidence.json": "/demo/files/a5bf3b61a628519cbe8bdc50.json"
   },
   "documents": {
-    "268eafe04e6a4937b060ec2dec0c1cd7": {
+    "a36522d5e7234328a1330bcc823a5a4d": {
       "resume": {
-        "base": "108ec62c46ca7ec387a9754adc442a636825459b52f5d7de42ed6b12c0653f06",
-        "url": "/demo/files/f25344bf56544e359e10b05b.pdf"
+        "base": "21067f21d946f43f3a34622dfef9443f9266d7d6aa3140a9a809db3cf2730bd2",
+        "url": "/demo/files/d261115d7b59e18e8dd1e866.pdf"
       },
       "cover-letter": {
-        "base": "108ec62c46ca7ec387a9754adc442a636825459b52f5d7de42ed6b12c0653f06",
-        "url": "/demo/files/b024b98d4ad77fd246e6ba51.pdf"
+        "base": "21067f21d946f43f3a34622dfef9443f9266d7d6aa3140a9a809db3cf2730bd2",
+        "url": "/demo/files/caf7e419ca893a6e9406191e.pdf"
       }
     },
-    "143d2db84ac84b6cb9e8fe8063d7e799": {
+    "d5d20a2ae5bc42f7a21eded2248f281a": {
       "resume": {
-        "base": "462f96ea482a8739af2afa27f919cce48917d45ce33713261b14baa9fe49f24c",
-        "url": "/demo/files/7a96a5c301d9ad4ec74cf3f8.pdf"
+        "base": "51838685d6987860417261ca471999946d8e728f76394ca9ee1effbad6206cac",
+        "url": "/demo/files/6603251937814e03f57f8415.pdf"
       },
       "cover-letter": {
-        "base": "462f96ea482a8739af2afa27f919cce48917d45ce33713261b14baa9fe49f24c",
-        "url": "/demo/files/eb284ebca35121e3cad1b8c6.pdf"
+        "base": "51838685d6987860417261ca471999946d8e728f76394ca9ee1effbad6206cac",
+        "url": "/demo/files/bd0b8f99da442e515523f17f.pdf"
       }
     },
-    "4dff7224bb7240059abcf8a4882a21b0": {
+    "d9e4c864ad4648eb87fabce8ff426e19": {
       "resume": {
-        "base": "dbab64c40965b2e769c66e469d3bac942201e90c25990552fc079c215f11ba63",
-        "url": "/demo/files/e130929faadeabac3696f722.pdf"
+        "base": "514b098f76240d5327330856506176b81c9ff77287bbd5b3b46c66e3e7b0752a",
+        "url": "/demo/files/48bd10db2b1022d2ff8fe4c3.pdf"
       },
       "cover-letter": {
-        "base": "dbab64c40965b2e769c66e469d3bac942201e90c25990552fc079c215f11ba63",
-        "url": "/demo/files/c66973c5e17f35e9fd3127c9.pdf"
+        "base": "514b098f76240d5327330856506176b81c9ff77287bbd5b3b46c66e3e7b0752a",
+        "url": "/demo/files/b0f76fba1a7f2e5c918e8d65.pdf"
+      }
+    },
+    "e739fcf08052449eac44b9608f2e8fa5": {
+      "resume": {
+        "base": "034e7eec982d6790c5b3386f1f862781783f8694a4ccb3768fcb9bbfbfbc40d6",
+        "url": "/demo/files/ff852357fd6f5e88582273ea.pdf"
+      },
+      "cover-letter": {
+        "base": "034e7eec982d6790c5b3386f1f862781783f8694a4ccb3768fcb9bbfbfbc40d6",
+        "url": "/demo/files/3a837e6a3dd30cc227add614.pdf"
+      }
+    },
+    "22f4c97ebaa34f36bdaac964e76c23aa": {
+      "resume": {
+        "base": "9ebea0124a808af65832e59f7e21b6d885f593b9703b3ff76948ff355d7df179",
+        "url": "/demo/files/e448b97f708338916466f6e5.pdf"
+      },
+      "cover-letter": {
+        "base": "9ebea0124a808af65832e59f7e21b6d885f593b9703b3ff76948ff355d7df179",
+        "url": "/demo/files/f6984e9a14d98b0782e09bac.pdf"
+      }
+    },
+    "d86dffe40f184e74b842ca136174cdfc": {
+      "resume": {
+        "base": "9c89c6f0cf436d823ae869555adaf5a925077a10140e8b648f825653dde8837e",
+        "url": "/demo/files/3da83db685c9aa99406f1759.pdf"
+      },
+      "cover-letter": {
+        "base": "9c89c6f0cf436d823ae869555adaf5a925077a10140e8b648f825653dde8837e",
+        "url": "/demo/files/f2d3dac4f95dd46fd8f1b176.pdf"
+      }
+    },
+    "6bcfb754dff34a4db28568da8c680cea": {
+      "resume": {
+        "base": "bbcec38f279547d230b4dbc58909c7f8801cca0126dc5fd0e1aa7cecc845ceb7",
+        "url": "/demo/files/27209b649255f8342a4e49f9.pdf"
+      },
+      "cover-letter": {
+        "base": "bbcec38f279547d230b4dbc58909c7f8801cca0126dc5fd0e1aa7cecc845ceb7",
+        "url": "/demo/files/95b9d8dae2ab166712de3f5f.pdf"
       }
     }
   },
-  "revision": "763a3565ffaefaf077db"
+  "job_sources": [
+    {
+      "board": "BoschGroup",
+      "employer": "Bosch Group",
+      "country": "sg",
+      "city": "Singapore",
+      "destination": "Singapore",
+      "query": "",
+      "count": 2
+    },
+    {
+      "board": "AECOM2",
+      "employer": "AECOM",
+      "country": "sg",
+      "city": "Singapore",
+      "destination": "Singapore",
+      "query": "engineer",
+      "count": 3
+    },
+    {
+      "board": "AECOM2",
+      "employer": "AECOM",
+      "country": "au",
+      "city": "Melbourne",
+      "destination": "Melbourne",
+      "query": "engineer",
+      "count": 2
+    },
+    {
+      "board": "TurnerTownsend",
+      "employer": "Turner & Townsend",
+      "country": "au",
+      "city": "Melbourne",
+      "destination": "Melbourne",
+      "query": "data centre",
+      "count": 2
+    },
+    {
+      "board": "NBCUniversal3",
+      "employer": "NBCUniversal",
+      "country": "us",
+      "city": "New York",
+      "destination": "New York",
+      "query": "technology",
+      "count": 3
+    },
+    {
+      "board": "AECOM2",
+      "employer": "AECOM",
+      "country": "us",
+      "city": "New York",
+      "destination": "New York",
+      "query": "engineer",
+      "count": 2
+    },
+    {
+      "board": "AECOM2",
+      "employer": "AECOM",
+      "country": "gb",
+      "city": "London",
+      "destination": "London",
+      "query": "engineer",
+      "count": 3
+    },
+    {
+      "board": "Experian",
+      "employer": "Experian",
+      "country": "gb",
+      "city": "London",
+      "destination": "London",
+      "query": "",
+      "count": 2
+    },
+    {
+      "board": "BoschGroup",
+      "employer": "Bosch Group",
+      "country": "cn",
+      "city": "",
+      "destination": "China",
+      "query": "software",
+      "count": 5
+    }
+  ],
+  "revision": "4fe95dcb34714f4bf2ab"
 }

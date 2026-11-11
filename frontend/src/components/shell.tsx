@@ -147,7 +147,7 @@ export function Shell({ children }: { children: ReactNode }) {
     : state._workspace.preferred_locations;
   const owner = state.identity.name || "Your workspace";
   const label = client.preview
-    ? "Public fictional preview"
+    ? "Public demo"
     : client.hosted
       ? "Private cloud workspace"
       : "Local workspace";
@@ -430,7 +430,9 @@ export function Shell({ children }: { children: ReactNode }) {
           )}
         </header>
         <div className="desk">
-          {client.preview && <PublicPreviewNotice />}
+          {client.preview && (
+            <PublicPreviewNotice resume={client.demoDrafts?.demoResume} />
+          )}
           <p
             ref={noticeElement}
             id="notice"

@@ -21,6 +21,7 @@ import { displayDate } from "@/lib/format";
 import { PREVIEW_READ_ONLY, publicPreviewEnabled } from "@/lib/public-preview";
 import { FactForm } from "./fact-form";
 import { MasterPanel } from "./master-panel";
+import { DemoResumePanel } from "./demo-resume-panel";
 
 export function CareerPage() {
   const { state, client, run, notify } = useWorkspace();
@@ -45,6 +46,7 @@ export function CareerPage() {
     id: string;
   } | null>(null);
   const preview = Boolean(client.preview) || publicPreviewEnabled();
+  const publicResume = client.demoDrafts?.demoResume?.pdf;
   useEffect(() => {
     if (retiringId) retirementHeading.current?.focus();
   }, [retiringId]);
@@ -74,8 +76,9 @@ export function CareerPage() {
   return (
     <div className="career-page secondary-page">
       <p className="secondary-page-intro">
-        Manage your profile and review the evidence used in your application
-        drafts.
+        {publicResume
+          ? "Browse the public résumé and the career evidence drawn from it."
+          : "Manage your profile and review the evidence used in your application drafts."}
       </p>
       <div className="career-profile-summary">
         <div className="career-avatar" aria-hidden="true">
@@ -85,7 +88,9 @@ export function CareerPage() {
           <h2>{identity.name || "Your career profile"}</h2>
           <p>
             {identity.location ||
-              "Add your location and relocation preferences."}
+              (publicResume
+                ? "Public career profile"
+                : "Add your location and relocation preferences.")}
           </p>
           <span>
             {confirmed.length} confirmed facts · {needsReview.length} need
@@ -96,13 +101,17 @@ export function CareerPage() {
           className="career-profile-actions"
           aria-label="Career profile sections"
         >
-          <a href="#career-details" className="button secondary">
-            <UserRound size={15} aria-hidden="true" />
-            Edit profile
-          </a>
-          <a href="#master-resume" className="button secondary">
-            Master resume
-          </a>
+          {!publicResume && (
+            <a href="#career-details" className="button secondary">
+              <UserRound size={15} aria-hidden="true" />
+              Edit profile
+            </a>
+          )}
+          {!client.demoDrafts && (
+            <a href="#master-resume" className="button secondary">
+              Master resume
+            </a>
+          )}
           <a href="#import-resume" className="button primary">
             Import resume
           </a>
@@ -319,7 +328,11 @@ export function CareerPage() {
           className="career-evidence-aside"
           aria-label="Master resume and confirmation"
         >
-          <MasterPanel />
+          {client.demoDrafts ? (
+            <DemoResumePanel session={client.demoDrafts} />
+          ) : (
+            <MasterPanel />
+          )}
           <section
             className="secondary-panel career-confirmation"
             data-review-needed={needsReview.length > 0}
@@ -394,71 +407,73 @@ export function CareerPage() {
             <button>Save details</button>
           </Form>
         </section>
-        <section className="secondary-panel">
-          <div className="secondary-section-heading">
-            <h2 id="import-resume" tabIndex={-1}>
-              Build your career evidence
-            </h2>
-            <FileText size={18} aria-hidden="true" />
-          </div>
-          <p>
-            Import your master resume, then review extracted statements. Add
-            experience that never made it onto your resume.
-          </p>
-          <Form
-            onSave={async (data) => {
-              const file = data.get("file");
-              const limit = (client.hosted ? 2 : 10) * 1024 * 1024;
-              if (!(file instanceof File) || !file.size || file.size > limit)
-                throw new Error(
-                  `Choose a file up to ${client.hosted ? 2 : 10} MB.`,
+        {!client.demoDrafts && (
+          <section className="secondary-panel">
+            <div className="secondary-section-heading">
+              <h2 id="import-resume" tabIndex={-1}>
+                Build your career evidence
+              </h2>
+              <FileText size={18} aria-hidden="true" />
+            </div>
+            <p>
+              Import your master resume, then review extracted statements. Add
+              experience that never made it onto your resume.
+            </p>
+            <Form
+              onSave={async (data) => {
+                const file = data.get("file");
+                const limit = (client.hosted ? 2 : 10) * 1024 * 1024;
+                if (!(file instanceof File) || !file.size || file.size > limit)
+                  throw new Error(
+                    `Choose a file up to ${client.hosted ? 2 : 10} MB.`,
+                  );
+                const bytes = new Uint8Array(await file.arrayBuffer());
+                let binary = "";
+                for (let index = 0; index < bytes.length; index += 8192)
+                  binary += String.fromCharCode(
+                    ...bytes.subarray(index, index + 8192),
+                  );
+                const result = await run<{
+                  candidates: number;
+                  truncated?: boolean;
+                }>(
+                  "import",
+                  {
+                    name: file.name,
+                    data: btoa(binary),
+                    use_as_master: checked(data, "use_as_master"),
+                  },
+                  "",
                 );
-              const bytes = new Uint8Array(await file.arrayBuffer());
-              let binary = "";
-              for (let index = 0; index < bytes.length; index += 8192)
-                binary += String.fromCharCode(
-                  ...bytes.subarray(index, index + 8192),
+                notify(
+                  `${result.candidates} candidate facts imported; review before confirming.${result.truncated ? " Import truncated at 500 candidates." : ""}`,
                 );
-              const result = await run<{
-                candidates: number;
-                truncated?: boolean;
-              }>(
-                "import",
-                {
-                  name: file.name,
-                  data: btoa(binary),
-                  use_as_master: checked(data, "use_as_master"),
-                },
-                "",
-              );
-              notify(
-                `${result.candidates} candidate facts imported; review before confirming.${result.truncated ? " Import truncated at 500 candidates." : ""}`,
-              );
-            }}
-          >
-            <Field
-              label="Resume file"
-              name="file"
-              type="file"
-              accept=".pdf,.docx,.tex,.txt,.md"
-              required
-            />
-            <Check
-              label="Use this file as my master resume"
-              name="use_as_master"
-              defaultChecked
-            />
-            <small>
-              Up to {client.hosted ? 2 : 10} MB. Scanned files need OCR text.
-              Imported TeX is never executed.
-            </small>
-            <button>Import for review</button>
-          </Form>
-          <details>
-            <summary>Add experience or a skill</summary>
-            <FactForm />
-          </details>
-        </section>
+              }}
+            >
+              <Field
+                label="Resume file"
+                name="file"
+                type="file"
+                accept=".pdf,.docx,.tex,.txt,.md"
+                required
+              />
+              <Check
+                label="Use this file as my master resume"
+                name="use_as_master"
+                defaultChecked
+              />
+              <small>
+                Up to {client.hosted ? 2 : 10} MB. Scanned files need OCR text.
+                Imported TeX is never executed.
+              </small>
+              <button>Import for review</button>
+            </Form>
+            <details>
+              <summary>Add experience or a skill</summary>
+              <FactForm />
+            </details>
+          </section>
+        )}
       </div>
     </div>
   );

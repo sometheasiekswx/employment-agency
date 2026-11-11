@@ -271,9 +271,13 @@ export function OpportunitySourceProvider({
 export function OpportunityListingLink({
   job,
   children,
+  className,
+  label,
 }: {
   job: PreviewJob;
   children: string;
+  className?: string;
+  label?: string;
 }) {
   const openSource = useOpenOpportunitySource();
   const url = safeUrl(job.url);
@@ -282,6 +286,8 @@ export function OpportunityListingLink({
   return (
     <a
       href={url}
+      className={className}
+      aria-label={label}
       target="_blank"
       rel="noopener noreferrer"
       onClick={(event) => openSource(event, job, "listing")}

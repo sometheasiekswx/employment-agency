@@ -1,0 +1,492 @@
+{
+  "sources": [
+    {
+      "board": "BoschGroup",
+      "employer": "Bosch Group",
+      "country": "sg",
+      "city": "Singapore",
+      "destination": "Singapore",
+      "query": "",
+      "count": 2
+    },
+    {
+      "board": "AECOM2",
+      "employer": "AECOM",
+      "country": "sg",
+      "city": "Singapore",
+      "destination": "Singapore",
+      "query": "engineer",
+      "count": 3
+    },
+    {
+      "board": "AECOM2",
+      "employer": "AECOM",
+      "country": "au",
+      "city": "Melbourne",
+      "destination": "Melbourne",
+      "query": "engineer",
+      "count": 2
+    },
+    {
+      "board": "TurnerTownsend",
+      "employer": "Turner & Townsend",
+      "country": "au",
+      "city": "Melbourne",
+      "destination": "Melbourne",
+      "query": "data centre",
+      "count": 2
+    },
+    {
+      "board": "NBCUniversal3",
+      "employer": "NBCUniversal",
+      "country": "us",
+      "city": "New York",
+      "destination": "New York",
+      "query": "technology",
+      "count": 3
+    },
+    {
+      "board": "AECOM2",
+      "employer": "AECOM",
+      "country": "us",
+      "city": "New York",
+      "destination": "New York",
+      "query": "engineer",
+      "count": 2
+    },
+    {
+      "board": "AECOM2",
+      "employer": "AECOM",
+      "country": "gb",
+      "city": "London",
+      "destination": "London",
+      "query": "engineer",
+      "count": 3
+    },
+    {
+      "board": "Experian",
+      "employer": "Experian",
+      "country": "gb",
+      "city": "London",
+      "destination": "London",
+      "query": "",
+      "count": 2
+    },
+    {
+      "board": "BoschGroup",
+      "employer": "Bosch Group",
+      "country": "cn",
+      "city": "",
+      "destination": "China",
+      "query": "software",
+      "count": 5
+    }
+  ],
+  "jobs": [
+    {
+      "id": "0e991284d2dc46d5b799a54a1026bed0",
+      "source": "smartrecruiters:BoschGroup:sg",
+      "title": "Key User Sales and Support Manager",
+      "employer": "Bosch Group",
+      "location": "Singapore, , Singapore",
+      "url": "https://jobs.smartrecruiters.com/BoschGroup/744000160126689",
+      "careers_url": "https://careers.smartrecruiters.com/BoschGroup",
+      "description": "Key User Sales and Support Manager at Bosch Group in Singapore, , Singapore. See the original advert for the full role and current requirements.",
+      "requirements": [],
+      "checked_at": "2026-11-11T13:12:59.866939+00:00",
+      "posted_at": "2026-11-06",
+      "availability": "Employer snapshot",
+      "work_arrangement": ""
+    },
+    {
+      "id": "91093541a8e44ba89179bf317d123abb",
+      "source": "smartrecruiters:BoschGroup:sg",
+      "title": "Intern, AIot Software Developer",
+      "employer": "Bosch Group",
+      "location": "Singapore, , Singapore",
+      "url": "https://jobs.smartrecruiters.com/BoschGroup/744000159821219",
+      "careers_url": "https://careers.smartrecruiters.com/BoschGroup",
+      "description": "Intern, AIot Software Developer at Bosch Group in Singapore, , Singapore. See the original advert for the full role and current requirements.",
+      "requirements": [
+        "Python",
+        "Java",
+        "JavaScript",
+        "React",
+        "API"
+      ],
+      "checked_at": "2026-11-11T13:12:59.866939+00:00",
+      "posted_at": "2026-11-05",
+      "availability": "Employer snapshot",
+      "work_arrangement": ""
+    },
+    {
+      "id": "e84ffc921a8f4ae7ab2e63e6134f10e9",
+      "source": "smartrecruiters:AECOM2:sg",
+      "title": "Quantity Surveyor, M&E",
+      "employer": "AECOM",
+      "location": "Singapore, , Singapore",
+      "url": "https://jobs.smartrecruiters.com/AECOM2/744000161019169",
+      "careers_url": "https://careers.smartrecruiters.com/AECOM2",
+      "description": "Quantity Surveyor, M&E at AECOM in Singapore, , Singapore. See the original advert for the full role and current requirements.",
+      "requirements": [
+        "project management"
+      ],
+      "checked_at": "2026-11-11T13:12:59.866939+00:00",
+      "posted_at": "2026-11-11",
+      "availability": "Employer snapshot",
+      "work_arrangement": ""
+    },
+    {
+      "id": "901501d4c9b242d8872d4cbde620bf11",
+      "source": "smartrecruiters:AECOM2:sg",
+      "title": "Executive Quantity Surveyor, M&E",
+      "employer": "AECOM",
+      "location": "Singapore, , Singapore",
+      "url": "https://jobs.smartrecruiters.com/AECOM2/744000161019049",
+      "careers_url": "https://careers.smartrecruiters.com/AECOM2",
+      "description": "Executive Quantity Surveyor, M&E at AECOM in Singapore, , Singapore. See the original advert for the full role and current requirements.",
+      "requirements": [
+        "project management"
+      ],
+      "checked_at": "2026-11-11T13:12:59.866939+00:00",
+      "posted_at": "2026-11-11",
+      "availability": "Employer snapshot",
+      "work_arrangement": ""
+    },
+    {
+      "id": "4ba8aa0283054ecf8b923d48bc7d501d",
+      "source": "smartrecruiters:AECOM2:sg",
+      "title": "Senior Quantity Surveyor, M&E",
+      "employer": "AECOM",
+      "location": "Singapore, , Singapore",
+      "url": "https://jobs.smartrecruiters.com/AECOM2/744000161019009",
+      "careers_url": "https://careers.smartrecruiters.com/AECOM2",
+      "description": "Senior Quantity Surveyor, M&E at AECOM in Singapore, , Singapore. See the original advert for the full role and current requirements.",
+      "requirements": [
+        "project management"
+      ],
+      "checked_at": "2026-11-11T13:12:59.866939+00:00",
+      "posted_at": "2026-11-11",
+      "availability": "Employer snapshot",
+      "work_arrangement": "Hybrid"
+    },
+    {
+      "id": "1dd00ad22f5c4b4680ac25f56b64066f",
+      "source": "smartrecruiters:AECOM2:au",
+      "title": "Principal Civil Engineer – Water Infrastructure",
+      "employer": "AECOM",
+      "location": "Melbourne, VIC, Australia",
+      "url": "https://jobs.smartrecruiters.com/AECOM2/744000158217819",
+      "careers_url": "https://careers.smartrecruiters.com/AECOM2",
+      "description": "Principal Civil Engineer – Water Infrastructure at AECOM in Melbourne, VIC, Australia. See the original advert for the full role and current requirements.",
+      "requirements": [],
+      "checked_at": "2026-11-11T13:12:59.866939+00:00",
+      "posted_at": "2026-10-28",
+      "availability": "Employer snapshot",
+      "work_arrangement": ""
+    },
+    {
+      "id": "9689829137fc47bf9ff354342669272d",
+      "source": "smartrecruiters:AECOM2:au",
+      "title": "Senior Civil Engineer - Water Infrastructure",
+      "employer": "AECOM",
+      "location": "Melbourne, VIC, Australia",
+      "url": "https://jobs.smartrecruiters.com/AECOM2/744000158215764",
+      "careers_url": "https://careers.smartrecruiters.com/AECOM2",
+      "description": "Senior Civil Engineer - Water Infrastructure at AECOM in Melbourne, VIC, Australia. See the original advert for the full role and current requirements.",
+      "requirements": [],
+      "checked_at": "2026-11-11T13:12:59.866939+00:00",
+      "posted_at": "2026-10-28",
+      "availability": "Employer snapshot",
+      "work_arrangement": ""
+    },
+    {
+      "id": "e64e4b67850548bc96af09904c00da6f",
+      "source": "smartrecruiters:TurnerTownsend:au",
+      "title": "Cost Manager - MEP - Data Centre",
+      "employer": "Turner & Townsend",
+      "location": "Melbourne, Australia & New Zealand, Australia",
+      "url": "https://jobs.smartrecruiters.com/TurnerTownsend/744000161024509",
+      "careers_url": "https://careers.smartrecruiters.com/TurnerTownsend",
+      "description": "Cost Manager - MEP - Data Centre at Turner & Townsend in Melbourne, Australia & New Zealand, Australia. See the original advert for the full role and current requirements.",
+      "requirements": [
+        "data centre"
+      ],
+      "checked_at": "2026-11-11T13:12:59.866939+00:00",
+      "posted_at": "2026-11-11",
+      "availability": "Employer snapshot",
+      "work_arrangement": ""
+    },
+    {
+      "id": "4609c5e52fa74550afb9878e26410fdc",
+      "source": "smartrecruiters:TurnerTownsend:au",
+      "title": "Planner / Scheduler - MEP - Data Centre",
+      "employer": "Turner & Townsend",
+      "location": "Melbourne, Australia & New Zealand, Australia",
+      "url": "https://jobs.smartrecruiters.com/TurnerTownsend/744000160988520",
+      "careers_url": "https://careers.smartrecruiters.com/TurnerTownsend",
+      "description": "Planner / Scheduler - MEP - Data Centre at Turner & Townsend in Melbourne, Australia & New Zealand, Australia. See the original advert for the full role and current requirements.",
+      "requirements": [],
+      "checked_at": "2026-11-11T13:12:59.866939+00:00",
+      "posted_at": "2026-11-11",
+      "availability": "Employer snapshot",
+      "work_arrangement": "Hybrid"
+    },
+    {
+      "id": "66bd15dc08ea4c3db4c57e5e22b75779",
+      "source": "smartrecruiters:NBCUniversal3:us",
+      "title": "Associate Counsel, Business & Legal Affairs",
+      "employer": "NBCUniversal",
+      "location": "New York, NEW YORK, United States",
+      "url": "https://jobs.smartrecruiters.com/NBCUniversal3/744000160961279",
+      "careers_url": "https://careers.smartrecruiters.com/NBCUniversal3",
+      "description": "Associate Counsel, Business & Legal Affairs at NBCUniversal in New York, NEW YORK, United States. See the original advert for the full role and current requirements.",
+      "requirements": [],
+      "checked_at": "2026-11-11T13:12:59.866939+00:00",
+      "posted_at": "2026-11-10",
+      "availability": "Employer snapshot",
+      "work_arrangement": "Hybrid"
+    },
+    {
+      "id": "8008e26e45f646ed9e73b3e791cb914d",
+      "source": "smartrecruiters:NBCUniversal3:us",
+      "title": "Associate Design Engineer",
+      "employer": "NBCUniversal",
+      "location": "New York, NEW YORK, United States",
+      "url": "https://jobs.smartrecruiters.com/NBCUniversal3/744000160955954",
+      "careers_url": "https://careers.smartrecruiters.com/NBCUniversal3",
+      "description": "Associate Design Engineer at NBCUniversal in New York, NEW YORK, United States. See the original advert for the full role and current requirements.",
+      "requirements": [
+        "JavaScript",
+        "TypeScript",
+        "React",
+        "AWS",
+        "Azure",
+        "API"
+      ],
+      "checked_at": "2026-11-11T13:12:59.866939+00:00",
+      "posted_at": "2026-11-10",
+      "availability": "Employer snapshot",
+      "work_arrangement": "Hybrid"
+    },
+    {
+      "id": "53de9d56ba284e7aa0f926b3d70bed27",
+      "source": "smartrecruiters:NBCUniversal3:us",
+      "title": "Engineering Manager, VOD Media",
+      "employer": "NBCUniversal",
+      "location": "New York, NEW YORK, United States",
+      "url": "https://jobs.smartrecruiters.com/NBCUniversal3/744000160942119",
+      "careers_url": "https://careers.smartrecruiters.com/NBCUniversal3",
+      "description": "Engineering Manager, VOD Media at NBCUniversal in New York, NEW YORK, United States. See the original advert for the full role and current requirements.",
+      "requirements": [
+        "Python",
+        "Java",
+        "AWS",
+        "Kubernetes"
+      ],
+      "checked_at": "2026-11-11T13:12:59.866939+00:00",
+      "posted_at": "2026-11-10",
+      "availability": "Employer snapshot",
+      "work_arrangement": "Hybrid"
+    },
+    {
+      "id": "13ec47b521b6467a8f10a4c8ccf015ed",
+      "source": "smartrecruiters:AECOM2:us",
+      "title": "Structural Engineer I",
+      "employer": "AECOM",
+      "location": "New York, NY, United States",
+      "url": "https://jobs.smartrecruiters.com/AECOM2/744000160939959",
+      "careers_url": "https://careers.smartrecruiters.com/AECOM2",
+      "description": "Structural Engineer I at AECOM in New York, NY, United States. See the original advert for the full role and current requirements.",
+      "requirements": [],
+      "checked_at": "2026-11-11T13:12:59.866939+00:00",
+      "posted_at": "2026-11-10",
+      "availability": "Employer snapshot",
+      "work_arrangement": "Hybrid"
+    },
+    {
+      "id": "c8183386586e406fb9d9e3ea7c237041",
+      "source": "smartrecruiters:AECOM2:us",
+      "title": "Civil Inspector",
+      "employer": "AECOM",
+      "location": "New York, NY, United States",
+      "url": "https://jobs.smartrecruiters.com/AECOM2/744000160640501",
+      "careers_url": "https://careers.smartrecruiters.com/AECOM2",
+      "description": "Civil Inspector at AECOM in New York, NY, United States. See the original advert for the full role and current requirements.",
+      "requirements": [],
+      "checked_at": "2026-11-11T13:12:59.866939+00:00",
+      "posted_at": "2026-11-09",
+      "availability": "Employer snapshot",
+      "work_arrangement": ""
+    },
+    {
+      "id": "c2df5083939b45e1892bea5f5674faaa",
+      "source": "smartrecruiters:AECOM2:gb",
+      "title": "Principal Electrical Engineer (Solar/Renewables)",
+      "employer": "AECOM",
+      "location": "London, , United Kingdom",
+      "url": "https://jobs.smartrecruiters.com/AECOM2/744000161051849",
+      "careers_url": "https://careers.smartrecruiters.com/AECOM2",
+      "description": "Principal Electrical Engineer (Solar/Renewables) at AECOM in London, , United Kingdom. See the original advert for the full role and current requirements.",
+      "requirements": [],
+      "checked_at": "2026-11-11T13:12:59.866939+00:00",
+      "posted_at": "2026-11-11",
+      "availability": "Employer snapshot",
+      "work_arrangement": "Hybrid"
+    },
+    {
+      "id": "1cca5e1bb5a04c6e8a702e77676f785c",
+      "source": "smartrecruiters:AECOM2:gb",
+      "title": "Technical Director and Electrical Team Lead (Data Centre)",
+      "employer": "AECOM",
+      "location": "London, , United Kingdom",
+      "url": "https://jobs.smartrecruiters.com/AECOM2/744000160913429",
+      "careers_url": "https://careers.smartrecruiters.com/AECOM2",
+      "description": "Technical Director and Electrical Team Lead (Data Centre) at AECOM in London, , United Kingdom. See the original advert for the full role and current requirements.",
+      "requirements": [
+        "data centre"
+      ],
+      "checked_at": "2026-11-11T13:12:59.866939+00:00",
+      "posted_at": "2026-11-10",
+      "availability": "Employer snapshot",
+      "work_arrangement": "Hybrid"
+    },
+    {
+      "id": "9459b19dc6af4e2f9991ec8be35af7a5",
+      "source": "smartrecruiters:AECOM2:gb",
+      "title": "Digital Optimisation Lead, England & Wales",
+      "employer": "AECOM",
+      "location": "London, England, United Kingdom",
+      "url": "https://jobs.smartrecruiters.com/AECOM2/744000160819609",
+      "careers_url": "https://careers.smartrecruiters.com/AECOM2",
+      "description": "Digital Optimisation Lead, England & Wales at AECOM in London, England, United Kingdom. See the original advert for the full role and current requirements.",
+      "requirements": [
+        "Python",
+        "Azure"
+      ],
+      "checked_at": "2026-11-11T13:12:59.866939+00:00",
+      "posted_at": "2026-11-10",
+      "availability": "Employer snapshot",
+      "work_arrangement": "Hybrid"
+    },
+    {
+      "id": "a81b2d9aa5f8441e8b068dc939b02d62",
+      "source": "smartrecruiters:Experian:gb",
+      "title": "Director of Foundation",
+      "employer": "Experian",
+      "location": "London, , United Kingdom",
+      "url": "https://jobs.smartrecruiters.com/Experian/744000161066654",
+      "careers_url": "https://careers.smartrecruiters.com/Experian",
+      "description": "Director of Foundation at Experian in London, , United Kingdom. See the original advert for the full role and current requirements.",
+      "requirements": [],
+      "checked_at": "2026-11-11T13:12:59.866939+00:00",
+      "posted_at": "2026-11-11",
+      "availability": "Employer snapshot",
+      "work_arrangement": ""
+    },
+    {
+      "id": "076711510db94e2ba4c4351cb76dd4cb",
+      "source": "smartrecruiters:Experian:gb",
+      "title": "Junior Information Security Officer",
+      "employer": "Experian",
+      "location": "London, , United Kingdom",
+      "url": "https://jobs.smartrecruiters.com/Experian/744000160836896",
+      "careers_url": "https://careers.smartrecruiters.com/Experian",
+      "description": "Junior Information Security Officer at Experian in London, , United Kingdom. See the original advert for the full role and current requirements.",
+      "requirements": [],
+      "checked_at": "2026-11-11T13:12:59.866939+00:00",
+      "posted_at": "2026-11-10",
+      "availability": "Employer snapshot",
+      "work_arrangement": "Hybrid"
+    },
+    {
+      "id": "6022dd11990c43938b70cd310af70453",
+      "source": "smartrecruiters:BoschGroup:cn",
+      "title": "软件项目管理/SW PCM_VM",
+      "employer": "Bosch Group",
+      "location": "Suzhou, Jiangsu, China",
+      "url": "https://jobs.smartrecruiters.com/BoschGroup/744000160749639",
+      "careers_url": "https://careers.smartrecruiters.com/BoschGroup",
+      "description": "软件项目管理/SW PCM_VM at Bosch Group in Suzhou, Jiangsu, China. See the original advert for the full role and current requirements.",
+      "requirements": [
+        "project management"
+      ],
+      "checked_at": "2026-11-11T13:12:59.866939+00:00",
+      "posted_at": "2026-11-10",
+      "availability": "Employer snapshot",
+      "work_arrangement": ""
+    },
+    {
+      "id": "d410e7da42ef467e8d844f8a7e4bf707",
+      "source": "smartrecruiters:BoschGroup:cn",
+      "title": "软件项目经理PCM_XC",
+      "employer": "Bosch Group",
+      "location": "shanghai, , China",
+      "url": "https://jobs.smartrecruiters.com/BoschGroup/744000159585069",
+      "careers_url": "https://careers.smartrecruiters.com/BoschGroup",
+      "description": "软件项目经理PCM_XC at Bosch Group in shanghai, , China. See the original advert for the full role and current requirements.",
+      "requirements": [],
+      "checked_at": "2026-11-11T13:12:59.866939+00:00",
+      "posted_at": "2026-11-04",
+      "availability": "Employer snapshot",
+      "work_arrangement": ""
+    },
+    {
+      "id": "766696cf44d741bf866f7882a2ae6a1d",
+      "source": "smartrecruiters:BoschGroup:cn",
+      "title": "Project Manager（Onboard Charger and DCDC Converter）_EM",
+      "employer": "Bosch Group",
+      "location": "Shanghai, Shanghai, China",
+      "url": "https://jobs.smartrecruiters.com/BoschGroup/744000158208459",
+      "careers_url": "https://careers.smartrecruiters.com/BoschGroup",
+      "description": "Project Manager（Onboard Charger and DCDC Converter）_EM at Bosch Group in Shanghai, Shanghai, China. See the original advert for the full role and current requirements.",
+      "requirements": [
+        "cybersecurity"
+      ],
+      "checked_at": "2026-11-11T13:12:59.866939+00:00",
+      "posted_at": "2026-10-28",
+      "availability": "Employer snapshot",
+      "work_arrangement": ""
+    },
+    {
+      "id": "325f157c4e5242948e006c099198e733",
+      "source": "smartrecruiters:BoschGroup:cn",
+      "title": "ME/ECO-CN Group Manager_ME",
+      "employer": "Bosch Group",
+      "location": "Suzhou, Jiangsu, China",
+      "url": "https://jobs.smartrecruiters.com/BoschGroup/744000158198869",
+      "careers_url": "https://careers.smartrecruiters.com/BoschGroup",
+      "description": "ME/ECO-CN Group Manager_ME at Bosch Group in Suzhou, Jiangsu, China. See the original advert for the full role and current requirements.",
+      "requirements": [
+        "Kubernetes",
+        "Docker",
+        "CI/CD"
+      ],
+      "checked_at": "2026-11-11T13:12:59.866939+00:00",
+      "posted_at": "2026-10-28",
+      "availability": "Employer snapshot",
+      "work_arrangement": ""
+    },
+    {
+      "id": "47c4907a19b44d3d9089e1efda804673",
+      "source": "smartrecruiters:BoschGroup:cn",
+      "title": "Information Security Expert_C",
+      "employer": "Bosch Group",
+      "location": "Suzhou, Jiangsu, China",
+      "url": "https://jobs.smartrecruiters.com/BoschGroup/744000157670819",
+      "careers_url": "https://careers.smartrecruiters.com/BoschGroup",
+      "description": "Information Security Expert_C at Bosch Group in Suzhou, Jiangsu, China. See the original advert for the full role and current requirements.",
+      "requirements": [
+        "Python",
+        "AWS",
+        "Azure",
+        "cybersecurity",
+        "networking"
+      ],
+      "checked_at": "2026-11-11T13:12:59.866939+00:00",
+      "posted_at": "2026-10-25",
+      "availability": "Employer snapshot",
+      "work_arrangement": ""
+    }
+  ]
+}

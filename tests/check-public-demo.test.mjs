@@ -14,7 +14,7 @@ const policy = [
   `script-src 'self' ${scriptHash}`,
   "style-src 'self'",
   "font-src 'self'",
-  "connect-src 'self'",
+  "connect-src 'self' https://api.smartrecruiters.com",
   "img-src 'self' blob: data:",
   "frame-src 'self' blob:",
   "object-src 'none'",
@@ -208,6 +208,27 @@ test("rejects non-fictional profile and false demo markers", async (t) => {
   }
 });
 
+test("verifies the approved résumé PDF and rejects a mismatched public profile", async () => {
+  const server = releaseServer();
+  const master = "/demo/master-resume.pdf";
+  const bytes = "%PDF-1.7\nPublic resume fixture\n%%EOF";
+  server.fixture.state.identity = { name: "Demo Profile Owner" };
+  server.fixture.demo_resume = {
+    name: "Demo Profile Owner",
+    text: "Demo Profile Owner\nEngineering portfolio",
+    pdf: master,
+    sha256: createHash("sha256").update(bytes).digest("hex"),
+  };
+  server.records.set(master, { ...server.records.get(pdf), body: bytes });
+  await verifyPublicDemo(base, commit, server);
+  assert.ok(server.calls.some(({ url }) => new URL(url).pathname === master));
+  server.fixture.state.identity.name = "Alex Morgan";
+  await assert.rejects(
+    verifyPublicDemo(base, commit, server),
+    /approved résumé owner/,
+  );
+});
+
 test("rejects external, traversal and encoded document links without requesting them", async (t) => {
   for (const unsafe of [
     "https://provider.example/file.pdf",
@@ -267,7 +288,10 @@ test("rejects unsafe or widened CSP sources and duplicate directives", async (t)
     policy.replace(scriptHash, "'unsafe-inline'"),
     policy.replace(scriptHash, "'unsafe-eval'"),
     policy.replace(scriptHash, "https://cdn.example"),
-    policy.replace("connect-src 'self'", "connect-src *"),
+    policy.replace(
+      "connect-src 'self' https://api.smartrecruiters.com",
+      "connect-src *",
+    ),
     `${policy}; script-src 'unsafe-inline'`,
   ]) {
     await t.test(replacement, async () => {

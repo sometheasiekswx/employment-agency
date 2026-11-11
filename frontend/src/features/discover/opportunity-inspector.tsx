@@ -911,8 +911,11 @@ export function OpportunityInspector({
             </Link>
           ) : historicalSubmission ? null : (
             <Action
+              previewAllowed
               className="discover-primary"
-              disabled={!rankingCurrent || !match.eligible_for_preparation}
+              disabled={
+                !rankingCurrent || (!preview && !match.eligible_for_preparation)
+              }
               run={async () => {
                 prepareFocusIntent.current = {
                   jobId: job.id,
@@ -998,7 +1001,7 @@ export function OpportunityInspector({
             control.
           </p>
         )}
-        {!hasDecision && !match.eligible_for_preparation && (
+        {!preview && !hasDecision && !match.eligible_for_preparation && (
           <p className="discover-preparation-note">
             Resolve the flagged requirements or update your search profile
             before preparing a draft.
@@ -1006,8 +1009,8 @@ export function OpportunityInspector({
         )}
         {preview && !application && (
           <p className="discover-preparation-note">
-            View the existing example documents in Applications. Prepare your
-            own drafts with the local app.
+            Uses the résumé selected in{" "}
+            <Link href="/career/#import-resume">Career profile</Link>.
           </p>
         )}
       </footer>

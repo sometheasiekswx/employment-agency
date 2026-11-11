@@ -88,6 +88,7 @@ export function Form({
   onSave,
   onBusyChange,
   className,
+  previewAllowed = false,
   ...props
 }: Omit<React.FormHTMLAttributes<HTMLFormElement>, "onSubmit"> & {
   children: ReactNode;
@@ -96,18 +97,20 @@ export function Form({
     submitter: HTMLButtonElement | null,
   ) => Promise<void>;
   onBusyChange?: (busy: boolean) => void;
+  previewAllowed?: boolean;
 }) {
   const [busy, setBusy] = useState(false);
   const saving = useRef(false);
   const [error, setError] = useState("");
   const errorNotice = useRef<HTMLParagraphElement>(null);
   const { setDirty } = useDraft();
+  const readOnly = publicPreviewEnabled() && !previewAllowed;
   useEffect(() => {
     if (error) errorNotice.current?.focus();
   }, [error]);
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (publicPreviewEnabled()) {
+    if (readOnly) {
       setError(PREVIEW_READ_ONLY);
       return;
     }
@@ -144,8 +147,8 @@ export function Form({
       {...props}
     >
       <fieldset
-        disabled={busy || publicPreviewEnabled()}
-        title={publicPreviewEnabled() ? PREVIEW_READ_ONLY : undefined}
+        disabled={busy || readOnly}
+        title={readOnly ? PREVIEW_READ_ONLY : undefined}
       >
         {children}
       </fieldset>

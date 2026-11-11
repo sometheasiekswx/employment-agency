@@ -3,6 +3,7 @@ import { cp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { readShowcaseResume } from "../../scripts/showcase-resume.mjs";
 
 const frontend = fileURLToPath(new URL("../", import.meta.url));
 const root = path.dirname(frontend);
@@ -75,6 +76,36 @@ for (const url of Object.values(exportedFixture.files)) {
   }
   await readFile(path.join(destination, url));
 }
+if (process.env.EA_PUBLIC_DEMO_RESUME_DIR) {
+  const { resume, pdf } = await readShowcaseResume(
+    process.env.EA_PUBLIC_DEMO_RESUME_DIR,
+  );
+  const profile = spawnSync(
+    process.env.EA_PUBLIC_DEMO_PYTHON || "python3",
+    ["-m", "employment_agency.public_preview", "--profile-from-resume"],
+    {
+      cwd: root,
+      input: JSON.stringify({ state: exportedFixture.state, resume }),
+      encoding: "utf8",
+      maxBuffer: 4 * 1024 * 1024,
+    },
+  );
+  if (profile.error || profile.status !== 0)
+    throw new Error(
+      "Could not build the public profile from the approved résumé.",
+    );
+  Object.assign(exportedFixture, JSON.parse(profile.stdout));
+  exportedFixture.demo_resume = { ...resume, pdf: "/demo/master-resume.pdf" };
+  exportedFixture.revision = createHash("sha256")
+    .update(JSON.stringify(exportedFixture))
+    .digest("hex")
+    .slice(0, 20);
+  await writeFile(path.join(destination, "demo/master-resume.pdf"), pdf);
+  await writeFile(
+    path.join(destination, "demo/preview.json"),
+    JSON.stringify(exportedFixture) + "\n",
+  );
+}
 
 async function filesIn(directory, prefix = "") {
   const files = [];
@@ -111,7 +142,7 @@ const csp = [
   `script-src 'self' ${[...hashes].sort().join(" ")}`,
   "style-src 'self'",
   "font-src 'self'",
-  "connect-src 'self'",
+  "connect-src 'self' https://api.smartrecruiters.com",
   "img-src 'self' blob: data:",
   "frame-src 'self' blob:",
   "object-src 'none'",
@@ -154,7 +185,11 @@ await writeFile(
 
 await writeFile(
   path.join(destination, "release.json"),
-  JSON.stringify({ commit, fixtureRevision: fixture.revision }, null, 2) + "\n",
+  JSON.stringify(
+    { commit, fixtureRevision: exportedFixture.revision },
+    null,
+    2,
+  ) + "\n",
 );
 
 const manifest = [];

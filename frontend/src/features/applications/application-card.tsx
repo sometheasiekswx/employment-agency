@@ -19,6 +19,7 @@ import type { Application, EditorDocument, Job } from "@/lib/models";
 import { FileLink } from "./file-link";
 import { ApplicationDetails } from "./application-details";
 import { ReviewStatus } from "./review-status";
+import { DemoDraftEditor } from "./demo-draft-editor";
 
 const fileLabels = {
   "resume.pdf": "CV PDF",
@@ -128,6 +129,18 @@ export function ApplicationCard({
         </p>
       </header>
       <div className="dossier-content" hidden={view === "activity"}>
+        {app.demo_draft && client.demoDrafts && (
+          <DemoDraftEditor
+            key={app.id}
+            id={app.id}
+            session={client.demoDrafts}
+          />
+        )}
+        {client.preview && !app.demo_draft && (
+          <p className="muted">
+            Sample application. No employer was contacted.
+          </p>
+        )}
         {Boolean(app.warnings?.length) && (
           <p className="warning">{app.warnings?.join(" · ")}</p>
         )}

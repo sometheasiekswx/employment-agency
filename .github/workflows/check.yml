@@ -45,6 +45,14 @@ jobs:
         run: python tests/check_development.py
       - if: runner.os == 'Linux'
         run: python tests/run_browser_checks.py
+      - if: runner.os == 'Linux' && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        name: Prepare the approved public résumé
+        run: node scripts/showcase-resume.mjs --materialize
+        env:
+          PUBLIC_DEMO_RESUME_1: ${{ secrets.PUBLIC_DEMO_RESUME_1 }}
+          PUBLIC_DEMO_RESUME_2: ${{ secrets.PUBLIC_DEMO_RESUME_2 }}
+          PUBLIC_DEMO_RESUME_3: ${{ secrets.PUBLIC_DEMO_RESUME_3 }}
+          PUBLIC_DEMO_RESUME_4: ${{ secrets.PUBLIC_DEMO_RESUME_4 }}
       - if: runner.os == 'Linux'
         run: npm --prefix frontend run build:preview
       - if: runner.os == 'Linux'

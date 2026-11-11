@@ -1,0 +1,216 @@
+{
+  "job": {
+    "title": "Platform Engineer",
+    "employer": "Fernbridge Digital",
+    "location": "Melbourne",
+    "description": "Fictional concept listing. Build and maintain software services with AWS, Terraform, CI/CD, Kubernetes. Work with a small engineering team.",
+    "url": "https://example.test/concept/role-3",
+    "email": "",
+    "closes": "",
+    "posted_at": "2026-11-01",
+    "reposted_at": "",
+    "seniority": "",
+    "work_arrangement": "Hybrid",
+    "sponsorship": "unknown",
+    "requirements": [
+      "AWS",
+      "Terraform",
+      "CI/CD",
+      "Kubernetes"
+    ],
+    "eligibility": "unknown",
+    "salary": {
+      "currency": "AUD",
+      "period": "year",
+      "basis": "gross_base",
+      "min": 115000.0,
+      "max": 145000.0
+    },
+    "expectation": {
+      "target": "",
+      "basis": "",
+      "source": "",
+      "confidence": ""
+    },
+    "id": "e84870bbe48fe62c76677e90",
+    "availability": "illustrative example",
+    "source": "manual",
+    "checked_at": "2026-11-05T00:00:00Z",
+    "prior_application": "none",
+    "saved": false
+  },
+  "facts": [
+    {
+      "text": "Used CI/CD to build and maintain software services.",
+      "category": "experience",
+      "association": "Example Labs (fictional)",
+      "dates": "2022–2026",
+      "claim_key": "",
+      "id": "045d826ab2044774a659b7f5b1877e43",
+      "confirmed": true,
+      "retired": false,
+      "updated_at": "2026-11-11T13:16:02.461838+00:00",
+      "source": {
+        "name": "User supplied note",
+        "at": "2026-11-11T13:16:02.461840+00:00"
+      },
+      "conflict": false
+    },
+    {
+      "text": "Used AWS to build and maintain software services.",
+      "category": "experience",
+      "association": "Example Labs (fictional)",
+      "dates": "2022–2026",
+      "claim_key": "",
+      "id": "341ecf1ad80e4980a2642811f7c27bf9",
+      "confirmed": true,
+      "retired": false,
+      "updated_at": "2026-11-11T13:16:02.458701+00:00",
+      "source": {
+        "name": "User supplied note",
+        "at": "2026-11-11T13:16:02.458704+00:00"
+      },
+      "conflict": false
+    },
+    {
+      "text": "Used Terraform to build and maintain software services.",
+      "category": "experience",
+      "association": "Example Labs (fictional)",
+      "dates": "2022–2026",
+      "claim_key": "",
+      "id": "b79a50395a0c45cea69a59e0fe084d11",
+      "confirmed": true,
+      "retired": false,
+      "updated_at": "2026-11-11T13:16:02.459194+00:00",
+      "source": {
+        "name": "User supplied note",
+        "at": "2026-11-11T13:16:02.459196+00:00"
+      },
+      "conflict": false
+    },
+    {
+      "text": "Used Python to build and maintain software services.",
+      "category": "experience",
+      "association": "Example Labs (fictional)",
+      "dates": "2022–2026",
+      "claim_key": "",
+      "id": "db7ef7311b784dedac82860859eb81fa",
+      "confirmed": true,
+      "retired": false,
+      "updated_at": "2026-11-11T13:16:02.457946+00:00",
+      "source": {
+        "name": "User supplied note",
+        "at": "2026-11-11T13:16:02.458053+00:00"
+      },
+      "conflict": false
+    },
+    {
+      "text": "Used PostgreSQL to build and maintain software services.",
+      "category": "experience",
+      "association": "Example Labs (fictional)",
+      "dates": "2022–2026",
+      "claim_key": "",
+      "id": "73b2d556fa644873b8a2ceabaac10cda",
+      "confirmed": true,
+      "retired": false,
+      "updated_at": "2026-11-11T13:16:02.459800+00:00",
+      "source": {
+        "name": "User supplied note",
+        "at": "2026-11-11T13:16:02.459803+00:00"
+      },
+      "conflict": false
+    },
+    {
+      "text": "Used React to build and maintain software services.",
+      "category": "experience",
+      "association": "Example Labs (fictional)",
+      "dates": "2022–2026",
+      "claim_key": "",
+      "id": "4d4cfaed8041454f95771444a4e37d90",
+      "confirmed": true,
+      "retired": false,
+      "updated_at": "2026-11-11T13:16:02.460417+00:00",
+      "source": {
+        "name": "User supplied note",
+        "at": "2026-11-11T13:16:02.460418+00:00"
+      },
+      "conflict": false
+    },
+    {
+      "text": "Used TypeScript to build and maintain software services.",
+      "category": "experience",
+      "association": "Example Labs (fictional)",
+      "dates": "2022–2026",
+      "claim_key": "",
+      "id": "afe9c12f83d54babbe15f779c318084f",
+      "confirmed": true,
+      "retired": false,
+      "updated_at": "2026-11-11T13:16:02.461230+00:00",
+      "source": {
+        "name": "User supplied note",
+        "at": "2026-11-11T13:16:02.461255+00:00"
+      },
+      "conflict": false
+    }
+  ],
+  "matching": {
+    "hard_conflicts": [],
+    "unknowns": [
+      "Work rights / sponsorship need confirmation",
+      "Listing needs a fresh check",
+      "Availability not verified"
+    ],
+    "preferences": [],
+    "evidence": [
+      {
+        "requirement": "AWS",
+        "fact_ids": [
+          "341ecf1ad80e4980a2642811f7c27bf9"
+        ],
+        "assessment": "Related text; verify full requirement"
+      },
+      {
+        "requirement": "Terraform",
+        "fact_ids": [
+          "b79a50395a0c45cea69a59e0fe084d11"
+        ],
+        "assessment": "Related text; verify full requirement"
+      },
+      {
+        "requirement": "CI/CD",
+        "fact_ids": [
+          "045d826ab2044774a659b7f5b1877e43"
+        ],
+        "assessment": "Related text; verify full requirement"
+      },
+      {
+        "requirement": "Kubernetes",
+        "fact_ids": [],
+        "assessment": "No confirmed evidence"
+      }
+    ],
+    "gaps": [
+      "Kubernetes"
+    ],
+    "stretch": true,
+    "eligible_for_preparation": true,
+    "fact_ids": [
+      "045d826ab2044774a659b7f5b1877e43",
+      "341ecf1ad80e4980a2642811f7c27bf9",
+      "b79a50395a0c45cea69a59e0fe084d11",
+      "db7ef7311b784dedac82860859eb81fa",
+      "73b2d556fa644873b8a2ceabaac10cda",
+      "4d4cfaed8041454f95771444a4e37d90",
+      "afe9c12f83d54babbe15f779c318084f"
+    ],
+    "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+    "salary_expectation": {
+      "target": "Up to 145000 AUD gross base per year",
+      "basis": "Advertised upper bound, not a market percentile. Stretch fit: discuss the band before quoting the maximum.",
+      "source": "https://example.test/concept/role-3",
+      "confidence": "low"
+    }
+  },
+  "template": "plain",
+  "notice": "User review required. No ATS guarantee."
+}

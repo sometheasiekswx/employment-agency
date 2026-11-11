@@ -35,6 +35,15 @@ const { showPanel } = require("./browser-applications.cjs");
         apiRequests.push(url.href);
       if (!["GET", "HEAD"].includes(request.method()))
         mutations.push(request.method() + " " + url.href);
+      if (url.origin === "https://api.smartrecruiters.com") {
+        assert.match(
+          url.pathname,
+          /^\/v1\/companies\/[A-Za-z0-9_-]+\/postings$/,
+        );
+        assert.equal(request.method(), "GET");
+        assert.equal(request.postData(), null);
+        return route.abort();
+      }
       if (
         ["http:", "https:"].includes(url.protocol) &&
         url.origin !== new URL(base).origin
@@ -49,7 +58,10 @@ const { showPanel } = require("./browser-applications.cjs");
     ).json();
     assert.equal(snapshot.public_preview, true);
     assert.equal(snapshot.state._workspace.demo, true);
-    assert.equal(snapshot.state.identity.name, "Alex Morgan");
+    assert.equal(
+      snapshot.state.identity.name,
+      snapshot.demo_resume?.name ?? "Alex Morgan",
+    );
     const assessCloud = () =>
       page.getByRole("button", {
         name: "Assess Cloud Software Engineer at Emberlane Systems",
@@ -215,6 +227,9 @@ const { showPanel } = require("./browser-applications.cjs");
     const independent = await browser.newContext({
       viewport: { width: 1440, height: 1000 },
     });
+    await independent.route("https://api.smartrecruiters.com/**", (route) =>
+      route.abort(),
+    );
     const second = await independent.newPage();
     await second.goto(base + "/discover/?view=all");
     await second
@@ -230,6 +245,9 @@ const { showPanel } = require("./browser-applications.cjs");
     const shared = await browser.newContext({
       viewport: { width: 1440, height: 1000 },
     });
+    await shared.route("https://api.smartrecruiters.com/**", (route) =>
+      route.abort(),
+    );
     const firstTab = await shared.newPage();
     const secondTab = await shared.newPage();
     await Promise.all([
@@ -301,7 +319,7 @@ const { showPanel } = require("./browser-applications.cjs");
       await inspector
         .getByRole("button", { name: "Prepare draft", exact: true })
         .isDisabled(),
-      true,
+      false,
     );
     await page
       .getByRole("button", { name: "Close opportunity details", exact: true })
@@ -510,7 +528,7 @@ const { showPanel } = require("./browser-applications.cjs");
       await page.keyboard.press("Escape");
       await page.goto(base + "/discover/?view=all");
       await page
-        .getByRole("button", { name: /^Removed \(1\)$/, exact: true })
+        .getByRole("button", { name: /^Removed \(3\)$/, exact: true })
         .waitFor();
       assert.equal(
         await assessCloud().count(),
@@ -518,7 +536,7 @@ const { showPanel } = require("./browser-applications.cjs");
         "browser-local removal survives reload",
       );
       await page
-        .getByRole("button", { name: /^Removed \(1\)$/, exact: true })
+        .getByRole("button", { name: /^Removed \(3\)$/, exact: true })
         .click();
       await assessCloud().waitFor();
       await page
@@ -555,7 +573,7 @@ const { showPanel } = require("./browser-applications.cjs");
     assert.deepEqual(mutations, []);
     assert.deepEqual(errors, []);
     console.log(
-      "Public static preview passed: six routes, fictional PDF/Word views, browser-local bookmarks/removal/reasons/restore, disabled private operations, no API/auth/provider requests and accessible desktop/mobile layouts.",
+      "Public static preview passed: six routes, fictional PDF/Word views, browser-local bookmarks/removal/reasons/restore, limited private operations, isolated employer feeds and accessible desktop/mobile layouts.",
     );
   } finally {
     await browser.close();
