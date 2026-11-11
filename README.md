@@ -16,7 +16,7 @@ Find roles in your chosen locations, assess the match and prepare applications y
 
 [**Explore the live demo →**](https://employment-agency-demo.vercel.app/discover/)
 
-Six fictional roles · Four locations · No sign-in
+Employer listings · Seven destinations · No sign-in
 
 [The workspace](#the-workspace) · [Run locally](#run-locally) · [Test locally](#test-locally) · [Use your agent](#use-your-agent) · [Documentation](#documentation)
 
@@ -52,7 +52,7 @@ Search as you type. Swipe anywhere in the partial sheet to expand or close. Keep
   <a href="docs/media/mobile-review.gif">Full mobile GIF</a> · <a href="docs/media/mobile-review.png">Static preview</a>
 </p>
 
-The recordings use a disposable fictional workspace. The [public demo](https://employment-agency-demo.vercel.app/discover/) lets you explore sample documents and try browser-local bookmarks, job removal and optional reasons; document editing, uploads and employer actions are disabled. [Demo data and capture details](docs/demo.md).
+The recordings use a disposable fictional workspace. In the public demo, view the owner’s public résumé, follow employer listings, explore sample application queues and prepare editable CV and cover-letter drafts. Imported résumés and new drafts stay in the current tab. [Public demo](https://employment-agency-demo.vercel.app/discover/) · [Demo data and capture details](docs/demo.md)
 
 ## The workspace
 

@@ -1,14 +1,14 @@
 # Demo content and walkthroughs
 
-The public web showcase and the installed CLI demo use separate datasets. Both use fictional career information and generated sample documents. They do not describe the repository owner's career or record real employer contact.
+The public web showcase and the installed CLI demo use separate datasets. The showcase displays the owner’s approved redacted master résumé and uses it for the public profile and new drafts. Example documents and application decisions are fictional.
 
 |                     | Public web showcase                                    | Existing CLI demo                                            |
 | ------------------- | ------------------------------------------------------ | ------------------------------------------------------------ |
 | Interface           | Current light and dark interface         | The interface bundled with the version you install           |
-| Candidate           | Alex Morgan, fictional software engineer in Melbourne  | Alex Morgan, fictional software engineer in New York         |
-| Jobs                | Six invented illustrative roles in four locations      | Fourteen real employer-board metadata snapshots              |
-| Application records | Three illustrative records with generated sample files | Twelve generated packages with sample decisions and comments |
-| Changes             | Browser-local bookmarks, removal and optional reasons  | Normal local demo-workspace operations                       |
+| Candidate           | Public profile and redacted master résumé              | Alex Morgan, fictional software engineer in New York       |
+| Jobs                | Employer postings and example roles in seven destinations | Fourteen real employer-board metadata snapshots           |
+| Application records | Seven sample packages and drafts prepared in the current tab | Twelve generated packages with sample decisions and comments |
+| Changes             | Browser-local bookmarks and removal, tab-only résumé and draft editing | Normal local demo-workspace operations        |
 | Runtime             | Static public site; no application backend or sign-in  | Isolated local Python server and workspace                   |
 
 ## Public web showcase
@@ -17,9 +17,11 @@ The public web showcase and the installed CLI demo use separate datasets. Both u
 
 The showcase presents the approved location board and opportunity inspector on desktop, plus an expandable opportunity sheet on mobile. **Opportunities** combines Recommended, Browse, Saved and Applications, alongside **Career profile, Search preferences, History and Settings**. The interface uses the project's briefcase/person mark, light and dark surfaces, lavender accents and self-hosted Inter fonts.
 
-The public site releases automatically after all checks pass on `main`. Its [release marker](https://employment-agency-demo.vercel.app/release.json) records the deployed commit. The [deployment runbook](public-demo-deployment.md) explains the fictional static artifact, public-only credential, verification and recovery; the private hosted pilot remains separately deployed.
+The public site releases automatically after all checks pass on `main`. The release marker records the deployed commit. [Release marker](https://employment-agency-demo.vercel.app/release.json) · [Deployment runbook](public-demo-deployment.md)
 
-All people, experience, employers, vacancies, compensation and review decisions in this showcase are illustrative. The sample jobs are:
+The showcase checks public SmartRecruiters employer feeds when a tab loads. It adds five postings for Singapore, four for Melbourne and five each for New York, London and China. An unavailable feed falls back to the dated listings bundled with the build. The employer careers link can help visitors find other openings after an advert closes. [Posting API](https://developers.smartrecruiters.com/docs/endpoints)
+
+The six roles used in the walkthroughs are shown below. The showcase adds two sample roles to each of Saved, Active, Submitted and Removed.
 
 | Role                      | Fictional employer  | Location  | Work model |
 | ------------------------- | ------------------- | --------- | ---------- |
@@ -30,7 +32,7 @@ All people, experience, employers, vacancies, compensation and review decisions 
 | DevOps Engineer           | Northglass Works    | Berlin    | Hybrid     |
 | Backend Software Engineer | Cedarlight Software | Toronto   | Hybrid     |
 
-Seven confirmed sample experience statements cover Python, AWS, Terraform, PostgreSQL, React, TypeScript and CI/CD at **Example Labs (fictional)**. The profile prioritises Singapore, Melbourne, Berlin and Toronto. Work eligibility and sponsorship stay unknown; the fictional listings do not establish live availability. Example listing URLs use the reserved `example.test` domain.
+The landing page links to the public résumé. Career profile shows the owner’s name and evidence drawn from the redacted master. For a new draft, the demo uses the selected résumé. Choose a PDF with selectable text, a DOCX or plain text, then review the extracted text before using it. Edit the new CV or cover letter under Active and download Word or PDF. Files and drafts stay in the current tab and clear on reload or close. The local app supplies lasting workspace storage, custom LaTeX templates and the complete application workflow.
 
 The shared Python `Service` generates the bundled state, requirement assessments and real document files before the static site is built. The browser displays those results. Bookmarks, removal, restoration and optional reasons stay in the visitor's browser. Applications → Removed holds removed roles with their saved documents and activity. Restore returns a role to its previous lists. Personal uploads, career-data edits, new document generation, external source refreshes, paid providers and employer actions are unavailable in this public showcase. Use the local application for those supported workflows.
 
@@ -60,7 +62,7 @@ npm --prefix frontend run build:preview
 
 Open **http://127.0.0.1:8789**. The export writes fictional state and content-addressed document files under `frontend/public/demo/`; `build:preview` produces the standalone site in `output/public-preview/site` without replacing the Python package's normal web assets. It needs no application server or provider credentials.
 
-Run `.venv/bin/python tests/run_public_preview_checks.py` after building to check all six routes, document views, browser bookmark isolation, disabled private operations and desktop/mobile accessibility with the production content security policy. CI runs the same static build and browser check on Linux.
+Run `.venv/bin/python tests/run_public_preview_checks.py` after building to verify the routes, sample decisions, browser bookmark isolation, live feed fallback, résumé import, draft downloads and desktop/mobile accessibility with the production content security policy. CI runs the same static build and browser check on Linux.
 
 For media captured against an isolated local application, [tests/serve_concept_fixture.py](../tests/serve_concept_fixture.py) uses the same seed. Build the normal production frontend before starting its capture server:
 

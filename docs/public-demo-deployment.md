@@ -5,7 +5,7 @@ The public showcase at **https://employment-agency-demo.vercel.app/discover/** f
 ## Release path
 
 1. A push runs the existing `Checks` workflow on Linux, macOS and Windows. Pull requests run checks without deployment access.
-2. Linux builds and browser-tests the fictional static site, then uploads that exact directory as a commit-named artifact. A failed check prevents the deployment job from running.
+2. Linux builds and browser-tests the static site, then uploads that exact directory as a commit-named artifact. Production includes the public employer snapshots and the approved redacted master résumé. A failed check prevents the deployment job from running.
 3. After the entire matrix succeeds, the release job downloads the artifact into an isolated runner directory. It checks the commit and fictional markers, then stages a production deployment with domain assignment disabled.
 4. A dependency-free HTTP check verifies the exact source commit, fictional fixture, routes, a sample PDF and security headers on the staged URL. Only a verified candidate that still matches `main` is promoted.
 5. The same check runs on the public alias. It retries a stale release marker up to ten times at three-second intervals while promotion propagates. The Actions job summary records the source SHA and public URL. Inspect [/release.json](https://employment-agency-demo.vercel.app/release.json) to identify the live source commit and fixture revision.
@@ -31,6 +31,18 @@ Create the scoped token through [Vercel token settings](https://vercel.com/accou
 Save the resulting project-scoped value directly in [GitHub Actions secret settings](https://github.com/sometheasiekswx/employment-agency/settings/secrets/actions), or use `gh secret set VERCEL_DEMO_TOKEN --repo sometheasiekswx/employment-agency` and enter it at the hidden prompt. Do not paste tokens into chat, source, command-line arguments or logs. The team/project IDs are identifiers, not credentials, and are explicit in the workflow so the root private `.vercel` link cannot select the release target.
 
 Replace the secret when rotating the scoped token, then revoke the old token. An absent or expired token fails the release visibly and leaves the current alias live. No manual reviewer is required for normal successful releases. This uses the existing hosting plan and introduces no paid service.
+
+## Public master résumé
+
+Render the approved master from a local checkout with LaTeX installed. Use a new output directory outside the software repository.
+
+```sh
+.venv/bin/python scripts/prepare-showcase-resume.py --master "$EA_MASTER_TEX" --output "$EA_PUBLIC_RESUME_OUT"
+EA_PUBLIC_DEMO_RESUME_DIR="$EA_PUBLIC_RESUME_OUT" EA_PUBLIC_DEMO_PYTHON="$PWD/.venv/bin/python" npm --prefix frontend run build:preview
+node scripts/showcase-resume.mjs "$EA_PUBLIC_RESUME_OUT"
+```
+
+Review the rendered PDF and text in the output directory. For automatic releases, store the four files in its `release-inputs` directory as GitHub Actions secrets with their exact filenames. Supply all four for the same résumé. The Linux production build verifies the checksum and uses the approved input for the profile, evidence and downloadable PDF. A production build with missing or invalid inputs fails before deployment. Local and pull-request builds can use the sample fixture. Keep the source LaTeX and the release input files outside Git.
 
 ## Verify and recover
 
