@@ -6,6 +6,7 @@ The public demo lets a visitor see the owner’s name and redacted résumé, bro
 
 - Add five employer listings in Singapore and four in Melbourne. Add five each in New York, London and China. Preserve the exact city on each Chinese listing.
 - Show a View listing link on employer cards and the employer’s careers link in details. Read current postings when opening the demo. Show a dated snapshot when a feed is unavailable. Keep saved or removed listings accessible when their feeds no longer return them.
+- Open the original listing or careers page with one tap on mobile. In a mobile browser, the site opens in the same tab and Back returns to the selected role or results. The installed app opens the site in the system browser over the demo and returns to the role on Done. Desktop links open a new tab.
 - Add examples to Saved, Active, Submitted and Removed. Mark preloaded application decisions and documents as examples. Keep their review and document flows available.
 - Use the documented public SmartRecruiters Posting API with configured employer boards. The careers board provides a way to see other openings when a vacancy closes. [Posting API endpoints](https://developers.smartrecruiters.com/docs/endpoints)
 

@@ -28,7 +28,8 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-it("follows the original link in a new tab on desktop", () => {
+it.each(["0", "1"])("opens a new tab on desktop in demo mode %s", (preview) => {
+  vi.stubEnv("NEXT_PUBLIC_EA_PUBLIC_PREVIEW", preview);
   vi.stubGlobal(
     "matchMedia",
     vi.fn(() => ({ matches: false })),
@@ -41,20 +42,25 @@ it("follows the original link in a new tab on desktop", () => {
   expect(screen.queryByRole("dialog")).toBeNull();
 });
 
-it("lets the installed mobile app handle the original link navigation", () => {
-  vi.stubGlobal(
-    "matchMedia",
-    vi.fn(() => ({ matches: true })),
-  );
-  vi.spyOn(navigator, "userAgent", "get").mockReturnValue(
-    "Mozilla/5.0 EmploymentAgencyMobile/1",
-  );
-  renderLink();
-  const link = screen.getByRole("link", { name: "Original listing" });
-  expect(link).toHaveAttribute("href", job.url);
-  expect(fireEvent.click(link)).toBe(true);
-  expect(screen.queryByRole("dialog")).toBeNull();
-});
+it.each(["0", "1"])(
+  "lets the installed app handle original links in demo mode %s",
+  (preview) => {
+    vi.stubEnv("NEXT_PUBLIC_EA_PUBLIC_PREVIEW", preview);
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn(() => ({ matches: true })),
+    );
+    vi.spyOn(navigator, "userAgent", "get").mockReturnValue(
+      "Mozilla/5.0 EmploymentAgencyMobile/1",
+    );
+    renderLink();
+    const link = screen.getByRole("link", { name: "Original listing" });
+    expect(link).toHaveAttribute("href", job.url);
+    expect(fireEvent.click(link)).toBe(true);
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(screen.queryByRole("dialog")).toBeNull();
+  },
+);
 
 it("opens a website preview only after an ordinary listing click and retains saved details", async () => {
   vi.stubGlobal(
@@ -114,14 +120,20 @@ it.each([
   expect(screen.getByText(job.description)).toBeVisible();
 });
 
-it("keeps the public showcase on recorded details", () => {
+it("opens the real site in the current tab on the public mobile demo", () => {
   vi.stubEnv("NEXT_PUBLIC_EA_PUBLIC_PREVIEW", "1");
   vi.stubGlobal(
     "matchMedia",
     vi.fn(() => ({ matches: true })),
   );
   renderLink();
-  fireEvent.click(screen.getByRole("link", { name: "Original listing" }));
-  expect(screen.queryByTitle("Listing website preview")).toBeNull();
-  expect(screen.getByText(job.description)).toBeVisible();
+  const link = screen.getByRole("link", { name: "Original listing" });
+  expect(fireEvent.click(link)).toBe(true);
+  expect(link).toHaveAttribute("href", job.url);
+  expect(link).toHaveAttribute("target", "_self");
+  expect(link).toHaveAttribute("rel", "noopener noreferrer");
+  expect(screen.queryByRole("dialog")).toBeNull();
+  expect(screen.queryByText(job.description)).toBeNull();
+  expect(fireEvent.click(link, { metaKey: true })).toBe(true);
+  expect(link).toHaveAttribute("target", "_blank");
 });

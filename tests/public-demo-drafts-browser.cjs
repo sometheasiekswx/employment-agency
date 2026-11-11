@@ -12,6 +12,8 @@ const AxeBuilder =
 
 const base = process.env.TEST_URL;
 const visitor = "Demo Visitor Privacy Check 71294";
+const advertUrl = "https://jobs.smartrecruiters.com/BoschGroup/744000111111111";
+const careersUrl = "https://careers.smartrecruiters.com/BoschGroup";
 
 async function prepare(page, role) {
   await page
@@ -220,7 +222,7 @@ async function main() {
     const context = await browser.newContext(
       safari
         ? { ...devices["iPhone 15"] }
-        : { viewport: { width: 390, height: 844 } },
+        : { viewport: { width: 390, height: 844 }, hasTouch: true },
     );
     let open = true;
     let reads = 0;
@@ -236,6 +238,15 @@ async function main() {
       if (url.origin === base) {
         assert.ok(!url.pathname.startsWith("/api/"));
         return route.continue();
+      }
+      if (url.href === advertUrl || url.href === careersUrl) {
+        assert.equal(request.isNavigationRequest(), true);
+        assert.equal(request.headers().referer, undefined);
+        return route.fulfill({
+          contentType: "text/html",
+          headers: { "x-frame-options": "DENY" },
+          body: `<h1>${url.href === advertUrl ? "Live job advert" : "Employer careers"}</h1>`,
+        });
       }
       assert.equal(url.origin, "https://api.smartrecruiters.com");
       assert.match(url.pathname, /^\/v1\/companies\/[A-Za-z0-9_-]+\/postings$/);
@@ -293,25 +304,28 @@ async function main() {
     const listing = page.getByRole("link", {
       name: "View listing for Feed Test Engineer at Bosch Group",
     });
-    assert.equal(
-      await listing.getAttribute("href"),
-      "https://jobs.smartrecruiters.com/BoschGroup/744000111111111",
-    );
-    assert.equal(await listing.getAttribute("target"), "_blank");
+    async function followSource(link, url, heading) {
+      assert.equal(await link.getAttribute("href"), url);
+      const previous = page.url();
+      await link.tap();
+      await page.waitForURL(url, { timeout: 8_000 });
+      assert.equal(context.pages().length, 1);
+      await page.getByRole("heading", { name: heading, exact: true }).waitFor();
+      await page.goBack();
+      await page.waitForURL(previous);
+    }
+    await followSource(listing, advertUrl, "Live job advert");
     await role.click();
+    await page.waitForURL((url) => url.searchParams.has("opportunity"));
     const inspector = page.locator(".discover-inspector");
-    assert.equal(
-      await inspector
-        .getByRole("link", { name: "Feed Test Engineer" })
-        .getAttribute("href"),
-      "https://jobs.smartrecruiters.com/BoschGroup/744000111111111",
+    const titleLink = inspector.getByRole("link", { name: "Feed Test Engineer" });
+    await followSource(titleLink, advertUrl, "Live job advert");
+    await followSource(
+      inspector.getByRole("link", { name: "Bosch Group", exact: true }),
+      careersUrl,
+      "Employer careers",
     );
-    assert.equal(
-      await inspector
-        .getByRole("link", { name: "Bosch Group", exact: true })
-        .getAttribute("href"),
-      "https://careers.smartrecruiters.com/BoschGroup",
-    );
+    await titleLink.waitFor();
     await inspector
       .getByRole("button", { name: "Save Feed Test Engineer", exact: true })
       .click();
@@ -329,7 +343,7 @@ async function main() {
     assert.ok(reads >= snapshot.job_sources.length);
     assert.deepEqual(errors, []);
     console.log(
-      "Static demo passed employer refresh, preserved closed bookmark, PDF/DOCX imports, editable draft exports and tab privacy.",
+      "Static demo passed employer refresh, mobile site navigation and Back, preserved closed bookmark, PDF/DOCX imports, editable draft exports and tab privacy.",
     );
   } finally {
     await browser.close();

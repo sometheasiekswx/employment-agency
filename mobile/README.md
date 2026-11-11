@@ -17,6 +17,8 @@ Build with the HTTPS origin that serves the workspace, without an app route or c
 
 A command-line build can supply `EA_WORKSPACE_ORIGIN=https://workspace.example.ts.net` as an Xcode build setting. The project was generated with [XcodeGen 2.46.0](https://github.com/yonaskolb/XcodeGen/releases/tag/2.46.0) from `ios/project.yml`. Regenerate it with `xcodegen generate --spec mobile/ios/project.yml` from the repository root when changing targets or adding source files.
 
+To run the public demo in the installed app, set `EA_WORKSPACE_ORIGIN=https://employment-agency-demo.vercel.app` at build time. Tap a listing title or company name to see the live page. Tap **Done** to return to the selected role.
+
 ## Android
 
 Open `mobile/android` in Android Studio or build with the Android SDK and Gradle wrapper. This project uses the Android 37 SDK and JDK 17 or newer. From the repository root:

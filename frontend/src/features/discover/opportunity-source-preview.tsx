@@ -37,7 +37,7 @@ export function useOpenOpportunitySource() {
   return useContext(SourceContext);
 }
 
-function opensSourcePreview(event: MouseEvent<HTMLAnchorElement>) {
+function isMobileSourceClick(event: MouseEvent<HTMLAnchorElement>) {
   // Installed apps handle the ordinary link navigation in the native browser.
   if (/(?:^|\s)EmploymentAgencyMobile\/1(?:\s|$)/.test(navigator.userAgent))
     return false;
@@ -98,11 +98,17 @@ export function OpportunitySourceProvider({
     showWebsite: false,
   });
   const openSource = useCallback<OpenSource>((event, job, kind) => {
-    if (!opensSourcePreview(event)) return;
+    const mobile = isMobileSourceClick(event);
+    if (publicPreviewEnabled()) {
+      // Follow the anchor as a top-level page so employer frame rules apply normally.
+      event.currentTarget.target = mobile ? "_self" : "_blank";
+      return;
+    }
+    if (!mobile) return;
     event.preventDefault();
     const opener = event.currentTarget;
     const url = opener.href;
-    const frame = publicPreviewEnabled() ? undefined : websiteFrameUrl(url);
+    const frame = websiteFrameUrl(url);
     setViewer((current) => ({
       source: { job, kind, url, opener, frame },
       // Keep the current site and the most recently used alternative. Moving a
