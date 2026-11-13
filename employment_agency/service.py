@@ -206,6 +206,7 @@ class Service:
             queue = self.w.database.queue_page(historical=True)['rows'] if self.w.database else None
         state.pop('workspace_id', None)
         submitted = submitted_job_ids(state)
+        submitted_dates = companies.submission_dates(state) if snapshot else {}
         rejected = legacy_rejections(state)
         skills = matching.skills_by_key(matching.available(state['facts']))
         unlisted = state.get('unlisted_removals', {})
@@ -216,7 +217,7 @@ class Service:
             except ValueError as exc:
                 receipt_error = str(exc)
         for job in state['jobs']:
-            if job['id'] in submitted:
+            if job['id'] in submitted or job['id'] in submitted_dates:
                 job['prior_application'] = 'submitted'
             if job['id'] in rejected:
                 include_legacy_removal(job.setdefault('removals', []), rejected.pop(job['id']))
@@ -231,16 +232,40 @@ class Service:
             state['unlisted_removals'] = unlisted
         state['_workspace'] = {'path': str(self.w.path), **settings(self.w.path)}
         if snapshot:
+            zone = self.workspace_zone()
+            employers = state.get('employers', [])
+            employer_names = {row['id']: row['name'] for row in employers}
+            employer_name_ids = companies.employer_name_ids(employers)
+            employer_links = {row['id']: row for row in state.get('employer_links', [])}
+            company_rounds = {row['id']: companies.allowance(row) for row in state.get('company_rounds', [])}
             state['_workspace']['snapshot'] = snapshot
+            state['_workspace']['company_cooldown_months'] = state.get(
+                'company_cooldown_months', companies.DEFAULT_COOLDOWN_MONTHS)
             state['application_queue'] = queue
             state.pop('submission_attempts', None)
             for job in state['jobs']:
-                status = companies.discovery_status(state, job)
-                if status.get('id'):
-                    job['company'] = {key: status[key] for key in ('id', 'remaining', 'cooling', 'cooldown_until')}
+                link = employer_links.get(job['id'])
+                employer_id = companies.discovery_employer(job, link, employer_name_ids)
+                if employer_id in employer_names:
+                    status = company_rounds.get(employer_id, companies.allowance(None))
+                    job['company'] = {
+                        'id': employer_id, 'name': employer_names[employer_id],
+                        **{key: status.get(key) for key in ('remaining', 'cooling', 'cooldown_until',
+                                                           'cooldown_time_assumed')},
+                    }
+                if job['id'] in submitted_dates:
+                    submitted_on = link.get('submitted_on') if link else None
+                    job['submission_time'] = companies.submission_time(
+                        [submitted_on] if submitted_on else submitted_dates[job['id']], zone,
+                    )
         state['_master'] = master.status(self.w)
+        jobs = {job['id']: job for job in state['jobs']}
         for app in state['applications']:
-            job = next((j for j in state['jobs'] if j['id'] == app['job_id']), {})
+            job = jobs.get(app['job_id'], {})
+            if snapshot and app['status'] == 'submitted':
+                link = employer_links.get(app['job_id'])
+                actual = (link or {}).get('submitted_on') or companies.application_occurrence(app)
+                app['submission_time'] = companies.submission_time([actual], zone)
             app['fit_summary'] = summaries.summarize(job, state['facts'])
             assessment = matching.match(job, {}, state['facts'])
             app['warnings'] = assessment['hard_conflicts'] + assessment['unknowns']
@@ -302,7 +327,13 @@ class Service:
         if action in ('preview-document', 'save-document'):
             return editor.edit(self.w, a, save=action == 'save-document')
         if action == 'workspace-settings':
-            return configure(self.w.path, a)
+            previous_zone = settings(self.w.path)['timezone']
+            result = configure(self.w.path, a)
+            if self.w.database and result['timezone'] != previous_zone:
+                # The assumed local time of a date-only submission follows the workspace zone.
+                with self.w.edit():
+                    pass
+            return result
         if action == 'master-propose':
             return master.propose(self.w)
         if action == 'master-accept':
@@ -538,6 +569,8 @@ class Service:
             # Matching needs records, not document integrity or delivery checks.
             s = self.w.read()
             submitted = submitted_job_ids(s)
+            if self.w.database:
+                submitted.update(companies.submission_dates(s))
             for job in s['jobs']:
                 if job['id'] in submitted:
                     job['prior_application'] = 'submitted'
@@ -713,9 +746,27 @@ class Service:
 
     @staticmethod
     def discoverable_jobs(state):
-        return [job for job in state['jobs'] if not companies.discovery_status(state, job)['cooling']]
+        name_ids = companies.employer_name_ids(state.get('employers', []))
+        links = {row['id']: row for row in state.get('employer_links', [])}
+        cooling = {row['id'] for row in state.get('company_rounds', []) if companies.allowance(row)['cooling']}
+        return [job for job in state['jobs']
+                if companies.discovery_employer(job, links.get(job['id']), name_ids) not in cooling]
 
     def company_action(self, action, args):
+        if action == 'company-avoid':
+            if args:
+                raise ValueError('company-avoid takes no arguments')
+            with self.w.lock:
+                return {'workspace': str(self.w.path), 'companies': self.w.database.employers_to_avoid()}
+        if action == 'company-research':
+            ids = args.get('job_ids')
+            if not isinstance(ids, list) or any(not isinstance(job_id, str) for job_id in ids):
+                raise ValueError('Provide the checked workspace job IDs')
+            state = self.w.read()
+            if not set(ids) <= {job['id'] for job in state['jobs']}:
+                raise ValueError('The research includes an unknown workspace job ID')
+            result = companies.research(state, find(state['profiles'], args['profile_id']), ids)
+            return {'workspace': str(self.w.path), **result}
         if action == 'snapshot-status':
             with self.w.lock:
                 self.w.database.publish(verify=True)
@@ -727,6 +778,13 @@ class Service:
                     self.refresh(source['id'])
                 result = companies.company_roles(self.w.read(), args['job_id'], args.get('profile_id'))
             return result
+        if action in ('company-research-check', 'company-research-source'):
+            name = text(args.get('name', ''), 300).strip()
+            if not name:
+                raise ValueError('Provide the hiring employer name')
+            if action == 'company-research-source':
+                return self.refresh(args['source_id'], research_name=name)
+            return {'workspace': str(self.w.path), **companies.research_employer(self.w.read(), name)}
         if action == 'company-selection':
             result = companies.company_roles(self.w.read(), args['job_id'], args.get('profile_id'))
             requested = args.get('job_ids')
@@ -743,6 +801,12 @@ class Service:
             return handoff(self, action, args)
         zone = self.workspace_zone()
         with self.w.edit() as state:
+            if action == 'company-cooldown-settings':
+                months = args.get('months')
+                if type(months) is not int or not 1 <= months <= 24:
+                    raise ValueError('Enter a cooldown of 1 to 24 whole months')
+                state['company_cooldown_months'] = months
+                return {'months': months}
             if action == 'company-map':
                 return companies.map_job(state, args, zone)
             if action == 'company-history-link':
@@ -1014,31 +1078,66 @@ class Service:
                 j['submission_record_token'] = existing['submission_record_token']
             if existing.get('source_requisition'):
                 j['source_requisition'] = existing['source_requisition']
-            if existing.get('prior_submitted_on'):
+            if existing.get('prior_submitted_on') and j['prior_application'] == 'submitted':
                 j['prior_submitted_on'] = existing['prior_submitted_on']
         unlisted = state.get('unlisted_removals')
         if unlisted and j['id'] in unlisted:
             j.setdefault('removals', unlisted.pop(j['id']))
         if j['id'] in submitted_job_ids(state):
             j['prior_application'] = 'submitted'
+        if self.w.database and a.get('prior_submitted_on') and j['prior_application'] == 'submitted':
+            j['prior_submitted_on'] = companies.valid_occurrence(a['prior_submitted_on'], self.workspace_zone())
         if source_requisition:
             j['source_requisition'] = source_requisition
+        vacancy_requisition = a.get('vacancy_requisition') if source_requisition else None
+        if not vacancy_requisition and existing:
+            vacancy_requisition = existing.get('vacancy_requisition')
+        if vacancy_requisition:
+            j['vacancy_requisition'] = text(vacancy_requisition, 200)
         if existing:
             state['jobs'][state['jobs'].index(existing)] = j
         else:
             state['jobs'].append(j)
         return j
 
-    def refresh(self, id):
+    def refresh(self, id, *, research_name=None):
         current = self.w.read()
         src = find(current['sources'], id)
         if companies.source_cooldown(current, id):
             return {'count': 0, 'skipped': 'Company is paused'}
+        research_request = research_name is not None
+        saved_name = companies.source_research_name(current, src)
+        if saved_name and research_request and companies.name_key(saved_name) != companies.name_key(research_name):
+            saved_id = companies.research_employer(current, saved_name).get('id')
+            requested_id = companies.research_employer(current, research_name).get('id')
+            if not saved_id or saved_id != requested_id:
+                raise ValueError('Use the verified hiring employer previously recorded for this board')
+        if research_request or not companies.source_employer(current, id):
+            research_name = research_name or saved_name
+        if research_name:
+            company = companies.research_employer(current, research_name)
+            owner_id = companies.source_employer(current, id)
+            if owner_id and owner_id != company.get('id'):
+                raise ValueError('The board belongs to a different hiring employer')
+            if not company['remaining']:
+                return {'count': 0, 'skipped': 'Company is paused or its history needs review'}
         try:
             jobs = sources.discover(src['kind'], src['board'])
             with self.w.edit() as s:
                 if companies.source_cooldown(s, id):
                     return {'count': 0, 'skipped': 'Company is paused'}
+                owner_id = companies.source_employer(s, id)
+                owner = companies.by_id(s.get('employers', []), owner_id)
+                employer_name = owner['name'] if owner else None
+                if research_name:
+                    company = companies.research_employer(s, research_name)
+                    current_name = companies.source_research_name(s, src)
+                    if current_name != saved_name:
+                        return {'count': 0, 'skipped': 'The board’s research employer changed; check it again'}
+                    if not company['remaining'] or (owner_id and owner_id != company.get('id')):
+                        return {'count': 0, 'skipped': 'Company availability or source ownership changed'}
+                    owner_id, employer_name = company.get('id'), company['name']
+                verified_owners = {link['id']: link['employer_id'] for link in s.get('employer_links', [])}
                 imported = []
                 seen = set()
                 for job in jobs:
@@ -1047,17 +1146,23 @@ class Service:
                         continue
                     if key:
                         seen.add(key)
-                    imported.append(self.add_job(job, match_url=True, state=s, source_requisition=key))
+                    if employer_name:
+                        job = {**job, 'employer': employer_name}
+                    listing = self.add_job(job, match_url=True, state=s, source_requisition=key)
+                    verified_owner = verified_owners.get(listing['id'])
+                    if employer_name and verified_owner and verified_owner != owner_id:
+                        raise ValueError('The board posting is already linked to a different hiring employer')
+                    imported.append(listing)
                 ids = {job['id'] for job in imported}
                 if self.w.database:
                     companies.link_source_jobs(s, src, imported, self.workspace_zone())
                 for old in s["jobs"]:
-                    if (
-                        old["source"] == src["kind"] + ":" + src["board"]
-                        and old["id"] not in ids
-                    ):
+                    if old["source"] == src["kind"] + ":" + src["board"] and old["id"] not in ids:
                         old["availability"] = "closed"
-                find(s["sources"], id).update(
+                source = find(s["sources"], id)
+                if research_request and not saved_name:
+                    source['research_name'] = company['name']
+                source.update(
                     {
                         "status": "retrieved",
                         "checked_at": now(),
@@ -1065,7 +1170,10 @@ class Service:
                         "error": None,
                     }
                 )
-            return {"count": len(imported)}
+            result = {"count": len(imported)}
+            if research_request:
+                result['job_ids'] = [job['id'] for job in imported]
+            return result
         except Exception as e:
             # Do not persist remote response bodies, secrets or raw exception strings.
             with self.w.edit() as s:

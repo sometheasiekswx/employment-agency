@@ -119,6 +119,8 @@ def server(service, port=8766, frontend_origin=None, tailscale_origin=None, tail
             path = url.path
             if path == '/api/state':
                 return self.send(200, encode({'state': service.state(), 'token': token}))
+            if path == '/api/company-avoid':
+                return self.send(200, encode({'result': service.action('company-avoid', {})}))
             if path == '/api/runtime':
                 return self.send(200, encode({'mode': 'local'}))
             if path == '/api/listing-preview-frame':

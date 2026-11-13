@@ -144,24 +144,51 @@ class Boundaries(unittest.TestCase):
             )
         with patch(
             "employment_agency.sources.get",
-            return_value=(
-                json.dumps(
-                    [
-                        {
-                            "text": "Engineer",
-                            "categories": {"location": "Toronto"},
-                            "descriptionPlain": "Python",
-                            "hostedUrl": "https://example.test/job",
-                            "workplaceType": "remote",
-                        }
-                    ]
-                ),
-                "unused",
-            ),
+            side_effect=[
+                (json.dumps([{
+                    "text": "Engineer",
+                    "categories": {"location": "Toronto"},
+                    "descriptionPlain": "Python",
+                    "hostedUrl": "https://example.test/job",
+                    "workplaceType": "remote",
+                }]), "unused"),
+                ("[]", "unused"),
+            ],
         ):
             self.assertEqual(
                 sources.discover("lever", "example")[0]["work_arrangement"], "remote"
             )
+
+
+    def test_greenhouse_board_returns_every_posting_or_reports_a_partial_feed(self):
+        postings = [{
+            "id": index, "title": "Engineer", "content": "Python",
+            "absolute_url": f"https://example.test/role/{index}",
+        } for index in range(1001)]
+        with patch("employment_agency.sources.get", return_value=(
+            json.dumps({"jobs": postings, "meta": {"total": 1001}}), "unused",
+        )):
+            self.assertEqual(len(sources.discover("greenhouse", "example")), 1001)
+        with patch("employment_agency.sources.get", return_value=(
+            json.dumps({"jobs": postings, "meta": {"total": 1002}}), "unused",
+        )):
+            with self.assertRaisesRegex(ValueError, "incomplete"):
+                sources.discover("greenhouse", "example")
+
+    def test_lever_reads_later_pages_and_reports_an_ignored_offset(self):
+        postings = [{
+            "id": str(index), "text": "Engineer", "descriptionPlain": "Python",
+            "hostedUrl": f"https://example.test/role/{index}",
+        } for index in range(104)]
+        first, last = json.dumps(postings[:100]), json.dumps(postings[100:])
+        with patch("employment_agency.sources.get", side_effect=[(first, "unused"), (last, "unused"), ("[]", "unused")]) as fetch:
+            result = sources.discover("lever", "example")
+            self.assertEqual(len(result), 104)
+            self.assertIn("skip=100", fetch.call_args_list[1].args[0])
+            self.assertIn("skip=104", fetch.call_args.args[0])
+        with patch("employment_agency.sources.get", return_value=(first, "unused")):
+            with self.assertRaisesRegex(ValueError, "without new postings"):
+                sources.discover("lever", "example")
 
 
 if __name__ == "__main__":

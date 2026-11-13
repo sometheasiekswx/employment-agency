@@ -75,6 +75,18 @@ After task 7, persist requirement-to-fact links with the existing skill-equivale
 
 After task 7, persist each queued job’s progress and record budget reservations with their provider attempts. Resume remaining work after restart. Exercise a cancelled run, exhausted budget, interruption after reservation and uncertain provider outcome with a fake provider. Keep drafts and spend within the existing user-approved run. [Run tests](../../tests/test_workflow.py) · [Interrupted-request tests](../../tests/test_boundaries.py)
 
+### 12. Query active employer cooldowns before agent research
+
+Use the existing effective submission and vacancy rules to maintain the employer lookup in SQLite. Query deadlines against the current instant, so expiry requires no write. Rebuild the projection from history on upgrade and restore. Verify date-only assumptions, aliases, corrected or duplicate submissions, the fresh two-slot round and CLI/API parity.
+
+### 13. Research and rank roles at five eligible companies
+
+Have the agent check the selected workspace before opening employer sources. Reuse supported public board adapters and shared imports. Use the company research action to check candidate employers against recorded history and rank every eligible role by employer, with first-time employers preferred and previously applied employers used as fallback. Verify incomplete board handling, a five-company response, more than five roles at one employer and flagged eligibility.
+
+### 14. Group Discover opportunities by hiring employer
+
+Reuse the existing board and role inspector. Group by verified employer identity where present and use the listing company label for unlinked records. Keep city filters and per-role location. Verify rank order, same-name employers with different IDs, navigation, narrow viewports and the existing queues. Update the development handover and verify the built wheel in a disposable workspace.
+
 ## Evidence checkpoints and risks
 
 | Checkpoint | Evidence to attach |

@@ -15,7 +15,7 @@ The public web showcase and the installed CLI demo use separate datasets. The sh
 
 [**Explore the live demo →**](https://employment-agency-demo.vercel.app/discover/)
 
-The showcase presents the approved location board and opportunity inspector on desktop, plus an expandable opportunity sheet on mobile. **Opportunities** combines Recommended, Browse, Saved and Applications, alongside **Career profile, Search preferences, History and Settings**. The interface uses the project's briefcase/person mark, light and dark surfaces, lavender accents and self-hosted Inter fonts.
+The showcase presents the company board and opportunity inspector on desktop, plus an expandable opportunity sheet on mobile. **Opportunities** combines Recommended, Browse, Saved and Applications, alongside **Career profile, Search preferences, History and Settings**. The interface uses the project's briefcase/person mark, light and dark surfaces, lavender accents and self-hosted Inter fonts.
 
 The public site releases automatically after all checks pass on `main`. The release marker records the deployed commit. [Release marker](https://employment-agency-demo.vercel.app/release.json) · [Deployment runbook](public-demo-deployment.md)
 

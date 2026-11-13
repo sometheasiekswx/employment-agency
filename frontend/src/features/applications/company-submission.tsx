@@ -14,7 +14,7 @@ type Handoff = {
 };
 
 export function CompanySubmission({ app }: { app: Application }) {
-  const { client, refresh } = useWorkspace();
+  const { client, refresh, state } = useWorkspace();
   const [attempt, setAttempt] = useState<Handoff>();
 
   async function review() {
@@ -50,7 +50,11 @@ export function CompanySubmission({ app }: { app: Application }) {
                     <option value="not_sent">Verified no submission</option>
                   </select>
                 </label>
-                <Field label="Actual submission date (if submitted)" name="occurred_at" type="date" />
+                <Field
+                  label={`Actual submission date and time, if submitted (${state._workspace.timezone})`}
+                  name="occurred_at"
+                  type="datetime-local"
+                />
                 <TextArea label="Evidence checked" name="evidence" required />
                 <Check label="I verified this outcome" name="confirmed" required />
                 <button>Record outcome</button>

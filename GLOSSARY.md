@@ -37,6 +37,12 @@ A user's recorded review or manual submission. Recording Submitted also confirms
 **Recorded submission**:
 A submitted application snapshot or a listing tagged Already submitted. It moves the role from Recommended, All roles and Saved into Applications → Submitted. A listing tag leaves the submitted document version unknown. Any unfinished draft for that listing is accessible from Submitted as a separate version.
 
+**Company cooldown**:
+The temporary pause on discovery and new applications at a hiring employer after two distinct confirmed submissions. Its deadline uses the workspace’s configured duration and the actual submission history.
+
+**Companies to avoid**:
+Hiring employers whose company cooldown is active at the time of a job search.
+
 **Saved role**:
 An opportunity bookmarked by the user. The bookmark places the role in Saved while it is available to browse. If a correction returns a role to browsing, its bookmark determines whether it goes back to Saved.
 

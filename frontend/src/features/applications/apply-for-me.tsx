@@ -531,8 +531,8 @@ export function ApplyForMe({
                   />
                   {state._workspace.snapshot && (
                     <label>
-                      Actual submission date (if submitted)
-                      <input name="occurred_at" type="date" />
+                      Actual submission date and time, if submitted ({state._workspace.timezone})
+                      <input name="occurred_at" type="datetime-local" />
                     </label>
                   )}
                   <button>Record verified outcome</button>

@@ -15,10 +15,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowUpRight,
   Bookmark,
+  Building2,
   CircleMinus,
   MessageSquare,
   RotateCcw,
-  MapPin,
   RefreshCw,
   Search,
   ShieldAlert,
@@ -455,8 +455,8 @@ export function DiscoverPage() {
       ? hasRecordedSubmission(app, job)
       : roleStatus(job, app).label.toLowerCase() === statusFilter;
   });
-  const groups = groupOpportunities(visible, priorities);
-  const navigationRows = groups.flatMap(([, rows]) => rows);
+  const groups = groupOpportunities(visible);
+  const navigationRows = groups.flatMap(({ roles }) => roles);
   const selectedRow = visible.find((row) => row.job.id === selectedId);
   const assessedRow = rows.find((row) => row.job.id === selectedId);
   const keepSavedDetails =
@@ -496,9 +496,9 @@ export function DiscoverPage() {
       ? currentRanking.error
       : "";
   const boardGroups = JSON.stringify(
-    groups.map(([city, opportunities]) => [
-      city,
-      opportunities.map(({ job }) => job.id),
+    groups.map(({ id, roles }) => [
+      id,
+      roles.map(({ job }) => job.id),
     ]),
   );
   useEffect(() => {
@@ -554,7 +554,7 @@ export function DiscoverPage() {
       const rowSize = parseFloat(style.getPropertyValue("--discover-row-size"));
       const gap = parseFloat(style.getPropertyValue("--discover-group-gap"));
       // Read every natural section height before writing placement. Sections
-      // stay in source order; shorter city groups release space for later ones.
+      // stay in source order so shorter groups leave room for later companies.
       const spans = sections.map((section) =>
         Math.ceil((section.getBoundingClientRect().height + gap) / rowSize),
       );
@@ -1187,7 +1187,7 @@ export function DiscoverPage() {
             ? "Loading matches…"
             : error && !rows.length
               ? "Matches unavailable"
-              : `${removedView ? "Removed · " : ""}${visible.length} ${visible.length === 1 ? "role" : "roles"} · ${groups.length} ${groups.length === 1 ? "location" : "locations"}`}
+              : `${removedView ? "Removed · " : ""}${visible.length} ${visible.length === 1 ? "role" : "roles"} · ${groups.length} ${groups.length === 1 ? "company" : "companies"}`}
         </span>
         {hasActiveFilters && visible.length > 0 && (
           <button
@@ -1409,19 +1409,19 @@ export function DiscoverPage() {
             ref={board}
             className="discover-board"
             role="region"
-            aria-label="Opportunities by location"
+            aria-label="Opportunities by company"
             tabIndex={selected && !mobile ? 0 : undefined}
           >
-            {groups.map(([city, opportunities]) => (
+            {groups.map(({ id, name, roles: opportunities }) => (
               <section
                 className="discover-column"
-                key={city}
-                aria-label={`${city} opportunities`}
+                key={id}
+                aria-label={`${name} opportunities`}
               >
                 <header>
                   <h2>
-                    <MapPin size={17} />
-                    {city}
+                    <Building2 size={17} aria-hidden="true" />
+                    {name}
                   </h2>
                   <span>{opportunities.length}</span>
                 </header>
@@ -1438,7 +1438,7 @@ export function DiscoverPage() {
                   });
                   const location = job.location || job.city;
                   const metadata = [
-                    location && location !== city ? location : "",
+                    location,
                     job.work_arrangement,
                   ]
                     .filter(Boolean)
@@ -1549,15 +1549,6 @@ export function DiscoverPage() {
                       >
                         <h3>{job.title}</h3>
                       </button>
-                      <p className="discover-card-company">
-                        <span
-                          className="discover-employer-mark"
-                          aria-hidden="true"
-                        >
-                          {job.employer.slice(0, 1)}
-                        </span>
-                        {job.employer}
-                      </p>
                       {metadata && (
                         <p className="discover-card-location">{metadata}</p>
                       )}
@@ -1578,7 +1569,7 @@ export function DiscoverPage() {
                           {salary}
                         </p>
                       )}
-                      {view === "recommended" && (related > 0 || caution) && (
+                      {!applicationView && (related > 0 || caution) && (
                         <div className="discover-card-fit">
                           {related > 0 && (
                             <p>

@@ -55,8 +55,21 @@ export interface JobRemovalResult {
   id: string;
   removals: JobRemoval[];
 }
+interface SubmissionTime {
+  at: string;
+  assumed: boolean;
+}
+
 export interface Job {
-  company?: { id: string; remaining: number; cooling: boolean; cooldown_until?: string };
+  company?: {
+    id: string;
+    name?: string;
+    remaining: number;
+    cooling: boolean;
+    cooldown_until?: string;
+    cooldown_time_assumed?: boolean;
+  };
+  submission_time?: SubmissionTime | null;
   id: string;
   saved?: boolean;
   removals?: JobRemoval[];
@@ -109,6 +122,7 @@ export interface Application {
   created_at?: string;
   reviewed_at?: string;
   submitted_at?: string;
+  submission_time?: SubmissionTime | null;
   folder?: string;
   manifest_hash?: string;
   submission_record?: {
@@ -140,6 +154,7 @@ export interface Application {
 }
 export interface WorkspaceSettings {
   snapshot?: { status: "current" | "pending" | "conflict"; revision: number; published_revision: number };
+  company_cooldown_months?: number;
   demo?: boolean;
   path: string;
   label: string;

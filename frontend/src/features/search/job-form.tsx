@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Field,
   Form,
@@ -22,7 +23,8 @@ function preserveCurrentOption(
 }
 
 export function JobForm({ job, onSaved }: { job?: Job; onSaved?: () => void }) {
-  const { run } = useWorkspace();
+  const { run, state } = useWorkspace();
+  const [priorApplication, setPriorApplication] = useState(job?.prior_application || "none");
   const salary = typeof job?.salary === "object" ? job.salary : {};
   return (
     <Form
@@ -145,13 +147,22 @@ export function JobForm({ job, onSaved }: { job?: Job; onSaved?: () => void }) {
       <Select
         label="Prior application"
         name="prior_application"
-        defaultValue={job?.prior_application || "none"}
+        value={priorApplication}
+        onChange={(event) => setPriorApplication(event.target.value)}
         options={[
           ["none", "None recorded"],
           ["submitted", "Already submitted"],
           ["rejected", "Previously rejected"],
         ]}
       />
+      {state?._workspace?.snapshot && priorApplication === "submitted" && (
+        <Field
+          label={`Actual submission date and time (${state._workspace.timezone})`}
+          name="prior_submitted_on"
+          type="datetime-local"
+          required={!job || job.prior_application !== "submitted"}
+        />
+      )}
       <Select
         label="Availability"
         name="availability"

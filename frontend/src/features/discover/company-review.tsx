@@ -21,6 +21,7 @@ type Company = {
     remaining: number;
     cooling: boolean;
     cooldown_until?: string;
+    cooldown_time_assumed?: boolean;
     review_needed: boolean;
     unresolved?: HistoryQuestion[];
     used?: string[];
@@ -28,6 +29,12 @@ type Company = {
   };
   roles: RankedJob[];
 };
+
+function historicalSubmissionTime(data: FormData, field: string) {
+  const date = text(data, field);
+  const time = text(data, "submitted_time");
+  return date && time ? `${date}T${time}` : date;
+}
 
 export function CompanyReview({ job }: { job: Job }) {
   const { client, profileId, refresh, state } = useWorkspace();
@@ -70,7 +77,7 @@ export function CompanyReview({ job }: { job: Job }) {
       requisition: text(data, "requisition"),
       same_job_id: text(data, "same_job_id"),
       source_id: text(data, "source_id"),
-      submitted_on: text(data, "submitted_on"),
+      submitted_on: historicalSubmissionTime(data, "submitted_on"),
     });
   }
 
@@ -101,7 +108,7 @@ export function CompanyReview({ job }: { job: Job }) {
                   <h3>{employer.name}</h3>
                   <p role="status">
                     {status.cooling
-                      ? `Paused until ${displayDate(status.cooldown_until, timezone)}`
+                      ? `Paused until ${displayDate(status.cooldown_until, timezone)}${status.cooldown_time_assumed ? " (submission time assumed)" : ""}`
                       : status.review_needed
                         ? "Review the earlier applications before choosing another role."
                         : `${status.remaining} application ${status.remaining === 1 ? "slot" : "slots"} available`}
@@ -179,13 +186,14 @@ export function CompanyReview({ job }: { job: Job }) {
                       {item.reason === "Confirm the submission date" && item.job_id && (
                         <Form onSave={(data) => map(data, item.job_id!)}>
                           <Field label="Actual submission date" name="submitted_on" type="date" required />
+                          <Field label={`Time if known (${timezone})`} name="submitted_time" type="time" />
                           <button>Confirm submission date</button>
                         </Form>
                       )}
                       {item.history_id && (
                         <Form onSave={(data) => change("company-history-link", {
                           history_id: item.history_id, job_id: text(data, "job_id"),
-                          occurred_at: text(data, "occurred_at"), confirmed: true,
+                          occurred_at: historicalSubmissionTime(data, "occurred_at"), confirmed: true,
                         })}>
                           <label>
                             Original listing
@@ -194,6 +202,7 @@ export function CompanyReview({ job }: { job: Job }) {
                             </select>
                           </label>
                           <Field label="Actual submission date" name="occurred_at" type="date" required />
+                          <Field label={`Time if known (${timezone})`} name="submitted_time" type="time" />
                           <button>Link recorded submission</button>
                         </Form>
                       )}

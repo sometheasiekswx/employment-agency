@@ -88,6 +88,10 @@ If you already exported a legacy ZIP with the previous build, use `restore /path
 
 Each save updates the corresponding readable records under `state/` and publishes a small `state.json` manifest. Git tracks those files alongside workspace documents. SQLite, its journal and machine permissions stay local. Check the snapshot status in **Settings → Workspace files** or with `employment-agency --workspace /path/to/sqlite-workspace action snapshot-status`. Pending publication retries on save or reopen. For a snapshot conflict, preserve the incoming snapshot in a separate folder and restore it there to review the two workspaces.
 
+In **Settings → Company cooldown**, choose 1 to 24 calendar months. The default is three months from the second confirmed application to a distinct vacancy at the same employer. Changing the duration recalculates company rounds from the recorded submission dates.
+
+SQLite schema 5 adds the indexed cooldown deadline used by the [agent research lookup](agents.md#companies-to-skip-before-research). The build recomputes company rounds from preserved history when it opens a schema-3 or schema-4 database. Portable ZIPs and Git snapshots use schema 3. To roll back the installation, restore a verified portable backup into a separate folder with the earlier build.
+
 After using the new workspace, export its current state before recovering to a previous copy. Reconcile later decisions and any uncertain attempts with the original evidence. Record the tested installed build in the workspace lock only after verifying the intended upgrade.
 
 ## Troubleshooting

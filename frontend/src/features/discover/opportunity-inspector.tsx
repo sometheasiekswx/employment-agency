@@ -865,6 +865,10 @@ export function OpportunityInspector({
           <p className="discover-submission-note">
             <ShieldCheck size={17} />
             An earlier submission is recorded.
+            {job.submission_time && (
+              <> {displayDate(job.submission_time.at, timezone)}
+                {job.submission_time.assumed ? " (time assumed)." : "."}</>
+            )}
             {application
               ? " The local draft is a separate version."
               : " The submitted document version is unknown."}

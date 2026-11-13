@@ -1,7 +1,6 @@
 import type { Application, ApplicationQueueEntry, Fact, Job, RankedJob } from "@/lib/models";
 import {
   applicationRoleId,
-  compareDestinations,
   destination,
 } from "@/lib/format";
 import { applicationQueues } from "@/features/applications/queues";
@@ -151,6 +150,7 @@ export function filterOpportunities(
       [
         job.title,
         job.employer,
+        job.company?.name,
         job.location,
         job.city,
         job.work_arrangement,
@@ -164,11 +164,17 @@ export function filterOpportunities(
   });
 }
 
-export function groupOpportunities(rows: RankedJob[], priorities: string[]) {
-  const groups = new Map<string, RankedJob[]>();
+export function groupOpportunities(rows: RankedJob[]) {
+  const groups = new Map<string, { id: string; name: string; roles: RankedJob[] }>();
   for (const row of rows) {
-    const city = destination(row.job, priorities);
-    groups.set(city, [...(groups.get(city) || []), row]);
+    const { company, employer } = row.job;
+    const name = company?.name || employer.trim() || "Hiring employer unknown";
+    const id = company?.id
+      ? `employer:${company.id}`
+      : `listing:${name.toLocaleLowerCase().replace(/\s+/g, " ")}`;
+    const group = groups.get(id);
+    if (group) group.roles.push(row);
+    else groups.set(id, { id, name, roles: [row] });
   }
-  return [...groups].sort(([a], [b]) => compareDestinations(a, b, priorities));
+  return [...groups.values()];
 }

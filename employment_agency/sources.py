@@ -156,6 +156,11 @@ def discover(kind, board):
         body, _ = get(
             "https://boards-api.greenhouse.io/v1/boards/" + board + "/jobs?content=true"
         )
+        feed = json.loads(body)
+        postings = feed["jobs"]
+        total = feed.get("meta", {}).get("total")
+        if type(total) is int and total != len(postings):
+            raise ValueError("The Greenhouse board returned an incomplete job list")
         return [
             normalized(
                 j["title"],
@@ -165,11 +170,27 @@ def discover(kind, board):
                 j["absolute_url"],
                 "greenhouse:" + board,
                 source_requisition=f"greenhouse:{board}:{j['id']}" if j.get("id") is not None else "",
+                vacancy_requisition=str(j.get("requisition_id") or j.get("internal_job_id") or ""),
             )
-            for j in json.loads(body)["jobs"][:1000]
+            for j in postings
         ]
     if kind == "lever":
-        body, _ = get("https://api.lever.co/v0/postings/" + board + "?mode=json")
+        url = "https://api.lever.co/v0/postings/" + board + "?mode=json"
+        postings = []
+        seen_urls = set()
+        page_size = 100
+        while True:
+            body, _ = get(f"{url}&skip={len(postings)}&limit={page_size}")
+            page = json.loads(body)
+            if not isinstance(page, list):
+                raise ValueError("Invalid Lever job list")
+            if not page:
+                break
+            urls = {posting["hostedUrl"] for posting in page}
+            if urls <= seen_urls:
+                raise ValueError("Lever returned a page without new postings")
+            seen_urls.update(urls)
+            postings.extend(page)
         return [
             normalized(
                 j["text"],
@@ -183,6 +204,6 @@ def discover(kind, board):
                 source_requisition=f"lever:{board}:{j['id']}" if j.get("id") else "",
                 work_arrangement=j.get("workplaceType", "unknown"),
             )
-            for j in json.loads(body)[:1000]
+            for j in postings
         ]
     raise ValueError("Supported adapters: greenhouse, lever")

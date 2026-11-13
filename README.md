@@ -128,8 +128,10 @@ Read README.md, CONTRIBUTING.md and docs/agents.md in the software checkout.
 My private career workspace is: /absolute/path/to/my-private-workspace
 
 Check existing facts, profiles and decisions before making changes.
-Research roles in my chosen locations; retain source URLs and checked dates.
-Show a ranked shortlist with evidence and gaps before preparing drafts.
+Before researching jobs, run the local company-avoid lookup in docs/agents.md.
+Research five eligible hiring companies in my chosen locations. Prioritize employers
+where I have never applied. Check each accessible official careers source and include
+every eligible role, ranked by company, with source URLs, checked dates and unknowns.
 Use confirmed experience, preserve document versions and ask about unknowns.
 Stop before paid requests, uploads, sending or submission.
 Keep personal data out of the public repository and its screenshots.

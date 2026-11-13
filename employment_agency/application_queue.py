@@ -24,6 +24,7 @@ def application_time(version):
 
 
 def project(state):
+    from .companies import submission_dates
     from .service import application_role, corrected_submission, legacy_rejections, submitted_job_ids
 
     selected = {}
@@ -38,7 +39,7 @@ def project(state):
         role = application_role(version)
         if role not in selected or priority >= selected[role][0]:
             selected[role] = (priority, version, at)
-    submitted = submitted_job_ids(state)
+    submitted = submitted_job_ids(state) | submission_dates(state).keys()
     legacy_removed = legacy_rejections(state)
     jobs = {job['id']: job for job in state['jobs']}
     unlisted = state.get('unlisted_removals', {})

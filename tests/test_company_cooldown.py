@@ -71,7 +71,7 @@ class CompanyCooldown(unittest.TestCase):
             self.submit(second, '2026-01-31')
             status = self.company()['status']
             self.assertTrue(status['cooling'])
-            self.assertEqual(status['cooldown_until'], '2026-05-01T00:00:00+00:00')
+            self.assertEqual(status['cooldown_until'], '2026-04-30T00:00:00+00:00')
             self.assertEqual(self.s.action('rank', {'profile_id': self.profile['id']}), [])
             with patch('employment_agency.service.sources.discover') as fetch:
                 self.assertEqual(self.s.action('discover', {'id': self.source['id']})['skipped'], 'Company is paused')
@@ -123,6 +123,39 @@ class CompanyCooldown(unittest.TestCase):
         self.assertEqual(self.reserve(winner)['id'], accepted[0]['id'])
         self.assertEqual(self.company()['status']['remaining'], 0)
 
+    def test_adjustable_cooldown_recomputes_from_submission_history_and_persists(self):
+        second = self.role(2)
+        self.assertEqual(self.s.state()['_workspace']['company_cooldown_months'], 3)
+        with patch.object(companies, 'clock', return_value=datetime(2026, 5, 1, tzinfo=timezone.utc)):
+            self.submit(self.job, '2026-01-10')
+            self.submit(second, '2026-01-31')
+            self.assertFalse(self.company()['status']['cooling'])
+
+            for months in (None, True, '4', 1.5, 0, 25):
+                with self.subTest(months=months), self.assertRaisesRegex(ValueError, 'whole months'):
+                    self.s.action('company-cooldown-settings', {'months': months})
+            self.assertEqual(self.s.state()['_workspace']['company_cooldown_months'], 3)
+
+            self.s.action('company-cooldown-settings', {'months': 4})
+            self.assertTrue(self.company()['status']['cooling'])
+            self.assertEqual(self.company()['status']['cooldown_until'], '2026-05-31T00:00:00+00:00')
+
+            backup = self.w.export(self.root / 'cooldown.zip')
+            destination = self.root / 'cooldown-copy'
+            restore(backup, destination)
+            restored = Workspace(destination)
+            try:
+                service = Service(restored)
+                self.assertEqual(service.state()['_workspace']['company_cooldown_months'], 4)
+                self.assertEqual(service.action('company-roles', {'job_id': self.job['id']})[
+                    'status']['cooldown_until'], '2026-05-31T00:00:00+00:00')
+            finally:
+                restored.close()
+
+            self.s.action('company-cooldown-settings', {'months': 2})
+            self.assertFalse(self.company()['status']['cooling'])
+            self.assertEqual(self.company()['status']['remaining'], 2)
+
     def test_fake_delivery_timeout_holds_slot_across_reopen_and_verified_release(self):
         second, third = self.role(2), self.role(3)
         self.submit(self.job, '2026-01-10')
@@ -170,7 +203,7 @@ class CompanyCooldown(unittest.TestCase):
                 'evidence': 'Fictional employer receipt', 'occurred_at': '2026-01-30',
             })
             self.assertEqual(outcome['status'], 'confirmed')
-            self.assertEqual(self.company()['status']['cooldown_until'], '2026-05-01T00:00:00+00:00')
+            self.assertEqual(self.company()['status']['cooldown_until'], '2026-04-30T00:00:00+00:00')
 
     def test_manual_handoff_rejects_documents_prepared_for_a_changed_listing(self):
         draft = self.draft(self.job)

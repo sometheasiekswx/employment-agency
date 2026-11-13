@@ -275,7 +275,7 @@ it("keeps profile selection inside Filters while leaving the result count in the
   expect(select.closest("details")).toBe(filters);
   expect(select).not.toBeVisible();
   expect(view.container.querySelector(".discover-summary select")).toBeNull();
-  expect(screen.getByText("2 roles · 2 locations")).toBeVisible();
+  expect(screen.getByText("2 roles · 2 companies")).toBeVisible();
   await userEvent.click(within(filters as HTMLElement).getByText("Filters"));
   expect(select).toBeVisible();
   await userEvent.selectOptions(select, "profile-b");
@@ -451,7 +451,7 @@ it("keeps unknown salary in the inspector without repeating it on cards", async 
   });
   expect(fixture.run).not.toHaveBeenCalled();
   expect(
-    screen.getByRole("region", { name: "Toronto opportunities" }),
+    screen.getByRole("region", { name: "Example Cloud opportunities" }),
   ).toBeInTheDocument();
   expect(screen.queryByText("Salary not listed")).not.toBeInTheDocument();
   fireEvent.click(
@@ -588,8 +588,8 @@ it.each([false, true])(
     fixture.state.jobs.push({
       id: "job-c",
       title: "Platform Engineer",
-      employer: "Example Platform",
-      location: "Toronto",
+      employer: "Example Cloud",
+      location: "Singapore",
     });
     const user = userEvent.setup();
     const { rerender } = render(<DiscoverPage />);
@@ -602,7 +602,7 @@ it.each([false, true])(
       ),
     ).toEqual([
       "Assess Cloud Engineer at Example Cloud",
-      "Assess Platform Engineer at Example Platform",
+      "Assess Platform Engineer at Example Cloud",
       "Assess Backend Engineer at Example Studio",
     ]);
     await user.click(first);
@@ -1266,7 +1266,7 @@ it("offers a retry after ranking fails and requires a profile before any request
     "role",
     "status",
   );
-  expect(screen.queryByText("0 roles · 0 locations")).not.toBeInTheDocument();
+  expect(screen.queryByText("0 roles · 0 companies")).not.toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Applications" })).toBeEnabled();
   fireEvent.click(screen.getByRole("button", { name: "Retry assessment" }));
   expect(
@@ -1363,13 +1363,13 @@ it.each(["all", "applications"])(
       name: "Assess Cloud Engineer at Example Cloud",
     });
     const board = screen.getByRole("region", {
-      name: "Opportunities by location",
+      name: "Opportunities by company",
     });
     expect(
       within(board)
         .getAllByRole("heading", { level: 2 })
         .map((heading) => heading.textContent),
-    ).toEqual(["Toronto", "Berlin"]);
+    ).toEqual(["Example Cloud", "Example Studio"]);
     const locationOptions = screen.getByRole("combobox", {
       name: "Location",
       hidden: true,

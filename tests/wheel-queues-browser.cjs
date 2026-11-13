@@ -91,7 +91,7 @@ const {
       .getByRole("combobox", { name: "Location", exact: true })
       .selectOption("Toronto");
     await page.locator(".discover-filters summary").click();
-    await page.getByText("1 role · 1 location", { exact: true }).waitFor();
+    await page.getByText("1 role · 1 company", { exact: true }).waitFor();
     assert.equal(await role(fixture.active).count(), 1);
     assert.equal(await role(fixture.separate).count(), 0);
 

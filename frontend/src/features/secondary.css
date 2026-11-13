@@ -655,9 +655,13 @@
   margin: 0.5rem auto 0;
 }
 
-.settings-page .settings-workspace-panel {
+.settings-page :is(.settings-workspace-panel, .settings-company-panel) {
   max-width: 54rem;
   margin-bottom: 2rem;
+}
+
+.settings-page .settings-company-panel input {
+  max-width: 8rem;
 }
 
 .settings-page .workspace-location {

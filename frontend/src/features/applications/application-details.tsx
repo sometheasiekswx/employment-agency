@@ -15,6 +15,10 @@ export function ApplicationDetails({
   job: Partial<Job>;
   timezone: string;
 }) {
+  const submissionTime = app.submission_time;
+  const submitted = submissionTime
+    ? `${displayDate(submissionTime.at, timezone)}${submissionTime.assumed ? " (time assumed)" : ""}`
+    : displayDate(decisionDate(app, "submitted"), timezone);
   const rows: [string, string | undefined, boolean?][] = [
     ["Location", job.location],
     ["Work arrangement", job.work_arrangement],
@@ -26,7 +30,7 @@ export function ApplicationDetails({
     ["Last checked", job.checked_at, true],
     ["Generated", app.created_at, true],
     ["Reviewed", decisionDate(app, "reviewed"), true],
-    ["Submitted", decisionDate(app, "submitted"), true],
+    ["Submitted", submissionTime || decisionDate(app, "submitted") ? submitted : undefined],
   ];
   return (
     <dl className="application-details">

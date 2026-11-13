@@ -1,6 +1,7 @@
 """SQLite workspace records and their readable, recoverable Git snapshots."""
 
 from contextlib import contextmanager
+from datetime import timezone
 import json
 import os
 from pathlib import Path
@@ -8,12 +9,12 @@ import re
 import sqlite3
 
 from .store import atomic, digest
-from .workspaces import inside
+from .workspaces import inside, settings, time_zone
 
 DATABASE = 'workspace.sqlite3'
 SNAPSHOT_SCHEMA = 3
 STORAGE = 'sqlite'
-DATABASE_VERSION = 3
+DATABASE_VERSION = 5
 MANIFEST = 'state.json'
 SNAPSHOT_FOLDER = 'state'
 IGNORE = '/workspace.sqlite3*'
@@ -37,6 +38,7 @@ METADATA = 'state/workspace.json'
 COMMENTS = 'application-comments'
 EVIDENCE = 'requirement-evidence'
 INTERNAL_SECTIONS = (COMMENTS, EVIDENCE)
+EMPLOYER_SUBMISSION_SECTIONS = {'employers', 'company_rounds'}
 
 
 def serialized(value):
@@ -245,9 +247,12 @@ class SQLiteState:
             if version == 2:
                 with self.transaction():
                     if self.connection.execute('SELECT 1 FROM records LIMIT 1').fetchone():
-                        self.save(self.read())
+                        self._save_records(self.read())
                     self.connection.execute('PRAGMA user_version = 3')
                 version = 3
+            if version in (3, 4):
+                self.migrate_employer_submissions()
+                version = 5
             if version != DATABASE_VERSION:
                 raise ValueError('Unsupported workspace database version. Open a compatible build.')
             if self.connection.execute('PRAGMA quick_check').fetchone() != ('ok',):
@@ -315,6 +320,72 @@ class SQLiteState:
         more = limit is not None and len(rows) > limit
         return {'rows': rows[:limit] if more else rows, 'next_offset': offset + limit if more else None}
 
+    def migrate_employer_submissions(self):
+        from .companies import update_rounds
+
+        with self.transaction():
+            # Version 4 was an interim lifetime-count projection. Both paths
+            # rebuild the derived table from the same authoritative history.
+            self.connection.execute('DROP TABLE IF EXISTS employer_submissions')
+            self.connection.execute("""
+                CREATE TABLE employer_submissions (
+                    employer_id TEXT PRIMARY KEY, name TEXT NOT NULL,
+                    aliases TEXT NOT NULL, submitted_count INTEGER NOT NULL,
+                    cooldown_until TEXT, cooldown_time_assumed INTEGER NOT NULL
+                )
+            """)
+            self.connection.execute(
+                'CREATE INDEX employer_submissions_cooldown ON employer_submissions(cooldown_until)'
+            )
+            if self.connection.execute('SELECT 1 FROM records LIMIT 1').fetchone():
+                state = self.read()
+                update_rounds(state, time_zone(settings(self.root)['timezone']))
+                self._save_records(state)
+                self.save_queue(state)
+                self.save_employer_submissions(state)
+            self.connection.execute('PRAGMA user_version = 5')
+
+    def save_employer_submissions(self, state):
+        rounds = {row['id']: row for row in state.get('company_rounds', [])}
+        current = {}
+        for employer in state.get('employers', []):
+            status = rounds.get(employer['id'], {})
+            until = status.get('cooldown_until')
+            current[employer['id']] = (
+                employer['name'], json.dumps(employer.get('aliases', []), ensure_ascii=False),
+                len(status.get('submitted_vacancies', [])), until,
+                int(status.get('cooldown_time_assumed', False)),
+            )
+        previous = {
+            row[0]: tuple(row[1:]) for row in self.connection.execute(
+                'SELECT employer_id, name, aliases, submitted_count, cooldown_until,'
+                ' cooldown_time_assumed FROM employer_submissions'
+            )
+        }
+        self.connection.executemany(
+            'DELETE FROM employer_submissions WHERE employer_id = ?',
+            [(employer_id,) for employer_id in previous.keys() - current.keys()],
+        )
+        self.connection.executemany(
+            'INSERT OR REPLACE INTO employer_submissions VALUES (?, ?, ?, ?, ?, ?)',
+            [(employer_id, *value) for employer_id, value in current.items()
+             if value != previous.get(employer_id)],
+        )
+
+    def employers_to_avoid(self):
+        from .companies import clock
+
+        return [
+            {'id': employer_id, 'name': name, 'aliases': json.loads(aliases),
+             'submitted_count': count, 'cooldown_until': until, 'cooldown_time_assumed': bool(assumed)}
+            for employer_id, name, aliases, count, until, assumed in self.connection.execute(
+                'SELECT employer_id, name, aliases, submitted_count, cooldown_until,'
+                ' cooldown_time_assumed FROM employer_submissions WHERE cooldown_until > ?'
+                ' ORDER BY cooldown_until, name COLLATE NOCASE, employer_id',
+                (clock().astimezone(timezone.utc).isoformat(),),
+            )
+        ]
+
     def close(self):
         self.connection.close()
 
@@ -352,6 +423,11 @@ class SQLiteState:
         ]
 
     def save(self, state):
+        changed_sections = self._save_records(state)
+        if changed_sections & EMPLOYER_SUBMISSION_SECTIONS:
+            self.save_employer_submissions(state)
+
+    def _save_records(self, state):
         previous = {
             path: (section, position, body)
             for path, section, position, body in self.connection.execute(
@@ -362,17 +438,20 @@ class SQLiteState:
         deleted = previous.keys() - updated.keys()
         changed = [(path, *value) for path, value in updated.items() if previous.get(path) != value]
         if not deleted and not changed:
-            return
+            return set()
         self.connection.executemany('DELETE FROM records WHERE path = ?', [(path,) for path in deleted])
         self.connection.executemany(
             'INSERT OR REPLACE INTO records(path, section, position, body) VALUES (?, ?, ?, ?)', changed
         )
-        relevant = {'jobs', 'applications', COMMENTS, 'submission_attempts', ''}
-        if any(section in relevant for _, section, _, _ in changed) or any(
-            previous[path][0] in relevant for path in deleted
-        ):
+        changed_sections = {section for _, section, _, _ in changed}
+        changed_sections.update(previous[path][0] for path in deleted)
+        if changed_sections & {
+            'jobs', 'applications', COMMENTS, 'submission_attempts',
+            'historical_decisions', 'company_history_links', '',
+        }:
             self.save_queue(state)
         self.set_meta('revision', int(self.meta('revision')) + 1)
+        return changed_sections
 
     def initialize(self, state):
         with self.transaction():

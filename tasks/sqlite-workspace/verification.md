@@ -29,3 +29,18 @@
 - The test candidate is installed into a temporary environment by `tests/check_wheel.py --browser`. The installed-workspace proof passed for exact document bytes, SQLite ZIP restoration, queues and browser navigation. The candidate wheel SHA-256 is `71a336a22bf132007be56d1dbf9a0d994a08b721e175a3ca107d69ce696b7bc5`.
 
 This evidence is from macOS. Windows and Linux CI, physical-device acceptance, and the upgrade of the active private workspace are separate release checks. All employer-facing scenarios used fictional data and controlled transports.
+
+## Agent employer lookup candidate
+
+- The schema-5 candidate returns active cooldowns. Tests cover the second distinct confirmed submission, duplicate listings, aliases, receipts, linked history, uncertain attempts, corrected submissions, the exact expiry instant, and fresh application slots. A month-end regression verifies that a later submission cannot shorten a pause.
+- All 250 backend tests passed on Python 3.12.14 on macOS. The local API test verifies the workspace path, rejects an unrelated Host and reads the projection without loading full workspace state.
+- Tests cover both schema-3 and schema-4 upgrades, rollback after an interrupted backfill, and rebuilding the lookup from ZIP and Git snapshots. SQLite uses `employer_submissions_cooldown` to find active deadlines.
+- A disposable schema-3 restore upgraded to schema 5, recalculated company rounds and returned the active cooldowns through the local HTTP endpoint. The database passed its integrity check and the Git snapshot reported Current.
+
+## Five-company research and Discover candidate
+
+- The company-source fixture confirms that cooldown prevents a board fetch, and that a successful refresh returns all checked IDs and one ranked row per verified vacancy. A nine-role fixture retains eight eligible roles with uncertainties and excludes the confirmed hard conflict. The research operation returns five new companies when available and fills a shortfall with eligible past employers. Unmapped earlier submissions surface for review.
+- Source fixtures cover a 1,001-posting Greenhouse board, an incomplete board response, multiple Lever pages and a repeated-page failure. Live employer coverage varies with the accessible sources checked by the agent. [Greenhouse Job Board API](https://docs.greenhouse.io/job-board.html#list-jobs) · [Lever Postings API](https://github.com/lever/postings-api#get-a-list-of-job-postings)
+- All 370 frontend tests, ESLint, type checking and the production build passed. The local and hosted browser suite, fictional public preview and controlled delivery browser tests passed. Discover layout checks covered 320–1920 px, cross-location roles grouped under the same company, keyboard navigation and a ten-role company.
+- The candidate wheel passed `tests/check_wheel.py --browser`. The pinned older wheel created a fictional schema-3 workspace that the candidate upgraded to schema 5. The earlier wheel rejected the upgraded live database and successfully restored the candidate’s portable ZIP into a fresh schema-3 folder.
+- The pre-release wheel built over `d64bb9e5db3ac5321d8130ee5f175d8d426fa501` has SHA-256 `1c15b628ae33c3da14cca773e3bb04143217f69e7cf50da140618f48c3461113`. The checks above record results for that candidate. GitHub Actions verifies each release revision.

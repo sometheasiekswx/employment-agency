@@ -61,13 +61,29 @@ const path = require("node:path");
     await page.getByRole("button", { name: "Assess Infrastructure Engineer at Fictional Harbour" }).first().click();
     await page.getByRole("button", { name: "Compare roles at this company" }).click();
     await page.getByText(/^Paused until /).waitFor();
-    assert.equal((await action("company-roles", { job_id: last.id })).status.remaining, 0);
+    const paused = (await action("company-roles", { job_id: last.id })).status;
+    assert.equal(paused.remaining, 0);
+    assert.ok(Number.isFinite(Date.parse(paused.cooldown_until)));
     if (process.env.EA_SQLITE_SCREENSHOT) {
       const target = process.env.EA_SQLITE_SCREENSHOT;
       fs.mkdirSync(path.dirname(target), { recursive: true });
       await page.screenshot({ path: target });
     }
-    console.log(`SQLite mobile-width ${useWebKit ? "WebKit" : "Chromium"} passed: company mapping, shortlist, paused search and saved-role deadline`);
+    await page.goto(base + "/settings/");
+    const months = page.getByRole("spinbutton", { name: "Cooldown in calendar months" });
+    await months.waitFor();
+    assert.equal(await months.inputValue(), "3");
+    await months.fill("6");
+    await page.getByRole("button", { name: "Save cooldown" }).click();
+    await page.getByRole("status").filter({ hasText: "Company cooldown saved." }).waitFor();
+    const extended = (await action("company-roles", { job_id: last.id })).status;
+    assert.equal(extended.remaining, 0);
+    assert.ok(Date.parse(extended.cooldown_until) > Date.parse(paused.cooldown_until));
+    await page.reload();
+    await months.waitFor();
+    assert.equal(await months.inputValue(), "6");
+
+    console.log(`SQLite mobile-width ${useWebKit ? "WebKit" : "Chromium"} passed: company mapping, shortlist, paused search, saved-role deadline and persisted cooldown settings`);
   } finally {
     await browser.close();
   }

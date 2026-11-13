@@ -1,6 +1,6 @@
 "use client";
 
-import { ArchiveRestore, Cloud, Monitor, ShieldCheck } from "lucide-react";
+import { ArchiveRestore, CalendarClock, Cloud, Monitor, ShieldCheck } from "lucide-react";
 import { useAppearance } from "@/components/appearance";
 import { useWorkspace } from "@/components/workspace-provider";
 import { Action, Field, Form, Select, text } from "@/components/controls";
@@ -11,6 +11,7 @@ import { appearanceOptions } from "@/lib/appearance";
 export function SettingsPage() {
   const { state, client, run, notify, clearSession } = useWorkspace();
   const { appearance, setAppearance } = useAppearance();
+  const cooldownMonths = state._workspace.company_cooldown_months;
   const exportWorkspace = async () => {
     if (client.hosted) await client.binary("export");
     else {
@@ -49,6 +50,47 @@ export function SettingsPage() {
           aria-describedby="appearance-help"
         />
       </section>
+      {cooldownMonths !== undefined && (
+        <section
+          className="secondary-panel settings-company-panel"
+          aria-labelledby="company-cooldown-heading"
+        >
+          <div className="secondary-section-heading">
+            <h2 id="company-cooldown-heading">Company cooldown</h2>
+            <CalendarClock size={18} aria-hidden="true" />
+          </div>
+          <p id="company-cooldown-help" className="muted">
+            After two distinct roles are submitted, the app pauses discovery
+            and new applications for that company. Saving recalculates existing
+            cooldowns using your application history.
+          </p>
+          <Form
+            key={state._workspace.path}
+            onSave={async (data) => {
+              await run(
+                "company-cooldown-settings",
+                { months: Number(text(data, "months")) },
+                "Company cooldown saved.",
+              );
+            }}
+          >
+            <Field
+              key={cooldownMonths}
+              label="Cooldown in calendar months"
+              name="months"
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={24}
+              step={1}
+              required
+              defaultValue={cooldownMonths}
+              aria-describedby="company-cooldown-help"
+            />
+            <button>Save cooldown</button>
+          </Form>
+        </section>
+      )}
       <WorkspaceSettings />
       <div className="secondary-inline-note settings-control-note">
         <ShieldCheck size={21} aria-hidden="true" />

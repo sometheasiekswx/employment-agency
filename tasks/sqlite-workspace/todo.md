@@ -18,5 +18,8 @@
 - [x] [9. Apply source refreshes atomically](plan.md#9-apply-source-refreshes-atomically). Requires 7. Verify interruption preserves earlier results, and deduplication preserves job decisions.
 - [x] [10. Link career evidence directly to requirements](plan.md#10-link-career-evidence-directly-to-requirements). Requires 7. Verify concurrent confirmation, provenance and retirement.
 - [x] [11. Resume draft preparation by persisted run item](plan.md#11-resume-draft-preparation-by-persisted-run-item). Requires 7. Verify cancellation, restart and uncertain spending with a fake provider.
+- [x] [12. Query active employer cooldowns before agent research](plan.md#12-query-active-employer-cooldowns-before-agent-research). Verified migration, restore, expiry and the indexed local lookup. [Evidence](verification.md#agent-employer-lookup-candidate)
+- [x] [13. Research and rank roles at five eligible companies](plan.md#13-research-and-rank-roles-at-five-eligible-companies). Verified source and ranking fixtures, company priority and uncapped results. [Evidence](verification.md#five-company-research-and-discover-candidate)
+- [x] [14. Group Discover opportunities by hiring employer](plan.md#14-group-discover-opportunities-by-hiring-employer). Verified company grouping, inspector navigation, handover and installed wheel. [Evidence](verification.md#five-company-research-and-discover-candidate)
 
 Attach the fixture, test, or release evidence to each task when completing it.

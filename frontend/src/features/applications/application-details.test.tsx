@@ -45,3 +45,45 @@ it.each([
     expect(screen.getByText(expected)).toBeInTheDocument();
   },
 );
+
+it.each([
+  {
+    label: "legacy decision",
+    submissionTime: null,
+    expected: "4 Nov 2026",
+    assumed: false,
+  },
+  {
+    label: "actual date with assumed time",
+    submissionTime: { at: "2026-11-01T13:00:00Z", assumed: true },
+    expected: "2 Nov 2026",
+    assumed: true,
+  },
+  {
+    label: "verified timestamp",
+    submissionTime: { at: "2026-11-01T13:00:00Z", assumed: false },
+    expected: "2 Nov 2026",
+    assumed: false,
+  },
+] as const)(
+  "displays the $label in the workspace timezone",
+  ({ submissionTime, expected, assumed }) => {
+    render(
+      <ApplicationDetails
+        app={{
+          ...app,
+          status: "submitted",
+          submitted_at: "2026-11-04",
+          submission_time: submissionTime,
+        }}
+        job={{}}
+        timezone="Australia/Melbourne"
+      />,
+    );
+    const value = screen.getByText("Submitted", {
+      selector: "dt",
+    }).nextElementSibling;
+    expect(value).toHaveTextContent(expected);
+    expect(value?.textContent?.includes("(time assumed)")).toBe(assumed);
+  },
+);

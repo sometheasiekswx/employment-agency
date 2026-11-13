@@ -267,10 +267,9 @@ class Workspace:
                         raise ValueError('Workspace identity cannot be edited')
                     state['consents'] = {}
                 if self.database:
-                    if state.get('employers'):
-                        from .companies import update_rounds
-                        from .workspaces import settings, time_zone
-                        update_rounds(state, time_zone(settings(self.path)['timezone']))
+                    from .companies import update_rounds
+                    from .workspaces import settings, time_zone
+                    update_rounds(state, time_zone(settings(self.path)['timezone']))
                     self.database.save(state)
                 else:
                     atomic(self.path / 'state.json', encode(state))
@@ -364,9 +363,12 @@ def validate_state(state):
 
 
 def initialize_sqlite(root, state):
+    from .companies import update_rounds
     from .sqlite_workspace import SQLiteState, ensure_git_rules, read_snapshot
+    from .workspaces import settings, time_zone
 
     validate_state(state)
+    update_rounds(state, time_zone(settings(root)['timezone']))
     database = SQLiteState(root, create=True)
     try:
         database.initialize(state)

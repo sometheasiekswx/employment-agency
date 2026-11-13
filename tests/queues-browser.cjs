@@ -74,7 +74,7 @@ const {
       .getByRole("combobox", { name: "Location", exact: true })
       .selectOption("Toronto");
     await page.locator(".discover-filters summary").click();
-    await page.getByText("2 roles · 1 location", { exact: true }).waitFor();
+    await page.getByText("2 roles · 2 companies", { exact: true }).waitFor();
     await tab("Submitted", 1).click();
     await selectApplication(page, fixture.sent);
     await card(fixture.sent).waitFor();

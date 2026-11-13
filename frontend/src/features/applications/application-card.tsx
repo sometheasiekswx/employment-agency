@@ -486,7 +486,12 @@ export function ApplicationCard({
                 />
               )}
               {decision === "submit" && state._workspace.snapshot && (
-                <Field label="Actual submission date" name="occurred_at" type="date" required />
+                <Field
+                  label={`Actual submission date and time (${state._workspace.timezone})`}
+                  name="occurred_at"
+                  type="datetime-local"
+                  required
+                />
               )}
               <Check
                 name="confirmed"

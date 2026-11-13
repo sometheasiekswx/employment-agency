@@ -163,7 +163,26 @@ it("keeps conflict records available in All results and combines saved, text and
       [],
     ),
   ).toEqual(rows);
-  expect(
-    groupOpportunities(rows, ["Berlin", "Toronto"]).map(([city]) => city),
-  ).toEqual(["Berlin", "Toronto"]);
+});
+
+it("groups verified aliases across cities and keeps separate hiring employers with the same name", () => {
+  const first = row("a", "Toronto", {
+    employer: "Example Cloud",
+    company: { id: "one", name: "Example Cloud", remaining: 2, cooling: false },
+  });
+  const other = row("b", "Toronto", {
+    employer: "Example Cloud",
+    company: { id: "two", name: "Example Cloud", remaining: 2, cooling: false },
+  });
+  const alias = row("c", "Berlin", {
+    employer: "Example Cloud GmbH",
+    company: first.job.company,
+  });
+  expect(groupOpportunities([first, other, alias]).map(group => ({
+    name: group.name,
+    ids: group.roles.map(({ job }) => job.id),
+  }))).toEqual([
+    { name: "Example Cloud", ids: ["a", "c"] },
+    { name: "Example Cloud", ids: ["b"] },
+  ]);
 });

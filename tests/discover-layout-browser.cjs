@@ -57,7 +57,7 @@ const fs = require("node:fs");
       assert.equal(
         layout.horizontalOverflow,
         false,
-        `${label}: all location columns fit horizontally`,
+        `${label}: all company columns fit horizontally`,
       );
       assert.equal(
         layout.pageOverflow,
@@ -67,7 +67,7 @@ const fs = require("node:fs");
       for (const column of layout.columns) {
         assert.ok(
           column.left >= -1 && column.right <= layout.width + 1,
-          `${label}: no partial location column`,
+          `${label}: no partial company column`,
         );
         assert.ok(
           column.width >= Math.min(272, layout.width - 8) - 1,
@@ -173,18 +173,18 @@ const fs = require("node:fs");
     assert.equal(await page.locator(".discover-column").count(), 1);
     assert.ok(
       (await page.locator(".discover-card").boundingBox()).width <= 385,
-      "A single location never stretches across the whole workspace",
+      "A single company never stretches across the whole workspace",
     );
     await page.locator(".discover-column h2").evaluate((node) => {
       node.lastChild.textContent =
-        "VeryLongLocationNameWithoutWhitespace".repeat(4);
+        "VeryLongEmployerNameWithoutWhitespace".repeat(4);
     });
     await page.locator(".discover-card-open h3").evaluate((node) => {
       node.textContent =
         "Principal platform and reliability engineering lead for distributed systems";
     });
-    await page.locator(".discover-card-company").evaluate((node) => {
-      node.lastChild.textContent = "LongEmployerNameWithoutWhitespace".repeat(
+    await page.locator(".discover-card-location").evaluate((node) => {
+      node.textContent = "LongLocationNameWithoutWhitespace".repeat(
         5,
       );
     });
@@ -243,6 +243,9 @@ const fs = require("node:fs");
     );
     assert.ok(firstJob, "The original fictional cloud role is available");
     const layoutState = JSON.parse(JSON.stringify(state));
+    const companyNames = cities.map((_, index) =>
+      index === 0 ? firstJob.employer : `Fictional Company ${index + 1}`
+    );
     layoutState.jobs = cities.flatMap((city, cityIndex) =>
       Array.from({ length: cityCounts[cityIndex] }, (_, index) => ({
         ...firstJob,
@@ -254,12 +257,9 @@ const fs = require("node:fs");
           cityIndex === 0 && index === 0
             ? firstJob.title
             : `Layout Engineer ${cityIndex + 1}.${index + 1}`,
-        employer:
-          cityIndex === 0 && index === 0
-            ? firstJob.employer
-            : "Fictional Layout Studio",
-        city,
-        location: city,
+        employer: companyNames[cityIndex],
+        city: index % 2 ? "Remote" : city,
+        location: index % 2 ? "Remote" : city,
         saved: false,
       })),
     );
@@ -322,19 +322,19 @@ const fs = require("node:fs");
         );
       assert.deepEqual(
         groups.map((group) => group.city),
-        cities,
-        `${label}: location priority and DOM order are retained`,
+        companyNames,
+        `${label}: company order and DOM order are retained`,
       );
       assert.deepEqual(
         groups.map((group) => group.cards),
         cityCounts,
-        `${label}: every city keeps its complete card group`,
+        `${label}: every company keeps its complete card group`,
       );
       for (let index = 0; index < groups.length; index++) {
         if (index > 0)
           assert.ok(
             groups[index].top >= groups[index - 1].top - 1,
-            `${label}: later cities never backfill ahead of earlier priorities`,
+            `${label}: later companies never backfill ahead of earlier priorities`,
           );
         for (const other of groups.slice(index + 1)) {
           const group = groups[index];
@@ -356,20 +356,20 @@ const fs = require("node:fs");
     for (const group of desktopGroups.slice(0, 4))
       assert.ok(
         Math.abs(group.top - desktopGroups[0].top) <= 1,
-        "The first four priority cities start in the first desktop row",
+        "The first four companies start in the first desktop row",
       );
     assert.ok(
       desktopGroups[4].top >= desktopGroups[1].bottom + 15,
-      "The next city starts below a complete shorter group with a gutter",
+      "The next company starts below a complete shorter group with a gutter",
     );
     assert.ok(
       desktopGroups[4].top < desktopGroups[0].bottom / 2,
-      "Later cities fill the shorter columns before the ten-card city ends",
+      "Later companies fill the shorter columns before the ten-card company ends",
     );
     assert.deepEqual(
       await page.locator(".discover-card-open h3").allTextContents(),
       layoutState.jobs.map((job) => job.title),
-      "Card DOM and inspector navigation order retain the original city sequence",
+      "Card DOM and inspector navigation order retain the original company sequence",
     );
     await page.screenshot({ path: `${output}/uneven-cities-1640.png` });
     await cloud().click();
