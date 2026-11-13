@@ -100,7 +100,7 @@ def run(workspace_path, backend_port, frontend_port, gateway_port, origin, user,
                              + validation.stderr.strip())
         # Detect lock/schema errors before starting any child or changing remembered selection.
         try:
-            store = Workspace(workspace_path, create=create)
+            store = Workspace(workspace_path, create=create, sqlite=True)
         except ValueError as exc:
             if str(exc) == 'Workspace is already open in another process':
                 raise ValueError(f'{exc}. Stop the existing app before starting live development.') from exc

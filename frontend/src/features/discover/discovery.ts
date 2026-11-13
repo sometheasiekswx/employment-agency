@@ -1,4 +1,4 @@
-import type { Application, Fact, Job, RankedJob } from "@/lib/models";
+import type { Application, ApplicationQueueEntry, Fact, Job, RankedJob } from "@/lib/models";
 import {
   applicationRoleId,
   compareDestinations,
@@ -87,7 +87,14 @@ export function remainingEvidenceGaps(
   return gaps.filter((gap) => !confirmed.has(gap));
 }
 
-export function applicationsByJob(applications: Application[]) {
+export function applicationsByJob(applications: Application[], entries?: ApplicationQueueEntry[]) {
+  if (entries) {
+    const versions = new Map(applications.map((app) => [app.id, app]));
+    return new Map(entries.flatMap(({ job_id, application_id }) => {
+      const version = application_id ? versions.get(application_id) : undefined;
+      return version ? [[job_id, version] as const] : [];
+    }));
+  }
   return new Map(
     applicationQueues(applications, true).map((app) => [
       applicationRoleId(app),

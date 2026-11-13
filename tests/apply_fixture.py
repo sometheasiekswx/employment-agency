@@ -41,9 +41,9 @@ class FixtureLinkedIn(LinkedIn):
         self.context = self.engine.chromium.launch(channel='chrome', headless=True).new_context()
         self.page = self.context.new_page();self.page.goto(self.target)
 
-    def submit(self, expected, resume):
+    def submit(self, expected, resume, *, before_submit=None):
         try:
-            return super().submit(expected, resume)
+            return super().submit(expected, resume, before_submit=before_submit)
         except NeedsUser:
             raise
         except Exception:

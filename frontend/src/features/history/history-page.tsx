@@ -18,6 +18,9 @@ export function HistoryPage() {
   const filters = new URLSearchParams(routeQuery);
   const role = filters.get("role") || "";
   const employer = filters.get("employer") || "";
+  const sqlite = Boolean(state._workspace.snapshot);
+  const historyRole = sqlite ? role : "";
+  const historyEmployer = sqlite ? employer : "";
   const query = filters.get("q") || "";
   const location = filters.get("location") || "";
   const scoped = Boolean(role || employer);
@@ -47,8 +50,10 @@ export function HistoryPage() {
   };
   useEffect(() => {
     let alive = true;
-    client
-      .action<HistoryVersion[]>("history")
+    const request = sqlite
+      ? client.action<HistoryVersion[]>("history", { role: historyRole, employer: historyEmployer })
+      : client.action<HistoryVersion[]>("history");
+    request
       .then((result) => {
         if (alive) setVersions(result);
       })
@@ -58,7 +63,7 @@ export function HistoryPage() {
     return () => {
       alive = false;
     };
-  }, [client, attempt]);
+  }, [client, attempt, sqlite, historyRole, historyEmployer]);
   if (error)
     return (
       <section className="history-page secondary-panel">

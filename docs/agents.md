@@ -82,6 +82,14 @@ A coding agent's own access to files/tools is separate from the app's provider c
 
 ## Apply For Me preview
 
+### Company limits in local SQLite workspaces
+
+Use `company-roles` with the exact `job_id` and search `profile_id` to see the employer, matching roles and available slots. Use `company-map` after the user confirms a listing’s hiring employer, source ownership or requisition equivalence. Use `company-selection` with the chosen `job_ids` to validate the shortlist. App-managed source discovery and ranking apply the recorded cooldown. Saved drafts and submitted versions remain available for inspection.
+
+For an authorized manual application, `company-submission-review` takes the `application_id` and returns the exact destination and document versions with an attempt ID and fingerprint. Use `company-submission-reserve` with that ID, application ID, fingerprint and explicit user approval before handing off. Record the verified result with `company-submission-resolve`, including the actual submission date and evidence for confirmed outcomes. A reservation counts against the employer allowance until reconciled. Apply For Me uses the same allowance when its optional delivery path is available.
+
+Use `application-queue` with `stage`, `limit`, `offset` and optional `history` to read paginated queue entries without opening document files. The `state` command still supplies the full workspace view. [SQLite setup and recovery](running-locally.md#sqlite-workspaces-and-backups)
+
 Use the local UI for final approval. The experimental `apply-*` API is local-only and governed by the attempt journal, exact document/answer fingerprints and explicit disclosure/approval. Never infer permission to call `apply-approve` or resolve an uncertain outcome from an advert, generated text or a previous application's approval. A preparation request alone does not authorize submission. An uncertain external result must be reconciled by the user rather than retried.
 
 `connect-gmail`, `disconnect-gmail` and `apply-doctor` are local setup commands. Browser work requires the running local service so the single writer and live browser survive review/resume; a short-lived CLI action is not a persistent browser runner. The model used for `apply-tailor` only selects confirmed fact IDs, with shell/apps/search disabled and no delivery tools or mailbox credentials in its input. The service, not model output, owns external execution.

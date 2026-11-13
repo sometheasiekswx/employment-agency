@@ -19,6 +19,7 @@ import type { Application, EditorDocument, Job } from "@/lib/models";
 import { FileLink } from "./file-link";
 import { ApplicationDetails } from "./application-details";
 import { ReviewStatus } from "./review-status";
+import { CompanySubmission } from "./company-submission";
 import { DemoDraftEditor } from "./demo-draft-editor";
 
 const fileLabels = {
@@ -319,6 +320,12 @@ export function ApplicationCard({
       <div className="review-pane" hidden={view === "documents"}>
         <div className="review-header">
           <h3>Review & decision</h3>
+          {job.company?.cooling && (
+            <p>Company paused until {displayDate(job.company.cooldown_until, timezone)}.</p>
+          )}
+          {state._workspace.snapshot && !client.hosted && !client.preview && canChangeReview && (
+            <CompanySubmission key={app.id} app={app} />
+          )}
           {!client.hosted &&
             !state._workspace.demo &&
             app.documents?.["resume.pdf"] && (
@@ -428,6 +435,7 @@ export function ApplicationCard({
                     {
                       id: app.id,
                       status: "submitted",
+                      ...(state._workspace.snapshot ? { occurred_at: text(data, "occurred_at") } : {}),
                       comment: [
                         comment.trim(),
                         `Submission recorded by user. Method: ${method}`,
@@ -476,6 +484,9 @@ export function ApplicationCard({
                   required
                   maxLength={4000}
                 />
+              )}
+              {decision === "submit" && state._workspace.snapshot && (
+                <Field label="Actual submission date" name="occurred_at" type="date" required />
               )}
               <Check
                 name="confirmed"

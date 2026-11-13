@@ -75,6 +75,21 @@ When a Git clone lacks recovery metadata, opening it can verify recorded documen
 
 Rebuilding the checkout does not update a running process or an installed wheel. If an installed app still shows older behavior, stop it and install the tested candidate with the interpreter used to launch it. For the separate environment above, use `.venv-next/bin/python -m pip install --force-reinstall /absolute/path/to/candidate.whl`, then launch with `.venv-next/bin/python`. Record the package version, source revision and wheel SHA-256 in the workspace lock; local builds can differ even when their base release version is the same. Keep the previous environment and wheel until the restored copy and the real workspace have passed verification.
 
+## SQLite workspaces and backups
+
+New local workspaces use SQLite. Move a legacy workspace into a separate folder with the application closed on that workspace. The source folder stays available for recovery.
+
+```sh
+.venv-next/bin/python -m employment_agency migrate-sqlite /path/to/legacy-workspace /path/to/sqlite-workspace
+.venv-next/bin/python -m employment_agency --workspace /path/to/sqlite-workspace serve
+```
+
+If you already exported a legacy ZIP with the previous build, use `restore /path/to/backup.zip /path/to/sqlite-workspace --sqlite`. A SQLite ZIP uses the normal `restore` command. To restore a complete private Git clone into a new live workspace, run `restore-snapshot /path/to/clone /path/to/sqlite-workspace`. These recovery paths reset local provider permissions.
+
+Each save updates the corresponding readable records under `state/` and publishes a small `state.json` manifest. Git tracks those files alongside workspace documents. SQLite, its journal and machine permissions stay local. Check the snapshot status in **Settings → Workspace files** or with `employment-agency --workspace /path/to/sqlite-workspace action snapshot-status`. Pending publication retries on save or reopen. For a snapshot conflict, preserve the incoming snapshot in a separate folder and restore it there to review the two workspaces.
+
+After using the new workspace, export its current state before recovering to a previous copy. Reconcile later decisions and any uncertain attempts with the original evidence. Record the tested installed build in the workspace lock only after verifying the intended upgrade.
+
 ## Troubleshooting
 
 | Symptom | Meaning and action |

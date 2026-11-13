@@ -203,7 +203,7 @@ def server(service, port=8766, frontend_origin=None, tailscale_origin=None, tail
                             raise ValueError('Workspace changed while choosing a folder. Reload and try again.')
                         if target is None:
                             return self.send(200, encode({'result': {'cancelled': True}}))
-                        action = 'workspace-open' if (target / 'state.json').is_file() else 'workspace-create'
+                        action = 'workspace-open' if any((target / name).is_file() for name in ('state.json', 'workspace.sqlite3')) else 'workspace-create'
                         return self.mutate(action, {'path': str(target)})
                 finally:
                     picker.release()
@@ -232,7 +232,7 @@ def server(service, port=8766, frontend_origin=None, tailscale_origin=None, tail
                     creating = action == 'workspace-create'
                     if creating and not can_create_workspace(target):
                         raise ValueError('This folder has files but no career workspace. Choose an existing workspace, an empty folder, or a new Git repository.')
-                    replacement = Workspace(target, create=creating)
+                    replacement = Workspace(target, create=creating, sqlite=True)
                     try:
                         if replacement.read()['schema'] != 2:
                             raise ValueError('Migrate this older workspace using the CLI before opening it')

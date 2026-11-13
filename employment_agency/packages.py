@@ -34,7 +34,25 @@ def filename(original, name, city):
 
 
 def record(root, app):
-    return json.loads(inside(root, app['folder'] + '/version.json').read_text())
+    return json.loads(inside(root, app['folder'] + '/version.json').read_text(encoding='utf-8'))
+
+
+def check_submission_version(root, app, job, facts):
+    if changed(root, app):
+        raise ValueError('Documents changed. Validate a new draft before applying')
+    prepared_job = record(root, app)['job']
+    if any(prepared_job.get(key) != job.get(key) for key in (
+        'id', 'title', 'employer', 'location', 'description', 'requirements', 'url'
+    )):
+        raise ValueError('The résumé belongs to a different listing. Prepare a new draft.')
+    evidence_path = path_for(root, app, 'evidence.json')
+    evidence = json.loads(evidence_path.read_text(encoding='utf-8'))
+    current = {fact['id']: fact for fact in facts}
+    for fact in evidence.get('facts', []):
+        live = current.get(fact['id'], {})
+        if (not live.get('confirmed') or live.get('retired') or live.get('conflict')
+                or any(live.get(key) != fact.get(key) for key in ('text', 'association', 'dates'))):
+            raise ValueError('Career evidence changed; prepare and review a new tailored version')
 
 
 def changed(root, app):

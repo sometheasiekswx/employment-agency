@@ -100,7 +100,7 @@ def run(workspace_path, backend_port=8766, frontend_port=3000, *, create=True):
     previous_signals = {}
     try:
         try:
-            workspace = Workspace(workspace_path, create=create)
+            workspace = Workspace(workspace_path, create=create, sqlite=True)
         except ValueError as exc:
             if str(exc) == 'Workspace is already open in another process':
                 raise ValueError(f'{exc}. Stop the existing app with Ctrl+C, then run dev again.') from exc

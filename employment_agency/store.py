@@ -1,7 +1,7 @@
 """Atomic, process-locked private workspaces and portable recovery."""
 
 from pathlib import Path, PurePosixPath
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 import hashlib
 import json
 import os
@@ -26,7 +26,8 @@ ARCHIVE_MANIFEST = 'checksums.json'
 def excluded(path):
     return (any(p.startswith(('.env', 'credentials', 'secrets')) for p in path.parts) or
             path.suffix in ('.key', '.pem', '.py', '.pyc', '.js', '.mjs', '.cjs', '.sh', '.db', '.sqlite', '.zip', '.tar', '.gz') or
-            path.name.endswith('.lock') or any(p in EXCLUDED_DIRS for p in path.parts))
+            path.name.endswith('.lock') or path.name.startswith('workspace.sqlite3')
+            or any(p in EXCLUDED_DIRS for p in path.parts))
 
 
 def now():
@@ -45,10 +46,12 @@ def encode(value):
     return (json.dumps(value, ensure_ascii=False, indent=2) + "\n").encode()
 
 
-def atomic(path, data):
+def atomic(path, data, *, staging=None):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    fd, name = tempfile.mkstemp(dir=path.parent)
+    if staging is not None:
+        staging.mkdir(parents=True, exist_ok=True)
+    fd, name = tempfile.mkstemp(dir=staging or path.parent)
     try:
         with os.fdopen(fd, "wb") as f:
             f.write(data)
@@ -82,9 +85,50 @@ def validate_archive_entries(entries):
     return names
 
 
+def initial_state():
+    return {
+        'schema': 2, 'workspace_id': uid(), 'identity': {}, 'facts': [],
+        'profiles': [], 'jobs': [], 'sources': [], 'runs': [], 'applications': [],
+        'consents': {}, 'events': [],
+    }
+
+
+def workspace_files(root, *, sqlite=False, config_path=None):
+    from .workspaces import config_home, inside, settings
+    config_path = config_path or config_home().expanduser().resolve()
+    config = settings(root)
+    paths = {*EXPORT_DIRS, 'tasks', 'workspace.json', 'workspace.lock.json',
+             config['master'], *config['backup_paths']}
+    paths.update(path.name for path in root.glob('*.md') if path.is_file())
+    nested_config = config_path != root and config_path.is_relative_to(root)
+
+    def allowed(path):
+        relative = path.relative_to(root)
+        return (relative.as_posix() not in ('state.json', ARCHIVE_MANIFEST)
+                and (not sqlite or relative.parts[0] != 'state')
+                and not excluded(relative)
+                and not any(part.startswith('.') and part != '.recovery' for part in relative.parts)
+                and not (config_path == root and relative.parts[0] in ('permissions', 'location.json'))
+                and not (nested_config and path.is_relative_to(config_path)))
+
+    def visit(source):
+        if not allowed(source):
+            return
+        source = inside(root, source.relative_to(root).as_posix())
+        if source.is_file():
+            yield source
+        elif source.is_dir():
+            for child in source.iterdir():
+                yield from visit(child)
+
+    for name in sorted(paths):
+        yield from visit(root / name)
+
+
 class Workspace:
-    def __init__(self, path, *, create=True):
+    def __init__(self, path, *, create=True, sqlite=False, recover=True):
         self.path = Path(path).resolve()
+        self.database = None
         from .workspaces import config_home, inside
         self.config_path = config_home().expanduser().resolve()
         project = self.path / 'pyproject.toml'
@@ -94,7 +138,7 @@ class Workspace:
         lock_path = inside(self.path, '.lock')
         if create:
             self.path.mkdir(parents=True, exist_ok=True)
-        elif not state_path.is_file():
+        elif not state_path.is_file() and not inside(self.path, 'workspace.sqlite3').is_file():
             raise ValueError(f'Workspace state is missing at {self.path}. Choose an existing workspace or use init.')
         self.lock = threading.RLock()
         # Kernel advisory lock is released on crash; no stale lock deletion race.
@@ -116,48 +160,58 @@ class Workspace:
             self.handle.close()
             raise ValueError("Workspace is already open in another process")
         try:
-            self.open_state(state_path, create)
+            self.open_state(state_path, create, sqlite=sqlite, recover=recover)
         except BaseException:
             self.close()
             raise
 
-    def open_state(self, path, create):
-        try:
-            state = json.loads(path.read_text(encoding="utf-8"))
-        except FileNotFoundError:
-            if not create:
-                raise ValueError(f'Workspace state is missing at {self.path}. Choose an existing workspace or use init.') from None
-            state = {
-                "schema": 2,
-                "identity": {},
-                "facts": [],
-                "profiles": [],
-                "jobs": [],
-                "sources": [],
-                "runs": [],
-                "applications": [],
-                "consents": {},
-                "events": [],
-            }
-        if not isinstance(state, dict) or state.get("schema") not in (1, 2):
-            raise ValueError("Unsupported workspace schema; restore a compatible release. No data changed.")
-        self.workspace_id = None
+    def open_state(self, path, create, *, sqlite=False, recover=True):
+        from .sqlite_workspace import DATABASE, SQLiteState, ensure_git_rules, is_sqlite
+        from .workspaces import inside
+
+        if inside(self.path, DATABASE).exists():
+            self.database = SQLiteState(self.path)
+            state = self.database.read()
+        elif path.exists():
+            state = json.loads(path.read_bytes())
+            if is_sqlite(state):
+                raise ValueError('Workspace database is missing. Restore a verified backup or Git snapshot.')
+        elif create:
+            state = initial_state()
+            if sqlite:
+                ensure_git_rules(self.path)
+                self.database = SQLiteState(self.path, create=True)
+                self.database.initialize(state)
+            else:
+                atomic(path, encode(state))
+        else:
+            raise ValueError(f'Workspace state is missing at {self.path}. Restore a verified workspace.')
+        if not isinstance(state, dict) or state.get('schema') not in (1, 2):
+            raise ValueError('Unsupported workspace schema; restore a compatible release. No data changed.')
+        self.workspace_id = state.get('workspace_id')
         changed = False
-        if state["schema"] == 2:
-            if "workspace_id" not in state:
-                # A legacy path-only grant cannot establish the identity of these records.
-                state["workspace_id"] = uid()
-                state["consents"] = {}
+        if state['schema'] == 2:
+            if self.workspace_id is None and not self.database and recover:
+                self.workspace_id = state['workspace_id'] = uid()
+                state['consents'] = {}
                 changed = True
-            self.workspace_id = state["workspace_id"]
-            if not isinstance(self.workspace_id, str) or not re.fullmatch('[a-f0-9]{32}', self.workspace_id):
-                raise ValueError("Invalid workspace identity")
+            if self.workspace_id is not None and (
+                not isinstance(self.workspace_id, str) or not re.fullmatch('[a-f0-9]{32}', self.workspace_id)
+            ):
+                raise ValueError('Invalid workspace identity')
+        if not recover:
+            return
+        if self.database:
+            self.database.publish(verify=True)
         for r in state["runs"]:
             if r["status"] == "running":
                 changed = True
                 r["status"] = "paused"
                 r["note"] = "Interrupted; resume explicitly"
                 if r.get("inflight"):
+                    if self.database:
+                        from .run_progress import interrupt
+                        interrupt(state, r['id'], r['inflight'])
                     r["done"].append(r["inflight"])
                     r["errors"].append(
                         {
@@ -167,13 +221,20 @@ class Workspace:
                     )
                     r["inflight"] = None
         if changed:
-            atomic(path, encode(state))
+            if self.database:
+                with self.database.transaction():
+                    self.database.save(state)
+                self.database.publish()
+            else:
+                atomic(path, encode(state))
         if state["schema"] == 2:
             from .packages import restore_recovery
             restore_recovery(self.path, state['applications'])
 
     def close(self):
         if not self.handle.closed:
+            if self.database:
+                self.database.close()
             self.handle.close()
 
     def permissions_path(self):
@@ -182,7 +243,8 @@ class Workspace:
 
     def read(self):
         with self.lock:
-            state = json.loads((self.path / "state.json").read_text(encoding="utf-8"))
+            state = (self.database.read() if self.database else
+                     json.loads((self.path / "state.json").read_text(encoding="utf-8")))
             if state.get('schema') == 2:
                 if state.get('workspace_id') != self.workspace_id:
                     raise ValueError('Workspace identity changed on disk. Reopen the workspace.')
@@ -195,48 +257,30 @@ class Workspace:
     @contextmanager
     def edit(self):
         with self.lock:
-            s = self.read()
-            previous_permissions = encode(s.get('consents', {}))
-            yield s
-            if s.get('schema') == 2:
-                if s.get('workspace_id') != self.workspace_id:
-                    raise ValueError('Workspace identity cannot be edited')
-                permissions = encode(s.pop('consents', {}))
-                s['consents'] = {}
-                atomic(self.path / 'state.json', encode(s))
-                if permissions != previous_permissions:
-                    atomic(self.permissions_path(), permissions)
-            else:
-                atomic(self.path / 'state.json', encode(s))
+            with self.database.transaction() if self.database else nullcontext():
+                state = self.read()
+                previous_permissions = encode(state.get('consents', {}))
+                yield state
+                permissions = encode(state.get('consents', {}))
+                if state.get('schema') == 2:
+                    if state.get('workspace_id') != self.workspace_id:
+                        raise ValueError('Workspace identity cannot be edited')
+                    state['consents'] = {}
+                if self.database:
+                    if state.get('employers'):
+                        from .companies import update_rounds
+                        from .workspaces import settings, time_zone
+                        update_rounds(state, time_zone(settings(self.path)['timezone']))
+                    self.database.save(state)
+                else:
+                    atomic(self.path / 'state.json', encode(state))
+            if state.get('schema') == 2 and permissions != previous_permissions:
+                atomic(self.permissions_path(), permissions)
+            if self.database:
+                self.database.publish()
 
     def backup_files(self):
-        from .workspaces import inside, settings
-        config = settings(self.path)
-        paths = {*EXPORT_DIRS, 'tasks', 'workspace.json', 'workspace.lock.json',
-                 config['master'], *config['backup_paths']}
-        paths.update(path.name for path in self.path.glob('*.md') if path.is_file())
-        nested_config = self.config_path != self.path and self.config_path.is_relative_to(self.path)
-
-        def allowed(path):
-            relative = path.relative_to(self.path)
-            return (relative.as_posix() not in ('state.json', ARCHIVE_MANIFEST)
-                    and not excluded(relative)
-                    and not any(part.startswith('.') and part != '.recovery' for part in relative.parts)
-                    and not (self.config_path == self.path and relative.parts[0] in ('permissions', 'location.json'))
-                    and not (nested_config and path.is_relative_to(self.config_path)))
-
-        def visit(source):
-            if not allowed(source):
-                return
-            source = inside(self.path, source.relative_to(self.path).as_posix())
-            if source.is_file():
-                yield source
-            elif source.is_dir():
-                for child in source.iterdir():
-                    yield from visit(child)
-
-        for name in sorted(paths):
-            yield from visit(self.path / name)
+        return workspace_files(self.path, sqlite=bool(self.database), config_path=self.config_path)
 
     def export(self, target):
         target = Path(target)
@@ -246,7 +290,7 @@ class Workspace:
             files = {path.relative_to(self.path).as_posix(): path for path in self.backup_files()}
             state = self.read()
             state["consents"] = {}
-            raw = encode(state)
+            raw = encode({'schema': 3, 'storage': 'sqlite', 'state': state} if self.database else state)
             validate_archive_entries([(ARCHIVE_MANIFEST, 0), ('state.json', len(raw)),
                                       *((name, path.stat().st_size) for name, path in files.items())])
             data = {'state.json': raw, **{name: path.read_bytes() for name, path in files.items()}}
@@ -254,7 +298,7 @@ class Workspace:
             validate_archive_entries([(ARCHIVE_MANIFEST, len(manifest)),
                                       *((name, len(body)) for name, body in data.items())])
             target.parent.mkdir(parents=True, exist_ok=True)
-            out = target.open("xb")
+            out = os.fdopen(os.open(target, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600), 'wb')
             try:
                 with out, zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as archive:
                     for name, body in data.items():
@@ -269,7 +313,8 @@ class Workspace:
         return self.export(self.path / ".runtime/snapshots" / (uid() + ".zip"))
 
 
-def restore(archive, destination, *, reset_permissions=True):
+def restore(archive, destination, *, reset_permissions=True, sqlite=False):
+    from .sqlite_workspace import is_sqlite
     dest = Path(destination)
     if dest.exists():
         raise ValueError("Restore requires a new destination")
@@ -279,17 +324,92 @@ def restore(archive, destination, *, reset_permissions=True):
         data = {n: z.read(n) for n in names if n != ARCHIVE_MANIFEST}
         if checks != {n: digest(b) for n, b in data.items()}:
             raise ValueError("Checksum mismatch")
-        s = json.loads(data["state.json"])
-        if s.get("schema") not in (1, 2):
-            raise ValueError("Unsupported schema")
-        s["consents"] = {}
-        if reset_permissions and s["schema"] == 2:
-            s["workspace_id"] = uid()
-        data["state.json"] = encode(s)
+        portable = json.loads(data.pop('state.json'))
+        sqlite_archive = is_sqlite(portable)
+        if sqlite_archive:
+            if not reset_permissions:
+                raise ValueError('This workspace backup requires the local SQLite application')
+            sqlite = True
+            portable = portable.get('state')
+        if not isinstance(portable, dict) or portable.get('schema') not in (1, 2):
+            raise ValueError('Unsupported workspace backup format')
+        portable['consents'] = {}
+        if sqlite or (reset_permissions and portable['schema'] == 2):
+            portable['workspace_id'] = uid()
+        if sqlite:
+            validate_state(portable)
+            portable['schema'] = 2
+            if any(PurePosixPath(name).parts[0] == 'state' for name in data):
+                raise ValueError('Backup contains conflicting Git snapshot files')
+        else:
+            data['state.json'] = encode(portable)
     dest.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(dir=dest.parent) as tmp:
-        stage = Path(tmp) / "workspace"
+        stage = Path(tmp) / 'workspace'
         stage.mkdir()
-        for n, b in data.items():
-            atomic(stage / n, b)
+        for name, body in data.items():
+            atomic(stage / name, body)
+        if sqlite:
+            if not sqlite_archive:
+                from .service import submission_records
+                portable['submission_attempts'] = submission_records(stage)
+            initialize_sqlite(stage, portable)
         os.rename(stage, dest)
+
+
+def validate_state(state):
+    required = ('facts', 'profiles', 'jobs', 'sources', 'runs', 'applications', 'events')
+    if any(not isinstance(state.get(key), list) for key in required) or not isinstance(state.get('identity'), dict):
+        raise ValueError('Workspace backup is missing required records')
+
+
+def initialize_sqlite(root, state):
+    from .sqlite_workspace import SQLiteState, ensure_git_rules, read_snapshot
+
+    validate_state(state)
+    database = SQLiteState(root, create=True)
+    try:
+        database.initialize(state)
+        ensure_git_rules(root)
+        expected = {**state, 'consents': {}}
+        if database.read() != expected or read_snapshot(root) != expected:
+            raise ValueError('The converted records did not pass workspace verification')
+        if database.connection.execute('PRAGMA foreign_key_check').fetchone():
+            raise ValueError('The converted workspace contains invalid database references')
+    finally:
+        database.close()
+
+
+def migrate_sqlite(source, destination):
+    source, destination = Path(source).resolve(), Path(destination).resolve()
+    if destination.is_relative_to(source):
+        raise ValueError('Choose a new folder outside the source workspace')
+    workspace = Workspace(source, create=False, recover=False)
+    try:
+        if workspace.database:
+            raise ValueError('This workspace already uses SQLite')
+        with tempfile.TemporaryDirectory() as temp:
+            backup = workspace.export(Path(temp) / 'before-upgrade.zip')
+            restore(backup, destination, sqlite=True)
+    finally:
+        workspace.close()
+
+
+def restore_snapshot(source, destination):
+    from .sqlite_workspace import read_snapshot
+
+    source, destination = Path(source).resolve(), Path(destination).resolve()
+    if destination.exists() or destination.is_relative_to(source):
+        raise ValueError('Choose a new folder outside the source workspace')
+    state = read_snapshot(source)
+    state['workspace_id'] = uid()
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(dir=destination.parent) as temp:
+        stage = Path(temp) / 'workspace'
+        stage.mkdir()
+        # Reuse the normal backup allowlist without opening a workspace whose
+        # live database is deliberately absent in a Git clone.
+        for path in workspace_files(source, sqlite=True):
+            atomic(stage / path.relative_to(source), path.read_bytes())
+        initialize_sqlite(stage, state)
+        os.rename(stage, destination)

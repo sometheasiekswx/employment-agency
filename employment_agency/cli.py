@@ -2,7 +2,7 @@ from pathlib import Path
 import argparse
 import json
 import sys
-from .store import Workspace, restore, encode
+from .store import Workspace, restore, encode, migrate_sqlite, restore_snapshot
 from .service import Service
 from .workspaces import selected_workspace, remember, settings
 
@@ -46,6 +46,13 @@ def main(argv=None):
     res = sub.add_parser("restore")
     res.add_argument("archive")
     res.add_argument("destination")
+    res.add_argument('--sqlite', action='store_true', help='Restore a legacy archive as a SQLite workspace')
+    sqlite_migration = sub.add_parser('migrate-sqlite', help='Convert a legacy workspace into a new SQLite folder')
+    sqlite_migration.add_argument('source')
+    sqlite_migration.add_argument('destination')
+    snapshot = sub.add_parser('restore-snapshot', help='Restore a verified Git snapshot into a new SQLite folder')
+    snapshot.add_argument('source')
+    snapshot.add_argument('destination')
     migration = sub.add_parser('migrate-legacy', help='Copy legacy data into a career workspace; source code is not deleted')
     migration.add_argument('source')
     migration.add_argument('destination')
@@ -102,8 +109,16 @@ def main(argv=None):
         config = json.loads(Path(a.settings).read_text()) if a.settings else None
         print(json.dumps(migrate(a.source, a.destination, config), indent=2))
         return
-    if a.command == "restore":
-        restore(a.archive, a.destination)
+    if a.command in ('restore', 'migrate-sqlite', 'restore-snapshot'):
+        try:
+            if a.command == 'migrate-sqlite':
+                migrate_sqlite(a.source, a.destination)
+            elif a.command == 'restore-snapshot':
+                restore_snapshot(a.source, a.destination)
+            else:
+                restore(a.archive, a.destination, sqlite=a.sqlite)
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            p.exit(2, f'Workspace recovery failed: {exc}\n')
         return
     if a.command == 'init' and not a.workspace:
         p.error('init requires --workspace before the command')
@@ -111,7 +126,7 @@ def main(argv=None):
         path, create = selected_workspace(a.workspace)
         if a.command == 'init':
             settings(path)
-        w = Workspace(path, create=create or a.command == 'init')
+        w = Workspace(path, create=create or a.command == 'init', sqlite=True)
     except (ValueError, OSError) as exc:
         p.exit(2, f'Workspace not opened: {exc}\n')
     if a.command == 'init':

@@ -5,11 +5,13 @@ from .store import digest
 from .workspaces import inside, settings
 
 
-def versions(root):
+def versions(root, *, role=None, employer=None):
     result = []
     for key, (relative, data) in catalogue(root).items():
         parts = relative.split('/')[1:]
         if len(parts) < 4:
+            continue
+        if (role and parts[2] != role) or (employer and parts[1] != employer):
             continue
         result.append({
             'id': key, 'city': parts[0], 'company': parts[1], 'job': parts[2],

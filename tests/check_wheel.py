@@ -32,7 +32,7 @@ import hashlib
 import json
 import os
 import employment_agency
-from employment_agency.store import Workspace, restore
+from employment_agency.store import Workspace, migrate_sqlite, restore
 from employment_agency.service import Service
 from employment_agency.server import server
 from employment_agency import packages
@@ -107,6 +107,25 @@ try:
 finally:
     workspace.close()
 print('Installed wheel: routes/assets, document generation and submitted export/restore PASS')
+migrate_sqlite(Path('workspace'), Path('sqlite-copy'))
+sqlite = Workspace(Path('sqlite-copy'), create=False)
+try:
+    migrated = sqlite.read()
+    assert sqlite.database.summary()['status'] == 'current'
+    assert migrated['submission_attempts'][0]['status'] == 'confirmed'
+    assert migrated['applications'][0]['id'] == application['id']
+    assert packages.path_for(sqlite.path, application, 'resume.pdf').read_bytes() == original
+    assert Service(sqlite).action('application-queue', {'stage': 'submitted'})['rows'][0]['application_id'] == application['id']
+    restore(sqlite.export(Path('sqlite.zip')), Path('sqlite-restored'))
+finally:
+    sqlite.close()
+restored = Workspace(Path('sqlite-restored'), create=False)
+try:
+    assert restored.read()['applications'] == migrated['applications']
+    assert restored.read()['consents'] == {}
+finally:
+    restored.close()
+print('Installed wheel: SQLite migration, exact document bytes, submitted queue and ZIP restore PASS')
 from employment_agency.demo import create, open_existing
 example = create(Path('demo-workspace'))
 assert example['demo'] and example['applications'] == 12 and example['jobs'] == 14

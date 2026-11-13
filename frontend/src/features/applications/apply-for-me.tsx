@@ -504,6 +504,7 @@ export function ApplyForMe({
                     await operation("apply-resolve", {
                       outcome: text(data, "outcome"),
                       evidence: text(data, "evidence"),
+                      ...(state._workspace.snapshot ? { occurred_at: text(data, "occurred_at") } : {}),
                     });
                   }}
                 >
@@ -528,6 +529,12 @@ export function ApplyForMe({
                     minLength={10}
                     required
                   />
+                  {state._workspace.snapshot && (
+                    <label>
+                      Actual submission date (if submitted)
+                      <input name="occurred_at" type="date" />
+                    </label>
+                  )}
                   <button>Record verified outcome</button>
                 </Form>
               )}

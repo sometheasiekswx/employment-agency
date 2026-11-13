@@ -56,6 +56,7 @@ import { OpportunityInspector } from "./opportunity-inspector";
 import { OpportunityListingLink } from "./opportunity-source-preview";
 import { useInteractionMotion } from "./interaction-motion";
 import { cachedRanking, loadRanking } from "./rankings";
+import { CompanyReview } from "./company-review";
 import "./discover.css";
 
 interface RankingState {
@@ -110,8 +111,8 @@ export function DiscoverPage() {
   const [routeQuery, setOptimisticQuery] = useOptimistic(params.toString());
   const filters = new URLSearchParams(routeQuery);
   const applications = useMemo(
-    () => applicationsByJob(state.applications),
-    [state.applications],
+    () => applicationsByJob(state.applications, state.application_queue),
+    [state.applications, state.application_queue],
   );
   const roleRecords = useMemo(() => {
     const roles = new Map(state.jobs.map((job) => [job.id, job]));
@@ -368,6 +369,7 @@ export function DiscoverPage() {
         ]
       : [];
   });
+  const effectiveQueue = new Map(state.application_queue?.map((entry) => [entry.job_id, entry.stage]));
   const applicationJobs = {
     active: new Map<string, Job>(),
     submitted: new Map<string, Job>(),
@@ -375,8 +377,9 @@ export function DiscoverPage() {
   for (const [id, app] of applications) {
     if (app.archived && !includeHistorical) continue;
     const job = latestJobs.get(id)!;
-    const stage = applicationSection(app, job);
-    if (stage !== "removed") applicationJobs[stage].set(id, job);
+    const stage = currentRemoval(job) ? "removed" :
+      effectiveQueue.get(id) || applicationSection(app, job);
+    if (stage === "active" || stage === "submitted") applicationJobs[stage].set(id, job);
   }
   // A listing can record an earlier submission independently of any saved version.
   for (const [id, job] of latestJobs) {
@@ -406,11 +409,25 @@ export function DiscoverPage() {
     ? removedRows
     : applicationView
       ? applicationRows
-      : rows.filter(
-          ({ job }) =>
-            !currentRemoval(job) &&
-            !hasRecordedSubmission(applications.get(job.id), job),
-        );
+      : [
+          ...rows.filter(
+            ({ job }) =>
+              (!job.company?.cooling || view === "saved") &&
+              !currentRemoval(job) &&
+              !hasRecordedSubmission(applications.get(job.id), job),
+          ),
+          ...(view === "saved"
+            ? [...latestJobs.values()]
+                .filter((job) =>
+                  job.saved && job.company?.cooling && !currentRemoval(job) &&
+                  !hasRecordedSubmission(applications.get(job.id), job) &&
+                  !rows.some((row) => row.job.id === job.id),
+                )
+                .map(unassessedRole)
+            : []),
+        ];
+  const pausedResults = !rows.length && view !== "saved" &&
+    state.jobs.some((job) => job.company?.cooling);
   const scopedRows = filterOpportunities(
     sourceRows,
     { query: "", location: "", view, removed: removedView },
@@ -1319,7 +1336,9 @@ export function DiscoverPage() {
                 ? "No removed roles here"
                 : applicationView
                   ? `No ${section} applications`
-                  : !rows.length
+                  : pausedResults
+                    ? "Companies are paused"
+                    : !rows.length
                     ? "Add your first opportunity"
                     : view === "saved"
                       ? "No saved roles here yet"
@@ -1332,7 +1351,9 @@ export function DiscoverPage() {
                 ? "Removed roles and their application documents and activity stay recoverable here."
                 : applicationView
                   ? "Prepare a draft from a role to start an application. Your recorded submissions and decisions stay available in the other stage views."
-                  : !rows.length
+                  : pausedResults
+                    ? "Saved roles and application history are still available during the cooldown."
+                    : !rows.length
                     ? "Import a job URL, paste an advert or refresh a configured source in Search preferences."
                     : "Adjust your filters or choose All results to inspect the full assessment."}
           </p>
@@ -1355,6 +1376,10 @@ export function DiscoverPage() {
               onClick={() => updateFilters({ view: "recommended" })}
             >
               Find an opportunity
+            </button>
+          ) : pausedResults ? (
+            <button type="button" onClick={() => updateFilters({ view: "saved" })}>
+              View saved roles
             </button>
           ) : !rows.length ? (
             <Link
@@ -1598,6 +1623,11 @@ export function DiscoverPage() {
               rankingCurrent={!loading && !error}
               assessmentAvailable={assessmentAvailable}
               hasListingRecord={hasListingRecord}
+              companyReview={
+                hasListingRecord && state._workspace.snapshot && !client.preview && !client.hosted
+                  ? <CompanyReview key={selected.job.id} job={selected.job} />
+                  : undefined
+              }
               onAddEvidence={
                 hasListingRecord && !client.preview
                   ? async (requirement, details) => {

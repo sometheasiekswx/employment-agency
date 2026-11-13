@@ -164,6 +164,7 @@ def discover(kind, board):
                 j.get("content", ""),
                 j["absolute_url"],
                 "greenhouse:" + board,
+                source_requisition=f"greenhouse:{board}:{j['id']}" if j.get("id") is not None else "",
             )
             for j in json.loads(body)["jobs"][:1000]
         ]
@@ -179,6 +180,7 @@ def discover(kind, board):
                 + "\n".join(plain(x.get("content", "")) for x in j.get("lists", [])),
                 j["hostedUrl"],
                 "lever:" + board,
+                source_requisition=f"lever:{board}:{j['id']}" if j.get("id") else "",
                 work_arrangement=j.get("workplaceType", "unknown"),
             )
             for j in json.loads(body)[:1000]

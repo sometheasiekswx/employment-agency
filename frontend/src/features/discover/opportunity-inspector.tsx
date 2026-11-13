@@ -144,6 +144,7 @@ function playMotion(
 }
 
 interface InspectorProps {
+  companyReview?: ReactNode;
   row: RankedJob;
   application?: Application;
   facts: Fact[];
@@ -232,6 +233,7 @@ export function OpportunityInspector({
   assessmentAvailable = true,
   hasListingRecord = true,
   onAddEvidence,
+  companyReview,
   saving,
   saveError,
   preview = false,
@@ -769,6 +771,7 @@ export function OpportunityInspector({
           </p>
         )}
         {hasListingRecord && <CopyJobReference key={job.id} job={job} />}
+        {companyReview}
         {!advert && (
           <p className="discover-source-label">Source link unavailable</p>
         )}

@@ -57,6 +57,10 @@ class Delivery:
                 self.update(record, status='needs_user', note='Browser session closed. Resume to rebuild and review the form.')
 
     def records(self):
+        if self.w.database:
+            with self.w.lock:
+                records = self.w.database.collection('submission_attempts')
+            return sorted((row for row in records if row['channel'] != 'manual'), key=lambda row: row['created_at'])
         folder = inside(self.w.path, 'records/submissions')
         result = []
         if folder.exists():
@@ -67,6 +71,11 @@ class Delivery:
         return sorted(result, key=lambda r: r['created_at'])
 
     def get(self, id):
+        if self.w.database:
+            record = next((row for row in self.records() if row['id'] == id), None)
+            if record is None:
+                raise ValueError('Unknown attempt')
+            return record
         if not isinstance(id, str) or not re.fullmatch('[a-f0-9]{32}', id):
             raise ValueError('Invalid attempt identifier')
         try:
@@ -74,11 +83,48 @@ class Delivery:
         except FileNotFoundError as exc:
             raise ValueError('Application attempt not found') from exc
 
-    def update(self, record, **changes):
-        record.update(changes)
-        record['updated_at'] = now()
-        atomic(inside(self.w.path, 'records/submissions/' + record['id'] + '.json'), encode(record))
-        return record
+    def update(self, record, *, state=None, **changes):
+        record.update(changes, updated_at=now())
+        if self.w.database:
+            if state is None:
+                with self.w.edit() as state:
+                    self.save_attempt(state, record)
+            else:
+                self.save_attempt(state, record)
+        else:
+            atomic(inside(self.w.path, 'records/submissions/' + record['id'] + '.json'), encode(record))
+
+    @staticmethod
+    def save_attempt(state, record):
+        attempts = state.setdefault('submission_attempts', [])
+        existing = next((row for row in attempts if row['id'] == record['id']), None)
+        if existing is None:
+            attempts.append(record)
+        else:
+            existing.update(record)
+
+    def check_company(self, record, *, state=None):
+        if self.w.database:
+            from .companies import check_slot
+            return check_slot(state if state is not None else self.w.read(),
+                              record['binding']['job_id'], attempt_id=record.get('id'))
+
+    def begin_dispatch(self, record):
+        if not self.w.database:
+            return
+        try:
+            with self.w.edit() as state:
+                stored = next((row for row in state.get('submission_attempts', [])
+                               if row['id'] == record['id']), None)
+                if not stored or stored['status'] != 'executing' or stored.get('dispatched_at'):
+                    raise ValueError('This attempt is already dispatched or no longer approved')
+                link = self.check_company(stored, state=state)
+                if any(link[key] != stored.get(key) for key in ('employer_id', 'vacancy_id')):
+                    raise ValueError('The employer or vacancy changed. Review the application again.')
+                self.check_binding(stored)
+                self.update(record, state=state, dispatched_at=now())
+        except ValueError as exc:
+            raise NeedsUser(str(exc)) from exc
 
     @property
     def busy(self):
@@ -96,18 +142,7 @@ class Delivery:
         job = next(j for j in state['jobs'] if j['id'] == app['job_id'])
         if job.get('prior_application') == 'submitted' or job['id'] in submitted_job_ids(state):
             raise ValueError('This job is already recorded as submitted')
-        if packages.changed(self.w.path, app):
-            raise ValueError('Documents changed. Validate a new draft before applying')
-        version = json.loads(inside(self.w.path, app['folder'] + '/version.json').read_text(encoding='utf-8'))
-        if version['job']['id'] != job['id'] or any(version['job'].get(k) != job.get(k) for k in ('title', 'employer', 'location', 'description', 'requirements', 'url')):
-            raise ValueError('The résumé belongs to a different listing')
-        evidence_path = packages.path_for(self.w.path, app, 'evidence.json')
-        evidence = json.loads(evidence_path.read_text(encoding='utf-8'))
-        current = {f['id']: f for f in state['facts']}
-        for fact in evidence.get('facts', []):
-            live = current.get(fact['id'], {})
-            if not live.get('confirmed') or live.get('retired') or live.get('conflict') or any(live.get(k) != fact.get(k) for k in ('text', 'association', 'dates')):
-                raise ValueError('Career evidence changed; prepare and review a new tailored version')
+        packages.check_submission_version(self.w.path, app, job, state['facts'])
         path = packages.path_for(self.w.path, app, 'resume.pdf')
         return app, job, state['identity'], path
 
@@ -177,22 +212,40 @@ class Delivery:
                 evidence = bounded(args.get('evidence', ''), 2000)
                 if len(evidence) < 10:
                     raise ValueError('Describe the Sent-folder or site evidence you checked')
-                self.update(record, status='confirmed' if args['outcome'] == 'confirmed' else 'not_sent',
-                            receipt={'provider': 'user-reconciliation', 'evidence': evidence}, note='Outcome resolved by user; no automatic resend')
+                receipt = {'provider': 'user-reconciliation', 'evidence': evidence}
                 if args['outcome'] == 'confirmed':
-                    self.record_submission(record)
+                    occurred = args.get('occurred_at')
+                    if self.w.database:
+                        from .companies import valid_occurrence
+                        occurred = valid_occurrence(occurred, self.service.workspace_zone())
+                    self.record_submission(record, receipt, occurred_at=occurred)
+                else:
+                    self.update(record, status='not_sent', receipt=receipt,
+                                note='Outcome resolved by user; no automatic resend')
                 self.enqueue('close', record['id'])
             elif operation == 'apply-resume':
                 if record['channel'] != 'linkedin' or record['status'] != 'needs_user':
                     raise ValueError('This attempt is not waiting for browser assistance')
                 self.check_binding(record)
+                self.check_company(record)
                 self.update(record, status='preparing', note='Inspecting the visible browser; no submission yet')
                 self.enqueue('prepare', record['id'])
             elif operation == 'apply-approve':
+                if (self.w.database and record['status'] in ('executing', 'unknown', 'confirmed')
+                        and args.get('approved') is True and args.get('fingerprint') == record.get('fingerprint')):
+                    return record
                 if record['status'] != 'awaiting_approval' or args.get('approved') is not True or args.get('fingerprint') != record.get('fingerprint'):
                     raise ValueError('Review the current complete application before approving')
-                self.check_binding(record)
-                self.update(record, status='executing', approved_at=now(), note='Approved action executing; do not retry')
+                if self.w.database:
+                    with self.w.edit() as state:
+                        self.check_binding(record)
+                        link = self.check_company(record, state=state)
+                        self.update(record, state=state, status='executing', approved_at=now(),
+                                    employer_id=link['employer_id'], vacancy_id=link['vacancy_id'],
+                                    note='Approved action executing; do not retry')
+                else:
+                    self.check_binding(record)
+                    self.update(record, status='executing', approved_at=now(), note='Approved action executing; do not retry')
                 self.enqueue('submit', record['id'])
             else:
                 raise ValueError('Unknown application operation')
@@ -202,6 +255,7 @@ class Delivery:
         if args.get('disclosure_confirmed') is not True:
             raise ValueError('Confirm disclosure of these documents/contact details to the selected destination')
         app, job, identity, resume = self.document(args['application_id'])
+        self.check_company({'binding': {'job_id': job['id']}})
         for r in self.records():
             if r['binding']['job_id'] == job['id'] and r['status'] in ACTIVE | {'confirmed'}:
                 raise ValueError('An active, uncertain or confirmed attempt already exists for this job')
@@ -284,6 +338,7 @@ class Delivery:
                     continue
                 try:
                     resume = self.staged(record)
+                    self.check_company(record)
                 except ValueError as exc:
                     raise NeedsUser(str(exc)) from exc
                 if command == 'prepare':
@@ -329,13 +384,15 @@ class Delivery:
                             if digest(data) != cover['sha256']:
                                 raise NeedsUser('The cover letter changed; prepare and review a new attempt')
                             message.add_attachment(data, maintype='application', subtype='pdf', filename=Path(cover['path']).name)
-                        receipt = self.mail.send(message.as_bytes())
+                        raw = message.as_bytes()
+                        self.begin_dispatch(record)
+                        receipt = self.mail.send(raw)
                     else:
                         if not self.browser or self.browser_attempt != id:
                             raise NeedsUser('Browser closed. Resume and review before submitting')
-                        receipt = self.browser.submit(record['payload']['site_review'], resume)
-                    self.update(record, status='confirmed', receipt=receipt, note='Submission confirmation recorded')
-                    self.record_submission(record)
+                        receipt = self.browser.submit(record['payload']['site_review'], resume,
+                                                      before_submit=lambda: self.begin_dispatch(record))
+                    self.record_submission(record, receipt, occurred_at=now())
                     if self.browser and self.browser_attempt == id:
                         self.browser.close(); self.browser = None
                         self.browser_attempt = None
@@ -355,13 +412,25 @@ class Delivery:
                 if command == 'stop' and self.browser:
                     self.browser.close(); self.browser = None
 
-    def record_submission(self, record):
-        try:
-            self.service.action('review', {'id': record['application_id'], 'status': 'submitted',
-                                'comment': 'Apply For Me: confirmed attempt ' + record['id'] + ' (see private receipt)'})
-        except Exception:
-            # Remote delivery remains confirmed even when local review recording fails.
-            self.update(record, note='External confirmation saved; document review status needs attention')
+    def record_submission(self, record, receipt, *, occurred_at=None):
+        args = {'id': record['application_id'], 'status': 'submitted',
+                'occurred_at': occurred_at,
+                'comment': 'Apply For Me: confirmed attempt ' + record['id'] + ' (see private receipt)'}
+        changes = {'status': 'confirmed', 'receipt': receipt, 'occurred_at': occurred_at,
+                   'note': 'Submission confirmation recorded'}
+        if self.w.database:
+            with self.w.edit() as state:
+                try:
+                    self.service.review(state, args)
+                except (ValueError, KeyError, OSError):
+                    changes['note'] = 'External confirmation saved; document review status needs attention'
+                self.update(record, state=state, **changes)
+        else:
+            self.update(record, **changes)
+            try:
+                self.service.action('review', args)
+            except Exception:
+                self.update(record, note='External confirmation saved; document review status needs attention')
 
     def close(self):
         if self.thread and self.thread.is_alive():

@@ -45,9 +45,11 @@ class Browser:
         return {'filename': resume.name, 'answers': 'verified', 'upload_sha256': digest(self.received),
                 'cover_letter_sha256': digest(cover.read_bytes()) if cover else ''}
 
-    def submit(self, expected, resume):
+    def submit(self, expected, resume, *, before_submit=None):
         if self.changed:
             raise NeedsUser('Form changed since approval')
+        if before_submit:
+            before_submit()
         self.clicked += 1
         assert resume.read_bytes() == self.received
         return {'provider': 'linkedin', 'confirmation': 'Application sent'}

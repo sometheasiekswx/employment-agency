@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Cloud, FolderOpen } from "lucide-react";
 import { useWorkspace } from "@/components/workspace-provider";
 import { useDraft } from "@/components/unsaved";
-import { Check, Field, Form, checked, text } from "@/components/controls";
+import { Action, Check, Field, Form, checked, text } from "@/components/controls";
 import { errorMessage, splitList } from "@/lib/format";
 
 function WorkspaceLocation() {
@@ -109,6 +109,19 @@ export function WorkspaceSettings() {
         <FolderOpen size={18} aria-hidden="true" />
       </div>
       <WorkspaceLocation />
+      {workspace.snapshot && (
+        <div className="workspace-location">
+          <p role="status">
+            <strong>Private Git snapshot</strong><br />
+            {workspace.snapshot.status === "current"
+              ? `Current · revision ${workspace.snapshot.published_revision}`
+              : workspace.snapshot.status === "conflict"
+                ? "Saved locally · Git snapshot conflicts with files on disk"
+                : "Saved locally · Git snapshot pending"}
+          </p>
+          <Action run={async () => { await run("snapshot-status", {}); }}>Check snapshot</Action>
+        </div>
+      )}
       <Form
         className="settings-workspace-form"
         onSave={async (data) => {

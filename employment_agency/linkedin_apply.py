@@ -145,7 +145,7 @@ class LinkedIn:
                 'cover_letter_sha256': self.uploaded.get('cover', ('', ''))[1],
                 'page': self.page.url, 'review_text': dialog.inner_text()[:16000], 'fields': fields, 'filename': filename}
 
-    def submit(self, expected, resume):
+    def submit(self, expected, resume, *, before_submit=None):
         try:
             current = self.snapshot(resume.name)
         except NeedsUser:
@@ -155,6 +155,8 @@ class LinkedIn:
         if current != expected:
             raise NeedsUser('The website form changed after review. Resume and approve its new contents')
         dialog = self.dialog()
+        if before_submit:
+            before_submit()
         dialog.get_by_role('button', name=re.compile(r'^Submit application$', re.I)).click(timeout=10000)
         confirmation = self.page.get_by_text(re.compile(r'(application (was )?sent|successfully submitted)', re.I))
         confirmation.first.wait_for(timeout=15000)

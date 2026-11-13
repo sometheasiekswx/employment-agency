@@ -56,6 +56,7 @@ export interface JobRemovalResult {
   removals: JobRemoval[];
 }
 export interface Job {
+  company?: { id: string; remaining: number; cooling: boolean; cooldown_until?: string };
   id: string;
   saved?: boolean;
   removals?: JobRemoval[];
@@ -138,6 +139,7 @@ export interface Application {
   comments: ReviewComment[];
 }
 export interface WorkspaceSettings {
+  snapshot?: { status: "current" | "pending" | "conflict"; revision: number; published_revision: number };
   demo?: boolean;
   path: string;
   label: string;
@@ -183,7 +185,14 @@ export interface RankedJob {
   job: Job;
   match: Match;
 }
+export interface ApplicationQueueEntry {
+  job_id: string;
+  application_id: string | null;
+  stage: "active" | "submitted" | "removed" | "saved";
+  archived: boolean;
+}
 export interface WorkspaceState {
+  application_queue?: ApplicationQueueEntry[];
   identity: Identity;
   facts: Fact[];
   profiles: Profile[];

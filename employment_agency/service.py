@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlsplit
 from .store import now, uid, digest, atomic, encode
-from . import imports, sources, matching, documents, providers, packages, master, summaries, editor
+from . import companies, imports, sources, matching, documents, providers, packages, master, summaries, editor, run_progress
 from .workspaces import settings, configure, inside
 
 
@@ -45,8 +45,11 @@ def fail(message):
 
 def submitted_job_ids(state):
     """Preserved submitted versions outrank editable/imported job metadata."""
-    return {app['job_id'] for app in state['applications']
-            if app['status'] == 'submitted' and not corrected_submission(app, state)}
+    versions = {app['job_id'] for app in state['applications']
+                if app['status'] == 'submitted' and not corrected_submission(app, state)}
+    receipts = {record['binding']['job_id'] for record in state.get('submission_attempts', [])
+                if record['status'] == 'confirmed'}
+    return versions | receipts
 
 
 def corrected_submission(app, state):
@@ -164,7 +167,7 @@ def submission_records(root):
 
 def check_submission_correction(records, job_id):
     if any(record['binding']['job_id'] == job_id and record['status'] in
-           {'preparing', 'needs_user', 'awaiting_approval', 'executing', 'unknown', 'confirmed'}
+           {'preparing', 'needs_user', 'awaiting_approval', 'executing', 'unknown', 'confirmed', 'handed_off'}
            for record in records):
         raise ValueError('An active, uncertain or confirmed delivery cannot be corrected as an unsent manual record')
 
@@ -197,7 +200,10 @@ class Service:
         self.delivery = None
 
     def state(self):
-        state = self.w.read()
+        with self.w.lock:
+            state = self.w.read()
+            snapshot = self.w.database.summary() if self.w.database else None
+            queue = self.w.database.queue_page(historical=True)['rows'] if self.w.database else None
         state.pop('workspace_id', None)
         submitted = submitted_job_ids(state)
         rejected = legacy_rejections(state)
@@ -206,7 +212,7 @@ class Service:
         receipt_error, receipts = '', []
         if submitted:
             try:
-                receipts = submission_records(self.w.path)
+                receipts = self.delivery_records(state)
             except ValueError as exc:
                 receipt_error = str(exc)
         for job in state['jobs']:
@@ -224,6 +230,14 @@ class Service:
         if unlisted:
             state['unlisted_removals'] = unlisted
         state['_workspace'] = {'path': str(self.w.path), **settings(self.w.path)}
+        if snapshot:
+            state['_workspace']['snapshot'] = snapshot
+            state['application_queue'] = queue
+            state.pop('submission_attempts', None)
+            for job in state['jobs']:
+                status = companies.discovery_status(state, job)
+                if status.get('id'):
+                    job['company'] = {key: status[key] for key in ('id', 'remaining', 'cooling', 'cooldown_until')}
         state['_master'] = master.status(self.w)
         for app in state['applications']:
             job = next((j for j in state['jobs'] if j['id'] == app['job_id']), {})
@@ -252,13 +266,37 @@ class Service:
         if action.startswith('apply-'):
             if self.worker and self.worker.is_alive():
                 raise ValueError('Wait for the preparation run before applying')
-            if self.delivery is None:
-                from .application_delivery import Delivery
-                self.delivery = Delivery(self)
+            with self.worker_lock:
+                if self.delivery is None:
+                    from .application_delivery import Delivery
+                    self.delivery = Delivery(self)
             return self.delivery.action(action, a)
+        if action.startswith('company-') or action == 'snapshot-status':
+            if not self.w.database:
+                raise ValueError('This operation requires a local SQLite workspace')
+            return self.company_action(action, a)
+        if action == 'application-queue':
+            if not self.w.database:
+                raise ValueError('Paginated application queues require a SQLite workspace')
+            stage = a.get('stage')
+            limit, offset = a.get('limit', 50), a.get('offset', 0)
+            if stage not in (None, 'active', 'submitted', 'saved', 'removed'):
+                raise ValueError('Choose an application queue')
+            if type(limit) is not int or type(offset) is not int or not 1 <= limit <= 200 or offset < 0:
+                raise ValueError('Invalid application queue page')
+            with self.w.lock:
+                return self.w.database.queue_page(stage=stage, historical=a.get('history') is True,
+                                                  limit=limit, offset=offset)
         if action == 'history':
             from .history import versions
-            return versions(self.w.path)
+            result = versions(self.w.path, role=a.get('role'), employer=a.get('employer'))
+            if 'limit' in a or 'offset' in a:
+                limit, offset = a.get('limit', 50), a.get('offset', 0)
+                if type(limit) is not int or type(offset) is not int or not 1 <= limit <= 200 or offset < 0:
+                    raise ValueError('Invalid application history page')
+                return {'rows': result[offset:offset + limit],
+                        'next_offset': offset + limit if offset + limit < len(result) else None}
+            return result
         if action == 'document-editor':
             return editor.load(self.w, a)
         if action in ('preview-document', 'save-document'):
@@ -470,7 +508,13 @@ class Service:
                 job["saved"] = a["saved"]
             return {"id": job["id"], "saved": job["saved"]}
         if action == "url":
-            return self.add_job(sources.url_job(text(a["url"], 2000)), match_url=True)
+            url = text(a['url'], 2000)
+            if self.w.database:
+                state = self.w.read()
+                if any(job.get('url') == url and companies.discovery_status(state, job)['cooling']
+                       for job in state['jobs']):
+                    raise ValueError('Company is paused. The existing listing is still available in the workspace.')
+            return self.add_job(sources.url_job(url), match_url=True)
         if action == "source":
             kind = a["kind"]
             board = text(a["board"], 100)
@@ -498,7 +542,7 @@ class Service:
                 if job['id'] in submitted:
                     job['prior_application'] = 'submitted'
             return matching.ranked(
-                s["jobs"], find(s["profiles"], a["profile_id"]), s["facts"]
+                self.discoverable_jobs(s), find(s["profiles"], a["profile_id"]), s["facts"]
             )
         if action == "consent":
             provider = a["provider"]
@@ -581,7 +625,7 @@ class Service:
                     return find(s['applications'], app['submission_correction']['recovery_application_id'])
                 if not app.get('folder') or packages.changed(self.w.path, app):
                     raise ValueError('Files changed; validate the preserved version before correcting its record')
-                check_submission_correction(submission_records(self.w.path), app['job_id'])
+                check_submission_correction(self.delivery_records(s), app['job_id'])
                 stamp, recovery_id = now(), uid()
                 recovered = {**app, 'id': recovery_id, 'created_at': stamp, 'status': 'draft',
                              'comments': [], 'derived_from': app['id'],
@@ -605,55 +649,125 @@ class Service:
                         job.pop('submission_record_token', None)
             return recovered
         if action == "review":
-            with self.w.edit() as s:
-                app = find(s["applications"], a["id"])
-                if 'status' not in a:
-                    comment = text(a.get('comment', ''), 4000)
-                    if not comment.strip():
-                        raise ValueError('Enter a comment to save')
-                    app['comments'].append({'at': now(), 'text': comment, 'status': app['status'], 'kind': 'comment'})
-                    return app
-                status = a.get("status", app["status"])
-                if status not in ("draft", "reviewed", "rejected", "submitted"):
-                    raise ValueError("Unknown review status")
-                if app.get('submission_correction'):
-                    raise ValueError('This manual submission was corrected; review the recovered draft instead')
-                if app["status"] == "submitted" and status != "submitted":
-                    raise ValueError("Submitted snapshot is immutable")
-                intact = not packages.changed(self.w.path, app) if app.get('folder') else documents.intact(self.w.path / 'packages' / app['id'])
-                if status in ('reviewed', 'submitted') and not intact:
-                    raise ValueError("Files changed; cannot approve")
-                stamp = now()
-                if status in ('reviewed', 'submitted') and not app.get('reviewed_at'):
-                    app['reviewed_at'] = next((c['at'] for c in app.get('comments', []) if c.get('kind') != 'comment' and c.get('status') in ('reviewed', 'submitted')), stamp)
-                if status == 'submitted' and not app.get('submitted_at'):
-                    app['submitted_at'] = next((c['at'] for c in app.get('comments', []) if c.get('kind') != 'comment' and c.get('status') == 'submitted'), stamp)
-                if status == 'submitted':
-                    job = find(s['jobs'], app['job_id'])
-                    if app['status'] != 'submitted':
-                        prior = 'submitted' if job['id'] in submitted_job_ids(s) else job.get('prior_application', 'none')
-                        prior_token = job.get('submission_record_token')
-                        app['submission_record'] = {'at': stamp, 'previous_status': app['status'],
-                                                    'prior_application': prior,
-                                                    'token': uid()}
-                        if prior == 'submitted' and submission_token_owner(s, job['id'], prior_token):
-                            app['submission_record']['prior_token'] = prior_token
-                        job['submission_record_token'] = app['submission_record']['token']
-                    job['prior_application'] = 'submitted'
-                app["status"] = status
-                app["comments"].append(
-                    {
-                        "at": now(),
-                        "text": text(a.get("comment", ""), 4000),
-                        "status": status,
-                    }
-                )
-            return app
+            with self.w.edit() as state:
+                return self.review(state, a)
         if action == "export":
             dest = self.w.path / ".runtime/exports" / (uid() + ".zip")
             self.w.export(dest)
             return {"file": dest.name}
         raise ValueError("Unknown operation")
+
+    def review(self, s, a):
+        app = find(s["applications"], a["id"])
+        if 'status' not in a:
+            comment = text(a.get('comment', ''), 4000)
+            if not comment.strip():
+                raise ValueError('Enter a comment to save')
+            app['comments'].append({'at': now(), 'text': comment, 'status': app['status'], 'kind': 'comment'})
+            return app
+        status = a.get("status", app["status"])
+        if status not in ("draft", "reviewed", "rejected", "submitted"):
+            raise ValueError("Unknown review status")
+        if app.get('submission_correction'):
+            raise ValueError('This manual submission was corrected; review the recovered draft instead')
+        if app["status"] == "submitted" and status != "submitted":
+            raise ValueError("Submitted snapshot is immutable")
+        intact = not packages.changed(self.w.path, app) if app.get('folder') else documents.intact(self.w.path / 'packages' / app['id'])
+        if status in ('reviewed', 'submitted') and not intact:
+            raise ValueError("Files changed; cannot approve")
+        stamp = now()
+        if status in ('reviewed', 'submitted') and not app.get('reviewed_at'):
+            app['reviewed_at'] = next((c['at'] for c in app.get('comments', []) if c.get('kind') != 'comment' and c.get('status') in ('reviewed', 'submitted')), stamp)
+        if status == 'submitted' and not app.get('submitted_at'):
+            app['submitted_at'] = next((c['at'] for c in app.get('comments', []) if c.get('kind') != 'comment' and c.get('status') == 'submitted'), stamp)
+        if status == 'submitted':
+            if a.get('occurred_at') and app['status'] != 'submitted':
+                app['occurred_at'] = companies.valid_occurrence(a['occurred_at'], self.workspace_zone())
+            job = find(s['jobs'], app['job_id'])
+            if app['status'] != 'submitted':
+                prior = 'submitted' if job['id'] in submitted_job_ids(s) else job.get('prior_application', 'none')
+                prior_token = job.get('submission_record_token')
+                app['submission_record'] = {'at': stamp, 'previous_status': app['status'],
+                                            'prior_application': prior,
+                                            'token': uid()}
+                if prior == 'submitted' and submission_token_owner(s, job['id'], prior_token):
+                    app['submission_record']['prior_token'] = prior_token
+                job['submission_record_token'] = app['submission_record']['token']
+            job['prior_application'] = 'submitted'
+        app["status"] = status
+        app["comments"].append(
+            {
+                "at": now(),
+                "text": text(a.get("comment", ""), 4000),
+                "status": status,
+            }
+        )
+        return app
+
+    def workspace_zone(self):
+        from .workspaces import time_zone
+        return time_zone(settings(self.w.path)['timezone'])
+
+    def delivery_records(self, state):
+        return state.get('submission_attempts', []) if self.w.database else submission_records(self.w.path)
+
+    @staticmethod
+    def discoverable_jobs(state):
+        return [job for job in state['jobs'] if not companies.discovery_status(state, job)['cooling']]
+
+    def company_action(self, action, args):
+        if action == 'snapshot-status':
+            with self.w.lock:
+                self.w.database.publish(verify=True)
+                return self.w.database.summary()
+        if action == 'company-roles':
+            result = companies.company_roles(self.w.read(), args['job_id'], args.get('profile_id'))
+            if args.get('refresh') is True and not result['status']['cooling']:
+                for source in result['sources']:
+                    self.refresh(source['id'])
+                result = companies.company_roles(self.w.read(), args['job_id'], args.get('profile_id'))
+            return result
+        if action == 'company-selection':
+            result = companies.company_roles(self.w.read(), args['job_id'], args.get('profile_id'))
+            requested = args.get('job_ids')
+            if (not isinstance(requested, list) or any(not isinstance(value, str) for value in requested)
+                    or not 1 <= len(requested) <= result['status']['remaining']
+                    or len(set(requested)) != len(requested)):
+                raise ValueError('Choose one or two roles within the available application slots')
+            eligible = {row['job']['id'] for row in result['roles']}
+            if not set(requested) <= eligible:
+                raise ValueError('Choose an available role from this company shortlist')
+            return {'job_ids': requested}
+        if action.startswith('company-submission-'):
+            from .company_handoff import handoff
+            return handoff(self, action, args)
+        zone = self.workspace_zone()
+        with self.w.edit() as state:
+            if action == 'company-map':
+                return companies.map_job(state, args, zone)
+            if action == 'company-history-link':
+                record = next((row for row in state.get('historical_decisions', [])
+                               if companies.history_id(row) == args.get('history_id')), None)
+                link = companies.employer_link(state, args['job_id'])
+                if not record or not link or args.get('confirmed') is not True:
+                    raise ValueError('Confirm the existing historical submission and its listing')
+                links = state.setdefault('company_history_links', [])
+                existing = companies.by_id(links, args['history_id'])
+                if existing:
+                    raise ValueError('This historical submission is already linked')
+                entry = {'id': args['history_id'], 'job_id': args['job_id'],
+                         'occurred_at': companies.valid_occurrence(args.get('occurred_at'), zone)}
+                links.append(entry)
+                return entry
+            if action == 'company-pause':
+                link = companies.employer_link(state, args['job_id'])
+                status = companies.job_status(state, args['job_id'])
+                if not link or status['review_needed'] or status['remaining'] != 1 or len(status.get('used', [])) != 1:
+                    raise ValueError('A company can be paused after one confirmed submission')
+                pause = {'id': uid(), 'employer_id': link['employer_id'], 'at': companies.clock().isoformat()}
+                state.setdefault('company_pauses', []).append(pause)
+                return pause
+        raise ValueError('Unknown company operation')
 
     @staticmethod
     def unlink_requirement_fact(state, fact_id):
@@ -787,7 +901,10 @@ class Service:
                 event.update({'reason': comment, 'reason_updated_at': now()})
         return {'id': job_id, 'removals': removals}
 
-    def add_job(self, a, *, match_url=False):
+    def add_job(self, a, *, match_url=False, state=None, source_requisition=None):
+        if state is None:
+            with self.w.edit() as state:
+                return self.add_job(a, match_url=match_url, state=state)
         j = {
             k: text(a.get(k, ""), 40000 if k == "description" else 1000)
             for k in (
@@ -856,48 +973,84 @@ class Service:
         )
         if a.get("id") and not re.fullmatch(r"[a-f0-9]{24,32}", a["id"]):
             raise ValueError("Invalid job ID")
-        with self.w.edit() as s:
-            existing = next((x for x in s["jobs"] if x["id"] == j["id"]), None)
-            if j['url'] and (match_url or not a.get('id')):
-                # Imports retain a unique existing listing's identity, including
-                # migrated IDs. Explicit manual IDs still select one record.
-                candidates = [x for x in s['jobs'] if x.get('url') == j['url']]
-                if len(candidates) > 1:
-                    raise ValueError('Multiple jobs share this URL; choose an explicit job ID')
-                if candidates:
-                    existing = candidates[0]
-                    j['id'] = existing['id']
-                elif existing:
-                    raise ValueError('Job ID conflicts with another URL; choose an explicit job ID')
-            # A bookmark is the user's decision, not part of an imported advert.
-            j["saved"] = existing.get("saved", False) is True if existing else False
-            if existing:
-                if 'removals' in existing:
-                    j['removals'] = existing['removals']
-                if 'requirement_evidence' in existing:
-                    j['requirement_evidence'] = existing['requirement_evidence']
-                if 'careers_url' in existing:
-                    j.setdefault('careers_url', existing['careers_url'])
-                for key in ('prior_application', 'source', 'checked_at'):
-                    if key not in a:
-                        j[key] = existing.get(key, j[key])
-                if 'prior_application' not in a and existing.get('submission_record_token'):
-                    j['submission_record_token'] = existing['submission_record_token']
-                s["jobs"].remove(existing)
-            unlisted = s.get('unlisted_removals')
-            if unlisted and j['id'] in unlisted:
-                j.setdefault('removals', unlisted.pop(j['id']))
-            if j['id'] in submitted_job_ids(s):
-                j['prior_application'] = 'submitted'
-            s["jobs"].append(j)
+        existing = next((x for x in state["jobs"] if x["id"] == j["id"]), None)
+        if source_requisition:
+            verified = next((item for item in state['jobs']
+                             if item.get('source_requisition') == source_requisition
+                             and item.get('source') == j['source']), None)
+            if verified:
+                conflict = next((item for item in state['jobs']
+                                 if item['id'] != verified['id'] and item.get('url') == j['url']), None)
+                if conflict:
+                    raise ValueError('The verified posting URL is already assigned to another listing')
+                existing = verified
+                j['id'] = existing['id']
+        if j['url'] and (match_url or not a.get('id')) and not (
+            source_requisition and existing and existing.get('source_requisition') == source_requisition
+        ):
+            # Imports retain a unique existing listing's identity, including
+            # migrated IDs. Explicit manual IDs still select one record.
+            candidates = [x for x in state['jobs'] if x.get('url') == j['url']]
+            if len(candidates) > 1:
+                raise ValueError('Multiple jobs share this URL; choose an explicit job ID')
+            if candidates:
+                existing = candidates[0]
+                j['id'] = existing['id']
+            elif existing:
+                raise ValueError('Job ID conflicts with another URL; choose an explicit job ID')
+        # A bookmark is the user's decision, not part of an imported advert.
+        j["saved"] = existing.get("saved", False) is True if existing else False
+        if existing:
+            if 'removals' in existing:
+                j['removals'] = existing['removals']
+            if 'requirement_evidence' in existing:
+                j['requirement_evidence'] = existing['requirement_evidence']
+            if 'careers_url' in existing:
+                j.setdefault('careers_url', existing['careers_url'])
+            for key in ('prior_application', 'source', 'checked_at'):
+                if key not in a:
+                    j[key] = existing.get(key, j[key])
+            if 'prior_application' not in a and existing.get('submission_record_token'):
+                j['submission_record_token'] = existing['submission_record_token']
+            if existing.get('source_requisition'):
+                j['source_requisition'] = existing['source_requisition']
+            if existing.get('prior_submitted_on'):
+                j['prior_submitted_on'] = existing['prior_submitted_on']
+        unlisted = state.get('unlisted_removals')
+        if unlisted and j['id'] in unlisted:
+            j.setdefault('removals', unlisted.pop(j['id']))
+        if j['id'] in submitted_job_ids(state):
+            j['prior_application'] = 'submitted'
+        if source_requisition:
+            j['source_requisition'] = source_requisition
+        if existing:
+            state['jobs'][state['jobs'].index(existing)] = j
+        else:
+            state['jobs'].append(j)
         return j
 
     def refresh(self, id):
-        src = find(self.state()["sources"], id)
+        current = self.w.read()
+        src = find(current['sources'], id)
+        if companies.source_cooldown(current, id):
+            return {'count': 0, 'skipped': 'Company is paused'}
         try:
-            jobs = sources.discover(src["kind"], src["board"])
-            ids = {self.add_job(j, match_url=True)['id'] for j in jobs}
+            jobs = sources.discover(src['kind'], src['board'])
             with self.w.edit() as s:
+                if companies.source_cooldown(s, id):
+                    return {'count': 0, 'skipped': 'Company is paused'}
+                imported = []
+                seen = set()
+                for job in jobs:
+                    key = job.get('source_requisition') if self.w.database else None
+                    if key and key in seen:
+                        continue
+                    if key:
+                        seen.add(key)
+                    imported.append(self.add_job(job, match_url=True, state=s, source_requisition=key))
+                ids = {job['id'] for job in imported}
+                if self.w.database:
+                    companies.link_source_jobs(s, src, imported, self.workspace_zone())
                 for old in s["jobs"]:
                     if (
                         old["source"] == src["kind"] + ":" + src["board"]
@@ -908,11 +1061,11 @@ class Service:
                     {
                         "status": "retrieved",
                         "checked_at": now(),
-                        "count": len(jobs),
+                        "count": len(imported),
                         "error": None,
                     }
                 )
-            return {"count": len(jobs)}
+            return {"count": len(imported)}
         except Exception as e:
             # Do not persist remote response bodies, secrets or raw exception strings.
             with self.w.edit() as s:
@@ -984,99 +1137,114 @@ class Service:
     def update_run(self, id, **values):
         with self.w.edit() as s:
             find(s["runs"], id).update(values)
+            if self.w.database and values.get('queue'):
+                for job_id in values['queue']:
+                    run_progress.item(s, id, job_id, create=True)
+
+    def reserve_provider(self, run_id, job_id, cost):
+        with self.w.edit() as state:
+            run = find(state['runs'], run_id)
+            if run['cancel']:
+                run['status'] = 'cancelled'
+                return False
+            if companies.discovery_status(state, find(state['jobs'], job_id))['cooling']:
+                raise ValueError('Company is paused')
+            providers.require_consent(state, 'openai')
+            if run['reserved'] + cost > run['budget']:
+                run.update(status='paused', note='Approved budget exhausted; no request made')
+                return False
+            run.update(reserved=run['reserved'] + cost, inflight=job_id)
+            if self.w.database:
+                row = run_progress.item(state, run_id, job_id, create=True)
+                run_progress.reserve(row, cost)
+            return True
+
+    def save_provider_selection(self, run_id, job_id, ids):
+        with self.w.edit() as state:
+            find(state['runs'], run_id)['inflight'] = None
+            if self.w.database:
+                row = run_progress.item(state, run_id, job_id, create=True)
+                run_progress.provider_outcome(row, 'selected')
+                row['fact_ids'] = ids
 
     def run(self, id):
         try:
-            self.update_run(id, status="running")
-            r = find(self.state()["runs"], id)
-            if r["queue"] is None:
-                if r["discover"]:
-                    for src in self.state()["sources"]:
-                        if find(self.state()["runs"], id)["cancel"]:
-                            self.update_run(id, status="cancelled")
+            self.update_run(id, status='running')
+            run = find(self.w.read()['runs'], id)
+            if run['queue'] is None:
+                if run['discover']:
+                    for source in self.w.read()['sources']:
+                        if find(self.w.read()['runs'], id)['cancel']:
+                            self.update_run(id, status='cancelled')
                             return
-                        self.refresh(src["id"])
-                s = self.state()
-                already_prepared = {app["job_id"] for app in s["applications"]}
-                rows = matching.ranked(s["jobs"], r["profile"], s["facts"])
-                self.update_run(
-                    id,
-                    queue=[
-                        x["job"]["id"]
-                        for x in rows
-                        if x["match"]["eligible_for_preparation"]
-                        and x["job"]["id"] not in already_prepared
-                    ],
-                    note="Discovery and ranking complete",
-                )
+                        self.refresh(source['id'])
+                state = self.w.read()
+                already_prepared = {app['job_id'] for app in state['applications']}
+                rows = matching.ranked(self.discoverable_jobs(state), run['profile'], state['facts'])
+                queue = [
+                    row['job']['id'] for row in rows if row['match']['eligible_for_preparation']
+                    and row['job']['id'] not in already_prepared
+                ]
+                self.update_run(id, queue=queue, note='Discovery and ranking complete')
             while True:
-                s = self.state()
-                r = find(s["runs"], id)
-                if r["cancel"]:
-                    self.update_run(id, status="cancelled")
+                state = self.w.read()
+                run = find(state['runs'], id)
+                if run['cancel']:
+                    self.update_run(id, status='cancelled')
                     return
-                remaining = [j for j in r["queue"] if j not in r["done"]]
-                if len(r["packages"]) >= r["count"] or not remaining:
-                    self.update_run(
-                        id,
-                        status="complete",
-                        note="No weak matches added to fill the batch",
-                    )
+                remaining = [job_id for job_id in run['queue'] if job_id not in run['done']]
+                if len(run['packages']) >= run['count'] or not remaining:
+                    self.update_run(id, status='complete', note='No weak matches added to fill the batch')
                     return
-                job = find(s["jobs"], remaining[0])
-                facts = matching.available(s["facts"])
-                m = matching.match(job, r["profile"], facts)
+                job = find(state['jobs'], remaining[0])
+                facts = matching.available(state['facts'])
+                assessment = matching.match(job, run['profile'], facts)
                 try:
-                    if not m["eligible_for_preparation"]:
-                        raise ValueError("Eligibility changed; recheck result")
-                    ids = m["fact_ids"][:10]
-                    if r["mode"] == "openai":
-                        providers.require_consent(s, "openai")
-                        body = providers.request_body(job, facts, r["config"])
-                        cost = providers.reserve(body, r["config"])
-                        if r["reserved"] + cost > r["budget"]:
-                            self.update_run(
-                                id,
-                                status="paused",
-                                note="Approved budget exhausted; no request made",
-                            )
+                    if companies.discovery_status(state, job)['cooling']:
+                        raise ValueError('Company is paused')
+                    if not assessment['eligible_for_preparation']:
+                        raise ValueError('Eligibility changed; recheck result')
+                    ids = assessment['fact_ids'][:10]
+                    if run['mode'] == 'openai':
+                        providers.require_consent(state, 'openai')
+                        row = run_progress.item(state, id, job['id']) if self.w.database else None
+                        if row and row['status'] == 'selected':
+                            ids = row['fact_ids']
+                        else:
+                            body = providers.request_body(job, facts, run['config'])
+                            cost = providers.reserve(body, run['config'])
+                            if not self.reserve_provider(id, job['id'], cost):
+                                return
+                            ids = providers.openai_select(body, facts)
+                            self.save_provider_selection(id, job['id'], ids)
+                        providers.require_consent(self.w.read(), 'openai')
+                    self.prepare(job, run['profile'], state['identity'], facts, assessment, ids, run_id=id)
+                except Exception as exc:
+                    with self.w.edit() as state:
+                        current = find(state['runs'], id)
+                        if current['cancel'] and not current.get('inflight'):
+                            current['status'] = 'cancelled'
                             return
-                        self.update_run(
-                            id, reserved=r["reserved"] + cost, inflight=job["id"]
-                        )
-                        ids = providers.openai_select(body, facts)
-                        self.update_run(id, inflight=None)
-                        providers.require_consent(self.state(), "openai")
-                    app = self.prepare(job, r["profile"], s["identity"], facts, m, ids)
-                    with self.w.edit() as state:
-                        current = find(state["runs"], id)
-                        current["done"].append(job["id"])
-                        current["packages"].append(app["id"])
-                except Exception as e:
-                    with self.w.edit() as state:
-                        current = find(state["runs"], id)
-                        current["inflight"] = None
-                        current["done"].append(job["id"])
-                        current["errors"].append(
-                            {
-                                "job_id": job["id"],
-                                "error": str(e)
-                                if isinstance(e, ValueError)
-                                else type(e).__name__,
-                            }
-                        )
+                        error = str(exc) if isinstance(exc, ValueError) else type(exc).__name__
+                        if self.w.database:
+                            row = run_progress.item(state, id, job['id'], create=True)
+                            if current.get('inflight'):
+                                run_progress.provider_outcome(row, 'unknown')
+                                error = 'Provider outcome uncertain. Request was not retried.'
+                            else:
+                                row['status'] = 'failed'
+                            row['error'] = error
+                        current['inflight'] = None
+                        current['done'].append(job['id'])
+                        current['errors'].append({'job_id': job['id'], 'error': error})
         except Exception:
-            self.update_run(
-                id,
-                status="failed",
-                note="Run interrupted by an error; inspect inputs and resume",
-            )
+            self.update_run(id, status='failed', note='Run interrupted by an error; inspect inputs and resume')
 
-    def prepare(self, job, profile, identity, facts, m, ids):
+    def prepare(self, job, profile, identity, facts, m, ids, *, run_id=None):
         m["salary_expectation"] = matching.salary_expectation(job, m)
         ids = providers.selection({"fact_ids": ids}, facts)
         chosen = [find(facts, i) for i in ids]
-        current = {f["id"]: f for f in matching.available(self.state()["facts"])}
+        current = {f["id"]: f for f in matching.available(self.w.read()["facts"])}
         if any(current.get(f["id"]) != f for f in chosen):
             raise ValueError(
                 "Career facts changed during preparation; review and retry"
@@ -1089,8 +1257,14 @@ class Service:
         staging = inside(self.w.path, '.runtime/staging')
         staging.mkdir(parents=True, exist_ok=True)
         with self.w.lock, tempfile.TemporaryDirectory(dir=staging) as temp:
-            if job['id'] in submitted_job_ids(self.w.read()):
+            state = self.w.read()
+            if job['id'] in submitted_job_ids(state):
                 raise ValueError('This job is already recorded as submitted')
+            if run_id:
+                if find(state['runs'], run_id)['cancel']:
+                    raise ValueError('Preparation run was cancelled')
+                if companies.discovery_status(state, find(state['jobs'], job['id']))['cooling']:
+                    raise ValueError('Company is paused')
             p = Path(temp) / 'package'
             documents.render(p, identity, job, chosen, m, profile.get('template', 'navy'))
             if config['master_template']:
@@ -1104,4 +1278,11 @@ class Service:
                    'created_at': now(), 'status': 'draft', 'comments': [], 'fact_ids': ids, **version}
             with self.w.edit() as state:
                 state['applications'].append(app)
+                if run_id:
+                    run = find(state['runs'], run_id)
+                    run['done'].append(job['id'])
+                    run['packages'].append(app['id'])
+                    if self.w.database:
+                        row = run_progress.item(state, run_id, job['id'], create=True)
+                        row.update(status='prepared', application_id=app['id'])
         return app
