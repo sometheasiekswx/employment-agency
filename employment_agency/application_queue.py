@@ -1,4 +1,4 @@
-"""Effective job and application decisions for the SQLite workspace queues."""
+"""Effective job and application decisions for the workspace queues."""
 
 from datetime import datetime, timezone
 
@@ -25,7 +25,21 @@ def application_time(version):
     return created if submitted is None else submitted
 
 
-def project(state, *, include_unqueued=False):
+def pending_choices(state):
+    """A legacy bookmark or agent mark is sufficient to keep a role for later."""
+    choices = {job['id']: '' for job in state['jobs'] if job.get('saved')}
+    choices.update((row['id'], row['updated_at'])
+                   for row in state.get('agent_intents', []) if row['marked'])
+    return choices
+
+
+def equivalent_submissions(state):
+    vacancies = {vacancy for row in state.get('company_rounds', [])
+                 for vacancy in row.get('submitted_vacancies', [])}
+    return {link['id'] for link in state.get('employer_links', []) if link['vacancy_id'] in vacancies}
+
+
+def project(state, *, include_unqueued=False, choices=None):
     from .companies import submission_dates
     from .service import application_role, corrected_submission, legacy_rejections, submitted_job_ids
 
@@ -47,6 +61,8 @@ def project(state, *, include_unqueued=False):
     legacy_removed = legacy_rejections(state)
     jobs = {job['id']: job for job in state['jobs']}
     unlisted = state.get('unlisted_removals', {})
+    choices = pending_choices(state) if choices is None else choices
+    equivalent = equivalent_submissions(state)
     for role in dict.fromkeys([*jobs, *selected, *unlisted]):
         job = jobs.get(role, {})
         _, version, at = selected.get(role, (None, {}, None))
@@ -59,55 +75,46 @@ def project(state, *, include_unqueued=False):
                 version, at = {}, None
         elif version:
             stage = 'active'
-        elif job.get('saved'):
+        elif job and role in choices and role not in equivalent:
             stage = 'saved'
-        elif not include_unqueued:
-            continue
-        else:
+        elif include_unqueued:
             stage = None
-        saved = bool(job.get('saved') and stage not in ('submitted', 'removed'))
+        else:
+            continue
+        saved = bool(job and role in choices and role not in equivalent and stage not in ('submitted', 'removed'))
         archived = bool(version.get('archived') and (stage != 'submitted' or version.get('status') == 'submitted'))
         yield role, version.get('id'), stage, archived, at, saved
 
 
 QUEUE_SECTIONS = {'jobs', 'applications', 'application-comments', 'submission_attempts',
-                  'historical_decisions', 'company_history_links', ''}
-
-
-def pending_agent_roles(state):
-    existing = {job['id'] for job in state['jobs']}
-    links = {row['id']: row['vacancy_id'] for row in state.get('employer_links', [])}
-    submitted_vacancies = {vacancy for row in state.get('company_rounds', [])
-                           for vacancy in row.get('submitted_vacancies', [])}
-    for role, application, stage, archived, _, _ in project(state, include_unqueued=True):
-        if role in existing and stage not in ('submitted', 'removed') and links.get(role) not in submitted_vacancies:
-            yield role, None if archived else application
+                  'historical_decisions', 'company_history_links', 'agent_intents',
+                  'employer_links', 'company_rounds', ''}
 
 
 def project_agent_queue(state):
-    marked = {row['id']: row['updated_at'] for row in state.get('agent_intents', []) if row['marked']}
-    if marked:
-        for role, application in pending_agent_roles(state):
-            if role in marked:
-                yield role, application, marked[role]
+    choices = pending_choices(state)
+    if choices:
+        for role, application, _, archived, _, saved in project(state, choices=choices):
+            if saved:
+                yield role, None if archived else application, choices[role]
 
 
-def mark_agent(state, job_id, marked):
+def set_pending(state, job_id, saved, *, legacy_agent=False):
     from .companies import by_id
 
-    if not isinstance(marked, bool):
-        raise ValueError('Choose whether to mark this role for your agent')
-    if not by_id(state['jobs'], job_id):
+    if not isinstance(saved, bool):
+        raise ValueError('Saved must be true or false')
+    job = by_id(state['jobs'], job_id)
+    if not job:
         raise ValueError('Choose a role in this workspace')
-    if marked and not any(role == job_id for role, _ in pending_agent_roles(state)):
-        raise ValueError('Only a role awaiting application can be marked for your agent')
-    intents = state.setdefault('agent_intents', [])
+    job['saved'] = saved
+    intents = state.get('agent_intents', [])
     old = by_id(intents, job_id)
-    if old and old['marked'] == marked:
+    if old and old['marked'] == saved:
         return old
-    record = {'id': job_id, 'marked': marked, 'updated_at': now()}
+    record = {'id': job_id, 'marked': saved, 'updated_at': now()}
     if old is not None:
         old.update(record)
-    elif marked:
-        intents.append(record)
+    elif legacy_agent and saved:
+        state.setdefault('agent_intents', []).append(record)
     return record

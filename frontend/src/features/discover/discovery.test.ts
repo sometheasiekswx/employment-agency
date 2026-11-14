@@ -106,29 +106,22 @@ describe("advertised salary", () => {
   });
 });
 
-it("keeps conflict records available in All results and combines saved, text and city filters", () => {
+it("keeps mismatches in Jobs and combines To apply, text and city filters", () => {
   const saved = row("a", "Toronto", { saved: true });
   const conflict = row("b", "Berlin");
-  const recommended = row("c", "Berlin");
+  const strong = row("c", "Berlin");
   conflict.match.hard_conflicts = ["Confirmed eligibility conflict"];
-  const rows = [saved, conflict, recommended];
+  const rows = [saved, strong, conflict];
   expect(
     filterOpportunities(
       rows,
-      { query: "", location: "", view: "recommended" },
-      [],
-    ).map((item) => item.job.id),
-  ).toEqual(["c"]);
-  expect(
-    filterOpportunities(
-      rows,
-      { query: "backend", location: "Toronto", view: "saved" },
+      { query: "backend", location: "Toronto", view: "to-apply" },
       [],
     ),
   ).toEqual([saved]);
   expect(
-    filterOpportunities(rows, { query: "", location: "", view: "all" }, []),
-  ).toEqual([conflict, recommended]);
+    filterOpportunities(rows, { query: "", location: "", view: "jobs" }, []),
+  ).toEqual([strong, conflict]);
   expect(
     filterOpportunities(
       rows,
@@ -151,10 +144,12 @@ it("groups verified aliases across cities and keeps separate hiring employers wi
     employer: "Example Cloud GmbH",
     company: first.job.company,
   });
-  expect(groupOpportunities([first, other, alias]).map(group => ({
-    name: group.name,
-    ids: group.roles.map(({ job }) => job.id),
-  }))).toEqual([
+  expect(
+    groupOpportunities([first, other, alias]).map((group) => ({
+      name: group.name,
+      ids: group.roles.map(({ job }) => job.id),
+    })),
+  ).toEqual([
     { name: "Example Cloud", ids: ["a", "c"] },
     { name: "Example Cloud", ids: ["b"] },
   ]);

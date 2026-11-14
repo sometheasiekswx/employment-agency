@@ -186,25 +186,16 @@ const fs = require("node:fs");
         });
       }
       await page.goto(base + "/discover/");
-      await views(page)
-        .getByRole("button", { name: "Recommended", exact: true })
-        .waitFor();
+      await views(page).getByRole("button", { name: "Jobs", exact: true }).waitFor();
+      assert.deepEqual(await views(page).getByRole("button").allTextContents(), [
+        "Jobs", "To apply", "Applications",
+      ]);
       assert.equal(
-        await views(page)
-          .getByRole("button", { name: "Recommended", exact: true })
-          .getAttribute("aria-pressed"),
+        await views(page).getByRole("button", { name: "Jobs", exact: true }).getAttribute("aria-pressed"),
         "true",
       );
-      await views(page)
-        .getByRole("button", { name: "Browse", exact: true })
-        .click();
-      await page.waitForURL(
-        (url) =>
-          url.pathname === "/discover/" &&
-          url.searchParams.get("view") === "all",
-      );
       const save = page.getByRole("button", {
-        name: `Save ${cloud.title}`,
+        name: `Apply later · ${cloud.title}`,
         exact: true,
       });
       if (!(await read()).jobs.find((job) => job.id === cloud.id).saved) {
@@ -212,15 +203,15 @@ const fs = require("node:fs");
         await save.click();
         await page
           .locator("#notice")
-          .filter({ hasText: "Role saved." })
+          .filter({ hasText: "Role added to To apply." })
           .waitFor();
       }
       await card(page, cloud).waitFor({ state: "detached" });
       await views(page)
-        .getByRole("button", { name: "Saved", exact: true })
+        .getByRole("button", { name: "To apply", exact: true })
         .click();
       await card(page, cloud).waitFor();
-      await page.waitForURL((url) => url.searchParams.get("view") === "saved");
+      await page.waitForURL((url) => url.searchParams.get("view") === "to-apply");
       await card(page, cloud).focus();
       await page.keyboard.press("Enter");
       await inspector(page)
@@ -236,7 +227,7 @@ const fs = require("node:fs");
           .getAttribute("aria-pressed"),
         "true",
       );
-      assert.equal(new URL(page.url()).searchParams.get("view"), "saved");
+      assert.equal(new URL(page.url()).searchParams.get("view"), "to-apply");
       const dossier = () =>
         workbench(page).locator(`[data-application-id="${application.id}"]`);
       const editorButton = () =>
@@ -561,14 +552,14 @@ const fs = require("node:fs");
         "Restoring the role clears its Removed entry",
       );
       await views(page)
-        .getByRole("button", { name: "Saved", exact: true })
+        .getByRole("button", { name: "To apply", exact: true })
         .click();
       await card(page, cloud).waitFor();
       assert.equal(await page.locator("dialog:modal").count(), 0);
       await assertFits(page, `${label} saved shortlist fits`);
       await page.screenshot({ path: `${output}/${label}-saved.png` });
       await views(page)
-        .getByRole("button", { name: "Browse", exact: true })
+        .getByRole("button", { name: "Jobs", exact: true })
         .click();
       await card(page, cloud).waitFor({ state: "detached" });
       await page.locator(".discover-filters > summary").click();
@@ -587,7 +578,7 @@ const fs = require("node:fs");
       await statusFilter.selectOption("new");
       await page.waitForURL(
         (url) =>
-          url.searchParams.get("view") === "all" &&
+          url.searchParams.get("view") === "jobs" &&
           url.searchParams.get("status") === "new",
       );
       assert.equal(await statusFilter.inputValue(), "new");
@@ -1171,7 +1162,7 @@ const fs = require("node:fs");
           page.waitForResponse(`${base}/api/save-job`),
           page
             .getByRole("button", {
-              name: `${bookmarked ? "Save" : "Unsave"} ${targetJob.title}`,
+              name: `${bookmarked ? "Apply later" : "Remove from To apply"} · ${targetJob.title}`,
               exact: true,
             })
             .click(),

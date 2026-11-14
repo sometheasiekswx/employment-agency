@@ -213,6 +213,9 @@ class Service:
             state = self.w.read()
             snapshot = self.w.database.summary() if self.w.database else None
             queue = self.w.database.queue_page(historical=True)['rows'] if self.w.database else None
+        from .application_queue import pending_choices
+
+        choices = pending_choices(state)
         state.pop('workspace_id', None)
         state.pop('application_answers', None)
         state.pop('agent_runs', None)
@@ -229,6 +232,7 @@ class Service:
             except ValueError as exc:
                 receipt_error = str(exc)
         for job in state['jobs']:
+            job['saved'] = job['id'] in choices
             if job['id'] in submitted or job['id'] in submitted_dates:
                 job['prior_application'] = 'submitted'
             if job['id'] in rejected:
@@ -340,7 +344,7 @@ class Service:
                 with self.w.lock:
                     return self.w.database.agent_queue_page(limit=limit, offset=offset)
             with self.w.edit() as state:
-                return application_queue.mark_agent(state, a.get('job_id'), a.get('marked'))
+                return application_queue.set_pending(state, a.get('job_id'), a.get('marked'), legacy_agent=True)
         if action in ("discovery-start", "discovery-status", "discovery-stop"):
             from .discovery import Discovery
 
@@ -592,12 +596,11 @@ class Service:
         if action in ('remove-job', 'restore-job', 'job-removal-reason'):
             return self.job_removal(action, a)
         if action == "save-job":
-            if not isinstance(a.get("saved"), bool):
-                raise ValueError("Saved must be true or false")
-            with self.w.edit() as s:
-                job = find(s["jobs"], a["id"])
-                job["saved"] = a["saved"]
-            return {"id": job["id"], "saved": job["saved"]}
+            from .application_queue import set_pending
+
+            with self.w.edit() as state:
+                choice = set_pending(state, a.get("id"), a.get("saved"))
+            return {"id": choice["id"], "saved": choice["marked"]}
         if action == "url":
             url = text(a['url'], 2000)
             if self.w.database:
@@ -1139,7 +1142,7 @@ class Service:
                 j['id'] = existing['id']
             elif existing:
                 raise ValueError('Job ID conflicts with another URL; choose an explicit job ID')
-        # A bookmark is the user's decision, not part of an imported advert.
+        # Preserve the user's pending choice independently of listing updates.
         j["saved"] = existing.get("saved", False) is True if existing else False
         if existing:
             if 'removals' in existing:

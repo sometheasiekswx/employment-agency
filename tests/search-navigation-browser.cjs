@@ -131,8 +131,8 @@ const { decideDialog } = require("./browser-dialog.cjs");
       .waitFor();
 
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.getByRole("button", { name: "Saved", exact: true }).click();
-    await page.waitForURL((url) => url.searchParams.get("view") === "saved");
+    await page.getByRole("button", { name: "To apply", exact: true }).click();
+    await page.waitForURL((url) => url.searchParams.get("view") === "to-apply");
     assert.equal(
       await localSearch.isVisible(),
       true,

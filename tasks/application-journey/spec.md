@@ -4,6 +4,8 @@ Status: accepted. The owner confirmed the complete specification on 14 November 
 
 Implementation planning: [plan.md](plan.md). Task status: [todo.md](todo.md).
 
+The later [Jobs and To apply plan](../jobs-to-apply/plan.md) supersedes the separate bookmark and agent-queue choice in this historical design.
+
 ## Outcome and users
 
 A person applying for a role can open its listing, prepare and inspect their CV, and understand the next action without navigating unrelated document and activity screens. They can apply themselves or mark the role for their agent to handle later. A button called **Apply for me** must start a real execution capability rather than imply one that is unavailable.

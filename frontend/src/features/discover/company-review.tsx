@@ -252,7 +252,7 @@ export function CompanyReview({ job }: { job: Job }) {
                             {match.unknowns.length > 0 && <p>{match.unknowns.join(" · ")}</p>}
                             {selected.includes(role.id) && (
                               <Link href={`/discover/?${new URLSearchParams({
-                                view: role.saved ? "saved" : "all", opportunity: role.id, assessment_profile: profileId,
+                                view: role.saved ? "to-apply" : "jobs", opportunity: role.id, assessment_profile: profileId,
                               })}`}>Open selected role</Link>
                             )}
                           </li>

@@ -183,8 +183,8 @@ async function verifyNoHorizontalOverflow(page, label) {
         },
       });
     });
-    const openBoard = async (page, role = job) => {
-      await page.goto(base + "/discover/?view=all");
+    const openBoard = async (page, role = job, view = "jobs") => {
+      await page.goto(base + "/discover/?view=" + view);
       const selected = await page
         .locator("select[aria-label='Search profile']")
         .inputValue();
@@ -215,19 +215,18 @@ async function verifyNoHorizontalOverflow(page, label) {
       [],
     );
 
-    await actionButton(page, "For my agent").click();
+    await actionButton(page, "Apply later").click();
     await page.waitForFunction(() =>
       [...document.querySelectorAll("button[aria-pressed=true]")].some(
-        (button) => button.textContent.trim() === "For my agent",
+        (button) => button.textContent.trim() === "Remove from To apply",
       ),
     );
     await screenshot(page, "before-desktop");
     await actionButton(page, "Close opportunity details").click();
     await choose(page, second).click();
-    await actionButton(page, "For my agent").click();
+    await actionButton(page, "Apply later").click();
     await actionButton(page, "Close opportunity details").click();
-    await exact(page, "button", "Applications").click();
-    await exact(page, "button", "For my agent 2").click();
+    await exact(page, "button", "To apply").click();
     await page.reload();
     await choose(page, job).waitFor();
     await choose(page, second).waitFor();
@@ -258,7 +257,6 @@ async function verifyNoHorizontalOverflow(page, label) {
     );
     await screenshot(page, "queue-desktop");
 
-    await exact(page, "button", "Browse").click();
     await choose(page, job).click();
     let fail = true;
     await page.route("**/api/local-package", async (route) => {
@@ -297,6 +295,9 @@ async function verifyNoHorizontalOverflow(page, label) {
     await page.waitForURL(
       (url) => url.searchParams.get("application") === draft.id,
     );
+    assert.equal(new URL(page.url()).searchParams.get("view"), "to-apply");
+    const pendingDraft = (await api("agent-queue", {})).rows.find(({ role_id }) => role_id === job.id);
+    assert.equal(pendingDraft?.application_id, draft.id);
     await panel(page)
       .getByRole("alert")
       .getByText(/PDF preview unavailable/)
@@ -464,7 +465,7 @@ async function verifyNoHorizontalOverflow(page, label) {
       .waitFor();
     await submission.getByText("Reported by you", { exact: true }).waitFor();
     assert.equal(await listingLink(page).getAttribute("href"), listing);
-    assert.equal(await actionButton(page, "For my agent").count(), 0);
+    assert.equal(await actionButton(page, "Remove from To apply").count(), 0);
     const sentState = await readState();
     assert.equal(
       sentState.applications.find((app) => app.id === draft.id).status,
@@ -498,9 +499,10 @@ async function verifyNoHorizontalOverflow(page, label) {
       await protect(mobile);
       const phone = await mobile.newPage();
       phone.setDefaultTimeout(10000);
-      await openBoard(phone, second);
+      await openBoard(phone, second, "to-apply");
       await choose(phone, second).click();
       await actionButton(phone, "Prepare application").waitFor();
+      await actionButton(phone, "Remove from To apply").scrollIntoViewIfNeeded();
       await verifyNoHorizontalOverflow(phone, "320px overview fits");
       await screenshot(phone, "before-mobile");
       await actionButton(phone, "Prepare application").click();

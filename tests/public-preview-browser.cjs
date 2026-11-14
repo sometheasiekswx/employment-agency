@@ -172,17 +172,17 @@ const { showPanel } = require("./browser-applications.cjs");
     );
     await inspector
       .getByRole("button", {
-        name: "Save Cloud Software Engineer",
+        name: "Apply later",
         exact: true,
       })
       .click();
     await inspector
       .getByRole("button", {
-        name: "Unsave Cloud Software Engineer",
+        name: "Remove from To apply",
         exact: true,
       })
       .waitFor();
-    await page.locator("#notice").filter({ hasText: "Role saved." }).waitFor();
+    await page.locator("#notice").filter({ hasText: "Role added to To apply." }).waitFor();
     assert.equal(await assessCloud().count(), 0);
     await page.waitForFunction(
       () =>
@@ -194,7 +194,7 @@ const { showPanel } = require("./browser-applications.cjs");
     await page.reload();
     await inspector
       .getByRole("button", {
-        name: "Unsave Cloud Software Engineer",
+        name: "Remove from To apply",
         exact: true,
       })
       .waitFor();
@@ -214,13 +214,13 @@ const { showPanel } = require("./browser-applications.cjs");
     assert.equal(await assessCloud().count(), 0);
     await inspector
       .getByRole("button", {
-        name: "Unsave Cloud Software Engineer",
+        name: "Remove from To apply",
         exact: true,
       })
       .click();
     await page
       .locator("#notice")
-      .filter({ hasText: "Role removed from Saved." })
+      .filter({ hasText: "Role removed from To apply." })
       .waitFor();
     await assessCloud().waitFor();
 
@@ -234,7 +234,7 @@ const { showPanel } = require("./browser-applications.cjs");
     await second.goto(base + "/discover/?view=all");
     await second
       .getByRole("button", {
-        name: "Save Cloud Software Engineer",
+        name: "Apply later · Cloud Software Engineer",
         exact: true,
       })
       .waitFor();
@@ -257,12 +257,12 @@ const { showPanel } = require("./browser-applications.cjs");
     await Promise.all([
       firstTab
         .getByRole("button", {
-          name: "Save Cloud Software Engineer",
+          name: "Apply later · Cloud Software Engineer",
           exact: true,
         })
         .waitFor(),
       secondTab
-        .getByRole("button", { name: "Save Backend Engineer", exact: true })
+        .getByRole("button", { name: "Apply later · Backend Engineer", exact: true })
         .waitFor(),
     ]).catch(async (error) => {
       for (const [index, tab] of [firstTab, secondTab].entries()) {
@@ -279,32 +279,32 @@ const { showPanel } = require("./browser-applications.cjs");
     });
     await firstTab
       .getByRole("button", {
-        name: "Save Cloud Software Engineer",
+        name: "Apply later · Cloud Software Engineer",
         exact: true,
       })
       .click();
     await firstTab
       .locator("#notice")
-      .filter({ hasText: "Role saved." })
+      .filter({ hasText: "Role added to To apply." })
       .waitFor();
     await secondTab
-      .getByRole("button", { name: "Save Backend Engineer", exact: true })
+      .getByRole("button", { name: "Apply later · Backend Engineer", exact: true })
       .click();
     await secondTab
       .locator("#notice")
-      .filter({ hasText: "Role saved." })
+      .filter({ hasText: "Role added to To apply." })
       .waitFor();
     for (const tab of [firstTab, secondTab]) {
       await tab.reload();
-      await tab.getByRole("button", { name: "Saved", exact: true }).click();
+      await tab.getByRole("button", { name: "To apply", exact: true }).click();
       await tab
         .getByRole("button", {
-          name: "Unsave Cloud Software Engineer",
+          name: "Remove from To apply · Cloud Software Engineer",
           exact: true,
         })
         .waitFor();
       await tab
-        .getByRole("button", { name: "Unsave Backend Engineer", exact: true })
+        .getByRole("button", { name: "Remove from To apply · Backend Engineer", exact: true })
         .waitFor();
     }
     await shared.close();

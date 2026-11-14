@@ -10,11 +10,11 @@ import {
   useOptimistic,
   useRef,
   useState,
+  useSyncExternalStore,
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowUpRight,
-  Bot,
   Bookmark,
   Building2,
   CircleMinus,
@@ -24,7 +24,6 @@ import {
   Search,
   ShieldAlert,
   SlidersHorizontal,
-  Sparkles,
   X,
 } from "lucide-react";
 import { useDraft } from "@/components/unsaved";
@@ -61,6 +60,7 @@ import {
   remainingEvidenceGaps,
   requirementEvidence,
   roleStatus,
+  pendingActionLabel,
   type DiscoveryView,
 } from "./discovery";
 import { OpportunityInspector, type RolePanel } from "./opportunity-inspector";
@@ -68,7 +68,7 @@ import { OpportunityListingLink } from "./opportunity-listing-link";
 import { useInteractionMotion } from "./interaction-motion";
 import { cachedRanking, loadRanking } from "./rankings";
 import { CompanyReview } from "./company-review";
-import { AgentQueueTools, useAgentQueue } from "./agent-queue";
+import { AgentQueueTools } from "./agent-queue";
 import "./discover.css";
 import "./opportunities.css";
 
@@ -79,11 +79,11 @@ interface RankingState {
   error: string;
 }
 
+const pendingPageSize = 50;
 const shortlistHistoryKey = "employmentAgencyShortlistInspector";
 const applicationStages = [
   ["active", "Active"],
   ["submitted", "Submitted"],
-  ["agent", "For my agent"],
   ["removed", "Removed"],
 ] as const;
 
@@ -102,16 +102,20 @@ function unassessedRole(job: Job): RankedJob {
   };
 }
 
+const mobileInspectorQuery = "(max-width: 1000px)";
+
+function subscribeToInspectorWidth(listener: () => void) {
+  const query = window.matchMedia(mobileInspectorQuery);
+  query.addEventListener("change", listener);
+  return () => query.removeEventListener("change", listener);
+}
+
 function useMobileInspector() {
-  const [mobile, setMobile] = useState(false);
-  useEffect(() => {
-    const query = window.matchMedia("(max-width: 1000px)");
-    const update = () => setMobile(query.matches);
-    update();
-    query.addEventListener("change", update);
-    return () => query.removeEventListener("change", update);
-  }, []);
-  return mobile;
+  return useSyncExternalStore(
+    subscribeToInspectorWidth,
+    () => window.matchMedia(mobileInspectorQuery).matches,
+    () => false,
+  );
 }
 
 export function DiscoverPage() {
@@ -154,8 +158,25 @@ export function DiscoverPage() {
     return [...roles.values()];
   }, [applications, state.jobs, state.unlisted_removals]);
   const removal = useJobRemoval({ jobs: roleRecords, client, refresh });
+  const [savedOverrides, setSavedOverrides] = useState<Record<string, boolean>>(
+    {},
+  );
+  const [savingIds, setSavingIds] = useState<string[]>([]);
+  const legacyMarked = new Set(
+    state.agent_intents
+      ?.filter((intent) => intent.marked)
+      .map((intent) => intent.id),
+  );
   const latestJobs = new Map(
-    roleRecords.map((job) => [job.id, removal.jobWithRemoval(job)]),
+    roleRecords.map((job) => [
+      job.id,
+      removal.jobWithRemoval({
+        ...job,
+        saved:
+          savedOverrides[job.id] ??
+          Boolean(job.saved || legacyMarked.has(job.id)),
+      }),
+    ]),
   );
   const applicationId = filters.get("application");
   const requestedApplication =
@@ -187,39 +208,47 @@ export function DiscoverPage() {
     filters.set("view", "applications");
     filters.set("section", "submitted");
   }
-  const queryString = filters.toString();
   const legacySavedFilter =
     !removedView &&
     filters.get("view") !== "applications" &&
     rawStatus === "saved";
-  const requestedView = legacySavedFilter ? "saved" : filters.get("view");
+  const requestedView = filters.get("view");
+  const toApplyLink =
+    legacySavedFilter ||
+    requestedView === "saved" ||
+    requestedView === "to-apply" ||
+    (requestedView === "applications" && rawSection === "agent");
   const view: DiscoveryView = removedView
     ? "applications"
-    : requestedView === "all" ||
-        requestedView === "saved" ||
-        requestedView === "applications"
-      ? requestedView
-      : "recommended";
+    : toApplyLink && !(legacySubmittedFilter || linkedListingSubmission)
+      ? "to-apply"
+      : requestedView === "applications"
+        ? "applications"
+        : "jobs";
   const applicationView = view === "applications";
-  const section = removedView
-    ? "removed"
-    : !localJourney && filters.get("section") === "agent"
-      ? "active"
-      : filters.get("section") || "active";
-  const agentView = applicationView && section === "agent";
-  const [agentRevision, setAgentRevision] = useState(0);
-  const [markedOverrides, setMarkedOverrides] = useState<
-    Record<string, boolean>
-  >({});
+  const toApplyView = view === "to-apply";
+  const agentTools = localJourney && toApplyView;
+  const section = removedView ? "removed" : filters.get("section") || "active";
+  if (requestedView && requestedView !== view) filters.set("view", view);
+  if (toApplyView && rawSection === "agent") {
+    const destinationAlias = filters.get("destination");
+    if (destinationAlias && !filters.has("location"))
+      filters.set("location", destinationAlias);
+    filters.delete("destination");
+  }
+  if (!applicationView && (rawSection === "agent" || legacySavedFilter)) {
+    filters.set("view", view);
+    filters.delete("section");
+    if (legacySavedFilter) filters.delete("status");
+  }
+  const queryString = filters.toString();
   const [agentSelection, setAgentSelection] = useState<string[]>([]);
   const [startingAgent, setStartingAgent] = useState(false);
-  const offset = Number(filters.get("agent_offset"));
-  const agentOffset = Number.isSafeInteger(offset) && offset > 0 ? offset : 0;
-  const agentQueue = useAgentQueue(
-    localJourney && applicationView,
-    agentOffset,
-    agentRevision,
-  );
+  const offset = Number(filters.get("offset") ?? filters.get("agent_offset"));
+  const requestedOffset =
+    Number.isSafeInteger(offset) && offset > 0
+      ? Math.floor(offset / pendingPageSize) * pendingPageSize
+      : 0;
   const location =
     filters.get("location") ||
     (applicationView ? filters.get("destination") : "") ||
@@ -248,7 +277,7 @@ export function DiscoverPage() {
   });
   const selectedId =
     requestedRoleId ||
-    (filters.get("assessment_profile") === profileId
+    ((filters.get("assessment_profile") ?? "") === profileId
       ? filters.get("opportunity") || ""
       : "");
   const currentRoute = useRef({ queryString, profileId });
@@ -306,12 +335,9 @@ export function DiscoverPage() {
     },
     [replaceQuery, canLeave],
   );
-  const [savedOverrides, setSavedOverrides] = useState<Record<string, boolean>>(
-    {},
-  );
-  const [savingIds, setSavingIds] = useState<string[]>([]);
   const closeRemovalReason = removal.closeReason;
   const [saveError, setSaveError] = useState("");
+  const saving = useRef(new Set<string>());
   const saveErrorNotice = useRef<HTMLDivElement>(null);
   const searchInput = useRef<HTMLInputElement>(null);
   const submittedStage = useRef<HTMLButtonElement>(null);
@@ -341,7 +367,7 @@ export function DiscoverPage() {
   const priorities = profile?.locations.length
     ? profile.locations
     : state._workspace.preferred_locations;
-  // Bookmark, removal and source link changes leave the current matching intact.
+  // Queue, removal and source link changes leave the current matching intact.
   const rankInput = JSON.stringify({
     profile,
     facts: state.facts,
@@ -365,14 +391,11 @@ export function DiscoverPage() {
       ? { key: requestKey, profileId, rows: cached, error: "" }
       : ranking;
   const loading =
-    !applicationView &&
-    !removedView &&
-    Boolean(profile) &&
-    currentRanking.key !== requestKey;
+    view === "jobs" && Boolean(profile) && currentRanking.key !== requestKey;
   const selectionInFlight = useRef(false);
 
   useEffect(() => {
-    if (!profileId || (applicationView && !agentView) || removedView) return;
+    if (!profileId || applicationView) return;
     let active = true;
     loadRanking(client, workspacePath, profileId, rankInput, attempt > 0).then(
       (rows) => {
@@ -399,8 +422,6 @@ export function DiscoverPage() {
     requestKey,
     attempt,
     applicationView,
-    agentView,
-    removedView,
   ]);
 
   const rows = (
@@ -416,7 +437,6 @@ export function DiscoverPage() {
               ...latest,
               prior_application: latest.prior_application,
               matched_skill_evidence: latest.matched_skill_evidence,
-              saved: savedOverrides[row.job.id] ?? latest.saved ?? false,
             },
           },
         ]
@@ -447,26 +467,17 @@ export function DiscoverPage() {
     )
       applicationJobs.submitted.set(id, job);
   }
-  const marked = new Set(
-    state.agent_intents
-      ?.filter((record) => record.marked)
-      .map((record) => record.id),
-  );
-  for (const [id, value] of Object.entries(markedOverrides)) {
-    if (value) marked.add(id);
-    else marked.delete(id);
-  }
-  const pendingForAgent = new Map(
-    [...latestJobs].filter(
-      ([id, job]) =>
-        marked.has(id) &&
-        !currentRemoval(job) &&
-        !hasRecordedSubmission(applications.get(id), job) &&
-        !job.company?.submitted_vacancy,
-    ),
+  const listingIds = new Set(state.jobs.map(({ id }) => id));
+  const pendingRole = (job: Job) =>
+    listingIds.has(job.id) &&
+    !currentRemoval(job) &&
+    !hasRecordedSubmission(applications.get(job.id), job) &&
+    !job.company?.submitted_vacancy;
+  const pending = new Map(
+    [...latestJobs].filter(([, job]) => Boolean(job.saved) && pendingRole(job)),
   );
   const chosenForAgent = agentSelection.flatMap((id) => {
-    const job = pendingForAgent.get(id);
+    const job = pending.get(id);
     return job ? [job] : [];
   });
   const agentApplications = Object.fromEntries(
@@ -475,14 +486,16 @@ export function DiscoverPage() {
       return app && !app.archived ? [[id, app.id]] : [];
     }),
   );
-  const agentQueueRows = (agentQueue.page?.rows ?? []).flatMap(
-    ({ role_id }) => {
-      const job = pendingForAgent.get(role_id);
-      if (!job) return [];
-      const assessed = rows.find((entry) => entry.job.id === job.id);
-      return [assessed || unassessedRole(job)];
-    },
-  );
+  const assessedById = new Map(rows.map((row) => [row.job.id, row]));
+  const discoveryRows = [
+    ...rows.filter(({ job }) => pendingRole(job)),
+    ...state.jobs.flatMap(({ id }) => {
+      const job = latestJobs.get(id)!;
+      return !assessedById.has(id) && pendingRole(job)
+        ? [unassessedRole(job)]
+        : [];
+    }),
+  ];
   const applicationRows = (
     section === "all"
       ? [
@@ -498,36 +511,18 @@ export function DiscoverPage() {
     .map(
       (job) => rows.find((row) => row.job.id === job.id) || unassessedRole(job),
     );
+  const incomingRows = discoveryRows.filter(({ job }) => !job.saved);
+  const availableIncoming = incomingRows.filter(
+    ({ job }) => !job.company?.cooling,
+  );
+  const pausedResults = incomingRows.length > 0 && !availableIncoming.length;
   const sourceRows = removedView
     ? removedRows
     : applicationView
-      ? agentView
-        ? agentQueueRows
-        : applicationRows
-      : [
-          ...rows.filter(
-            ({ job }) =>
-              (!job.company?.cooling || view === "saved") &&
-              !currentRemoval(job) &&
-              !hasRecordedSubmission(applications.get(job.id), job),
-          ),
-          ...(view === "saved"
-            ? [...latestJobs.values()]
-                .filter(
-                  (job) =>
-                    job.saved &&
-                    job.company?.cooling &&
-                    !currentRemoval(job) &&
-                    !hasRecordedSubmission(applications.get(job.id), job) &&
-                    !rows.some((row) => row.job.id === job.id),
-                )
-                .map(unassessedRole)
-            : []),
-        ];
-  const pausedResults =
-    !rows.length &&
-    view !== "saved" &&
-    state.jobs.some((job) => job.company?.cooling);
+      ? applicationRows
+      : toApplyView
+        ? discoveryRows.filter(({ job }) => pending.has(job.id))
+        : availableIncoming;
   const scopedRows = filterOpportunities(
     sourceRows,
     { query: "", location: "", view, removed: removedView },
@@ -539,7 +534,7 @@ export function DiscoverPage() {
       ...(location ? [location] : []),
     ]),
   ].sort((a, b) => compareDestinations(a, b, priorities));
-  const visible = filterOpportunities(
+  const filteredRows = filterOpportunities(
     scopedRows,
     {
       query,
@@ -551,35 +546,44 @@ export function DiscoverPage() {
   ).filter(({ job }) => {
     if (!statusFilter) return true;
     const app = applications.get(job.id);
-    return statusFilter === "submitted"
-      ? hasRecordedSubmission(app, job)
-      : roleStatus(job, app).label.toLowerCase() === statusFilter;
+    if (statusFilter === "submitted") return hasRecordedSubmission(app, job);
+    if (statusFilter === "new")
+      return !app && job.prior_application !== "rejected";
+    return app?.status === statusFilter;
   });
+  const pendingOffset = agentTools
+    ? Math.min(
+        requestedOffset,
+        Math.max(
+          0,
+          Math.floor((filteredRows.length - 1) / pendingPageSize) *
+            pendingPageSize,
+        ),
+      )
+    : 0;
+  const visible = agentTools
+    ? filteredRows.slice(pendingOffset, pendingOffset + pendingPageSize)
+    : filteredRows;
   const groups = groupOpportunities(visible);
   const navigationRows = groups.flatMap(({ roles }) => roles);
   const selectedRow = visible.find((row) => row.job.id === selectedId);
-  const assessedRow = rows.find((row) => row.job.id === selectedId);
-  const keepSavedDetails =
-    !applicationView &&
-    view !== "saved" &&
-    assessedRow?.job.saved &&
-    !currentRemoval(assessedRow.job);
+  const assessedRow = assessedById.get(selectedId);
   const selectedJob = latestJobs.get(selectedId);
   const selected =
     selectedRow ||
     (selectedJob &&
     (requestedApplication ||
       removal.feedback?.job.id === selectedId ||
-      keepSavedDetails ||
+      (view === "jobs" && selectedJob.saved && pendingRole(selectedJob)) ||
+      (toApplyView &&
+        (pending.has(selectedId) || Boolean(savingIds.includes(selectedId)))) ||
       (applicationView && !removedView && !currentRemoval(selectedJob)) ||
       recentSubmission?.binding.job_id === selectedId ||
       hasRecordedSubmission(applications.get(selectedId), selectedJob))
       ? assessedRow || unassessedRole(selectedJob)
       : undefined);
   const assessmentAvailable = Boolean(assessedRow);
-  const hasListingRecord = Boolean(
-    selected && state.jobs.some((job) => job.id === selected.job.id),
-  );
+  const hasListingRecord = listingIds.has(selectedId);
   const selectedApplication =
     requestedApplication ||
     (selected ? applications.get(selected.job.id) : undefined);
@@ -639,7 +643,7 @@ export function DiscoverPage() {
     const next = new URLSearchParams(queryString);
     next.set("application", application.id);
     next.set("panel", nextPanel);
-    if (applicationView && section !== "agent")
+    if (applicationView)
       next.set(
         "section",
         applicationSection(
@@ -680,12 +684,16 @@ export function DiscoverPage() {
     (row) => row.job.id === selectedId,
   );
   const error =
-    !applicationView && !removedView && currentRanking.key === requestKey
+    !applicationView && currentRanking.key === requestKey
       ? currentRanking.error
       : "";
-  const boardGroups = JSON.stringify(
-    groups.map(({ id, roles }) => [id, roles.map(({ job }) => job.id)]),
-  );
+  const showBoard = (!loading || rows.length > 0) && visible.length > 0;
+  const boardGroups =
+    showBoard || inspectorOpen
+      ? JSON.stringify(
+          groups.map(({ id, roles }) => [id, roles.map(({ job }) => job.id)]),
+        )
+      : "";
   useEffect(() => {
     const intent = triageFocus.current;
     if (!intent) return;
@@ -924,16 +932,13 @@ export function DiscoverPage() {
   const updateFilters = (values: Record<string, string>) => {
     if (!canLeave()) return false;
     const next = new URLSearchParams(queryString);
-    if (legacySavedFilter) {
-      next.set("view", "saved");
-      next.delete("status");
-    }
     if (values.view) {
       next.delete("removed");
       next.delete("section");
       next.delete("status");
     }
-    if (values.view || values.section) next.delete("agent_offset");
+    if (!Object.hasOwn(values, "offset")) next.delete("offset");
+    next.delete("agent_offset");
     if (location) next.set("location", location);
     next.delete("destination");
     if (values.section) next.delete("removed");
@@ -945,34 +950,12 @@ export function DiscoverPage() {
     next.delete("assessment_profile");
     next.delete("application");
     next.delete("panel");
-    if (next.toString() !== queryString) replaceQuery(next, "filter");
+    if (next.toString() !== routeQuery) replaceQuery(next, "filter");
     return true;
   };
   const clearFilters = () => {
     if (updateFilters({ q: "", location: "", status: "" }))
       searchInput.current?.focus({ preventScroll: true });
-  };
-
-  const markForAgent = async (id: string, nextMarked: boolean) => {
-    const intent = await client.action<{ id: string; marked: boolean }>(
-      "agent-queue-mark",
-      { job_id: id, marked: nextMarked },
-    );
-    setMarkedOverrides((old) => ({ ...old, [id]: intent.marked }));
-    if (!intent.marked)
-      setAgentSelection((old) => old.filter((jobId) => jobId !== id));
-    setAgentRevision((value) => value + 1);
-    try {
-      await refresh();
-      setMarkedOverrides((old) => {
-        if (old[id] !== intent.marked) return old;
-        const next = { ...old };
-        delete next[id];
-        return next;
-      });
-    } catch {
-      // The operation succeeded and the resulting intention stays visible.
-    }
   };
 
   const scheduleTriageFocus = (
@@ -1075,7 +1058,17 @@ export function DiscoverPage() {
     saved: boolean,
     button?: HTMLButtonElement,
   ) => {
-    const leavesView = !applicationView && saved !== (view === "saved");
+    const leavesView = !applicationView && saved !== toApplyView;
+    if (
+      saving.current.has(id) ||
+      (leavesView &&
+        toApplyView &&
+        selectedId === id &&
+        !requestedApplication &&
+        !canLeave())
+    )
+      return;
+    saving.current.add(id);
     if (leavesView && (!saved || button?.closest(".discover-card"))) {
       const index = navigationRows.findIndex((row) => row.job.id === id);
       if (index >= 0)
@@ -1093,8 +1086,10 @@ export function DiscoverPage() {
       await run(
         "save-job",
         { id, saved },
-        saved ? "Role saved." : "Role removed from Saved.",
+        saved ? "Role added to To apply." : "Role removed from To apply.",
       );
+      if (!saved)
+        setAgentSelection((ids) => ids.filter((jobId) => jobId !== id));
       const icon = button?.querySelector("svg");
       if (
         motionAllowed.current &&
@@ -1129,6 +1124,7 @@ export function DiscoverPage() {
     } catch (error) {
       setSaveError(errorMessage(error));
     } finally {
+      saving.current.delete(id);
       setSavedOverrides((previous) => {
         const next = { ...previous };
         delete next[id];
@@ -1212,9 +1208,8 @@ export function DiscoverPage() {
           >
             {(
               [
-                ["recommended", "Recommended"],
-                ["all", "Browse"],
-                ["saved", "Saved"],
+                ["jobs", "Jobs"],
+                ["to-apply", "To apply"],
                 ["applications", "Applications"],
               ] as const
             ).map(([value, label]) => (
@@ -1224,7 +1219,6 @@ export function DiscoverPage() {
                 aria-pressed={view === value}
                 onClick={() => updateFilters({ view: value })}
               >
-                {value === "recommended" && <Sparkles size={16} />}
                 {label}
               </button>
             ))}
@@ -1259,7 +1253,7 @@ export function DiscoverPage() {
                       view:
                         event.target.value === "removed"
                           ? "applications"
-                          : "all",
+                          : "jobs",
                       section:
                         event.target.value === "removed" ? "removed" : "",
                     })
@@ -1335,33 +1329,29 @@ export function DiscoverPage() {
             role="group"
             aria-label="Application stage"
           >
-            {applicationStages
-              .filter(([value]) => localJourney || value !== "agent")
-              .map(([value, label]) => (
-                <button
-                  key={value}
-                  ref={value === "submitted" ? submittedStage : undefined}
-                  type="button"
-                  aria-pressed={section === value}
-                  onClick={() =>
-                    updateFilters({
-                      section: value,
-                      status: "",
-                    })
-                  }
-                >
-                  {label}{" "}
-                  <span>
-                    {value === "removed"
-                      ? removedRows.length
-                      : value === "agent"
-                        ? (agentQueue.page?.total ?? pendingForAgent.size)
-                        : applicationJobs[value].size}
-                  </span>
-                </button>
-              ))}
+            {applicationStages.map(([value, label]) => (
+              <button
+                key={value}
+                ref={value === "submitted" ? submittedStage : undefined}
+                type="button"
+                aria-pressed={section === value}
+                onClick={() =>
+                  updateFilters({
+                    section: value,
+                    status: "",
+                  })
+                }
+              >
+                {label}{" "}
+                <span>
+                  {value === "removed"
+                    ? removedRows.length
+                    : applicationJobs[value].size}
+                </span>
+              </button>
+            ))}
           </div>
-          {!removedView && !agentView && (
+          {!removedView && (
             <Check
               name="history"
               label="Include earlier review queues"
@@ -1373,8 +1363,9 @@ export function DiscoverPage() {
           )}
         </div>
       )}
-      {agentView && (
+      {agentTools && (
         <AgentQueueTools
+          key={workspacePath}
           jobs={chosenForAgent}
           applicationIds={agentApplications}
           pending={latestJobs}
@@ -1384,17 +1375,6 @@ export function DiscoverPage() {
             setStartingAgent(busy);
           }}
         />
-      )}
-      {agentView && agentQueue.error && (
-        <div className="discover-request-error" role="alert">
-          <p>{agentQueue.error}</p>
-          <button type="button" onClick={agentQueue.reload}>
-            Retry agent queue
-          </button>
-        </div>
-      )}
-      {agentView && !agentQueue.page && !agentQueue.error && (
-        <p role="status">Loading roles for your agent…</p>
       )}
       {filters.has("application") && !requestedApplication && (
         <div className="discover-request-error" role="status">
@@ -1435,7 +1415,7 @@ export function DiscoverPage() {
             onClick={() =>
               updateFilters(
                 removedView
-                  ? { view: "all" }
+                  ? { view: "jobs" }
                   : { view: "applications", section: "removed" },
               )
             }
@@ -1446,11 +1426,6 @@ export function DiscoverPage() {
           </button>
         )}
       </div>
-      {view === "all" && (
-        <p className="discover-browse-scope">
-          Saved roles and submitted applications have their own views.
-        </p>
-      )}
       {!inspectorOpen && (removal.feedback || removal.editor) && (
         <div className="discover-removal-inline">
           <RemovalFeedback
@@ -1530,12 +1505,11 @@ export function DiscoverPage() {
         >
           <p>{saveError}</p>
           <p>
-            The change could not be confirmed. Your previous saved state is
-            shown; retry the role’s save control or refresh.
+            Your previous To apply choice is shown. Retry the action or refresh.
           </p>
         </div>
       )}
-      {loading && !rows.length && (
+      {loading && !rows.length && !inspectorOpen && (
         <div className="discover-skeleton-board" aria-hidden="true">
           {[0, 1, 2].map((group) => (
             <div className="discover-skeleton-group" key={group}>
@@ -1553,99 +1527,75 @@ export function DiscoverPage() {
           ))}
         </div>
       )}
-      {!loading &&
-        !error &&
-        (!agentView || (agentQueue.page && !agentQueue.error)) &&
-        !visible.length &&
-        !inspectorOpen && (
-          <div className="discover-empty">
-            <Search size={27} />
-            <h2>
-              {hasActiveFilters && scopedRows.length
-                ? applicationView
-                  ? "No applications match these filters"
-                  : "No roles match these filters"
-                : removedView
-                  ? "No removed roles here"
-                  : agentView
-                    ? "No roles marked for your agent"
-                    : applicationView
-                      ? `No ${section} applications`
-                      : pausedResults
-                        ? "Companies are paused"
-                        : !rows.length
-                          ? "Add your first opportunity"
-                          : view === "saved"
-                            ? "No saved roles here yet"
-                            : "No roles match these filters"}
-            </h2>
-            <p>
-              {hasActiveFilters && scopedRows.length
-                ? "Clear the search and filters to see everything in this view."
-                : removedView
-                  ? "Removed roles and their application documents and activity stay recoverable here."
-                  : agentView
-                    ? "Mark a role For my agent to add it here."
-                    : applicationView
-                      ? "Prepare a draft from a role to start an application. Your recorded submissions and decisions stay available in the other stage views."
-                      : pausedResults
-                        ? "Saved roles and application history are still available during the cooldown."
-                        : !rows.length
-                          ? "Import a job URL, paste an advert or refresh a configured source in Search preferences."
-                          : "Adjust your filters or choose All results to inspect the full assessment."}
-            </p>
-            {hasActiveFilters && scopedRows.length ? (
-              <button
-                type="button"
-                className="discover-primary"
-                onClick={clearFilters}
-              >
-                Clear filters
-              </button>
-            ) : !profile && !applicationView ? (
-              <Link className="button discover-primary" href="/search/">
-                Create a search profile
-              </Link>
-            ) : applicationView ? (
-              <button
-                type="button"
-                className="discover-primary"
-                onClick={() => updateFilters({ view: "recommended" })}
-              >
-                Find an opportunity
-              </button>
-            ) : pausedResults ? (
-              <button
-                type="button"
-                onClick={() => updateFilters({ view: "saved" })}
-              >
-                View saved roles
-              </button>
-            ) : !rows.length ? (
-              <Link
-                className="button discover-primary"
-                href="/search/#add-opportunity"
-              >
-                Add opportunities
-              </Link>
-            ) : (
-              <button
-                type="button"
-                onClick={() =>
-                  updateFilters({
-                    q: "",
-                    location: "",
-                    status: "",
-                    view: "all",
-                  })
-                }
-              >
-                Show all results
-              </button>
-            )}
-          </div>
-        )}
-      {(visible.length > 0 || inspectorOpen) && (
+      {!loading && !visible.length && !inspectorOpen && (
+        <div className="discover-empty">
+          <Search size={27} aria-hidden="true" />
+          <h2>
+            {hasActiveFilters && scopedRows.length
+              ? applicationView
+                ? "No applications match these filters"
+                : "No roles match these filters"
+              : removedView
+                ? "No removed roles here"
+                : toApplyView
+                  ? "No roles to apply for yet"
+                  : applicationView
+                    ? `No ${section} applications`
+                    : pausedResults
+                      ? "Companies are paused"
+                      : !state.jobs.length
+                        ? "Add your first opportunity"
+                        : "No roles in Jobs"}
+          </h2>
+          <p>
+            {hasActiveFilters && scopedRows.length
+              ? "Clear the search and filters to see everything in this view."
+              : removedView
+                ? "Restore roles here to recover their application documents and activity."
+                : toApplyView
+                  ? "Choose Apply later on a role to find it here."
+                  : applicationView
+                    ? "Prepare a draft from a role to start an application."
+                    : pausedResults
+                      ? "Roles in To apply and application history are available during the cooldown."
+                      : !state.jobs.length
+                        ? "Import a job URL, paste an advert or refresh a configured source in Search preferences."
+                        : "Import more roles or review the ones you plan to apply for."}
+          </p>
+          {hasActiveFilters && scopedRows.length ? (
+            <button
+              type="button"
+              className="discover-primary"
+              onClick={clearFilters}
+            >
+              Clear filters
+            </button>
+          ) : applicationView || toApplyView ? (
+            <button
+              type="button"
+              className="discover-primary"
+              onClick={() => updateFilters({ view: "jobs" })}
+            >
+              View Jobs
+            </button>
+          ) : pausedResults ? (
+            <button
+              type="button"
+              onClick={() => updateFilters({ view: "to-apply" })}
+            >
+              View To apply
+            </button>
+          ) : (
+            <Link
+              className="button discover-primary"
+              href="/search/#add-opportunity"
+            >
+              Add opportunities
+            </Link>
+          )}
+        </div>
+      )}
+      {(showBoard || inspectorOpen) && (
         <div
           ref={inspectorLayout}
           className={`discover-layout ${inspectorOpen && !mobile ? "has-inspector" : ""} ${expandedApplication ? "has-workbench" : ""}`}
@@ -1685,15 +1635,15 @@ export function DiscoverPage() {
                   const metadata = [location, job.work_arrangement]
                     .filter(Boolean)
                     .join(" · ");
-                  const evidence =
-                    view === "recommended"
-                      ? requirementEvidence(match.evidence, state.facts, job)
-                      : [];
+                  const evidence = !applicationView
+                    ? requirementEvidence(match.evidence, state.facts, job)
+                    : [];
                   const gaps = remainingEvidenceGaps(
                     match.gaps,
                     evidence,
                   ).length;
                   const caution =
+                    match.hard_conflicts[0] ||
                     match.unknowns[0] ||
                     (gaps
                       ? `${gaps} evidence ${gaps === 1 ? "gap" : "gaps"}`
@@ -1705,6 +1655,7 @@ export function DiscoverPage() {
                   return (
                     <article
                       className={`discover-card ${selectedId === job.id ? "is-selected" : ""}`}
+                      data-job-id={job.id}
                       key={job.id}
                     >
                       <div className="discover-card-top">
@@ -1712,7 +1663,7 @@ export function DiscoverPage() {
                           {status.label}
                         </span>
                         <div className="discover-card-tools">
-                          {agentView && (
+                          {agentTools && (
                             <label className="discover-agent-selection">
                               <input
                                 type="checkbox"
@@ -1772,14 +1723,15 @@ export function DiscoverPage() {
                               <CircleMinus size={16} />
                             </Action>
                           )}
-                          {state.jobs.some((item) => item.id === job.id) && (
+                          {pendingRole(job) && (
                             <Action
                               previewAllowed
                               keepContentWhileBusy
                               data-opportunity-id={job.id}
                               className={`discover-icon-button ${job.saved ? "is-saved" : ""}`}
                               disabled={savingIds.includes(job.id)}
-                              aria-label={`${job.saved ? "Unsave" : "Save"} ${job.title}`}
+                              aria-label={`${pendingActionLabel(job.saved)} · ${job.title}`}
+                              title={pendingActionLabel(job.saved)}
                               aria-pressed={Boolean(job.saved)}
                               run={async (button) =>
                                 saveJob(job.id, !job.saved, button)
@@ -1873,27 +1825,6 @@ export function DiscoverPage() {
               application={selectedApplication}
               panel={panel}
               onOpenPanel={openPanel}
-              intentAction={
-                localJourney &&
-                hasListingRecord &&
-                !submitted &&
-                !selected.job.company?.submitted_vacancy &&
-                !currentRemoval(selected.job) && (
-                  <Action
-                    className="secondary agent-intent-button"
-                    aria-pressed={marked.has(selected.job.id)}
-                    keepContentWhileBusy
-                    run={async () =>
-                      markForAgent(
-                        selected.job.id,
-                        !marked.has(selected.job.id),
-                      )
-                    }
-                  >
-                    <Bot size={16} aria-hidden="true" /> For my agent
-                  </Action>
-                )
-              }
               agentProgress={
                 localJourney &&
                 hasListingRecord &&
@@ -1968,6 +1899,7 @@ export function DiscoverPage() {
               rankingCurrent={!loading && !error && assessmentAvailable}
               assessmentAvailable={assessmentAvailable}
               hasListingRecord={hasListingRecord}
+              canChangePending={pendingRole(selected.job)}
               companyReview={
                 hasListingRecord &&
                 state._workspace.snapshot &&
@@ -2012,46 +1944,38 @@ export function DiscoverPage() {
           )}
         </div>
       )}
-      {agentView &&
-        agentQueue.page &&
-        (agentOffset > 0 || agentQueue.page.next_offset !== null) && (
-          <div
-            className="actions agent-queue-pagination"
-            role="group"
-            aria-label="Agent queue pages"
+      {agentTools && filteredRows.length > pendingPageSize && (
+        <div
+          className="actions agent-queue-pagination"
+          role="group"
+          aria-label="To apply pages"
+        >
+          <button
+            type="button"
+            className="secondary"
+            disabled={!pendingOffset}
+            onClick={() =>
+              updateFilters({ offset: String(pendingOffset - pendingPageSize) })
+            }
           >
-            <button
-              type="button"
-              className="secondary"
-              disabled={!agentOffset}
-              onClick={() =>
-                updateFilters({
-                  agent_offset: String(Math.max(0, agentOffset - 50)),
-                })
-              }
-            >
-              Previous page
-            </button>
-            <span>
-              {agentQueue.page.rows.length
-                ? `${agentOffset + 1}–${agentOffset + agentQueue.page.rows.length}`
-                : "0"}{" "}
-              of {agentQueue.page.total}
-            </span>
-            <button
-              type="button"
-              className="secondary"
-              disabled={agentQueue.page.next_offset === null}
-              onClick={() =>
-                updateFilters({
-                  agent_offset: String(agentQueue.page?.next_offset ?? ""),
-                })
-              }
-            >
-              Next page
-            </button>
-          </div>
-        )}
+            Previous page
+          </button>
+          <span>
+            {pendingOffset + 1}–{pendingOffset + visible.length} of{" "}
+            {filteredRows.length}
+          </span>
+          <button
+            type="button"
+            className="secondary"
+            disabled={pendingOffset + visible.length >= filteredRows.length}
+            onClick={() =>
+              updateFilters({ offset: String(pendingOffset + pendingPageSize) })
+            }
+          >
+            Next page
+          </button>
+        </div>
+      )}
       {applicationView &&
         section === "submitted" &&
         Boolean(state.historical_decisions?.length) && (

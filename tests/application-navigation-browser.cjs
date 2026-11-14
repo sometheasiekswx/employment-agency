@@ -95,8 +95,7 @@ const assert = require("node:assert/strict");
       (jobId) =>
         document.activeElement
           ?.closest(".discover-card")
-          ?.querySelector("[data-opportunity-id]")
-          ?.getAttribute("data-opportunity-id") === jobId,
+          ?.getAttribute("data-job-id") === jobId,
       selectedJob,
     );
 

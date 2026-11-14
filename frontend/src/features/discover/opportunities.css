@@ -75,13 +75,10 @@
   flex-wrap: wrap;
   justify-content: flex-end;
 }
-.discover-inspector-actions .agent-intent-button[aria-pressed="true"] {
+.discover-inspector-actions .discover-pending-button.is-saved {
   background: var(--accent-soft);
   color: var(--link);
   border-color: var(--accent-border);
-}
-.discover-inspector-actions .agent-intent-button {
-  white-space: nowrap;
 }
 @media (max-width: 390px) {
   .discover-inspector-actions > .discover-primary {

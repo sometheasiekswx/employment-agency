@@ -884,11 +884,6 @@
 .discover-location-select {
   display: none;
 }
-.discover-browse-scope {
-  margin: -0.25rem 0 0.75rem;
-  color: var(--muted);
-  font-size: 0.75rem;
-}
 .discover-local-search {
   display: flex;
   align-items: center;

@@ -9,7 +9,11 @@ import { currentRemoval } from "@/lib/job-removal";
 
 export { advertisedSalary } from "@/lib/format";
 
-export type DiscoveryView = "recommended" | "all" | "saved" | "applications";
+export type DiscoveryView = "jobs" | "to-apply" | "applications";
+
+export function pendingActionLabel(saved?: boolean) {
+  return saved ? "Remove from To apply" : "Apply later";
+}
 export interface RequirementEvidence {
   requirement: string;
   assessment: string;
@@ -115,7 +119,7 @@ export function roleStatus(job: Job, app?: Application, preview = false) {
     return { label: "Earlier rejection", tone: "warning" };
   if (app?.status === "reviewed") return { label: "Reviewed", tone: "green" };
   if (app) return { label: "Draft", tone: "purple" };
-  if (job.saved) return { label: "Saved", tone: "amber" };
+  if (job.saved) return { label: "To apply", tone: "amber" };
   return { label: "New", tone: "blue" };
 }
 
@@ -130,7 +134,7 @@ export function filterOpportunities(
   priorities: string[],
 ) {
   const query = filters.query.trim().toLocaleLowerCase();
-  return rows.filter(({ job, match }) => {
+  return rows.filter(({ job }) => {
     if (
       filters.view !== "applications" &&
       Boolean(currentRemoval(job)) !== Boolean(filters.removed)
@@ -138,10 +142,8 @@ export function filterOpportunities(
       return false;
     if (
       filters.view !== "applications" &&
-      Boolean(job.saved) !== (filters.view === "saved")
+      Boolean(job.saved) !== (filters.view === "to-apply")
     )
-      return false;
-    if (filters.view === "recommended" && match.hard_conflicts.length)
       return false;
     if (filters.location && destination(job, priorities) !== filters.location)
       return false;

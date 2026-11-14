@@ -250,8 +250,7 @@ const label = (job) => `${job.title} · ${job.employer}`;
         .evaluateAll((buttons) =>
           buttons.map(
             (button) =>
-              button.closest("article").querySelector("[data-opportunity-id]")
-                .dataset.opportunityId,
+              button.closest("article").dataset.jobId,
           ),
         );
       const jobs = ordered.map((id) =>
@@ -265,7 +264,7 @@ const label = (job) => `${job.title} · ${job.employer}`;
         .getByRole("heading", { name: first.title, exact: true })
         .waitFor();
       await panel(page)
-        .getByRole("button", { name: `Save ${first.title}`, exact: true })
+        .getByRole("button", { name: "Apply later", exact: true })
         .click();
       await waitState(
         (value) => value.jobs.find((job) => job.id === first.id).saved,
@@ -400,7 +399,7 @@ const label = (job) => `${job.title} · ${job.employer}`;
         .getByRole("combobox", { name: "Search profile", exact: true })
         .selectOption(secondProfile.id);
       await page.locator(".discover-filters > summary").click();
-      for (const view of ["Recommended", "Browse", "Saved"]) {
+      for (const view of ["Jobs", "To apply"]) {
         await page
           .getByRole("group", { name: "Opportunity views", exact: true })
           .getByRole("button", { name: view, exact: true })
@@ -416,7 +415,7 @@ const label = (job) => `${job.title} · ${job.employer}`;
       }
       await page
         .getByRole("group", { name: "Opportunity views", exact: true })
-        .getByRole("button", { name: "Browse", exact: true })
+        .getByRole("button", { name: "Jobs", exact: true })
         .click();
       await removed(page);
       await card(page, first).waitFor();
@@ -472,10 +471,10 @@ const label = (job) => `${job.title} · ${job.employer}`;
         .getByRole("button", { name: "Show available roles", exact: true })
         .click();
       await card(page, first).waitFor({ state: "detached" });
-      await page.getByRole("button", { name: "Saved", exact: true }).click();
+      await page.getByRole("button", { name: "To apply", exact: true }).click();
       await card(page, first).waitFor();
       await page
-        .getByRole("button", { name: `Unsave ${first.title}`, exact: true })
+        .getByRole("button", { name: `Remove from To apply · ${first.title}`, exact: true })
         .click();
       await waitState(
         (value) => !value.jobs.find((job) => job.id === first.id).saved,
@@ -806,8 +805,7 @@ const label = (job) => `${job.title} · ${job.employer}`;
       .evaluateAll((buttons) =>
         buttons.map(
           (button) =>
-            button.closest("article").querySelector("[data-opportunity-id]")
-              .dataset.opportunityId,
+            button.closest("article").dataset.jobId,
         ),
       );
     const last = original.state.jobs.find((job) => job.id === ids.at(-1));
@@ -994,8 +992,7 @@ const label = (job) => `${job.title} · ${job.employer}`;
       .evaluateAll((buttons) =>
         buttons.map(
           (button) =>
-            button.closest("article").querySelector("[data-opportunity-id]")
-              .dataset.opportunityId,
+            button.closest("article").dataset.jobId,
         ),
       );
     for (const id of mobileJobs.slice(0, -1)) {

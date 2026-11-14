@@ -86,6 +86,8 @@ The API is operation-oriented JSON rather than a general CRUD/REST model. `Servi
 
 Operations cover identity, import, fact/confirm/retire, profiles, jobs/URL/source/discovery, rank, consent, master proposal/acceptance, prepare/run/resume/cancel, document preview/save, external-edit adoption, history, review/comments and export. Local workspace-open/create/browse are handled by the HTTP adapter. Hosted deliberately allows a smaller set; it rejects local folder access, agent/paid AI runs and custom TeX execution.
 
+The Jobs and To apply boards use workspace listings and the selected profile’s ranking. To apply uses the effective `saved` value exposed by the state response. Legacy bookmark and agent-mark records both contribute to that choice. SQLite schema 7 rebuilds the application and agent queue indexes in one transaction from the canonical records. Portable records retain their existing format. Both compatibility mutations update the same pending choice, and the pending queue views omit removed and submitted vacancies.
+
 The client tracks request generations. A response issued before a workspace change cannot overwrite the newly selected workspace's UI state. The server token also invalidates stale mutations. Drafts and profile selection reset at the workspace boundary.
 
 ## Durable local model

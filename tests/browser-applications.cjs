@@ -25,9 +25,7 @@ const removalControl = (page, application, restore = false) =>
 const applicationCard = (page, application) =>
   workbench(page).locator(`[data-application-id="${application.id}"]`);
 const roleCard = (page, application) =>
-  page.locator(".discover-card").filter({
-    has: page.locator(`[data-opportunity-id="${application.job_id}"]`),
-  });
+  page.locator(`.discover-card[data-job-id="${application.job_id}"]`);
 const showPanel = async (page, panel) => {
   const name = { overview: "Overview", documents: "CV", files: "Documents", activity: "Activity" }[panel];
   const panels = workbench(page).getByRole("group", { name: "Role workspace" });

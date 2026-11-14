@@ -35,7 +35,7 @@ The exact application documents recorded as submitted, preserved with their prov
 A user's recorded review or manual submission. Recording Submitted also confirms review. Active contains Draft and Reviewed packages for roles without a recorded submission. Earlier Rejected decisions are retained in activity.
 
 **Recorded submission**:
-A submitted application snapshot or a listing tagged Already submitted. It moves the role from Recommended, All roles and Saved into Applications → Submitted. A listing tag leaves the submitted document version unknown. Any unfinished draft for that listing is accessible from Submitted as a separate version.
+A submitted application snapshot or a listing tagged Already submitted. It moves the role from Jobs or To apply into Applications → Submitted. A listing tag leaves the submitted document version unknown. Any unfinished draft for that listing is accessible from Submitted as a separate version.
 
 **Company cooldown**:
 The temporary pause on discovery and new applications at a hiring employer after two distinct confirmed submissions. Its deadline uses the workspace’s configured duration and the actual submission history.
@@ -46,11 +46,11 @@ The organisation hiring for a vacancy, which can differ from the recruiter or li
 **Companies to avoid**:
 Hiring employers whose company cooldown is active at the time of a job search.
 
-**Saved role**:
-An opportunity bookmarked by the user. The bookmark places the role in Saved while it is available to browse. If a correction returns a role to browsing, its bookmark determines whether it goes back to Saved.
+**Jobs**:
+The incoming list of opportunities available to assess. Stronger matches appear first, and profile mismatches remain visible.
 
-**For my agent**:
-A role marked for later work by the user's agent, including before an application draft exists. The mark records intention; it does not start an application or authorize sending.
+**To apply**:
+The roles the user kept with **Apply later**, including roles with prepared drafts. Recording a submission removes the vacancy from this pending list. Removal preserves the choice for restoration. Earlier bookmarks and agent marks both carry forward into To apply.
 
 **Job reference**:
 The title, company and full workspace job ID copied from a listing, with its original link when available. The ID identifies the exact role when titles and companies repeat.
@@ -92,10 +92,10 @@ One or two sentences describing a role and its strongest supported match to conf
 An isolated example career workspace containing an explicitly fictional candidate and dated snapshots of real job listings. Its sample decisions and generated documents demonstrate the application, not a real person's employment or submissions.
 
 **Public showcase**:
-The publicly accessible static demo with the owner’s redacted résumé and profile, employer listings and sample application decisions. Visitors can bookmark roles in their browser and prepare drafts from a résumé selected in the current tab.
+The publicly accessible static demo with the owner’s redacted résumé and profile, employer listings and sample application decisions. Visitors can keep roles in To apply in their browser and prepare drafts from a résumé selected in the current tab.
 
 **Demo draft**:
 An application draft prepared from the selected résumé in the public showcase. The draft lives in the current tab and the visitor can download a copy.
 
 **Submission approval**:
-The user's authorization to prepare and submit the role or selected roles named when starting **Apply for me**. A **For my agent** mark, draft preparation or review decision does not grant this authority; actions outside the authorized scope require a new decision. See [ADR 0016](docs/adr/0016-authorize-role-submission-when-starting-agent.md). Earlier delivery attempts retain their original final-approval contract.
+The user's authorization to prepare and submit the role or selected roles named when starting **Apply for me**. An **Apply later** choice, draft preparation or review decision does not grant this authority; actions outside the authorized scope require a new decision. See [ADR 0016](docs/adr/0016-authorize-role-submission-when-starting-agent.md). Earlier delivery attempts retain their original final-approval contract.

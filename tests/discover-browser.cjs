@@ -141,23 +141,23 @@ const fs = require("node:fs");
         }
       }
     };
-    const discovery = base + "/discover/?view=all";
+    const discovery = base + "/discover/?view=jobs";
     fs.mkdirSync("output/playwright/concept-a", { recursive: true });
 
     await page.goto(base + "/discover/");
     await cloud().waitFor();
     // Capture the URL in the click task itself, before an asynchronous router
-    // replacement could finish. The next role selection must start from Browse.
-    const browseUrl = await page
-      .getByRole("button", { name: "Browse", exact: true })
+    // replacement could finish. The next role selection must start from Jobs.
+    const jobsUrl = await page
+      .getByRole("button", { name: "Jobs", exact: true })
       .evaluate((button) => {
         button.click();
         return window.location.href;
       });
     assert.equal(
-      browseUrl,
+      jobsUrl,
       discovery,
-      "Browse updates the board URL immediately",
+      "Jobs updates the board URL immediately",
     );
     await cloud().click();
     await inspector()
@@ -187,7 +187,7 @@ const fs = require("node:fs");
     await page.waitForURL(
       (url) => url.searchParams.get("view") === "applications",
     );
-    await page.getByRole("button", { name: "Browse", exact: true }).click();
+    await page.getByRole("button", { name: "Jobs", exact: true }).click();
     await cloud().waitFor();
     assert.equal(
       rankings,
@@ -200,7 +200,7 @@ const fs = require("node:fs");
         .count(),
       0,
     );
-    await page.getByRole("button", { name: "Browse", exact: true }).click();
+    await page.getByRole("button", { name: "Jobs", exact: true }).click();
     await page.waitForURL(discovery);
     await page.screenshot({
       path: "output/playwright/concept-a/discover-desktop.png",
@@ -236,7 +236,7 @@ const fs = require("node:fs");
     );
     const selectedRoute = page.url();
     const selectedParams = new URL(selectedRoute).searchParams;
-    assert.equal(selectedParams.get("view"), "all");
+    assert.equal(selectedParams.get("view"), "jobs");
     assert.equal(
       selectedParams.get("assessment_profile"),
       initial.profiles[0].id,
@@ -282,7 +282,7 @@ const fs = require("node:fs");
     await inspector()
       .locator(`[data-application-id="${existingApplication}"]`)
       .waitFor();
-    assert.equal(new URL(page.url()).searchParams.get("view"), "all");
+    assert.equal(new URL(page.url()).searchParams.get("view"), "jobs");
     assert.equal(
       new URL(page.url()).searchParams.get("opportunity"),
       selectedParams.get("opportunity"),
@@ -331,23 +331,23 @@ const fs = require("node:fs");
         "Assess Cloud Software Engineer at Emberlane Systems",
     );
 
-    // Persist a bookmark through a full reload before testing rollback in Saved.
+    // Persist a bookmark through a full reload before testing rollback in To apply.
     await page.goto(discovery + "&q=Cloud");
     await page
       .getByRole("button", {
-        name: "Save Cloud Software Engineer",
+        name: "Apply later · Cloud Software Engineer",
         exact: true,
       })
       .focus();
     await page.keyboard.press("Enter");
     await cloud().waitFor({ state: "detached" });
-    await page.locator("#notice").filter({ hasText: "Role saved." }).waitFor();
+    await page.locator("#notice").filter({ hasText: "Role added to To apply." }).waitFor();
     const allRoles = page.getByRole("button", {
-      name: "Browse",
+      name: "Jobs",
       exact: true,
     });
     await page.waitForFunction(
-      () => document.activeElement?.textContent.trim() === "Browse",
+      () => document.activeElement?.textContent.trim() === "Jobs",
     );
     assert.equal(await allRoles.getAttribute("aria-pressed"), "true");
     await page.reload();
@@ -357,9 +357,9 @@ const fs = require("node:fs");
     assert.equal(
       await cloud().count(),
       0,
-      "Saved remains separate after reload",
+      "To apply remains separate after reload",
     );
-    await page.getByRole("button", { name: "Saved", exact: true }).click();
+    await page.getByRole("button", { name: "To apply", exact: true }).click();
     await cloud().waitFor();
     await cloud().click();
     let receiveFailure;
@@ -372,7 +372,7 @@ const fs = require("node:fs");
     await page.route(base + "/api/save-job", saveFailure);
     await inspector()
       .getByRole("button", {
-        name: "Unsave Cloud Software Engineer",
+        name: "Remove from To apply",
         exact: true,
       })
       .click();
@@ -398,14 +398,14 @@ const fs = require("node:fs");
     await inspector().waitFor({ state: "detached" });
     await page
       .getByRole("button", {
-        name: "Unsave Cloud Software Engineer",
+        name: "Remove from To apply · Cloud Software Engineer",
         exact: true,
       })
       .click();
     await cloud().waitFor({ state: "detached" });
     await page
       .locator("#notice")
-      .filter({ hasText: "Role removed from Saved." })
+      .filter({ hasText: "Role removed from To apply." })
       .waitFor();
     assert.equal(
       (await state()).jobs.find((job) => job.employer === "Emberlane Systems")
@@ -627,7 +627,7 @@ const fs = require("node:fs");
     await page.route(base + "/api/save-job", mobileSaveFailure);
     await modal
       .getByRole("button", {
-        name: "Save Cloud Software Engineer",
+        name: "Apply later",
         exact: true,
       })
       .click();

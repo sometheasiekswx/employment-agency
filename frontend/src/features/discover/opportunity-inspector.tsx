@@ -33,6 +33,7 @@ import {
   advertisedSalary,
   remainingEvidenceGaps,
   requirementEvidence,
+  pendingActionLabel,
   roleStatus,
 } from "./discovery";
 import { OpportunityCareerEvidence } from "./opportunity-career-evidence";
@@ -166,7 +167,7 @@ interface InspectorProps {
   applicationContent?: ReactNode;
   submissionRecord?: ReactNode;
   agentProgress?: ReactNode;
-  intentAction?: ReactNode;
+  canChangePending?: boolean;
   onPrevious: () => void;
   onNext: () => void;
   onClose: () => boolean | void;
@@ -249,7 +250,7 @@ export function OpportunityInspector({
   applicationContent,
   submissionRecord,
   agentProgress,
-  intentAction,
+  canChangePending = true,
   onPrevious,
   onNext,
   onClose,
@@ -1008,19 +1009,22 @@ export function OpportunityInspector({
               Prepare application
             </Action>
           )}
-          {intentAction}
-          {hasListingRecord && (
+          {hasListingRecord && canChangePending && (
             <Action
               previewAllowed
               keepContentWhileBusy
               data-opportunity-id={job.id}
-              className={`discover-icon-button ${job.saved ? "is-saved" : ""}`}
+              className={`secondary discover-pending-button ${job.saved ? "is-saved" : ""}`}
               disabled={saving}
-              aria-label={`${job.saved ? "Unsave" : "Save"} ${job.title}`}
               aria-pressed={Boolean(job.saved)}
               run={onSave}
             >
-              <Bookmark size={17} fill={job.saved ? "currentColor" : "none"} />
+              <Bookmark
+                aria-hidden="true"
+                size={17}
+                fill={job.saved ? "currentColor" : "none"}
+              />
+              {pendingActionLabel(job.saved)}
             </Action>
           )}
           {removed && application && onRestore && (
@@ -1061,8 +1065,8 @@ export function OpportunityInspector({
             role="alert"
             tabIndex={-1}
           >
-            {saveError} The saved change could not be confirmed; retry the save
-            control.
+            {saveError} Your previous To apply choice is shown. Retry the
+            action.
           </p>
         )}
         {!preview && !hasDecision && !match.eligible_for_preparation && (

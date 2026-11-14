@@ -4,6 +4,8 @@ Accepted specification: [spec.md](spec.md). Task status: [todo.md](todo.md). Aut
 
 Prepared on 14 November 2026. This plan covers implementation and verification of the accepted design; the current task creates planning documents only. No application code, private records, installed build or external application is changed by this planning stage.
 
+The later [Jobs and To apply plan](../jobs-to-apply/plan.md) supersedes the separate bookmark and agent-queue choice in this historical design.
+
 ## Approach
 
 Keep one responsive role workspace and the existing Python service. Deliver the CV-first journey, employer exceptions, deferred agent queue, manual submission and connected execution as complete, testable slices. Prove the uncertain agent/tool boundary early, before treating the execution button as a deliverable. UI work can continue if that proof encounters a technical dependency; real execution remains a required, incomplete capability until proved.

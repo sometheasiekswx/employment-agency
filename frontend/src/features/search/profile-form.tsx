@@ -87,8 +87,8 @@ export function ProfileForm({ profile }: { profile?: Profile }) {
       >
         <legend>Required matches</legend>
         <p id={matchHelpId}>
-          Recommended excludes listings with a known mismatch on a checked
-          preference. Missing details remain marked for review.
+          A known mismatch on a checked preference is flagged in Jobs and
+          blocks draft preparation. Missing details are marked for review.
         </p>
         <div className="search-match-options">
           {matchFields.map(([value, label]) => (

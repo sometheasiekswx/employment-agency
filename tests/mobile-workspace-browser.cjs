@@ -114,7 +114,7 @@ async function drag(page, control, delta, session) {
       page.setDefaultTimeout(8000);
       const errors = [];
       page.on("pageerror", (e) => errors.push(e.message));
-      await page.goto(base + "/discover/?view=all");
+      await page.goto(base + "/discover/?view=jobs");
       const role = page.getByRole("button", { name, exact: true });
       await role.waitFor();
       const search = page
@@ -252,7 +252,7 @@ async function drag(page, control, delta, session) {
       await panel.waitFor({ state: "detached" });
       assert.equal(
         page.url(),
-        base + "/discover/?view=all",
+        base + "/discover/?view=jobs",
         "Escape during reduced motion returns to the current shortlist",
       );
       await page.emulateMedia({ reducedMotion: "no-preference" });

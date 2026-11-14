@@ -219,12 +219,6 @@ export interface AgentIntent {
   updated_at: string;
 }
 
-export interface AgentQueuePage {
-  rows: { role_id: string; application_id: string | null; marked_at: string }[];
-  total: number;
-  next_offset: number | null;
-}
-
 export type AgentChannel = "website" | "telegram" | "email";
 export interface AgentCapabilities {
   available: boolean;

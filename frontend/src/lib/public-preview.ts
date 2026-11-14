@@ -373,7 +373,7 @@ export class PublicPreviewTransport {
       if (!job || typeof data?.saved !== "boolean")
         return json(
           {
-            error: "Choose a role and a true or false bookmark value.",
+            error: "Choose a role and a true or false To apply value.",
           },
           400,
         );

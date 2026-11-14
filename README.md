@@ -68,7 +68,7 @@ Assessments keep evidence, gaps and unknowns visible. Live search, loading skele
 
 **Clear the shortlist without losing your records.** Remove a role from Opportunities or Applications and continue with the next one. Open Applications → Removed to review its documents and activity, add a reason or restore it to its previous lists.
 
-**Prepare application → CV → Open application site → I've applied.** The CV opens automatically, and the original job listing stays available alongside documents and activity. **For my agent** saves a role for later without starting work. In the local app, [Apply for me](docs/apply-for-me.md) starts a connected agent when a supported runtime and application channel are available. Starting authorizes preparation and submission for the selected roles; missing information or access pauses the run for your help. Preparing a draft or marking a role alone never submits it.
+**Prepare application → CV → Open application site → I've applied.** The CV opens automatically, and the original job listing stays available alongside documents and activity. In **Jobs**, choose **Apply later** to keep a role in **To apply** through CV preparation. You can apply yourself or select roles in **To apply** to work with an agent. In the local app, [Apply for me](docs/apply-for-me.md) starts a connected agent when a supported runtime and application channel are available. Starting authorizes preparation and submission for the selected roles; missing information or access pauses the run for your help. Saving a role, preparing a draft and copying a handoff confer no submission authority.
 
 ## Run locally
 

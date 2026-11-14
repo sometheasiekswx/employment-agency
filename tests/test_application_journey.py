@@ -60,12 +60,18 @@ class ApplicationJourney(unittest.TestCase):
             'occurred_at': '2026-01-12T09:15:00+00:00', 'evidence': 'Fictional site confirmation 792.', **fields,
         })
 
-    def test_agent_queue_is_independent_and_restores_without_execution(self):
-        first = self.mark()
+    def test_pending_choice_unions_legacy_records_and_restores_without_execution(self):
         saved = self.role('saved')
-        self.s.action('save-job', {'id': saved['id'], 'saved': True})
-        self.mark(saved)
-        self.assertEqual(self.mark(), first)
+        both = self.role('both')
+        with self.w.edit() as state:
+            for job in state['jobs']:
+                job['saved'] = job['id'] in {saved['id'], both['id']}
+            state['agent_intents'] = [
+                {'id': job['id'], 'marked': True, 'updated_at': store.now()}
+                for job in (self.job, both)
+            ]
+
+        expected_ids = {self.job['id'], saved['id'], both['id']}
         handoff = self.s.action('application-handoff', {'job_ids': [self.job['id'], saved['id']]})
         self.assertEqual(handoff['workspace_id'], self.w.workspace_id)
         self.assertIn('application-context', handoff['text'])
@@ -78,19 +84,25 @@ class ApplicationJourney(unittest.TestCase):
         with patch.object(packages, 'changed', side_effect=AssertionError('Queue opened documents')):
             page = self.s.action('agent-queue', {'limit': 1})
             rest = self.s.action('agent-queue', {'offset': page['next_offset']})
-        self.assertEqual(page['total'], 2)
-        self.assertEqual({row['role_id'] for row in page['rows'] + rest['rows']}, {self.job['id'], saved['id']})
-        self.assertTrue(all(row['application_id'] is None for row in page['rows'] + rest['rows']))
-        self.assertEqual([row['job_id'] for row in self.s.action('application-queue', {'stage': 'saved'})['rows']],
-                         [saved['id']])
+            pending = self.s.action('application-queue', {'stage': 'saved'})['rows']
+        self.assertEqual(page['total'], len(expected_ids))
+        rows = page['rows'] + rest['rows']
+        self.assertEqual({row['role_id'] for row in rows}, expected_ids)
+        self.assertEqual(len(rows), len(expected_ids))
+        self.assertTrue(all(row['application_id'] is None for row in rows))
+        self.assertEqual({row['job_id'] for row in pending}, expected_ids)
+        self.assertEqual({job['id'] for job in self.s.state()['jobs'] if job['saved']}, expected_ids)
+
         package = self.draft()
         self.assertEqual(self.context()['application']['id'], package['id'])
+        pending = {row['role_id']: row for row in self.s.action('agent-queue', {})['rows']}
+        self.assertEqual(pending[self.job['id']]['application_id'], package['id'])
         removal_id = store.uid()
         self.s.action('remove-job', {'id': self.job['id'], 'removal_id': removal_id})
-        self.assertEqual(self.s.action('agent-queue', {})['total'], 1)
+        self.assertEqual(self.s.action('agent-queue', {})['total'], 2)
         self.assertTrue(self.w.read()['agent_intents'][0]['marked'])
         self.s.action('restore-job', {'id': self.job['id'], 'removal_id': removal_id})
-        self.assertEqual(self.s.action('agent-queue', {})['total'], 2)
+        self.assertEqual(self.s.action('agent-queue', {})['total'], 3)
         backup = self.w.export(self.root / 'journey.zip')
         for name, method, source in [('zip', store.restore, backup), ('snapshot', store.restore_snapshot, self.w.path)]:
             with self.subTest(restore=name):
@@ -101,12 +113,57 @@ class ApplicationJourney(unittest.TestCase):
                     service = Service(restored)
                     self.assertNotEqual(restored.workspace_id, self.w.workspace_id)
                     self.assertEqual(service.action('agent-queue', {}), self.s.action('agent-queue', {}))
+                    self.assertEqual(service.action('application-queue', {'stage': 'saved'})['rows'],
+                                     self.s.action('application-queue', {'stage': 'saved'})['rows'])
                     self.assertIsNone(service.agent_execution)
                     self.assertFalse(restored.read().get('submission_attempts'))
+                    self.assertFalse(restored.read().get('agent_runs'))
+                    self.assertFalse(restored.read().get('consents'))
                 finally:
                     restored.close()
-        self.mark(marked=False)
+
+        self.s.action('save-job', {'id': self.job['id'], 'saved': False})
+        self.mark(saved, marked=False)
         self.assertEqual(self.s.action('agent-queue', {})['total'], 1)
+        self.assertEqual([row['job_id'] for row in self.s.action('application-queue', {'stage': 'saved'})['rows']],
+                         [both['id']])
+        self.assertFalse(self.w.read()['agent_intents'][0]['marked'])
+        self.s.action('job', {**self.job, 'description': 'Fictional refreshed listing.'})
+        self.assertEqual(self.s.action('agent-queue', {})['total'], 1)
+        previous = self.mark()
+        self.assertEqual(self.mark(), previous)
+        self.assertTrue(self.w.read()['jobs'][0]['saved'])
+        self.assertEqual(self.s.action('agent-queue', {})['total'], 2)
+
+    def test_v6_pending_queue_migration_rebuilds_both_indexes_atomically(self):
+        saved = self.role('saved-v6')
+        role_id = self.job['id']
+        with self.w.edit() as state:
+            state['jobs'][1]['saved'] = True
+            state['agent_intents'] = [{'id': role_id, 'marked': True, 'updated_at': store.now()}]
+        path = self.w.path
+        before = (path / 'state.json').read_bytes()
+        canonical = self.w.read()
+        self.w.close()
+        with closing(sqlite3.connect(path / DATABASE)) as database, database:
+            database.execute('DELETE FROM application_queue WHERE role_id = ?', (role_id,))
+            database.execute('DELETE FROM agent_queue WHERE role_id = ?', (saved['id'],))
+            database.execute('PRAGMA user_version = 6')
+        with patch.object(SQLiteState, 'save_agent_queue', side_effect=sqlite3.OperationalError):
+            with self.assertRaisesRegex(ValueError, 'database change could not be saved'):
+                store.Workspace(path, create=False)
+        with closing(sqlite3.connect(path / DATABASE)) as database:
+            self.assertEqual(database.execute('PRAGMA user_version').fetchone(), (6,))
+            self.assertEqual(database.execute('SELECT role_id FROM application_queue').fetchall(), [(saved['id'],)])
+            self.assertEqual(database.execute('SELECT role_id FROM agent_queue').fetchall(), [(role_id,)])
+        self.w = store.Workspace(path, create=False)
+        self.s = Service(self.w)
+        self.assertEqual(self.w.database.connection.execute('PRAGMA user_version').fetchone(), (DATABASE_VERSION,))
+        self.assertEqual({row['role_id'] for row in self.s.action('agent-queue', {})['rows']}, {role_id, saved['id']})
+        self.assertEqual({row['job_id'] for row in self.s.action('application-queue', {'stage': 'saved'})['rows']},
+                         {role_id, saved['id']})
+        self.assertEqual(self.w.read(), canonical)
+        self.assertEqual((path / 'state.json').read_bytes(), before)
 
     def test_agent_queue_migration_is_transactional_and_preserves_snapshot(self):
         self.mark()
@@ -379,6 +436,7 @@ class ApplicationJourney(unittest.TestCase):
         app = self.draft()
         self.s.action('review', {'id': app['id'], 'status': 'submitted', 'occurred_at': '2026-01-12'})
         self.assertEqual(self.s.action('agent-queue', {})['total'], 0)
+        self.assertEqual(self.s.action('application-queue', {'stage': 'saved'})['rows'], [])
         related = next(job for job in self.s.state()['jobs'] if job['id'] == duplicate['id'])
         self.assertTrue(related['company']['submitted_vacancy'])
         self.assertNotEqual(related.get('prior_application'), 'submitted')

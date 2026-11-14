@@ -8,14 +8,14 @@ The public web showcase and the installed CLI demo use separate datasets. The sh
 | Candidate           | Public profile and redacted master résumé              | Alex Morgan, fictional software engineer in New York       |
 | Jobs                | Employer postings and example roles in seven destinations | Fourteen real employer-board metadata snapshots           |
 | Application records | Seven sample packages and drafts prepared in the current tab | Twelve generated packages with sample decisions and comments |
-| Changes             | Browser-local bookmarks and removal, tab-only résumé and draft editing | Normal local demo-workspace operations        |
+| Changes             | Browser-local To apply choices and removal, tab-only résumé and draft editing | Normal local demo-workspace operations        |
 | Runtime             | Static public site; no application backend or sign-in  | Isolated local Python server and workspace                   |
 
 ## Public web showcase
 
 [**Explore the live demo →**](https://employment-agency-demo.vercel.app/discover/)
 
-The showcase presents the company board and opportunity inspector on desktop, plus an expandable opportunity sheet on mobile. **Opportunities** combines Recommended, Browse, Saved and Applications, alongside **Career profile, Search preferences, History and Settings**. The interface uses the project's briefcase/person mark, light and dark surfaces, lavender accents and self-hosted Inter fonts.
+The showcase presents the company board and opportunity inspector on desktop, plus an expandable opportunity sheet on mobile. **Opportunities** contains Jobs, To apply and Applications, alongside **Career profile, Search preferences, History and Settings**. The interface uses the project's briefcase/person mark, light and dark surfaces, lavender accents and self-hosted Inter fonts.
 
 The public site releases automatically after all checks pass on `main`. The release marker records the deployed commit. [Release marker](https://employment-agency-demo.vercel.app/release.json) · [Deployment runbook](public-demo-deployment.md)
 
@@ -34,7 +34,7 @@ The six roles used in the walkthroughs are shown below. The showcase adds two sa
 
 The landing page links to the public résumé. Career profile shows the owner’s name and evidence drawn from the redacted master. For a new draft, the demo uses the selected résumé. Choose a PDF with selectable text, a DOCX or plain text, then review the extracted text before using it. Edit the new CV or cover letter under Active and download Word or PDF. Files and drafts stay in the current tab and clear on reload or close. The local app supplies lasting workspace storage, custom LaTeX templates and the complete application workflow.
 
-The shared Python `Service` generates the bundled state, requirement assessments and real document files before the static site is built. The browser displays those results. Bookmarks, removal, restoration and optional reasons stay in the visitor's browser. Applications → Removed holds removed roles with their saved documents and activity. Restore returns a role to its previous lists. Personal uploads, career-data edits, new document generation, external source refreshes, paid providers and employer actions are unavailable in this public showcase. Use the local application for those supported workflows.
+The shared Python `Service` generates the bundled state, requirement assessments and real document files before the static site is built. The browser displays those results. To apply choices, removal, restoration and optional reasons stay in the visitor's browser. Applications → Removed holds removed roles with their saved documents and activity. Restore returns a role to its previous lists. Personal uploads, career-data edits, new document generation, external source refreshes, paid providers and employer actions are unavailable in this public showcase. Use the local application for those supported workflows.
 
 The sample application records include a reviewed Emberlane package, a Fernbridge draft and a Cedarlight submission record. **The submission is fictional; no employer was contacted.** The documents contain sample content and must not be used as real application material.
 

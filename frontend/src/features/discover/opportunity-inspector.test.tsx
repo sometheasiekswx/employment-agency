@@ -487,7 +487,7 @@ it("expands a deliberate short body swipe and sends excess travel into reading b
   ).toHaveAttribute("aria-expanded", "true");
 });
 
-it.each(["Prepare application", "Save Engineer", "footer padding"])(
+it.each(["Prepare application", "Apply later", "footer padding"])(
   "expands a short reading swipe beginning on %s without activating an action",
   (region) => {
     const { dialog, props, point } = touchFixture();

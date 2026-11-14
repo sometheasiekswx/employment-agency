@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Action, TextArea } from "@/components/controls";
 import { useWorkspace } from "@/components/workspace-provider";
 import {
@@ -10,55 +9,7 @@ import {
   agentRunBlocksStart,
   useAgentRuns,
 } from "@/features/applications/agent-application";
-import { errorMessage } from "@/lib/format";
-import type { AgentQueuePage, Job } from "@/lib/models";
-
-function readKey(offset: number, revision: number) {
-  return `${offset}:${revision}`;
-}
-
-export function useAgentQueue(
-  enabled: boolean,
-  offset: number,
-  revision: number,
-) {
-  const { state, client } = useWorkspace();
-  const [result, setResult] = useState<{
-    key: string;
-    page?: AgentQueuePage;
-    error?: string;
-  }>();
-  const [retry, setRetry] = useState(0);
-  const requestKey = readKey(offset, revision);
-  const snapshotRevision = state._workspace.snapshot?.revision;
-  useEffect(() => {
-    if (!enabled) return;
-    let active = true;
-    client.action<AgentQueuePage>("agent-queue", { limit: 50, offset }).then(
-      (result) => {
-        if (active) {
-          setResult({ key: requestKey, page: result });
-        }
-      },
-      (problem) => {
-        if (active) {
-          setResult({ key: requestKey, error: errorMessage(problem) });
-        }
-      },
-    );
-    return () => {
-      active = false;
-    };
-  }, [client, enabled, offset, requestKey, retry, snapshotRevision]);
-  return {
-    page: result?.key === requestKey ? result.page : undefined,
-    error: result?.key === requestKey ? result.error : undefined,
-    reload: () => {
-      setResult(undefined);
-      setRetry((value) => value + 1);
-    },
-  };
-}
+import type { Job } from "@/lib/models";
 
 export function AgentQueueTools({
   jobs,
@@ -107,13 +58,20 @@ export function AgentQueueTools({
   }
 
   return (
-    <section className="agent-queue-tools" aria-label="Agent queue actions">
-      <div className="actions">
-        <strong role="status">{jobs.length} selected</strong>
-        <Action run={copy} disabled={!jobs.length}>
-          Copy agent instructions
-        </Action>
-      </div>
+    <section
+      className="agent-queue-tools"
+      aria-label="Agent actions for To apply"
+    >
+      {jobs.length > 0 ? (
+        <div className="actions">
+          <strong role="status">{jobs.length} selected</strong>
+          <Action run={copy}>Copy agent instructions</Action>
+        </div>
+      ) : (
+        <p className="muted" role="status">
+          Open a job to apply yourself, or select jobs for your agent.
+        </p>
+      )}
       {currentHandoff?.copied && (
         <p role="status">Agent instructions copied.</p>
       )}
@@ -134,13 +92,17 @@ export function AgentQueueTools({
           </button>
         </p>
       ) : (
-        <AgentLauncher
-          jobs={containsActive || !runs ? [] : jobs}
-          applicationIds={applicationIds}
-          onStart={update}
-          onStartBusy={onStartBusy}
-          showReadiness
-        />
+        jobs.length > 0 &&
+        !containsActive &&
+        runs && (
+          <AgentLauncher
+            jobs={jobs}
+            applicationIds={applicationIds}
+            onStart={update}
+            onStartBusy={onStartBusy}
+            showReadiness
+          />
+        )
       )}
       {containsActive && <p>Open running roles below to see progress.</p>}
       {openRuns.length > 0 && (
@@ -164,12 +126,6 @@ export function AgentQueueTools({
             );
           })}
         </details>
-      )}
-      {!jobs.length && (
-        <p className="muted">
-          Select roles to copy instructions for another agent.{" "}
-          <Link href="/discover/?view=all">Browse roles</Link>
-        </p>
       )}
     </section>
   );

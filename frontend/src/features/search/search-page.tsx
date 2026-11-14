@@ -68,7 +68,7 @@ export function SearchPage() {
       <div className="search-preferences-grid">
         <section className="secondary-panel search-profile-panel">
           <h2>Search profiles</h2>
-          <p>Choose a profile to set which roles appear in Recommended.</p>
+          <p>Choose a profile to rank and assess roles in Jobs.</p>
           <Select
             label="Active profile"
             name="active_profile"

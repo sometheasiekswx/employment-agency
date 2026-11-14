@@ -10,3 +10,7 @@ Marking **For my agent** records intention only. Starting selected roles from th
 The shared application must retain the authorized scope, exact documents and answers actually used, applicable company reservation and channel evidence. An uncertain outcome remains unresolved until checked. A connected agent's message alone does not establish Submitted. Keep credentials and sessions machine-local, preserve submitted snapshots, and retain self-apply and external-agent handoff when execution is unavailable. [Application journey specification](../../tasks/application-journey/spec.md)
 
 This is an accepted product-design decision. It does not authorize a live application, connected-agent run, implementation or release during the specification interview. Earlier source behavior remains unchanged until the new flow is implemented and verified.
+
+## To apply follow-up
+
+Jobs and To apply combine the earlier recommendation/browse views and the earlier bookmark/agent-mark choices. Both pending choice APIs now set the same To apply membership. Starting the connected agent still authorizes only the explicitly selected roles.

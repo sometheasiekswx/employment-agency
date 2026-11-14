@@ -451,7 +451,7 @@ async function selectionBack(page, base, state, label) {
       (profile) => profile.id === params.get("assessment_profile"),
     ),
   );
-  assert.equal(params.get("view"), "all");
+  assert.equal(params.get("view"), "jobs");
   const document = inspector(page).locator(".opportunity-application");
   await document.waitFor();
   const application = await document.getAttribute("data-application-id");
@@ -466,7 +466,7 @@ async function selectionBack(page, base, state, label) {
       "mobile: opening a prepared role focuses the workspace immediately",
     );
     await page.goBack();
-    await page.waitForURL(base + "/discover/?view=all");
+    await page.waitForURL(base + "/discover/?view=jobs");
     await workbench.waitFor({ state: "hidden" });
     await assertFocused(
       cloud(page),
@@ -921,20 +921,20 @@ async function bookmarkRollback(page, readState, label, mobile) {
       .locator(".discover-card")
       .filter({ has: cloud(page) })
       .getByRole("button", {
-        name: `${saved ? "Unsave" : "Save"} Cloud Software Engineer`,
+        name: `${saved ? "Remove from To apply" : "Apply later"} · Cloud Software Engineer`,
         exact: true,
       });
   if (!initialSaved) {
     await bookmark(false).click();
-    await page.locator("#notice").filter({ hasText: "Role saved." }).waitFor();
+    await page.locator("#notice").filter({ hasText: "Role added to To apply." }).waitFor();
     await cloud(page).waitFor({ state: "detached" });
   }
-  await page.getByRole("button", { name: "Saved", exact: true }).click();
+  await page.getByRole("button", { name: "To apply", exact: true }).click();
   await cloud(page).click();
   if (mobile) {
     await page.waitForURL((url) => url.searchParams.has("opportunity"));
     const details = new URL(page.url());
-    details.searchParams.set("view", "all");
+    details.searchParams.set("view", "jobs");
     await page.goto(details.href);
   }
   await heading(page, "Cloud Software Engineer").waitFor();
@@ -947,20 +947,20 @@ async function bookmarkRollback(page, readState, label, mobile) {
   };
   await page.route("**/api/save-job", failSave);
   const toggle = inspector(page).getByRole("button", {
-    name: "Unsave Cloud Software Engineer",
+    name: "Remove from To apply",
     exact: true,
   });
   await startProbe(
     page,
     `${label}: pending bookmark / failure`,
-    ".discover-icon-button svg",
+    ".discover-pending-button svg, .discover-icon-button svg",
   );
   await toggle.click();
   const route = await arrived.promise;
   try {
     if (mobile) {
       const pending = inspector(page).getByRole("button", {
-        name: "Save Cloud Software Engineer",
+        name: "Apply later",
         exact: true,
       });
       assert.equal(
@@ -1016,14 +1016,14 @@ async function bookmarkRollback(page, readState, label, mobile) {
   });
   const retry = (await inspector(page).count())
     ? inspector(page).getByRole("button", {
-        name: "Unsave Cloud Software Engineer",
+        name: "Remove from To apply",
         exact: true,
       })
     : bookmark(true);
   await retry.click();
   await page
     .locator("#notice")
-    .filter({ hasText: "Role removed from Saved." })
+    .filter({ hasText: "Role removed from To apply." })
     .waitFor();
   assert.equal(
     (await readState()).jobs.find(
@@ -1045,14 +1045,14 @@ async function bookmarkRollback(page, readState, label, mobile) {
     await inspector(page).waitFor({ state: "detached" });
   }
   if (!mobile) {
-    await page.getByRole("button", { name: "Browse", exact: true }).click();
+    await page.getByRole("button", { name: "Jobs", exact: true }).click();
     await cloud(page).waitFor();
   }
   assert.equal(await bookmark(false).getAttribute("aria-pressed"), "false");
   if (initialSaved) {
     await bookmark(false).click();
-    await page.locator("#notice").filter({ hasText: "Role saved." }).waitFor();
-    await page.getByRole("button", { name: "Saved", exact: true }).click();
+    await page.locator("#notice").filter({ hasText: "Role added to To apply." }).waitFor();
+    await page.getByRole("button", { name: "To apply", exact: true }).click();
     await bookmark(true).waitFor();
   }
   await assertRestingLayout(page, `${label}: bookmark retry`);
@@ -1211,7 +1211,7 @@ async function reducedMotion(page, label, mobile) {
         )
           unexpectedWrites.push(url.pathname);
       });
-      await page.goto(base + "/discover/?view=all");
+      await page.goto(base + "/discover/?view=jobs");
       await cloud(page).waitFor();
       await page.evaluate(() => document.fonts.ready);
       await settled(page);

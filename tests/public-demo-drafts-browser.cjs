@@ -340,16 +340,16 @@ async function main() {
     );
     await titleLink.waitFor();
     await inspector
-      .getByRole("button", { name: "Save Feed Test Engineer", exact: true })
+      .getByRole("button", { name: "Apply later", exact: true })
       .click();
-    await page.getByRole("status").filter({ hasText: "Role saved." }).waitFor();
+    await page.getByRole("status").filter({ hasText: "Role added to To apply." }).waitFor();
     await inspector
       .getByRole("button", { name: "Close opportunity details", exact: true })
       .click();
     await page.waitForURL((url) => !url.searchParams.has("opportunity"));
     open = false;
     await page.reload();
-    await page.getByRole("button", { name: "Saved", exact: true }).click();
+    await page.getByRole("button", { name: "To apply", exact: true }).click();
     await role.click();
     await page.getByText("Saved employer snapshot", { exact: true }).waitFor();
     await documents(page, snapshot);

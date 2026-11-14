@@ -15,7 +15,7 @@ from .application_queue import QUEUE_SECTIONS
 DATABASE = 'workspace.sqlite3'
 SNAPSHOT_SCHEMA = 3
 STORAGE = 'sqlite'
-DATABASE_VERSION = 6
+DATABASE_VERSION = 7
 MANIFEST = 'state.json'
 SNAPSHOT_FOLDER = 'state'
 IGNORE = '/workspace.sqlite3*'
@@ -257,6 +257,9 @@ class SQLiteState:
             if version == 5:
                 self.migrate_agent_queue()
                 version = 6
+            if version == 6:
+                self.migrate_pending_queues()
+                version = 7
             if version != DATABASE_VERSION:
                 raise ValueError('Unsupported workspace database version. Open a compatible build.')
             if self.connection.execute('PRAGMA quick_check').fetchone() != ('ok',):
@@ -337,6 +340,14 @@ class SQLiteState:
                 self.save_queue(state)
                 self.save_agent_queue(state)
             self.connection.execute('PRAGMA user_version = 6')
+
+    def migrate_pending_queues(self):
+        with self.transaction():
+            if self.connection.execute('SELECT 1 FROM records LIMIT 1').fetchone():
+                state = self.read()
+                self.save_queue(state)
+                self.save_agent_queue(state)
+            self.connection.execute('PRAGMA user_version = 7')
 
     def save_agent_queue(self, state):
         from .application_queue import project_agent_queue
@@ -465,7 +476,7 @@ class SQLiteState:
         changed_sections = self._save_records(state)
         if changed_sections & EMPLOYER_SUBMISSION_SECTIONS:
             self.save_employer_submissions(state)
-        if changed_sections & (QUEUE_SECTIONS | {'agent_intents', 'employer_links', 'company_rounds'}):
+        if changed_sections & QUEUE_SECTIONS:
             self.save_agent_queue(state)
 
     def _save_records(self, state):

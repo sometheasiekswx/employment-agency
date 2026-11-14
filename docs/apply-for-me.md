@@ -1,6 +1,6 @@
 # Connected applications
 
-The connected application agent runs in the local SQLite app. The role workspace shows **Apply for me** when it detects a ChatGPT-signed-in Codex runtime and an available channel for that role. **For my agent** saves a role for later. You can select saved roles to start together or copy their context to an external agent.
+The connected application agent runs in the local SQLite app. The role workspace shows **Apply for me** when it detects a ChatGPT-signed-in Codex runtime and an available channel for that role. **Apply later** adds a role to **To apply**. You can open it there to apply yourself, select roles to start together, or copy the selected roles’ context to an external agent. Saving and copying leave submission authority with the user.
 
 ## Starting and returning to a run
 
@@ -8,7 +8,7 @@ Starting authorizes preparing, disclosing the required information and documents
 
 Role instructions determine the allowed channels. Otherwise, the agent tries the verified website, then Telegram, then recruitment email. A confirmed outcome finishes the run. A verified unavailable channel can advance to the next available channel. Sign-in, verification, unsupported forms and missing answers appear as **Needs your help**. Any unresolved outcome after possible disclosure requires checking the channel before further attempts.
 
-You can close the tab while the local app and computer are running. Open the role or the agent queue to check progress, answer a question or choose **Stop**. A Stop request interrupts pending work. If a send was already underway, wait for the returned outcome and reconcile it where required. After a restart, the app offers **Resume** only at a checkpoint known to precede disclosure. Start authority expires after 24 hours and belongs to the originating workspace and path. A restored copy retains the audit trail and needs a new start. The app records verified channel evidence first and links it to the submitted version. If the second step fails, **Record receipt** completes the local record using the existing evidence.
+You can close the tab while the local app and computer are running. Open the role or To apply to check progress, answer a question or choose **Stop**. A Stop request interrupts pending work. If a send was already underway, wait for the returned outcome and reconcile it where required. After a restart, the app offers **Resume** only at a checkpoint known to precede disclosure. Start authority expires after 24 hours and belongs to the originating workspace and path. A restored copy retains the audit trail and needs a new start. The app records verified channel evidence first and links it to the submitted version. If the second step fails, **Record receipt** completes the local record using the existing evidence.
 
 ## Channel support
 

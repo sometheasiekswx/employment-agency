@@ -74,11 +74,28 @@ const {
   await page
     .getByRole("heading", { name: "Software Engineer · Fictional Systems" })
     .waitFor();
-  await page
-    .getByRole("button", { name: "Prepare application", exact: true })
-    .click();
-  await page.locator("#notice").filter({ hasText: "Saved." }).waitFor();
+  const [prepared] = await Promise.all([
+    page.waitForResponse((response) => response.url().endsWith("/api/local-package")),
+    page.getByRole("button", { name: "Prepare application", exact: true }).click(),
+  ]);
+  assert.equal(prepared.status(), 200);
+  await page.locator("#notice").filter({ hasText: /^Saved\.$/ }).waitFor();
   await page.getByRole("link", { name: "Opportunities", exact: true }).click();
+  const assess = page.getByRole("button", {
+    name: "Assess Software Engineer at Fictional Systems",
+    exact: true,
+  });
+  await page.getByRole("button", { name: "Apply later · Software Engineer", exact: true }).click();
+  await page.getByText("Role added to To apply.", { exact: true }).waitFor();
+  await assess.waitFor({ state: "detached" });
+  await page.getByRole("button", { name: "To apply", exact: true }).click();
+  await assess.waitFor();
+  assert.equal(await page.getByRole("button", { name: "Copy agent instructions", exact: true }).count(), 0);
+  await page.getByRole("button", { name: "Remove from To apply · Software Engineer", exact: true }).click();
+  await page.getByText("Role removed from To apply.", { exact: true }).waitFor();
+  await assess.waitFor({ state: "detached" });
+  await page.getByRole("button", { name: "Jobs", exact: true }).click();
+  await assess.waitFor();
   await page.getByRole("button", { name: "Applications", exact: true }).click();
   await page
     .getByRole("button", {

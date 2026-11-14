@@ -322,7 +322,7 @@ fs.mkdirSync(output, { recursive: true });
           ? panel.locator(".role-workspace-heading h2")
           : region === "footer action"
             ? footer.getByRole("button", {
-                name: "Save Cloud Software Engineer",
+                name: "Apply later",
                 exact: true,
               })
             : region === "bookmark"
