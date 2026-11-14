@@ -11,3 +11,5 @@ The removed unit test asserted the old CSS variable rather than rendered behavio
 [Verification evidence](evidence.md) records passing local checks and limitations. Screenshots and geometry were inspected at standard and short desktop sizes, including enlarged text. No backend, dependency, schema, private-data or submission behavior changed. Physical Safari/VoiceOver and the full CI matrix remain separate from the local browser-engine evidence.
 
 Delivery uses a feature branch based on published main. Reverting the feature commit restores the previous UI. No private installed workspace upgrade or public production deployment is part of this change.
+
+Implementation commit `27705d0955333a137c612cacd80b162ede579bc1` was pushed to `origin/codex/desktop-role-details`; the remote ref matched the local commit. The fictional preview returned HTTP 200 after the push. GitHub CI is separate from the passing local checks and was not used to claim a production deployment.

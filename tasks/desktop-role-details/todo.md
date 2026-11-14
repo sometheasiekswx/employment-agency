@@ -4,6 +4,6 @@
 - [x] D2 — Implement the tall desktop reading pane and compact queue/action controls; preserve mobile interactions.
 - [x] D3 — Implement eight-second removal notice dismissal with interaction/editing pauses and durable recovery.
 - [x] D4 — Verify behavior, production build and relevant browser regressions; retain matching after evidence.
-- [ ] D5 — Review the scoped revision, commit and push it, and leave a local preview available for user testing.
+- [x] D5 — Reviewed the scoped revision, pushed implementation commit `27705d0` to `origin/codex/desktop-role-details`, verified the remote hash and the local preview's HTTP 200 response. See [review.md](review.md).
 
 Verification commands and results are in [evidence.md](evidence.md).
