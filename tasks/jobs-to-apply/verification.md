@@ -24,4 +24,11 @@ The coordinating agent reviewed the actual diff against `5745b56`, including que
 
 The release target is the shared repository's `main` branch and its existing automatic public-demo workflow. The previous verified public artifact serves source `81515b8c0db45a0f55ea7f66b768801999792b66`; recovery follows [the deployment runbook](../../docs/public-demo-deployment.md#verify-and-recover). Only public software and fictional test records are included. This source push does not install a build into a private workspace or publish a replacement v0.7.0 wheel.
 
-Delivery is pending the source push, cross-platform CI and live smoke check. No employer was contacted during this work.
+## Delivery
+
+- Implementation commit [`703b001800ef9ab8a269cd2ae4d612173a01e81b`](https://github.com/sometheasiekswx/employment-agency/commit/703b001800ef9ab8a269cd2ae4d612173a01e81b) was pushed to `main`.
+- [Checks and deployment run 43572337314](https://github.com/sometheasiekswx/employment-agency/actions/runs/43572337314) passed on Linux, macOS and Windows. The full Linux local/hosted browser runner, static-preview checks and optional connected-agent gate passed. Staging, staged verification, promotion and public-alias verification all succeeded.
+- Independent `check-public-demo.mjs` verified that exact source revision, public fixture `3df62210ef33d96d3e8d`, six routes and the sample PDF on the [live public demo](https://employment-agency-demo.vercel.app/discover/).
+- Independent live browser smoke passed in desktop Chromium (1440 px) and mobile WebKit (390 px): Jobs → Apply later → To apply → reload → Remove from To apply → Jobs. Earlier recommended, all, saved and application-agent links opened the correct combined views. There were no page errors, horizontal overflow or network writes. Evidence screenshots are in ignored `output/playwright/jobs-to-apply/live/`.
+
+The installed private app was not changed by this source delivery. No employer was contacted during this work. A documentation-only follow-up records these completed checks; the implementation evidence above identifies the exact tested application revision.
