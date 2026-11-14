@@ -324,16 +324,19 @@ if __name__ == '__main__':
         env = root / 'venv'
         subprocess.run([sys.executable, '-m', 'venv', str(env)], check=True)
         python = env / ('Scripts/python.exe' if os.name == 'nt' else 'bin/python')
-        with tempfile.TemporaryFile() as log:
-            result = subprocess.run([str(python), '-m', 'pip', 'install', '--disable-pip-version-check', str(wheel)], stdout=log, stderr=log)
-            if result.returncode:
-                log.seek(0); raise RuntimeError(log.read().decode())
         environment = {
             **os.environ,
             'EA_CONFIG_HOME': str(root / 'config'),
             'EA_WHEEL_ASSET_DIGESTS': json.dumps(asset_digests),
         }
         environment.pop('PYTHONPATH', None)
+        # Source PYTHONPATH/egg-info must not make pip mistake the checkout for
+        # an installed distribution and skip this fresh environment's wheel.
+        with tempfile.TemporaryFile() as log:
+            result = subprocess.run([str(python), '-m', 'pip', 'install', '--disable-pip-version-check', str(wheel)],
+                                    cwd=root, env=environment, stdout=log, stderr=log)
+            if result.returncode:
+                log.seek(0); raise RuntimeError(log.read().decode())
         if args.browser:
             checkout = Path(__file__).resolve().parents[1]
             environment.setdefault('PLAYWRIGHT_PATH', str(checkout / 'frontend/node_modules/playwright'))
