@@ -329,8 +329,15 @@ export interface RoleApplicationContext {
   blockers: ApplicationBlocker[];
 }
 
+export interface CompanyBestMatches {
+  employer_id: string;
+  profile_id: string;
+  picks: { job_id: string; reason: string }[];
+}
+
 export interface WorkspaceState {
   application_queue?: ApplicationQueueEntry[];
+  company_best_matches?: CompanyBestMatches[];
   agent_intents?: AgentIntent[];
   identity: Identity;
   facts: Fact[];

@@ -216,6 +216,11 @@ class Service:
         from .application_context import role_blocker
         from .application_queue import confirmed_equivalents, equivalent_submissions, pending_choices, visible_removals
 
+        if snapshot:
+            from . import company_best_matches
+
+            state['company_best_matches'] = company_best_matches.project(state)
+
         choices = pending_choices(state)
         slots = companies.ApplicationSlots(state) if snapshot else None
         state.pop('workspace_id', None)
@@ -889,6 +894,10 @@ class Service:
                 if companies.discovery_employer(job, links.get(job['id']), name_ids) not in cooling]
 
     def company_action(self, action, args):
+        if action == 'company-best-matches':
+            from . import company_best_matches
+
+            return company_best_matches.save(self.w, args)
         if action == 'company-avoid':
             if args:
                 raise ValueError('company-avoid takes no arguments')

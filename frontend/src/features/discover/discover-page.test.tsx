@@ -594,6 +594,44 @@ it("cycles across locations in place and restores focus to the current role when
   expect(fixture.back).toHaveBeenCalledOnce();
 });
 
+it("places the reviewed pair first and keeps the other roles visible after filtering", async () => {
+  const studio = fixture.state.jobs[1];
+  const cloud = fixture.state.jobs[0];
+  const company = { id: "example-cloud", name: "Example Cloud", remaining: 2, cooling: false };
+  fixture.state.jobs = [
+    { ...cloud, hiring_employer_verified: true, company },
+    { ...cloud, id: "job-c", title: "Platform Engineer", location: "Berlin", hiring_employer_verified: true, company },
+    { ...cloud, id: "job-d", title: "Integration Engineer", hiring_employer_verified: true, company },
+    studio,
+  ];
+  fixture.state.company_best_matches = [{
+    employer_id: company.id,
+    profile_id: "profile-a",
+    picks: [
+      { job_id: "job-d", reason: "Your Python integration work fits." },
+      { job_id: "job-c", reason: "Your cloud delivery fits the platform work." },
+    ],
+  }];
+  const { rerender } = render(<DiscoverPage />);
+  await screen.findByText("Best matches for you");
+  const group = screen.getByRole("region", { name: "Example Cloud opportunities" });
+  const cards = () => within(group).getAllByRole("button", { name: /^Assess/ }).map((item) => item.textContent);
+  expect(cards()).toEqual(["Integration Engineer", "Platform Engineer", "Cloud Engineer"]);
+  expect(within(group).getByText("More roles")).toBeInTheDocument();
+  expect(within(group).getByText("Your Python integration work fits.")).toBeInTheDocument();
+  expect(within(screen.getByRole("region", { name: "Example Studio opportunities" }))
+    .queryByText("Best matches for you")).not.toBeInTheDocument();
+
+  fixture.query = "location=Toronto";
+  rerender(<DiscoverPage />);
+  await waitFor(() => expect(cards()).toEqual(["Integration Engineer", "Cloud Engineer"]));
+  expect(within(group).queryByText("Your cloud delivery fits the platform work.")).not.toBeInTheDocument();
+  fixture.profileId = "profile-b";
+  rerender(<DiscoverPage />);
+  await screen.findByRole("button", { name: "Assess Integration Engineer at Example Cloud" });
+  expect(screen.queryByText("Best matches for you")).not.toBeInTheDocument();
+});
+
 it.each([false, true])(
   "keeps keyboard orientation at visual navigation boundaries (mobile: %s)",
   async (mobile) => {

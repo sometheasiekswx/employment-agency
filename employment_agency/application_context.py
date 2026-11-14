@@ -225,6 +225,8 @@ def role_blocker(state, job, *, stage=UNSET_STAGE):
 
 
 def role_context(service, state, job, application_id=None, profile_id=None, *, queue_entry=None, slots=None):
+    from .company_best_matches import public_employer
+
     _, scope = scoped_job(state, job['id'])
     link = companies.employer_link(state, job['id'])
     employer = companies.by_id(state.get('employers', []), link['employer_id']) if link else None
@@ -281,7 +283,8 @@ def role_context(service, state, job, application_id=None, profile_id=None, *, q
         other_listings = [{'id': item['id'], 'title': item['title'], 'url': item.get('url')}
                           for item in state['jobs'] if item['id'] in equivalent]
     return {
-        'job': job, 'application': application, 'documents': documents, 'employer': employer,
+        'job': job, 'application': application, 'documents': documents,
+        'employer': public_employer(employer),
         'employer_link': link, 'allowance': allowance, 'equivalent_listings': other_listings,
         'profile': {key: value for key, value in profile.items() if key != 'minimum'} if profile else None,
         'assessment': assessment, 'listing_sha256': scope['listing_sha256'],
@@ -374,6 +377,11 @@ def research_handoff(service, args):
         'before targeted fetching and prioritize employers with no previous submissions.',
         'Check the official careers site and employer-owned boards. Import verified listings through the shared app '
         'and show every eligible role by company, with source links, gaps in coverage and unknown requirements.',
+        'For each verified employer check company-logo-inventory and use company-logo-backfill with official '
+        'branding evidence when its logo is missing. Verify the mark in Jobs and report any gap.',
+        'When more than two distinct vacancies suit the selected profile, compare all of them against the '
+        'confirmed career facts. Save exactly two recommendations with company-best-matches, including all '
+        'compared job IDs, short fit reasons and confirmed fact IDs for each pick. Keep unknowns explicit.',
         'Keep this request to job research.',
     ]
     return {'workspace_id': service.w.workspace_id, 'workspace': str(service.w.path),

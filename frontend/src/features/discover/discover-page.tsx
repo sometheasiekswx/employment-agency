@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import {
+  Fragment,
   startTransition,
   useCallback,
   useEffect,
@@ -24,6 +25,7 @@ import {
   Search,
   ShieldAlert,
   SlidersHorizontal,
+  Star,
   X,
 } from "lucide-react";
 import { ApiResponseError } from "@/lib/api";
@@ -51,6 +53,7 @@ import {
 import type {
   Application,
   ApplicationBlocker,
+  CompanyBestMatches,
   Job,
   JobRemoval,
   RankedJob,
@@ -590,12 +593,30 @@ export function DiscoverPage() {
   const visible = agentTools
     ? filteredRows.slice(pendingOffset, pendingOffset + pendingPageSize)
     : filteredRows;
-  const groups = groupOpportunities(visible).map((group) => ({
-    ...group,
-    stackEmployer: view === "jobs"
-      ? group.roles.find(({ job }) => stacksAtPendingLimit(job))?.job.company?.id
-      : undefined,
-  }));
+  const reviews = new Map<string, CompanyBestMatches["picks"]>(
+    view === "jobs" && !removedView && !client.preview
+      ? state.company_best_matches?.filter((review) => review.profile_id === profileId)
+        .map((review) => [`employer:${review.employer_id}`, review.picks])
+      : [],
+  );
+  const groups = groupOpportunities(visible).map((group) => {
+    const rowsById = new Map(group.roles.map((row) => [row.job.id, row]));
+    const picks = new Map<string, string>();
+    const recommended = (reviews.get(group.id) ?? []).flatMap(({ job_id, reason }) => {
+      const row = rowsById.get(job_id);
+      if (!row?.job.hiring_employer_verified) return [];
+      picks.set(job_id, reason);
+      return [row];
+    });
+    return {
+      ...group,
+      picks,
+      roles: [...recommended, ...group.roles.filter(({ job }) => !picks.has(job.id))],
+      stackEmployer: view === "jobs"
+        ? group.roles.find(({ job }) => stacksAtPendingLimit(job))?.job.company?.id
+        : undefined,
+    };
+  });
   const navigationRows = groups.flatMap(({ roles }) => roles);
   const selectedRow = visible.find((row) => row.job.id === selectedId);
   const assessedRow = assessedById.get(selectedId);
@@ -1711,7 +1732,7 @@ export function DiscoverPage() {
               aria-label="Opportunities by company"
               tabIndex={selected && !mobile ? 0 : undefined}
             >
-              {groups.map(({ id, name, roles: opportunities, stackEmployer }) => (
+              {groups.map(({ id, name, roles: opportunities, picks, stackEmployer }) => (
                 <section
                   className="discover-column"
                   key={id}
@@ -1740,13 +1761,19 @@ export function DiscoverPage() {
                       </Link>
                     </div>
                   )}
+                  {picks.size > 0 && (
+                    <h3 className="discover-match-heading">Best matches for you</h3>
+                  )}
                   {opportunities.map((row, index) => {
                     const { job, match } = row;
+                    const recommendation = picks.get(job.id);
                     const compact = Boolean(stackEmployer && stacksAtPendingLimit(job));
                     const nextJob = opportunities[index + 1]?.job;
-                    const endsStack = compact && (!nextJob || !stacksAtPendingLimit(nextJob));
+                    const endsStack = compact && (!nextJob || !stacksAtPendingLimit(nextJob) ||
+                      Boolean(recommendation && !picks.has(nextJob.id)));
                     const previousJob = opportunities[index - 1]?.job;
-                    const layered = endsStack && previousJob && stacksAtPendingLimit(previousJob);
+                    const layered = endsStack && previousJob && stacksAtPendingLimit(previousJob) &&
+                      !(!recommendation && picks.has(previousJob.id));
                     const pendingBlocker = !job.saved
                       ? job.pending_blocker ??
                         (failedAdmission?.jobId === job.id ? failedAdmission.blocker : undefined)
@@ -1790,7 +1817,7 @@ export function DiscoverPage() {
                       ({ facts, careerFacts, confirmedForJob }) =>
                         facts.length || careerFacts.length || confirmedForJob,
                     ).length;
-                    return (
+                    const card = (
                       <article
                         className={[
                           "discover-card",
@@ -1800,7 +1827,6 @@ export function DiscoverPage() {
                           selectedId === job.id && "is-selected",
                         ].filter(Boolean).join(" ")}
                         data-job-id={job.id}
-                        key={job.id}
                       >
                         {!compact && (
                           <div className="discover-card-top">
@@ -1905,6 +1931,12 @@ export function DiscoverPage() {
                             </>
                           )}
                         </button>
+                        {recommendation && (
+                          <p className="discover-match-reason">
+                            <Star size={13} aria-hidden="true" />
+                            <span>{recommendation}</span>
+                          </p>
+                        )}
                         {!compact && (
                           <>
                             {metadata && (
@@ -1959,6 +1991,14 @@ export function DiscoverPage() {
                           </>
                         )}
                       </article>
+                    );
+                    return (
+                      <Fragment key={job.id}>
+                        {picks.size > 0 && index === picks.size && (
+                          <h3 className="discover-match-heading discover-more-roles">More roles</h3>
+                        )}
+                        {card}
+                      </Fragment>
                     );
                   })}
                 </section>
@@ -2100,7 +2140,7 @@ export function DiscoverPage() {
           timezone={state._workspace.timezone}
           mobile={mobile}
           position={Math.max(0, selectedIndex)}
-          count={selectedIndex < 0 ? 1 : visible.length}
+          count={selectedIndex < 0 ? 1 : navigationRows.length}
           rankingCurrent={!loading && !error && assessmentAvailable}
           assessmentAvailable={assessmentAvailable}
           hasListingRecord={hasListingRecord}

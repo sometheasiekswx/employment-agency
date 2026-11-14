@@ -839,6 +839,7 @@ def link_verified_listing(state, job, zone):
 
 
 def company_roles(state, job_id, profile_id):
+    from .company_best_matches import public_employer
     from .service import legacy_rejections
 
     job = by_id(state['jobs'], job_id)
@@ -883,7 +884,8 @@ def company_roles(state, job_id, profile_id):
                     rows.append(row)
                     seen.add(vacancy)
     return {'job_id': job_id, **alias_confirmation(job),
-            'employer': employer, 'employers': state.get('employers', []),
+            'employer': public_employer(employer),
+            'employers': [public_employer(row) for row in state.get('employers', [])],
             'sources': coverage, 'available_sources': state['sources'],
             'candidates': candidates, 'status': status, 'roles': rows,
             'linked_listings': [{'id': listing['id'], 'title': listing['title']}

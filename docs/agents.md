@@ -141,13 +141,33 @@ For a controlled failure check, use a disposable workspace and stop its server, 
 1. Run the lookup above. Read the selected search profile and the recorded submission history through the app. Skip active cooldowns and use employer identity and verified aliases to avoid duplicates. Check unresolved history against the decision records before treating a company as new.
 2. Look for hiring employers where the user has never applied. Use `company-research-check` with `{"name":"HIRING EMPLOYER"}` before a targeted fetch to check prior submissions, remaining slots and unresolved history. Check the official careers site and each accessible employer-owned board. For a registered board, call `company-research-source` with the hiring employer `name`, `source_id` and `evidence_url` for the official careers page that identifies the employer and links the board. The operation rechecks company history before fetching, retains the checked ownership evidence and returns the imported `job_ids`. Use [public-source discovery](#find-jobs-from-public-sources) for other careers sites and feed URLs. Review uncertain listings and import them with `job` only after checking the original. Preserve listing URLs, requisitions, checked dates, locations and requirements. Record the sources checked and any pages that were blocked or incomplete. Use previously applied employers with available slots only to fill a shortfall.
 3. Pass every checked workspace job ID from those companies to `company-research` with the selected profile. This read operation uses the shared ranker and returns up to five companies, first-time employers before fallback employers. Each group contains every role that passes the hard requirements and source status where the board is configured. Review `needs_review` for unresolved employer history. If the agent checked fewer than five eligible companies, report the count and coverage.
-4. Present the results by company, with the strongest roles first and the remaining eligible roles included. Call out uncertain eligibility, sponsorship, availability and pay where applicable. Discover groups the imported roles by company and opens each role in the existing inspector. Keep the shortlist separate from the user's choice of applications.
+4. Collect each verified employer's logo. Read `GET /api/company-logo-inventory`, then call `company-logo-backfill` for missing marks using the verified employer ID and official branding evidence. Verify the mark in Jobs. If the source is inaccessible, unsupported or ambiguous, report that coverage gap and keep the initials.
+5. Compare all suitable, distinct roles at each employer using the active profile and confirmed career facts. If more than two fit, record exactly two with `company-best-matches`. Give each pick a brief fit reason tied to specific confirmed fact IDs. Present both picks and every other suitable role, including unknown eligibility, sponsorship, availability or pay. The recommendation is separate from To apply and does not use a company slot.
 
 ```sh
 employment-agency --workspace /absolute/path/to/workspace action company-research --input research.json
 ```
 
 `research.json` supplies `{"profile_id":"ID_FROM_STATE","job_ids":["CHECKED_JOB_ID"]}`. With the app running, use the protected `POST /api/company-research` described above. Use `company-roles` when the user is ready to choose a role at a confirmed employer. The lookup, ranking and source reads do not authorize drafting, application uploads, contact, submission or paid services.
+
+For a missing logo, send `company-logo-backfill` the workspace ID, verified `company_ids` and, when needed, `sources` keyed by company ID. Each supplied source contains the official branding page `url` and a short `evidence` description. To select a specific supported mark published on that page, supply both `logo_url` and the `expected_sha256` of the reviewed, normalized PNG. Check the result and Jobs readback.
+
+Send a reviewed pair as the following JSON to the protected `POST /api/company-best-matches`.
+
+```json
+{
+  "workspace_id": "CURRENT_WORKSPACE_ID",
+  "profile_id": "SELECTED_PROFILE_ID",
+  "employer_id": "VERIFIED_COMPANY_ID",
+  "compared_job_ids": ["ROLE_A", "ROLE_B", "ROLE_C"],
+  "picks": [
+    {"job_id": "ROLE_B", "reason": "Your Python API work maps to the integration responsibilities.", "fact_ids": ["FACT_1"]},
+    {"job_id": "ROLE_A", "reason": "Your CI/CD delivery shows experience with automated releases.", "fact_ids": ["FACT_2"]}
+  ]
+}
+```
+
+Use locally confirmed facts and source-verified listings for the review. The server checks the company, profile, role and fact IDs and detects material changes. Jobs omits stale pairs until the research is reviewed again. Confirmed fact IDs support the fit rationale without establishing full qualification or work authorization.
 
 ### Optional OpenAI selection
 

@@ -185,6 +185,40 @@
   font-size: 11px;
   font-variant-numeric: tabular-nums;
 }
+.discover-match-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  color: var(--discover-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+.discover-more-roles::after {
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+  content: "";
+}
+.discover-match-reason {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 6px 0;
+  color: var(--discover-muted);
+  font-size: 12px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.discover-match-reason svg {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  margin-top: 2px;
+  color: var(--link);
+}
+.discover-compact-role .discover-match-reason {
+  margin: 3px 12px 8px;
+}
 .discover-screen .discover-card {
   position: relative;
   padding: 15px;
