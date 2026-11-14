@@ -63,7 +63,8 @@ const path = require("node:path");
     await details.getByLabel("Did you use the reserved documents?").selectOption("yes");
     await details.getByLabel("Confirmation evidence").fill("Fictional website receipt 2048");
     await details.getByRole("button", { name: "Record submission" }).click();
-    await details.getByText("Fictional website receipt 2048", { exact: true }).waitFor();
+    await details.getByRole("region", { name: "Submission record", exact: true })
+      .getByText("Fictional website receipt 2048", { exact: true }).waitFor();
     const recorded = await action("company-submission-status", { job_id: first.id });
     assert.equal(recorded[0].status, "confirmed");
     assert.equal(recorded[0].document_application_id, held[0].application_id);

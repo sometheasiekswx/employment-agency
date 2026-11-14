@@ -458,10 +458,11 @@ async function verifyNoHorizontalOverflow(page, label) {
     await page.waitForURL(
       (url) => url.searchParams.get("section") === "submitted",
     );
-    await panel(page)
+    const submission = exact(panel(page), "region", "Submission record");
+    await submission
       .getByText("Fictional receipt EA-JOURNEY-123.", { exact: true })
       .waitFor();
-    await panel(page).getByText("Reported by you", { exact: true }).waitFor();
+    await submission.getByText("Reported by you", { exact: true }).waitFor();
     assert.equal(await listingLink(page).getAttribute("href"), listing);
     assert.equal(await actionButton(page, "For my agent").count(), 0);
     const sentState = await readState();
