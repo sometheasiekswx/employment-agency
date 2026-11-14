@@ -52,7 +52,9 @@ const path = require("node:path");
       () => document.activeElement?.textContent === "Open Folder",
     );
     assert.equal((await read())._workspace.path, primary);
-    await page.getByRole("button", { name: "Save", exact: true }).click();
+    await page
+      .getByRole("button", { name: "Use this workspace", exact: true })
+      .click();
     await page
       .getByRole("button", { name: "Applications", exact: true })
       .click();

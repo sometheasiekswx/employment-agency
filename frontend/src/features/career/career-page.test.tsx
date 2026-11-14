@@ -69,6 +69,25 @@ beforeEach(() => {
 });
 afterEach(() => vi.unstubAllEnvs());
 
+it("keeps an imported master visibly pending until its proposed facts are confirmed", () => {
+  fixture.state.facts = [];
+  fixture.state._master = {
+    exists: true, changed: true, path: "master/main.txt", sha256: "pending-master",
+  };
+  render(<CareerPage />);
+  expect(screen.queryByText("Your career facts are reviewed")).not.toBeInTheDocument();
+  expect(screen.getByText("Master resume needs your review")).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Review master changes" })).toBeEnabled();
+  expect(fixture.run).not.toHaveBeenCalled();
+});
+
+it("does not claim an empty career profile has been reviewed", () => {
+  fixture.state.facts = [];
+  render(<CareerPage />);
+  expect(screen.queryByText("Your career facts are reviewed")).not.toBeInTheDocument();
+  expect(screen.getByText("Start with your resume")).toBeInTheDocument();
+});
+
 it("requires inline retirement confirmation and restores trigger focus on Cancel without mutating", async () => {
   render(<CareerPage />);
   const retire = within(activeFact()).getByRole("button", { name: "Retire" });

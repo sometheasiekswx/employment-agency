@@ -1,6 +1,6 @@
 # Running locally
 
-The application has two separate locations: a **software checkout** containing `pyproject.toml`, `frontend/` and `employment_agency/`, and a **career workspace** containing `state.json`, `workspace.json` and personal documents. Run installation commands in the software checkout. Select the career workspace using `--workspace` or Settings → Open Folder. Installing software does not import, migrate or upload personal documents.
+The application has two separate locations: a **software checkout** containing `pyproject.toml`, `frontend/` and `employment_agency/`, and a **career workspace** containing `state.json`, `workspace.json` and personal documents. Run installation commands in the software checkout. Select the career workspace using `--workspace` or Settings → Open Folder. Installing software does not import, migrate or upload personal documents. Start with the [personal-workspace quick start](../README.md#run-locally), then follow [your first application](getting-started.md). The paths below are placeholders to replace with your own locations.
 
 ## Find the software folder
 
@@ -31,10 +31,11 @@ python3 -m venv .venv
 npm --prefix frontend ci --ignore-scripts
 npm --prefix frontend run build
 .venv/bin/python -m pip install .
-.venv/bin/python -m employment_agency serve
+.venv/bin/python -m employment_agency --workspace "$HOME/Documents/my-career-workspace" init
+.venv/bin/python -m employment_agency --workspace "$HOME/Documents/my-career-workspace" serve
 ```
 
-On Windows use `py -3` and `.venv\Scripts\python` in place of `python3` and `.venv/bin/python`. Dependencies and the frontend are installed locally; no provider key is needed. The build creates `employment_agency/web/`. Keep this directory when running from the checkout. A built wheel already contains these assets.
+Use `init` only for a new workspace. Skip it when opening existing data. On Windows use `py -3` and `.venv\Scripts\python` in place of `python3` and `.venv/bin/python`. Dependencies and the frontend are installed locally; no provider key is needed. The build creates `employment_agency/web/`. Keep this directory when running from the checkout. A built wheel already contains these assets.
 
 The server prints `Employment Agency: http://127.0.0.1:8766`. Open that exact address; `localhost` is rejected by the strict local host check. Keep Terminal open. Ctrl+C stops the server. The terminal continuing to run after printing the address is expected.
 
@@ -50,6 +51,19 @@ If an explicit or remembered workspace is missing, startup asks for an existing 
 .venv/bin/python -m employment_agency --workspace "/absolute/path/to/new-workspace" init
 ```
 
+## Install a release wheel
+
+A built `.whl` includes the browser assets, so Python 3.11+ is enough for ordinary local use. Download the wheel from the desired [release](https://github.com/sometheasiekswx/employment-agency/releases), create an installation folder outside your career workspace, and run these commands there. Replace the example wheel path with the actual downloaded filename:
+
+```sh
+python3 -m venv .venv
+.venv/bin/python -m pip install /absolute/path/to/downloaded-release.whl
+.venv/bin/python -m employment_agency --workspace "$HOME/Documents/my-career-workspace" init
+.venv/bin/python -m employment_agency --workspace "$HOME/Documents/my-career-workspace" serve
+```
+
+For Windows, use `py -3` to create the environment and `.\.venv\Scripts\python.exe` for its Python. Keep the software checkout as well if you want its Codex gate setup scripts or development commands. When installing a newer build for an existing workspace, skip `init` and follow the backup/restore checks below first.
+
 ## Existing environments and upgrades
 
 A virtual environment belongs to the Python interpreter that created it. Reusing an old `.venv` after changing Python installations can leave stale links or packages. Do not delete a working environment to troubleshoot. Create a separate one, keeping the old installation available:
@@ -64,7 +78,7 @@ Build the frontend first as above. Both `.venv` and `.venv-next` are ignored by 
 Before opening real data with a new release, stop the old app, export with the old installed version, restore to a **new** directory, and test that copy with the new version. For example, in the software folder:
 
 ```sh
-.venv/bin/employment-agency --workspace "/absolute/path/to/private-workspace" export "/absolute/path/to/backup.zip"
+.venv/bin/python -m employment_agency --workspace "/absolute/path/to/private-workspace" export "/absolute/path/to/backup.zip"
 .venv-next/bin/python -m employment_agency restore "/absolute/path/to/backup.zip" "/absolute/path/to/restored-copy"
 .venv-next/bin/python -m employment_agency --workspace "/absolute/path/to/restored-copy" serve
 ```
@@ -86,7 +100,7 @@ New local workspaces use SQLite. Move a legacy workspace into a separate folder 
 
 If you already exported a legacy ZIP with the previous build, use `restore /path/to/backup.zip /path/to/sqlite-workspace --sqlite`. A SQLite ZIP uses the normal `restore` command. To restore a complete private Git clone into a new live workspace, run `restore-snapshot /path/to/clone /path/to/sqlite-workspace`. These recovery paths reset local provider permissions.
 
-Each save updates the corresponding readable records under `state/` and publishes a small `state.json` manifest. Git tracks those files alongside workspace documents. SQLite, its journal and machine permissions stay local. Check the snapshot status in **Settings → Workspace files** or with `employment-agency --workspace /path/to/sqlite-workspace action snapshot-status`. Pending publication retries on save or reopen. For a snapshot conflict, preserve the incoming snapshot in a separate folder and restore it there to review the two workspaces.
+Each save updates the corresponding readable records under `state/` and publishes a small `state.json` manifest. Git tracks those files alongside workspace documents. SQLite, its journal and machine permissions stay local. Check the snapshot status in **Settings → Workspace files**. With the app stopped, run `.venv/bin/python -m employment_agency --workspace /path/to/sqlite-workspace action snapshot-status` from the software folder. This read operation needs no input JSON. Pending publication retries on save or reopen. For a snapshot conflict, preserve the incoming snapshot in a separate folder and restore it there to review the two workspaces.
 
 In **Settings → Company cooldown**, choose 1 to 24 calendar months. The default is three months from the second confirmed application to a distinct vacancy at the same employer. Changing the duration recalculates company rounds from the recorded submission dates.
 
@@ -98,20 +112,32 @@ After using the new workspace, export its current state before recovering to a p
 
 ## Find new jobs
 
-Open **Search preferences → Find new jobs**. Choose configured feeds or enter one public HTTPS address per line. A careers index or sitemap can lead to related vacancies. The app saves structured postings and shows readable excerpts and links for other pages. Review the source status when coverage is partial.
+First save a search profile with your role and location preferences. Then open **Search preferences → Find new jobs**. Choose configured feeds or enter one public HTTPS address per line. A careers index or sitemap can lead to related vacancies. The app saves structured postings and shows readable excerpts and links for other pages. Review the source status when coverage is partial.
 
 Use **Live sources** to register Greenhouse, Lever, SmartRecruiters, Ashby or Workable by employer board identifier. We Work Remotely accepts `all`, `programming`, `full-stack` and `devops`. Remotive accepts `all`, `software-dev`, `devops`, `product`, `data` and `qa`. The original feed links retain attribution. [We Work Remotely RSS](https://weworkremotely.com/remote-job-rss-feed) · [Remotive API terms](https://remotive.com/remote-jobs/api)
 
 For public pages that need JavaScript, use the optional browser dependency. Install it in the Python environment that runs the app. Playwright may reuse a compatible installed Chrome when its matching Chromium is unavailable.
 
 ~~~sh
-python -m pip install -e '.[discovery]'
-python -m playwright install chromium
+.venv/bin/python -m pip install '.[discovery]'
+.venv/bin/python -m playwright install chromium
 ~~~
 
 The app uses direct HTTP first and renders thin pages when possible. **Render supplied pages with the local browser** also tries pages whose first response has readable shell text. Access restrictions can still require native search or manual import. [Playwright browser installation](https://playwright.dev/python/docs/browsers)
 
 Firecrawl is optional. Sign in to the Firecrawl CLI with a free-plan account and enable the checkbox for an individual run. A `FIRECRAWL_API_KEY` in the local launcher environment takes precedence over the CLI sign-in. The adapter submits up to two permitted public page URLs without query strings. It can try an eligible timeout, transient network failure or page that needs rendering. An unavailable key or provider leaves local search available. [Firecrawl CLI](https://docs.firecrawl.dev/sdks/cli) · [Firecrawl billing](https://docs.firecrawl.dev/billing)
+
+## Back up without upgrading
+
+In Settings, **Export private workspace** downloads a portable ZIP. To use the CLI, stop the app first and run these commands from your software folder:
+
+```sh
+.venv/bin/python -m employment_agency --workspace "$HOME/Documents/my-career-workspace" export "$HOME/Documents/career-backup.zip"
+.venv/bin/python -m employment_agency restore "$HOME/Documents/career-backup.zip" "$HOME/Documents/career-restored"
+.venv/bin/python -m employment_agency --workspace "$HOME/Documents/career-restored" serve
+```
+
+Choose a new archive filename and a new restore folder each time. On Windows, use `.\.venv\Scripts\python.exe` and paths under `$env:USERPROFILE`. The restored workspace does not inherit machine-local provider permissions or trusted Codex hooks; run the [gate setup](agents.md#enable-the-codex-job-research-gate) for its new path.
 
 ## Troubleshooting
 

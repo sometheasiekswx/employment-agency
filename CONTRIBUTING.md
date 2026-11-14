@@ -37,9 +37,26 @@ Skip the install command if Chrome is already installed. On Linux, use `npx --pr
 
 Run the browser suite with `EA_RECORD_BELL_VIDEO=1` to save the Bell Toggle recording to `output/playwright/review-tag/bell-toggle/bell-toggle.webm`.
 
+## Codex research gate integration check
+
+The default Python suite covers the gate's response validation, tool matching, installer preservation and read-only diagnostic. To also exercise a locally installed Codex dispatcher on macOS/Linux:
+
+```sh
+python3 tests/check_codex_research_gate.py
+```
+
+This optional check needs a recent Codex CLI and `curl` on PATH; it was verified with Codex `0.167.0-alpha.4.1`. It creates disposable configuration and local mock model/MCP/HTTP services. No account, model credits or employer traffic is used. Hook trust is bypassed only inside that synthetic fixture. It proves denial and recovery for shell, MCP search/browser and nested code-mode dispatch, not the interactive trust UI or every built-in browser implementation.
+
 ## Live frontend development
 
-Use the [README startup command](README.md#start-the-app) on macOS or Linux. In Windows PowerShell, start the same isolated development workspace from the software checkout:
+After the [source installation](README.md#set-up-once), use a separate fictional workspace and configuration for development. From the software checkout on macOS or Linux:
+
+```sh
+EA_CONFIG_HOME=.dev-config .venv/bin/python -m employment_agency --workspace workspace-dev init
+EA_CONFIG_HOME=.dev-config .venv/bin/python -m employment_agency --workspace workspace-dev dev
+```
+
+This uses `workspace-dev`, not your personal career workspace. In Windows PowerShell:
 
 ```powershell
 $env:EA_CONFIG_HOME = '.dev-config'
@@ -52,6 +69,8 @@ Open **http://127.0.0.1:3000**. Next.js runs on port 3000 and Python runs on por
 To open a different folder, replace `workspace-dev` with its path. Keep `--workspace` before `dev`.
 
 The launcher configures the exact frontend origin and API/file proxy automatically, preserving origin/token checks. For a manual two-terminal setup, `serve --frontend-origin http://127.0.0.1:3000` and `npm --prefix frontend run dev -- --hostname 127.0.0.1 --port 3000` remain available. Test final behavior using the production export too.
+
+Next.js may regenerate tracked `frontend/next-env.d.ts` to point at development route types while `dev` is running. Stop development and run the production build before reviewing the final diff; do not hand-edit generated route declarations.
 
 The launcher lifecycle is covered by `python -m unittest discover -s tests -p test_development.py -v`. On macOS/Linux with Chrome installed, `python tests/check_development.py` checks the actual Next.js proxy, CSS Fast Refresh and shutdown/restart using a separate temporary source tree and fictional workspace. Local verification was performed on macOS; Windows console cleanup has not been verified locally.
 
@@ -99,4 +118,4 @@ Both Python servers allow exact hashes of Next's generated inline bootstrap scri
 
 Do not format or hand-edit `frontend/out/` or `employment_agency/web/`. Whitespace changes in generated HTML can break React hydration even when the page still appears to load. The repository's `.prettierignore` excludes generated output. If it has been changed, rebuild with `npm --prefix frontend run build`; edit the TSX/CSS sources instead.
 
-Workspace schema remains 2. Upgrades remain explicit: export, restore to a disposable copy, verify the candidate, then switch the installed build. A source push does not upgrade a private installed workspace. Keep the previous wheel and commit for recovery.
+Legacy JSON workspaces use schema 2. Current local SQLite databases use schema 7. Portable SQLite exports and Git snapshots use schema 3. Export the existing workspace, restore it to a disposable folder and test the candidate there before switching the installed build. Keep the previous wheel and commit for recovery. [Workspace migration and recovery](docs/running-locally.md#sqlite-workspaces-and-backups)

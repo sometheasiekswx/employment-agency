@@ -38,38 +38,30 @@ export function SearchPage() {
   }, []);
   return (
     <div className="search-preferences-page secondary-page">
-      <div className="secondary-page-intro-row">
-        <p className="secondary-page-intro">
-          {local ? (
-            <>Find jobs from public sources or set the preferences used to rank them.</>
-          ) : (
-            <>Set your role and location preferences, connect employer boards, or{" "}
-            <a href="#rank-jobs">rank saved jobs</a>.</>
-          )}
-        </p>
-        <div className="secondary-intro-actions">
-          <Link
-            href="/discover/"
-            className="button secondary"
-            onNavigate={(event) => {
-              if (!canLeave()) event.preventDefault();
-            }}
-          >
-            <Compass size={16} aria-hidden="true" />
-            Discover roles
-          </Link>
-          <a href="#add-opportunity" className="button primary">
-            <Plus size={16} aria-hidden="true" />
-            Add opportunity
-          </a>
-        </div>
-      </div>
+      <nav className="search-page-actions" aria-label="Opportunity tools">
+        <Link
+          href="/discover/"
+          className="button secondary"
+          onNavigate={(event) => {
+            if (!canLeave()) event.preventDefault();
+          }}
+        >
+          <Compass size={16} aria-hidden="true" />
+          Discover roles
+        </Link>
+        {!local && (
+          <a href="#rank-jobs" className="button secondary">Rank saved jobs</a>
+        )}
+        <a href="#add-opportunity" className="button primary">
+          <Plus size={16} aria-hidden="true" />
+          Add opportunity
+        </a>
+      </nav>
       {local && <DiscoveryPanel key={state._workspace.path} />}
       <div className="search-preferences-grid">
         <section className="secondary-panel search-profile-panel">
           <h2>Search profiles</h2>
-          <p>Choose a profile to rank and assess roles in Jobs.</p>
-          <Select
+          {state.profiles.length > 0 && <Select
             label="Active profile"
             name="active_profile"
             options={state.profiles.map((profile) => [
@@ -80,9 +72,9 @@ export function SearchPage() {
             onChange={(event) => {
               if (canLeave()) selectProfile(event.target.value);
             }}
-          />
-          <details>
-            <summary>Create another profile</summary>
+          />}
+          <details key={state.profiles.length ? "additional-profile" : "first-profile"} open={state.profiles.length === 0 ? true : undefined}>
+            <summary>{state.profiles.length ? "Create another profile" : "Create your first profile"}</summary>
             <ProfileForm />
           </details>
           {profile ? (
@@ -90,13 +82,10 @@ export function SearchPage() {
               <summary>Edit {profile.name}</summary>
               <ProfileForm profile={profile} />
             </details>
-          ) : (
-            <p>Start by saving your first search profile.</p>
-          )}
+          ) : null}
         </section>
         <section className="secondary-panel search-locations-panel">
           <h2>Preferred locations</h2>
-          <p>Shown in the priority order set in the active profile.</p>
           {profile?.locations.length ? (
             <ol className="search-location-list" role="list">
               {profile.locations.map((location, index) => (
@@ -128,10 +117,6 @@ export function SearchPage() {
       <div className="secondary-two-column search-tools-grid">
         <section className="secondary-panel search-sources-panel">
           <h2>Live sources</h2>
-          <p>
-            {local ? "Save feeds to use them again in Find new jobs."
-              : "Connect employer boards or paste other adverts below."}
-          </p>
           <Form
             onSave={async (data) => {
               await run("source", values(data));
@@ -183,10 +168,6 @@ export function SearchPage() {
           <h2 id="add-opportunity" ref={opportunityHeading} tabIndex={-1}>
             Add an opportunity
           </h2>
-          <p>
-            Import a supported listing URL or paste the advert to enter its
-            details yourself.
-          </p>
           <Form
             onSave={async (data) => {
               await run("url", { url: text(data, "url") });

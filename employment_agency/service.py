@@ -403,7 +403,7 @@ class Service:
         if action == 'master-accept':
             if a.get('confirmed') is not True:
                 raise ValueError('Confirm the displayed master changes first')
-            result = master.accept(self.w, a['sha256'])
+            result = master.accept(self.w, a['sha256'], a.get('selected_candidates', ()))
             with self.w.edit() as state:
                 conflicts(state)
             return result

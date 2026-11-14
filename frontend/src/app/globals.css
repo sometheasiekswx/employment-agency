@@ -421,6 +421,44 @@ details {
 details details {
   margin-left: 0.75rem;
 }
+.context-help {
+  margin: 0;
+}
+.context-help > summary {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  width: fit-content;
+  min-height: 2.75rem;
+  max-width: 100%;
+  padding: 0.375rem 0.25rem;
+  border-radius: 0.375rem;
+  color: var(--link);
+  overflow-wrap: anywhere;
+}
+.context-help > summary::-webkit-details-marker {
+  display: none;
+}
+.context-help > summary svg {
+  flex: none;
+}
+.context-help[open] > summary {
+  color: var(--ink);
+}
+.context-help-content {
+  max-width: 64ch;
+  padding: 0.5rem 0.75rem;
+  border-inline-start: 2px solid var(--line);
+  color: var(--muted);
+  font-size: 0.8125rem;
+  overflow-wrap: anywhere;
+}
+.context-help-content > :first-child {
+  margin-top: 0;
+}
+.context-help-content > :last-child {
+  margin-bottom: 0;
+}
 .grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -968,9 +1006,11 @@ details details {
   .secondary-section-heading {
   justify-content: start;
   gap: 0.625rem;
-  margin: 0 0 0.375rem;
+  margin: 0;
 }
-.settings-appearance-copy p,
+.settings-appearance-panel > .context-help {
+  grid-column: 1 / -1;
+}
 .settings-appearance-panel label {
   margin: 0;
 }

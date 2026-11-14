@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
   Field,
   Form,
@@ -23,14 +24,15 @@ function preserveCurrentOption(
 }
 
 export function JobForm({ job, onSaved }: { job?: Job; onSaved?: () => void }) {
-  const { run, state } = useWorkspace();
+  const { run, state, profileId } = useWorkspace();
+  const [saved, setSaved] = useState<Job>();
   const [priorApplication, setPriorApplication] = useState(job?.prior_application || "none");
   const salary = typeof job?.salary === "object" ? job.salary : {};
   return (
     <Form
       className="search-job-form"
       onSave={async (data) => {
-        await run("job", {
+        const result = await run<Job>("job", {
           ...values(data),
           ...(job ? { id: job.id } : {}),
           requirements: text(data, "requirements")
@@ -51,9 +53,24 @@ export function JobForm({ job, onSaved }: { job?: Job; onSaved?: () => void }) {
             confidence: text(data, "expectation_confidence"),
           },
         });
+        setSaved(result);
         onSaved?.();
       }}
     >
+      {saved?.id && (
+        <p role="status">
+          {(saved.title || job?.title || "Role")} saved.{" "}
+          <Link
+            href={`/discover/?${new URLSearchParams({
+              view: saved.saved ? "to-apply" : "jobs",
+              opportunity: saved.id,
+              ...(profileId ? { assessment_profile: profileId } : {}),
+            })}`}
+          >
+            View saved role
+          </Link>
+        </p>
+      )}
       <Field
         label="Job title"
         name="title"

@@ -8,6 +8,7 @@ import {
   ShieldCheck,
   UserRound,
 } from "lucide-react";
+import { ContextHelp } from "@/components/context-help";
 import { useWorkspace } from "@/components/workspace-provider";
 import {
   Action,
@@ -30,6 +31,8 @@ export function CareerPage() {
   const retired = state.facts.filter((fact) => fact.retired);
   const confirmed = facts.filter((fact) => fact.confirmed && !fact.conflict);
   const needsReview = facts.filter((fact) => !fact.confirmed || fact.conflict);
+  const masterNeedsReview = state._master.exists && state._master.changed;
+  const [masterImport, setMasterImport] = useState(0);
   const skills = confirmed.filter(
     (fact) => fact.category === "skill" || fact.category === "skills",
   );
@@ -75,11 +78,6 @@ export function CareerPage() {
       .join("") || "U";
   return (
     <div className="career-page secondary-page">
-      <p className="secondary-page-intro">
-        {publicResume
-          ? "Browse the public résumé and the career evidence drawn from it."
-          : "Manage your profile and review the evidence used in your application drafts."}
-      </p>
       <div className="career-profile-summary">
         <div className="career-avatar" aria-hidden="true">
           {initials}
@@ -93,8 +91,9 @@ export function CareerPage() {
                 : "Add your location and relocation preferences.")}
           </p>
           <span>
-            {confirmed.length} confirmed facts · {needsReview.length} need
-            review
+            {confirmed.length} confirmed facts · {masterNeedsReview
+              ? "Master resume awaiting review"
+              : `${needsReview.length} need review`}
           </span>
         </div>
         <nav
@@ -134,11 +133,12 @@ export function CareerPage() {
               <h2>Career facts</h2>
               <span className="pill">{confirmed.length} confirmed</span>
             </div>
-            <p className="muted">
-              Only confirmed, conflict-free facts are used. Editing resets
-              confirmation. A shared conflict key identifies competing versions
-              of a claim.
-            </p>
+            <ContextHelp topic="Using career facts">
+              <p>
+                Drafts use confirmed facts with no unresolved conflicts.
+                Facts with the same conflict key describe competing versions of a claim.
+              </p>
+            </ContextHelp>
             {facts.map((fact) => (
               <div
                 className="fact career-fact"
@@ -260,6 +260,7 @@ export function CareerPage() {
                 )}
                 <details>
                   <summary>Edit fact</summary>
+                  {fact.confirmed && <p className="muted">Editing resets confirmation.</p>}
                   <FactForm fact={fact} />
                 </details>
               </div>
@@ -331,35 +332,40 @@ export function CareerPage() {
           {client.demoDrafts ? (
             <DemoResumePanel session={client.demoDrafts} />
           ) : (
-            <MasterPanel />
+            <MasterPanel focusRequest={masterImport} />
           )}
           <section
             className="secondary-panel career-confirmation"
-            data-review-needed={needsReview.length > 0}
+            data-review-needed={masterNeedsReview || needsReview.length > 0}
           >
             <h2>Needs confirmation</h2>
             <div className="secondary-inline-note">
-              {needsReview.length ? (
+              {masterNeedsReview || needsReview.length || !facts.length ? (
                 <CircleHelp size={19} aria-hidden="true" />
               ) : (
                 <ShieldCheck size={19} aria-hidden="true" />
               )}
               <div>
                 <strong>
-                  {needsReview.length
-                    ? `${needsReview.length} career facts to review`
-                    : "Your career facts are reviewed"}
+                  {masterNeedsReview
+                    ? "Master resume needs your review"
+                    : needsReview.length
+                      ? `${needsReview.length} career facts to review`
+                      : facts.length
+                        ? "Your career facts are reviewed"
+                        : "Start with your resume"}
                 </strong>
-                <p>
-                  {needsReview.length
-                    ? "Review imported statements and resolve conflicting claims before using them in an application."
-                    : "New imports and edits will appear here for your review."}
-                </p>
+                {(masterNeedsReview || needsReview.length > 0 || !facts.length) && (
+                  <p>
+                    {masterNeedsReview
+                      ? "Choose Review master changes above to confirm proposed facts."
+                      : needsReview.length
+                        ? "Review imported statements and resolve conflicting claims before using them in an application."
+                        : "Import a resume below, or add experience and skills, then confirm the facts you want to use."}
+                  </p>
+                )}
               </div>
             </div>
-            <p className="muted">
-              Work rights and sponsorship are checked separately for each role.
-            </p>
           </section>
         </aside>
       </div>
@@ -415,10 +421,6 @@ export function CareerPage() {
               </h2>
               <FileText size={18} aria-hidden="true" />
             </div>
-            <p>
-              Import your master resume, then review extracted statements. Add
-              experience that never made it onto your resume.
-            </p>
             <Form
               onSave={async (data) => {
                 const file = data.get("file");
@@ -433,6 +435,7 @@ export function CareerPage() {
                   binary += String.fromCharCode(
                     ...bytes.subarray(index, index + 8192),
                   );
+                const useAsMaster = checked(data, "use_as_master");
                 const result = await run<{
                   candidates: number;
                   truncated?: boolean;
@@ -441,13 +444,16 @@ export function CareerPage() {
                   {
                     name: file.name,
                     data: btoa(binary),
-                    use_as_master: checked(data, "use_as_master"),
+                    use_as_master: useAsMaster,
                   },
                   "",
                 );
                 notify(
-                  `${result.candidates} candidate facts imported; review before confirming.${result.truncated ? " Import truncated at 500 candidates." : ""}`,
+                  useAsMaster
+                    ? "Master resume imported. Choose Review master changes to review its proposed facts and contact details."
+                    : `${result.candidates} candidate facts imported; review before confirming.${result.truncated ? " Import truncated at 500 candidates." : ""}`,
                 );
+                if (useAsMaster) setMasterImport((value) => value + 1);
               }}
             >
               <Field
@@ -463,7 +469,7 @@ export function CareerPage() {
                 defaultChecked
               />
               <small>
-                Up to {client.hosted ? 2 : 10} MB. Scanned files need OCR text.
+                PDF, DOCX, TXT, Markdown or TeX, up to {client.hosted ? 2 : 10} MB. Scanned files need OCR text.
                 Imported TeX is never executed.
               </small>
               <button>Import for review</button>

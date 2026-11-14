@@ -427,7 +427,7 @@ const { showPanel } = require("./browser-applications.cjs");
     await page.goto(base + "/history/");
     await page.getByRole("heading", { name: "History", exact: true }).waitFor();
     await page
-      .getByText("Sample application documents by city, company, role and date. No applications were sent.", {
+      .getByText("Sample application documents. No applications were sent.", {
         exact: true,
       })
       .waitFor();

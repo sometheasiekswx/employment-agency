@@ -6,7 +6,7 @@ import { JobForm } from "./job-form";
 
 const fixture = vi.hoisted(() => ({ run: vi.fn() }));
 vi.mock("@/components/workspace-provider", () => ({
-  useWorkspace: () => ({ run: fixture.run }),
+  useWorkspace: () => ({ run: fixture.run, profileId: "fictional-profile" }),
 }));
 
 beforeEach(() => {
@@ -19,6 +19,25 @@ const job: Job = {
   employer: "Fictional Systems",
   description: "Develop internal web applications.",
 };
+
+it.each([
+  [false, "jobs"],
+  [true, "to-apply"],
+])("links a saved role to its assessment with saved=%s", async (saved, view) => {
+  fixture.run.mockResolvedValue({ ...job, saved });
+  render(<JobForm />);
+  const user = userEvent.setup();
+  await user.type(screen.getByLabelText("Job title"), job.title);
+  await user.click(screen.getByRole("button", { name: "Save job" }));
+  const link = await screen.findByRole("link", { name: "View saved role" });
+  const destination = new URL(link.getAttribute("href")!, "http://127.0.0.1");
+  expect(destination.pathname.replace(/\/$/, "")).toBe("/discover");
+  expect(Object.fromEntries(destination.searchParams)).toEqual({
+    view,
+    opportunity: "fictional-job",
+    assessment_profile: "fictional-profile",
+  });
+});
 
 it.each<Salary>([
   { min: 500, max: 1000, currency: "", period: "", basis: "gross_base" },

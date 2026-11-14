@@ -4,6 +4,7 @@ import { startTransition, useEffect, useOptimistic, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { FileText, FolderClock, MapPin, ShieldCheck } from "lucide-react";
+import { ContextHelp } from "@/components/context-help";
 import { Action, Field, Select } from "@/components/controls";
 import { useWorkspace } from "@/components/workspace-provider";
 import { applicationHref, errorMessage } from "@/lib/format";
@@ -121,9 +122,6 @@ export function HistoryPage() {
   const cities = Array.from(new Set(filteredVersions.map((item) => item.city)));
   return (
     <div className="history-page secondary-page">
-      <p className="secondary-page-intro">
-        Find the exact document version saved for a role.
-      </p>
       {scoped && (
         <div
           className="secondary-inline-note history-role-context"
@@ -137,14 +135,20 @@ export function HistoryPage() {
           <Link href={clearHref}>Clear role filter</Link>
         </div>
       )}
-      <div className="secondary-inline-note history-preservation-note">
-        <ShieldCheck size={18} aria-hidden="true" />
-        <p>
-          {client.preview
-            ? "Sample application documents by city, company, role and date. No applications were sent."
-            : "Preserved documents by city, company, role and date. Historical versions do not imply that a job is open or an application was submitted."}
-        </p>
-      </div>
+      {client.preview && (
+        <div className="secondary-inline-note history-preservation-note">
+          <ShieldCheck size={18} aria-hidden="true" />
+          <p>Sample application documents. No applications were sent.</p>
+        </div>
+      )}
+      {!client.preview && versions.length > 0 && (
+        <ContextHelp topic="What history shows">
+          <p>
+            History lists saved document versions. Check the role listing for
+            availability and the application record for submission status.
+          </p>
+        </ContextHelp>
+      )}
       {versions.length > 0 && (
         <div className="history-toolbar">
           <Field

@@ -7,6 +7,11 @@ from .service import Service
 from .workspaces import selected_workspace, remember, settings
 
 
+# Other operations must explicitly supply a payload. Some mutations accept an
+# empty object and would otherwise change data when invoked without input.
+PARAMETERLESS_ACTIONS = frozenset({'snapshot-status', 'company-avoid'})
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(
         description="Private career workspace; external applications require explicit approval"
@@ -40,7 +45,7 @@ def main(argv=None):
     sub.add_parser("state")
     act = sub.add_parser("action")
     act.add_argument("operation")
-    act.add_argument("--input", help="JSON file; stdin when omitted")
+    act.add_argument("--input", help="Read JSON from a file or pipe it on stdin; optional for snapshot-status and company-avoid")
     export = sub.add_parser("export")
     export.add_argument("destination")
     res = sub.add_parser("restore")
@@ -126,6 +131,23 @@ def main(argv=None):
         'agent-application-start', 'agent-application-resume', 'agent-application-answer',
     ):
         p.error('Start, resume or answer a connected application through the running local app or its protected HTTP API.')
+    if a.command == 'action':
+        try:
+            if a.input is not None:
+                source = Path(a.input).read_text(encoding='utf-8')
+            else:
+                source = '' if sys.stdin.isatty() else sys.stdin.read()
+                if not source.strip():
+                    if a.operation not in PARAMETERLESS_ACTIONS:
+                        p.error('Provide a JSON object with --input or pipe it on standard input.')
+                    source = '{}'
+            body = json.loads(source)
+        except json.JSONDecodeError as exc:
+            p.error(f'Invalid action JSON at line {exc.lineno}, column {exc.colno}: {exc.msg}.')
+        except (OSError, UnicodeError) as exc:
+            p.error(f'Cannot read action input: {exc}')
+        if not isinstance(body, dict):
+            p.error('Expected a JSON object for action input.')
     try:
         path, create = selected_workspace(a.workspace)
         if a.command == 'init':
@@ -163,11 +185,6 @@ def main(argv=None):
         elif a.command == "export":
             print(w.export(a.destination))
         else:
-            body = json.loads(
-                Path(a.input).read_text(encoding="utf-8")
-                if a.input
-                else sys.stdin.read()
-            )
             result = service.action(a.operation, body)
             if a.operation == "discovery-start":
                 result = service.discovery.wait()

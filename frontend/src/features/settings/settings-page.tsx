@@ -1,6 +1,7 @@
 "use client";
 
 import { ArchiveRestore, CalendarClock, Cloud, Monitor, ShieldCheck } from "lucide-react";
+import { ContextHelp } from "@/components/context-help";
 import { useAppearance } from "@/components/appearance";
 import { useWorkspace } from "@/components/workspace-provider";
 import { Action, Field, Form, Select, text } from "@/components/controls";
@@ -25,9 +26,6 @@ export function SettingsPage() {
   };
   return (
     <div className="settings-page secondary-page">
-      <p className="secondary-page-intro">
-        Appearance, workspace, privacy and recovery options.
-      </p>
       <section
         className="secondary-panel settings-appearance-panel"
         aria-labelledby="appearance-heading"
@@ -37,18 +35,16 @@ export function SettingsPage() {
             <Monitor size={18} aria-hidden="true" />
             <h2 id="appearance-heading">Appearance</h2>
           </div>
-          <p id="appearance-help" className="muted">
-            System follows your device’s appearance. Your choice applies to this
-            browser.
-          </p>
         </div>
         <Select
           label="Color theme"
           options={appearanceOptions}
           value={appearance}
           onChange={(event) => setAppearance(event.target.value)}
-          aria-describedby="appearance-help"
         />
+        <ContextHelp topic="How themes are saved">
+          <p>System follows your device’s appearance. Your choice is saved in this browser.</p>
+        </ContextHelp>
       </section>
       {cooldownMonths !== undefined && (
         <section
@@ -92,16 +88,6 @@ export function SettingsPage() {
         </section>
       )}
       <WorkspaceSettings />
-      <div className="secondary-inline-note settings-control-note">
-        <ShieldCheck size={21} aria-hidden="true" />
-        <div>
-          <strong>You stay in control</strong>
-          <p>
-            Prepare and review your documents here. Submission decisions remain
-            yours.
-          </p>
-        </div>
-      </div>
       {client.hosted ? (
         <section className="secondary-panel settings-account-panel">
           <div className="secondary-section-heading">
@@ -205,16 +191,18 @@ export function SettingsPage() {
               <ArchiveRestore size={18} aria-hidden="true" />
             </div>
             <p>
-              Exports include private facts and applications, but exclude
-              credentials and consent grants. Restore to a new workspace;
-              existing files are never overwritten.
+              Exports contain private facts and applications. Credentials and consent grants stay separate.
             </p>
             <Action run={exportWorkspace}>Export private workspace</Action>
-            <pre>employment-agency restore backup.zip NEW_FOLDER</pre>
-            <p className="muted">
-              Keep your installed release pinned. A copy on this computer is not
-              an off-device backup.
-            </p>
+            <ContextHelp topic="Restore an export">
+              <p>Stop the app, then run this from your software folder using the Python that starts the app. Restore into a new folder.</p>
+              <pre>.venv/bin/python -m employment_agency restore /path/to/backup.zip /path/to/new-workspace</pre>
+              <p>On Windows, use <code>{String.raw`.\.venv\Scripts\python.exe`}</code>.</p>
+              <p>Keep an off-device backup and use your pinned release.</p>
+              <a href="https://github.com/sometheasiekswx/employment-agency/blob/main/docs/running-locally.md#back-up-without-upgrading" target="_blank" rel="noreferrer">
+                Backup and restore instructions
+              </a>
+            </ContextHelp>
           </section>
         </div>
       )}

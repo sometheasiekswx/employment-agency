@@ -13,6 +13,8 @@ A selected local folder containing one person's master resumes, confirmed facts,
 **Default workspace**:
 The ignored `workspace/` folder inside a source installation, used unless another workspace location is selected. Its presence on disk does not make its contents part of the public Git repository.
 
+The personal setup guide explicitly selects an external workspace; this fallback remains supported for existing installations. See [ADR 0017](docs/adr/0017-personal-workspace-first-onboarding.md).
+
 **External workspace**:
 A career workspace stored outside the application installation and managed by the same shared application.
 

@@ -44,7 +44,8 @@ const {
   await page.getByRole("button", { name: "Confirm", exact: true }).click();
   await page.getByText("1 confirmed", { exact: true }).waitFor();
   await page.getByRole("link", { name: "Search preferences" }).click();
-  await page.getByText("Create another profile", { exact: true }).click();
+  await page.getByText("Create your first profile", { exact: true }).waitFor();
+  await page.getByLabel("Profile name").waitFor({ state: "visible" });
   await page.getByLabel("Profile name").fill("Software engineering");
   await page.getByLabel("Target roles").fill("Engineer");
   await page.getByLabel("Locations in priority order").fill("Toronto");

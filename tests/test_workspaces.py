@@ -63,6 +63,58 @@ class WorkspaceContracts(unittest.TestCase):
         self.s.action('master-accept', {'sha256': proposal['sha256'], 'confirmed': True})
         self.assertTrue(any(x['retired'] for x in self.s.state()['facts']))
 
+    def test_master_accept_confirms_only_selected_candidates(self):
+        supplemental, profile, job = self.seed()
+        app = self.s.action('local-package', {'job_id': job['id'], 'profile_id': profile['id']})
+        self.s.action('review', {'id': app['id'], 'status': 'submitted'})
+        submitted = self.w.read()['applications'][0]
+        cv = packages.path_for(self.w.path, app, 'resume.pdf')
+        original_cv = cv.read_bytes()
+        path = self.w.path / 'master/main.txt'
+        configure(self.w.path, {'master': 'master/main.txt'})
+        path.parent.mkdir()
+        path.write_text('Previous master statement')
+        proposal = self.s.action('master-propose', {})
+        self.s.action('master-accept', {'sha256': proposal['sha256'], 'confirmed': True})
+        path = path.with_suffix('.md')
+        configure(self.w.path, {'master': 'master/main.md'})
+        path.write_text('Morgan Finch\nSoftware Engineer\nBuilt dependable queues.')
+        proposal = self.s.action('master-propose', {})
+        receipt = {'sha256': proposal['sha256'], 'confirmed': True}
+        for invalid in (None, {}, [True], ['2'], [2.0], [-1], [3], [2, 2]):
+            with self.subTest(selection=invalid):
+                with self.assertRaisesRegex(ValueError, 'candidate'):
+                    self.s.action('master-accept', {**receipt, 'selected_candidates': invalid})
+        result = self.s.action('master-accept', {**receipt, 'selected_candidates': [2]})
+        self.assertEqual(result, {'confirmed': 1})
+        state = self.w.read()
+        active = [f for f in state['facts'] if f['confirmed']]
+        self.assertEqual([f['text'] for f in active], [supplemental['text'], 'Built dependable queues.'])
+        self.assertTrue(any(f['text'] == 'Previous master statement' and f['retired'] for f in state['facts']))
+        self.assertEqual(active[1]['source']['sha256'], proposal['sha256'])
+        self.assertEqual(active[1]['source']['master'], 'master/main.md')
+        self.assertEqual(state['identity']['name'], 'Alex Morgan')
+        self.assertEqual(state['applications'][0], submitted)
+        self.assertEqual(cv.read_bytes(), original_cv)
+
+    def test_master_accept_allows_excluding_a_conflicting_candidate(self):
+        fact = self.s.action('fact', {'text': 'Engineer', 'association': 'Example Labs', 'dates': '2022 -- 2024'})
+        self.s.action('confirm', {'id': fact['id']})
+        path = self.w.path / 'master/main.tex'
+        path.parent.mkdir()
+        path.write_text(r'\begin{document}' + '\n' +
+                        r'\role{Engineer}{2020 -- 2024}{Example Labs}{Toronto}' + '\n' +
+                        r'\end{document}')
+        proposal = self.s.action('master-propose', {})
+        self.assertEqual(proposal['conflicts'][0]['candidate_index'], 0)
+        receipt = {'sha256': proposal['sha256'], 'confirmed': True}
+        with self.assertRaisesRegex(ValueError, 'conflicting supplementary'):
+            self.s.action('master-accept', {**receipt, 'selected_candidates': [0]})
+        result = self.s.action('master-accept', {**receipt, 'selected_candidates': []})
+        self.assertEqual(result, {'confirmed': 0})
+        self.assertEqual([f['id'] for f in self.w.read()['facts'] if f['confirmed']], [fact['id']])
+        self.assertFalse(self.s.state()['_master']['changed'])
+
     def test_external_edit_becomes_new_draft_and_original_is_restored(self):
         f, p, j = self.seed()
         app = self.s.action('local-package', {'job_id': j['id'], 'profile_id': p['id']})

@@ -168,7 +168,9 @@ const { applicationCard, openApplication, showPanel } = require("./browser-appli
   await page
     .getByRole("button", { name: "Review master changes", exact: true })
     .click();
-  await page.getByLabel("I reviewed these master changes").check();
+  await page
+    .getByLabel("I reviewed the master changes and confirm the selected facts")
+    .check();
   await page
     .getByRole("button", { name: "Confirm master updates", exact: true })
     .click();

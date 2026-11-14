@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Action, Check, Form, TextArea, text } from "@/components/controls";
+import { ContextHelp } from "@/components/context-help";
 import { useWorkspace } from "@/components/workspace-provider";
 import { errorMessage } from "@/lib/format";
 import type { RankedJob } from "@/lib/models";
@@ -97,7 +98,6 @@ export function DiscoveryPanel() {
   return (
     <section className={"secondary-panel " + styles.panel} aria-labelledby="job-discovery">
       <h2 id="job-discovery">Find new jobs</h2>
-      <p>Check configured feeds or enter public listing, careers, job description PDF, or sitemap URLs.</p>
       <Form onSave={async data => {
         setPollError("");
         if (state._workspace.snapshot) await client.checkCompanyCooldowns();
@@ -111,7 +111,12 @@ export function DiscoveryPanel() {
         setResult(response);
       }}>
         <fieldset disabled={running} className={styles.inputs}>
-          <TextArea label="Public URLs (one per line)" name="urls" rows={3} maxLength={16000} />
+          <div>
+            <TextArea label="Public URLs (one per line)" name="urls" rows={3} maxLength={16000} />
+            <ContextHelp topic="Supported sources">
+              <p>Use a job listing, careers page, job description PDF or sitemap URL. Add reusable feeds under Live sources.</p>
+            </ContextHelp>
+          </div>
           {state.sources.length > 0 && (
             <details>
               <summary>Choose feeds ({state.sources.length})</summary>

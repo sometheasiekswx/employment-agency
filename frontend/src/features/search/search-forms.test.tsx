@@ -105,6 +105,18 @@ it("updates required matches without dropping categories from older profiles", a
   );
 });
 
+it("preserves pasted locations on separate lines as separate priorities", async () => {
+  render(<ProfileForm />);
+  const user = userEvent.setup();
+  await user.type(screen.getByLabelText("Profile name"), "Multiple cities");
+  await user.click(screen.getByLabelText("Locations in priority order"));
+  await user.paste("Toronto\nMelbourne");
+  await user.click(screen.getByRole("button", { name: "Save profile" }));
+  expect(fixture.run).toHaveBeenCalledWith("profile", expect.objectContaining({
+    locations: ["Toronto", "Melbourne"],
+  }));
+});
+
 it("sends the model, rates, approved budget and supported batch size without making a paid request", async () => {
   render(<RunForm />);
   const user = userEvent.setup();

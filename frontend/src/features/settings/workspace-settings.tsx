@@ -2,12 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Cloud, FolderOpen } from "lucide-react";
+import { ContextHelp } from "@/components/context-help";
 import { useWorkspace } from "@/components/workspace-provider";
 import { useDraft } from "@/components/unsaved";
 import { Action, Check, Field, Form, checked, text } from "@/components/controls";
 import { errorMessage, splitList } from "@/lib/format";
 
-function WorkspaceLocation() {
+function WorkspaceLocation({ setup = false }: { setup?: boolean }) {
   const { state, client, refresh, notify } = useWorkspace();
   const { canLeave } = useDraft();
   const [busy, setBusy] = useState(false);
@@ -58,10 +59,16 @@ function WorkspaceLocation() {
           {busy ? "Choose a folder…" : "Open Folder"}
         </button>
       </div>
-      <p className="muted">
-        Open an existing workspace or start one in an empty folder or a new Git repository.
-        Your files stay on this computer.
-      </p>
+      {setup ? (
+        <p className="muted">
+          Open an existing workspace or start one in an empty folder or a new Git repository.
+          Your files stay on this computer.
+        </p>
+      ) : (
+        <ContextHelp topic="Choosing a workspace folder">
+          <p>Open an existing workspace, an empty folder or a new Git repository. Your files stay on this computer.</p>
+        </ContextHelp>
+      )}
     </>
   );
 }
@@ -72,16 +79,18 @@ export function WorkspaceSetup() {
     <section className="settings-page secondary-panel workspace-setup">
       <h2>Your career workspace</h2>
       <p>
-        Keep your master resume, career evidence and applications together here.
+        This folder is ready for your master resume, career evidence and applications.
+        Confirm the location below to begin.
       </p>
-      <WorkspaceLocation />
+      <WorkspaceLocation setup />
       <Form
         onSave={async () => {
           await run("workspace-settings", { setup_complete: true });
         }}
       >
-        <button>Save</button>
+        <button>Use this workspace</button>
       </Form>
+      <p>Next: import your resume in Career profile, then choose roles and locations in Search preferences.</p>
     </section>
   );
 }
@@ -144,10 +153,11 @@ export function WorkspaceSettings() {
           defaultValue={workspace.timezone}
         />
         <Field
-          label="Destination priorities, comma separated"
+          label="Document destination priorities, comma separated"
           name="preferred_locations"
           defaultValue={workspace.preferred_locations.join(", ")}
         />
+        <p className="muted">These priorities organise application documents. Choose the locations used to match jobs in Search preferences.</p>
         <Check
           label="Use my trusted LaTeX master layout (requires an installed compiler)"
           name="master_template"

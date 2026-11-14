@@ -134,10 +134,6 @@ export function SearchResults() {
       <h2 id="rank-jobs" tabIndex={-1} className={styles.resultHeading}>
         Find your best matches
       </h2>
-      <p>
-        Evidence and constraints guide the ordering. Verify the full requirement
-        before preparing an application.
-      </p>
       <div className="actions">
         <Action
           previewAllowed

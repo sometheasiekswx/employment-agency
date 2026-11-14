@@ -29,10 +29,27 @@ npm --prefix frontend ci --ignore-scripts
 npm --prefix frontend run build
 .venv-apply/bin/python -m pip install '.[apply]'
 .venv-apply/bin/python -m employment_agency apply-doctor
+.venv-apply/bin/python -m employment_agency --workspace /path/to/new-disposable-workspace init
 .venv-apply/bin/python -m employment_agency --workspace /path/to/new-disposable-workspace serve
 ```
 
 Build the frontend before installing a wheel/source distribution if the checkout has no exported assets yet. Google Chrome and Codex CLI are separate local dependencies. The isolated worker uses the CLI’s existing file-based ChatGPT login. It supports Codex build `0.167.0-alpha.4.1`, whose experimental tool interface the fixture verified. Other builds stay unavailable until their tool boundary is verified. `apply-doctor` reports dependency and sign-in presence. The role’s capability check also verifies the isolated protocol and local channel readiness. [Contributor instructions](../CONTRIBUTING.md)
+
+## If the agent is unavailable
+
+A prepared CV and **Open application site** remain usable without a connected agent. To diagnose agent setup, use `apply-doctor` with the same Python that starts the app:
+
+| Report or message | Next step |
+| --- | --- |
+| Missing Playwright, keyring or Google OAuth library | Install `.[apply]` in that Python environment, as above. |
+| Missing Chrome | Install Google Chrome locally; browser automation needs it. |
+| Missing, unsupported or unsigned-in Codex | Install/use the documented supported CLI build and sign in through Codex. The app does not install or sign in for you. |
+| Verify a destination for this role | Check the role's official application URL, employer identity and any instructions; this is role data, separate from runtime setup. |
+| Telegram connection unavailable | Use the verified website or available email channel, or continue manually. Telegram execution is not implemented. |
+| Gmail not connected or secure storage unavailable | Follow the connection instructions below. Current secure credential storage supports macOS Keychain; do not work around it by storing tokens in the workspace. |
+| Needs your help after a possible send | Check the destination or Sent folder and reconcile the outcome before retrying. |
+
+The available channel list is verified per role. A dependency diagnostic alone does not prove a particular employer form is supported.
 
 ## Connect Gmail
 

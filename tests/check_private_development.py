@@ -39,8 +39,8 @@ PRIVATE_BROWSER = BROWSER.replace(
     assert.equal(await page.evaluate(() => window.__developmentProof), 'same-document',
       'Keep the page and live connection across backend reloads');
     assert.deepEqual(errors, []);
-''').replace('Development browser PASS: real alternate-port API proxy, token/origin guards, saved fictional identity and globals.css Fast Refresh without reload.',
-            'Private development browser PASS: Caddy API/token/origin checks; CSS Fast Refresh without reload; changed Python behavior in a new interpreter; live CSS still updates after Python restart.')
+    console.log('Private development browser PASS: Caddy proxy, Python behavior in a new interpreter and CSS Fast Refresh after Python restart.');
+''')
 
 
 def main():

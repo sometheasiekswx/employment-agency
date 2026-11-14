@@ -7,13 +7,6 @@
 }
 
 :where(.career-page, .search-preferences-page, .history-page, .settings-page)
-  .secondary-page-intro {
-  margin: -0.25rem 0 2rem;
-  color: var(--muted);
-  font-size: 0.8125rem;
-}
-
-:where(.career-page, .search-preferences-page, .history-page, .settings-page)
   .secondary-panel {
   margin: 0;
   padding: 0;
@@ -88,14 +81,6 @@
   p {
   margin: 0.25rem 0 0;
   max-width: 72ch;
-}
-
-:where(.career-page, .search-preferences-page, .history-page)
-  .secondary-page-intro {
-  max-width: 60ch;
-  margin: 0 0 1.5rem;
-  font-size: 0.875rem;
-  line-height: 1.6;
 }
 
 :where(.career-page, .search-preferences-page, .history-page) .secondary-panel {
@@ -274,24 +259,11 @@
   scroll-margin-top: 2rem;
 }
 
-.search-preferences-page .secondary-page-intro-row {
+.search-preferences-page .search-page-actions {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.search-preferences-page .secondary-page-intro-row .secondary-page-intro {
-  margin-bottom: 0;
-}
-
-.search-preferences-page .secondary-intro-actions {
-  display: flex;
-  flex-shrink: 0;
   flex-wrap: wrap;
-  max-width: 100%;
   gap: 0.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .search-preferences-page .search-preferences-grid {
@@ -388,8 +360,7 @@
   grid-column: 1 / -1;
 }
 
-.search-preferences-page .search-profile-help,
-.search-preferences-page .search-required-matches > p {
+.search-preferences-page .search-profile-help {
   margin: 0;
   color: var(--muted);
   font-size: 0.8125rem;
@@ -481,6 +452,10 @@
   padding: clamp(1rem, 2vw, 1.5rem);
   border: 1px solid var(--line);
   background: var(--surface);
+}
+
+.history-page > .context-help {
+  margin: 0 0 0.5rem;
 }
 
 .history-page .history-preservation-note {
@@ -681,18 +656,6 @@
   overflow-wrap: anywhere;
 }
 
-.settings-page .settings-control-note {
-  margin: 1.5rem 0 2rem;
-  padding: 1.25rem 0;
-  border-block: 1px solid var(--line);
-}
-
-.settings-page .settings-control-note strong {
-  color: var(--ink);
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
 .settings-page .settings-consent-provider {
   border-top: 1px solid var(--line);
   padding: 1rem 0;
@@ -762,12 +725,6 @@
     margin-left: 0;
   }
 
-  .search-preferences-page .secondary-page-intro-row {
-    align-items: flex-start;
-    flex-direction: column;
-    margin-bottom: 1.5rem;
-  }
-
   :where(.career-page, .search-preferences-page, .history-page)
     :is(input, textarea, select) {
     font-size: 1rem;
@@ -824,11 +781,6 @@
 
 /* Reflow around the available content width when readers enlarge text. */
 @container (max-width: 34rem) {
-  .search-preferences-page .secondary-page-intro-row {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
   .search-preferences-page .search-preferences-grid {
     grid-template-columns: minmax(0, 1fr);
   }

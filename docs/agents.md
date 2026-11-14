@@ -17,7 +17,7 @@ Supported operations are the same as the UI: identity, import, fact, confirm, re
 6. Import through `agent-package` with job_id, profile_id and selection. This enforces filters, confirmation and page limits. Rejected selections require correction, not bypassing validation.
 7. Review generated PDFs, editable DOCX, evidence and EML with the user. For connected-mail drafts, use the user's explicitly authorized mailbox tool and verify saved attachment bytes against local PDFs. Never send or submit without a separate explicit instruction.
 
-The released draft-only system has no automatic submission tool. The source-only local Apply For Me preview adds separately approved execution; see docs/apply-for-me.md. Marking a reviewed package `submitted` records a human action only. Preserve that version, rather than regenerating it in place. Repeated drafting creates a new version.
+The local SQLite app supports optional connected execution through **Apply for me**; starting it authorizes preparation and submission for the selected roles. See [runtime setup and supported channels](apply-for-me.md). Preparing a draft and marking a reviewed package `submitted` are separate operations; the latter records a human action only. Preserve that version, rather than regenerating it in place. Repeated drafting creates a new version.
 
 AI selection alone is not a factual review or ATS guarantee. The user can edit the source fact and reconfirm before regenerating. Keep cloud-provider consent distinct from the coding agent's independently granted filesystem/tool access.
 
@@ -26,7 +26,7 @@ AI selection alone is not a factual review or ATS guarantee. The user can edit t
 
 The shared app owns all UI/rendering/history code. Read the selected workspace's `workspace.json` and `state.json`, not a hardcoded hidden-runtime path. `applications/` is canonical; application records provide `folder`, `documents` and `manifest_hash`. Never overwrite these files to regenerate a package. Use `local-package` or `agent-package` for a new version and `review` to record the user's own decision.
 
-Use `master-propose` to inspect detected source changes and `master-accept` only after the user confirms the displayed updates (`sha256` and `confirmed: true`). Supplementary facts remain independent. `adopt-edits` validates user-edited documents as a new draft and restores the previously verified version. Preserve unknown historical submission/file associations; migration does not invent them. CLI `migrate-legacy SOURCE DESTINATION` requires the source server to be stopped and preserves source files.
+Use `master-propose` to inspect detected source changes and `master-accept` only after the user confirms the displayed updates (`sha256` and `confirmed: true`). Supplementary facts remain independent. The master review can exclude headings or other unwanted lines. API callers can pass `selected_candidates`, a list of unique zero-based indexes from the SHA-bound `master-propose` result; omitting it preserves the existing accept-all behavior. An empty list accepts source/contact changes without adding facts. `adopt-edits` validates user-edited documents as a new draft and restores the previously verified version. Preserve unknown historical submission/file associations; migration does not invent them. CLI `migrate-legacy SOURCE DESTINATION` requires the source server to be stopped and preserves source files.
 
 Credentials and scoped permissions are machine-local; do not put them in workspace configuration or state. Export/restore includes master sources, research, organised versions, durable decisions and verified recovery objects. Keep generated files and all real career data out of public software commits.
 
@@ -86,13 +86,13 @@ Search returns partial results as sources finish, and marks remaining checks at 
 With the app running, call its local API before opening employer sources. Check that `result.workspace` is the intended workspace.
 
 ```sh
-curl --fail --silent --show-error http://127.0.0.1:8766/api/company-avoid
+curl -q --noproxy 127.0.0.1 --fail --silent --show-error --max-time 3 http://127.0.0.1:8766/api/company-avoid
 ```
 
 With the app stopped, run the same operation through the installed CLI.
 
 ```sh
-printf '%s\n' '{}' | employment-agency --workspace /absolute/path/to/workspace action company-avoid
+.venv/bin/python -m employment_agency --workspace /absolute/path/to/workspace action company-avoid
 ```
 
 The result lists employers in active cooldown, with verified aliases and deadlines. A round starts a cooldown on its second distinct confirmed vacancy. A later confirmed vacancy during the pause can extend it. Expiry opens two fresh slots. Use the actual submission date and time. For a historical date with no recorded time, the app uses midnight in the workspace timezone and labels the time as assumed.
@@ -101,19 +101,40 @@ A successful response with an empty `companies` array means there are no active 
 
 ### Enable the Codex job research gate
 
-1. [Set up the local app](running-locally.md#install-from-source) and initialize your own SQLite career workspace. Keep that folder separate from the public software checkout.
-2. From the software checkout, run the setup command with Python 3.11 or later. Replace the example path with your workspace path. On Windows use `py -3` in place of `python3`.
+1. Follow the [personal-workspace setup](../README.md#run-locally). Keep the software checkout and career workspace as separate folders. The gate requires a local SQLite workspace; it does not apply to the hosted demo.
+2. From the software checkout, run the command with the same Python and private workspace path you used for setup. On Windows, use `.\.venv\Scripts\python.exe` and your Windows workspace path.
 
    ```sh
-   python3 scripts/setup-codex-job-research-gate.py --workspace "/absolute/path/to/my-career-workspace"
+   .venv/bin/python scripts/setup-codex-job-research-gate.py --workspace "$HOME/Documents/my-career-workspace"
    ```
 
-3. Start the app with that workspace on port 8766. If your app uses another port, pass `--port PORT` to both the setup script and `serve`.
-4. Open the career workspace folder as a local Codex project. Trust the project, then review and trust **UserPromptSubmit** and **PreToolUse** in **Review hooks**, **Settings → Hooks**, or `/hooks` in the CLI. [Codex hook review](https://learn.chatgpt.com/docs/hooks#review-and-trust-hooks)
+3. Start the app with that workspace on API port 8766. If you chose another port, pass `--port PORT` to both the setup script and `serve`. With live development, this is the **Python API port**, not the frontend port (normally 3000).
+4. Open the **career workspace folder** as a local Codex project. Trust the project, then review and trust **UserPromptSubmit** and **PreToolUse** in **Review hooks**, **Settings → Hooks**, or `/hooks` in the CLI. Review the generated commands before trusting them. [Codex hook review](https://developers.openai.com/codex/hooks#review-and-trust-hooks)
+5. With the app running, check the files and live response without changing anything:
 
-Setup adds the two definitions to the workspace's `.codex/hooks.json` and sets `web_search = "disabled"` in its `.codex/config.toml`. If that file already enables web search, change the setting to `"disabled"` and rerun setup. Hosted WebSearch bypasses tool hooks, so the gate uses hookable browser and search tools. The generated commands refer to the local Python and software checkout. Run setup again if either path moves or the server port changes, then review any changed hook definitions. [Codex tool coverage](https://learn.chatgpt.com/docs/hooks#tool-coverage)
+   ```sh
+   .venv/bin/python scripts/setup-codex-job-research-gate.py --workspace "$HOME/Documents/my-career-workspace" --check
+   ```
 
-`UserPromptSubmit` gives the model the current employer names and aliases. `PreToolUse` checks `GET /api/company-avoid` again for every covered call, including follow-ups. If the response fails or identifies a different workspace, Codex blocks the tool call. This applies to supported tools throughout the selected local Codex project. Use the manual lookup above with other agents.
+   Use the same `--port` here if you changed it. Success says the gate files and `GET /api/company-avoid` passed. It does **not** prove that you trusted/enabled the hooks in Codex; check that in the Codex project too. An empty `companies` list is a valid success, not a setup failure.
+
+Setup adds two definitions to the workspace's `.codex/hooks.json` and sets `web_search = "disabled"` in its `.codex/config.toml`. If web search is already enabled, setup asks you to change that setting and rerun. Hosted WebSearch bypasses hooks, so this workspace uses hookable search/browser tools instead. Existing unrelated hooks are preserved.
+
+The generated commands refer to the local Python, software checkout, workspace path and API port. Run setup again if any moves or changes, then review the changed hooks. Keep machine-specific hook configuration out of portable career data. A restored workspace needs setup and trust for its new path.
+
+#### What the gate checks
+
+`UserPromptSubmit` supplies the current employer names and aliases as data. `PreToolUse` looks up the endpoint afresh before covered calls, including follow-ups. The response must be successful, well formed and identify the exact workspace path. HTTP errors, offline/timeouts, invalid JSON and a different workspace deny the covered call before dispatch. There is no cached success fallback.
+
+The matcher covers named search/browser MCP tools, code-mode/browser wrappers, and known shell network/browser commands and script launchers. The installed Codex dispatcher maps ordinary shell input to the hook's `Bash`/`command` shape. Nested code-mode tools are checked at their own dispatch boundary. Plain local maintenance and the exact direct cooldown probe above remain available where they can be identified safely.
+
+This is a gate for supported tool calls, not an operating-system network sandbox. Trusted/enabled hooks are necessary. Hosted tools, unrecognised tools, sending input to an already running process, or arbitrary code hidden behind an unrecognised command can bypass this boundary. A moved/missing interpreter or a Codex-level hook invocation failure also requires repair; do not infer a denial from missing hook output. Re-run `--check` after setup changes. [Codex tool coverage](https://developers.openai.com/codex/hooks#tool-coverage)
+
+#### Recover when research is blocked
+
+Keep research paused. In an ordinary terminal, start the app with the correct workspace and API port, then run `--check`. Use the direct `curl -q --noproxy ...` probe above to inspect `result.workspace`; `-q` prevents local curl configuration from changing the request. On Windows PowerShell use `curl.exe` rather than its `curl` alias. If another workspace is active, correct the server selection rather than accepting that response. If a wrapper blocks a repair command, use the external terminal to repair it. Retry the original research only after the check succeeds.
+
+For a controlled failure check, use a disposable workspace and stop its server, then attempt a supported search/browser call in that trusted Codex project. The call should be denied before the tool runs; restart that workspace and retry. Do not stop a live workspace with an application underway just to test the gate. Other agents must follow the manual company lookup; their hook mechanisms are not installed by this script.
 
 ### Research five companies
 

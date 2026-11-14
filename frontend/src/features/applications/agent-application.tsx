@@ -225,6 +225,12 @@ export function AgentLauncher({
                       : capabilities.reason ||
                         "A connected agent is unavailable."}
                   </p>
+                  {!capabilities.available && (
+                    <p>
+                      <a href="https://github.com/sometheasiekswx/employment-agency/blob/main/docs/apply-for-me.md#install-the-optional-local-connections" target="_blank" rel="noreferrer">Set up the connected agent</a>
+                      {" "}or use Open application site to apply yourself.
+                    </p>
+                  )}
                   {unavailable.length > 0 && (
                     <ul>
                       {unavailable.map(({ job, status }) => (

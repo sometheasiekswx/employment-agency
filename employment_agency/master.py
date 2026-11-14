@@ -235,6 +235,8 @@ def propose(workspace):
     if not info['exists']:
         raise ValueError('Add your master resume to ' + info['path'])
     data = inside(workspace.path, info['path']).read_bytes()
+    if digest(data) != info['sha256']:
+        raise ValueError('Master changed again; refresh and review the new changes')
     proposals = candidates(info['path'], data)
     if len(proposals) > 500:
         raise ValueError('Master has more than 500 candidate facts; split it before reconciliation')
@@ -245,7 +247,7 @@ def propose(workspace):
         old = inside(workspace.path, '.recovery/masters/' + baseline['sha256'])
         if old.exists():
             previous = old.read_bytes()
-    before = imports.extract(info['path'], previous).splitlines() if previous else []
+    before = imports.extract(baseline.get('path') or info['path'], previous).splitlines() if previous else []
     after = imports.extract(info['path'], data).splitlines()
     identity = {}
     if Path(info['path']).suffix == '.tex':
@@ -257,15 +259,16 @@ def propose(workspace):
         identity['location'] = identity['location'].split('|', 1)[0].strip()
     current_state = workspace.read()
     fact_conflicts = []
-    for candidate in proposals:
+    prior_master_paths = {info['path'], baseline.get('path') or info['path']}
+    for index, candidate in enumerate(proposals):
         for existing in current_state['facts']:
             if (existing.get('confirmed') and not existing.get('retired') and
-                existing.get('source', {}).get('master') != info['path'] and
+                existing.get('source', {}).get('master') not in prior_master_paths and
                 candidate.get('association') and candidate.get('dates') and existing.get('dates') and
                 normalized(candidate['association']) == normalized(existing.get('association', '')) and
                 normalized(candidate['text']) == normalized(existing['text']) and
                 normalized(candidate['dates']) != normalized(existing['dates'])):
-                fact_conflicts.append({'fact_id': existing['id'], 'statement': existing['text'],
+                fact_conflicts.append({'candidate_index': index, 'fact_id': existing['id'], 'statement': existing['text'],
                                        'existing_dates': existing['dates'], 'proposed_dates': candidate['dates']})
     current_identity = current_state['identity']
     identity = {k: v for k, v in identity.items() if
@@ -275,23 +278,43 @@ def propose(workspace):
             'diff': '\n'.join(difflib.unified_diff(before, after, fromfile='Accepted master', tofile='Current master', lineterm=''))}
 
 
-def accept(workspace, sha):
-    proposal = propose(workspace)
-    if sha != proposal['sha256']:
-        raise ValueError('Master changed again; refresh and review the new changes')
-    if proposal['conflicts']:
-        raise ValueError('Resolve the conflicting supplementary fact dates before accepting master updates')
-    raw = inside(workspace.path, proposal['path']).read_bytes()
-    atomic(inside(workspace.path, '.recovery/masters/' + sha), raw)
-    with workspace.edit() as state:
-        for fact in state['facts']:
-            if fact.get('source', {}).get('master') == proposal['path']:
-                fact['retired'], fact['confirmed'] = True, False
-        for item in proposal['candidates']:
-            state['facts'].append({**item, 'id': uid(), 'category': item.get('category', 'experience'), 'claim_key': '',
-                'confirmed': True, 'conflict': False, 'retired': False, 'updated_at': now(),
-                'source': {'name': proposal['path'], 'master': proposal['path'], 'sha256': sha}})
-        state['identity'].update(proposal.get('identity', {}))
-        state['master'] = {'path': proposal['path'], 'sha256': sha, 'accepted_at': now()}
-        state['events'].append({'type': 'master_reconciled', 'at': now(), 'sha256': sha})
-    return {'confirmed': len(proposal['candidates'])}
+def accept(workspace, sha, selected_candidates=()):
+    with workspace.lock:
+        proposal = propose(workspace)
+        if sha != proposal['sha256']:
+            raise ValueError('Master changed again; refresh and review the new changes')
+        candidates = proposal['candidates']
+        # Omission accepts all candidates for existing callers. An explicit
+        # empty list accepts the source and contact updates without any facts.
+        if selected_candidates == ():
+            selected = set(range(len(candidates)))
+        else:
+            if not isinstance(selected_candidates, list) or any(
+                type(index) is not int or not 0 <= index < len(candidates)
+                for index in selected_candidates
+            ):
+                raise ValueError('Select master candidate indexes from the displayed review')
+            selected = set(selected_candidates)
+            if len(selected) != len(selected_candidates):
+                raise ValueError('Master candidate indexes must be unique')
+        if any(conflict['candidate_index'] in selected for conflict in proposal['conflicts']):
+            raise ValueError('Exclude the conflicting candidates or resolve the conflicting supplementary fact dates before accepting master updates')
+        raw = inside(workspace.path, proposal['path']).read_bytes()
+        if digest(raw) != sha:
+            raise ValueError('Master changed again; refresh and review the new changes')
+        atomic(inside(workspace.path, '.recovery/masters/' + sha), raw)
+        with workspace.edit() as state:
+            prior_master_paths = {proposal['path'], state.get('master', {}).get('path') or proposal['path']}
+            for fact in state['facts']:
+                if fact.get('source', {}).get('master') in prior_master_paths:
+                    fact['retired'], fact['confirmed'] = True, False
+            for index, item in enumerate(candidates):
+                if index not in selected:
+                    continue
+                state['facts'].append({**item, 'id': uid(), 'category': item.get('category', 'experience'), 'claim_key': '',
+                    'confirmed': True, 'conflict': False, 'retired': False, 'updated_at': now(),
+                    'source': {'name': proposal['path'], 'master': proposal['path'], 'sha256': sha}})
+            state['identity'].update(proposal.get('identity', {}))
+            state['master'] = {'path': proposal['path'], 'sha256': sha, 'accepted_at': now()}
+            state['events'].append({'type': 'master_reconciled', 'at': now(), 'sha256': sha})
+        return {'confirmed': len(selected)}

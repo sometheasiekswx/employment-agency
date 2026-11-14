@@ -352,6 +352,9 @@ async function verifyNoHorizontalOverflow(page, label) {
     });
     await actionButton(page, "Open application site").click();
     await exact(panel(page), "textbox", "Hiring employer name").fill(employer);
+    await panel(page)
+      .getByText("Confirming continues the action you started.", { exact: true })
+      .waitFor();
     await actionButton(page, "Confirm employer").click();
     await actionButton(page, "I've applied").waitFor();
     assert.deepEqual(

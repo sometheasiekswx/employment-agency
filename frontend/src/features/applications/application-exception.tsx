@@ -68,6 +68,7 @@ function ConfirmEmployer({
         name="requisition"
         maxLength={200}
       />
+      <p>Confirming continues the action you started.</p>
       <button>Confirm employer</button>
     </Form>
   );

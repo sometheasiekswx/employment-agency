@@ -12,3 +12,5 @@ These are agreed target boundaries, not a claim of completed migration. Package 
 Follow-up: [ADR 0002](0002-authoritative-workspace-files.md) records the subsequently agreed document-storage, durable-record and workspace-selection boundaries. Migration details remain under discussion.
 
 Subsequent clarification: the ordinary setup should emphasise keeping software and personal data together on disk, using the ignored `workspace/` folder. Choosing another folder is a discoverable secondary option, not the main onboarding path. Master-resume change detection follows the selected workspace, whether internal or external; this does not require committing personal data to the public source repository. [ADR 0003](0003-reconcile-edits-and-preserve-migration-history.md) records the settled migration and external-edit behaviour.
+
+The onboarding emphasis in this clarification is superseded by [ADR 0017](0017-personal-workspace-first-onboarding.md): the README now leads with a separate personal workspace and keeps live development secondary. Existing workspace locations remain supported.

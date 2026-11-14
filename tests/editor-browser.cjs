@@ -30,7 +30,10 @@ const { openApplication, showPanel, workbench } = require("./browser-application
     );
   await page.goto(process.env.TEST_URL || "http://127.0.0.1:8773");
   await page.getByRole("heading", { level: 1 }).first().waitFor();
-  const setup = page.getByRole("button", { name: "Save", exact: true });
+  const setup = page.getByRole("button", {
+    name: "Use this workspace",
+    exact: true,
+  });
   if (await setup.isVisible()) await setup.click();
   const readState = async () =>
     (

@@ -1,11 +1,13 @@
 "use client";
 
 import { useId } from "react";
+import { ContextHelp } from "@/components/context-help";
 import {
   Check,
   Field,
   Form,
   Select,
+  TextArea,
   checked,
   text,
 } from "@/components/controls";
@@ -36,7 +38,7 @@ export const payPeriods = [
 export function ProfileForm({ profile }: { profile?: Profile }) {
   const { run, selectProfile } = useWorkspace();
   const listHelpId = useId();
-  const matchHelpId = useId();
+  const locationsHelpId = useId();
   const hard = profile?.hard || ["roles", "locations"];
   return (
     <Form
@@ -71,7 +73,19 @@ export function ProfileForm({ profile }: { profile?: Profile }) {
       <p className="search-profile-help" id={listHelpId}>
         Separate multiple entries with commas.
       </p>
-      {listFields.map(([name, label, placeholder]) => (
+      {listFields.map(([name, label, placeholder]) => name === "locations" ? (
+        <div key={name}>
+          <TextArea
+            name={name}
+            label={label}
+            placeholder={placeholder}
+            aria-describedby={locationsHelpId}
+            rows={2}
+            defaultValue={profile?.locations.join(", ")}
+          />
+          <small id={locationsHelpId}>Enter cities or countries separated by commas or new lines. Set Remote or Hybrid under Work arrangements.</small>
+        </div>
+      ) : (
         <Field
           key={name}
           name={name}
@@ -81,15 +95,8 @@ export function ProfileForm({ profile }: { profile?: Profile }) {
           defaultValue={profile?.[name]?.join(", ")}
         />
       ))}
-      <fieldset
-        className="search-required-matches"
-        aria-describedby={matchHelpId}
-      >
+      <fieldset className="search-required-matches">
         <legend>Required matches</legend>
-        <p id={matchHelpId}>
-          A known mismatch on a checked preference is flagged in Jobs and
-          blocks draft preparation. Missing details are marked for review.
-        </p>
         <div className="search-match-options">
           {matchFields.map(([value, label]) => (
             <Check
@@ -111,6 +118,12 @@ export function ProfileForm({ profile }: { profile?: Profile }) {
               />
             ))}
         </div>
+        <ContextHelp topic="How required matches work">
+          <p>
+            Jobs flags known mismatches on checked preferences and blocks draft
+            preparation for those roles. Missing details are marked for review.
+          </p>
+        </ContextHelp>
       </fieldset>
       <Check
         label="Require employer sponsorship"

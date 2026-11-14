@@ -72,13 +72,15 @@ Assessments keep evidence, gaps and unknowns visible. Live search, loading skele
 
 ## Run locally
 
-<a id="quickstart"></a>
+Start here to use the app for your own job search. Your **software folder** contains the app; your **career workspace** contains your CV, preferences and applications. Keep the career workspace outside this public repository. No provider API key is needed to import a CV, save jobs or prepare documents.
 
-Use live development to see frontend changes as you save. You’ll need **Python 3.11+**, **Node.js 24+** and npm.
+You need Git, **Python 3.11+**, and **Node.js 24+ with npm** to build from source. Check `python3 --version` and `node --version` first. A [prebuilt release wheel](https://github.com/sometheasiekswx/employment-agency/releases) already includes the frontend and needs only Python; see [wheel installation](docs/running-locally.md#install-a-release-wheel).
+
+<a id="quickstart"></a>
 
 ### Set up once
 
-If you already cloned the repository, open its folder in Terminal and start at `python3 -m venv .venv`.
+On macOS or Linux, open Terminal in the parent folder where you want the software. Run each command successfully before continuing. If you already cloned the repository, open its folder and start at `python3 -m venv .venv`.
 
 ```sh
 git clone https://github.com/sometheasiekswx/employment-agency.git
@@ -87,22 +89,51 @@ python3 -m venv .venv
 npm --prefix frontend ci --ignore-scripts
 npm --prefix frontend run build
 .venv/bin/python -m pip install .
+.venv/bin/python -m employment_agency --workspace "$HOME/Documents/my-career-workspace" init
 ```
 
-The initial build gives the Python package its browser assets. On Windows, use `py -3` and `.\.venv\Scripts\python.exe`.
+The last command creates your private career workspace. Replace that path with another **new folder** if you prefer. To open an existing workspace, skip `init` and use its path when starting the app.
+
+<details>
+<summary>Windows PowerShell commands</summary>
+
+```powershell
+git clone https://github.com/sometheasiekswx/employment-agency.git
+cd employment-agency
+py -3 -m venv .venv
+npm --prefix frontend ci --ignore-scripts
+npm --prefix frontend run build
+.\.venv\Scripts\python.exe -m pip install .
+.\.venv\Scripts\python.exe -m employment_agency --workspace "$env:USERPROFILE\Documents\my-career-workspace" init
+.\.venv\Scripts\python.exe -m employment_agency --workspace "$env:USERPROFILE\Documents\my-career-workspace" serve
+```
+
+Use an installed Python 3.11 or newer. No virtual-environment activation is required.
+
+</details>
 
 ### Start the app
 
+Run this from the software folder each time:
+
 ```sh
-EA_CONFIG_HOME=.dev-config .venv/bin/python -m employment_agency --workspace workspace-dev init
-EA_CONFIG_HOME=.dev-config .venv/bin/python -m employment_agency --workspace workspace-dev dev
+.venv/bin/python -m employment_agency --workspace "$HOME/Documents/my-career-workspace" serve
 ```
 
-Open **http://127.0.0.1:3000**. This uses a separate development workspace and settings. Frontend changes appear as you save. Restart after Python changes. Press **Ctrl+C** to stop both servers. [Windows PowerShell and alternate ports](CONTRIBUTING.md#live-frontend-development).
+Open **http://127.0.0.1:8766** and choose **Use this workspace** on first launch. Leave the terminal running; **Ctrl+C** stops the app. If port 8766 is busy, append `--port 8767` and open `http://127.0.0.1:8767`. Use `127.0.0.1`, because `localhost` is not accepted by the local server.
 
-[Use your career workspace or serve the built app](docs/running-locally.md) · [Try sample jobs locally](docs/demo.md#existing-cli-demo) · [Open privately on iPhone via Tailscale](docs/tailscale.md).
+### Set up your job search
 
-The public demo follows checked `main` releases. The v0.7.0 wheel includes the simplified application journey; connected execution requires the optional local setup. [Release downloads](https://github.com/sometheasiekswx/employment-agency/releases) · [Upgrade and recovery](docs/running-locally.md#existing-environments-and-upgrades).
+1. Under **Career profile → Import resume**, choose PDF, DOCX, TXT, Markdown or TeX. Keep **Use this file as my master resume** checked and click **Import for review**. Choose **Review master changes**, review the proposed facts and confirm the ones you want to use. Check the contact details under **Your details**.
+2. **Search preferences:** in **Create your first profile**, enter target roles and locations in priority order. Separate locations with commas or new lines. Put Remote or Hybrid in **Work arrangements**. Only record work rights you can confirm, then click **Save profile**.
+3. Use **Find new jobs** with a public careers URL or configured source, or use **Add opportunity** to paste an advert. Open **Jobs** to compare the imported roles and see any preference mismatches. Choose **Apply later** to keep a role in **To apply**.
+4. Open a role and choose **Prepare application**. Review its CV and cover letter, then use **Open application site** to apply yourself. Return to **I've applied** to record the submission and its evidence. **Apply for me** starts a configured agent and authorizes submission for the selected roles.
+
+[Full first-application walkthrough](docs/getting-started.md) · [Codex gate setup](#enable-the-codex-job-research-gate) · [Backup and restore](docs/running-locally.md#back-up-without-upgrading)
+
+[Change the app with live development](CONTRIBUTING.md#live-frontend-development) · [Try fictional sample jobs](docs/demo.md#existing-cli-demo) · [Private iPhone access via Tailscale](docs/tailscale.md).
+
+The built app uses the last frontend build. After editing UI source, build again and restart; use the developer workflow for automatic refresh. Installing or rebuilding the software does not upgrade another running installation. [Upgrade and recovery](docs/running-locally.md#existing-environments-and-upgrades)
 
 ## Test locally
 
@@ -124,13 +155,15 @@ Codex, Claude Code or another coding agent can research jobs through the local C
 
 ### Enable the Codex job research gate
 
-After initializing your private SQLite career workspace, run this from the software checkout with Python 3.11 or later. On Windows, use `py -3` in place of `python3`.
+After initializing your private SQLite career workspace, run this from the software checkout. On Windows, use `.\.venv\Scripts\python.exe` in place of `.venv/bin/python`.
 
 ```sh
-python3 scripts/setup-codex-job-research-gate.py --workspace "/absolute/path/to/my-career-workspace"
+.venv/bin/python scripts/setup-codex-job-research-gate.py --workspace "$HOME/Documents/my-career-workspace"
 ```
 
-Start the app with that workspace. Open the career workspace in local Codex and review and trust the `UserPromptSubmit` and `PreToolUse` project hooks. Codex then requires a successful `GET /api/company-avoid` for that workspace before each supported search or browser call, including on follow-ups. [Setup details and custom ports](docs/agents.md#enable-the-codex-job-research-gate)
+Keep the app running with that workspace. Open the **career workspace folder** as a local Codex project, then review and trust the `UserPromptSubmit` and `PreToolUse` project hooks. Setup files alone do not enable trusted hooks. Use `--port 8767` here too if you changed the API port.
+
+With trusted hooks enabled, a failed `GET /api/company-avoid` blocks supported search and browser calls, including follow-ups. Setup disables native hosted WebSearch in this project because it bypasses these hooks. This gate is a check for supported tools, not a network sandbox. [Verify setup, tool coverage and recovery](docs/agents.md#enable-the-codex-job-research-gate)
 
 ### Agent brief
 
@@ -153,7 +186,7 @@ Keep personal data out of the public repository and its screenshots.
 
 ## Documentation
 
-[Contributing](CONTRIBUTING.md) · [System design](docs/system-design.md) · [Design system](DESIGN.md) · [Document editing](docs/document-editor.md) · [Security](SECURITY.md) · [Deployment and recovery](docs/public-demo-deployment.md) · [Private hosted pilot](docs/hosted-pilot.md)
+[First application](docs/getting-started.md) · [Local setup and troubleshooting](docs/running-locally.md) · [Connected agent setup](docs/apply-for-me.md) · [Contributing](CONTRIBUTING.md) · [System design](docs/system-design.md) · [Design system](DESIGN.md) · [Document editing](docs/document-editor.md) · [Security](SECURITY.md) · [Deployment and recovery](docs/public-demo-deployment.md) · [Private hosted pilot](docs/hosted-pilot.md)
 
 <details>
 <summary>See document review and preserved history</summary>
