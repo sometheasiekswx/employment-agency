@@ -52,6 +52,7 @@ const fs = require("node:fs");
             },
           ),
           width: rect.width,
+          clientWidth: board.clientWidth,
         };
       });
       assert.equal(
@@ -71,7 +72,7 @@ const fs = require("node:fs");
         );
         assert.ok(
           column.width >= Math.min(272, layout.width - 8) - 1,
-          `${label}: readable card width`,
+          `${label}: readable card width (${column.width}px card, ${layout.width}px board, ${layout.clientWidth}px scrollport)`,
         );
       }
     };
