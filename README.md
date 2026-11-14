@@ -120,7 +120,9 @@ The Python checks use the built frontend. For end-to-end checks with fictional d
 
 ## Use your agent
 
-Codex, Claude Code or another coding agent can research jobs and use the same validated CLI/API. Start with this brief:
+Codex, Claude Code or another coding agent can research jobs through the local CLI and API. To make local Codex require a successful company-cooldown lookup before search and browser calls, enable the gate once for your career workspace. [Codex setup](docs/agents.md#enable-the-codex-job-research-gate)
+
+Start with this brief:
 
 ```text
 Help me prepare applications using Employment Agency.

@@ -99,6 +99,22 @@ The result lists employers in active cooldown, with verified aliases and deadlin
 
 A successful response with an empty `companies` array means there are no active cooldowns for the returned workspace. If the endpoint is unavailable, returns an error or reports a different workspace, resolve the lookup before opening job sources.
 
+### Enable the Codex job research gate
+
+1. [Set up the local app](running-locally.md#install-from-source) and initialize your own SQLite career workspace. Keep that folder separate from the public software checkout.
+2. From the software checkout, run the setup command with Python 3.11 or later. Replace the example path with your workspace path. On Windows use `py -3` in place of `python3`.
+
+   ```sh
+   python3 scripts/setup-codex-job-research-gate.py --workspace "/absolute/path/to/my-career-workspace"
+   ```
+
+3. Start the app with that workspace on port 8766. If your app uses another port, pass `--port PORT` to both the setup script and `serve`.
+4. Open the career workspace folder as a local Codex project. Trust the project, then review and trust **UserPromptSubmit** and **PreToolUse** in **Review hooks**, **Settings → Hooks**, or `/hooks` in the CLI. [Codex hook review](https://learn.chatgpt.com/docs/hooks#review-and-trust-hooks)
+
+Setup adds the two definitions to the workspace's `.codex/hooks.json` and sets `web_search = "disabled"` in its `.codex/config.toml`. If that file already enables web search, change the setting to `"disabled"` and rerun setup. Hosted WebSearch bypasses tool hooks, so the gate uses hookable browser and search tools. The generated commands refer to the local Python and software checkout. Run setup again if either path moves or the server port changes, then review any changed hook definitions. [Codex tool coverage](https://learn.chatgpt.com/docs/hooks#tool-coverage)
+
+`UserPromptSubmit` gives the model the current employer names and aliases. `PreToolUse` checks `GET /api/company-avoid` again for every covered call, including follow-ups. If the response fails or identifies a different workspace, Codex blocks the tool call. This applies to supported tools throughout the selected local Codex project. Use the manual lookup above with other agents.
+
 ### Research five companies
 
 1. Run the lookup above. Read the selected search profile and the recorded submission history through the app. Skip active cooldowns and use employer identity and verified aliases to avoid duplicates. Check unresolved history against the decision records before treating a company as new.
