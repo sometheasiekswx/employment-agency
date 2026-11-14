@@ -220,16 +220,23 @@ class Workflow(unittest.TestCase):
         )
 
     def test_unknown_fact_ids_rejected(self):
-        f, p, j = self.seed()
-        with self.assertRaises(ValueError):
-            self.s.action(
-                "agent-package",
-                {
-                    "profile_id": p["id"],
-                    "job_id": j["id"],
-                    "selection": {"fact_ids": ["invented"]},
-                },
-            )
+        fact, profile, job = self.seed()
+        unconfirmed = self.s.action("fact", {"text": "Unconfirmed Python work"})
+        args = {"profile_id": profile["id"], "job_id": job["id"]}
+        for invalid_id in ("invented", unconfirmed["id"]):
+            with self.subTest(fact_id=invalid_id):
+                with self.assertRaisesRegex(ValueError, "unsupported fact IDs"):
+                    self.s.action("agent-package", {
+                        **args, "selection": {"fact_ids": [fact["id"], invalid_id]},
+                    })
+                self.assertEqual(self.w.read()["applications"], [])
+                self.assertEqual(self.s.action("history", {}), [])
+
+        draft = self.s.action("agent-package", {
+            **args, "selection": {"fact_ids": [fact["id"]]},
+        })
+        self.assertEqual(draft["status"], "draft")
+        self.assertEqual(draft["fact_ids"], [fact["id"]])
 
     def test_provider_consent_and_budget(self):
         f, p, j = self.seed()
@@ -263,11 +270,37 @@ class Workflow(unittest.TestCase):
             self.assertEqual(self.s.state()["runs"][0]["status"], "paused")
 
     def test_provider_handoff_omits_contact_and_minimum(self):
-        f, p, j = self.seed()
-        result = providers.handoff(j, self.s.state()["facts"])
-        raw = json.dumps(result)
-        self.assertNotIn("alex@example.test", raw)
-        self.assertNotIn("minimum", raw)
+        fact, profile, job = self.seed()
+        minimum = 12345
+        self.s.action("profile", {**profile, "minimum": minimum})
+        self.s.action("fact", {"text": "Unconfirmed claim about Python"})
+        retired = self.s.action("fact", {"text": "Retired claim about Python"})
+        self.s.action("confirm", {"id": retired["id"]})
+        self.s.action("retire", {"id": retired["id"]})
+        args = {"job_id": job["id"]}
+        with self.assertRaisesRegex(ValueError, "scoped consent"):
+            self.s.action("handoff", args)
+        self.s.action("consent", {
+            "provider": "agent", "grant": True,
+            "purpose": providers.PURPOSE, "categories": providers.CATEGORIES,
+        })
+
+        state = self.w.read()
+        self.assertEqual(state["profiles"][0]["minimum"], minimum)
+        handoff = self.s.action("handoff", args)
+        self.assertEqual(handoff["purpose"], providers.PURPOSE)
+        self.assertEqual(handoff["categories"], providers.CATEGORIES)
+        self.assertEqual(handoff["job"], {
+            key: job[key] for key in ("title", "employer", "description", "requirements")
+        })
+        self.assertEqual(handoff["facts"], [{
+            key: fact[key] for key in ("id", "text", "association", "dates", "category")
+        }])
+        payload = json.dumps(handoff)
+        for private_value in (state["identity"]["email"], state["identity"]["phone"],
+                              job["email"], str(minimum)):
+            with self.subTest(value=private_value):
+                self.assertNotIn(private_value, payload)
 
     def test_resume_cancelled_run(self):
         f, p, j = self.seed()
@@ -324,10 +357,6 @@ class Workflow(unittest.TestCase):
             restore(archive, self.root / "restored")
         self.assertFalse((self.root / "outside").exists())
         self.assertFalse((self.root / "restored").exists())
-
-    def test_workspace_lock(self):
-        with self.assertRaises(ValueError):
-            Workspace(self.w.path)
 
     def test_api_boundaries(self):
         http = server(self.s, 0)

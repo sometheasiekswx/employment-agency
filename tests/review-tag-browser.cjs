@@ -487,44 +487,45 @@ const {
       .screenshot({ path: `${evidence}/reduced-motion.png` });
     await page.emulateMedia({ reducedMotion: "no-preference" });
 
-    // Record native browser frames of the real unfurl/ring/contract round trip.
-    const videoContext = await browser.newContext({
-      viewport: { width: 768, height: 600 },
-      recordVideo: {
-        dir: path.resolve(evidence),
-        size: { width: 768, height: 600 },
-      },
-    });
-    const videoPage = await videoContext.newPage();
-    videoPage.on("pageerror", (error) => errors.push(error.message));
-    await openApplication(videoPage, base, fixture.active, "activity");
-    const videoTag = videoPage.locator(
-      `[data-application-id="${fixture.active.id}"] .bell-toggle__button`,
-    );
-    await videoTag.waitFor();
-    await videoTag.evaluate((node) => {
-      const article = node.closest("article");
-      const header = document.querySelector(".workspace-header");
-      window.scrollTo(
-        0,
-        article.getBoundingClientRect().top +
-          scrollY -
-          (header?.getBoundingClientRect().height || 0) -
-          16,
+    if (process.env.EA_RECORD_BELL_VIDEO === "1") {
+      const videoContext = await browser.newContext({
+        viewport: { width: 768, height: 600 },
+        recordVideo: {
+          dir: path.resolve(evidence),
+          size: { width: 768, height: 600 },
+        },
+      });
+      const videoPage = await videoContext.newPage();
+      videoPage.on("pageerror", (error) => errors.push(error.message));
+      await openApplication(videoPage, base, fixture.active, "activity");
+      const videoTag = videoPage.locator(
+        `[data-application-id="${fixture.active.id}"] .bell-toggle__button`,
       );
-    });
-    await videoPage.waitForTimeout(500);
-    await videoTag.click();
-    await waitState(fixture.active, "reviewed", videoPage);
-    await waitWidth(fixture.active, reviewedSize.width, videoPage);
-    await videoPage.waitForTimeout(1200);
-    await videoTag.click();
-    await waitState(fixture.active, "draft", videoPage);
-    await waitWidth(fixture.active, draftSize.visible, videoPage);
-    await videoPage.waitForTimeout(600);
-    const video = videoPage.video();
-    await videoContext.close();
-    await video.saveAs(path.resolve(evidence, "bell-toggle.webm"));
+      await videoTag.waitFor();
+      await videoTag.evaluate((node) => {
+        const article = node.closest("article");
+        const header = document.querySelector(".workspace-header");
+        window.scrollTo(
+          0,
+          article.getBoundingClientRect().top +
+            scrollY -
+            (header?.getBoundingClientRect().height || 0) -
+            16,
+        );
+      });
+      await videoPage.waitForTimeout(500);
+      await videoTag.click();
+      await waitState(fixture.active, "reviewed", videoPage);
+      await waitWidth(fixture.active, reviewedSize.width, videoPage);
+      await videoPage.waitForTimeout(1200);
+      await videoTag.click();
+      await waitState(fixture.active, "draft", videoPage);
+      await waitWidth(fixture.active, draftSize.visible, videoPage);
+      await videoPage.waitForTimeout(600);
+      const video = videoPage.video();
+      await videoContext.close();
+      await video.saveAs(path.resolve(evidence, "bell-toggle.webm"));
+    }
 
     await page
       .getByRole("button", { name: "Submitted 1", exact: true })
@@ -544,7 +545,7 @@ const {
     assert.equal(hash(), beforeHash);
     assert.deepEqual(errors, []);
     console.log(
-      "Bell Toggle PASS: actual bell/waves/clip spring, Draft↔Reviewed round trips and persisted comments, pointer/keyboard/touch, pending/failure/retry/duplicate guards, three widths/header axe, reduced motion, submitted bytes and native animation video.",
+      "Bell Toggle PASS: actual bell/waves/clip spring, Draft↔Reviewed round trips and persisted comments, pointer/keyboard/touch, pending/failure/retry/duplicate guards, three widths/header axe, reduced motion, and submitted bytes.",
     );
   } finally {
     await browser.close();

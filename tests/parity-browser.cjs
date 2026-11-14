@@ -71,13 +71,19 @@ const crypto = require("node:crypto");
     await page.reload();
 
     await page.getByRole("link", { name: "Career profile" }).click();
-    await page.getByLabel("Name", { exact: true }).fill("Unsaved name");
-    await page.waitForTimeout(8500); // Exercise the actual local polling interval.
-    assert.equal(
-      await page.getByLabel("Name", { exact: true }).inputValue(),
-      "Unsaved name",
-    );
-    assert.equal((await read()).state.identity.name, initial.identity.name);
+    const name = page.getByLabel("Name", { exact: true });
+    await name.fill("Unsaved name");
+    const savedName = "Fictional profile updated outside this tab";
+    const updatedProfile = page.getByRole("heading", {
+      name: savedName,
+      exact: true,
+    });
+    await Promise.all([
+      updatedProfile.waitFor({ timeout: 20000 }),
+      action("identity", { ...initial.identity, name: savedName }),
+    ]);
+    assert.equal(await name.inputValue(), "Unsaved name");
+    assert.equal((await read()).state.identity.name, savedName);
     await decideDialog(
       page,
       () => page.getByRole("link", { name: "Search preferences" }).click(),
@@ -92,10 +98,7 @@ const crypto = require("node:crypto");
     await page.waitForURL("**/search/");
     await page.goBack();
     await page.getByRole("heading", { name: "Your details" }).waitFor();
-    assert.equal(
-      await page.getByLabel("Name", { exact: true }).inputValue(),
-      initial.identity.name,
-    );
+    assert.equal(await name.inputValue(), savedName);
 
     await page.route("**/api/identity", (route) =>
       route.fulfill({

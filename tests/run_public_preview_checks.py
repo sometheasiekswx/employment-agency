@@ -28,6 +28,12 @@ class StaticPreviewServer(ThreadingHTTPServer):
     # Match the local app's backlog instead of the five-connection test default.
     request_queue_size = 64
 
+    def handle_error(self, request, client_address):
+        # Navigation and PDF previews can cancel an asset transfer mid-response.
+        if isinstance(sys.exc_info()[1], (BrokenPipeError, ConnectionResetError)):
+            return
+        super().handle_error(request, client_address)
+
 
 if __name__ == '__main__':
     if not (SITE / 'demo/preview.json').is_file():

@@ -253,17 +253,15 @@ it("identifies a generated version with the same number, status and date as Docu
       preserved.label,
     ].join("/"),
   };
-  fixture.applications = [
-    {
-      ...submitted,
-      id: "earlier",
-      status: "draft",
-      created_at: "2026-11-01",
-      folder:
-        "applications/Toronto/Fictional Systems/Software Engineer/01-11-2026",
-    },
-    submitted,
-  ];
+  const earlier: Application = {
+    ...submitted,
+    id: "earlier",
+    status: "draft",
+    created_at: "2026-11-01",
+    folder:
+      "applications/Toronto/Fictional Systems/Software Engineer/01-11-2026",
+  };
+  fixture.applications = [submitted, earlier];
   fixture.client.action.mockResolvedValue([preserved]);
   render(
     <>
@@ -286,6 +284,7 @@ it("identifies a generated version with the same number, status and date as Docu
   expect(
     screen.getByRole("combobox", { name: "Document version" }),
   ).toHaveAccessibleDescription(date.textContent || "");
+  expect(fixture.applications).toEqual([submitted, earlier]);
   expect(entry.querySelector("summary")).not.toHaveTextContent(preserved.label);
   await userEvent.setup().click(title);
   expect(within(entry).getByText("Storage label:")).toBeVisible();

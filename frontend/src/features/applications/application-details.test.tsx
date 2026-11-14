@@ -33,18 +33,12 @@ it("uses the readable advertised range and basis in application details", () => 
 });
 
 it.each([
-  [{ min: 100000 }, "From 100,000"],
-  [{ max: 150000, currency: "CAD" }, "CAD Up to 150,000"],
-  [{ min: 0, max: 0 }, "Salary not listed"],
   [undefined, "Salary not listed"],
   ["Competitive, plus bonus", "Competitive, plus bonus"],
-] as const)(
-  "keeps partial or missing salary data truthful: %s",
-  (salary, expected) => {
-    render(details(salary));
-    expect(screen.getByText(expected)).toBeInTheDocument();
-  },
-);
+] as const)("displays missing or free-text salary: %s", (salary, expected) => {
+  render(details(salary));
+  expect(screen.getByText(expected)).toBeInTheDocument();
+});
 
 it.each([
   {

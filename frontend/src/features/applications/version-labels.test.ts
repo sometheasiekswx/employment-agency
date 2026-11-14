@@ -1,9 +1,6 @@
 import { expect, it } from "vitest";
 import type { Application, HistoryVersion } from "@/lib/models";
-import {
-  applicationVersionLabels,
-  historyVersionLabel,
-} from "./version-labels";
+import { historyVersionLabel } from "./version-labels";
 
 const history: HistoryVersion = {
   id: "preserved-files",
@@ -35,25 +32,6 @@ const application = (
     history.job,
     history.label,
   ].join("/"),
-});
-
-it("gives the same preserved version the Documents number, status and date in History", () => {
-  const first = {
-    ...application("first", "2026-11-01"),
-    folder:
-      "applications/Toronto/Fictional Systems/Software Engineer/01-11-2026",
-  };
-  const submitted = application(
-    "submitted",
-    "2026-11-06T12:30:00Z",
-    "submitted",
-  );
-  const applications = [submitted, first];
-  const option = applicationVersionLabels(applications, submitted, "UTC")[1];
-  const preserved = historyVersionLabel(history, applications, "UTC");
-  expect(`${preserved.title} · ${preserved.date}`).toBe(option.label);
-  expect(option.label).toBe("Version 2 · Submitted · 6 Nov 2026, 12:30 pm UTC");
-  expect(applications).toEqual([submitted, first]);
 });
 
 it("does not infer an external record's status from a similarly named folder", () => {

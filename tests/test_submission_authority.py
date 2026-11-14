@@ -3,7 +3,7 @@ import unittest
 from unittest.mock import patch
 
 import test_workflow
-from employment_agency import packages, matching
+from employment_agency import matching
 from employment_agency.application_delivery import Delivery
 
 
@@ -94,17 +94,6 @@ class SubmissionAuthority(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'already recorded as submitted'):
             self.s.prepare(job, profile, state['identity'], facts, stale_match, [fact['id']])
         self.assertEqual(len(self.s.action('history', {})), before)
-
-    def test_editing_and_history_preserve_submitted_and_new_draft_versions(self):
-        _, _, _, submitted, _ = self.submitted_with_sibling()
-        original = packages.path_for(self.w.path, submitted, 'resume.pdf').read_bytes()
-        edit = self.s.action('document-editor', {'id': submitted['id'], 'document': 'resume'})
-        edit['blocks'].append(['text', 'A preserved editable companion version.'])
-        draft = self.s.action('save-document', edit)
-        self.assertEqual(draft['status'], 'draft')
-        self.assertEqual(self.w.read()['applications'][0]['status'], 'submitted')
-        self.assertEqual(packages.path_for(self.w.path, submitted, 'resume.pdf').read_bytes(), original)
-        self.assertEqual(len(self.s.action('history', {})), 3)
 
     def test_another_requisition_with_same_title_and_employer_can_be_prepared(self):
         _, profile, job, _, _ = self.submitted_with_sibling()

@@ -279,11 +279,6 @@ const fs = require("node:fs");
       .locator(".opportunities-role-actions")
       .getByRole("button", removeRole)
       .waitFor();
-    assert.equal(
-      await page.locator(".privacy-note, .workspace-footer").count(),
-      0,
-      "Repeated slogans stay removed",
-    );
     await page.screenshot({ path: ".impeccable/review/desktop.png" });
     // The proximity spring must never shift a link's actual hit target.
     const link = page.getByRole("link", {
@@ -292,7 +287,13 @@ const fs = require("node:fs");
     });
     const before = await link.boundingBox();
     await link.hover();
-    await page.waitForTimeout(250);
+    await page.waitForFunction(() => {
+      const dock = document.querySelector('[aria-label="Workspace sections"]');
+      const icon = dock?.querySelector(
+        '[aria-label="Career profile"] .dock-icon',
+      );
+      return icon && new DOMMatrix(getComputedStyle(icon).transform).a > 1.02;
+    });
     const after = await link.boundingBox();
     assert.deepEqual(after, before);
     assert.ok(

@@ -4,6 +4,7 @@ import io
 import unittest
 from pypdf import PdfReader
 from employment_agency import packages
+from employment_agency.store import digest
 import test_workflow
 
 class Editor(unittest.TestCase):
@@ -16,10 +17,17 @@ class Editor(unittest.TestCase):
         return self.s.action('local-package', {'job_id':job['id'], 'profile_id':profile['id']})
 
     def test_preview_and_save_preserve_submitted_and_rebuild_attachments(self):
-        app = self.package()
+        _, profile, job = self.seed()
+        args = {'profile_id': profile['id'], 'job_id': job['id']}
+        app = self.s.action('local-package', args)
+        sibling = self.s.action('local-package', args)
         self.s.action('review', {'id':app['id'], 'status':'submitted'})
+        with self.w.edit() as state:
+            # Legacy records can retain a submission with stale listing metadata.
+            state['jobs'][0]['prior_application'] = 'none'
         before = self.w.read()
         original = packages.path_for(self.w.path, app, 'resume.pdf').read_bytes()
+        versions = [app, sibling]
         for stem in ('resume', 'cover-letter'):
             edit = self.s.action('document-editor', {'id':app['id'], 'document':stem})
             edit['blocks'].append(['text','Additional carefully reviewed wording.'])
@@ -28,6 +36,7 @@ class Editor(unittest.TestCase):
             self.assertEqual(self.w.read(), before)
             revised = self.s.action('save-document', edit)
             self.assertEqual(revised['status'], 'draft')
+            versions.append(revised)
             self.assertNotEqual(app['folder'], revised['folder'])
             self.assertFalse(packages.changed(self.w.path, revised))
             message = email.message_from_bytes(packages.path_for(self.w.path,revised,'application.eml').read_bytes())
@@ -36,6 +45,10 @@ class Editor(unittest.TestCase):
             before = self.w.read()
         self.assertEqual(self.w.read()['applications'][0]['status'], 'submitted')
         self.assertEqual(original, packages.path_for(self.w.path,app,'resume.pdf').read_bytes())
+        self.assertCountEqual(
+            [row['id'] for row in self.s.action('history', {})],
+            [digest(version['folder'].encode())[:24] for version in versions],
+        )
 
     def test_invalid_and_stale_inputs_do_not_save(self):
         app = self.package()

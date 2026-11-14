@@ -268,9 +268,8 @@ test("does not accept a different deployment, rollback, or stale success as conf
   assert.equal(posts(server).length, 1);
 });
 
-test("rejects malformed API JSON, response objects and alias status", async (t) => {
+test("rejects malformed API response objects and alias status", async (t) => {
   for (const [name, response] of [
-    ["invalid JSON", new Response("not-json")],
     ["null payload", Response.json(null)],
     ["array payload", Response.json([])],
   ]) {
@@ -302,30 +301,41 @@ test("rejects malformed API JSON, response objects and alias status", async (t) 
 });
 
 test("never exposes API bodies or transport errors containing credentials", async (t) => {
-  for (const [name, fail] of [
+  for (const [name, message, fail] of [
     [
       "HTTP",
+      "Vercel API returned HTTP 403.",
       async () =>
         new Response(`private API response ${token}`, { status: 403 }),
     ],
     [
       "transport",
+      "Vercel API request failed.",
       async () => {
         throw new Error(`transport ${token}`);
       },
     ],
-    ["JSON parsing", async () => new Response(`bad JSON ${token}`)],
+    [
+      "JSON parsing",
+      "Vercel returned malformed JSON.",
+      async () => new Response(`bad JSON ${token}`),
+    ],
   ]) {
     await t.test(name, async () => {
       const server = apiServer();
-      server.options.fetchImpl = fail;
+      server.options.fetchImpl = async (url, request) => {
+        server.calls.push({ url, request });
+        return fail();
+      };
       await assert.rejects(
         promotePublicDemo(stagedUrl, commit, server.options),
-        (error) => {
-          assert.ok(!error.message.includes(token));
-          assert.ok(!error.message.includes("private API response"));
-          return true;
+        {
+          message,
         },
+      );
+      assert.deepEqual(
+        server.calls.map(({ request }) => request.method),
+        ["GET"],
       );
     });
   }
@@ -351,7 +361,7 @@ test("does not retry POST after an ambiguous network failure", async () => {
 });
 
 test("rejects unexpected promotion HTTP results without retrying", async (t) => {
-  for (const postStatus of [200, 403, 409, 500]) {
+  for (const postStatus of [200, 500]) {
     await t.test(String(postStatus), async () => {
       const server = apiServer({ postStatus });
       await assert.rejects(

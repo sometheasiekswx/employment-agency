@@ -4,52 +4,45 @@ import userEvent from "@testing-library/user-event";
 import { Action, Field, Form } from "./controls";
 import { DraftProvider } from "./unsaved";
 
-it.each([
-  "Failed to fetch",
-  "Load failed",
-  "NetworkError when attempting to fetch resource.",
-])(
-  "keeps a form draft through %s with connection guidance and retries the same values",
-  async (message) => {
-    const save = vi
-      .fn()
-      .mockRejectedValueOnce(new TypeError(message))
-      .mockResolvedValueOnce(undefined);
-    render(
-      <DraftProvider>
-        <Form onSave={save}>
-          <Field label="Activity comment" name="comment" />
-          <button>Save comment</button>
-        </Form>
-      </DraftProvider>,
-    );
-    await userEvent.type(
-      screen.getByLabelText("Activity comment"),
-      "Checked both documents.",
-    );
-    await userEvent.click(screen.getByRole("button", { name: "Save comment" }));
-    const error = await screen.findByRole("alert");
-    expect(error).toHaveTextContent(
-      "Your unsaved input is still in this form. Cannot connect to the app. Check your connection and that the app is running, then try again.",
-    );
-    expect(error).toHaveFocus();
-    expect(screen.getByLabelText("Activity comment")).toHaveValue(
-      "Checked both documents.",
-    );
-    const failedUnload = new Event("beforeunload", { cancelable: true });
-    fireEvent(window, failedUnload);
-    expect(failedUnload.defaultPrevented).toBe(true);
-    await userEvent.click(screen.getByRole("button", { name: "Save comment" }));
-    await waitFor(() => expect(save).toHaveBeenCalledTimes(2));
-    expect(
-      save.mock.calls.map(([data]) => (data as FormData).get("comment")),
-    ).toEqual(["Checked both documents.", "Checked both documents."]);
-    await waitFor(() => expect(screen.queryByRole("alert")).toBeNull());
-    const savedUnload = new Event("beforeunload", { cancelable: true });
-    fireEvent(window, savedUnload);
-    expect(savedUnload.defaultPrevented).toBe(false);
-  },
-);
+it("keeps a form draft after a connection failure and retries with the same values", async () => {
+  const save = vi
+    .fn()
+    .mockRejectedValueOnce(new TypeError("Failed to fetch"))
+    .mockResolvedValueOnce(undefined);
+  render(
+    <DraftProvider>
+      <Form onSave={save}>
+        <Field label="Activity comment" name="comment" />
+        <button>Save comment</button>
+      </Form>
+    </DraftProvider>,
+  );
+  await userEvent.type(
+    screen.getByLabelText("Activity comment"),
+    "Checked both documents.",
+  );
+  await userEvent.click(screen.getByRole("button", { name: "Save comment" }));
+  const error = await screen.findByRole("alert");
+  expect(error).toHaveTextContent(
+    "Your unsaved input is still in this form. Cannot connect to the app. Check your connection and that the app is running, then try again.",
+  );
+  expect(error).toHaveFocus();
+  expect(screen.getByLabelText("Activity comment")).toHaveValue(
+    "Checked both documents.",
+  );
+  const failedUnload = new Event("beforeunload", { cancelable: true });
+  fireEvent(window, failedUnload);
+  expect(failedUnload.defaultPrevented).toBe(true);
+  await userEvent.click(screen.getByRole("button", { name: "Save comment" }));
+  await waitFor(() => expect(save).toHaveBeenCalledTimes(2));
+  expect(
+    save.mock.calls.map(([data]) => (data as FormData).get("comment")),
+  ).toEqual(["Checked both documents.", "Checked both documents."]);
+  await waitFor(() => expect(screen.queryByRole("alert")).toBeNull());
+  const savedUnload = new Event("beforeunload", { cancelable: true });
+  fireEvent(window, savedUnload);
+  expect(savedUnload.defaultPrevented).toBe(false);
+});
 
 it("retains draft input after a failed save and allows retry", async () => {
   const save = vi

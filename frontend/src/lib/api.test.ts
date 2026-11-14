@@ -87,45 +87,74 @@ describe("hosted session refresh", () => {
         expires_at: 1,
       }),
     );
-    const fetch = vi.fn().mockResolvedValue(
-      json({
-        access_token: "new-access",
-        refresh_token: "next-refresh",
-        expires_in: 3600,
-      }),
-    );
+    let complete!: (response: Response) => void;
+    const response = new Promise<Response>((resolve) => {
+      complete = resolve;
+    });
+    const fetch = vi.fn().mockReturnValue(response);
     vi.stubGlobal("fetch", fetch);
     const auth = new HostedAuth({
       url: "https://example.supabase.co",
       key: "public",
     });
     await auth.initialize();
-    expect(await Promise.all([auth.access(), auth.access()])).toEqual([
-      "new-access",
-      "new-access",
-    ]);
+    const pending = Promise.all([auth.access(), auth.access()]);
     expect(fetch).toHaveBeenCalledTimes(1);
     expect(fetch.mock.calls[0][0]).toBe(
       "https://example.supabase.co/auth/v1/token?grant_type=refresh_token",
     );
+    expect(JSON.parse(fetch.mock.calls[0][1].body)).toEqual({
+      refresh_token: "refresh",
+    });
+    complete(
+      json({
+        access_token: "new-access",
+        refresh_token: "next-refresh",
+        expires_in: 3600,
+      }),
+    );
+    expect(await pending).toEqual(["new-access", "new-access"]);
+    await expect(auth.access()).resolves.toBe("new-access");
+    expect(fetch).toHaveBeenCalledTimes(1);
   });
 
   it("preserves a failed session for an explicit retry and reports sign-in failure", async () => {
-    sessionStorage.setItem(
-      "ea-cloud-session",
-      JSON.stringify({
-        access_token: "expired",
-        refresh_token: "refresh",
-        expires_at: 1,
-      }),
-    );
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(json({}, 401)));
+    const expired = JSON.stringify({
+      access_token: "expired",
+      refresh_token: "refresh",
+      expires_at: 1,
+    });
+    sessionStorage.setItem("ea-cloud-session", expired);
+    const fetch = vi
+      .fn()
+      .mockResolvedValueOnce(json({}, 401))
+      .mockResolvedValueOnce(
+        json({
+          access_token: "retried-access",
+          refresh_token: "rotated-refresh",
+          expires_in: 3600,
+        }),
+      );
+    vi.stubGlobal("fetch", fetch);
     const auth = new HostedAuth({
       url: "https://example.supabase.co",
       key: "public",
     });
     await auth.initialize();
     await expect(auth.access()).rejects.toThrow("sign in again");
-    expect(sessionStorage.getItem("ea-cloud-session")).not.toBeNull();
+    expect(sessionStorage.getItem("ea-cloud-session")).toBe(expired);
+    expect(fetch).toHaveBeenCalledTimes(1);
+
+    await expect(auth.access()).resolves.toBe("retried-access");
+    expect(fetch).toHaveBeenCalledTimes(2);
+    expect(JSON.parse(fetch.mock.calls[1][1].body)).toEqual({
+      refresh_token: "refresh",
+    });
+    expect(
+      JSON.parse(sessionStorage.getItem("ea-cloud-session")!),
+    ).toMatchObject({
+      access_token: "retried-access",
+      refresh_token: "rotated-refresh",
+    });
   });
 });

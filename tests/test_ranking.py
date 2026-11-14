@@ -27,11 +27,15 @@ class Ranking(unittest.TestCase):
 
     def test_rank_preserves_effective_submissions_without_rewriting_job_data(self):
         _, profile, job = self.seed()
+        args = {'profile_id': profile['id']}
+        self.assertTrue(self.s.action('rank', args)[0]['match']['eligible_for_preparation'])
         with self.w.edit() as state:
             state['applications'].append({'id': 'fictional-submission', 'job_id': job['id'], 'status': 'submitted'})
         before = (self.w.path / 'state.json').read_bytes()
-        rows = self.s.action('rank', {'profile_id': profile['id']})
+        rows = self.s.action('rank', args)
         self.assertEqual(rows[0]['job']['prior_application'], 'submitted')
+        self.assertIn('Prior application recorded as submitted', rows[0]['match']['hard_conflicts'])
+        self.assertFalse(rows[0]['match']['eligible_for_preparation'])
         self.assertEqual((self.w.path / 'state.json').read_bytes(), before)
 
     def test_rank_honors_a_corrected_submission_and_rejects_unknown_profiles(self):

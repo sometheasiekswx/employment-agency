@@ -29,10 +29,13 @@ After setup, stop the dev server and run these from the software checkout:
 ```sh
 npm --prefix frontend run build
 npx --prefix frontend playwright install chrome
+npx --prefix frontend playwright install ffmpeg
 .venv/bin/python tests/run_browser_checks.py
 ```
 
 Skip the install command if Chrome is already installed. On Linux, use `npx --prefix frontend playwright install --with-deps chrome` to install Chrome and its system dependencies. The suite uses temporary local and hosted services with fictional data. CI runs contract checks on Linux, macOS and Windows, and browser checks on Linux.
+
+Run the browser suite with `EA_RECORD_BELL_VIDEO=1` to save the Bell Toggle recording to `output/playwright/review-tag/bell-toggle/bell-toggle.webm`.
 
 ## Live frontend development
 

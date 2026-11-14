@@ -161,6 +161,7 @@ const fs = require("node:fs");
     await page
       .getByRole("button", { name: "Close opportunity details", exact: true })
       .click();
+    await page.waitForURL(base + "/discover/?view=all");
 
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto(base + "/discover/?view=saved&location=Berlin");

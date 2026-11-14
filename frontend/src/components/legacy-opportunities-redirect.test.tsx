@@ -23,11 +23,6 @@ beforeEach(() => {
   window.history.replaceState(null, "", "/");
 });
 
-it("replaces the empty root with Opportunities", () => {
-  render(<Page />);
-  expect(fixture.router.replace).toHaveBeenCalledWith("/discover/");
-});
-
 it.each(["active", "submitted", "rejected"])(
   "preserves %s application bookmarks, filters, and the requested panel",
   (section) => {

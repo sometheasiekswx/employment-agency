@@ -1,24 +1,26 @@
 """Contracts at the static frontend / Python service boundary."""
 import base64
 import hashlib
-from pathlib import Path
-import tempfile
+import http.client
 import json
+import re
+import socket
+import tempfile
 import threading
 import unittest
-import urllib.request
 import urllib.error
-import io
+import urllib.request
 import zipfile
-import re
 from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 from unittest.mock import patch
 
-from employment_agency import history
+from employment_agency import history, providers, store
 from employment_agency.hosted import app
 from employment_agency.web_assets import asset, script_policy, MissingFrontendError
 from employment_agency.cloud import execute
 from employment_agency.server import server
+from employment_agency.service import Service
 import test_workflow
 from test_cloud import Backend, OWNER, OTHER
 
@@ -103,12 +105,25 @@ class FrontendHttpContracts(unittest.TestCase):
 
     def test_head_supports_next_prefetch_without_a_body(self):
         self.start()
-        request = urllib.request.Request(self.url + '/career/', method='HEAD')
-        with urllib.request.urlopen(request) as response:
-            self.assertEqual(response.status, 200)
-            self.assertGreater(int(response.headers['Content-Length']), 0)
-            self.assertEqual(response.read(), b'')
-        with urllib.request.urlopen(self.url + '/api/runtime') as response:
+        url = self.url + '/career/'
+        with urllib.request.urlopen(url, timeout=5) as get:
+            expected = get.read()
+            self.assertGreater(len(expected), 0)
+            headers = {key: get.headers[key] for key in ('Content-Type', 'Content-Security-Policy')}
+        # HTTP clients discard HEAD bodies. Inspect the wire to detect bytes the server should omit.
+        with socket.create_connection(('127.0.0.1', self.http.server_port), timeout=5) as connection:
+            request = (f'HEAD /career/ HTTP/1.1\r\n'
+                       f'Host: 127.0.0.1:{self.http.server_port}\r\n'
+                       'Connection: close\r\n\r\n')
+            connection.sendall(request.encode('ascii'))
+            with connection.makefile('rb') as wire:
+                self.assertIn(b' 200 ', wire.readline())
+                response_headers = http.client.parse_headers(wire)
+                self.assertEqual(int(response_headers['Content-Length']), len(expected))
+                for key, value in headers.items():
+                    self.assertEqual(response_headers[key], value)
+                self.assertEqual(wire.read(), b'')
+        with urllib.request.urlopen(self.url + '/api/runtime', timeout=5) as response:
             self.assertEqual(json.load(response), {'mode': 'local'})
 
     def test_default_server_rejects_the_development_origin(self):
@@ -117,15 +132,53 @@ class FrontendHttpContracts(unittest.TestCase):
         self.assertEqual(self.post(self.url), 200)
 
     def test_local_export_download_round_trip(self):
+        self.assert_export_download_round_trip(sqlite=False)
+
+    def test_local_sqlite_export_download_round_trip(self):
+        self.w.close()
+        self.w = store.Workspace(self.root / 'sqlite', sqlite=True)
+        self.s = Service(self.w)
+        self.assert_export_download_round_trip(sqlite=True)
+
+    def assert_export_download_round_trip(self, *, sqlite):
+        self.s.action('identity', {'name': 'Fictional export candidate', 'email': 'export@example.test'})
+        fact = self.s.action('fact', {'text': 'Maintained Python APIs', 'category': 'experience'})
+        self.s.action('confirm', {'id': fact['id']})
+        self.s.action('consent', {
+            'provider': 'agent', 'grant': True,
+            'purpose': providers.PURPOSE, 'categories': providers.CATEGORIES,
+        })
         self.start()
-        with urllib.request.urlopen(self.url + '/api/state') as response:
-            token = json.load(response)['token']
-        request = urllib.request.Request(self.url + '/api/export', data=b'{}', headers={'Origin': self.url, 'X-Workspace-Token': token, 'Content-Type': 'application/json'})
-        with urllib.request.urlopen(request) as response:
+        with urllib.request.urlopen(self.url + '/api/state', timeout=5) as response:
+            workspace = json.load(response)
+        self.assertIn('agent', workspace['state']['consents'])
+        request = urllib.request.Request(self.url + '/api/export', data=b'{}', headers={
+            'Origin': self.url, 'X-Workspace-Token': workspace['token'], 'Content-Type': 'application/json',
+        })
+        with urllib.request.urlopen(request, timeout=5) as response:
             name = json.load(response)['result']['file']
-        with urllib.request.urlopen(self.url + '/exports/' + name) as response:
-            with zipfile.ZipFile(io.BytesIO(response.read())) as archive:
-                self.assertIn('state.json', archive.namelist())
+        archive = self.root / 'download.zip'
+        with urllib.request.urlopen(self.url + '/exports/' + name, timeout=5) as response:
+            self.assertEqual(response.status, 200)
+            archive.write_bytes(response.read())
+        with zipfile.ZipFile(archive) as backup:
+            exported = json.loads(backup.read('state.json'))
+            if sqlite:
+                self.assertEqual(exported['storage'], 'sqlite')
+                exported = exported['state']
+            self.assertEqual(exported['consents'], {})
+        destination = self.root / 'restored'
+        store.restore(archive, destination)
+        restored = store.Workspace(destination, create=False)
+        try:
+            self.assertEqual(restored.database is not None, sqlite)
+            state = restored.read()
+            self.assertEqual(state['identity']['email'], 'export@example.test')
+            self.assertEqual([(row['id'], row['text'], row['confirmed']) for row in state['facts']],
+                             [(fact['id'], fact['text'], True)])
+            self.assertEqual(state['consents'], {})
+        finally:
+            restored.close()
 
     def test_development_origin_is_explicit_exact_and_still_requires_a_token(self):
         self.start('http://127.0.0.1:3000')

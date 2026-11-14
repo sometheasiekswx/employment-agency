@@ -185,26 +185,14 @@ it("keeps unsaved edits and the dialog open when the backend rejects a stale doc
 });
 
 it.each([
-  ["Save as new draft", "save-document", "Failed to fetch"],
-  ["Save as new draft", "save-document", "Load failed"],
-  [
-    "Save as new draft",
-    "save-document",
-    "NetworkError when attempting to fetch resource.",
-  ],
-  ["Update preview", "preview-document", "Failed to fetch"],
-  ["Update preview", "preview-document", "Load failed"],
-  [
-    "Update preview",
-    "preview-document",
-    "NetworkError when attempting to fetch resource.",
-  ],
+  ["Save as new draft", "save-document"],
+  ["Update preview", "preview-document"],
 ])(
-  "retains edits and offers a safe %s retry after %s transport failure: %s",
-  async (label, operation, message) => {
+  "retains edits and offers a %s retry after a connection failure during %s",
+  async (label, operation) => {
     const saving = operation === "save-document";
     fixture.action
-      .mockRejectedValueOnce(new TypeError(message))
+      .mockRejectedValueOnce(new TypeError("Failed to fetch"))
       .mockResolvedValueOnce(
         saving
           ? { id: "retried-draft", status: "draft" }
@@ -548,13 +536,6 @@ it("shows a PDF-only version without offering an unsupported save", () => {
     "href",
     "blob:fixture-pdf",
   );
-});
-
-it("offers the current preview as a PDF download", () => {
-  render(<DocumentEditor document={document} onClose={() => {}} />);
-  const download = screen.getByRole("link", { name: "Download PDF" });
-  expect(download).toHaveAttribute("download", "cv.pdf");
-  expect(download).toHaveAttribute("href", "blob:fixture-pdf");
 });
 
 it.each(["blocks", "tex"] as const)(

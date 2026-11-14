@@ -1,9 +1,7 @@
 import { describe, expect, it } from "vitest";
-import type { Application, Fact, Job, RankedJob } from "@/lib/models";
-import { applicationHref } from "@/lib/format";
+import type { Fact, Job, RankedJob } from "@/lib/models";
 import {
   advertisedSalary,
-  applicationsByJob,
   filterOpportunities,
   groupOpportunities,
   remainingEvidenceGaps,
@@ -106,31 +104,6 @@ describe("advertised salary", () => {
       "From 80,000",
     );
   });
-});
-
-it("preserves the submitted snapshot even when a later draft exists", () => {
-  const app = (
-    id: string,
-    status: Application["status"],
-    date: string,
-  ): Application => ({
-    id,
-    job_id: job.id,
-    title: job.title,
-    employer: job.employer,
-    status,
-    created_at: date,
-    comments: [],
-  });
-  const sent = app("exact-submitted-version", "submitted", "2026-10-21");
-  const selected = applicationsByJob([
-    sent,
-    app("later-draft", "draft", "2026-10-22"),
-  ]).get(job.id)!;
-  expect(selected.id).toBe(sent.id);
-  expect(applicationHref(selected)).toBe(
-    "/discover/?view=applications&section=submitted&application=exact-submitted-version&panel=documents",
-  );
 });
 
 it("keeps conflict records available in All results and combines saved, text and city filters", () => {

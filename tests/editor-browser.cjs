@@ -114,17 +114,26 @@ const { openApplication, workbench } = require("./browser-applications.cjs");
     );
     assert(await dialog.evaluate((d) => d.scrollWidth <= d.clientWidth + 1));
   }
-  await dialog
-    .getByLabel("Text", { exact: true })
-    .last()
-    .fill("Built reliable Python APIs with integration tests.");
+  const previewText = "Built reliable Python APIs with integration tests.";
+  await dialog.getByLabel("Text", { exact: true }).last().fill(previewText);
   await dialog.getByRole("button", { name: "Update preview" }).click();
   await dialog
     .getByRole("status")
     .filter({ hasText: "Preview updated" })
     .waitFor();
+  await dialog.getByRole("button", { name: "Read text", exact: true }).click();
+  await dialog
+    .getByRole("region", { name: "PDF text, page 1", exact: true })
+    .getByText(previewText, { exact: false })
+    .waitFor();
+  assert.deepEqual(
+    (await readState()).applications,
+    before,
+    "Updating the rendered preview must leave the stored applications unchanged",
+  );
+  await dialog.getByRole("button", { name: "View page", exact: true }).click();
+  await dialog.getByRole("img", { name: /^PDF page 1 of / }).waitFor();
   await dialog.evaluate((d) => (d.scrollTop = 0));
-  await page.waitForTimeout(1000);
   await page.screenshot({
     path: "output/playwright/document-editor.png",
     fullPage: false,
@@ -377,6 +386,7 @@ const { openApplication, workbench } = require("./browser-applications.cjs");
     page.waitForEvent("download"),
     dialog.getByRole("link", { name: "Download PDF" }).click(),
   ]);
+  assert.equal(download.suggestedFilename(), "cv.pdf");
   assert.equal(
     (await readFile(await download.path())).toString("base64"),
     syntheticPdf,

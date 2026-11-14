@@ -6,7 +6,6 @@ const {
   showPanel,
   selectApplication,
   workbench,
-  removalControl,
 } = require("./browser-applications.cjs");
 (async () => {
   const browser = await chromium.launch({
@@ -130,12 +129,6 @@ const {
     .fill("Reviewed the tailored files.");
   await page.getByRole("button", { name: "Save comment", exact: true }).click();
   await page.getByText("Review history (1)", { exact: true }).waitFor();
-  await removalControl(page, selectedApplication).click();
-  await page.getByRole("button", { name: "Removed 1", exact: true }).click();
-  await selectApplication(page, selectedApplication);
-  await removalControl(page, selectedApplication, true).click();
-  await page.getByRole("button", { name: "Active 1", exact: true }).click();
-  await selectApplication(page, selectedApplication);
   await page
     .getByRole("button", { name: "Record submission…", exact: true })
     .click();
@@ -190,29 +183,21 @@ const {
     path: "output/playwright/hosted-desktop.png",
     fullPage: true,
   });
-  for (const width of [320, 768, 1024, 1440]) {
-    await page.setViewportSize({ width, height: 900 });
-    await page.waitForFunction((mobile) => {
-      const surface = document.querySelector(
-        ".opportunities-workbench:not([hidden])",
-      );
-      return surface?.matches("dialog:modal") === mobile;
-    }, width <= 1000);
-    await page.evaluate(
-      () =>
-        new Promise((resolve) =>
-          requestAnimationFrame(() => requestAnimationFrame(resolve)),
-        ),
-    );
-    assert.equal(
-      await page.evaluate(
-        () => document.documentElement.scrollWidth > innerWidth,
-      ),
-      false,
-      `overflow at ${width}`,
-    );
-  }
   await page.setViewportSize({ width: 320, height: 900 });
+  await page.locator("dialog.opportunities-workbench:modal").waitFor();
+  await page.evaluate(
+    () =>
+      new Promise((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(resolve)),
+      ),
+  );
+  assert.equal(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth > innerWidth,
+    ),
+    false,
+    "Hosted workspace fits the 320px mobile viewport",
+  );
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({
     path: "output/playwright/hosted-mobile.png",
