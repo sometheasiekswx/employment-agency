@@ -63,6 +63,20 @@ These operations use the same validators as the UI. `local-package` means the ap
 
 A CLI process cannot also lock the same workspace. Stop the server first before CLI operations. Alternatively, an authorized browser agent can use the live UI or its protected same-origin API: read `GET /api/state` for the current state/token, then POST a JSON object to `/api/OPERATION` with the exact loopback Origin and `X-Workspace-Token`. Re-read after an explicit workspace change. Never bypass host/origin/token checks or proxy a local instance publicly. Hosted API access instead requires the signed-in account's bearer session and allowed origin.
 
+### Find jobs from public sources
+
+Start a discovery run in the local Search page or supply the active profile ID, chosen feed IDs and any additional public URLs to `discovery-start`. Search works with employer board URLs, listing URLs, careers pages, sitemaps and ordinary pages. The app follows a small set of relevant links, saves complete structured vacancies and returns other pages and uncertain listings for review.
+
+~~~json
+{"profile_id":"PROFILE_ID","source_ids":["FEED_ID"],"urls":["https://example.org/careers"],"firecrawl":false}
+~~~
+
+Through the running app, use the same protected JSON API as other workspace operations. The start response includes the run ID. Read results with `discovery-status` and `{"id":"RUN_ID"}`, or call `discovery-stop` with that ID to keep completed results and stop processing. Status includes source outcomes, ranked jobs, leads and readable page content. Use `sources[].job_ids` when you need all the job IDs saved from completed checks, including roles outside the shortlist. A new listing has `new_to_workspace: true`. Its posting date comes from the source.
+
+With the application stopped, `employment-agency --workspace PRIVATE_PATH action discovery-start --input input.json` waits for the final result. Ctrl+C stops the command. Use the running app for progress and polling. The latest run is retained by the local process. Saved jobs and feed checks are part of the workspace.
+
+Search returns partial results as sources finish, and marks remaining checks at the 90-second deadline. Keep a source’s earlier results and original verification time on a blocked or failed check. A missing result from a limited or timed-out check leaves availability unresolved. Respect current company cooldowns and verify role availability and work location from the original before proceeding. [Find new jobs in the local app](running-locally.md#find-new-jobs)
+
 ### Companies to skip before research
 
 With the app running, call its local API before opening employer sources. Check that `result.workspace` is the intended workspace.
@@ -84,7 +98,7 @@ A successful response with an empty `companies` array means there are no active 
 ### Research five companies
 
 1. Run the lookup above. Read the selected search profile and the recorded submission history through the app. Skip active cooldowns and use employer identity and verified aliases to avoid duplicates. Check unresolved history against the decision records before treating a company as new.
-2. Look for hiring employers where the user has never applied. Use `company-research-check` with `{"name":"HIRING EMPLOYER"}` before a targeted fetch to check prior submissions, remaining slots and unresolved history. Check the official careers site and each accessible employer-owned board, following pagination. For a registered Greenhouse or Lever board, call `company-research-source` with the verified hiring employer `name` and its `source_id`. The operation rechecks company history before fetching and returns the imported `job_ids`. For other careers sites, inspect the official site with your own research tools and import verified listings with `job`. Preserve listing URLs, requisitions, checked dates, locations and requirements. Record the sources checked and any pages that were blocked or incomplete. Use previously applied employers with available slots only to fill a shortfall.
+2. Look for hiring employers where the user has never applied. Use `company-research-check` with `{"name":"HIRING EMPLOYER"}` before a targeted fetch to check prior submissions, remaining slots and unresolved history. Check the official careers site and each accessible employer-owned board. For a registered board, call `company-research-source` with the verified hiring employer `name` and its `source_id`. The operation rechecks company history before fetching and returns the imported `job_ids`. Use [public-source discovery](#find-jobs-from-public-sources) for other careers sites and feed URLs. Review uncertain listings and import them with `job` only after checking the original. Preserve listing URLs, requisitions, checked dates, locations and requirements. Record the sources checked and any pages that were blocked or incomplete. Use previously applied employers with available slots only to fill a shortfall.
 3. Pass every checked workspace job ID from those companies to `company-research` with the selected profile. This read operation uses the shared ranker and returns up to five companies, first-time employers before fallback employers. Each group contains every role that passes the hard requirements and source status where the board is configured. Review `needs_review` for unresolved employer history. If the agent checked fewer than five eligible companies, report the count and coverage.
 4. Present the results by company, with the strongest roles first and the remaining eligible roles included. Call out uncertain eligibility, sponsorship, availability and pay where applicable. Discover groups the imported roles by company and opens each role in the existing inspector. Keep the shortlist separate from the user's choice of applications.
 

@@ -31,6 +31,7 @@ import re
 import hashlib
 import json
 import os
+from unittest.mock import patch
 import employment_agency
 from employment_agency.store import Workspace, migrate_sqlite, restore
 from employment_agency.service import Service
@@ -46,6 +47,21 @@ try:
     fact = service.action('fact', {'text':'Built Python APIs and integration tests.','category':'experience'})
     service.action('confirm', {'id':fact['id']})
     profile = service.action('profile', {'name':'Wheel fixture','roles':['Engineer'],'locations':['Toronto'],'hard':['roles','locations'],'include_unknown':True,'include_stretch':True})
+    from employment_agency import public_pages
+    from employment_agency.discovery_fetch import Fetch
+    listing_url = 'https://wheel.example.test/careers/engineer'
+    source = json.dumps({'@type': 'JobPosting', 'title': 'Software Engineer',
+                         'hiringOrganization': {'name': 'Wheel Recruiting'},
+                         'jobLocation': {'address': {'addressLocality': 'Toronto'}},
+                         'description': 'Build Python APIs'})
+    listing = public_pages.html_page('<script type="application/ld+json">' + source + '</script>', listing_url)
+    with patch.object(Fetch, 'page', return_value=('http', listing)):
+        service.action('discovery-start', {'profile_id': profile['id'], 'urls': [listing_url]})
+        discovery = service.discovery.wait()
+    listing_id = discovery['jobs'][0]['job']['id']
+    assert discovery['status'] == 'complete' and discovery['new_job_count'] == 1
+    assert any(row['id'] == listing_id and row['url'] == listing_url for row in workspace.read()['jobs'])
+    print('Installed wheel: structured public listing extraction, ranking and durable import PASS')
     job = service.action('job', {'title':'Software Engineer','employer':'Fictional Wheel Systems','location':'Toronto','description':'Build Python APIs','requirements':['Python APIs']})
     application = service.action('local-package', {'profile_id':profile['id'],'job_id':job['id']})
     original = packages.path_for(workspace.path, application, 'resume.pdf').read_bytes()

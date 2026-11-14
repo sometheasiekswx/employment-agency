@@ -133,7 +133,8 @@ def server(service, port=8766, frontend_origin=None, tailscale_origin=None, tail
             if path == '/api/development' and frontend_origin:
                 current = self.server.active_service
                 busy = (picker.locked() or bool(current.worker and current.worker.is_alive())
-                        or bool(current.delivery and current.delivery.busy))
+                        or bool(current.delivery and current.delivery.busy)
+                        or bool(current.discovery and current.discovery.busy))
                 return self.send(200, encode({'reload_safe': not busy,
                                               'workspace': str(current.w.path), 'pid': os.getpid()}))
             if path.startswith('/files/'):
@@ -248,6 +249,8 @@ def server(service, port=8766, frontend_origin=None, tailscale_origin=None, tail
                         replacement.close()
                         raise
                     previous = service.w
+                    if service.discovery:
+                        service.discovery.close()
                     service = next_service
                     self.server.active_service = service
                     token = next_token
@@ -282,6 +285,8 @@ def server(service, port=8766, frontend_origin=None, tailscale_origin=None, tail
                     service.delivery.commands.join()
             if service.delivery:
                 service.delivery.close()
+            if service.discovery:
+                service.discovery.close()
             if not frontend_origin:
                 super().server_close()
             if self.active_service.w is not service.w:

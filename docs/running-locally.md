@@ -94,6 +94,23 @@ SQLite schema 5 adds the indexed cooldown deadline used by the [agent research l
 
 After using the new workspace, export its current state before recovering to a previous copy. Reconcile later decisions and any uncertain attempts with the original evidence. Record the tested installed build in the workspace lock only after verifying the intended upgrade.
 
+## Find new jobs
+
+Open **Search preferences → Find new jobs**. Choose configured feeds or enter one public HTTPS address per line. A careers index or sitemap can lead to related vacancies. The app saves structured postings and shows readable excerpts and links for other pages. Review the source status when coverage is partial.
+
+Use **Live sources** to register Greenhouse, Lever, SmartRecruiters, Ashby or Workable by employer board identifier. We Work Remotely accepts `all`, `programming`, `full-stack` and `devops`. Remotive accepts `all`, `software-dev`, `devops`, `product`, `data` and `qa`. The original feed links retain attribution. [We Work Remotely RSS](https://weworkremotely.com/remote-job-rss-feed) · [Remotive API terms](https://remotive.com/remote-jobs/api)
+
+For public pages that need JavaScript, use the optional browser dependency. Install it in the Python environment that runs the app. Playwright may reuse a compatible installed Chrome when its matching Chromium is unavailable.
+
+~~~sh
+python -m pip install -e '.[discovery]'
+python -m playwright install chromium
+~~~
+
+The app uses direct HTTP first and renders thin pages when possible. **Render supplied pages with the local browser** also tries pages whose first response has readable shell text. Access restrictions can still require native search or manual import. [Playwright browser installation](https://playwright.dev/python/docs/browsers)
+
+Firecrawl is optional. Sign in to the Firecrawl CLI with a free-plan account and enable the checkbox for an individual run. A `FIRECRAWL_API_KEY` in the local launcher environment takes precedence over the CLI sign-in. The adapter submits up to two permitted public page URLs without query strings. It can try an eligible timeout, transient network failure or page that needs rendering. An unavailable key or provider leaves local search available. [Firecrawl CLI](https://docs.firecrawl.dev/sdks/cli) · [Firecrawl billing](https://docs.firecrawl.dev/billing)
+
 ## Troubleshooting
 
 | Symptom | Meaning and action |

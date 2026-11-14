@@ -1,0 +1,57 @@
+.panel {
+  margin-block-end: 1rem;
+}
+
+.inputs,
+.feeds,
+.results {
+  display: grid;
+  gap: 0.85rem;
+  min-width: 0;
+}
+
+.inputs {
+  padding: 0;
+  border: 0;
+}
+
+.inputs > button {
+  justify-self: start;
+}
+
+.results {
+  margin-block-start: 1rem;
+  overflow-wrap: anywhere;
+}
+
+.status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.rows {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0;
+  list-style: none;
+}
+
+.rows li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0.2rem 0.75rem;
+}
+
+.rows small {
+  grid-column: 1 / -1;
+}
+
+.pageText {
+  white-space: pre-line;
+  max-height: 18rem;
+  overflow: auto;
+}

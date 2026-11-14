@@ -165,10 +165,14 @@ def main(argv=None):
                 else sys.stdin.read()
             )
             result = service.action(a.operation, body)
+            if a.operation == "discovery-start":
+                result = service.discovery.wait()
             if service.worker:
                 service.worker.join()
             sys.stdout.buffer.write(encode(result))
     finally:
+        if service.discovery:
+            service.discovery.close()
         if service.delivery:
             service.delivery.close()
         w.close()

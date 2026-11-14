@@ -68,6 +68,7 @@ def seed_hosted_draft(url):
 
 
 if __name__ == '__main__':
+    browser('discovery-browser.cjs', '')
     with fixture('serve_sqlite_fixture.py') as url:
         browser('sqlite-company-browser.cjs', url)
     with fixture('serve_concept_fixture.py') as url:

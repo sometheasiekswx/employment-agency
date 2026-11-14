@@ -18,9 +18,11 @@ import { ProfileForm } from "./profile-form";
 import { JobForm } from "./job-form";
 import { SearchResults } from "./search-results";
 import { Runs } from "./runs";
+import { DiscoveryPanel } from "./discovery-panel";
 
 export function SearchPage() {
   const { state, client, profileId, selectProfile, run } = useWorkspace();
+  const local = !client.hosted && !client.preview;
   const profile = state.profiles.find((item) => item.id === profileId);
   const [editing, setEditing] = useState<Job>();
   const { canLeave } = useDraft();
@@ -38,8 +40,12 @@ export function SearchPage() {
     <div className="search-preferences-page secondary-page">
       <div className="secondary-page-intro-row">
         <p className="secondary-page-intro">
-          Set your role and location preferences, connect employer boards, or{" "}
-          <a href="#rank-jobs">rank saved jobs</a>.
+          {local ? (
+            <>Find jobs from public sources or set the preferences used to rank them.</>
+          ) : (
+            <>Set your role and location preferences, connect employer boards, or{" "}
+            <a href="#rank-jobs">rank saved jobs</a>.</>
+          )}
         </p>
         <div className="secondary-intro-actions">
           <Link
@@ -58,6 +64,7 @@ export function SearchPage() {
           </a>
         </div>
       </div>
+      {local && <DiscoveryPanel key={state._workspace.path} />}
       <div className="search-preferences-grid">
         <section className="secondary-panel search-profile-panel">
           <h2>Search profiles</h2>
@@ -122,11 +129,8 @@ export function SearchPage() {
         <section className="secondary-panel search-sources-panel">
           <h2>Live sources</h2>
           <p>
-            Search configured employer boards. Coverage is limited to these
-            boards and imported jobs;{" "}
-            {client.hosted
-              ? "paste other adverts below."
-              : "use your coding agent for broader research."}
+            {local ? "Save feeds to use them again in Find new jobs."
+              : "Connect employer boards or paste other adverts below."}
           </p>
           <Form
             onSave={async (data) => {
@@ -139,9 +143,21 @@ export function SearchPage() {
               options={[
                 ["greenhouse", "Greenhouse"],
                 ["lever", "Lever"],
+                ...(local ? [
+                  ["smartrecruiters", "SmartRecruiters"],
+                  ["ashby", "Ashby"],
+                  ["workable", "Workable"],
+                  ["weworkremotely", "We Work Remotely RSS"],
+                  ["remotive", "Remotive"],
+                ] as const : []),
               ]}
             />
-            <Field label="Employer board identifier" name="board" required />
+            <Field label="Employer board identifier" name="board" required
+              aria-describedby={local ? "public-feed-identifiers" : undefined} />
+            {local && <small id="public-feed-identifiers">
+              For a remote feed, enter a category. We Work Remotely accepts all, programming, full-stack, or devops. Remotive accepts
+              all, software-dev, devops, product, data, or qa.
+            </small>}
             <button>Add source</button>
           </Form>
           {state.sources.map((source) => (

@@ -4,10 +4,12 @@ import { DraftProvider } from "@/components/unsaved";
 import { SearchPage } from "./search-page";
 
 const run = vi.hoisted(() => vi.fn());
+const action = vi.hoisted(() => vi.fn().mockResolvedValue(null));
+const testClient = { hosted: false, action };
 vi.mock("@/components/workspace-provider", () => ({
   useWorkspace: () => ({
-    state: { profiles: [], jobs: [], sources: [] },
-    client: { hosted: false },
+    state: { profiles: [], jobs: [], sources: [], _workspace: { path: "fixture" } },
+    client: testClient,
     profileId: "",
     selectProfile: vi.fn(),
     run,

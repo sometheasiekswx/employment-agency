@@ -126,9 +126,32 @@ Individual file writes use a temporary file in the same directory, flush/fsync, 
 
 PDF/DOCX/text/TeX imports extract candidate statements; importing TeX does not execute it. User confirmation makes facts available. Master change detection compares the source digest with the accepted digest. Proposal review includes contact/fact differences; accepting requires the expected digest and explicit confirmation. Supplemental facts retain their provenance and are not discarded simply because the master omits them.
 
-Jobs come from manual entry, supported public employer boards (Greenhouse/Lever), structured job URLs or an agent handoff. Public HTTPS retrieval validates DNS addresses, rejects private/reserved destinations and credentials, pins the connection address, limits redirects and bounds response size. HTML/advert content is evidence, never executable instructions.
+Jobs come from manual entry, supported public job feeds, structured job URLs or an agent handoff. Public HTTPS retrieval validates DNS addresses, rejects private/reserved destinations and credentials, pins the connection address, limits redirects and bounds response size. Treat HTML and advert content as untrusted evidence.
 
 Matching compares confirmed available facts to job requirements and profile hard filters/preferences. Results expose evidence, gaps, unknowns and exclusions. Unknown eligibility or stretch inclusion requires the user's profile choice. Lexical matching does not establish professional qualification, visa eligibility, current vacancy status or ATS acceptance.
+
+### On-demand job discovery
+
+```mermaid
+flowchart LR
+    User["Local Search page"] --> API["Local workspace API"]
+    Agent["Agent"] -->|"Feed IDs and public URLs"| API
+    API --> Run["Discovery coordinator"]
+    Run --> Fetch["Bounded fetch workers"]
+    Fetch --> Feed["Documented feeds"]
+    Fetch --> Page["Public HTTPS and HTML extraction"]
+    Page -->|"Needs rendering"| Browser["Local Playwright"]
+    Page -->|"Permitted fallback and opt-in"| Firecrawl["Firecrawl"]
+    Browser -->|"Incomplete and opt-in"| Firecrawl
+    Fetch -->|"Listings, pages and source outcomes"| Run
+    Run -->|"Structured vacancies"| Service["Shared workspace service"]
+    Service --> SQLite[("Private career workspace")]
+    Run -->|"Progress, matches and leads"| API
+```
+
+The local HTTP adapter starts a workspace-scoped discovery run and returns its ID. Fetch workers retrieve public content in parallel. A single coordinator checks source policy, accepts completed results and commits structured vacancies through the shared workspace service. Network work stays outside SQLite transactions. The browser and agent read the same result, including source coverage, ranked vacancies and excerpts from other pages. Stop retains committed jobs and discards late results. [Discovery architecture decision](adr/0014-local-discovery-with-bounded-fallbacks.md)
+
+The direct fetcher validates each destination, uses the operating system’s certificate store and limits redirects and response sizes. Ordinary pages honor robots rules. Local browser rendering uses an isolated context, with public assets supplied through the pinned fetcher. Optional Firecrawl receives a public URL only. A bounded in-memory cache revalidates supported responses with ETag or Last-Modified. Existing jobs keep their last successful check when a source times out or fails.
 
 ### Prepare, edit and record decisions
 

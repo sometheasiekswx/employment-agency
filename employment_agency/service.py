@@ -198,6 +198,7 @@ class Service:
         self.worker = None
         self.worker_lock = threading.Lock()
         self.delivery = None
+        self.discovery = None
 
     def state(self):
         with self.w.lock:
@@ -288,6 +289,13 @@ class Service:
     def action(self, action, a):
         if not isinstance(a, dict):
             raise ValueError("Expected JSON object")
+        if action in ("discovery-start", "discovery-status", "discovery-stop"):
+            from .discovery import Discovery
+
+            with self.worker_lock:
+                if self.discovery is None:
+                    self.discovery = Discovery(self)
+                return self.discovery.action(action, a)
         if action.startswith('apply-'):
             if self.worker and self.worker.is_alive():
                 raise ValueError('Wait for the preparation run before applying')
@@ -547,12 +555,11 @@ class Service:
                     raise ValueError('Company is paused. The existing listing is still available in the workspace.')
             return self.add_job(sources.url_job(url), match_url=True)
         if action == "source":
+            from .job_feeds import validate_selector
+
             kind = a["kind"]
             board = text(a["board"], 100)
-            if kind not in ("greenhouse", "lever") or not re.fullmatch(
-                r"[A-Za-z0-9_-]+", board
-            ):
-                raise ValueError("Invalid source")
+            validate_selector(kind, board)
             src = {
                 "id": uid(),
                 "kind": kind,
@@ -965,7 +972,7 @@ class Service:
                 event.update({'reason': comment, 'reason_updated_at': now()})
         return {'id': job_id, 'removals': removals}
 
-    def add_job(self, a, *, match_url=False, state=None, source_requisition=None):
+    def add_job(self, a, *, match_url=False, state=None, source_requisition=None, discovered=False):
         if state is None:
             with self.w.edit() as state:
                 return self.add_job(a, match_url=match_url, state=state)
@@ -1080,6 +1087,15 @@ class Service:
                 j['source_requisition'] = existing['source_requisition']
             if existing.get('prior_submitted_on') and j['prior_application'] == 'submitted':
                 j['prior_submitted_on'] = existing['prior_submitted_on']
+            if discovered:
+                for field in ('requirements', 'eligibility', 'sponsorship', 'email', 'expectation', 'salary', 'reposted_at'):
+                    if field in existing:
+                        j[field] = existing[field]
+                for field in ('posted_at', 'closes', 'seniority', 'work_arrangement'):
+                    if j[field] in ("", "unknown") and existing.get(field):
+                        j[field] = existing[field]
+                if not source_requisition and existing.get('source_requisition'):
+                    j['source'] = existing['source']
         unlisted = state.get('unlisted_removals')
         if unlisted and j['id'] in unlisted:
             j.setdefault('removals', unlisted.pop(j['id']))
@@ -1122,71 +1138,108 @@ class Service:
             if not company['remaining']:
                 return {'count': 0, 'skipped': 'Company is paused or its history needs review'}
         try:
-            jobs = sources.discover(src['kind'], src['board'])
-            with self.w.edit() as s:
-                if companies.source_cooldown(s, id):
-                    return {'count': 0, 'skipped': 'Company is paused'}
-                owner_id = companies.source_employer(s, id)
-                owner = companies.by_id(s.get('employers', []), owner_id)
-                employer_name = owner['name'] if owner else None
-                if research_name:
-                    company = companies.research_employer(s, research_name)
-                    current_name = companies.source_research_name(s, src)
-                    if current_name != saved_name:
-                        return {'count': 0, 'skipped': 'The board’s research employer changed; check it again'}
-                    if not company['remaining'] or (owner_id and owner_id != company.get('id')):
-                        return {'count': 0, 'skipped': 'Company availability or source ownership changed'}
-                    owner_id, employer_name = company.get('id'), company['name']
-                verified_owners = {link['id']: link['employer_id'] for link in s.get('employer_links', [])}
-                imported = []
-                seen = set()
-                for job in jobs:
-                    key = job.get('source_requisition') if self.w.database else None
-                    if key and key in seen:
-                        continue
-                    if key:
-                        seen.add(key)
-                    if employer_name:
-                        job = {**job, 'employer': employer_name}
-                    listing = self.add_job(job, match_url=True, state=s, source_requisition=key)
-                    verified_owner = verified_owners.get(listing['id'])
-                    if employer_name and verified_owner and verified_owner != owner_id:
-                        raise ValueError('The board posting is already linked to a different hiring employer')
-                    imported.append(listing)
-                ids = {job['id'] for job in imported}
-                if self.w.database:
-                    companies.link_source_jobs(s, src, imported, self.workspace_zone())
-                for old in s["jobs"]:
-                    if old["source"] == src["kind"] + ":" + src["board"] and old["id"] not in ids:
-                        old["availability"] = "closed"
-                source = find(s["sources"], id)
-                if research_request and not saved_name:
-                    source['research_name'] = company['name']
-                source.update(
-                    {
-                        "status": "retrieved",
-                        "checked_at": now(),
-                        "count": len(imported),
-                        "error": None,
-                    }
-                )
+            if src['kind'] in ("greenhouse", "lever"):
+                jobs = sources.discover(src['kind'], src['board'])
+                full_snapshot = True
+            else:
+                from time import monotonic
+                from .discovery_fetch import Fetch
+
+                fetch = Fetch(threading.Event(), monotonic() + 15)
+                jobs = fetch.feed(src['kind'], src['board'])
+                full_snapshot = src['kind'] in ("ashby", "workable")
+                if src['kind'] == "smartrecruiters":
+                    jobs = [fetch.enrich(job) for job in jobs[:12]]
+            imported, _, skipped = self.import_discovery(
+                jobs, source_id=id, full_snapshot=full_snapshot, research_name=research_name,
+                expected_research_name=saved_name, save_research_name=research_request and not saved_name,
+            )
+            if skipped:
+                return {'count': 0, 'skipped': skipped}
             result = {"count": len(imported)}
             if research_request:
-                result['job_ids'] = [job['id'] for job in imported]
+                result["job_ids"] = imported
             return result
         except Exception as e:
-            # Do not persist remote response bodies, secrets or raw exception strings.
-            with self.w.edit() as s:
-                find(s["sources"], id).update(
-                    {
-                        "status": "failed",
-                        "checked_at": now(),
-                        "error": type(e).__name__ + "; retry or import manually",
-                    }
-                )
+            self.degrade_source(id, "failed", type(e).__name__ + "; retry or import manually")
             return {
                 "error": "Source retrieval failed; previous results retained with their original timestamps"
             }
+
+    def degrade_source(self, source_id, status, reason):
+        with self.w.edit() as state:
+            find(state["sources"], source_id).update(status=status, attempted_at=now(), error=reason)
+
+    def import_discovery(self, jobs, *, source_id=None, full_snapshot=False, status="retrieved",
+                         observed_jobs=None, deadline=None, research_name=None,
+                         expected_research_name=None, save_research_name=False):
+        if not source_id and not jobs:
+            return [], set(), None
+        with self.w.edit() as state:
+            if deadline is not None:
+                sources.remaining(deadline)
+            source = find(state["sources"], source_id) if source_id else None
+            if source and companies.source_cooldown(state, source_id):
+                return [], set(), "Company is paused"
+            owner_id = companies.source_employer(state, source_id) if source else None
+            owner = companies.by_id(state.get("employers", []), owner_id)
+            employer_name = owner["name"] if owner else None
+            if source:
+                saved_name = companies.source_research_name(state, source)
+                if research_name and saved_name != expected_research_name:
+                    return [], set(), "The board’s research employer changed. Check it again."
+                name = research_name or (saved_name if not owner_id else None)
+                if name:
+                    company = companies.research_employer(state, name)
+                    if not company["remaining"] or (owner_id and owner_id != company.get("id")):
+                        return [], set(), "Company availability or source ownership changed"
+                    owner_id, employer_name = company.get("id"), company["name"]
+            previous_ids = {job["id"] for job in state["jobs"]}
+            verified_owners = {link["id"]: link["employer_id"] for link in state.get("employer_links", [])}
+            observed = jobs if observed_jobs is None else observed_jobs
+            observed_urls = {job.get("url") for job in observed}
+            observed_keys = {job["source_requisition"] for job in observed if job.get("source_requisition")}
+            seen = set()
+            imported = []
+            for job in jobs:
+                key = job.get("source_requisition") or job["url"]
+                if key in seen:
+                    continue
+                if employer_name:
+                    job = {**job, "employer": employer_name}
+                elif companies.discovery_status(state, job)["cooling"]:
+                    continue
+                seen.add(key)
+                listing = self.add_job(
+                    job, match_url=True, state=state, source_requisition=job.get("source_requisition"),
+                    discovered=True,
+                )
+                verified_owner = verified_owners.get(listing["id"])
+                if employer_name and verified_owner and verified_owner != owner_id:
+                    raise ValueError("The board posting is already linked to a different hiring employer")
+                if confirmed := companies.by_id(state.get("employers", []), verified_owner):
+                    listing["employer"] = confirmed["name"]
+                imported.append(listing)
+            ids = {job["id"] for job in imported}
+            if source:
+                source_key = f'{source["kind"]}:{source["board"]}'
+                if self.w.database:
+                    companies.link_source_jobs(state, source, imported, self.workspace_zone())
+                if full_snapshot:
+                    for old in state["jobs"]:
+                        if (old["source"] == source_key and old["id"] not in ids
+                                and old.get("url") not in observed_urls
+                                and old.get("source_requisition") not in observed_keys):
+                            old["availability"] = "closed"
+                checked_at = now()
+                if save_research_name:
+                    source["research_name"] = employer_name
+                source.update(status=status, attempted_at=checked_at, count=len(observed), error=None)
+                if status == "retrieved":
+                    source["checked_at"] = checked_at
+            if deadline is not None:
+                sources.remaining(deadline)
+            return list(dict.fromkeys(job["id"] for job in imported)), ids - previous_ids, None
 
     def start(self, a):
         with self.worker_lock:

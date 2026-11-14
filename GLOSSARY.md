@@ -70,6 +70,12 @@ The reversible Draft or Reviewed state of an active application version. Changin
 **Listing dates**:
 Employer-provided posting, reposting and closing dates, distinct from document generation and user decision dates. Missing values remain unknown and approximate source wording stays approximate.
 
+**Discovery run**:
+An on-demand search of selected feeds and public URLs for a workspace. Its results and source outcomes are available while the search is running.
+
+**New to the workspace**:
+A listing the workspace has not previously recorded under its source identity or a verified equivalent. The employer’s posting date may be earlier.
+
 **Hosted workspace**:
 An account-owned collection of career facts, preferences, job evidence, documents and decisions stored privately in the hosted service, isolated from other users and separate from local workspaces.
 
