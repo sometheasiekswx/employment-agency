@@ -16,6 +16,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowUpRight,
   Bookmark,
+  Check as CheckIcon,
   CircleMinus,
   MessageSquare,
   RotateCcw,
@@ -65,12 +66,14 @@ import { useJobRemoval } from "./use-job-removal";
 import {
   advertisedSalary,
   applicationsByJob,
+  displayedBlocker,
   filterOpportunities,
   groupOpportunities,
   remainingEvidenceGaps,
   requirementEvidence,
   roleStatus,
   pendingActionLabel,
+  pendingCapacityStatus,
   type DiscoveryView,
 } from "./discovery";
 import { OpportunityInspector, type RolePanel } from "./opportunity-inspector";
@@ -253,8 +256,13 @@ export function DiscoverPage() {
     if (legacySavedFilter) filters.delete("status");
   }
   const queryString = filters.toString();
+  const [selecting, setSelecting] = useState(false);
   const [agentSelection, setAgentSelection] = useState<string[]>([]);
   const [startingAgent, setStartingAgent] = useState(false);
+  if (!agentTools && selecting) {
+    setSelecting(false);
+    setAgentSelection([]);
+  }
   const offset = Number(filters.get("offset") ?? filters.get("agent_offset"));
   const requestedOffset =
     Number.isSafeInteger(offset) && offset > 0
@@ -412,6 +420,9 @@ export function DiscoverPage() {
   const loading =
     view === "jobs" && Boolean(profile) && currentRanking.key !== requestKey;
   const selectionInFlight = useRef(false);
+  const clearAgentSelection = () => {
+    if (!selectionInFlight.current) setAgentSelection([]);
+  };
 
   useEffect(() => {
     if (!profileId || applicationView) return;
@@ -495,12 +506,6 @@ export function DiscoverPage() {
   const pending = new Map(
     [...latestJobs].filter(([, job]) => Boolean(job.saved) && pendingRole(job)),
   );
-  const pendingCount = state.jobs.filter((job) =>
-    !currentRemoval(job) &&
-    !hasRecordedSubmission(applications.get(job.id), job) &&
-    !job.company?.submitted_vacancy &&
-    (job.saved || legacyMarked.has(job.id)),
-  ).length;
   const chosenForAgent = agentSelection.flatMap((id) => {
     const job = pending.get(id);
     return job ? [job] : [];
@@ -618,8 +623,7 @@ export function DiscoverPage() {
       ? selected.job.pending_blocker ??
         (failedAdmission?.jobId === selected.job.id ? failedAdmission.blocker : undefined)
       : undefined;
-  const selectedApplicationBlocker = selected?.job.application_blocker;
-  const selectedRestriction = selectedPendingBlocker || selectedApplicationBlocker;
+  const selectedRestriction = selected && displayedBlocker(selected.job, selectedPendingBlocker);
   const selectedDraft = Boolean(
     selectedApplication &&
     ["draft", "reviewed"].includes(selectedApplication.status),
@@ -1439,10 +1443,17 @@ export function DiscoverPage() {
         {agentTools && (
           <AgentQueueTools
             key={workspacePath}
+            selecting={selecting}
+            onToggleSelection={() => {
+              if (selectionInFlight.current) return;
+              if (selecting) clearAgentSelection();
+              setSelecting(!selecting);
+            }}
+            starting={startingAgent}
             jobs={chosenForAgent}
             selection={agentSelection}
-            pendingCount={pendingCount}
-            onClearSelection={() => setAgentSelection([])}
+            pendingIds={[...pending.keys()]}
+            onClearSelection={clearAgentSelection}
             applicationIds={agentApplications}
             pending={latestJobs}
             onNavigate={(id) => setSelectedId(id, false, !inspectorOpen)}
@@ -1702,10 +1713,13 @@ export function DiscoverPage() {
                         (failedAdmission?.jobId === job.id ? failedAdmission.blocker : undefined)
                       : undefined;
                     const capacityBlocker = !currentRemoval(job) && !hasRecordedSubmission(applications.get(job.id), job)
-                      ? pendingBlocker || job.application_blocker
+                      ? displayedBlocker(job, pendingBlocker)
                       : undefined;
                     const blockerText = capacityBlocker &&
                       companyBlockerMessage(capacityBlocker, job, state._workspace.timezone);
+                    const pendingCapacity = view === "jobs"
+                      ? pendingCapacityStatus(job, pendingBlocker)
+                      : undefined;
                     const blockerId = blockerText ? `capacity-${job.id}` : undefined;
                     const status = roleStatus(
                       job,
@@ -1751,7 +1765,7 @@ export function DiscoverPage() {
                             </span>
                           </div>
                           <div className="discover-card-tools">
-                            {agentTools && (
+                            {agentTools && selecting && (
                               <label className="discover-agent-selection">
                                 <input
                                   type="checkbox"
@@ -1768,7 +1782,7 @@ export function DiscoverPage() {
                                     );
                                   }}
                                 />
-                                Select
+                                <span aria-hidden="true"><CheckIcon size={12} /></span>
                               </label>
                             )}
                             {currentRemoval(job) ? (
@@ -1807,7 +1821,11 @@ export function DiscoverPage() {
                                 <CircleMinus size={16} />
                               </Action>
                             )}
-                            {pendingRole(job) && (
+                            {pendingRole(job) && (pendingCapacity ? (
+                              <span className="discover-capacity-status">
+                                {pendingCapacity}<span className="visually-hidden"> for this company</span>
+                              </span>
+                            ) : (
                               <Action
                                 previewAllowed
                                 keepContentWhileBusy
@@ -1828,7 +1846,7 @@ export function DiscoverPage() {
                                   fill={job.saved ? "currentColor" : "none"}
                                 />
                               </Action>
-                            )}
+                            ))}
                           </div>
                         </div>
                         <button
@@ -1890,7 +1908,7 @@ export function DiscoverPage() {
                             )}
                           </div>
                         )}
-                        {blockerText && (
+                        {blockerText && !pendingCapacity && (
                           <p className="discover-capacity-note" id={blockerId}>
                             {blockerText}
                           </p>
@@ -2051,6 +2069,7 @@ export function DiscoverPage() {
           hasListingRecord={hasListingRecord}
           canChangePending={pendingRole(selected.job)}
           pendingRestricted={Boolean(selectedPendingBlocker && !canResolveCompanyBlocker(selectedPendingBlocker))}
+          pendingCapacity={view === "jobs" ? pendingCapacityStatus(selected.job, selectedPendingBlocker) : undefined}
           applicationRestriction={
             selectedRestriction &&
             !submitted &&

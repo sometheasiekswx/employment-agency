@@ -149,6 +149,7 @@ function playMotion(
 interface InspectorProps {
   applicationRestriction?: ReactNode;
   pendingRestricted?: boolean;
+  pendingCapacity?: string;
   row: RankedJob;
   application?: Application;
   facts: Fact[];
@@ -239,6 +240,7 @@ export function OpportunityInspector({
   onAddEvidence,
   applicationRestriction,
   pendingRestricted = false,
+  pendingCapacity,
   saving,
   saveError,
   preview = false,
@@ -925,7 +927,11 @@ export function OpportunityInspector({
               Prepare application
             </Action>
           )}
-          {hasListingRecord && canChangePending && (
+          {hasListingRecord && canChangePending && (pendingCapacity ? (
+            <span className="discover-capacity-status">
+              {pendingCapacity}<span className="visually-hidden"> for this company</span>
+            </span>
+          ) : (
             <Action
               previewAllowed
               keepContentWhileBusy
@@ -943,7 +949,7 @@ export function OpportunityInspector({
               />
               {job.saved ? "To apply" : pendingActionLabel(false)}
             </Action>
-          )}
+          ))}
           {removed && application && onRestore && (
             <Action
               previewAllowed

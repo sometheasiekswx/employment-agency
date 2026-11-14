@@ -259,25 +259,41 @@ export function PreviousSubmissionAttempts({
   useEffect(() => {
     if (client.preview || client.hosted || state._workspace.demo) return;
     let active = true;
-    client.action<{ attempts: SubmissionAttempt[] }>("apply-status").then(
-      (result) => {
-        if (active)
-          setAttempts(
-            result?.attempts?.filter(
-              (item) =>
-                item.binding.job_id === jobId &&
-                ["gmail", "linkedin"].includes(item.channel),
-            ) ?? [],
-          );
-      },
-      (problem) => {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let refreshAfterRead = retry > 0;
+    const load = async () => {
+      try {
+        const result = await client.action<{ attempts: SubmissionAttempt[] }>(
+          "apply-status",
+        );
+        if (!active) return;
+        const records =
+          result?.attempts?.filter(
+            (item) =>
+              item.binding.job_id === jobId &&
+              ["gmail", "linkedin"].includes(item.channel),
+          ) ?? [];
+        setAttempts(records);
+        if (
+          records.some(
+            (item) => item.status === "cancelling" && !item.can_retry_cancel,
+          )
+        ) {
+          refreshAfterRead = true;
+          timer = setTimeout(() => void load(), 1000);
+        } else if (refreshAfterRead) {
+          void refresh().catch(() => {});
+        }
+      } catch (problem) {
         if (active) setError(errorMessage(problem));
-      },
-    );
+      }
+    };
+    void load();
     return () => {
       active = false;
+      clearTimeout(timer);
     };
-  }, [client, state._workspace.demo, jobId, retry]);
+  }, [client, state._workspace.demo, jobId, retry, refresh]);
   if (error)
     return (
       <p role="alert">
@@ -301,7 +317,6 @@ export function PreviousSubmissionAttempts({
   ) => {
     await client.action(operation, { id: attempt.id, ...data });
     setRetry((value) => value + 1);
-    void refresh().catch(() => {});
   };
   return (
     <section aria-label="Previous submission attempts">
@@ -345,6 +360,11 @@ export function PreviousSubmissionAttempts({
               ].includes(attempt.status) && (
                 <Action run={() => action("apply-cancel", attempt)}>
                   Cancel previous attempt
+                </Action>
+              )}
+              {attempt.status === "cancelling" && attempt.can_retry_cancel && (
+                <Action run={() => action("apply-cancel", attempt)}>
+                  Retry cancellation
                 </Action>
               )}
               {attempt.status === "unknown" && (

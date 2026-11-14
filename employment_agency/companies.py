@@ -250,6 +250,7 @@ def allowance(round_record, pending=None):
     overflow = len(occupied) > ROUND_CAPACITY
     return {**round_record, 'cooling': cooling, 'review_needed': review,
             'pending': sorted(pending_vacancies), 'pending_job_ids': sorted(pending),
+            'pending_only_count': len(pending_vacancies - used - held),
             'occupied': sorted(occupied), 'overflow': overflow,
             'remaining': 0 if cooling or review else max(0, ROUND_CAPACITY - len(occupied))}
 

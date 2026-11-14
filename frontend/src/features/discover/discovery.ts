@@ -1,4 +1,4 @@
-import type { Application, ApplicationQueueEntry, Fact, Job, RankedJob } from "@/lib/models";
+import type { Application, ApplicationBlocker, ApplicationQueueEntry, Fact, Job, RankedJob } from "@/lib/models";
 import {
   applicationRoleId,
   destination,
@@ -13,6 +13,20 @@ export type DiscoveryView = "jobs" | "to-apply" | "applications";
 
 export function pendingActionLabel(saved?: boolean) {
   return saved ? "Remove from To apply" : "Apply later";
+}
+
+export function pendingCapacityStatus(job: Job, blocker?: ApplicationBlocker) {
+  if (
+    job.saved || blocker?.code !== "company_slots_used" ||
+    (job.application_blocker && job.application_blocker.code !== blocker.code)
+  ) return undefined;
+  return job.company?.pending_only_count === 2 ? "2 selected" : "No slots left";
+}
+
+export function displayedBlocker(job: Job, pending?: ApplicationBlocker) {
+  if (pending?.code === "company_slots_used" && job.application_blocker)
+    return job.application_blocker;
+  return pending || job.application_blocker;
 }
 export interface RequirementEvidence {
   requirement: string;

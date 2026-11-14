@@ -397,6 +397,58 @@ it("shows previous delivery receipts in Activity without offering another send",
   expect(fixture.run).not.toHaveBeenCalled();
 });
 
+it("shows a browser cancellation failure and updates Activity after a retry", async () => {
+  const attempt = {
+    id: "browser-attempt",
+    application_id: application.id,
+    channel: "linkedin",
+    status: "cancelling",
+    note: "Closing the browser before releasing this application slot",
+    binding: { job_id: application.job_id },
+  };
+  const failed = {
+    ...attempt,
+    can_retry_cancel: true,
+    note: "Could not finish closing the browser. The application slot is still held. Try cancellation again.",
+  };
+  const cancelled = {
+    ...attempt,
+    status: "cancelled",
+    note: "Cancelled before submission",
+  };
+  fixture.action
+    .mockResolvedValueOnce({ attempts: [attempt] })
+    .mockResolvedValueOnce({ attempts: [failed] })
+    .mockResolvedValueOnce(attempt)
+    .mockResolvedValueOnce({ attempts: [attempt] })
+    .mockResolvedValueOnce({ attempts: [cancelled] });
+
+  render(workspace("activity"));
+  await userEvent.click(
+    await screen.findByText("Submission attempt history (1)"),
+  );
+  expect(
+    screen.queryByRole("button", { name: "Retry cancellation" }),
+  ).toBeNull();
+  const retry = await screen.findByRole(
+    "button",
+    { name: "Retry cancellation" },
+    { timeout: 3000 },
+  );
+  expect(screen.getByText(failed.note)).toBeVisible();
+  await userEvent.click(retry);
+  expect(fixture.action).toHaveBeenCalledWith("apply-cancel", {
+    id: attempt.id,
+  });
+  expect(
+    await screen.findByText(cancelled.note, {}, { timeout: 3000 }),
+  ).toBeVisible();
+  expect(
+    screen.queryByRole("button", { name: "Retry cancellation" }),
+  ).toBeNull();
+  expect(fixture.refresh).toHaveBeenCalled();
+});
+
 it("keeps submitted documents linked to their exact record and preserves correction restrictions", async () => {
   const submitted: Application = {
     ...application,

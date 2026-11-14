@@ -11,6 +11,7 @@ import {
 } from "react";
 import {
   Compass,
+  ChevronDown,
   History,
   Menu,
   Search,
@@ -191,39 +192,42 @@ export function Shell({ children }: { children: ReactNode }) {
         )}
 
         <div className="rail-context">
-          <p className="rail-context-label">
-            {profile?.name || "Your career workspace"}
+          <p className="rail-context-label">Active profile</p>
+          <p className="rail-profile-name">
+            {profile?.name || "No search profile"}
           </p>
-          <dl>
-            <div>
-              <dt>Role family</dt>
-              <dd>{profile?.roles.join(", ") || "Choose your roles"}</dd>
-            </div>
-            <div>
-              <dt>Locations</dt>
-              <dd>
-                {locations.length ? `${locations.length} selected` : "Not set"}
-              </dd>
-            </div>
-            <div>
-              <dt>Work model</dt>
-              <dd>{profile?.arrangements.join(", ") || "Any work model"}</dd>
-            </div>
-            <div>
-              <dt>Seniority</dt>
-              <dd>{profile?.seniority.join(", ") || "Not specified"}</dd>
-            </div>
-          </dl>
-          <div className="rail-summary">
-            <strong>{state.jobs.length}</strong>
+          <details className="rail-profile-details">
+            <summary>
+              Profile details <ChevronDown size={15} aria-hidden="true" />
+            </summary>
+            <dl>
+              <div>
+                <dt>Role family</dt>
+                <dd>{profile?.roles.join(", ") || "Not set"}</dd>
+              </div>
+              <div>
+                <dt>Locations</dt>
+                <dd>{locations.join(", ") || "Not set"}</dd>
+              </div>
+              <div>
+                <dt>Work model</dt>
+                <dd>{profile?.arrangements.join(", ") || "Any work model"}</dd>
+              </div>
+              <div>
+                <dt>Seniority</dt>
+                <dd>{profile?.seniority.join(", ") || "Not specified"}</dd>
+              </div>
+            </dl>
+          </details>
+          <p className="rail-summary">
             <span>
-              {state.jobs.length === 1
-                ? "role in your workspace"
-                : "roles in your workspace"}
+              <strong>{state.jobs.length}</strong>{" "}
+              {state.jobs.length === 1 ? "role" : "roles"}
             </span>
-          </div>
-          <p className="rail-caption">
-            {queueCount} {queueCount === 1 ? "application" : "applications"}
+            <span>
+              <strong>{queueCount}</strong>{" "}
+              {queueCount === 1 ? "application" : "applications"}
+            </span>
           </p>
         </div>
 

@@ -398,6 +398,10 @@ const fs = require("node:fs");
     await page.evaluate(
       () => (document.documentElement.style.fontSize = "200%"),
     );
+    const disclosure = page.locator(".rail-profile-details summary");
+    await disclosure.focus();
+    await page.keyboard.press("Enter");
+    assert.ok(await page.locator(".rail-profile-details").evaluate((details) => details.open));
     const collisions = await page
       .locator(".rail-context dl > div")
       .evaluateAll((rows) =>
@@ -414,6 +418,7 @@ const fs = require("node:fs");
           })
           .map((row) => row.textContent),
       );
+    assert.equal(await page.locator(".rail-context dl > div:visible").count(), 4);
     assert.deepEqual(
       collisions,
       [],

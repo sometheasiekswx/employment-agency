@@ -46,6 +46,9 @@ class PendingCompanySlots(TestCase):
         second, third = self.same_company_roles()
         self.choice(self.job)
         self.choice(second)
+        projected = companies.by_id(self.s.state()['jobs'], third['id'])
+        self.assertEqual(projected['pending_blocker']['code'], 'company_slots_used')
+        self.assertEqual(projected['company']['pending_only_count'], 2)
         self.assertEqual(self.context()['allowance']['remaining'], 0)
         self.assertFalse(self.s.action('company-avoid', {})['companies'])
         with self.assertRaisesRegex(ValueError, 'Both application slots'):
@@ -55,6 +58,8 @@ class PendingCompanySlots(TestCase):
             self.start(third_draft)
         first_draft = self.draft()
         attempt = self.start(first_draft)
+        projected = companies.by_id(self.s.state()['jobs'], third['id'])
+        self.assertEqual(projected['company']['pending_only_count'], 1)
         self.choice(self.job, False)
         with self.assertRaisesRegex(ValueError, 'Both application slots'):
             self.choice(third)
@@ -165,6 +170,7 @@ class PendingCompanySlots(TestCase):
         self.map(second, employer_id=employer)
         for job in (self.job, duplicate, second):
             self.choice(job)
+        self.assertEqual(companies.by_id(self.s.state()['jobs'], duplicate['id'])['company']['pending_only_count'], 2)
         status = self.context()['allowance']
         self.assertEqual(len(status['occupied']), 2)
         self.assertFalse(status['overflow'])
@@ -561,6 +567,46 @@ class PendingCompanySlots(TestCase):
             self.choice(third)
         finally:
             release.set()
+            self.s.delivery.close()
+
+    def test_legacy_browser_keeps_its_slot_until_cancellation_retry_succeeds(self):
+        second, third = self.same_company_roles()
+        self.s.action('job', {**self.job, 'url': 'https://www.linkedin.com/jobs/view/123456/'})
+        self.choice(second)
+        draft = self.draft()
+        browser, mail = Browser(), Mail()
+        self.s.delivery = Delivery(self.s, mail=mail, browser_factory=lambda: browser)
+        try:
+            attempt = self.s.action('apply-start', {'application_id': draft['id'], 'channel': 'linkedin',
+                                                    'disclosure_confirmed': True})
+            args = {'id': attempt['id']}
+            self.s.delivery.commands.join()
+            self.assertEqual(self.s.action('apply-get', args)['status'], 'awaiting_approval')
+            with patch.object(browser, 'close', side_effect=[OSError('Fictional browser transport failed'), None]) as close:
+                self.s.action('apply-cancel', args)
+                self.s.delivery.commands.join()
+                held = self.s.action('apply-get', args)
+                self.assertEqual(held['status'], 'cancelling')
+                self.assertTrue(held.get('can_retry_cancel'))
+                self.assertIn('Try cancellation again', held['note'])
+                self.assertTrue(self.s.delivery.busy)
+                self.assertEqual(self.context(second)['allowance']['remaining'], 0)
+                with self.assertRaisesRegex(ValueError, 'Both application slots'):
+                    self.choice(third)
+                with self.assertRaisesRegex(ValueError, 'Review the current complete application'):
+                    self.s.action('apply-approve', {**args, 'approved': True, 'fingerprint': held['fingerprint']})
+
+                self.s.action('apply-cancel', args)
+                self.s.delivery.commands.join()
+                self.assertEqual(close.call_count, 2)
+            cancelled = self.s.action('apply-get', args)
+            self.assertEqual(cancelled['status'], 'cancelled')
+            self.assertFalse(cancelled.get('can_retry_cancel'))
+            self.assertFalse(self.s.delivery.busy)
+            self.assertEqual(browser.clicked, 0)
+            self.assertEqual(mail.messages, [])
+            self.choice(third)
+        finally:
             self.s.delivery.close()
 
     def test_legacy_browser_rechecks_capacity_before_a_document_write(self):

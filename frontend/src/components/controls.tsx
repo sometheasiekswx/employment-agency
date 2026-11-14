@@ -32,7 +32,7 @@ export function Field({
 export function TextArea({
   label,
   ...props
-}: React.TextareaHTMLAttributes<HTMLTextAreaElement> & { label: string }) {
+}: React.ComponentPropsWithRef<"textarea"> & { label: string }) {
   return (
     <label>
       {label}

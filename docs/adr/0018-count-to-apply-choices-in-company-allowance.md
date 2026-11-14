@@ -11,4 +11,4 @@ This constrains the pending list in exchange for preventing an application queue
 
 Preserve older overflow and overflow revealed by a corrected employer match. Keep the records visible and block applying at that company until the user narrows the pending choices. A new To apply choice requires a reliably confirmed hiring employer; show focused confirmation when necessary. Neither path may guess an identity or silently select the first two roles.
 
-Detailed migration handling and interactions are specified in the [application controls task](../../tasks/application-controls-company-logos/spec.md). This record accepts the domain decision; it does not claim that the current software implements it.
+The current operations and interactions are documented in the [shared application workflow](../agents.md#application-journey-in-the-local-sqlite-workspace). This record accepts the domain decision; it does not claim that the current software implements it.

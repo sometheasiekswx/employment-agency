@@ -1652,6 +1652,9 @@ it("keeps the exact queue selection across pagination and offers manual copy on 
     .mockRejectedValue(new Error("Clipboard denied"));
   const view = render(<DiscoverPage />);
   try {
+    expect(screen.queryByRole("checkbox", { name: /^Select Cloud Engineer/ })).toBeNull();
+    await user.click(screen.getByRole("button", { name: "Select" }));
+    expect(screen.getByText("0 selected · All To apply (51)")).toBeVisible();
     await user.click(
       await screen.findByRole("checkbox", {
         name: "Select Cloud Engineer at Example Cloud",
@@ -1665,14 +1668,26 @@ it("keeps the exact queue selection across pagination and offers manual copy on 
       }),
     );
     expect(screen.getByText("2 selected")).toBeVisible();
+    const readiness = await screen.findByText("Connected agent unavailable");
+    expect(readiness.closest("details")).not.toHaveAttribute("open");
+    await user.click(readiness);
+    expect(readiness.closest("details")).toHaveAttribute("open");
+    expect(screen.getByText("No executor")).toBeVisible();
+    expect(screen.getByRole("link", { name: "Set up the connected agent" })).toBeVisible();
+    expect(screen.queryByRole("button", { name: /Start agent/ })).toBeNull();
+    await user.click(readiness);
     await user.click(
       screen.getByRole("button", { name: "Copy agent instructions" }),
     );
-    expect(
-      await screen.findByRole("textbox", {
-        name: "Select and copy the agent instructions",
-      }),
-    ).toHaveValue("Apply for job-a and job-b.");
+    const prompt = await screen.findByRole("textbox", { name: "Prompt" });
+    expect(prompt).toHaveValue("Apply for job-a and job-b.");
+    expect(deny).not.toHaveBeenCalled();
+    fireEvent.change(prompt, { target: { value: "My edited prompt.\n" } });
+    await user.click(screen.getByRole("button", { name: "Copy" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("Clipboard access failed");
+    expect(deny).toHaveBeenCalledWith("My edited prompt.\n");
+    expect(prompt).toHaveValue("My edited prompt.\n");
+    expect(prompt).toHaveFocus();
     expect(fixture.client.action).toHaveBeenCalledWith("application-handoff", {
       job_ids: ["job-a", "job-b"],
     });
@@ -1683,6 +1698,11 @@ it("keeps the exact queue selection across pagination and offers manual copy on 
     fixture.state.jobs.find(({ id }) => id === "job-b")!.prior_application = "submitted";
     view.rerender(<DiscoverPage />);
     expect(screen.getByText("2 selected")).toBeVisible();
+    expect(screen.getByText("The scope changed. Refresh to generate new instructions.")).toBeVisible();
+    expect(prompt).toHaveAttribute("readonly");
+    expect(prompt).toHaveValue("My edited prompt.\n");
+    expect(screen.queryByRole("button", { name: "Copy" })).toBeNull();
+    await user.click(screen.getByRole("button", { name: "Close agent instructions" }));
     expect(screen.queryByRole("group", { name: "To apply pages" })).toBeNull();
     expect(
       screen.getByRole("checkbox", {
@@ -1695,11 +1715,46 @@ it("keeps the exact queue selection across pagination and offers manual copy on 
       }),
     ).toBeNull();
     await user.click(screen.getByRole("button", { name: "Clear selection" }));
-    expect(screen.queryByRole("textbox", { name: "Select and copy the agent instructions" })).toBeNull();
+    expect(screen.getByRole("button", { name: "Done" })).toHaveFocus();
+    expect(screen.getByText("0 selected · All To apply (50)")).toBeVisible();
+    await user.click(screen.getByRole("button", { name: "Done" }));
+    expect(screen.queryByRole("checkbox", { name: /^Select Cloud Engineer/ })).toBeNull();
     expect(screen.getByText("All To apply (50)")).toBeVisible();
   } finally {
     deny.mockRestore();
   }
+});
+
+it("projects a full employer allowance consistently in the Jobs card and inspector", async () => {
+  const job = fixture.state.jobs[0];
+  const full = {
+    code: "company_slots_used",
+    message: "Both application slots are in use at this company",
+  };
+  job.pending_blocker = full;
+  job.application_blocker = full;
+  job.company = { id: "fictional-employer", cooling: false, remaining: 0, pending_only_count: 2 };
+  fixture.query = "view=jobs&opportunity=job-a&assessment_profile=profile-a";
+  const view = render(<DiscoverPage />);
+  const inspector = within(await screen.findByRole("dialog", { name: "Cloud Engineer" }));
+  expect(await screen.findAllByText("2 selected")).toHaveLength(2);
+  expect(inspector.queryByRole("button", { name: "Apply later" })).toBeNull();
+  expect(screen.queryByRole("button", { name: "Apply later · Cloud Engineer" })).toBeNull();
+
+  job.company = { ...job.company, pending_only_count: 1 };
+  view.rerender(<DiscoverPage />);
+  expect(screen.getAllByText("No slots left")).toHaveLength(2);
+
+  job.application_blocker = { code: "listing_closed", message: "This vacancy is closed" };
+  view.rerender(<DiscoverPage />);
+  expect(screen.queryByText("No slots left")).toBeNull();
+  expect(inspector.getByText("This vacancy is closed")).toBeVisible();
+
+  job.company = { ...job.company, remaining: 1 };
+  delete job.pending_blocker;
+  delete job.application_blocker;
+  view.rerender(<DiscoverPage />);
+  expect(inspector.getByRole("button", { name: "Apply later" })).toBeEnabled();
 });
 
 it("copies a fixed live all-pending scope across filters and rejects an obsolete selected response", async () => {
@@ -1735,12 +1790,23 @@ it("copies a fixed live all-pending scope across filters and rejects an obsolete
     expect(screen.queryByRole("checkbox", { name: /^Select Backend Engineer/ })).toBeNull();
     await user.click(screen.getByRole("button", { name: "Copy agent instructions" }));
     await waitFor(() => expect(requested).toHaveBeenLastCalledWith({ all_pending: true }));
-    expect(clipboard).toHaveBeenLastCalledWith("Apply for the frozen queue: job-a, job-b.");
+    const prompt = await screen.findByRole("textbox", { name: "Prompt" });
+    expect(prompt).toHaveValue("Apply for the frozen queue: job-a, job-b.");
+    fireEvent.change(prompt, { target: { value: "   " } });
+    expect(screen.getByRole("button", { name: "Copy" })).toBeDisabled();
+    await user.click(screen.getByRole("button", { name: "Reset" }));
+    expect(prompt).toHaveValue("Apply for the frozen queue: job-a, job-b.");
+    fireEvent.change(prompt, { target: { value: "  Edited: job-a and job-b.\n" } });
+    await user.click(screen.getByRole("button", { name: "Copy" }));
+    expect(clipboard).toHaveBeenLastCalledWith("  Edited: job-a and job-b.\n");
+    await user.click(screen.getByRole("button", { name: "Close agent instructions" }));
+    await user.click(screen.getByRole("button", { name: "Select" }));
     const selected = screen.getByRole("checkbox", { name: /^Select Cloud Engineer/ });
     await user.click(selected);
     await user.click(screen.getByRole("button", { name: "Copy agent instructions" }));
     expect(requested).toHaveBeenLastCalledWith({ job_ids: ["job-a"] });
-    await user.click(selected);
+    fixture.profileId = "profile-b";
+    view.rerender(<DiscoverPage />);
     await act(async () => resolveSelected({
       workspace: fixture.state._workspace.path,
       job_ids: ["job-a"],
@@ -1748,8 +1814,8 @@ it("copies a fixed live all-pending scope across filters and rejects an obsolete
       text: "Obsolete selected role instructions.",
     }));
     expect(clipboard).toHaveBeenCalledTimes(1);
-    expect(screen.getByText("All To apply (2)")).toBeVisible();
-    view.rerender(<DiscoverPage />);
+    expect(screen.getByText("The scope changed. Refresh to generate new instructions.")).toBeVisible();
+    expect(screen.queryByRole("textbox", { name: "Prompt" })).toBeNull();
   } finally {
     clipboard.mockRestore();
   }

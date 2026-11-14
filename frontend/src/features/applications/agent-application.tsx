@@ -203,6 +203,7 @@ export function AgentLauncher({
           .filter(({ status }) => status && !status.available);
         const ready =
           capabilities.available && jobs.length > 0 && !unavailable.length;
+        const Readiness = showReadiness ? "details" : "div";
         return (
           <>
             {ready && (
@@ -216,7 +217,10 @@ export function AgentLauncher({
             {!ready &&
               (showReadiness ||
                 (capabilities.available && unavailable.length > 0)) && (
-                <div className="agent-readiness">
+                <Readiness className="agent-readiness">
+                  {showReadiness && (
+                    <summary>Connected agent unavailable</summary>
+                  )}
                   <p>
                     {capabilities.available
                       ? jobs.length
@@ -263,7 +267,7 @@ export function AgentLauncher({
                       </ul>
                     </details>
                   )}
-                </div>
+                </Readiness>
               )}
           </>
         );

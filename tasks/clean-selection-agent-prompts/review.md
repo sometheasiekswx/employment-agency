@@ -1,0 +1,27 @@
+# Independent review
+
+Reviewed the recovered source and the integrated selection, instructions and sidebar refinement. The three findings below were resolved and independently rechecked using fictional fixtures.
+
+## Recovered source
+
+The prerequisite is the exact 90-path change from `b6c3347204669e39370f6180e6d64659f4146b40` to the recovered source tree `9e8e04b2459488cb2604e5a337e2a07623fb56df`. The source diff added 5,266 lines and removed 1,624. `git diff --check` passed. The changed paths cover shared implementation, tests and documentation. The added lines contain no private workspace path, employer records, user contact details, credentials or private endpoints. New URLs were loopback, fictional fixtures, documentation examples or the supported public provider domains.
+
+I inspected the company allowance and write paths, exact job ID handoffs, employer checks, local asset serving, logo provenance and recovery, notification and error paths, and the gates for the hosted pilot and public preview. The previous frozen-source evidence includes 387 passing Python tests, 382 frontend tests, local and hosted browser checks, and the static public preview checks. These results apply to the recovered code only. The subsequent refinement and cancellation repair also passed the added-content scan and diff whitespace check.
+
+I independently reran the 22 company allowance and queue tests. All passed. All 24 logo tests passed with the frontend export in place, including the hosted denial, registered bytes, verification and recovery checks. The hosted denial test had returned the documented 503 for a missing frontend export on the first run.
+
+## Findings and verification
+
+- **P2, verified fixed. A failed browser close stranded cancellation and its company slot.** In the recovered source, a fictional browser close exception left the attempt in `cancelling`, a retry was refused, and a third role could not use the slot. The base revision had reached `cancelled` before browser cleanup. The fix retains the hold while closure is uncertain and offers Retry cancellation from attempt history after cleanup fails. I reran both SQLite cancellation regressions and all 12 application component tests. [Cancellation entry](../../employment_agency/application_delivery.py#L254) · [Worker cleanup](../../employment_agency/application_delivery.py#L402) · [Attempt history](../../frontend/src/features/applications/submission-records.tsx#L364)
+- **P3, verified fixed. A closed vacancy could otherwise show `2 selected` as its sole blocker.** A fictional closed listing remained ranked and carried both `listing_closed` and `company_slots_used`. The current projection keeps its listing reason visible and suppresses the short capacity status when a more specific blocker applies. I checked the closed role on the rendered board. [Capacity display rule](../../frontend/src/features/discover/discovery.ts#L18)
+- **P3, verified fixed. Clearing selection dropped keyboard focus.** Pressing Enter on Clear selection reset the count and removed the focused control, moving focus to the document body. After the fix, I checked that the same action returns focus to Done in Chromium and WebKit. [Selection toolbar](../../frontend/src/features/discover/agent-queue.tsx#L54)
+
+## Integrated browser evidence
+
+A separate disposable SQLite fixture held 52 pending roles across two pages. Chromium and WebKit verified the pending count on the card and inspector, the absence of selection indicators in browse mode, a 44 px checkbox hit target and keyboard toggle, and exact selected IDs across pages and a filter with no visible matches. An equivalent listing consumed the same vacancy slot. Done cleared temporary selection and restored the 52-role prompt. The tested Discover HTML SHA-256 was `ef2a63fcea6986f6572fe30ea3119a2f4a1131565ddd861a2b64d85cb3e4ed82`.
+
+Both engines verified edited clipboard bytes, Reset, disabled empty copy, and retained text with manual clipboard selection after failure. Escape restored the opener and Retry recovered a simulated generation failure. Replacing one pending role with another kept the count at 52 and invalidated the open prompt. The old edit stayed visible as read-only, a delayed obsolete response left the stale state intact, and explicit refresh used the current exact IDs. Two queued listings for the same vacancy produced a blocker without prompt text. Opening the blocked listing left focus inside the mobile inspector. Opening and copying prompts produced no submission request or page error. The Chromium Axe check reported zero violations for the prompt dialog.
+
+The prompt fit widths 320, 390, 768, 900, 901, 1,024 and 1,440 CSS px. The sidebar handled the long and empty profiles and retained native keyboard disclosure. At 1,024 × 500 in light mode and 200% text, keyboard focus scrolled the expanded rail to navigation without horizontal overflow. These checks used browser emulation. Physical devices were outside this review.
+
+I rechecked the final readiness disclosure at 390 CSS px with a fresh export in Chromium and WebKit. The collapsed status kept runtime details, the setup link, per-role reasons and channel availability reachable by keyboard. A simulated 503 exposed Retry and a ready response restored the explicit Apply for me button. Neither engine sent an application-start request. The 69 focused Discover and application journey component tests also passed. [Readiness disclosure](../../frontend/src/features/applications/agent-application.tsx#L206)

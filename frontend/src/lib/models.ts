@@ -69,6 +69,7 @@ export interface Job {
     id: string;
     name?: string;
     remaining: number;
+    pending_only_count?: number;
     vacancy_id?: string | null;
     overflow?: boolean;
     review_needed?: boolean;
@@ -271,6 +272,7 @@ export interface SubmissionAttempt {
   channel: string;
   status: string;
   note?: string;
+  can_retry_cancel?: boolean;
   binding: { job_id: string; destination?: string };
   continue_url?: string;
   payload?: { to?: string; url?: string };

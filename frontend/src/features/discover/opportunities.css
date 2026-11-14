@@ -49,6 +49,19 @@
 .agent-queue-tools > p {
   margin: 0;
 }
+.agent-queue-tools details.agent-readiness {
+  margin-block-start: 0.375rem;
+}
+.agent-queue-tools details.agent-readiness > summary {
+  width: fit-content;
+  padding-block: 0.375rem;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.8125rem;
+}
+.agent-queue-tools details.agent-readiness[open] > summary {
+  margin-block-end: 0.375rem;
+}
 .agent-queue-role {
   margin-top: 0.75rem;
 }
@@ -58,22 +71,89 @@
 .agent-queue-pagination {
   margin-top: 1rem;
 }
+.agent-queue-toolbar,
+.agent-selection-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem 0.625rem;
+}
+.agent-queue-toolbar {
+  gap: 0.5rem 1rem;
+}
+.agent-selection-tools {
+  color: var(--muted);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+}
+.agent-selection-tools button {
+  font-size: inherit;
+}
 .discover-agent-selection {
   position: relative;
   z-index: 2;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
+  display: grid;
+  flex: none;
+  place-items: center;
+  min-width: 2.75rem;
   min-height: 2.75rem;
   margin: 0;
-  font-size: 0.8125rem;
+  cursor: pointer;
 }
-.discover-agent-selection input {
+.discover-agent-selection input[type="checkbox"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  min-height: 100%;
+  height: 100%;
   margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+.discover-agent-selection span {
+  display: grid;
+  place-items: center;
+  width: 1.125rem;
+  height: 1.125rem;
+  border: 1px solid var(--field-border);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.discover-agent-selection svg {
+  visibility: hidden;
+}
+.discover-agent-selection input:checked + span {
+  color: var(--link);
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+.discover-agent-selection input:checked + span svg {
+  visibility: visible;
+}
+.discover-agent-selection input:focus-visible + span {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+.discover-agent-selection:has(input:disabled) {
+  opacity: 0.6;
+  cursor: default;
+}
+@media (forced-colors: active) {
+  .discover-agent-selection span {
+    border-color: ButtonText;
+  }
 }
 .discover-card-tools:has(.discover-agent-selection) {
   flex-wrap: wrap;
   justify-content: flex-end;
+}
+.discover-capacity-status {
+  align-self: center;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 550;
+  padding-inline: 0.375rem;
+  white-space: nowrap;
 }
 .discover-inspector-actions .discover-pending-button.is-saved {
   background: var(--accent-soft);
@@ -294,4 +374,49 @@
 .agent-instructions-blockers {
   color: var(--error);
   overflow-wrap: anywhere;
+}
+.agent-instructions-dialog {
+  width: min(42rem, calc(100vw - 1.5rem));
+  max-height: calc(100dvh - 1.5rem);
+  padding: clamp(0.875rem, 4vw, 1.5rem);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--ink);
+  overflow: auto;
+  overflow-wrap: anywhere;
+  overscroll-behavior: contain;
+}
+.agent-instructions-dialog::backdrop {
+  background: var(--scrim);
+}
+.agent-instructions-dialog header,
+.agent-instructions-dialog footer {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.625rem;
+}
+.agent-instructions-dialog h2 {
+  margin: 0;
+  font-size: 1.125rem;
+}
+.agent-instructions-dialog header p {
+  margin: 0.25rem 0 0.875rem;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+.agent-instructions-dialog .agent-instructions-close {
+  flex: none;
+  min-width: 2.75rem;
+  padding: 0;
+}
+.agent-instructions-dialog textarea {
+  max-height: 42dvh;
+  line-height: 1.5;
+}
+.agent-instructions-dialog footer {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin-block-start: 0.875rem;
 }

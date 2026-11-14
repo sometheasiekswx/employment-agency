@@ -67,7 +67,7 @@ class Delivery:
         # Restoring an export or restarting cannot replay an external action.
         for record in self.records():
             if record['status'] == 'cancelling':
-                self.update(record, status='cancelled', note='Cancelled before submission')
+                self.update(record, status='cancelled', can_retry_cancel=False, note='Cancelled before submission')
             elif record['status'] in ('preparing', 'executing'):
                 self.update(record, status='unknown', note='Interrupted. Verify the external outcome before resolving this attempt.')
             elif record['status'] in ('awaiting_approval', 'needs_user') and record['channel'] == 'linkedin':
@@ -252,10 +252,14 @@ class Delivery:
                 return self.start(args)
             record = self.get(args['id'])
             if operation == 'apply-cancel':
-                if record['status'] not in ('preparing', 'awaiting_approval', 'needs_user', 'failed'):
+                if record['status'] == 'cancelling' and not record.get('can_retry_cancel'):
+                    return record
+                if record['status'] not in ('preparing', 'awaiting_approval', 'needs_user', 'failed', 'cancelling'):
                     raise ValueError('Wait for the current operation; uncertain or completed sends cannot be cancelled')
-                if record['status'] == 'preparing' or (record['channel'] == 'linkedin' and self.browser_attempt == record['id']):
-                    self.update(record, status='cancelling', note='Closing the browser before releasing this application slot')
+                if (record['status'] in ('preparing', 'cancelling')
+                        or (record['channel'] == 'linkedin' and self.browser_attempt == record['id'])):
+                    self.update(record, status='cancelling', can_retry_cancel=False,
+                                note='Closing the browser before releasing this application slot')
                 else:
                     self.update(record, status='cancelled', note='Cancelled before submission')
                 self.enqueue('close', record['id'])
@@ -396,13 +400,22 @@ class Delivery:
                         self.connection = {'status': 'failed', 'note': 'Gmail connection failed or timed out. Check your Google Desktop client and optional dependencies.'}
                     continue
                 if command == 'close':
-                    if self.browser and self.browser_attempt == id:
-                        self.browser.close(); self.browser = None
-                        self.browser_attempt = None
-                    with self.lock:
-                        record = self.get(id)
-                        if record['status'] == 'cancelling':
-                            self.update(record, status='cancelled', note='Cancelled before submission')
+                    try:
+                        if self.browser and self.browser_attempt == id:
+                            self.browser.close()
+                            self.browser = self.browser_attempt = None
+                        with self.lock:
+                            record = self.get(id)
+                            if record['status'] == 'cancelling':
+                                self.update(record, status='cancelled', can_retry_cancel=False,
+                                            note='Cancelled before submission')
+                    except Exception:
+                        with self.lock:
+                            record = self.get(id)
+                            if record['status'] != 'cancelling':
+                                raise
+                            self.update(record, can_retry_cancel=True,
+                                        note='Could not finish closing the browser. The application slot is still held. Try cancellation again.')
                     continue
                 record = self.get(id)
                 if record['status'] not in ('preparing', 'executing'):

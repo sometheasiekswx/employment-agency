@@ -282,7 +282,8 @@ class Service:
                         'vacancy_id': link['vacancy_id'] if link else None,
                         'submitted_vacancy': bool(link and link['vacancy_id'] in status.get('submitted_vacancies', [])),
                         **{key: status.get(key) for key in ('remaining', 'cooling', 'cooldown_until',
-                                                           'cooldown_time_assumed', 'overflow', 'review_needed')},
+                                                           'cooldown_time_assumed', 'overflow', 'review_needed',
+                                                           'pending_only_count')},
                     }
                     if job['hiring_employer_verified'] and employer_id in logos:
                         job['company']['logo_url'] = logos[employer_id]

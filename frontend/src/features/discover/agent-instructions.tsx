@@ -1,152 +1,294 @@
 "use client";
 
 import { useId, useLayoutEffect, useRef, useState } from "react";
-import { Copy } from "lucide-react";
+import { Copy, X } from "lucide-react";
 import { TextArea } from "@/components/controls";
-import { useNotifications } from "@/components/notification-center";
 import { useWorkspace } from "@/components/workspace-provider";
 import { WorkspaceChangedError } from "@/lib/api";
 import { errorMessage } from "@/lib/format";
 import type { ApplicationHandoff, Job, ResearchHandoff } from "@/lib/models";
 
-type CopyResult = {
+type PromptResult = {
   text: string | null;
   blockers?: ApplicationHandoff["blockers"];
+  scope?: string;
+};
+
+type PromptEditor = {
+  context: { key: string };
+  result?: PromptResult;
+  text: string;
+  error?: string;
 };
 
 function CopyAgentInstructions({
-  label,
+  contextKey,
   scope,
+  announceScope,
   empty = false,
   read,
   jobs,
   onOpen,
   onClearSelection,
 }: {
-  label: string;
+  contextKey: string;
   scope: string;
+  announceScope?: boolean;
   empty?: boolean;
-  read: () => Promise<CopyResult>;
+  read: () => Promise<PromptResult>;
   jobs?: Map<string, Job>;
-  onOpen?: (id: string) => void;
+  onOpen?: (id: string) => boolean;
   onClearSelection?: () => void;
 }) {
-  const { notify } = useNotifications();
   const scopeId = useId();
+  const titleId = useId();
+  const dialogScopeId = useId();
+  const feedbackId = useId();
+  const opener = useRef<HTMLButtonElement>(null);
+  const dialog = useRef<HTMLDialogElement>(null);
+  const closeButton = useRef<HTMLButtonElement>(null);
+  const textarea = useRef<HTMLTextAreaElement>(null);
   const request = useRef(0);
-  const [busy, setBusy] = useState(false);
-  const [manualCopy, setManualCopy] = useState("");
-  const [blockers, setBlockers] = useState<ApplicationHandoff["blockers"]>([]);
-  const [problem, setProblem] = useState("");
+  // A new object also distinguishes a return to an earlier context.
+  const [context, setContext] = useState({ key: contextKey });
+  if (context.key !== contextKey) setContext({ key: contextKey });
+  const [editor, setEditor] = useState<PromptEditor>();
+  const [clipboard, setClipboard] = useState<"busy" | "copied" | "denied">();
+  const open = Boolean(editor);
+  const stale = Boolean(editor && editor.context !== context);
+
   useLayoutEffect(
     () => () => {
       request.current++;
     },
-    [],
+    [context],
   );
 
-  async function copy() {
-    if (busy) return;
+  useLayoutEffect(() => {
+    const element = dialog.current;
+    const button = opener.current;
+    if (!open || !element) return;
+    element.showModal();
+    closeButton.current?.focus();
+    return () => {
+      element.close();
+      if (button?.isConnected && !button.disabled) button.focus();
+    };
+  }, [open]);
+
+  function close() {
+    request.current++;
+    setEditor(undefined);
+  }
+
+  async function generate() {
     const generation = ++request.current;
-    setBusy(true);
-    setProblem("");
-    setManualCopy("");
-    setBlockers([]);
+    setEditor({ context, text: "" });
+    setClipboard(undefined);
     try {
       const result = await read();
       if (request.current !== generation) return;
-      if (!result.text || result.blockers?.length) {
-        setBlockers(result.blockers ?? []);
-        if (!result.blockers?.length)
-          setProblem("Agent instructions could not be prepared. Try again.");
-        return;
+      if (!result.text && !result.blockers?.length) {
+        throw new Error("Agent instructions could not be prepared. Try again.");
       }
-      try {
-        await navigator.clipboard.writeText(result.text);
-        if (request.current === generation)
-          notify("Agent instructions copied.");
-      } catch {
-        if (request.current === generation) setManualCopy(result.text);
-      }
+      setEditor({
+        context,
+        result,
+        text: result.blockers?.length ? "" : (result.text ?? ""),
+      });
     } catch (error) {
-      if (request.current !== generation) return;
-      const message = errorMessage(error);
-      setProblem(message);
-      notify(message, "error");
-    } finally {
-      if (request.current === generation) setBusy(false);
+      if (request.current === generation) {
+        setEditor({ context, text: "", error: errorMessage(error) });
+      }
     }
   }
 
+  async function copy() {
+    if (!editor || stale || !editor.text.trim() || clipboard === "busy") return;
+    const generation = ++request.current;
+    setClipboard("busy");
+    try {
+      await navigator.clipboard.writeText(editor.text);
+      if (request.current === generation) setClipboard("copied");
+    } catch {
+      if (request.current !== generation) return;
+      setClipboard("denied");
+      textarea.current?.focus();
+      textarea.current?.select();
+    }
+  }
+
+  const blockers = editor?.result?.blockers ?? [];
   return (
     <div className="agent-instructions">
       <div className="agent-instructions-control">
         <button
+          ref={opener}
           type="button"
           className="secondary"
-          aria-label={label}
           aria-describedby={scopeId}
-          aria-busy={busy}
-          disabled={empty || busy}
-          onClick={() => void copy()}
+          aria-haspopup="dialog"
+          disabled={empty}
+          onClick={() => void generate()}
         >
           <Copy size={15} aria-hidden="true" />
           Copy agent instructions
         </button>
-        <span id={scopeId}>{scope}</span>
+        <span id={scopeId} aria-live={announceScope ? "polite" : undefined}>
+          {scope}
+        </span>
       </div>
-      {problem && (
-        <p className="error" role="alert">
-          {problem}
-        </p>
-      )}
-      {blockers.length > 0 && (
-        <div className="agent-instructions-blockers" role="alert">
-          <p>Resolve these roles before copying application instructions.</p>
-          <ul>
-            {blockers.map(({ code, job_id: id, message }) => {
-              const job = id ? jobs?.get(id) : undefined;
-              return (
-                <li key={JSON.stringify([id, code])}>
-                  {job && (
-                    <strong>
-                      {job.title} · {job.employer}.{" "}
-                    </strong>
-                  )}
-                  {message}{" "}
-                  {id && job && onOpen && code !== "role_not_pending" && (
+      {editor && (
+        <dialog
+          ref={dialog}
+          className="agent-instructions-dialog"
+          aria-labelledby={titleId}
+          aria-describedby={dialogScopeId}
+          onCancel={(event) => {
+            event.preventDefault();
+            close();
+          }}
+          onClose={(event) => {
+            if (!event.currentTarget.open) close();
+          }}
+        >
+          <header>
+            <div>
+              <h2 id={titleId}>Agent instructions</h2>
+              <p id={dialogScopeId}>{editor.result?.scope ?? scope}</p>
+            </div>
+            <button
+              ref={closeButton}
+              type="button"
+              className="secondary agent-instructions-close"
+              aria-label="Close agent instructions"
+              onClick={close}
+            >
+              <X size={18} aria-hidden="true" />
+            </button>
+          </header>
+          {stale ? (
+            <p role="status">
+              The scope changed. Refresh to generate new instructions.
+            </p>
+          ) : editor.error ? (
+            <p className="error" role="alert">
+              {editor.error}
+            </p>
+          ) : !editor.result ? (
+            <p role="status">Preparing instructions…</p>
+          ) : (
+            blockers.length > 0 && (
+              <div className="agent-instructions-blockers" role="alert">
+                <p>
+                  Resolve these roles before copying application instructions.
+                </p>
+                <ul>
+                  {blockers.map(({ code, job_id: id, message }) => {
+                    const job = id ? jobs?.get(id) : undefined;
+                    return (
+                      <li key={JSON.stringify([id, code])}>
+                        {job && (
+                          <strong>
+                            {job.title} · {job.employer}.{" "}
+                          </strong>
+                        )}
+                        {message}{" "}
+                        {id && job && onOpen && code !== "role_not_pending" && (
+                          <button
+                            type="button"
+                            className="secondary"
+                            onClick={() => {
+                              if (onOpen(id)) close();
+                            }}
+                          >
+                            Open {job.title}
+                          </button>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+                {onClearSelection &&
+                  blockers.some(({ code }) => code === "role_not_pending") && (
                     <button
                       type="button"
                       className="secondary"
-                      onClick={() => onOpen(id)}
+                      onClick={() => {
+                        onClearSelection();
+                        close();
+                      }}
                     >
-                      Open {job.title}
+                      Clear selection
                     </button>
                   )}
-                </li>
-              );
-            })}
-          </ul>
-          {onClearSelection &&
-            blockers.some(({ code }) => code === "role_not_pending") && (
+              </div>
+            )
+          )}
+          {editor.result?.text && !blockers.length && (
+            <TextArea
+              ref={textarea}
+              label="Prompt"
+              rows={10}
+              spellCheck={false}
+              readOnly={stale || clipboard === "busy"}
+              aria-describedby={
+                !stale && clipboard === "denied" ? feedbackId : undefined
+              }
+              value={editor.text}
+              onChange={(event) => {
+                setEditor({ ...editor, text: event.currentTarget.value });
+                setClipboard(undefined);
+              }}
+            />
+          )}
+          {!stale && clipboard === "denied" && (
+            <p id={feedbackId} className="error" role="alert">
+              Clipboard access failed. Select the prompt and copy it manually.
+            </p>
+          )}
+          {!stale && clipboard === "copied" && (
+            <p role="status">Agent instructions copied.</p>
+          )}
+          {stale || editor.error || blockers.length > 0 ? (
+            <footer>
               <button
                 type="button"
-                className="secondary"
-                onClick={onClearSelection}
+                disabled={empty}
+                onClick={() => void generate()}
               >
-                Clear selection
+                {stale ? "Refresh instructions" : "Retry"}
               </button>
-            )}
-        </div>
-      )}
-      {manualCopy && (
-        <TextArea
-          label="Select and copy the agent instructions"
-          readOnly
-          rows={6}
-          value={manualCopy}
-          onFocus={(event) => event.currentTarget.select()}
-        />
+            </footer>
+          ) : (
+            editor.result?.text &&
+            !blockers.length && (
+              <footer>
+                <button
+                  type="button"
+                  className="secondary"
+                  disabled={
+                    clipboard === "busy" || editor.text === editor.result.text
+                  }
+                  onClick={() => {
+                    setEditor({ ...editor, text: editor.result?.text ?? "" });
+                    setClipboard(undefined);
+                  }}
+                >
+                  Reset
+                </button>
+                <button
+                  type="button"
+                  disabled={clipboard === "busy" || !editor.text.trim()}
+                  onClick={() => void copy()}
+                >
+                  <Copy size={15} aria-hidden="true" />
+                  Copy
+                </button>
+              </footer>
+            )
+          )}
+        </dialog>
       )}
     </div>
   );
@@ -164,36 +306,51 @@ function checkWorkspace(
 }
 
 export function ApplicationInstructions({
+  selecting,
   selection,
-  pendingCount,
+  pendingIds,
+  selectedPendingIds,
   jobs,
   onOpen,
   onClearSelection,
 }: {
+  selecting: boolean;
   selection: string[];
-  pendingCount: number;
+  pendingIds: string[];
+  selectedPendingIds: string[];
   jobs: Map<string, Job>;
-  onOpen: (id: string) => void;
+  onOpen: (id: string) => boolean;
   onClearSelection: () => void;
 }) {
-  const { client, state } = useWorkspace();
+  const { client, state, profileId } = useWorkspace();
   const workspace = state._workspace;
-  const count = selection.length || pendingCount;
+  const count = selection.length || pendingIds.length;
+  const allScope = (size: number) =>
+    size ? `All To apply (${size})` : "No roles in To apply";
+  const scope = selection.length
+    ? `${count} selected ${count === 1 ? "role" : "roles"}`
+    : allScope(count);
   return (
     <CopyAgentInstructions
-      key={JSON.stringify([workspace.path, workspace.workspace_id, selection])}
-      label="Copy agent instructions"
+      contextKey={JSON.stringify([
+        workspace.path,
+        workspace.workspace_id,
+        profileId,
+        selection,
+        selection.length ? selectedPendingIds : [...pendingIds].sort(),
+      ])}
       scope={
         selection.length
           ? `${count} selected`
-          : count
-            ? `All To apply (${count})`
-            : "No roles in To apply"
+          : selecting
+            ? `0 selected · ${scope}`
+            : scope
       }
+      announceScope
       empty={!count}
       jobs={jobs}
       onOpen={onOpen}
-      onClearSelection={onClearSelection}
+      onClearSelection={selection.length ? onClearSelection : undefined}
       read={async () => {
         const result = await client.action<ApplicationHandoff>(
           "application-handoff",
@@ -209,7 +366,10 @@ export function ApplicationInstructions({
           throw new Error(
             "The returned roles do not match your selection. Try again.",
           );
-        return result;
+        return {
+          ...result,
+          scope: selection.length ? scope : allScope(result.job_ids.length),
+        };
       }}
     />
   );
@@ -221,8 +381,11 @@ export function ResearchInstructions() {
   const profile = state.profiles.find(({ id }) => id === profileId);
   return (
     <CopyAgentInstructions
-      key={JSON.stringify([workspace.path, workspace.workspace_id, profileId])}
-      label="Copy agent instructions for job research"
+      contextKey={JSON.stringify([
+        workspace.path,
+        workspace.workspace_id,
+        profileId,
+      ])}
       scope={
         profile
           ? `Find 5 more companies · ${profile.name}`

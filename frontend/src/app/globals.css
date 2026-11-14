@@ -704,68 +704,62 @@ details details {
   flex-shrink: 0;
 }
 .rail-context {
-  container: career-summary / inline-size;
-  padding-top: 43px;
+  padding-top: 32px;
 }
 .rail-context-label {
-  margin: 0 0 20px;
+  margin: 0 0 4px;
   color: var(--muted);
   font-size: 0.75rem;
 }
-.rail-context dl {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
+.rail-profile-name {
   margin: 0;
-  font-size: 0.75rem;
-}
-.rail-context dl > div {
-  display: grid;
-  grid-template-columns: 85px minmax(0, 1fr);
-  gap: 8px;
-  align-items: baseline;
-}
-.rail-context dt {
-  color: var(--muted);
+  color: var(--ink);
+  font-size: 0.9375rem;
+  font-weight: 600;
   overflow-wrap: anywhere;
 }
-.rail-context dd {
+.rail-profile-details summary {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  width: fit-content;
+  min-height: 2.25rem;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.8125rem;
+}
+.rail-profile-details summary::-webkit-details-marker {
+  display: none;
+}
+.rail-profile-details[open] summary svg {
+  rotate: 180deg;
+}
+.rail-profile-details dl {
+  display: grid;
+  gap: 0.625rem;
+  margin: 0.125rem 0 0.875rem;
+  font-size: 0.75rem;
+  overflow-wrap: anywhere;
+}
+.rail-profile-details dt {
+  color: var(--muted);
+}
+.rail-profile-details dd {
   margin: 0;
   color: var(--ink-soft);
-  text-align: right;
-  overflow-wrap: anywhere;
-}
-@container career-summary (max-width: 12rem) {
-  .rail-context dl > div {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 2px;
-  }
-  .rail-context dd {
-    text-align: left;
-  }
 }
 .rail-summary {
   display: flex;
-  align-items: baseline;
-  gap: 10px;
-  margin-top: 32px;
-}
-.rail-summary strong {
-  font-size: 34px;
-  font-weight: 600;
-  line-height: 1.2;
-  font-variant-numeric: tabular-nums;
-}
-.rail-summary span {
-  max-width: 130px;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+  margin: 0;
   color: var(--muted);
   font-size: 0.75rem;
 }
-.rail-caption {
-  margin: 12px 0 0;
-  color: var(--muted);
-  font-size: 0.6875rem;
-  line-height: 1.6;
+.rail-summary strong {
+  color: var(--ink-soft);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 .dock-panel {
   display: flex;
@@ -1420,17 +1414,7 @@ details details {
 }
 @media (max-height: 850px) and (min-width: 901px) {
   .rail-context {
-    padding-top: 26px;
-  }
-  .rail-context h2 {
-    margin-bottom: 22px;
-    font-size: 30px;
-  }
-  .rail-context dl {
-    gap: 10px;
-  }
-  .rail-summary {
-    margin-top: 22px;
+    padding-top: 22px;
   }
   .dock-panel {
     padding-top: 24px;

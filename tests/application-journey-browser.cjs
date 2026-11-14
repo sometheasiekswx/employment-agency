@@ -240,22 +240,35 @@ async function verifyNoHorizontalOverflow(page, label) {
       await api("company-submission-status", { job_id: job.id }),
       [],
     );
+    assert.equal(await page.locator(".discover-card input[type=checkbox]").count(), 0);
+    await exact(page, "button", "Select").click();
     await page
       .getByRole("checkbox", { name: `Select ${job.title} at ${employer}` })
       .check();
     await page
       .getByRole("checkbox", { name: `Select ${second.title} at ${employer}` })
       .check();
+    const readiness = page.locator(".agent-queue-tools details.agent-readiness");
+    const readinessSummary = readiness.getByText("Connected agent unavailable", { exact: true });
+    await readinessSummary.waitFor();
+    assert.equal(await readiness.evaluate((details) => details.open), false);
+    await readinessSummary.focus();
+    await page.keyboard.press("Enter");
+    await readiness.getByText("No connected executor in this browser fixture", { exact: true }).waitFor();
+    await page.keyboard.press("Enter");
+    assert.equal(await readiness.evaluate((details) => details.open), false);
     await exact(page, "button", "Copy agent instructions").click();
-    const handoff = await exact(
-      page,
-      "textbox",
-      "Select and copy the agent instructions",
-    ).inputValue();
+    const prompt = exact(page, "dialog", "Agent instructions");
+    const handoff = await exact(prompt, "textbox", "Prompt").inputValue();
     assert.ok(handoff.includes(job.id) && handoff.includes(second.id));
     assert.match(handoff, /^Apply for these exact roles/);
     assert.match(handoff, /application-context/);
     assert.ok(!handoff.includes(initial.token));
+    await page.keyboard.press("Escape");
+    await prompt.waitFor({ state: "hidden" });
+    assert.ok(await exact(page, "button", "Copy agent instructions").evaluate((button) => button === document.activeElement));
+    await exact(page, "button", "Done").click();
+    assert.equal(await page.locator(".discover-card input[type=checkbox]").count(), 0);
     assert.deepEqual(
       (await api("agent-application-status", { job_ids: [job.id, second.id] }))
         .runs,
