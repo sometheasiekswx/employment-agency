@@ -29,3 +29,5 @@ The candidate was built from the recovered source and tested against disposable 
 - The Impeccable scan of the changed UI source reported four pre-existing font findings for the project's approved, self-hosted Inter faces. The rendered layouts and browser accessibility checks supplied the complementary evidence.
 
 Screenshots used fictional records. Physical devices, Windows and Linux were outside the local run. The cross-platform pipeline and actual public target are tracked under the delivery task.
+
+The initial Windows CI job failed in the logo Git archive fixture. The corrected fixture exercises CRLF conversion with the workspace's generated Git attributes. All 31 logo and SQLite workspace tests passed locally with `core.autocrlf=true`. The correction has no packaged runtime changes. [Independent reproduction](review.md#windows-git-fixture-follow-up) · [Initial Checks run](https://github.com/sometheasiekswx/employment-agency/actions/runs/43614190447)

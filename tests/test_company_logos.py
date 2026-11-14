@@ -654,9 +654,10 @@ class CompanyLogoWorkspaceTests(unittest.TestCase):
                                       capture_output=True).stdout
 
             git('init')
-            git('add', 'state.json', 'state', assets.ASSET_FOLDER)
+            git('add', '.gitattributes', 'state.json', 'state', assets.ASSET_FOLDER)
             tree = git('write-tree').decode().strip()
-            with zipfile.ZipFile(BytesIO(git('archive', '--format=zip', tree))) as archive:
+            archive_bytes = git('-c', 'core.autocrlf=true', 'archive', '--format=zip', tree)
+            with zipfile.ZipFile(BytesIO(archive_bytes)) as archive:
                 archive.extractall(source)
             self.assertFalse((source / 'workspace.sqlite3').exists())
         store.restore_snapshot(source, snapshot)
