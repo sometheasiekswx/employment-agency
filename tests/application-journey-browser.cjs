@@ -18,7 +18,9 @@ const base = process.env.TEST_URL;
 assert.match(base || "", /^http:\/\/127\.0\.0\.1:\d+$/);
 const employer = "Fictional Journey Company " + randomUUID().slice(0, 8);
 const listing = "https://journey.example.test/roles/platform";
-const applicationSite = "https://journey.example.test/apply/platform";
+const applicationAddress =
+  "https://journey.example.test/apply/ការងារ?city=ភ្នំពេញ";
+const applicationSite = new URL(applicationAddress).href;
 const output = process.env.EA_JOURNEY_SCREENSHOTS;
 
 async function responseResult(response) {
@@ -355,7 +357,7 @@ async function verifyNoHorizontalOverflow(page, label) {
     const continuationUrl = await continuation.getAttribute("href");
     assert.match(
       continuationUrl,
-      /^\/application-site\/[a-f0-9]{32}\/[a-f0-9]{64}$/,
+      /^\/api\/application-site\/[a-f0-9]{32}\/[a-f0-9]{64}$/,
     );
     let redirect = await desktop.request.get(base + continuationUrl, {
       maxRedirects: 0,
@@ -365,7 +367,7 @@ async function verifyNoHorizontalOverflow(page, label) {
     await api("application-destination", {
       job_id: job.id,
       channel: "website",
-      value: applicationSite,
+      value: applicationAddress,
       source_url: listing,
       evidence: "Fictional listing points to this form.",
       confirmed: true,

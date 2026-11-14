@@ -35,7 +35,7 @@ const application: Application = {
   comments: [],
 };
 const destination = "https://employer.example.test/apply";
-const continueUrl = "/application-site/test-reservation/test-proof";
+const continueUrl = "/api/application-site/test-reservation/test-proof";
 const reservation: SubmissionAttempt = {
   id: "reservation-a",
   application_id: application.id,

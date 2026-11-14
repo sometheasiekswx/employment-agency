@@ -45,7 +45,7 @@ const path = require("node:path");
     await details.getByRole("button", { name: "Confirm employer" }).click();
     await details.getByRole("button", { name: "I've applied" }).waitFor();
     const continuation = await details.getByRole("link", { name: "Continue to application site" }).getAttribute("href");
-    assert.match(continuation, /^\/application-site\/[a-f0-9]{32}\/[a-f0-9]{64}$/);
+    assert.match(continuation, /^\/api\/application-site\/[a-f0-9]{32}\/[a-f0-9]{64}$/);
     const redirect = await page.request.get(base + continuation, { maxRedirects: 0 });
     assert.equal(redirect.status(), 302);
     assert.equal(redirect.headers().location, first.url);

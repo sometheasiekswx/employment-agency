@@ -134,15 +134,16 @@ def server(service, port=8766, frontend_origin=None, tailscale_origin=None, tail
                         or bool(current.discovery and current.discovery.busy))
                 return self.send(200, encode({'reload_safe': not busy,
                                               'workspace': str(current.w.path), 'pid': os.getpid()}))
-            if path.startswith('/application-site/'):
-                route = re.fullmatch(r'/application-site/([a-f0-9]{32})/([a-f0-9]{64})', path)
+            if path.startswith('/api/application-site/'):
+                route = re.fullmatch(r'/api/application-site/([a-f0-9]{32})/([a-f0-9]{64})/?', path)
                 if not route or not secrets.compare_digest(route[2], application_site_proof(route[1])):
                     return self.send(404, b'{}')
                 try:
                     attempt = company_handoff.continuation(service, route[1])
                 except (ValueError, OSError, KeyError) as exc:
                     return self.send(409, str(exc).encode(), 'text/plain; charset=utf-8')
-                return self.send(302, b'', headers={'Location': attempt['binding']['destination']})
+                location = quote(attempt['binding']['destination'], safe=":/?#[]@!$&'()*+,;=%")
+                return self.send(302, b'', headers={'Location': location})
             if path.startswith('/files/'):
                 parts = path.split('/')
                 app = next((a for a in service.w.read()['applications'] if len(parts) == 4 and a['id'] == parts[2]), None)
@@ -277,7 +278,7 @@ def server(service, port=8766, frontend_origin=None, tailscale_origin=None, tail
                 result = service.action(action, data)
                 if action in ('self-application-start', 'company-submission-continue') and result['status'] == 'handed_off':
                     attempt_id = result['id']
-                    result = {**result, 'continue_url': f'/application-site/{attempt_id}/{application_site_proof(attempt_id)}'}
+                    result = {**result, 'continue_url': f'/api/application-site/{attempt_id}/{application_site_proof(attempt_id)}'}
             self.send(200, encode({'result': result}))
 
     class Server(ThreadingHTTPServer):

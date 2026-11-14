@@ -50,6 +50,54 @@ const fs = require('node:fs');
     assert.equal(save.status(), 200);
     const saved = await (await page.request.get(origin + '/api/state')).json();
     assert.equal(saved.state.identity.name, body.name);
+    const [job] = saved.state.jobs;
+    const [draft] = saved.state.applications;
+    async function action(name, data, token = initial.token) {
+      const response = await page.request.post(origin + '/api/' + name, {
+        data, headers: {...headers, 'X-Workspace-Token': token},
+      });
+      assert.equal(response.status(), 200, await response.text());
+      return (await response.json()).result;
+    }
+    const {continue_url: continuation, id} = await action('self-application-start', {
+      job_id: job.id, application_id: draft.id, request_key: 'fictional-development-handoff',
+    });
+    assert.match(continuation, /^\/api\/application-site\/[a-f0-9]{32}\/[a-f0-9]{64}$/);
+    async function readContinuation(path) {
+      const response = await page.request.get(origin + path, {maxRedirects: 0});
+      if (response.status() !== 308) return response;
+      const location = new URL(response.headers().location, origin);
+      assert.equal(location.href, origin + path + '/');
+      return page.request.get(location.href, {maxRedirects: 0});
+    }
+    const redirect = await readContinuation(continuation);
+    assert.equal(redirect.status(), 302);
+    assert.equal(redirect.headers().location, job.url);
+    assert.equal(redirect.headers()['referrer-policy'], 'no-referrer');
+    assert.equal(redirect.headers()['cache-control'], 'no-store');
+    const invalid = await readContinuation(continuation.replace(/[a-f0-9]{64}$/, '0'.repeat(64)));
+    assert.equal(invalid.status(), 404);
+    assert.equal(invalid.headers().location, undefined);
+    const attempts = await action('company-submission-status', {job_id: job.id});
+    assert.equal(attempts.length, 1);
+    assert.equal(attempts[0].id, id);
+    assert.equal(attempts[0].status, 'handed_off');
+    await action('workspace-open', {path: process.env.TEST_WORKSPACE});
+    const expired = await readContinuation(continuation);
+    assert.equal(expired.status(), 404);
+    assert.equal(expired.headers().location, undefined);
+    const {token: refreshedToken} = await (await page.request.get(origin + '/api/state')).json();
+    assert.notEqual(refreshedToken, initial.token);
+    const reopened = await action('company-submission-continue', {id}, refreshedToken);
+    assert.notEqual(reopened.continue_url, continuation);
+    await action('application-destination', {
+      job_id: job.id, channel: 'website', value: 'https://example.test/development/changed',
+      source_url: job.url, evidence: 'Fictional listing destination changed.', confirmed: true,
+    }, refreshedToken);
+    const changed = await readContinuation(reopened.continue_url);
+    assert.equal(changed.status(), 409);
+    assert.equal(changed.headers().location, undefined);
+    assert.match(await changed.text(), /destination changed/i);
     await page.goto(origin);
     await page.waitForURL(url => url.pathname === '/discover/');
     await page.getByRole('group', {name: 'Opportunity views', exact: true}).waitFor();
@@ -68,7 +116,7 @@ const fs = require('node:fs');
     assert.deepEqual(errors, []);
     fs.mkdirSync(process.env.TEST_EVIDENCE, {recursive: true});
     await page.screenshot({path: process.env.TEST_EVIDENCE + '/live-css.png'});
-    console.log('Development browser PASS: real alternate-port API proxy, token/origin guards, saved fictional identity and globals.css Fast Refresh without reload.');
+    console.log('Development browser PASS: alternate-port API proxy, signed application-site redirect, token/origin guards and globals.css Fast Refresh without reload.');
   } finally { await browser.close(); }
 })().catch(error => {console.error(error); process.exit(1);});
 '''
@@ -115,7 +163,7 @@ def listening(port):
 
 def seed(workspace, config):
     with patch.dict(os.environ, {'EA_CONFIG_HOME': str(config)}):
-        store = Workspace(workspace)
+        store = Workspace(workspace, sqlite=True)
         try:
             service = Service(store)
             service.action('workspace-settings', {'setup_complete': True})
@@ -126,7 +174,9 @@ def seed(workspace, config):
             profile = service.action('profile', {'name': 'Development fixture', 'roles': ['Engineer'],
                 'locations': ['Toronto'], 'hard': [], 'include_unknown': True, 'include_stretch': True})
             job = service.action('job', {'title': 'Software Engineer', 'employer': 'Fictional Development Systems',
-                'location': 'Toronto', 'description': 'Build Python APIs', 'requirements': ['Python APIs']})
+                'location': 'Toronto', 'description': 'Build Python APIs', 'requirements': ['Python APIs'],
+                'url': 'https://example.test/development/apply'})
+            service.action('company-map', {'job_id': job['id'], 'confirmed': True})
             service.action('local-package', {'job_id': job['id'], 'profile_id': profile['id']})
         finally:
             store.close()
