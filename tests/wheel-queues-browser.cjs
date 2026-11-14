@@ -6,8 +6,6 @@ const fs = require("node:fs");
 const path = require("node:path");
 const {
   roleCard,
-  selectApplication,
-  showPanel,
 } = require("./browser-applications.cjs");
 
 (async () => {
@@ -96,7 +94,10 @@ const {
     assert.equal(await role(fixture.separate).count(), 0);
 
     await tab("Submitted", 1).click();
-    await selectApplication(page, fixture.sent, "documents");
+    await role(fixture.sent).locator(".discover-card-open").click();
+    const workspace = page.getByRole("dialog", { name: fixture.sent.title });
+    const panels = workspace.getByRole("group", { name: "Role workspace" });
+    await panels.getByRole("button", { name: "CV", exact: true }).click();
     await card(fixture.sent).waitFor();
     assert.equal(await page.locator(".discover-card").count(), 1);
     assert.equal(
@@ -109,7 +110,8 @@ const {
       0,
       "Later edit does not replace a submission",
     );
-    const versionIds = await page
+    await panels.getByRole("button", { name: "Documents", exact: true }).click();
+    const versionIds = await workspace
       .getByRole("combobox", { name: "Document version", exact: true })
       .locator("option")
       .evaluateAll((options) => options.map((option) => option.value));
@@ -123,16 +125,16 @@ const {
         versionIds.includes(application.id),
         "The role workspace retains access to every preserved sibling",
       );
-    await showPanel(page, "activity");
+    await panels.getByRole("button", { name: "Activity", exact: true }).click();
     assert.equal(
       await page
         .getByRole("button", { name: "Apply For Me", exact: true })
         .count(),
       0,
     );
-    await showPanel(page, "documents");
+    await panels.getByRole("button", { name: "CV", exact: true }).click();
     const resumeLink = card(fixture.sent).getByRole("link", {
-      name: "CV PDF",
+      name: "Download CV",
       exact: true,
     });
     const resume = await page.request.get(
@@ -145,6 +147,8 @@ const {
         (file) => file.id === fixture.sent.id && file.name === "resume.pdf",
       ).sha256,
     );
+
+    await workspace.getByRole("button", { name: "Close opportunity details" }).click();
 
     await page.getByLabel("Include earlier review queues").check();
     await tab("Submitted", 2).waitFor();

@@ -14,6 +14,7 @@ import {
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowUpRight,
+  Bot,
   Bookmark,
   Building2,
   CircleMinus,
@@ -27,7 +28,11 @@ import {
   X,
 } from "lucide-react";
 import { useDraft } from "@/components/unsaved";
-import { OpportunityWorkbench } from "./opportunity-workbench";
+import { OpportunityApplication } from "@/features/applications/opportunity-application";
+import { ApplicationVersions } from "@/features/applications/application-versions";
+import { CompanySubmission } from "@/features/applications/company-submission";
+import { SubmissionRecord } from "@/features/applications/submission-records";
+import { RoleAgentWork } from "@/features/applications/agent-application";
 import { Action, Check, Select } from "@/components/controls";
 import { useWorkspace } from "@/components/workspace-provider";
 import {
@@ -38,7 +43,13 @@ import {
   errorMessage,
   hasRecordedSubmission,
 } from "@/lib/format";
-import type { Job, JobRemoval, RankedJob } from "@/lib/models";
+import type {
+  Application,
+  Job,
+  JobRemoval,
+  RankedJob,
+  SubmissionAttempt,
+} from "@/lib/models";
 import { currentRemoval } from "@/lib/job-removal";
 import { RemovalFeedback } from "./removal-feedback";
 import { useJobRemoval } from "./use-job-removal";
@@ -52,12 +63,14 @@ import {
   roleStatus,
   type DiscoveryView,
 } from "./discovery";
-import { OpportunityInspector } from "./opportunity-inspector";
-import { OpportunityListingLink } from "./opportunity-source-preview";
+import { OpportunityInspector, type RolePanel } from "./opportunity-inspector";
+import { OpportunityListingLink } from "./opportunity-listing-link";
 import { useInteractionMotion } from "./interaction-motion";
 import { cachedRanking, loadRanking } from "./rankings";
 import { CompanyReview } from "./company-review";
+import { AgentQueueTools, useAgentQueue } from "./agent-queue";
 import "./discover.css";
+import "./opportunities.css";
 
 interface RankingState {
   key: string;
@@ -67,6 +80,12 @@ interface RankingState {
 }
 
 const shortlistHistoryKey = "employmentAgencyShortlistInspector";
+const applicationStages = [
+  ["active", "Active"],
+  ["submitted", "Submitted"],
+  ["agent", "For my agent"],
+  ["removed", "Removed"],
+] as const;
 
 function unassessedRole(job: Job): RankedJob {
   return {
@@ -106,6 +125,13 @@ export function DiscoverPage() {
   }, [animateInteractions]);
   const { state, client, run, refresh, profileId, selectProfile } =
     useWorkspace();
+  const [preparedVersion, setPreparedVersion] = useState<{
+    workspace: string;
+    application: Application;
+  }>();
+  const [recentSubmission, setRecentSubmission] = useState<SubmissionAttempt>();
+  const localJourney =
+    Boolean(state._workspace.agent_queue) && !client.hosted && !client.preview;
   const params = useSearchParams();
   const { back, replace } = useRouter();
   const [routeQuery, setOptimisticQuery] = useOptimistic(params.toString());
@@ -131,9 +157,13 @@ export function DiscoverPage() {
   const latestJobs = new Map(
     roleRecords.map((job) => [job.id, removal.jobWithRemoval(job)]),
   );
-  const requestedApplication = state.applications.find(
-    (app) => app.id === filters.get("application"),
-  );
+  const applicationId = filters.get("application");
+  const requestedApplication =
+    state.applications.find((app) => app.id === applicationId) ??
+    (preparedVersion?.workspace === state._workspace.path &&
+    preparedVersion.application.id === applicationId
+      ? preparedVersion.application
+      : undefined);
   const requestedRoleId = requestedApplication
     ? applicationRoleId(requestedApplication)
     : "";
@@ -171,7 +201,25 @@ export function DiscoverPage() {
       ? requestedView
       : "recommended";
   const applicationView = view === "applications";
-  const section = removedView ? "removed" : filters.get("section") || "active";
+  const section = removedView
+    ? "removed"
+    : !localJourney && filters.get("section") === "agent"
+      ? "active"
+      : filters.get("section") || "active";
+  const agentView = applicationView && section === "agent";
+  const [agentRevision, setAgentRevision] = useState(0);
+  const [markedOverrides, setMarkedOverrides] = useState<
+    Record<string, boolean>
+  >({});
+  const [agentSelection, setAgentSelection] = useState<string[]>([]);
+  const [startingAgent, setStartingAgent] = useState(false);
+  const offset = Number(filters.get("agent_offset"));
+  const agentOffset = Number.isSafeInteger(offset) && offset > 0 ? offset : 0;
+  const agentQueue = useAgentQueue(
+    localJourney && applicationView,
+    agentOffset,
+    agentRevision,
+  );
   const location =
     filters.get("location") ||
     (applicationView ? filters.get("destination") : "") ||
@@ -189,12 +237,7 @@ export function DiscoverPage() {
       !(section === "submitted" && statusFilter === "submitted")),
   );
   const includeHistorical = filters.get("history") === "true";
-  const panel =
-    filters.get("panel") === "activity"
-      ? "activity"
-      : filters.get("panel") === "documents"
-        ? "documents"
-        : "overview";
+  const requestedPanel = filters.get("panel");
   const [attempt, setAttempt] = useState(0);
   const [retrying, setRetrying] = useState(false);
   const [ranking, setRanking] = useState<RankingState>({
@@ -209,11 +252,18 @@ export function DiscoverPage() {
       ? filters.get("opportunity") || ""
       : "");
   const currentRoute = useRef({ queryString, profileId });
+  const roleVisit = useRef<object | null>(null);
   const openedFromShortlist = useRef(false);
   const closingWithBack = useRef(false);
   useLayoutEffect(() => {
     currentRoute.current = { queryString, profileId };
   }, [queryString, profileId]);
+  useLayoutEffect(() => {
+    roleVisit.current = {};
+    return () => {
+      roleVisit.current = null;
+    };
+  }, [selectedId, profileId, state._workspace.path]);
   const replaceQuery = useCallback(
     (
       next: URLSearchParams,
@@ -301,6 +351,7 @@ export function DiscoverPage() {
       removals: undefined,
       careers_url: undefined,
       matched_skill_evidence: undefined,
+      hiring_employer_verified: undefined,
     })),
   });
   const requestKey = `${profileId}:${attempt}:${rankInput}`;
@@ -318,9 +369,10 @@ export function DiscoverPage() {
     !removedView &&
     Boolean(profile) &&
     currentRanking.key !== requestKey;
+  const selectionInFlight = useRef(false);
 
   useEffect(() => {
-    if (!profileId || applicationView || removedView) return;
+    if (!profileId || (applicationView && !agentView) || removedView) return;
     let active = true;
     loadRanking(client, workspacePath, profileId, rankInput, attempt > 0).then(
       (rows) => {
@@ -347,6 +399,7 @@ export function DiscoverPage() {
     requestKey,
     attempt,
     applicationView,
+    agentView,
     removedView,
   ]);
 
@@ -369,7 +422,9 @@ export function DiscoverPage() {
         ]
       : [];
   });
-  const effectiveQueue = new Map(state.application_queue?.map((entry) => [entry.job_id, entry.stage]));
+  const effectiveQueue = new Map(
+    state.application_queue?.map((entry) => [entry.job_id, entry.stage]),
+  );
   const applicationJobs = {
     active: new Map<string, Job>(),
     submitted: new Map<string, Job>(),
@@ -377,9 +432,11 @@ export function DiscoverPage() {
   for (const [id, app] of applications) {
     if (app.archived && !includeHistorical) continue;
     const job = latestJobs.get(id)!;
-    const stage = currentRemoval(job) ? "removed" :
-      effectiveQueue.get(id) || applicationSection(app, job);
-    if (stage === "active" || stage === "submitted") applicationJobs[stage].set(id, job);
+    const stage = currentRemoval(job)
+      ? "removed"
+      : effectiveQueue.get(id) || applicationSection(app, job);
+    if (stage === "active" || stage === "submitted")
+      applicationJobs[stage].set(id, job);
   }
   // A listing can record an earlier submission independently of any saved version.
   for (const [id, job] of latestJobs) {
@@ -390,6 +447,42 @@ export function DiscoverPage() {
     )
       applicationJobs.submitted.set(id, job);
   }
+  const marked = new Set(
+    state.agent_intents
+      ?.filter((record) => record.marked)
+      .map((record) => record.id),
+  );
+  for (const [id, value] of Object.entries(markedOverrides)) {
+    if (value) marked.add(id);
+    else marked.delete(id);
+  }
+  const pendingForAgent = new Map(
+    [...latestJobs].filter(
+      ([id, job]) =>
+        marked.has(id) &&
+        !currentRemoval(job) &&
+        !hasRecordedSubmission(applications.get(id), job) &&
+        !job.company?.submitted_vacancy,
+    ),
+  );
+  const chosenForAgent = agentSelection.flatMap((id) => {
+    const job = pendingForAgent.get(id);
+    return job ? [job] : [];
+  });
+  const agentApplications = Object.fromEntries(
+    chosenForAgent.flatMap(({ id }) => {
+      const app = applications.get(id);
+      return app && !app.archived ? [[id, app.id]] : [];
+    }),
+  );
+  const agentQueueRows = (agentQueue.page?.rows ?? []).flatMap(
+    ({ role_id }) => {
+      const job = pendingForAgent.get(role_id);
+      if (!job) return [];
+      const assessed = rows.find((entry) => entry.job.id === job.id);
+      return [assessed || unassessedRole(job)];
+    },
+  );
   const applicationRows = (
     section === "all"
       ? [
@@ -408,7 +501,9 @@ export function DiscoverPage() {
   const sourceRows = removedView
     ? removedRows
     : applicationView
-      ? applicationRows
+      ? agentView
+        ? agentQueueRows
+        : applicationRows
       : [
           ...rows.filter(
             ({ job }) =>
@@ -418,15 +513,20 @@ export function DiscoverPage() {
           ),
           ...(view === "saved"
             ? [...latestJobs.values()]
-                .filter((job) =>
-                  job.saved && job.company?.cooling && !currentRemoval(job) &&
-                  !hasRecordedSubmission(applications.get(job.id), job) &&
-                  !rows.some((row) => row.job.id === job.id),
+                .filter(
+                  (job) =>
+                    job.saved &&
+                    job.company?.cooling &&
+                    !currentRemoval(job) &&
+                    !hasRecordedSubmission(applications.get(job.id), job) &&
+                    !rows.some((row) => row.job.id === job.id),
                 )
                 .map(unassessedRole)
             : []),
         ];
-  const pausedResults = !rows.length && view !== "saved" &&
+  const pausedResults =
+    !rows.length &&
+    view !== "saved" &&
     state.jobs.some((job) => job.company?.cooling);
   const scopedRows = filterOpportunities(
     sourceRows,
@@ -464,13 +564,18 @@ export function DiscoverPage() {
     view !== "saved" &&
     assessedRow?.job.saved &&
     !currentRemoval(assessedRow.job);
+  const selectedJob = latestJobs.get(selectedId);
   const selected =
     selectedRow ||
-    requestedApplication ||
-    removal.feedback?.job.id === selectedId ||
-    keepSavedDetails
-      ? assessedRow || selectedRow
-      : undefined;
+    (selectedJob &&
+    (requestedApplication ||
+      removal.feedback?.job.id === selectedId ||
+      keepSavedDetails ||
+      (applicationView && !removedView && !currentRemoval(selectedJob)) ||
+      recentSubmission?.binding.job_id === selectedId ||
+      hasRecordedSubmission(applications.get(selectedId), selectedJob))
+      ? assessedRow || unassessedRole(selectedJob)
+      : undefined);
   const assessmentAvailable = Boolean(assessedRow);
   const hasListingRecord = Boolean(
     selected && state.jobs.some((job) => job.id === selected.job.id),
@@ -478,16 +583,99 @@ export function DiscoverPage() {
   const selectedApplication =
     requestedApplication ||
     (selected ? applications.get(selected.job.id) : undefined);
+  const selectedDraft = Boolean(
+    selectedApplication &&
+    ["draft", "reviewed"].includes(selectedApplication.status),
+  );
+  const submission =
+    recentSubmission?.binding.job_id === selectedId
+      ? recentSubmission
+      : undefined;
+  const submitted = Boolean(
+    submission || hasRecordedSubmission(selectedApplication, selected?.job),
+  );
+  const panel: RolePanel =
+    requestedPanel === "overview" ||
+    requestedPanel === "documents" ||
+    requestedPanel === "activity" ||
+    requestedPanel === "files"
+      ? requestedPanel
+      : selectedApplication
+        ? "documents"
+        : "overview";
   const expandedApplication = Boolean(
     selectedApplication && panel !== "overview",
   );
-  const openPanel = (value: "overview" | "documents" | "activity") => {
+  const openPanel = (value: RolePanel) => {
     const next = new URLSearchParams(queryString);
     next.set("panel", value);
-    if (selectedApplication) next.set("application", selectedApplication.id);
     replaceQuery(next);
   };
-  const inspectorOpen = Boolean(selected) || Boolean(requestedApplication);
+  const prepareApplication = async () => {
+    const visit = roleVisit.current;
+    const response = await client.action<
+      Application | { application: Application }
+    >("local-package", { profile_id: profileId, job_id: selectedId });
+    const application =
+      "application" in response ? response.application : response;
+    if (!application?.id || application.job_id !== selectedId)
+      throw new Error("The app could not open the prepared CV.");
+    if (visit === roleVisit.current) {
+      setPreparedVersion({ workspace: workspacePath, application });
+      const next = new URLSearchParams(currentRoute.current.queryString);
+      next.set("application", application.id);
+      next.set("panel", "documents");
+      replaceQuery(next);
+    }
+    void refresh().catch(() => {
+      // The exact version was returned by preparation; workspace refresh can retry.
+    });
+  };
+  const openVersion = (
+    application: Application,
+    nextPanel: RolePanel = "documents",
+  ) => {
+    if (!canLeave()) return;
+    const next = new URLSearchParams(queryString);
+    next.set("application", application.id);
+    next.set("panel", nextPanel);
+    if (applicationView && section !== "agent")
+      next.set(
+        "section",
+        applicationSection(
+          application,
+          latestJobs.get(applicationRoleId(application)),
+        ),
+      );
+    replaceQuery(next);
+  };
+  const recordSubmission = (attempt: SubmissionAttempt) => {
+    const current = new URLSearchParams(currentRoute.current.queryString);
+    const activeJob =
+      current.get("opportunity") ||
+      (current.get("application") === selectedApplication?.id
+        ? selectedId
+        : "");
+    if (activeJob !== attempt.binding.job_id) return;
+    setRecentSubmission(attempt);
+    if (!attempt.document_application_id && attempt.self_apply_request) {
+      current.delete("application");
+      current.set("panel", "overview");
+    } else {
+      current.set(
+        "application",
+        attempt.document_application_id || attempt.application_id,
+      );
+      current.set("panel", "documents");
+    }
+    current.set("opportunity", attempt.binding.job_id);
+    current.set("assessment_profile", profileId);
+    current.set("view", "applications");
+    current.set("section", "submitted");
+    current.delete("status");
+    replaceQuery(current);
+  };
+  const inspectorOpen = Boolean(selected);
   const selectedIndex = navigationRows.findIndex(
     (row) => row.job.id === selectedId,
   );
@@ -496,10 +684,7 @@ export function DiscoverPage() {
       ? currentRanking.error
       : "";
   const boardGroups = JSON.stringify(
-    groups.map(({ id, roles }) => [
-      id,
-      roles.map(({ job }) => job.id),
-    ]),
+    groups.map(({ id, roles }) => [id, roles.map(({ job }) => job.id)]),
   );
   useEffect(() => {
     const intent = triageFocus.current;
@@ -748,6 +933,7 @@ export function DiscoverPage() {
       next.delete("section");
       next.delete("status");
     }
+    if (values.view || values.section) next.delete("agent_offset");
     if (location) next.set("location", location);
     next.delete("destination");
     if (values.section) next.delete("removed");
@@ -765,6 +951,28 @@ export function DiscoverPage() {
   const clearFilters = () => {
     if (updateFilters({ q: "", location: "", status: "" }))
       searchInput.current?.focus({ preventScroll: true });
+  };
+
+  const markForAgent = async (id: string, nextMarked: boolean) => {
+    const intent = await client.action<{ id: string; marked: boolean }>(
+      "agent-queue-mark",
+      { job_id: id, marked: nextMarked },
+    );
+    setMarkedOverrides((old) => ({ ...old, [id]: intent.marked }));
+    if (!intent.marked)
+      setAgentSelection((old) => old.filter((jobId) => jobId !== id));
+    setAgentRevision((value) => value + 1);
+    try {
+      await refresh();
+      setMarkedOverrides((old) => {
+        if (old[id] !== intent.marked) return old;
+        const next = { ...old };
+        delete next[id];
+        return next;
+      });
+    } catch {
+      // The operation succeeded and the resulting intention stays visible.
+    }
   };
 
   const scheduleTriageFocus = (
@@ -1127,35 +1335,33 @@ export function DiscoverPage() {
             role="group"
             aria-label="Application stage"
           >
-            {(
-              [
-                ["active", "Active"],
-                ["submitted", "Submitted"],
-                ["removed", "Removed"],
-              ] as const
-            ).map(([value, label]) => (
-              <button
-                key={value}
-                ref={value === "submitted" ? submittedStage : undefined}
-                type="button"
-                aria-pressed={section === value}
-                onClick={() =>
-                  updateFilters({
-                    section: value,
-                    status: "",
-                  })
-                }
-              >
-                {label}{" "}
-                <span>
-                  {value === "removed"
-                    ? removedRows.length
-                    : applicationJobs[value].size}
-                </span>
-              </button>
-            ))}
+            {applicationStages
+              .filter(([value]) => localJourney || value !== "agent")
+              .map(([value, label]) => (
+                <button
+                  key={value}
+                  ref={value === "submitted" ? submittedStage : undefined}
+                  type="button"
+                  aria-pressed={section === value}
+                  onClick={() =>
+                    updateFilters({
+                      section: value,
+                      status: "",
+                    })
+                  }
+                >
+                  {label}{" "}
+                  <span>
+                    {value === "removed"
+                      ? removedRows.length
+                      : value === "agent"
+                        ? (agentQueue.page?.total ?? pendingForAgent.size)
+                        : applicationJobs[value].size}
+                  </span>
+                </button>
+              ))}
           </div>
-          {!removedView && (
+          {!removedView && !agentView && (
             <Check
               name="history"
               label="Include earlier review queues"
@@ -1166,6 +1372,29 @@ export function DiscoverPage() {
             />
           )}
         </div>
+      )}
+      {agentView && (
+        <AgentQueueTools
+          jobs={chosenForAgent}
+          applicationIds={agentApplications}
+          pending={latestJobs}
+          onNavigate={(id) => setSelectedId(id, false, !inspectorOpen)}
+          onStartBusy={(busy) => {
+            selectionInFlight.current = busy;
+            setStartingAgent(busy);
+          }}
+        />
+      )}
+      {agentView && agentQueue.error && (
+        <div className="discover-request-error" role="alert">
+          <p>{agentQueue.error}</p>
+          <button type="button" onClick={agentQueue.reload}>
+            Retry agent queue
+          </button>
+        </div>
+      )}
+      {agentView && !agentQueue.page && !agentQueue.error && (
+        <p role="status">Loading roles for your agent…</p>
       )}
       {filters.has("application") && !requestedApplication && (
         <div className="discover-request-error" role="status">
@@ -1324,82 +1553,98 @@ export function DiscoverPage() {
           ))}
         </div>
       )}
-      {!loading && !error && !visible.length && !inspectorOpen && (
-        <div className="discover-empty">
-          <Search size={27} />
-          <h2>
-            {hasActiveFilters && scopedRows.length
-              ? applicationView
-                ? "No applications match these filters"
-                : "No roles match these filters"
-              : removedView
-                ? "No removed roles here"
-                : applicationView
-                  ? `No ${section} applications`
-                  : pausedResults
-                    ? "Companies are paused"
-                    : !rows.length
-                    ? "Add your first opportunity"
-                    : view === "saved"
-                      ? "No saved roles here yet"
-                      : "No roles match these filters"}
-          </h2>
-          <p>
-            {hasActiveFilters && scopedRows.length
-              ? "Clear the search and filters to see everything in this view."
-              : removedView
-                ? "Removed roles and their application documents and activity stay recoverable here."
-                : applicationView
-                  ? "Prepare a draft from a role to start an application. Your recorded submissions and decisions stay available in the other stage views."
-                  : pausedResults
-                    ? "Saved roles and application history are still available during the cooldown."
-                    : !rows.length
-                    ? "Import a job URL, paste an advert or refresh a configured source in Search preferences."
-                    : "Adjust your filters or choose All results to inspect the full assessment."}
-          </p>
-          {hasActiveFilters && scopedRows.length ? (
-            <button
-              type="button"
-              className="discover-primary"
-              onClick={clearFilters}
-            >
-              Clear filters
-            </button>
-          ) : !profile && !applicationView ? (
-            <Link className="button discover-primary" href="/search/">
-              Create a search profile
-            </Link>
-          ) : applicationView ? (
-            <button
-              type="button"
-              className="discover-primary"
-              onClick={() => updateFilters({ view: "recommended" })}
-            >
-              Find an opportunity
-            </button>
-          ) : pausedResults ? (
-            <button type="button" onClick={() => updateFilters({ view: "saved" })}>
-              View saved roles
-            </button>
-          ) : !rows.length ? (
-            <Link
-              className="button discover-primary"
-              href="/search/#add-opportunity"
-            >
-              Add opportunities
-            </Link>
-          ) : (
-            <button
-              type="button"
-              onClick={() =>
-                updateFilters({ q: "", location: "", status: "", view: "all" })
-              }
-            >
-              Show all results
-            </button>
-          )}
-        </div>
-      )}
+      {!loading &&
+        !error &&
+        (!agentView || (agentQueue.page && !agentQueue.error)) &&
+        !visible.length &&
+        !inspectorOpen && (
+          <div className="discover-empty">
+            <Search size={27} />
+            <h2>
+              {hasActiveFilters && scopedRows.length
+                ? applicationView
+                  ? "No applications match these filters"
+                  : "No roles match these filters"
+                : removedView
+                  ? "No removed roles here"
+                  : agentView
+                    ? "No roles marked for your agent"
+                    : applicationView
+                      ? `No ${section} applications`
+                      : pausedResults
+                        ? "Companies are paused"
+                        : !rows.length
+                          ? "Add your first opportunity"
+                          : view === "saved"
+                            ? "No saved roles here yet"
+                            : "No roles match these filters"}
+            </h2>
+            <p>
+              {hasActiveFilters && scopedRows.length
+                ? "Clear the search and filters to see everything in this view."
+                : removedView
+                  ? "Removed roles and their application documents and activity stay recoverable here."
+                  : agentView
+                    ? "Mark a role For my agent to add it here."
+                    : applicationView
+                      ? "Prepare a draft from a role to start an application. Your recorded submissions and decisions stay available in the other stage views."
+                      : pausedResults
+                        ? "Saved roles and application history are still available during the cooldown."
+                        : !rows.length
+                          ? "Import a job URL, paste an advert or refresh a configured source in Search preferences."
+                          : "Adjust your filters or choose All results to inspect the full assessment."}
+            </p>
+            {hasActiveFilters && scopedRows.length ? (
+              <button
+                type="button"
+                className="discover-primary"
+                onClick={clearFilters}
+              >
+                Clear filters
+              </button>
+            ) : !profile && !applicationView ? (
+              <Link className="button discover-primary" href="/search/">
+                Create a search profile
+              </Link>
+            ) : applicationView ? (
+              <button
+                type="button"
+                className="discover-primary"
+                onClick={() => updateFilters({ view: "recommended" })}
+              >
+                Find an opportunity
+              </button>
+            ) : pausedResults ? (
+              <button
+                type="button"
+                onClick={() => updateFilters({ view: "saved" })}
+              >
+                View saved roles
+              </button>
+            ) : !rows.length ? (
+              <Link
+                className="button discover-primary"
+                href="/search/#add-opportunity"
+              >
+                Add opportunities
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={() =>
+                  updateFilters({
+                    q: "",
+                    location: "",
+                    status: "",
+                    view: "all",
+                  })
+                }
+              >
+                Show all results
+              </button>
+            )}
+          </div>
+        )}
       {(visible.length > 0 || inspectorOpen) && (
         <div
           ref={inspectorLayout}
@@ -1437,10 +1682,7 @@ export function DiscoverPage() {
                     missing: "",
                   });
                   const location = job.location || job.city;
-                  const metadata = [
-                    location,
-                    job.work_arrangement,
-                  ]
+                  const metadata = [location, job.work_arrangement]
                     .filter(Boolean)
                     .join(" · ");
                   const evidence =
@@ -1470,6 +1712,30 @@ export function DiscoverPage() {
                           {status.label}
                         </span>
                         <div className="discover-card-tools">
+                          {agentView && (
+                            <label className="discover-agent-selection">
+                              <input
+                                type="checkbox"
+                                checked={agentSelection.includes(job.id)}
+                                aria-label={`Select ${job.title} at ${job.employer}`}
+                                disabled={
+                                  startingAgent ||
+                                  (chosenForAgent.length >= 100 &&
+                                    !agentSelection.includes(job.id))
+                                }
+                                onChange={(event) => {
+                                  if (selectionInFlight.current) return;
+                                  const checked = event.currentTarget.checked;
+                                  setAgentSelection((current) =>
+                                    checked
+                                      ? [...new Set([...current, job.id])]
+                                      : current.filter((id) => id !== job.id),
+                                  );
+                                }}
+                              />
+                              Select
+                            </label>
+                          )}
                           {currentRemoval(job) ? (
                             <>
                               <button
@@ -1554,7 +1820,7 @@ export function DiscoverPage() {
                       )}
                       {client.preview && (
                         <OpportunityListingLink
-                          job={job}
+                          url={job.url}
                           className="discover-card-listing"
                           label={`View listing for ${job.title} at ${job.employer}`}
                         >
@@ -1599,25 +1865,116 @@ export function DiscoverPage() {
               </section>
             ))}
           </div>
-          {selected && !expandedApplication && (
+          {selected && (
             <OpportunityInspector
               animateInteractions={animateInteractions}
               motionRevision={motionRevision}
               row={selected}
               application={selectedApplication}
+              panel={panel}
               onOpenPanel={openPanel}
+              intentAction={
+                localJourney &&
+                hasListingRecord &&
+                !submitted &&
+                !selected.job.company?.submitted_vacancy &&
+                !currentRemoval(selected.job) && (
+                  <Action
+                    className="secondary agent-intent-button"
+                    aria-pressed={marked.has(selected.job.id)}
+                    keepContentWhileBusy
+                    run={async () =>
+                      markForAgent(
+                        selected.job.id,
+                        !marked.has(selected.job.id),
+                      )
+                    }
+                  >
+                    <Bot size={16} aria-hidden="true" /> For my agent
+                  </Action>
+                )
+              }
+              agentProgress={
+                localJourney &&
+                hasListingRecord &&
+                !state._workspace.demo && (
+                  <RoleAgentWork
+                    key={selected.job.id}
+                    job={selected.job}
+                    applicationId={selectedApplication?.id}
+                    canStart={
+                      !submitted &&
+                      !selected.job.company?.submitted_vacancy &&
+                      !currentRemoval(selected.job) &&
+                      Boolean(profileId)
+                    }
+                  />
+                )
+              }
+              submissionRecord={
+                submitted &&
+                panel !== "files" && (
+                  <SubmissionRecord
+                    key={selected.job.id}
+                    job={selected.job}
+                    application={selectedApplication}
+                    active
+                    recent={submission}
+                  />
+                )
+              }
+              applicationContent={
+                selectedApplication && (
+                  <>
+                    {(panel === "activity" || panel === "files") && (
+                      <ApplicationVersions
+                        application={selectedApplication}
+                        onSelect={(app) => openVersion(app, panel)}
+                      />
+                    )}
+                    <OpportunityApplication
+                      application={selectedApplication}
+                      job={selected.job}
+                      tab={panel}
+                      nextAction={
+                        localJourney &&
+                        hasListingRecord &&
+                        !state._workspace.demo &&
+                        selectedDraft ? (
+                          <CompanySubmission
+                            key={selectedApplication.id}
+                            app={selectedApplication}
+                            job={selected.job}
+                            visible={panel === "documents"}
+                            canStart={
+                              !submitted &&
+                              !selected.job.company?.submitted_vacancy &&
+                              !currentRemoval(selected.job)
+                            }
+                            onIntegrityIssue={() => openPanel("files")}
+                            onRecord={recordSubmission}
+                          />
+                        ) : undefined
+                      }
+                    />
+                  </>
+                )
+              }
               facts={state.facts}
               timezone={state._workspace.timezone}
               mobile={mobile}
               position={Math.max(0, selectedIndex)}
               count={selectedIndex < 0 ? 1 : visible.length}
-              rankingCurrent={!loading && !error}
+              rankingCurrent={!loading && !error && assessmentAvailable}
               assessmentAvailable={assessmentAvailable}
               hasListingRecord={hasListingRecord}
               companyReview={
-                hasListingRecord && state._workspace.snapshot && !client.preview && !client.hosted
-                  ? <CompanyReview key={selected.job.id} job={selected.job} />
-                  : undefined
+                hasListingRecord &&
+                state._workspace.snapshot &&
+                !client.preview &&
+                !client.hosted ? (
+                  <CompanyReview job={selected.job} />
+                ) : undefined
               }
               onAddEvidence={
                 hasListingRecord && !client.preview
@@ -1645,13 +2002,7 @@ export function DiscoverPage() {
               onSave={async (button) =>
                 saveJob(selected.job.id, !selected.job.saved, button)
               }
-              onPrepare={async () => {
-                await run(
-                  "local-package",
-                  { profile_id: profileId, job_id: selected.job.id },
-                  "A new draft is ready for document review.",
-                );
-              }}
+              onPrepare={prepareApplication}
               onRemove={() => removeJob(selected.job)}
               onRestore={() => restoreJob(selected.job)}
               removalFeedback={removalNotice}
@@ -1659,55 +2010,48 @@ export function DiscoverPage() {
               reasonEditorId={removal.editor?.removalId}
             />
           )}
-          {selectedApplication && (
-            <OpportunityWorkbench
-              removalFeedback={
-                <>
-                  {removalNotice}
-                  {removalEditor}
-                </>
-              }
-              application={selectedApplication}
-              job={
-                latestJobs.get(applicationRoleId(selectedApplication)) || {
-                  title: selectedApplication.title,
-                  employer: selectedApplication.employer,
-                }
-              }
-              panel={panel}
-              overviewAvailable={Boolean(selected)}
-              mobile={mobile}
-              onPanel={openPanel}
-              onRemove={() =>
-                removeJob(
-                  latestJobs.get(applicationRoleId(selectedApplication))!,
-                )
-              }
-              onRestore={() =>
-                restoreJob(
-                  latestJobs.get(applicationRoleId(selectedApplication))!,
-                )
-              }
-              onVersion={(application) => {
-                if (!canLeave()) return;
-                const next = new URLSearchParams(queryString);
-                next.set("application", application.id);
-                next.set("panel", panel);
-                if (applicationView)
-                  next.set(
-                    "section",
-                    applicationSection(
-                      application,
-                      latestJobs.get(applicationRoleId(application)),
-                    ),
-                  );
-                replaceQuery(next);
-              }}
-              onClose={closeInspector}
-            />
-          )}
         </div>
       )}
+      {agentView &&
+        agentQueue.page &&
+        (agentOffset > 0 || agentQueue.page.next_offset !== null) && (
+          <div
+            className="actions agent-queue-pagination"
+            role="group"
+            aria-label="Agent queue pages"
+          >
+            <button
+              type="button"
+              className="secondary"
+              disabled={!agentOffset}
+              onClick={() =>
+                updateFilters({
+                  agent_offset: String(Math.max(0, agentOffset - 50)),
+                })
+              }
+            >
+              Previous page
+            </button>
+            <span>
+              {agentQueue.page.rows.length
+                ? `${agentOffset + 1}–${agentOffset + agentQueue.page.rows.length}`
+                : "0"}{" "}
+              of {agentQueue.page.total}
+            </span>
+            <button
+              type="button"
+              className="secondary"
+              disabled={agentQueue.page.next_offset === null}
+              onClick={() =>
+                updateFilters({
+                  agent_offset: String(agentQueue.page?.next_offset ?? ""),
+                })
+              }
+            >
+              Next page
+            </button>
+          </div>
+        )}
       {applicationView &&
         section === "submitted" &&
         Boolean(state.historical_decisions?.length) && (

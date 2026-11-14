@@ -1,22 +1,26 @@
-# Apply For Me — local preview
+# Connected applications
 
-This feature is in the source working tree, not the published 0.6 release. It runs locally on macOS. The hosted pilot cannot execute these operations. No employer application was sent during development.
+The connected application agent runs in the local SQLite app. The role workspace shows **Apply for me** when it detects a ChatGPT-signed-in Codex runtime and an available channel for that role. **For my agent** saves a role for later. You can select saved roles to start together or copy their context to an external agent.
 
-## What works
+## Starting and returning to a run
 
-Open Applications → **Apply For Me** for an intact application version. Use its job-specific résumé or select **Tailor a new version with Codex**. Codex receives the confirmed facts and job description only after the displayed consent; the existing validator rejects invented fact IDs. It creates a new version, preserving the original.
+Starting authorizes preparing, disclosing the required information and documents, and submitting for the selected roles. The local app verifies the hiring employer, live company allowance, destination and selected version. It prepares a version from confirmed facts if one is needed. The runtime uses the existing ChatGPT usage allowance for GPT‑6.1 Sol at Max and receives the selected role title, employer and channel types. The local app retains control of the destination, contact information, exact document bytes and submission evidence.
 
-Every application requires this listing's custom résumé **and cover letter** from the same preserved version. Gmail attaches both PDFs automatically; enter the recipient, subject and message. No Cc/Bcc recipients are added. For LinkedIn, use an exact `https://www.linkedin.com/jobs/view/JOB_ID/` URL and the dedicated visible Chrome session. Complete signup/sign-in, verification, consents and unknown answers yourself. Preparation can upload both custom documents after the explicit disclosure confirmation; the final send/submit requires a second, exact review. If the form has no identifiable cover-letter upload, preparation pauses instead of silently omitting it. Attempts prepared before this requirement must be cancelled and prepared again.
+Role instructions determine the allowed channels. Otherwise, the agent tries the verified website, then Telegram, then recruitment email. A confirmed outcome finishes the run. A verified unavailable channel can advance to the next available channel. Sign-in, verification, unsupported forms and missing answers appear as **Needs your help**. Any unresolved outcome after possible disclosure requires checking the channel before further attempts.
 
-The review shows the résumé PDF and hash, destination, sending identity or site review, and answers. **Send application** or **Submit application** executes once. The private journal links job ID, immutable application version, document path/hash, payload fingerprint, approval time and receipt. Submitted records remain distinct from an employer accepting your application.
+You can close the tab while the local app and computer are running. Open the role or the agent queue to check progress, answer a question or choose **Stop**. A Stop request interrupts pending work. If a send was already underway, wait for the returned outcome and reconcile it where required. After a restart, the app offers **Resume** only at a checkpoint known to precede disclosure. Start authority expires after 24 hours and belongs to the originating workspace and path. A restored copy retains the audit trail and needs a new start. The app records verified channel evidence first and links it to the submitted version. If the second step fails, **Record receipt** completes the local record using the existing evidence.
 
-A changed résumé, job, evidence, account or form requires another review. An ambiguous send remains **outcome unknown** and blocks retries for that job. Verify Gmail Sent or the site's confirmation and record the evidence before resolving it. Cancellation does not recall a message already being sent. Submission details remain available on the Submitted queue. A manual Submitted record without an automatic receipt is labelled accordingly.
+## Channel support
 
-**Record submission…** records something you already submitted yourself, after you confirm where or how. If that manual record was a mistake, **Correct submission record…** requires a reason and explicit confirmation. It creates a recovered draft referencing the same verified documents and retains the original Submitted snapshot, timestamps and correction history. It does not recall or undo a real submission. Active, uncertain, confirmed or unreadable delivery evidence blocks correction; separate earlier submission decisions remain authoritative.
+- Website uses isolated Chrome to inspect bounded, same-endpoint HTML forms reached over verified public HTTPS. It supports labelled fields and exact CV and cover-letter uploads through compatible forms. Sites that require JavaScript, login, verification, a separate vacancy selector or another submission endpoint need the user to continue on the site.
+- Telegram requires a scoped personal connection. The current runtime reports that connection as unavailable. Controlled tests prove channel order, recipient checks, exact attachments and receipt handling through a recording adapter.
+- Email uses the app’s Gmail connection with the verified sender, recipient and both application PDFs. A Gmail message identifier establishes provider acceptance. Recipient delivery and employer acceptance are separate outcomes.
+
+For self-apply, choose **Open application site** from the CV and use **I've applied** to record the actual time, channel and evidence after returning. The listing link remains available separately. When a manual record was entered by mistake, **Correct submission record…** preserves its original snapshot and creates a recovered draft with the same verified documents.
 
 ## Install the optional local connections
 
-Keep your existing pinned installation and private workspace unchanged while evaluating the preview. Build the source in a separate environment, using a disposable workspace first:
+Keep your existing installation available while testing the new version. Build the source in a separate environment, using a disposable workspace first:
 
 ```sh
 cd /path/to/employment-agency
@@ -28,11 +32,11 @@ npm --prefix frontend run build
 .venv-apply/bin/python -m employment_agency --workspace /path/to/new-disposable-workspace serve
 ```
 
-Build the frontend before installing a wheel/source distribution if the checkout has no exported assets yet; see the normal contributor instructions. Google Chrome and a ChatGPT-signed-in Codex CLI must be installed separately for the corresponding connections. Codex selection consumes that account’s existing usage allowance; the preview rejects API-key sign-in and does not enable a separate paid API service. The normal app does not require the optional connections. `apply-doctor` reports dependency/sign-in presence, not live mail/site success. This feature does not install a recurring background task or schedule applications.
+Build the frontend before installing a wheel/source distribution if the checkout has no exported assets yet. Google Chrome and Codex CLI are separate local dependencies. The isolated worker uses the CLI’s existing file-based ChatGPT login. It supports Codex build `0.167.0-alpha.4.1`, whose experimental tool interface the fixture verified. Other builds stay unavailable until their tool boundary is verified. `apply-doctor` reports dependency and sign-in presence. The role’s capability check also verifies the isolated protocol and local channel readiness. [Contributor instructions](../CONTRIBUTING.md)
 
 ## Connect Gmail
 
-Create a Google Cloud **Desktop app** OAuth client, enable the Gmail API, configure the consent screen/test user where required, and download the client JSON outside the career workspace. Google app publishing/verification requirements depend on your OAuth deployment. Choose **Connect Gmail** in the application dialog and select that file, or run:
+Create a Google Cloud **Desktop app** OAuth client, enable the Gmail API, configure the consent screen and any test users, and download the client JSON outside the career workspace. Connect the app using that file.
 
 ```sh
 .venv-apply/bin/python -m employment_agency connect-gmail /absolute/path/to/google-desktop-client.json
@@ -48,13 +52,9 @@ Disconnect this app's local credentials:
 
 You can also revoke the grant in your Google account. Never paste tokens, client secrets or cookies into an issue/chat. A configured Gmail connector in Codex/ChatGPT is separate from this app's connection; the app cannot inherit this chat's tools or OAuth permissions.
 
-## LinkedIn limitations
+## Previous application attempts
 
-The adapter is experimental and verified against controlled Easy Apply-like forms, **not a live authenticated LinkedIn application**. It uses ordinary visible browser controls and supported labels/steps, not private endpoints or anti-detection techniques. LinkedIn prohibits unauthorized automation and may restrict it; a visible browser does not remove that restriction. There is no approved LinkedIn talent API integration established for this app.
-
-Unknown forms, external redirects, denied access, verification and ambiguous document selection pause for assistance. Upload controls must identify a résumé/CV or cover letter; unsupported controls are not guessed. The adapter verifies both browser-file SHA-256 values when uploading, checks the final filenames/selections, compares the complete captured form review before clicking Submit, and waits for a site confirmation. It does not claim that LinkedIn or an employer verified the local hashes. A real-form feasibility check with an explicitly selected listing and user-managed session is still needed before relying on it.
-
-The dedicated browser profile is under the machine's application configuration directory (`apply/browser`), outside portable workspace data. Workspaces never carry browser sessions. Close/cancel the active workflow before switching workspace. A restart does not replay a send; interrupted execution becomes unknown, and browser work must be resumed and reviewed again.
+Previous Gmail and LinkedIn attempts remain in the role’s **Activity**. Their original `apply-*` operations retain explicit fingerprint approval for the final send and the previous uncertain-outcome reconciliation rules. Older browser sessions use the machine’s application configuration directory at `apply/browser`. The connected journey uses its own start authorization. [Authorization decision](adr/0016-authorize-role-submission-when-starting-agent.md)
 
 ## Verification
 
@@ -64,7 +64,7 @@ With the optional dependencies installed, run all controlled connection, browser
 .venv/bin/python tests/run_apply_checks.py
 ```
 
-Use `.venv-apply/bin/python` instead if you installed the preview in the separate environment above. The frontend dependencies and Chrome must also be present. The runner creates and removes disposable workspaces automatically.
+Use `.venv-apply/bin/python` instead if you installed the optional connections in the separate environment above. The frontend dependencies and Chrome must also be present. The runner creates and removes disposable workspaces automatically.
 
 ```sh
 .venv/bin/python -m unittest discover -s tests -p test_application_delivery.py -v
@@ -85,6 +85,11 @@ Then:
 TEST_URL=http://127.0.0.1:8780 node tests/apply-browser.cjs
 ```
 
-The fixture refuses to use a real workspace and records MIME attachments without sending mail. Evidence is written under `output/playwright/apply/`. Existing full regression, frontend and installed-wheel checks remain required.
+The fixture creates fictional versions, records MIME bytes and checks receipts in the role’s Activity. To exercise the connected protocol, channels and authorization separately, use the focused verification commands.
 
-See [implementation evidence](../tasks/apply-for-me/verification.md) for the observed results and remaining live-integration gates.
+```sh
+.venv-apply/bin/python -m unittest discover -s tests -p 'test_agent_*.py' -v
+.venv-apply/bin/python tests/check_connected_agent.py
+```
+
+The second command uses the installed signed-in Codex runtime and Chrome against a disposable loopback form. It consumes the existing ChatGPT allowance for two fictional turns, verifies the restricted tool registry, records the exact documents and tests Stop. All application traffic stays in the fixture. [Connected journey evidence](../tasks/application-journey/verification.md)

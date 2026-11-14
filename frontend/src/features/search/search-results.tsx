@@ -6,7 +6,7 @@ import { useDraft } from "@/components/unsaved";
 import { useWorkspace } from "@/components/workspace-provider";
 import { requirementEvidence } from "@/features/discover/discovery";
 import { downloadJson } from "@/lib/api";
-import { OpportunityListingLink } from "@/features/discover/opportunity-source-preview";
+import { OpportunityListingLink } from "@/features/discover/opportunity-listing-link";
 import { advertisedSalary } from "@/lib/format";
 import type { Fact, Job, RankedJob } from "@/lib/models";
 import { RunForm } from "./runs";
@@ -246,7 +246,7 @@ export function SearchResults() {
             <p>Missing evidence: {match.gaps.join("; ")}</p>
           )}
           <SearchMatchDetails job={job} match={match} facts={state.facts} />
-          <OpportunityListingLink job={job}>
+          <OpportunityListingLink url={job.url}>
             Original listing
           </OpportunityListingLink>
           <div className="actions">

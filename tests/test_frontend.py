@@ -39,41 +39,19 @@ class FrontendHttpContracts(unittest.TestCase):
         self.thread.start()
         self.url = 'http://127.0.0.1:' + str(self.http.server_port)
 
-    def test_listing_frame_policy_is_scoped_and_rejects_local_or_injected_hosts(self):
+    def test_retired_listing_preview_no_longer_serves_a_frame(self):
         self.start()
-        path = '/api/listing-preview-frame'
-        for host in ('127.0.0.1', '[::1]', 'test.local', 'device.a.ts.net',
-                     'preview.example.com%3B%20default-src', 'preview.example.com&host=other.example.com'):
-            with self.subTest(host=host):
-                with self.assertRaises(urllib.error.HTTPError) as error:
-                    urllib.request.urlopen(self.url + path + '?host=' + host)
-                self.assertEqual(error.exception.code, 400)
-                self.assertIn("frame-ancestors 'none'", error.exception.headers['Content-Security-Policy'])
-                error.exception.close()
-
-        with urllib.request.urlopen(self.url + path + '?host=preview.example.com') as response:
-            html = response.read().decode()
-            policy = response.headers.get_all('Content-Security-Policy')
-            self.assertEqual(len(policy), 1)
-            self.assertIn('frame-src https://preview.example.com;', policy[0])
-            self.assertIn("frame-ancestors 'self'", policy[0])
-            self.assertEqual(response.headers['X-Frame-Options'], 'SAMEORIGIN')
-            self.assertEqual(response.headers['Referrer-Policy'], 'no-referrer')
-            self.assertIn('sandbox referrerpolicy="no-referrer"', html)
-            self.assertIn('window.parent === window', html)
-
-        with urllib.request.urlopen(self.url + '/api/runtime') as response:
+        path = '/api/listing-preview-frame?host=preview.example.com'
+        with self.assertRaises(urllib.error.HTTPError) as error:
+            urllib.request.urlopen(self.url + path)
+        with error.exception as response:
+            self.assertEqual(response.code, 404)
             self.assertIn("frame-src 'self' blob:; frame-ancestors 'none'", response.headers['Content-Security-Policy'])
 
-    def test_hosted_listing_frame_has_the_same_restricted_policy(self):
-        client = app.test_client()
-        response = client.get('/api/listing-preview-frame?host=preview.example.com')
-        self.assertEqual(response.status_code, 200)
-        policy = response.headers.get_all('Content-Security-Policy')
-        self.assertEqual(len(policy), 1)
-        self.assertIn('frame-src https://preview.example.com;', policy[0])
-        self.assertIn("frame-ancestors 'self'", policy[0])
-        self.assertEqual(client.get('/api/listing-preview-frame?host=foo.internal').status_code, 400)
+        with patch('employment_agency.hosted.config', return_value={}), patch.dict('os.environ', {'EA_PILOT_ENABLED': 'true'}):
+            response = app.test_client().get(path)
+        self.assertEqual(response.status_code, 405)
+        self.assertIn("frame-src 'self' blob:; frame-ancestors 'none'", response.headers['Content-Security-Policy'])
 
     def test_parallel_frontend_asset_burst_returns_complete_files(self):
         self.start()

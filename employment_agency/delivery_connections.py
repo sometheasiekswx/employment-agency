@@ -68,7 +68,7 @@ class Gmail:
         store.set_password(self.service, self.user, json.dumps({'email': account['email'], 'credentials': json.loads(credentials.to_json())}))
         return {'connected': True, 'email': account['email']}
 
-    def send(self, raw):
+    def send(self, raw, *, before_send=None):
         from email.parser import BytesParser
         from email import policy
         stored = self.stored()
@@ -83,12 +83,24 @@ class Gmail:
         request = urllib.request.Request('https://gmail.googleapis.com/gmail/v1/users/me/messages/send',
             data=json.dumps({'raw': base64.urlsafe_b64encode(raw).decode()}).encode(),
             headers={'Authorization': 'Bearer ' + credentials.token, 'Content-Type': 'application/json'}, method='POST')
+        if before_send:
+            before_send()
         with urllib.request.urlopen(request, timeout=30) as response:
             result = json.load(response)
         if not result.get('id'):
             raise ValueError('Gmail did not return a message identifier')
         return {'provider': 'gmail', 'message_id': result['id'], 'thread_id': result.get('threadId', ''),
                 'meaning': 'Gmail accepted the message; recipient delivery is not established'}
+
+
+class Telegram:
+    """The local app currently has no authorized personal Telegram session."""
+
+    def readiness(self):
+        return {'available': False, 'reason': 'The local app has no scoped Telegram user connection.'}
+
+    def sender(self):
+        raise ValueError(self.readiness()['reason'])
 
 
 def codex_select(handoff):

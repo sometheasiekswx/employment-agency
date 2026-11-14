@@ -22,10 +22,11 @@ async function prepare(page, role) {
   await page.getByRole("button", { name: role, exact: true }).click();
   const inspector = page.locator(".discover-inspector");
   await inspector
-    .getByRole("button", { name: "Prepare draft", exact: true })
+    .getByRole("button", { name: "Prepare application", exact: true })
     .click();
+  await inspector.getByRole("region", { name: "CV", exact: true }).waitFor();
   await inspector
-    .getByRole("link", { name: "Review documents", exact: true })
+    .getByRole("button", { name: "Edit CV", exact: true })
     .click();
   return page.getByRole("region", { name: "Edit demo draft" });
 }
@@ -184,7 +185,7 @@ async function documents(page, snapshot) {
     false,
   );
   await page
-    .getByRole("button", { name: "Close application workspace" })
+    .getByRole("button", { name: "Close opportunity details" })
     .click();
   await page.getByRole("button", { name: "Applications", exact: true }).click();
   const active =
@@ -328,7 +329,7 @@ async function main() {
     const titleLink = inspector.getByRole("link", { name: "Feed Test Engineer" });
     await followSourceInNewTab(titleLink, advertUrl, "Live job advert");
     await followSourceInNewTab(
-      inspector.getByRole("link", { name: "View advert", exact: true }),
+      inspector.getByRole("link", { name: "View job listing", exact: true }),
       advertUrl,
       "Live job advert",
     );

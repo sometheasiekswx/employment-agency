@@ -88,6 +88,7 @@ class Discovery:
                 targets.setdefault(target["key"], target)
             if len(targets) > MAX_INPUTS:
                 raise ValueError(f"Choose at most {MAX_INPUTS} feeds and URLs per search")
+            paused = self.service.action("company-avoid", {})["companies"] if self.service.w.database else []
             result = {
                 "id": uid(), "status": "running", "started_at": now(), "elapsed_seconds": 0,
                 "early_results": False, "profile_id": profile_id, "sources": [], "pages": [],
@@ -103,7 +104,7 @@ class Discovery:
                     row["last_verified_at"] = source.get("checked_at")
                 result["sources"].append(row)
             self.thread = threading.Thread(
-                target=self.run, args=(started, list(targets.values()), fetch), daemon=True,
+                target=self.run, args=(started, list(targets.values()), fetch, paused), daemon=True,
             )
             self.thread.start()
             return copy.deepcopy(result)
@@ -141,7 +142,7 @@ class Discovery:
             if row["status"] in ("queued", "fetching"):
                 row.update(status=status, note=reason)
 
-    def run(self, started, targets, fetch):
+    def run(self, started, targets, fetch, paused):
         jobs = queue.Queue()
         completed = queue.Queue()
         known = {target["key"] for target in targets}
@@ -154,6 +155,8 @@ class Discovery:
         per_host = {}
         queued = []
         try:
+            paused_names = {companies.name_key(name) for company in paused
+                            for name in (company["name"], *company["aliases"])}
             with self.lock:
                 for _ in range(MAX_WORKERS):
                     worker = threading.Thread(
@@ -195,7 +198,7 @@ class Discovery:
                             if source := matching_source(state, target):
                                 target["source_id"] = source["id"]
                                 row["last_verified_at"] = source.get("checked_at")
-                        if note := source_skip_reason(state, target):
+                        if note := source_skip_reason(state, target, paused_names):
                             row.update(status="skipped", note=note)
                         else:
                             row["status"] = "fetching"
@@ -221,10 +224,12 @@ class Discovery:
                     row = outcomes[target["key"]]
                     next_targets = self.accept(target, payload, row, imported, new_jobs, fetch.deadline)
                     for child in next_targets:
-                        if followed >= MAX_FOLLOWED:
-                            break
                         if child["key"] in known:
                             continue
+                        if followed >= MAX_FOLLOWED:
+                            if row["status"] == "retrieved":
+                                row.update(status="partial", note="Related links reached the search limit")
+                            break
                         known.add(child["key"])
                         followed += 1
                         child_row = outcome_for(child)
@@ -268,6 +273,8 @@ class Discovery:
             self.result["pages"].append({key: page[key] for key in ("url", "title", "text", "links")})
             if not fetched_jobs and page["text"] and public_pages.job_hint(page["url"], page["title"]):
                 self.add_lead(page)
+            for lead in page.get("leads", []):
+                self.add_lead(lead)
         capacity = max(0, min(MAX_SOURCE_IMPORT, MAX_RUN_IMPORT - len(imported)))
         full_board = target.get("kind") in job_feeds.EMPLOYER_BOARDS
         valid, leads = [], []
@@ -325,12 +332,21 @@ class Discovery:
         for job in leads:
             self.add_lead(job)
         next_targets.extend(detail_target(job) for job in leads[:MAX_FEED_DETAILS])
-        if page and not valid and target.get("depth", 0) < 2:
+        vacancies = page.get("vacancies", {}) if page else {}
+        if page and (vacancies or not valid) and target.get("depth", 0) < 2:
             links = [link for link in page["links"] if public_pages.allowed_link(link["url"], page["url"])
                      and public_pages.job_link(link["url"], link["title"])]
-            links.sort(key=lambda link: public_pages.label(link["title"]).casefold() in public_pages.NAVIGATION)
-            next_targets.extend(page_target(link["url"], depth=target.get("depth", 0) + 1)
-                                for link in links[:MAX_PER_PAGE])
+            if vacancies:
+                links = [link for link in links if link["url"] in vacancies]
+            else:
+                links.sort(key=lambda link: public_pages.label(link["title"]).casefold() in public_pages.NAVIGATION)
+                links = links[:MAX_PER_PAGE]
+            for link in links:
+                child = page_target(link["url"], depth=target.get("depth", 0) + 1)
+                if link["url"] in vacancies:
+                    child["vacancy"] = vacancies[link["url"]]
+                    child["label"] = child["vacancy"]["title"]
+                next_targets.append(child)
         return next_targets
 
     def add_lead(self, job):
@@ -379,7 +395,7 @@ def matching_source(state, target):
                  if (source["kind"], source["board"]) == target["key"]), None)
 
 
-def source_skip_reason(state, target):
+def source_skip_reason(state, target, paused_names):
     if source_id := target.get("source_id"):
         if companies.source_cooldown(state, source_id):
             return "Company is paused"
@@ -391,6 +407,10 @@ def source_skip_reason(state, target):
     url = target.get("url")
     if url and any(url in (job.get("url"), job.get("careers_url"))
                    and companies.discovery_status(state, job)["cooling"] for job in state["jobs"]):
+        return "Company is paused"
+    name = target.get("vacancy", {}).get("employer")
+    if name and (companies.name_key(name) in paused_names
+                 or companies.discovery_status(state, {"id": "", "employer": name})["cooling"]):
         return "Company is paused"
     return None
 
@@ -408,7 +428,10 @@ def fetch_worker(work, completed, fetch):
             elif "detail" in target:
                 outcome = ("feed", [fetch.enrich(target["detail"])], None)
             else:
-                method, page = fetch.page(target["url"], allow_firecrawl=target.get("firecrawl", False))
+                options = {"allow_firecrawl": target.get("firecrawl", False)}
+                if "vacancy" in target:
+                    options["vacancy"] = target["vacancy"]
+                method, page = fetch.page(target["url"], **options)
                 outcome = (method, page["jobs"], page)
         except (*FETCH_FAILURES, KeyError, TypeError, AttributeError, RecursionError) as exc:
             outcome = exc
@@ -424,6 +447,7 @@ def rank_results(state, profile, imported, new_jobs):
     application_ids = {app.get("job_id") for app in state["applications"]}
     rejected = legacy_rejections(state)
     links = {link["id"]: link for link in state.get("employer_links", [])}
+    employers = {row["id"]: row for row in state.get("employers", [])}
     excluded_vacancies = {links[key]["vacancy_id"] for key in submitted | application_ids if key in links}
     requisitions = {
         (job.get("source"), job["vacancy_requisition"])
@@ -453,6 +477,11 @@ def rank_results(state, profile, imported, new_jobs):
             keys.add(("requisition", job.get("source"), job["vacancy_requisition"]))
         if not seen.intersection(keys) and not row["match"]["hard_conflicts"]:
             seen.update(keys)
+            if "company_rounds" in state or links:
+                link = links.get(job["id"])
+                employer = employers.get(link["employer_id"]) if link else None
+                verified = bool(employer and not companies.employer_evidence_conflict(job, employer))
+                row = {**row, "job": {**job, "hiring_employer_verified": verified}}
             ranked.append({**row, "new_to_workspace": job["id"] in new_jobs})
         if len(ranked) == 40:
             break

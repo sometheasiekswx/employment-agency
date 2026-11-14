@@ -121,9 +121,7 @@ const { showPanel, workbench } = require("./browser-applications.cjs");
       };
       page.on("dialog", rejectUnexpectedPrompt);
       try {
-        await workbench(page)
-          .getByRole("button", { name: "Documents", exact: true })
-          .click();
+        await workbench(page).getByRole("button", { name: "CV", exact: true }).click();
         assert.deepEqual(
           unexpectedPrompts,
           [],
@@ -208,6 +206,7 @@ const { showPanel, workbench } = require("./browser-applications.cjs");
       const recoveredCard = page.locator(
         `[data-application-id="${recoveredId}"]`,
       );
+      await showPanel(page, "files");
       await recoveredCard.locator(".application-context > summary").click();
       await recoveredCard
         .getByText("Original submission record and correction", { exact: true })

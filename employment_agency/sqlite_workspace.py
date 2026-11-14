@@ -10,11 +10,12 @@ import sqlite3
 
 from .store import atomic, digest
 from .workspaces import inside, settings, time_zone
+from .application_queue import QUEUE_SECTIONS
 
 DATABASE = 'workspace.sqlite3'
 SNAPSHOT_SCHEMA = 3
 STORAGE = 'sqlite'
-DATABASE_VERSION = 5
+DATABASE_VERSION = 6
 MANIFEST = 'state.json'
 SNAPSHOT_FOLDER = 'state'
 IGNORE = '/workspace.sqlite3*'
@@ -253,6 +254,9 @@ class SQLiteState:
             if version in (3, 4):
                 self.migrate_employer_submissions()
                 version = 5
+            if version == 5:
+                self.migrate_agent_queue()
+                version = 6
             if version != DATABASE_VERSION:
                 raise ValueError('Unsupported workspace database version. Open a compatible build.')
             if self.connection.execute('PRAGMA quick_check').fetchone() != ('ok',):
@@ -319,6 +323,41 @@ class SQLiteState:
                 for row in self.connection.execute(query, params)]
         more = limit is not None and len(rows) > limit
         return {'rows': rows[:limit] if more else rows, 'next_offset': offset + limit if more else None}
+
+    def migrate_agent_queue(self):
+        with self.transaction():
+            self.connection.execute('''
+                CREATE TABLE agent_queue (
+                    role_id TEXT PRIMARY KEY, application_id TEXT, marked_at TEXT NOT NULL
+                )
+            ''')
+            self.connection.execute('CREATE INDEX agent_queue_order ON agent_queue(marked_at DESC, role_id)')
+            if self.connection.execute('SELECT 1 FROM records LIMIT 1').fetchone():
+                state = self.read()
+                self.save_queue(state)
+                self.save_agent_queue(state)
+            self.connection.execute('PRAGMA user_version = 6')
+
+    def save_agent_queue(self, state):
+        from .application_queue import project_agent_queue
+
+        previous = {row[0]: row for row in self.connection.execute(
+            'SELECT role_id, application_id, marked_at FROM agent_queue'
+        )}
+        current = {row[0]: row for row in project_agent_queue(state)}
+        self.connection.executemany('DELETE FROM agent_queue WHERE role_id = ?',
+                                    [(key,) for key in previous.keys() - current.keys()])
+        self.connection.executemany('INSERT OR REPLACE INTO agent_queue VALUES (?, ?, ?)',
+                                    [row for key, row in current.items() if previous.get(key) != row])
+
+    def agent_queue_page(self, *, limit, offset):
+        total = self.connection.execute('SELECT COUNT(*) FROM agent_queue').fetchone()[0]
+        rows = [{'role_id': role, 'application_id': version, 'marked_at': marked}
+                for role, version, marked in self.connection.execute('''
+                    SELECT role_id, application_id, marked_at FROM agent_queue
+                    ORDER BY marked_at DESC, role_id LIMIT ? OFFSET ?
+                ''', (limit, offset))]
+        return {'rows': rows, 'total': total, 'next_offset': offset + limit if offset + limit < total else None}
 
     def migrate_employer_submissions(self):
         from .companies import update_rounds
@@ -426,6 +465,8 @@ class SQLiteState:
         changed_sections = self._save_records(state)
         if changed_sections & EMPLOYER_SUBMISSION_SECTIONS:
             self.save_employer_submissions(state)
+        if changed_sections & (QUEUE_SECTIONS | {'agent_intents', 'employer_links', 'company_rounds'}):
+            self.save_agent_queue(state)
 
     def _save_records(self, state):
         previous = {
@@ -445,10 +486,7 @@ class SQLiteState:
         )
         changed_sections = {section for _, section, _, _ in changed}
         changed_sections.update(previous[path][0] for path in deleted)
-        if changed_sections & {
-            'jobs', 'applications', COMMENTS, 'submission_attempts',
-            'historical_decisions', 'company_history_links', '',
-        }:
+        if changed_sections & QUEUE_SECTIONS:
             self.save_queue(state)
         self.set_meta('revision', int(self.meta('revision')) + 1)
         return changed_sections

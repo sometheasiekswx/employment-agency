@@ -12,6 +12,7 @@ from email.message import Message
 from email.utils import parsedate_to_datetime
 from html.parser import HTMLParser
 from time import monotonic
+from unicodedata import normalize
 from urllib.parse import urljoin, urlsplit
 
 import truststore
@@ -244,23 +245,80 @@ def listing_locations(values):
     return " / ".join(dict.fromkeys(loc for loc in locations if isinstance(loc, str) and loc))
 
 
-def structured_job(j, url):
+def labelled_values(text, labels):
+    pattern = rf"(?im)^[ \t]*(?:{'|'.join(map(re.escape, labels))})[ \t]*:[ \t]*(?:\n[ \t\n]*)?([^\n:]+)$"
+    return list(dict.fromkeys(" ".join(value.split()) for value in re.findall(pattern, text) if value.strip()))
+
+
+def same_label(a, b):
+    def key(value):
+        return "".join(c for c in normalize("NFKC", value).casefold() if c.isalnum())
+
+    return key(a) == key(b)
+
+
+def hiring_employer(title, metadata, advert):
+    def before_separator(value):
+        return re.split(r"\s*\|\s*|\s+[-–—]\s+", value, maxsplit=1)[0]
+
+    def usable(value):
+        if not isinstance(value, str) or not 1 < len(value.strip()) <= 150:
+            return False
+        if value.casefold().strip() in (
+            "unknown", "confidential", "undisclosed", "n/a", "not specified",
+            "company", "hiring company", "confidential company",
+        ):
+            return False
+        return any(c.isalpha() for c in value) and not any(
+            same_label(value, role) for role in (title, before_separator(title))
+        ) and not same_label(before_separator(value), title)
+
+    labels = ("Hiring Employer", "Hiring Company", "Employer Name", "Employer", "Company Name", "Company")
+    named = [value for value in labelled_values(advert, labels) if usable(value)]
+    if usable(metadata):
+        named.append(" ".join(metadata.split()))
+    if named and all(same_label(value, named[0]) for value in named):
+        return named[0]
+    return ""
+
+
+def posting_date(value):
+    value = str(value or "").strip()
+    for form in ("%d-%b-%Y", "%B %d, %Y", "%b %d, %Y", "%d %B %Y"):
+        try:
+            return datetime.strptime(value, form).date().isoformat()
+        except ValueError:
+            continue
+    return value
+
+
+def structured_job(j, url, *, advert=""):
     location = listing_locations(j.get("jobLocation", []))
     remote = j.get("jobLocationType") == "TELECOMMUTE"
     if remote and (areas := listing_locations(j.get("applicantLocationRequirements", []))):
         location = "Remote — " + areas
     organization = j.get("hiringOrganization")
     employer = organization.get("name") if isinstance(organization, dict) else organization
+    title = str(j.get("title") or "")
+    description = str(j.get("description") or "")
+    employer = hiring_employer(title, employer, plain(description) + "\n" + advert)
+    evidence = {}
+    if employer:
+        identifier = j.get('identifier')
+        requisition = identifier.get('value') if isinstance(identifier, dict) else ''
+        evidence = {'name': employer, 'url': url, 'source': 'published-hiring-employer',
+                    'requisition': str(requisition or '')[:200]}
     return normalized(
-        j.get("title") or "",
-        employer or "",
+        title,
+        employer,
         location,
-        j.get("description") or "",
+        description,
         url,
         "JobPosting JSON-LD",
-        closes=str(j.get("validThrough") or ""),
-        posted_at=str(j.get("datePosted") or ""),
+        closes=posting_date(j.get("validThrough")),
+        posted_at=posting_date(j.get("datePosted")),
         work_arrangement="remote" if remote else "unknown",
+        employer_evidence=evidence,
     )
 
 
@@ -271,7 +329,7 @@ def url_job(url):
     for value in parser.values:
         for posting in walk(value):
             job = structured_job(posting, final)
-            if job["title"] and job["description"]:
+            if job["title"] and job["description"] and job["employer"]:
                 return job
     raise SourceError(
         "No supported JobPosting structured data. Paste the advert instead; availability is unverified."

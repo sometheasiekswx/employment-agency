@@ -290,7 +290,7 @@ class Fetch:
         return {"url": destination, "title": str(metadata.get("title") or "")[:300],
                 "text": markdown[:public_pages.TEXT_LIMIT], "links": [], "jobs": []}
 
-    def page(self, url, *, allow_firecrawl=False):
+    def page(self, url, *, allow_firecrawl=False, vacancy=None):
         use_firecrawl = allow_firecrawl and bool(self.firecrawl_key)
         try:
             body, target, headers = self.bytes(url)
@@ -305,10 +305,13 @@ class Fetch:
                 return "firecrawl", self.fallback_page(url)
             except FETCH_FAILURES as fallback_error:
                 raise exc from fallback_error
-        page = public_pages.extract(body, target, headers)
+        # A cross-site redirect may be legitimate, but its contents do not inherit
+        # the original employer's identity.
+        context = vacancy if vacancy and public_pages.same_site(target, url) else None
+        page = public_pages.extract(body, target, headers, vacancy=context, pdf_timeout=min(5, self.ensure_active()))
         if public_pages.challenge_page(page):
             raise sources.SourceError("Source requires a manual access check", status=403)
-        if not (self.force_browser or public_pages.needs_browser(page)):
+        if page.get("format") == "pdf" or not (self.force_browser or public_pages.needs_browser(page)):
             return "http", page
         error = None
         if self.browsers.acquire(timeout=min(2, self.ensure_active())):

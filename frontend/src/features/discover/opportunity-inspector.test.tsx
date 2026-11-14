@@ -88,7 +88,7 @@ beforeEach(() => {
 it("keeps a same-role reselection open when the earlier close finishes late", async () => {
   const props = inspectorProps();
   const view = render(<OpportunityInspector {...props} />);
-  const surface = screen.getByRole("complementary");
+  const surface = screen.getByRole("dialog");
   expect(surface).toHaveStyle({ opacity: "0.82" });
   fireEvent.click(
     screen.getByRole("button", { name: "Close opportunity details" }),
@@ -101,7 +101,7 @@ it("keeps a same-role reselection open when the earlier close finishes late", as
   expect(close.cancel).toHaveBeenCalledOnce();
   await act(async () => close.finish());
   expect(props.onClose).not.toHaveBeenCalled();
-  expect(screen.getAllByRole("complementary")).toHaveLength(1);
+  expect(screen.getAllByRole("dialog")).toHaveLength(1);
 
   await act(async () => animations.at(-1)!.finish());
   expect(surface.style.transform).toBe("");
@@ -187,7 +187,7 @@ it("completes an intended close immediately when keyboard input or reduced motio
     <OpportunityInspector {...props} animateInteractions={false} />,
   );
   expect(close.cancel).toHaveBeenCalledOnce();
-  const surface = screen.getByRole("complementary");
+  const surface = screen.getByRole("dialog");
   expect(surface.style.transform).toBe("");
   expect(surface.style.opacity).toBe("");
   await act(async () => close.finish());
@@ -197,7 +197,7 @@ it("completes an intended close immediately when keyboard input or reduced motio
 it("closes keyboard and native cancellation paths without an exit delay", () => {
   const props = inspectorProps();
   const view = render(<OpportunityInspector {...props} />);
-  fireEvent.keyDown(screen.getByRole("complementary"), { key: "Escape" });
+  fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
   expect(props.onClose).toHaveBeenCalledOnce();
   expect(animations).toHaveLength(1);
 
@@ -487,7 +487,7 @@ it("expands a deliberate short body swipe and sends excess travel into reading b
   ).toHaveAttribute("aria-expanded", "true");
 });
 
-it.each(["Prepare draft", "Save Engineer", "footer padding"])(
+it.each(["Prepare application", "Save Engineer", "footer padding"])(
   "expands a short reading swipe beginning on %s without activating an action",
   (region) => {
     const { dialog, props, point } = touchFixture();
@@ -508,7 +508,7 @@ it.each(["Prepare draft", "Save Engineer", "footer padding"])(
 
 it("continues a footer-origin reading swipe into the content before release", () => {
   const { body, point } = touchFixture();
-  const target = screen.getByRole("button", { name: "Prepare draft" });
+  const target = screen.getByRole("button", { name: "Prepare application" });
   point("pointerdown", 790, 0, target);
   point("pointermove", 320, 300, target);
   expect(body.scrollTop).toBeGreaterThan(100);
@@ -641,7 +641,7 @@ it("does not transfer the previous role's contact scroll into a newly selected r
   const nextBody = dialog.querySelector<HTMLElement>(
     ".discover-inspector-body",
   )!;
-  expect(nextBody).not.toBe(body);
+  expect(nextBody).toBe(body);
   expect(nextBody.scrollTop).toBe(0);
 });
 
@@ -660,7 +660,7 @@ it("retains a paused upward reversal instead of dismissing from its earlier down
 it("retargets a native computed exit matrix to an explicit translation identity", async () => {
   const props = inspectorProps();
   const view = render(<OpportunityInspector {...props} />);
-  const surface = screen.getByRole("complementary");
+  const surface = screen.getByRole("dialog");
   fireEvent.click(
     screen.getByRole("button", { name: "Close opportunity details" }),
     { detail: 1 },

@@ -106,7 +106,7 @@ const fs = require("node:fs");
       );
       await bounds(`${width}px assessment`);
       assert.equal(
-        await page.locator("dialog[open]").count(),
+        await page.locator("dialog:modal").count(),
         width <= 1000 ? 1 : 0,
         `${width}px appropriate review mode`,
       );
@@ -151,7 +151,7 @@ const fs = require("node:fs");
     await page.waitForFunction(
       () =>
         document.querySelector(".discover-layout.has-inspector") &&
-        !document.querySelector("dialog[open]"),
+        !document.querySelector("dialog:modal"),
     );
     await page
       .locator(".discover-inspector")
@@ -185,9 +185,7 @@ const fs = require("node:fs");
         "Principal platform and reliability engineering lead for distributed systems";
     });
     await page.locator(".discover-card-location").evaluate((node) => {
-      node.textContent = "LongLocationNameWithoutWhitespace".repeat(
-        5,
-      );
+      node.textContent = "LongLocationNameWithoutWhitespace".repeat(5);
     });
     await bounds("Long location, role and employer names");
     assert.equal(
@@ -245,7 +243,7 @@ const fs = require("node:fs");
     assert.ok(firstJob, "The original fictional cloud role is available");
     const layoutState = JSON.parse(JSON.stringify(state));
     const companyNames = cities.map((_, index) =>
-      index === 0 ? firstJob.employer : `Fictional Company ${index + 1}`
+      index === 0 ? firstJob.employer : `Fictional Company ${index + 1}`,
     );
     layoutState.jobs = cities.flatMap((city, cityIndex) =>
       Array.from({ length: cityCounts[cityIndex] }, (_, index) => ({

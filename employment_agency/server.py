@@ -3,19 +3,19 @@ from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from socketserver import TCPServer
 from pathlib import Path
 import json
+import hmac
 import secrets
 import mimetypes
 import os
 import re
 import threading
-from urllib.parse import parse_qs, urlsplit, unquote, quote
+from urllib.parse import urlsplit, unquote, quote
 from .store import Workspace, encode, digest
 from .service import Service
 from .workspaces import inside, remember, configure, can_create_workspace
 from .folders import choose_folder
-from .listing_frame import listing_frame
 from .web_assets import asset, script_policy
-from . import packages, history
+from . import company_handoff, packages, history
 
 
 def validate_tailscale_access(origin, user):
@@ -42,6 +42,9 @@ def server(service, port=8766, frontend_origin=None, tailscale_origin=None, tail
     token = secrets.token_urlsafe(32)
     gate = threading.RLock()
     picker = threading.Lock()
+
+    def application_site_proof(attempt_id):
+        return hmac.digest(token.encode(), f'application-site:{attempt_id}'.encode(), 'sha256').hex()
 
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, *args):
@@ -123,20 +126,23 @@ def server(service, port=8766, frontend_origin=None, tailscale_origin=None, tail
                 return self.send(200, encode({'result': service.action('company-avoid', {})}))
             if path == '/api/runtime':
                 return self.send(200, encode({'mode': 'local'}))
-            if path == '/api/listing-preview-frame':
-                hosts = parse_qs(url.query, keep_blank_values=True).get('host', [])
-                try:
-                    html, headers = listing_frame(hosts[0] if len(hosts) == 1 else None)
-                except ValueError:
-                    return self.send(400, encode({'error': 'Invalid website preview host'}))
-                return self.send(200, html.encode(), 'text/html; charset=utf-8', headers)
             if path == '/api/development' and frontend_origin:
                 current = self.server.active_service
                 busy = (picker.locked() or bool(current.worker and current.worker.is_alive())
                         or bool(current.delivery and current.delivery.busy)
+                        or bool(current.agent_execution and current.agent_execution.busy)
                         or bool(current.discovery and current.discovery.busy))
                 return self.send(200, encode({'reload_safe': not busy,
                                               'workspace': str(current.w.path), 'pid': os.getpid()}))
+            if path.startswith('/application-site/'):
+                route = re.fullmatch(r'/application-site/([a-f0-9]{32})/([a-f0-9]{64})', path)
+                if not route or not secrets.compare_digest(route[2], application_site_proof(route[1])):
+                    return self.send(404, b'{}')
+                try:
+                    attempt = company_handoff.continuation(service, route[1])
+                except (ValueError, OSError, KeyError) as exc:
+                    return self.send(409, str(exc).encode(), 'text/plain; charset=utf-8')
+                return self.send(302, b'', headers={'Location': attempt['binding']['destination']})
             if path.startswith('/files/'):
                 parts = path.split('/')
                 app = next((a for a in service.w.read()['applications'] if len(parts) == 4 and a['id'] == parts[2]), None)
@@ -218,11 +224,20 @@ def server(service, port=8766, frontend_origin=None, tailscale_origin=None, tail
         def check_run(self):
             if service.delivery and service.delivery.busy:
                 raise ValueError('Finish or cancel Apply For Me before switching workspaces')
+            if service.agent_execution and service.agent_execution.busy:
+                raise ValueError('Finish or stop the connected application before switching workspaces')
             if service.worker and service.worker.is_alive():
                 raise ValueError('Wait for or cancel the active run before switching workspaces')
 
         def mutate(self, action, data):
             nonlocal service, token
+            if action == 'file':
+                app = next((item for item in service.w.read()['applications'] if item['id'] == data.get('id')), None)
+                if not app:
+                    raise ValueError('Application version not found')
+                f = packages.path_for(service.w.path, app, data.get('name', ''))
+                return self.send(200, f.read_bytes(), mimetypes.guess_type(f.name)[0] or 'application/octet-stream',
+                                 headers={'Content-Disposition': "inline; filename*=UTF-8''" + quote(f.name, safe='')})
             if action in ('workspace-open', 'workspace-create'):
                 self.check_run()
                 target = Path(data['path']).expanduser().resolve()
@@ -249,6 +264,8 @@ def server(service, port=8766, frontend_origin=None, tailscale_origin=None, tail
                         replacement.close()
                         raise
                     previous = service.w
+                    if service.agent_execution:
+                        service.agent_execution.close()
                     if service.discovery:
                         service.discovery.close()
                     service = next_service
@@ -258,6 +275,9 @@ def server(service, port=8766, frontend_origin=None, tailscale_origin=None, tail
                 result = {'path': str(target), 'reload': True}
             else:
                 result = service.action(action, data)
+                if action in ('self-application-start', 'company-submission-continue') and result['status'] == 'handed_off':
+                    attempt_id = result['id']
+                    result = {**result, 'continue_url': f'/application-site/{attempt_id}/{application_site_proof(attempt_id)}'}
             self.send(200, encode({'result': result}))
 
     class Server(ThreadingHTTPServer):
@@ -285,6 +305,8 @@ def server(service, port=8766, frontend_origin=None, tailscale_origin=None, tail
                     service.delivery.commands.join()
             if service.delivery:
                 service.delivery.close()
+            if service.agent_execution:
+                service.agent_execution.close()
             if service.discovery:
                 service.discovery.close()
             if not frontend_origin:

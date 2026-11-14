@@ -4,8 +4,11 @@ import threading
 import time
 import unittest
 from email.message import Message
+from io import BytesIO
 from pathlib import Path
 from unittest.mock import patch
+
+from reportlab.pdfgen.canvas import Canvas
 
 from employment_agency import discovery, job_feeds, public_pages, sources
 from employment_agency.discovery_fetch import Deferred, Fetch
@@ -27,7 +30,89 @@ def job(url, key="", **values):
                               source_requisition=key, **values)
 
 
+def vacancy_pdf(*lines):
+    output = BytesIO()
+    canvas = Canvas(output)
+    text = canvas.beginText(36, 800)
+    for line in lines:
+        text.textLine(line)
+    canvas.drawText(text)
+    canvas.showPage()
+    canvas.save()
+    return output.getvalue()
+
+
 class PublicContentTests(unittest.TestCase):
+    def test_metadata_uses_the_labelled_employer_when_it_repeats_the_role_title(self):
+        url = "https://jobs.example.org/jobs/it-assistant"
+        posting = {
+            "@type": "JobPosting", "title": "IT Assistant | Phnom Penh",
+            "hiringOrganization": {"name": "IT Assistant | Phnom Penh"},
+            "description": "<p>Company:<br>Example Engineering Ltd.</p><p>Support internal applications.</p>",
+            "validThrough": "November 18, 2026",
+        }
+        page = public_pages.html_page(
+            f'<script type="application/ld+json">{json.dumps(posting)}</script>', url,
+        )
+        self.assertEqual(page["jobs"][0]["employer"], "Example Engineering Ltd.")
+        self.assertEqual(page["jobs"][0]["closes"], "2026-11-18")
+
+        posting["description"] = "<p>Support internal applications.</p>"
+        page = public_pages.html_page(
+            f'<script type="application/ld+json">{json.dumps(posting)}</script>'
+            '<main><h1>IT Assistant</h1><p>Support internal applications.</p></main>', url,
+        )
+        self.assertFalse(page["jobs"])
+        self.assertIn("Support internal applications.", page["text"])
+        self.assertEqual(page["leads"][0]["title"], "IT Assistant | Phnom Penh")
+        self.assertEqual(page["leads"][0]["employer"], "")
+
+        posting["hiringOrganization"]["name"] = "Different Employer"
+        posting["description"] = "<p>Hiring employer: Example Engineering Ltd.</p>"
+        page = public_pages.html_page(
+            f'<script type="application/ld+json">{json.dumps(posting)}</script>', url,
+        )
+        self.assertFalse(page["jobs"])
+        self.assertEqual(page["leads"][0]["employer"], "")
+
+    def test_pdf_with_explicit_identity_imports_and_a_scan_is_left_for_review(self):
+        url = "https://careers.example.org/vacancies/view?id=12"
+        data = vacancy_pdf(
+            "Job Description", "Job Title: Application Engineer", "Employer: Example Engineering",
+            "Location: Phnom Penh", "Closing Date: 30-Nov-2026", "Build internal services.",
+            "Requirements:", "- Python", "- SQL", "How to Apply:", "Visit the employer site.",
+        )
+        pdf = response(data, url, "application/octet-stream")
+        page = public_pages.extract(pdf.body, pdf.url, pdf.headers)
+        listing, = page["jobs"]
+        self.assertEqual((listing["title"], listing["employer"], listing["location"], listing["closes"]),
+                         ("Application Engineer", "Example Engineering", "Phnom Penh", "2026-11-30"))
+        self.assertEqual(listing["requirements"], ["Python", "SQL"])
+        self.assertIn("Build internal services.", page["text"])
+
+        empty = response(vacancy_pdf(), url, "application/pdf")
+        unreadable = public_pages.extract(empty.body, empty.url, empty.headers)
+        self.assertFalse(unreadable["jobs"])
+        self.assertIn("text", unreadable["note"].lower())
+        malformed = response(b"%PDF-1.4\ninvalid", url, "application/pdf")
+        with self.assertRaisesRegex(sources.SourceError, "PDF could not be read"):
+            public_pages.extract(malformed.body, malformed.url, malformed.headers)
+
+    def test_a_pdf_without_an_employer_stays_a_lead(self):
+        url = "https://example.org/files/engineer.pdf"
+        pdf = response(vacancy_pdf("Job Title: Engineer", "Build services."), url, "application/pdf")
+        page = public_pages.extract(pdf.body, url, pdf.headers)
+        self.assertFalse(page["jobs"])
+        self.assertEqual(page["leads"][0]["title"], "Engineer")
+
+    def test_repeated_links_keep_the_job_title(self):
+        url = "https://example.org/careers"
+        page = public_pages.html_page(
+            '<main><a href="/careers/engineer">Engineer</a>'
+            '<a href="/careers/engineer">Apply Now</a></main>', url,
+        )
+        self.assertEqual(page["links"], [{"url": url + "/engineer", "title": "Engineer"}])
+
     def test_extracts_explicit_metadata_and_readable_ordinary_content(self):
         posting = {
             "@type": "JobPosting",
@@ -229,6 +314,72 @@ class DiscoveryRunTests(unittest.TestCase):
         self.service = Service(self.workspace)
         self.addCleanup(lambda: self.service.discovery and self.service.discovery.close())
         self.profile = self.service.action("profile", {"name": "Engineering", "roles": ["Engineer"]})
+
+    def test_reads_linked_pdf_with_employer_and_dates_from_the_same_site_vacancy_index(self):
+        index = "https://careers.example.org/"
+        pdf_url = index + "Vacancy/ViewFileVacancy?fid=fixture"
+        index_html = b"""
+        <html><title>E-Recruitment | Vacancies</title><body>
+        <p>Example Bank is a commercial bank. Its head office is in Phnom Penh.</p>
+        <table><thead><tr><th>Job Title</th><th>Location</th>
+        <th>Opening Date</th><th>Closing Date</th></tr></thead>
+        <tbody><tr><td><a href="/Vacancy/ViewFileVacancy?fid=fixture">Platform Engineer</a></td>
+        <td>Head Office</td><td>05-Nov-2026</td><td>30-Nov-2026</td></tr></tbody></table>
+        <div>Copyright &copy; Example Bank | All Rights Reserved.</div></body></html>
+        """
+        pdf = vacancy_pdf("Job Description", "Job Title: Platform Engineer",
+                          "Keep shipping pipelines reliable.", "Requirements:", "- CI/CD")
+        bodies = {
+            index: response(index_html, index),
+            pdf_url: response(pdf, pdf_url, "application/pdf"),
+        }
+
+        def fetch_bytes(_, url):
+            result = bodies[url]
+            return result.body, result.url, result.headers
+
+        with patch.object(Fetch, "bytes", fetch_bytes):
+            self.service.action("discovery-start", {"urls": [index], "profile_id": self.profile["id"]})
+            result = self.service.discovery.wait()
+
+        self.assertEqual(result["status"], "complete")
+        self.assertEqual(result["sources"][1]["status"], "retrieved")
+        listing, = self.workspace.read()["jobs"]
+        self.assertEqual((listing["employer"], listing["title"]), ("Example Bank", "Platform Engineer"))
+        self.assertEqual((listing["location"], listing["posted_at"], listing["closes"]),
+                         ("Head Office, Phnom Penh", "2026-11-05", "2026-11-30"))
+        self.assertEqual((listing["url"], listing["careers_url"]), (pdf_url, index))
+        self.assertEqual(listing["requirements"], ["CI/CD"])
+
+        with patch.object(self.workspace.database, "employers_to_avoid", return_value=[
+            {"name": "Example Banking Ltd.", "aliases": ["Example Bank"]},
+        ]), patch.object(Fetch, "bytes", side_effect=lambda url: fetch_bytes(None, url)) as grab:
+            self.service.action("discovery-start", {"urls": [index]})
+            paused = self.service.discovery.wait()
+        grab.assert_called_once_with(index)
+        self.assertEqual(paused["sources"][1]["status"], "skipped")
+
+    def test_each_discovery_queries_the_current_sqlite_avoid_list_before_fetching(self):
+        url = "https://example.org/careers/engineer"
+        page = {"url": url, "title": "Engineer", "text": "Build services.",
+                "links": [], "jobs": [job(url)]}
+        calls = []
+
+        def lookup():
+            calls.append("avoid")
+            return []
+
+        def fetch(*_, **__):
+            calls.append("fetch")
+            return "http", page
+
+        with patch.object(self.workspace.database, "employers_to_avoid", side_effect=lookup), patch.object(
+            Fetch, "page", side_effect=fetch,
+        ):
+            for _ in range(2):
+                self.service.action("discovery-start", {"urls": [url]})
+                self.assertEqual(self.service.discovery.wait()["status"], "complete")
+        self.assertEqual(calls, ["avoid", "fetch", "avoid", "fetch"])
 
     def test_index_follows_one_result_dedupes_and_leaves_drafts_untouched(self):
         url = "https://example.org/careers"

@@ -146,15 +146,14 @@ const { showPanel } = require("./browser-applications.cjs");
     });
     await assessCloud().click();
     const inspector = page.locator(".discover-inspector");
-    const applicationId = new URL(
-      await inspector
-        .getByRole("link", { name: "Review documents", exact: true })
-        .getAttribute("href"),
-      base,
-    ).searchParams.get("application");
+    const applicationId = snapshot.state.applications.find(
+      (application) => application.title === "Cloud Software Engineer",
+    )?.id;
+    assert.ok(applicationId, "the sample role has a versioned CV");
     await inspector
       .getByRole("heading", { name: "Cloud Software Engineer", exact: true })
       .waitFor();
+    await showPanel(page, "overview");
     const evidence = inspector.getByRole("region", { name: "Career evidence" });
     await evidence.getByText("Kubernetes", { exact: true }).waitFor();
     assert.equal(
@@ -318,7 +317,7 @@ const { showPanel } = require("./browser-applications.cjs");
       .click();
     assert.equal(
       await inspector
-        .getByRole("button", { name: "Prepare draft", exact: true })
+        .getByRole("button", { name: "Prepare application", exact: true })
         .isDisabled(),
       false,
     );
@@ -326,15 +325,11 @@ const { showPanel } = require("./browser-applications.cjs");
       .getByRole("button", { name: "Close opportunity details", exact: true })
       .click();
     await assessCloud().click();
-    await inspector
-      .getByRole("link", { name: "Review documents", exact: true })
-      .click();
+    await showPanel(page, "documents");
     const application = page.locator(
       `[data-application-id="${applicationId}"]`,
     );
-    await application
-      .getByRole("button", { name: "View CV", exact: true })
-      .waitFor();
+    await application.getByRole("region", { name: "CV", exact: true }).waitFor();
     await showPanel(page, "activity");
     assert.equal(
       await application
@@ -348,7 +343,7 @@ const { showPanel } = require("./browser-applications.cjs");
         .isDisabled(),
       true,
     );
-    await showPanel(page, "documents");
+    await showPanel(page, "files");
     const pdfHref = await application
       .getByRole("link", { name: "CV PDF", exact: true })
       .getAttribute("href");
@@ -362,17 +357,13 @@ const { showPanel } = require("./browser-applications.cjs");
         createHash("sha256").update(cv).digest("hex"),
         snapshot.demo_resume.sha256,
       );
-    await application
-      .getByRole("button", { name: "View CV", exact: true })
-      .click();
-    const viewer = page.getByRole("dialog", { name: "CV", exact: true });
+    await showPanel(page, "documents");
+    const viewer = application.getByRole("region", { name: "CV", exact: true });
     await viewer.waitFor();
     await viewer.getByRole("img", { name: /^PDF page 1 of / }).waitFor();
     assert.match(
-      await viewer
-        .locator(".editor-pdf-actions a[download]")
-        .getAttribute("href"),
-      /^blob:/,
+      await viewer.getByRole("link", { name: "Download CV", exact: true }).getAttribute("href"),
+      /^\/demo\/files\/.*\.pdf$/,
     );
     assert.equal(
       await viewer
@@ -383,7 +374,7 @@ const { showPanel } = require("./browser-applications.cjs");
     await page.screenshot({
       path: "output/playwright/public-preview/fictional-document.png",
     });
-    await viewer.getByRole("button", { name: "Close", exact: true }).click();
+    await showPanel(page, "files");
     await application
       .getByText("Supporting files & source evidence", { exact: true })
       .click();

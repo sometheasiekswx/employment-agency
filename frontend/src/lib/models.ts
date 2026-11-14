@@ -61,11 +61,13 @@ interface SubmissionTime {
 }
 
 export interface Job {
+  hiring_employer_verified?: boolean;
   company?: {
     id: string;
     name?: string;
     remaining: number;
     cooling: boolean;
+    submitted_vacancy?: boolean;
     cooldown_until?: string;
     cooldown_time_assumed?: boolean;
   };
@@ -153,7 +155,12 @@ export interface Application {
   comments: ReviewComment[];
 }
 export interface WorkspaceSettings {
-  snapshot?: { status: "current" | "pending" | "conflict"; revision: number; published_revision: number };
+  agent_queue?: boolean;
+  snapshot?: {
+    status: "current" | "pending" | "conflict";
+    revision: number;
+    published_revision: number;
+  };
   company_cooldown_months?: number;
   demo?: boolean;
   path: string;
@@ -206,8 +213,99 @@ export interface ApplicationQueueEntry {
   stage: "active" | "submitted" | "removed" | "saved";
   archived: boolean;
 }
+export interface AgentIntent {
+  id: string;
+  marked: boolean;
+  updated_at: string;
+}
+
+export interface AgentQueuePage {
+  rows: { role_id: string; application_id: string | null; marked_at: string }[];
+  total: number;
+  next_offset: number | null;
+}
+
+export type AgentChannel = "website" | "telegram" | "email";
+export interface AgentCapabilities {
+  available: boolean;
+  reason: string;
+  channels: Record<AgentChannel, { available: boolean; reason: string }>;
+  roles?: { job_id: string; available: boolean; reason: string }[];
+}
+
+export interface AgentRun {
+  id: string;
+  job_id: string;
+  application_id?: string;
+  document_application_id?: string | null;
+  status:
+    | "queued"
+    | "preparing"
+    | "applying"
+    | "needs_help"
+    | "interrupted"
+    | "stopping"
+    | "stopped"
+    | "uncertain"
+    | "record_pending"
+    | "submitted";
+  message: string;
+  channel?: AgentChannel;
+  question?: { id: string; prompt: string; field?: string };
+  can_resume: boolean;
+  can_resolve?: boolean;
+  can_associate_document?: boolean;
+  can_stop: boolean;
+  receipt?: Record<string, unknown>;
+  occurred_at?: string;
+  updated_at: string;
+}
+
+export interface SubmissionAttempt {
+  id: string;
+  application_id: string;
+  document_application_id?: string | null;
+  self_apply_request?: string;
+  channel: string;
+  status: string;
+  note?: string;
+  binding: { job_id: string; destination?: string };
+  continue_url?: string;
+  payload?: { to?: string; url?: string };
+  submission_channel?: AgentChannel | "other";
+  submission_destination?: string;
+  documents_used?: boolean | null;
+  follow_up?: string;
+  occurred_at?: string;
+  created_at?: string;
+  updated_at?: string;
+  receipt?: Record<string, unknown>;
+}
+
+export interface ApplicationBlocker {
+  code: string;
+  message: string;
+}
+
+export interface RoleApplicationContext {
+  job: Job;
+  application: Application | null;
+  employer: { id: string; name: string } | null;
+  allowance: { remaining: number };
+  listing_sha256: string;
+  destinations: {
+    channel: AgentChannel;
+    value: string;
+    source_url: string;
+    required?: boolean;
+    instructions?: string;
+  }[];
+  blockers: ApplicationBlocker[];
+}
+
 export interface WorkspaceState {
   application_queue?: ApplicationQueueEntry[];
+  agent_intents?: AgentIntent[];
   identity: Identity;
   facts: Fact[];
   profiles: Profile[];

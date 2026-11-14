@@ -527,11 +527,13 @@ const {
       await video.saveAs(path.resolve(evidence, "bell-toggle.webm"));
     }
 
+    await page.getByRole("button", { name: "Close opportunity details", exact: true }).click();
     await page
       .getByRole("button", { name: "Submitted 1", exact: true })
       .click();
     await selectApplication(page, fixture.sent);
     assert.equal(await card(fixture.sent).locator(".review-status").count(), 0);
+    await page.getByRole("button", { name: "Close opportunity details", exact: true }).click();
     await page.getByRole("button", { name: "Removed 1", exact: true }).click();
     await selectApplication(page, fixture.declined);
     assert.equal(

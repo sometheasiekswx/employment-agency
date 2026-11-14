@@ -13,15 +13,15 @@ export function EditorPdfPreview({
   zoomed,
   readingText,
 }: {
-  pdf: string;
+  pdf: string | Uint8Array;
   zoomed: boolean;
   readingText: boolean;
 }) {
   const [loaded, setLoaded] = useState<{
-    source: string;
+    source: string | Uint8Array;
     document: PDFDocumentProxy;
   }>();
-  const [loadFailed, setLoadFailed] = useState("");
+  const [loadFailed, setLoadFailed] = useState<string | Uint8Array>();
   const [pageNumber, setPageNumber] = useState(1);
   const [rendered, setRendered] = useState<{
     document: PDFDocumentProxy;
@@ -46,9 +46,12 @@ export function EditorPdfPreview({
           import.meta.url,
         ).toString();
         task = getDocument({
-          data: Uint8Array.from(atob(pdf), (character) =>
-            character.charCodeAt(0),
-          ),
+          data:
+            typeof pdf === "string"
+              ? Uint8Array.from(atob(pdf), (character) =>
+                  character.charCodeAt(0),
+                )
+              : pdf.slice(),
           cMapUrl: "/pdfjs/cmaps/",
           disableFontFace: true,
           useSystemFonts: true,

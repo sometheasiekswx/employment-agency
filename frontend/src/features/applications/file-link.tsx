@@ -9,11 +9,13 @@ export function FileLink({
   name,
   children,
   history = false,
+  download = false,
 }: {
   id: string;
   name: string;
   children: React.ReactNode;
   history?: boolean;
+  download?: boolean;
 }) {
   const { client, notify } = useWorkspace();
   const [busy, setBusy] = useState(false);
@@ -26,8 +28,9 @@ export function FileLink({
     <a
       className="button"
       href={href}
-      target="_blank"
+      target={download ? undefined : "_blank"}
       rel="noopener"
+      download={download || undefined}
       aria-disabled={busy || !href}
       onClick={async (event) => {
         if (!client.hosted) return;

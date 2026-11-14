@@ -44,4 +44,4 @@ PYTHONPATH=. .venv/bin/python tests/serve_concept_fixture.py \
 
 Use `http://127.0.0.1:8876` only in debug fixture builds. On Android, use `adb reverse tcp:8876 tcp:8876` for the selected emulator. On iOS, run the EmploymentAgency scheme's UI test with the fixture build setting. On Android, open the Cloud Software Engineer role, tap the title and company links, and close each Custom Tab. Both fixture sites send a header denying framing. The workspace should return to the role each time.
 
-The desktop and ordinary mobile browser checks remain in `tests/discover-browser.cjs` and `tests/source-viewer-browser.cjs`.
+The desktop and ordinary mobile browser checks are in `tests/discover-browser.cjs` and `tests/source-links-browser.cjs`.

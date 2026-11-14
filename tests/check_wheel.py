@@ -33,7 +33,7 @@ import json
 import os
 from unittest.mock import patch
 import employment_agency
-from employment_agency.store import Workspace, migrate_sqlite, restore
+from employment_agency.store import Workspace, encode, migrate_sqlite, restore, restore_snapshot
 from employment_agency.service import Service
 from employment_agency.server import server
 from employment_agency import packages
@@ -118,6 +118,12 @@ try:
                 assert hashlib.sha256(response.read()).hexdigest() == expected, asset
         with urllib.request.urlopen(urllib.request.Request(url + '/career/', method='HEAD')) as response:
             assert response.status == 200 and response.read() == b''
+        with urllib.request.urlopen(url + '/api/state') as response:
+            token = json.load(response)['token']
+        request = urllib.request.Request(url + '/api/file', encode({'id': application['id'], 'name': 'resume.pdf'}),
+            {'Content-Type': 'application/json', 'Origin': url, 'X-Workspace-Token': token})
+        with urllib.request.urlopen(request) as response:
+            assert response.headers.get_content_type() == 'application/pdf' and response.read() == original
     finally:
         http.shutdown(); http.server_close(); thread.join()
 finally:
@@ -125,23 +131,67 @@ finally:
 print('Installed wheel: routes/assets, document generation and submitted export/restore PASS')
 migrate_sqlite(Path('workspace'), Path('sqlite-copy'))
 sqlite = Workspace(Path('sqlite-copy'), create=False)
+journey = Service(sqlite)
 try:
     migrated = sqlite.read()
     assert sqlite.database.summary()['status'] == 'current'
     assert migrated['submission_attempts'][0]['status'] == 'confirmed'
     assert migrated['applications'][0]['id'] == application['id']
     assert packages.path_for(sqlite.path, application, 'resume.pdf').read_bytes() == original
-    assert Service(sqlite).action('application-queue', {'stage': 'submitted'})['rows'][0]['application_id'] == application['id']
+    assert journey.action('application-queue', {'stage': 'submitted'})['rows'][0]['application_id'] == application['id']
+    legacy_receipt = journey.action('apply-status', {})['attempts'][0]
+    assert legacy_receipt['id'] == attempt['id'] and legacy_receipt['receipt']['message_id'] == 'wheel-message'
+    journey.action('agent-queue-mark', {'job_id': listing_id, 'marked': True})
+    pending = journey.action('agent-queue', {})
+    assert pending['total'] == 1 and pending['rows'][0]['role_id'] == listing_id
+    assert pending['rows'][0]['application_id'] is None
+    context = journey.action('application-context', {'job_ids': [listing_id], 'profile_id': profile['id']})
+    assert context['workspace_id'] == sqlite.workspace_id and context['authority'] == {'granted': False}
+    assert context['roles'][0]['application'] is None and journey.agent_execution is None
+    handoff = journey.action('application-handoff', {'job_ids': [listing_id]})
+    assert 'application-context' in handoff['text'] and 'grants no authority' in handoff['text']
+    assert 'alex@example.test' not in handoff['text']
+    with patch.dict(os.environ, {'PATH': ''}):
+        capabilities = journey.action('agent-capabilities', {})
+    assert not capabilities['available'] and not capabilities['runtime']['available'] and capabilities['reason']
+    assert not journey.agent_execution.busy and journey.action('agent-application-status', {})['runs'] == []
+    migrated = sqlite.read()
     restore(sqlite.export(Path('sqlite.zip')), Path('sqlite-restored'))
+    restore_snapshot(sqlite.path, Path('sqlite-snapshot'))
+    if os.environ.get('EA_WHEEL_JOURNEY_BROWSER'):
+        import subprocess
+        journey.action('workspace-settings', {'setup_complete': True})
+        journey.action('agent-queue-mark', {'job_id': listing_id, 'marked': False})
+        http = server(journey, 0)
+        background = threading.Thread(target=http.serve_forever, daemon=True)
+        background.start()
+        try:
+            browser_env = {**os.environ, 'TEST_URL': f'http://127.0.0.1:{http.server_port}'}
+            subprocess.run(['node', os.environ['EA_WHEEL_JOURNEY_BROWSER']], check=True, env=browser_env)
+        finally:
+            http.shutdown()
+            http.server_close()
+            background.join()
 finally:
+    if journey.delivery:
+        journey.delivery.close()
+    if journey.agent_execution:
+        journey.agent_execution.close()
     sqlite.close()
-restored = Workspace(Path('sqlite-restored'), create=False)
-try:
-    assert restored.read()['applications'] == migrated['applications']
-    assert restored.read()['consents'] == {}
-finally:
-    restored.close()
-print('Installed wheel: SQLite migration, exact document bytes, submitted queue and ZIP restore PASS')
+for name in ('sqlite-restored', 'sqlite-snapshot'):
+    restored = Workspace(Path(name), create=False)
+    try:
+        recovered = restored.read()
+        assert restored.workspace_id != migrated['workspace_id']
+        assert recovered['applications'] == migrated['applications']
+        assert recovered['submission_attempts'] == migrated['submission_attempts']
+        assert recovered['consents'] == {}
+        local_app = Service(restored)
+        assert local_app.action('agent-queue', {}) == pending
+        assert local_app.agent_execution is None and not recovered.get('agent_runs')
+    finally:
+        restored.close()
+print('Installed wheel: SQLite migration, exact verified CV, legacy receipt and agent queue ZIP/snapshot restore PASS')
 from employment_agency.demo import create, open_existing
 example = create(Path('demo-workspace'))
 assert example['demo'] and example['applications'] == 12 and example['jobs'] == 14
@@ -284,9 +334,11 @@ if __name__ == '__main__':
             'EA_WHEEL_ASSET_DIGESTS': json.dumps(asset_digests),
         }
         environment.pop('PYTHONPATH', None)
-        subprocess.run([str(python), '-c', PROOF], cwd=root, env=environment, check=True)
         if args.browser:
             checkout = Path(__file__).resolve().parents[1]
             environment.setdefault('PLAYWRIGHT_PATH', str(checkout / 'frontend/node_modules/playwright'))
             environment['WHEEL_QUEUE_BROWSER'] = str(checkout / 'tests/wheel-queues-browser.cjs')
+            environment['EA_WHEEL_JOURNEY_BROWSER'] = str(checkout / 'tests/application-journey-browser.cjs')
+        subprocess.run([str(python), '-c', PROOF], cwd=root, env=environment, check=True)
+        if args.browser:
             subprocess.run([str(python), '-c', QUEUE_PROOF], cwd=root, env=environment, check=True)

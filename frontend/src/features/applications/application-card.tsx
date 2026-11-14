@@ -13,13 +13,11 @@ import {
 } from "@/components/controls";
 import { useWorkspace } from "@/components/workspace-provider";
 import { useDraft } from "@/components/unsaved";
-import { OpportunityListingLink } from "@/features/discover/opportunity-source-preview";
-import { applicationHref, displayDate, safeUrl } from "@/lib/format";
+import { applicationHref, displayDate } from "@/lib/format";
 import type { Application, EditorDocument, Job } from "@/lib/models";
 import { FileLink } from "./file-link";
 import { ApplicationDetails } from "./application-details";
 import { ReviewStatus } from "./review-status";
-import { CompanySubmission } from "./company-submission";
 import { DemoDraftEditor } from "./demo-draft-editor";
 
 const fileLabels = {
@@ -37,14 +35,14 @@ export function ApplicationCard({
   app,
   job,
   onEdit,
-  onApply,
+  hidden,
   view = "all",
 }: {
   app: Application;
   job: Partial<Job>;
   onEdit: (document: EditorDocument, opener: HTMLButtonElement) => void;
-  onApply: (opener: HTMLButtonElement) => void;
-  view?: "all" | "documents" | "activity";
+  hidden?: boolean;
+  view?: "all" | "files" | "activity";
 }) {
   const { state, client, run } = useWorkspace();
   const { canLeave } = useDraft();
@@ -86,7 +84,6 @@ export function ApplicationCard({
   const files = Object.entries(fileLabels).filter(
     ([file]) => app.documents?.[file],
   );
-  const canChangeReview = app.status === "draft" || app.status === "reviewed";
   const reviewHistory = app.comments.length > 0 && (
     <details className="application-review-history" open={view === "activity"}>
       <summary>Review history ({app.comments.length})</summary>
@@ -112,17 +109,17 @@ export function ApplicationCard({
     <article
       className="dossier"
       id={`application-${app.id}`}
-      data-application-id={app.id}
       data-view={view}
+      hidden={hidden}
       tabIndex={-1}
       aria-labelledby={headingId}
     >
-      <header className="dossier-header" hidden={view === "documents"}>
+      <header className="dossier-header" hidden={view === "files"}>
         <h2 id={headingId}>{app.title}</h2>
         <p>
           {view === "all" && <>{app.employer} </>}
           <ReviewStatus
-            readOnly={client.preview || view === "documents"}
+            readOnly={client.preview || view === "files"}
             preview={client.preview}
             status={app.status}
             form={reviewForm}
@@ -149,7 +146,10 @@ export function ApplicationCard({
           <p className="warning">{app.warnings?.join(" · ")}</p>
         )}
         <div className="editor-actions">
-          {(["resume", "cover-letter"] as const)
+          {(view === "all"
+            ? (["resume", "cover-letter"] as const)
+            : (["cover-letter"] as const)
+          )
             .filter((document) => app.documents?.[`${document}.pdf`])
             .map((document) => (
               <Action
@@ -169,32 +169,6 @@ export function ApplicationCard({
                 {document === "resume" ? "CV" : "cover letter"}
               </Action>
             ))}
-          {view === "documents" && !client.preview && canChangeReview && (
-            <Action
-              disabled={reviewBusy || decisionBusy || Boolean(decision)}
-              run={async () => {
-                setReviewBusy(true);
-                try {
-                  await run(
-                    "review",
-                    {
-                      id: app.id,
-                      status: app.status === "draft" ? "reviewed" : "draft",
-                    },
-                    app.status === "draft"
-                      ? "This version is marked reviewed."
-                      : "This version is marked draft.",
-                  );
-                } finally {
-                  setReviewBusy(false);
-                }
-              }}
-            >
-              {app.status === "draft"
-                ? "Mark this version reviewed"
-                : "Return this version to draft"}
-            </Action>
-          )}
         </div>
         <div className="actions">
           {files.slice(0, 2).map(([file, label]) => (
@@ -303,42 +277,16 @@ export function ApplicationCard({
         {app.migration_warning && (
           <p className="error">{app.migration_warning}</p>
         )}
-        {safeUrl(job.url) && (
-          <div>
-            <OpportunityListingLink
-              job={{
-                ...job,
-                title: job.title || app.title,
-                employer: job.employer || app.employer,
-              }}
-            >
-              Open application listing
-            </OpportunityListingLink>
-          </div>
-        )}
       </div>
-      <div className="review-pane" hidden={view === "documents"}>
+      <div className="review-pane" hidden={view === "files"}>
         <div className="review-header">
-          <h3>Review & decision</h3>
+          <h3>Review and decision</h3>
           {job.company?.cooling && (
-            <p>Company paused until {displayDate(job.company.cooldown_until, timezone)}.</p>
+            <p>
+              Company paused until{" "}
+              {displayDate(job.company.cooldown_until, timezone)}.
+            </p>
           )}
-          {state._workspace.snapshot && !client.hosted && !client.preview && canChangeReview && (
-            <CompanySubmission key={app.id} app={app} />
-          )}
-          {!client.hosted &&
-            !state._workspace.demo &&
-            app.documents?.["resume.pdf"] && (
-              <button
-                className="secondary"
-                disabled={state._workspace.demo}
-                onClick={(event) => onApply(event.currentTarget)}
-              >
-                {app.status === "submitted"
-                  ? "Submission details"
-                  : "Apply For Me"}
-              </button>
-            )}
         </div>
         {view === "activity" && reviewHistory}
         <Form
@@ -366,7 +314,7 @@ export function ApplicationCard({
               onChange={(event) => setComment(event.target.value)}
             />
             <div className="actions">
-              {app.status !== "submitted" && (
+              {app.status !== "submitted" && !state._workspace.agent_queue && (
                 <button
                   type="button"
                   className="record-submission"
@@ -435,7 +383,9 @@ export function ApplicationCard({
                     {
                       id: app.id,
                       status: "submitted",
-                      ...(state._workspace.snapshot ? { occurred_at: text(data, "occurred_at") } : {}),
+                      ...(state._workspace.snapshot
+                        ? { occurred_at: text(data, "occurred_at") }
+                        : {}),
                       comment: [
                         comment.trim(),
                         `Submission recorded by user. Method: ${method}`,

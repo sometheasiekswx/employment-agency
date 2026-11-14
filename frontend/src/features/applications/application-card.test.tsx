@@ -47,7 +47,7 @@ const submitted: Application = {
   manifest_hash: "a".repeat(64),
 };
 const card = (app = draft) => (
-  <ApplicationCard app={app} job={{}} onEdit={vi.fn()} onApply={vi.fn()} />
+  <ApplicationCard app={app} job={{}} onEdit={vi.fn()} />
 );
 
 it("guards a pending review before validating external edits and opens the returned draft", async () => {
@@ -128,24 +128,12 @@ afterEach(() => vi.unstubAllEnvs());
 
 it("hides the repeated document header while retaining the interactive Activity status and legacy card header", () => {
   const view = render(
-    <ApplicationCard
-      app={draft}
-      job={{}}
-      view="documents"
-      onEdit={vi.fn()}
-      onApply={vi.fn()}
-    />,
+    <ApplicationCard app={draft} job={{}} view="files" onEdit={vi.fn()} />,
   );
   expect(view.container.querySelector(".dossier-header")).not.toBeVisible();
   expect(screen.queryByRole("button", { name: /switch to/ })).toBeNull();
   view.rerender(
-    <ApplicationCard
-      app={draft}
-      job={{}}
-      view="activity"
-      onEdit={vi.fn()}
-      onApply={vi.fn()}
-    />,
+    <ApplicationCard app={draft} job={{}} view="activity" onEdit={vi.fn()} />,
   );
   expect(view.container.querySelector(".dossier-header")).toBeVisible();
   expect(tag()).toBeEnabled();
@@ -622,7 +610,6 @@ it.each([false, true])(
         app={recovered}
         job={{ prior_application: "submitted" }}
         onEdit={vi.fn()}
-        onApply={vi.fn()}
       />,
     );
     await userEvent.click(

@@ -97,9 +97,10 @@ export function DiscoveryPanel() {
   return (
     <section className={"secondary-panel " + styles.panel} aria-labelledby="job-discovery">
       <h2 id="job-discovery">Find new jobs</h2>
-      <p>Check configured feeds or enter public listing, careers, sitemap, or other web page URLs.</p>
+      <p>Check configured feeds or enter public listing, careers, job description PDF, or sitemap URLs.</p>
       <Form onSave={async data => {
         setPollError("");
+        if (state._workspace.snapshot) await client.checkCompanyCooldowns();
         const response = await client.action<DiscoveryRun>("discovery-start", {
           profile_id: profileId || undefined,
           source_ids: data.getAll("source_ids"),

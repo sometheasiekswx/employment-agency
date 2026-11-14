@@ -35,6 +35,21 @@ def address(value):
     return value
 
 
+def application_message(attempt_id, sender, recipient, subject, body, documents):
+    """Produce MIME bytes from a verified, fixed sender, recipient and byte set."""
+    message = EmailMessage(policy=policy.SMTP)
+    message['From'] = address(sender)
+    message['To'] = address(recipient)
+    message['Subject'] = subject
+    message['Message-ID'] = '<' + attempt_id + '@employment-agency.local>'
+    message.set_content(body)
+    for document in documents:
+        if digest(document['data']) != document['sha256']:
+            raise ValueError('The application attachment no longer matches the selected version')
+        message.add_attachment(document['data'], maintype='application', subtype='pdf', filename=document['filename'])
+    return message.as_bytes()
+
+
 class Delivery:
     def __init__(self, service, mail=None, browser_factory=None, selector=None):
         self.service = service
@@ -60,7 +75,8 @@ class Delivery:
         if self.w.database:
             with self.w.lock:
                 records = self.w.database.collection('submission_attempts')
-            return sorted((row for row in records if row['channel'] != 'manual'), key=lambda row: row['created_at'])
+            return sorted((row for row in records if row['channel'] != 'manual' and not row.get('agent_run_id')),
+                          key=lambda row: row['created_at'])
         folder = inside(self.w.path, 'records/submissions')
         result = []
         if folder.exists():
@@ -252,6 +268,9 @@ class Delivery:
             return self.get(record['id'])
 
     def start(self, args):
+        agent = getattr(self.service, 'agent_execution', None)
+        if agent and agent.busy:
+            raise ValueError('Wait for or stop the connected application agent before starting a legacy attempt')
         if args.get('disclosure_confirmed') is not True:
             raise ValueError('Confirm disclosure of these documents/contact details to the selected destination')
         app, job, identity, resume = self.document(args['application_id'])
@@ -369,22 +388,19 @@ class Delivery:
                     if record['channel'] == 'gmail':
                         if self.mail.sender() != record['payload']['from']:
                             raise NeedsUser('Connected Gmail account changed; cancel and prepare again')
-                        message = EmailMessage(policy=policy.SMTP)
-                        for key in ('From', 'To', 'Subject'):
-                            message[key] = record['payload'][key.lower()]
-                        message['Message-ID'] = '<' + record['id'] + '@employment-agency.local>'
-                        message.set_content(record['payload']['body'])
                         attachment = resume.read_bytes()
                         if digest(attachment) != record['binding']['sha256']:
                             raise NeedsUser('The staged résumé changed; review a new attempt')
-                        message.add_attachment(attachment, maintype='application', subtype='pdf', filename=resume.name)
+                        attachments = [{'data': attachment, 'sha256': record['binding']['sha256'], 'filename': resume.name}]
                         if record['binding'].get('cover_letter'):
                             cover = record['binding']['cover_letter']
                             data = inside(self.w.path, cover['path']).read_bytes()
                             if digest(data) != cover['sha256']:
                                 raise NeedsUser('The cover letter changed; prepare and review a new attempt')
-                            message.add_attachment(data, maintype='application', subtype='pdf', filename=Path(cover['path']).name)
-                        raw = message.as_bytes()
+                            attachments.append({'data': data, 'sha256': cover['sha256'], 'filename': Path(cover['path']).name})
+                        payload = record['payload']
+                        raw = application_message(record['id'], payload['from'], payload['to'], payload['subject'],
+                                                  payload['body'], attachments)
                         self.begin_dispatch(record)
                         receipt = self.mail.send(raw)
                     else:

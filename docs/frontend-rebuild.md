@@ -11,6 +11,7 @@ Replace all hand-built HTML string templates, document-wide event dispatch and p
 | Workspace | Setup, location, native Open Folder, cancellation, existing/empty-folder selection, Save, settings, stale-tab rejection, active-run protection |
 | Career | Identity, PDF/Word/TeX/text import and size limits, supplemental facts, edit/confirm/retire/conflict states, master diff/identity/facts/conflicts/confirmation |
 | Search | Multiple profiles, filters/expectations, manual jobs with all metadata and salary evidence, edit jobs, URL import, sources/status/refresh, ranking/evidence/gaps, agent handoff/selection |
+| Opportunity links | Listing and company links open their HTTPS destinations in a new tab on mobile and desktop. The selected role stays open in the workspace. Company links use the recorded careers page when available and fall back to the listing site's home page. |
 | Runs | Bounded local/OpenAI runs, consent, model/prices/budget approval, progress/errors, cancel/resume |
 | Applications | Active/Submitted/Removed, destination filters, historical queues, evidence/gaps/dates, file downloads, decisions/comments, immutable submitted records, external-edit validation. Submitted contains recorded snapshots and listings tagged Already submitted. A tagged listing's draft is accessible there as a separate version. |
 | Documents | PDF preview, blocks/TeX/view modes, add/remove/style, preview without saving, preserved new drafts, errors, stale-base rejection, unsaved-close warning, keyboard/focus and object-URL cleanup |

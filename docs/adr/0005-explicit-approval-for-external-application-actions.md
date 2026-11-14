@@ -1,7 +1,9 @@
 ---
-status: accepted
+status: superseded by ADR-0016
 ---
 # Explicit final approval for external application actions
+
+Superseded on 14 November 2026 by [authorization when starting a role's agent application](0016-authorize-role-submission-when-starting-agent.md). The historical decision and rationale below are preserved.
 
 On 31 October 2026, the owner confirmed the proposed Apply For Me feature will start locally on a Mac with a visible browser, supporting email and one job-site workflow. It prepares/fills the application, then requires a final Send/Submit confirmation for that application before performing the external action; review decisions remain distinct from submission authorization. This trades a single-click send for an inspectable final action because an external email or submission cannot be undone by restoring the local workspace; hosted execution is deferred, and the specific provider/site, registration and agent integration remain open.
 

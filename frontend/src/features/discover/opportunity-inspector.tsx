@@ -13,7 +13,6 @@ import {
 } from "react";
 import { animate, type AnimationOptions } from "motion";
 import {
-  ArrowUpRight,
   Bookmark,
   CircleMinus,
   RotateCcw,
@@ -28,7 +27,7 @@ import {
 } from "lucide-react";
 import { Action } from "@/components/controls";
 import { useDraft } from "@/components/unsaved";
-import { applicationHref, displayDate, safeUrl } from "@/lib/format";
+import { displayDate, safeUrl } from "@/lib/format";
 import type { Application, Fact, RankedJob } from "@/lib/models";
 import {
   advertisedSalary,
@@ -37,14 +36,15 @@ import {
   roleStatus,
 } from "./discovery";
 import { OpportunityCareerEvidence } from "./opportunity-career-evidence";
+import { OpportunityListingLink } from "./opportunity-listing-link";
 import { useSheetGesture } from "./use-sheet-gesture";
-import { useOpenOpportunitySource } from "./opportunity-source-preview";
 import { currentRemoval } from "@/lib/job-removal";
 import "./inspector-motion.css";
 
 type InspectorAnimation = ReturnType<typeof animate>;
 type AnimationSlot = { current: InspectorAnimation | null };
 type InspectorFrame = { x: number; y: number; opacity: number };
+export type RolePanel = "overview" | "documents" | "files" | "activity";
 
 const arrival = { type: "spring", duration: 0.46, bounce: 0.08 } as const;
 const settle = { duration: 0.2, ease: [0.16, 1, 0.3, 1] } as const;
@@ -161,7 +161,12 @@ interface InspectorProps {
   preview?: boolean;
   animateInteractions?: boolean;
   motionRevision?: number;
-  onOpenPanel?: (panel: "overview" | "documents" | "activity") => void;
+  panel?: RolePanel;
+  onOpenPanel?: (panel: RolePanel) => void;
+  applicationContent?: ReactNode;
+  submissionRecord?: ReactNode;
+  agentProgress?: ReactNode;
+  intentAction?: ReactNode;
   onPrevious: () => void;
   onNext: () => void;
   onClose: () => boolean | void;
@@ -239,7 +244,12 @@ export function OpportunityInspector({
   preview = false,
   animateInteractions = false,
   motionRevision = 0,
+  panel = "overview",
   onOpenPanel,
+  applicationContent,
+  submissionRecord,
+  agentProgress,
+  intentAction,
   onPrevious,
   onNext,
   onClose,
@@ -253,10 +263,8 @@ export function OpportunityInspector({
 }: InspectorProps) {
   const { canLeave } = useDraft();
   const { job, match } = row;
-  const openSource = useOpenOpportunitySource();
   const removed = Boolean(currentRemoval(job));
   const titleId = useId();
-  const inspector = useRef<HTMLElement>(null);
   const surfaceAnimation = useRef<InspectorAnimation | null>(null);
   const bodyAnimation = useRef<InspectorAnimation | null>(null);
   const closeGeneration = useRef(0);
@@ -272,20 +280,23 @@ export function OpportunityInspector({
   } | null>(null);
   const reasonFocusIntent = useRef("");
   const title = useRef<HTMLHeadingElement>(null);
+  const heading = useRef<HTMLDivElement>(null);
   const assessmentSummary = useRef<HTMLParagraphElement>(null);
   const footer = useRef<HTMLElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
-  const documentLink = useRef<HTMLAnchorElement>(null);
   const saveErrorNotice = useRef<HTMLParagraphElement>(null);
-  const prepareFocusIntent = useRef<{
-    jobId: string;
-    previousVersion: string;
-  } | null>(null);
+  const [headingOverflow, setHeadingOverflow] = useState(false);
   const navigationFocusIntent = useRef<{
     jobId: string;
     button: HTMLButtonElement;
   } | null>(null);
-  const [prepareFocusSignal, setPrepareFocusSignal] = useState(0);
+  const modal = useRef(false);
+  const mobileMode = useRef(mobile);
+  const readingPanel = useRef({ panel, jobId: job.id });
+  const onCloseRef = useRef(onClose);
+  useLayoutEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
   const {
     dialog,
     body,
@@ -293,6 +304,7 @@ export function OpportunityInspector({
     expanded,
     snap: snapSheet,
     cancel: cancelSheet,
+    resetReading,
   } = useSheetGesture({
     mobile,
     animateInteractions,
@@ -329,53 +341,91 @@ export function OpportunityInspector({
       job.prior_application === "submitted" ||
       job.prior_application === "rejected",
     );
+  const readingApplication = panel !== "overview" && Boolean(application);
 
   const restoreRejectedClose = useCallback(() => {
     closing.current = false;
     cancelSheet();
-    stopMotion(surfaceAnimation, mobile ? dialog.current : inspector.current);
+    stopMotion(surfaceAnimation, dialog.current);
     stopMotion(bodyAnimation, body.current);
-    const element = mobile ? dialog.current : inspector.current;
+    const element = dialog.current;
     // Reset Motion's rendered value as well as inline styles: a queued final
     // render from the rejected exit must not put the modal offscreen again.
     if (element)
       playMotion(surfaceAnimation, element, restingFrame, restingFrame, {
         duration: 0,
       });
-    if (mobile && dialog.current && !dialog.current.open)
-      dialog.current.showModal();
+    if (element && !element.open) {
+      if (modal.current) element.showModal();
+      else element.show();
+    }
     closeButton.current?.focus({ preventScroll: true });
-  }, [body, cancelSheet, dialog, mobile]);
+  }, [body, cancelSheet, dialog]);
 
   const closeImmediately = useCallback(() => {
     cancelSheet();
     closeGeneration.current += 1;
     closing.current = false;
-    stopMotion(surfaceAnimation, mobile ? dialog.current : inspector.current);
+    stopMotion(surfaceAnimation, dialog.current);
     stopMotion(bodyAnimation, body.current);
-    if (onClose() === false) restoreRejectedClose();
-  }, [mobile, onClose, cancelSheet, body, dialog, restoreRejectedClose]);
+    if (onCloseRef.current() === false) restoreRejectedClose();
+  }, [cancelSheet, body, dialog, restoreRejectedClose]);
 
   useLayoutEffect(() => {
-    if (!mobile) {
-      closeButton.current?.focus({ preventScroll: true });
-      return;
-    }
+    mobileMode.current = mobile;
+  }, [mobile]);
+
+  useLayoutEffect(() => {
     const element = dialog.current;
     if (!element) return;
     const cancel = (event: Event) => {
+      if (event.target !== element) return;
       event.preventDefault();
       closeImmediately();
     };
+    const closed = (event: Event) => {
+      if (event.target !== element || element.open) return;
+      closeImmediately();
+    };
     element.addEventListener("cancel", cancel);
-    element.addEventListener("close", closeImmediately);
-    element.showModal();
+    element.addEventListener("close", closed);
+    modal.current = mobileMode.current;
+    if (modal.current) element.showModal();
+    else element.show();
+    (modal.current ? sheetHandle.current : closeButton.current)?.focus({
+      preventScroll: true,
+    });
     return () => {
       element.removeEventListener("cancel", cancel);
-      element.removeEventListener("close", closeImmediately);
+      element.removeEventListener("close", closed);
       if (element.open) element.close();
     };
-  }, [mobile, closeImmediately, dialog]);
+  }, [closeImmediately, dialog, sheetHandle]);
+
+  useLayoutEffect(() => {
+    const element = dialog.current;
+    if (!element) return;
+    const updateMode = () => {
+      if (modal.current === mobile || element.querySelector("dialog[open]"))
+        return;
+      const focused = document.activeElement as HTMLElement | null;
+      element.close();
+      modal.current = mobile;
+      if (mobile) element.showModal();
+      else element.show();
+      if (focused && element.contains(focused))
+        focused.focus({ preventScroll: true });
+    };
+    updateMode();
+    const observer = new MutationObserver(updateMode);
+    observer.observe(element, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ["open"],
+    });
+    return () => observer.disconnect();
+  }, [mobile, dialog]);
 
   const evidence = requirementEvidence(
     assessmentAvailable ? match.evidence : undefined,
@@ -383,19 +433,8 @@ export function OpportunityInspector({
     job,
   );
   const evidenceGaps = remainingEvidenceGaps(match.gaps, evidence);
-  const openPanel = (panel: "documents" | "activity") => {
-    const examples = body.current?.querySelectorAll<HTMLTextAreaElement>(
-      ".discover-evidence-editor textarea",
-    );
-    // Switching panels only unmounts examples from this overview. The
-    // application workbench keeps its own comment draft mounted.
-    if (
-      examples &&
-      Array.from(examples).some((field) => field.value.trim()) &&
-      !canLeave()
-    )
-      return;
-    onOpenPanel?.(panel);
+  const openPanel = (next: RolePanel) => {
+    if (next !== panel) onOpenPanel?.(next);
   };
   const warnings = [
     ...new Set([
@@ -420,7 +459,36 @@ export function OpportunityInspector({
     ...checks.slice(0, evidenceGaps.length ? 2 : 3),
     ...(evidenceGaps.length ? [`Evidence gap: ${evidenceGaps[0]}`] : []),
   ];
-  const hasAssessmentSummary = summary.length > 0;
+  const hasAssessmentSummary = !readingApplication && summary.length > 0;
+  useLayoutEffect(() => {
+    const previous = readingPanel.current;
+    readingPanel.current = { panel, jobId: job.id };
+    if (mobile && readingApplication) snapSheet(true, false);
+    else if (mobile && (previous.jobId !== job.id || previous.panel !== panel))
+      snapSheet(false, false);
+    resetReading();
+    if (
+      previous.jobId === job.id &&
+      previous.panel === "overview" &&
+      panel === "documents" &&
+      (!document.activeElement ||
+        document.activeElement === document.body ||
+        dialog.current?.contains(document.activeElement))
+    )
+      body.current
+        ?.querySelector<HTMLElement>(".application-document-toolbar h3")
+        ?.focus({ preventScroll: true });
+  }, [
+    body,
+    dialog,
+    job.id,
+    mobile,
+    panel,
+    readingApplication,
+    resetReading,
+    snapSheet,
+  ]);
+
   useLayoutEffect(() => {
     const sheet = dialog.current;
     const reading = body.current;
@@ -446,7 +514,8 @@ export function OpportunityInspector({
         sheet.getBoundingClientRect().top +
         reading.scrollTop;
       // Leave a little space between the final check and the action bar.
-      const height = `${Math.ceil(summaryEnd + actions.offsetHeight + 12)}px`;
+      const contentHeight = Math.ceil(summaryEnd + actions.offsetHeight + 12);
+      const height = `${Math.min(contentHeight, Math.round(window.innerHeight * 0.8))}px`;
       if (sheet.style.getPropertyValue("--discover-peek-content") !== height)
         sheet.style.setProperty("--discover-peek-content", height);
     }
@@ -463,7 +532,7 @@ export function OpportunityInspector({
   }, [mobile, dialog, body, job.id, expanded, hasAssessmentSummary]);
 
   useLayoutEffect(() => {
-    const element = mobile ? dialog.current : inspector.current;
+    const element = dialog.current;
     if (!element) return;
     const previous = previousMotion.current;
     const newSurface = previous?.surface !== element;
@@ -529,6 +598,18 @@ export function OpportunityInspector({
     restoreRejectedClose,
   ]);
 
+  useLayoutEffect(() => {
+    const element = heading.current;
+    if (!mobile || !element || typeof ResizeObserver === "undefined") return;
+    const measure = () =>
+      setHeadingOverflow(element.scrollHeight > element.clientHeight + 1);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    for (const child of element.children) observer.observe(child);
+    return () => observer.disconnect();
+  }, [mobile, job.id, job.title, job.employer, job.hiring_employer_verified]);
+
   useLayoutEffect(
     () => () => {
       closeGeneration.current += 1;
@@ -541,7 +622,7 @@ export function OpportunityInspector({
   );
 
   const requestClose = (pointer: boolean) => {
-    const element = mobile ? dialog.current : inspector.current;
+    const element = dialog.current;
     if (!pointer || !animateInteractions || !element) {
       closeImmediately();
       return;
@@ -572,19 +653,6 @@ export function OpportunityInspector({
       true,
     );
   };
-
-  useEffect(() => {
-    const intent = prepareFocusIntent.current;
-    if (!intent) return;
-    if (intent.jobId !== job.id) {
-      prepareFocusIntent.current = null;
-      return;
-    }
-    if (application && application.id !== intent.previousVersion) {
-      documentLink.current?.focus({ preventScroll: true });
-      prepareFocusIntent.current = null;
-    }
-  }, [prepareFocusSignal, application, job.id]);
 
   useEffect(() => {
     const intent = navigationFocusIntent.current;
@@ -623,9 +691,6 @@ export function OpportunityInspector({
             href={companyUrl}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={(event) =>
-              openSource(event, job, careers ? "careers" : "source")
-            }
           >
             {job.employer}
           </a>
@@ -666,7 +731,7 @@ export function OpportunityInspector({
           </button>
         )}
         <header className="discover-inspector-toolbar">
-          <span>{mobile ? "Details" : "Opportunity details"}</span>
+          <span>{mobile ? "Role" : "Role workspace"}</span>
           <div className="discover-inspector-navigation">
             <button
               type="button"
@@ -700,180 +765,217 @@ export function OpportunityInspector({
             </button>
           </div>
         </header>
+        <div
+          ref={heading}
+          className="role-workspace-heading"
+          data-overflow={mobile && headingOverflow ? "true" : undefined}
+          tabIndex={mobile && headingOverflow ? 0 : undefined}
+        >
+          {company}
+          {job.hiring_employer_verified === false && (
+            <p className="role-employer-unconfirmed">
+              Hiring employer unconfirmed
+            </p>
+          )}
+          <h2 id={titleId} ref={title} tabIndex={-1}>
+            {advert ? (
+              <a
+                className="discover-source-link"
+                href={advert}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {job.title}
+              </a>
+            ) : (
+              job.title
+            )}
+          </h2>
+        </div>
+        <div className="role-listing-row">
+          {advert ? (
+            <OpportunityListingLink url={advert} className="role-listing-link">
+              View job listing
+            </OpportunityListingLink>
+          ) : (
+            <p className="role-listing-link muted">Job listing unavailable</p>
+          )}
+        </div>
         {application && onOpenPanel && (
           <div
             className="opportunities-detail-tabs"
             role="group"
             aria-label="Role workspace"
           >
-            <button type="button" aria-pressed="true">
-              Overview
-            </button>
-            <button
-              type="button"
-              aria-pressed="false"
-              onClick={() => openPanel("documents")}
-            >
-              Documents
-            </button>
-            <button
-              type="button"
-              aria-pressed="false"
-              onClick={() => openPanel("activity")}
-            >
-              Activity
-            </button>
+            {(
+              [
+                ["overview", "Overview"],
+                ["documents", "CV"],
+                ["files", "Documents"],
+                ["activity", "Activity"],
+              ] as const
+            ).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={panel === value}
+                onClick={() => openPanel(value)}
+              >
+                {label}
+              </button>
+            ))}
           </div>
         )}
-        {mobile && <div className="discover-sheet-company">{company}</div>}
       </div>
-      <div ref={body} className="discover-inspector-body" key={job.id}>
-        {removalEditor}
-        {!mobile && company}
-        <h2 id={titleId} ref={title} tabIndex={-1}>
-          {advert ? (
-            <a
-              className="discover-source-link"
-              href={advert}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(event) => openSource(event, job, "listing")}
-            >
-              {job.title}
-            </a>
-          ) : (
-            job.title
-          )}
-        </h2>
-        <p className="discover-role-location">
-          <span>
-            <MapPin size={15} />
-            {job.location || job.city || "Location unconfirmed"}
-          </span>
-          <span>{job.work_arrangement || "Work arrangement unconfirmed"}</span>
-        </p>
-        <p className="discover-inspector-salary">{advertisedSalary(job)}</p>
-        {hasAssessmentSummary && (
-          <p ref={assessmentSummary} className="discover-assessment-summary">
-            <ShieldCheck size={16} aria-hidden="true" />
-            <span>
-              <strong>
-                {match.hard_conflicts.length
-                  ? "Preparation blocked"
-                  : "Check before applying"}
-              </strong>
-              {summary.map((check) => (
-                <span key={check} className="discover-assessment-check">
-                  {check}
+      <div ref={body} className="discover-inspector-body">
+        {/* The role changes independently of the mounted scroll container. */}
+        <div key={job.id}>
+          {removalEditor}
+          {agentProgress}
+          {submissionRecord}
+          <div hidden={readingApplication}>
+            <p className="discover-role-location">
+              <span>
+                <MapPin size={15} />
+                {job.location || job.city || "Location unconfirmed"}
+              </span>
+              <span>
+                {job.work_arrangement || "Work arrangement unconfirmed"}
+              </span>
+            </p>
+            <p className="discover-inspector-salary">{advertisedSalary(job)}</p>
+            {hasAssessmentSummary && (
+              <p
+                ref={assessmentSummary}
+                className="discover-assessment-summary"
+              >
+                <ShieldCheck size={16} aria-hidden="true" />
+                <span>
+                  <strong>
+                    {match.hard_conflicts.length
+                      ? "Preparation blocked"
+                      : "Check before applying"}
+                  </strong>
+                  {summary.map((check) => (
+                    <span key={check} className="discover-assessment-check">
+                      {check}
+                    </span>
+                  ))}
                 </span>
-              ))}
-            </span>
-          </p>
-        )}
-        {hasListingRecord && <CopyJobReference key={job.id} job={job} />}
-        {companyReview}
-        {!advert && (
-          <p className="discover-source-label">Source link unavailable</p>
-        )}
-        <OpportunityCareerEvidence
-          job={job}
-          rows={evidence}
-          assessmentAvailable={assessmentAvailable}
-          onAddEvidence={onAddEvidence}
-        />
-        <section className="discover-evidence-section">
-          <h3>Listing details</h3>
-          {match.hard_conflicts.length > 0 && (
-            <div className="discover-checks conflict">
-              <h4>Preparation is blocked</h4>
-              <ul>
-                {match.hard_conflicts.map((conflict) => (
-                  <li key={conflict}>{conflict}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-          {warnings.length > 0 && (
-            <div className="discover-checks">
-              <ul>
-                {warnings.map((warning) => (
-                  <li key={warning}>{warning}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-          <dl className="discover-listing-details">
-            <div>
-              <dt>Work eligibility</dt>
-              <dd>
-                {job.eligibility === "confirmed"
-                  ? "Confirmed in the job record"
-                  : job.eligibility === "conflict"
-                    ? "Confirmed conflict"
-                    : "Needs confirmation"}
-              </dd>
-            </div>
-            <div>
-              <dt>Sponsorship</dt>
-              <dd>
-                {job.sponsorship === "yes"
-                  ? "Advert says available"
-                  : job.sponsorship === "no"
-                    ? "Advert says unavailable"
-                    : "Not stated / unconfirmed"}
-              </dd>
-            </div>
-            <div>
-              <dt>Availability</dt>
-              <dd>{job.availability || "Unconfirmed"}</dd>
-            </div>
-            <div>
-              <dt>Last checked</dt>
-              <dd>{displayDate(job.checked_at, timezone)}</dd>
-            </div>
-            <div>
-              <dt>Posted</dt>
-              <dd>{displayDate(job.posted_at, timezone)}</dd>
-            </div>
-            {job.reposted_at && (
-              <div>
-                <dt>Reposted</dt>
-                <dd>{displayDate(job.reposted_at, timezone)}</dd>
-              </div>
+              </p>
             )}
-            <div>
-              <dt>Deadline</dt>
-              <dd>{displayDate(job.closes, timezone)}</dd>
-            </div>
-          </dl>
-        </section>
-        {job.description && (
-          <section className="discover-evidence-section">
-            <h3>About the opportunity</h3>
-            <p className="discover-job-description">{job.description}</p>
-          </section>
-        )}
-        {submitted && (
-          <p className="discover-submission-note">
-            <ShieldCheck size={17} />
-            {preview
-              ? "No application was sent."
-              : "The recorded submission keeps its exact document snapshot."}
-          </p>
-        )}
-        {historicalSubmission && (
-          <p className="discover-submission-note">
-            <ShieldCheck size={17} />
-            An earlier submission is recorded.
-            {job.submission_time && (
-              <> {displayDate(job.submission_time.at, timezone)}
-                {job.submission_time.assumed ? " (time assumed)." : "."}</>
+            {hasListingRecord && <CopyJobReference job={job} />}
+            {companyReview && (
+              <details className="role-secondary">
+                <summary>Company research</summary>
+                {companyReview}
+              </details>
             )}
-            {application
-              ? " The local draft is a separate version."
-              : " The submitted document version is unknown."}
-          </p>
-        )}
+            <OpportunityCareerEvidence
+              job={job}
+              rows={evidence}
+              assessmentAvailable={assessmentAvailable}
+              onAddEvidence={onAddEvidence}
+            />
+            <section className="discover-evidence-section">
+              <h3>Listing details</h3>
+              {match.hard_conflicts.length > 0 && (
+                <div className="discover-checks conflict">
+                  <h4>Preparation is blocked</h4>
+                  <ul>
+                    {match.hard_conflicts.map((conflict) => (
+                      <li key={conflict}>{conflict}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {warnings.length > 0 && (
+                <div className="discover-checks">
+                  <ul>
+                    {warnings.map((warning) => (
+                      <li key={warning}>{warning}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <dl className="discover-listing-details">
+                <div>
+                  <dt>Work eligibility</dt>
+                  <dd>
+                    {job.eligibility === "confirmed"
+                      ? "Confirmed in the job record"
+                      : job.eligibility === "conflict"
+                        ? "Confirmed conflict"
+                        : "Needs confirmation"}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Sponsorship</dt>
+                  <dd>
+                    {job.sponsorship === "yes"
+                      ? "Advert says available"
+                      : job.sponsorship === "no"
+                        ? "Advert says unavailable"
+                        : "Not stated / unconfirmed"}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Availability</dt>
+                  <dd>{job.availability || "Unconfirmed"}</dd>
+                </div>
+                <div>
+                  <dt>Last checked</dt>
+                  <dd>{displayDate(job.checked_at, timezone)}</dd>
+                </div>
+                <div>
+                  <dt>Posted</dt>
+                  <dd>{displayDate(job.posted_at, timezone)}</dd>
+                </div>
+                {job.reposted_at && (
+                  <div>
+                    <dt>Reposted</dt>
+                    <dd>{displayDate(job.reposted_at, timezone)}</dd>
+                  </div>
+                )}
+                <div>
+                  <dt>Deadline</dt>
+                  <dd>{displayDate(job.closes, timezone)}</dd>
+                </div>
+              </dl>
+            </section>
+            {job.description && (
+              <section className="discover-evidence-section">
+                <h3>About the opportunity</h3>
+                <p className="discover-job-description">{job.description}</p>
+              </section>
+            )}
+            {submitted && (
+              <p className="discover-submission-note">
+                <ShieldCheck size={17} />
+                {preview
+                  ? "No application was sent."
+                  : "The recorded submission keeps its exact document snapshot."}
+              </p>
+            )}
+            {historicalSubmission && (
+              <p className="discover-submission-note">
+                <ShieldCheck size={17} />
+                An earlier submission is recorded.
+                {job.submission_time && (
+                  <>
+                    {" "}
+                    {displayDate(job.submission_time.at, timezone)}
+                    {job.submission_time.assumed ? " (time assumed)." : "."}
+                  </>
+                )}
+                {application
+                  ? " The local draft is a separate version."
+                  : " The submitted document version is unknown."}
+              </p>
+            )}
+          </div>
+          {applicationContent}
+        </div>
       </div>
       <footer ref={footer} className="discover-inspector-footer">
         <div className="discover-inspector-actions">
@@ -886,36 +988,7 @@ export function OpportunityInspector({
             >
               <RotateCcw size={17} /> Restore role
             </Action>
-          ) : application ? (
-            <Link
-              ref={documentLink}
-              className="button discover-primary"
-              href={applicationHref(application, "documents", job)}
-              onClick={(event) => {
-                if (
-                  onOpenPanel &&
-                  !event.metaKey &&
-                  !event.ctrlKey &&
-                  !event.shiftKey &&
-                  !event.altKey
-                ) {
-                  event.preventDefault();
-                  openPanel("documents");
-                }
-              }}
-            >
-              <FileText size={17} />
-              {submitted
-                ? preview
-                  ? "View sample submission"
-                  : "View submission"
-                : application.status === "rejected"
-                  ? "View decision"
-                  : historicalSubmission
-                    ? "Review preserved draft"
-                    : "Review documents"}
-            </Link>
-          ) : job.prior_application === "rejected" ? (
+          ) : application ? null : job.prior_application === "rejected" ? (
             <Link className="button discover-primary" href="/?section=rejected">
               <FileText size={17} />
               View application records
@@ -928,48 +1001,28 @@ export function OpportunityInspector({
                 !rankingCurrent || (!preview && !match.eligible_for_preparation)
               }
               run={async () => {
-                prepareFocusIntent.current = {
-                  jobId: job.id,
-                  previousVersion: "",
-                };
-                try {
-                  await onPrepare();
-                  setPrepareFocusSignal((value) => value + 1);
-                } catch (error) {
-                  prepareFocusIntent.current = null;
-                  throw error;
-                }
+                if (canLeave()) await onPrepare();
               }}
             >
               <Sparkles size={17} />
-              Prepare draft
+              Prepare application
             </Action>
           )}
-          {advert && (
-            <a
-              className="button discover-advert"
-              aria-label="View advert"
-              href={advert}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(event) => openSource(event, job, "listing")}
+          {intentAction}
+          {hasListingRecord && (
+            <Action
+              previewAllowed
+              keepContentWhileBusy
+              data-opportunity-id={job.id}
+              className={`discover-icon-button ${job.saved ? "is-saved" : ""}`}
+              disabled={saving}
+              aria-label={`${job.saved ? "Unsave" : "Save"} ${job.title}`}
+              aria-pressed={Boolean(job.saved)}
+              run={onSave}
             >
-              <ArrowUpRight size={17} />
-              <span>View advert</span>
-            </a>
+              <Bookmark size={17} fill={job.saved ? "currentColor" : "none"} />
+            </Action>
           )}
-          <Action
-            previewAllowed
-            keepContentWhileBusy
-            data-opportunity-id={job.id}
-            className={`discover-icon-button ${job.saved ? "is-saved" : ""}`}
-            disabled={saving}
-            aria-label={`${job.saved ? "Unsave" : "Save"} ${job.title}`}
-            aria-pressed={Boolean(job.saved)}
-            run={onSave}
-          >
-            <Bookmark size={17} fill={job.saved ? "currentColor" : "none"} />
-          </Action>
           {removed && application && onRestore && (
             <Action
               previewAllowed
@@ -1028,12 +1081,23 @@ export function OpportunityInspector({
     </>
   );
 
-  const surface = mobile ? (
+  return (
     <dialog
       ref={dialog}
       data-inspector-motion={animateInteractions ? "on" : "off"}
       aria-labelledby={titleId}
-      className={`discover-inspector discover-dialog ${expanded ? "is-expanded" : ""}`}
+      className={`discover-inspector${mobile ? " discover-dialog" : ""}${expanded ? " is-expanded" : ""}${readingApplication ? " is-reading-application" : ""}`}
+      onKeyDown={(event) => {
+        if (
+          event.key === "Escape" &&
+          !modal.current &&
+          event.target instanceof Element &&
+          event.target.closest("dialog") === event.currentTarget
+        ) {
+          event.preventDefault();
+          closeImmediately();
+        }
+      }}
       onPointerDown={(event) => {
         backdropPress.current =
           event.isPrimary && event.button === 0 && isBackdropPointer(event)
@@ -1061,21 +1125,5 @@ export function OpportunityInspector({
     >
       {content}
     </dialog>
-  ) : (
-    <aside
-      ref={inspector}
-      data-inspector-motion={animateInteractions ? "on" : "off"}
-      aria-labelledby={titleId}
-      className="discover-inspector"
-      onKeyDown={(event) => {
-        if (event.key === "Escape") {
-          event.preventDefault();
-          closeImmediately();
-        }
-      }}
-    >
-      {content}
-    </aside>
   );
-  return surface;
 }

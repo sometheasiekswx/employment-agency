@@ -8,6 +8,15 @@ export class WorkspaceChangedError extends Error {
   }
 }
 
+export class ApiResponseError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+  ) {
+    super(message);
+  }
+}
+
 /** One same-origin transport. Python remains the authority for every operation. */
 export class ApiClient {
   private token = "";
@@ -47,8 +56,9 @@ export class ApiClient {
         });
     if (!response.ok) {
       const body = await response.json().catch(() => ({}));
-      throw new Error(
+      throw new ApiResponseError(
         body.error || `Request failed (${response.status}). Please try again.`,
+        response.status,
       );
     }
     return response;
@@ -69,6 +79,15 @@ export class ApiClient {
     return result;
   }
 
+  async checkCompanyCooldowns() {
+    const generation = this.generation;
+    const { result } = await (await this.request("company-avoid")).json();
+    if (generation !== this.generation || result?.workspace !== this.workspace)
+      throw new WorkspaceChangedError();
+    if (!Array.isArray(result.companies))
+      throw new Error("Company cooldowns could not be checked. Please retry.");
+  }
+
   async action<T = unknown>(
     action: string,
     data: RequestData = {},
@@ -78,6 +97,20 @@ export class ApiClient {
     if (generation !== this.generation) throw new WorkspaceChangedError();
     if (body.result?.reload) this.generation++;
     return body.result as T;
+  }
+
+  async readDocument(id: string, name: "resume.pdf" | "cover-letter.pdf") {
+    const generation = this.generation;
+    const previewUrl = this.previewFileUrl(id, name);
+    if (this.preview && !previewUrl)
+      throw new Error("The example PDF is unavailable.");
+    const response = previewUrl
+      ? await fetch(previewUrl, { cache: "no-store" })
+      : await this.request("file", { id, name });
+    if (!response.ok) throw new Error("The PDF could not be opened.");
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    if (generation !== this.generation) throw new WorkspaceChangedError();
+    return bytes;
   }
 
   async binary(action: string, data: RequestData = {}) {

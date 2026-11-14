@@ -419,6 +419,8 @@
   flex: none;
 }
 .discover-screen .discover-inspector {
+  position: relative;
+  inset: auto;
   display: flex;
   /* Keep room for readable shortlist columns before enlarging the inspector. */
   flex: 0 0 clamp(350px, calc(100vw - 60rem), 430px);
@@ -435,8 +437,14 @@
   color: var(--ink);
   background: var(--discover-card);
 }
-.discover-screen .discover-dialog:not([open]) {
+.discover-screen .discover-inspector:not([open]) {
   display: none;
+}
+@media (min-width: 1001px) {
+  .discover-screen .discover-inspector.is-reading-application {
+    flex: 1 1 auto;
+    width: auto;
+  }
 }
 .discover-inspector-toolbar {
   display: flex;
@@ -497,12 +505,41 @@
 .discover-inspector-company .discover-status {
   font-size: 12px;
 }
-.discover-inspector-body > h2 {
-  margin: 22px 0 12px;
+.role-workspace-heading {
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+  padding: 12px 20px 0;
+}
+.role-workspace-heading .discover-inspector-company {
+  width: 100%;
+}
+.role-workspace-heading h2 {
+  margin: 0;
   font-size: 23px;
   line-height: 1.3;
   font-weight: 500;
   letter-spacing: -0.4px;
+  overflow-wrap: anywhere;
+}
+.role-listing-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  margin: 0;
+  font-size: 13px;
+}
+.role-listing-row {
+  padding-inline: 20px;
+  border-bottom: 1px solid var(--line);
+}
+.role-employer-unconfirmed {
+  margin: 0;
+  color: var(--warning);
+  font-size: 12px;
+}
+.role-secondary {
+  margin: 16px 0;
 }
 .discover-job-reference {
   display: flex;
@@ -781,11 +818,6 @@
   background: var(--primary-hover);
   color: var(--primary-ink);
 }
-.discover-screen .discover-advert {
-  border: 1px solid var(--line);
-  color: var(--ink);
-  background: transparent;
-}
 .discover-screen .discover-inspector-actions .discover-icon-button {
   padding: 0;
   width: 35px;
@@ -961,9 +993,6 @@
   .discover-inspector-company .discover-status {
     font-size: 11px;
   }
-  .discover-inspector-actions .discover-advert > span {
-    display: none;
-  }
   .discover-refresh {
     font-size: 0 !important;
   }
@@ -1097,6 +1126,24 @@
     margin: 0;
     border-radius: 16px 16px 0 0;
   }
+  .discover-screen .discover-dialog .role-listing-link {
+    min-height: 44px;
+  }
+  .discover-screen .discover-dialog .role-workspace-heading {
+    max-block-size: 29dvh;
+    padding: 8px 17px 0;
+    overflow: clip;
+  }
+  .discover-screen
+    .discover-dialog
+    .role-workspace-heading[data-overflow="true"] {
+    overflow: auto;
+    overscroll-behavior: contain;
+    touch-action: pan-y pinch-zoom;
+  }
+  .discover-screen .discover-dialog .role-listing-row {
+    padding-inline: 17px;
+  }
   .discover-screen .discover-dialog.is-expanded {
     height: calc(100dvh - 8px);
   }
@@ -1137,9 +1184,6 @@
   .discover-inspector-actions > .button,
   .discover-inspector-actions > button {
     padding: 8px 10px;
-  }
-  .discover-inspector-actions .discover-advert > span {
-    display: none;
   }
 }
 @media (min-width: 901px) and (max-width: 1000px) {

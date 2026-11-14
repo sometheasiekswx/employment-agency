@@ -40,11 +40,17 @@ A submitted application snapshot or a listing tagged Already submitted. It moves
 **Company cooldown**:
 The temporary pause on discovery and new applications at a hiring employer after two distinct confirmed submissions. Its deadline uses the workspace’s configured duration and the actual submission history.
 
+**Hiring employer**:
+The organisation hiring for a vacancy, which can differ from the recruiter or listing source. An agent can resolve its identity from reliable evidence; an uncertain identity remains a question for the user.
+
 **Companies to avoid**:
 Hiring employers whose company cooldown is active at the time of a job search.
 
 **Saved role**:
 An opportunity bookmarked by the user. The bookmark places the role in Saved while it is available to browse. If a correction returns a role to browsing, its bookmark determines whether it goes back to Saved.
+
+**For my agent**:
+A role marked for later work by the user's agent, including before an application draft exists. The mark records intention; it does not start an application or authorize sending.
 
 **Job reference**:
 The title, company and full workspace job ID copied from a listing, with its original link when available. The ID identifies the exact role when titles and companies repeat.
@@ -52,8 +58,8 @@ The title, company and full workspace job ID copied from a listing, with its ori
 **Requirement evidence**:
 The user's confirmation or written example for a specific requirement on a job. A quick confirmation saves the requirement as a reusable, self-confirmed skill. A written example adds a separate confirmed career fact.
 
-**Source preview**:
-A view in the mobile web app for a listing, company careers site or listing source. It offers saved details, the live page when available and a link to the original site.
+**Opportunity source link**:
+A link to a job listing, company careers page or listing site's home page. In a web browser it opens in a separate tab alongside the workspace.
 
 **Native source browser**:
 The system browser view opened from an installed mobile app when following a listing or company link. Closing it returns to the workspace.
@@ -92,4 +98,4 @@ The publicly accessible static demo with the owner’s redacted résumé and pro
 An application draft prepared from the selected résumé in the public showcase. The draft lives in the current tab and the visitor can download a copy.
 
 **Submission approval**:
-The user's confirmation of one external application attempt in the local Apply For Me preview, bound to its exact documents, recipient, answers and final action. Requesting preparation or recording a review decision does not constitute this approval. The capability is implemented in the unreleased local source preview; the published 0.6 wheel remains draft-only and hosted execution is disabled.
+The user's authorization to prepare and submit the role or selected roles named when starting **Apply for me**. A **For my agent** mark, draft preparation or review decision does not grant this authority; actions outside the authorized scope require a new decision. See [ADR 0016](docs/adr/0016-authorize-role-submission-when-starting-agent.md). Earlier delivery attempts retain their original final-approval contract.

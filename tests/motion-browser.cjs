@@ -257,7 +257,7 @@ async function openWithPointer(page, label) {
   await cloud(page).click();
   await heading(page, "Cloud Software Engineer").waitFor();
   await waitForMotion(page);
-  if (!(await inspector(page).evaluate((node) => node.tagName === "DIALOG")))
+  if (!(await inspector(page).evaluate((node) => node.matches(":modal"))))
     await assertFooter(page, `${label}: actions during arrival`, false);
   else
     assert.ok(
@@ -452,24 +452,18 @@ async function selectionBack(page, base, state, label) {
     ),
   );
   assert.equal(params.get("view"), "all");
-  const documents = inspector(page).getByRole("link", {
-    name: "Review documents",
-    exact: true,
-  });
-  const application = new URL(
-    await documents.getAttribute("href"),
-    base,
-  ).searchParams.get("application");
-  await documents.click();
-  await page.locator(`[data-application-id="${application}"]`).waitFor();
+  const document = inspector(page).locator(".opportunity-application");
+  await document.waitFor();
+  const application = await document.getAttribute("data-application-id");
+  assert.ok(application);
   if (label === "mobile") {
-    const workbench = page.locator(".opportunities-workbench:visible");
+    const workbench = page.locator(".discover-inspector:visible");
     await assertFocused(
-      workbench.getByRole("heading", {
-        name: "Cloud Software Engineer",
+      workbench.getByRole("button", {
+        name: "Resize opportunity details",
         exact: true,
       }),
-      "mobile: opening documents focuses the role heading",
+      "mobile: opening a prepared role focuses the workspace immediately",
     );
     await page.goBack();
     await page.waitForURL(base + "/discover/?view=all");
@@ -479,12 +473,10 @@ async function selectionBack(page, base, state, label) {
       "mobile: Back restores the shortlist opener",
     );
     await cloud(page).click();
-    await heading(page, "Cloud Software Engineer").waitFor();
-    await documents.click();
     await page.locator(`[data-application-id="${application}"]`).waitFor();
   }
   await page
-    .locator(".opportunities-workbench:visible")
+    .locator(".discover-inspector:visible")
     .getByRole("button", { name: "Overview", exact: true })
     .click();
   await page.waitForURL(
@@ -495,10 +487,8 @@ async function selectionBack(page, base, state, label) {
   await heading(page, "Cloud Software Engineer").waitFor();
   await settled(page);
   await assertFocused(
-    label === "mobile"
-      ? inspector(page).locator(".discover-sheet-expand")
-      : close(page),
-    `${label}: Overview restores inspector focus`,
+    inspector(page).getByRole("button", { name: "Overview", exact: true }),
+    `${label}: Overview leaves focus on the current tab`,
   );
   assert.equal(
     await cloud(page).getAttribute("aria-pressed"),
@@ -542,6 +532,10 @@ async function mobileSheet(page, session) {
   );
   await page.screenshot({ path: path.join(output, "mobile-settled.png") });
   const toggle = inspector(page).locator(".discover-sheet-expand");
+  await inspector(page)
+    .getByRole("button", { name: "Overview", exact: true })
+    .click();
+  await settled(page);
   await mobileGestures(page, session);
   await startProbe(page, "mobile rapid expand / collapse / expand");
   await toggle.click({ force: true });
@@ -716,9 +710,13 @@ async function mobileGestures(page, session) {
   const halfHeight = await height();
   const beforeScroll = await page.evaluate(() => window.scrollY);
 
-  const intermediate = await swipeSheet(page, session, toggle, -280);
+  const maximum = await inspector(page).evaluate((element) =>
+    parseFloat(getComputedStyle(element).maxHeight),
+  );
+  const travel = Math.min(280, Math.max(75, (maximum - halfHeight) * 0.85));
+  const intermediate = await swipeSheet(page, session, toggle, -travel);
   assert.ok(
-    Math.abs(intermediate.height - halfHeight - 280) < 2,
+    Math.abs(intermediate.height - halfHeight - travel) < 2,
     "sheet follows the finger 1:1",
   );
   await settled(page);
@@ -728,7 +726,7 @@ async function mobileGestures(page, session) {
     "drag up expands without a tap or double toggle",
   );
   const fullHeight = await height();
-  assert.ok(fullHeight > halfHeight + 150);
+  assert.ok(fullHeight > halfHeight + 70);
   await page.screenshot({
     path: path.join(output, "mobile-drag-expanded.png"),
   });
@@ -1068,9 +1066,17 @@ async function reducedMotion(page, label, mobile) {
   await heading(page, "Cloud Software Engineer").waitFor();
   if (mobile) {
     const toggle = inspector(page).locator(".discover-sheet-expand");
+    await inspector(page)
+      .getByRole("button", { name: "Overview", exact: true })
+      .click();
+    const collapsed = await inspector(page).boundingBox();
+    await toggle.click();
+    const expanded = await inspector(page).boundingBox();
     await toggle.click();
     const session = await page.context().newCDPSession(page);
-    for (const distance of [280, -280]) {
+    const travel = expanded.height - collapsed.height;
+    assert.ok(travel > 60, "the overview has two reachable detents");
+    for (const distance of [-travel * 0.75, travel * 0.7]) {
       await swipeSheet(page, session, toggle, distance);
       await frames(page, 2);
       assert.equal(
@@ -1201,7 +1207,7 @@ async function reducedMotion(page, label, mobile) {
         if (
           url.pathname.startsWith("/api/") &&
           request.method() !== "GET" &&
-          !["/api/rank", "/api/save-job"].includes(url.pathname)
+          !["/api/rank", "/api/save-job", "/api/file"].includes(url.pathname)
         )
           unexpectedWrites.push(url.pathname);
       });
@@ -1220,7 +1226,7 @@ async function reducedMotion(page, label, mobile) {
       assert.deepEqual(
         unexpectedWrites,
         [],
-        `${label}: only ranking and fictional bookmarks may run`,
+        `${label}: only read operations and fictional bookmarks may run`,
       );
       const video = page.video();
       await context.close();

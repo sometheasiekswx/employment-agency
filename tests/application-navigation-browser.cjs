@@ -25,7 +25,7 @@ const assert = require("node:assert/strict");
     const packages = page.locator(".discover-card-open");
     await packages.nth(1).waitFor();
     assert.equal(
-      await page.locator(".opportunities-workbench:visible").count(),
+      await page.locator(".discover-inspector:visible").count(),
       0,
       "The default first package does not open or take focus",
     );
@@ -41,26 +41,24 @@ const assert = require("node:assert/strict");
       (app) => app.job_id === selectedJob,
     );
     assert.ok(expected);
-    await page
-      .locator(".discover-inspector")
-      .getByRole("button", { name: "Documents", exact: true })
-      .click();
-    const workspace = page.locator(".opportunities-workbench:visible");
+    const workspace = page.locator(".discover-inspector:visible");
     const target = workspace.locator(`[data-application-id="${expected.id}"]`);
     await target.waitFor();
-    await page.waitForURL(
-      (url) => url.searchParams.get("application") === expected.id,
-    );
-    assert.equal(
-      new URL(page.url()).searchParams.get("application"),
-      expected.id,
-    );
     assert.equal(new URL(page.url()).searchParams.get("view"), "applications");
-    await page.waitForFunction(
-      () =>
-        document.activeElement?.getAttribute("aria-label") ===
-        "Close application workspace",
+    assert.equal(
+      await workspace
+        .getByRole("button", { name: "CV", exact: true })
+        .getAttribute("aria-pressed"),
+      "true",
     );
+    const opener = await workspace
+      .getByRole("link", { name: "View job listing", exact: true })
+      .elementHandle();
+    await workspace
+      .getByRole("button", { name: "Documents", exact: true })
+      .click();
+    await page.waitForURL((url) => url.searchParams.get("panel") === "files");
+    assert.equal(await opener.evaluate((node) => node.isConnected), true);
     const labelId = await workspace.getAttribute("aria-labelledby");
     assert.equal(
       await page.locator(`[id="${labelId}"]`).textContent(),
@@ -91,7 +89,7 @@ const assert = require("node:assert/strict");
       "Polling must leave focus on the user's current control",
     );
     await workspace
-      .getByRole("button", { name: "Close application workspace", exact: true })
+      .getByRole("button", { name: "Close opportunity details", exact: true })
       .click();
     await page.waitForFunction(
       (jobId) =>
@@ -112,7 +110,7 @@ const assert = require("node:assert/strict");
       .waitFor();
     await packages.nth(1).waitFor();
     assert.equal(
-      await page.locator(".opportunities-workbench:visible").count(),
+      await page.locator(".discover-inspector:visible").count(),
       0,
       "An invalid requested package never opens a different application",
     );

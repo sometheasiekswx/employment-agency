@@ -5,7 +5,7 @@ const { readFile } = require("node:fs/promises");
 const { join } = require("node:path");
 const AxeBuilder =
   require("../frontend/node_modules/@axe-core/playwright").default;
-const { openApplication, workbench } = require("./browser-applications.cjs");
+const { openApplication, showPanel, workbench } = require("./browser-applications.cjs");
 (async () => {
   const browser = await chromium.launch({ channel: "chrome", headless: true });
   const context = await browser.newContext();
@@ -68,12 +68,10 @@ const { openApplication, workbench } = require("./browser-applications.cjs");
   );
   const count = await page.locator(".discover-card").count();
   const editedId = await page
-    .getByRole("button", { name: "View / edit CV", exact: true })
-    .first()
-    .evaluate((e) => e.closest("article").dataset.applicationId);
+    .getByRole("button", { name: "Edit CV", exact: true })
+    .evaluate((e) => e.closest("[data-application-id]").dataset.applicationId);
   await page
-    .getByRole("button", { name: "View / edit CV", exact: true })
-    .first()
+    .getByRole("button", { name: "Edit CV", exact: true })
     .click();
   const dialog = page.locator(".document-editor");
   await dialog.waitFor();
@@ -165,6 +163,7 @@ const { openApplication, workbench } = require("./browser-applications.cjs");
     .getByRole("button", { name: `Active ${count}`, exact: true })
     .waitFor();
   await page.locator(`[data-application-id="${draft.id}"]`).waitFor();
+  await showPanel(page, "files");
   assert.ok(
     await page
       .getByRole("combobox", { name: "Document version", exact: true })
@@ -339,8 +338,9 @@ const { openApplication, workbench } = require("./browser-applications.cjs");
     await route.fulfill({ response, json: body });
   });
   await page.setViewportSize({ width: 390, height: 844 });
+  await showPanel(page, "documents");
   await page
-    .getByRole("button", { name: "View / edit CV", exact: true })
+    .getByRole("button", { name: "Edit CV", exact: true })
     .click();
   const canvas = dialog.getByRole("img", { name: "PDF page 1 of 2" });
   await canvas.waitFor();

@@ -269,14 +269,14 @@ const fs = require("node:fs");
     const removeRole = { name: "Remove Software Engineer", exact: true };
     assert.equal(
       await page
-        .locator(".opportunities-workbench-header")
+        .locator(".discover-inspector-toolbar")
         .getByRole("button", removeRole)
         .count(),
       0,
       "Role removal stays away from the workbench's Close button",
     );
     await page
-      .locator(".opportunities-role-actions")
+      .locator(".discover-inspector-footer")
       .getByRole("button", removeRole)
       .waitFor();
     await page.screenshot({ path: ".impeccable/review/desktop.png" });

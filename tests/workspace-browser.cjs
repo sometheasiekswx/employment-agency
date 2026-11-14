@@ -3,7 +3,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_PATH || "playwright");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
-const { openApplication } = require("./browser-applications.cjs");
+const { applicationCard, openApplication, showPanel } = require("./browser-applications.cjs");
 (async () => {
   const browser = await chromium.launch({ channel: "chrome", headless: true });
   const page = await browser.newPage({
@@ -62,6 +62,7 @@ const { openApplication } = require("./browser-applications.cjs");
     "\n% Local edit\n",
   );
   await page.reload();
+  await showPanel(page, "files");
   await page
     .getByRole("button", { name: "Validate edits as a new draft" })
     .click();
@@ -70,6 +71,7 @@ const { openApplication } = require("./browser-applications.cjs");
     await page.request.get(new URL("/api/state", page.url()).href)
   ).json();
   const adopted = after.state.applications.at(-1);
+  await applicationCard(page, adopted).waitFor();
   assert.equal(
     after.state.applications.length,
     initial.state.applications.length + 1,
@@ -82,6 +84,7 @@ const { openApplication } = require("./browser-applications.cjs");
       url.searchParams.get("application") === adopted.id &&
       url.searchParams.get("panel") === "documents",
   );
+  await showPanel(page, "files");
   assert.equal(
     await page
       .getByRole("combobox", { name: "Document version", exact: true })
@@ -89,18 +92,13 @@ const { openApplication } = require("./browser-applications.cjs");
     adopted.id,
     "Validation opens its returned draft without manually selecting a version",
   );
-  await page
-    .locator('article[data-application-id="' + adopted.id + '"]')
-    .waitFor();
   assert.equal(
     await visible.count(),
     visibleCount,
     "Editing changes the current version without increasing queue cards",
   );
   assert.equal(
-    await page
-      .locator('article[data-application-id="' + original.id + '"]')
-      .count(),
+    await applicationCard(page, original).count(),
     0,
     "The new draft replaces its earlier queue card",
   );
@@ -149,9 +147,7 @@ const { openApplication } = require("./browser-applications.cjs");
       url.searchParams.get("view") === "applications" &&
       url.searchParams.get("panel") === "documents",
   );
-  await page
-    .locator(`article[data-application-id="${historyDraft.id}"]`)
-    .waitFor();
+  await applicationCard(page, historyDraft).waitFor();
   assert.equal(historyDraft.status, "draft");
   assert.ok(
     fs.readFileSync(adoptedPdf).equals(verifiedPdf),

@@ -34,77 +34,69 @@
   font-size: 12px;
   color: var(--muted);
 }
+.agent-queue-tools {
+  margin-bottom: 1rem;
+  padding: 0.875rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--card);
+}
+.agent-queue-tools .agent-start,
+.agent-queue-tools .agent-progress {
+  margin-bottom: 0;
+}
+.agent-readiness > p,
+.agent-queue-tools > p {
+  margin: 0;
+}
+.agent-queue-role {
+  margin-top: 0.75rem;
+}
+.agent-queue-role > button {
+  margin-bottom: 0.5rem;
+}
+.agent-queue-pagination {
+  margin-top: 1rem;
+}
+.discover-agent-selection {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2.75rem;
+  margin: 0;
+  font-size: 0.8125rem;
+}
+.discover-agent-selection input {
+  margin: 0;
+}
+.discover-card-tools:has(.discover-agent-selection) {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.discover-inspector-actions .agent-intent-button[aria-pressed="true"] {
+  background: var(--accent-soft);
+  color: var(--link);
+  border-color: var(--accent-border);
+}
+.discover-inspector-actions .agent-intent-button {
+  white-space: nowrap;
+}
+@media (max-width: 390px) {
+  .discover-inspector-actions > .discover-primary {
+    flex-basis: 100%;
+  }
+}
 .discover-screen .discover-layout.has-workbench {
   gap: 20px;
 }
 .discover-layout.has-workbench .discover-board {
   flex: 0 0 290px;
 }
-.opportunities-workbench {
-  position: relative;
-  inset: auto;
-  margin: 0;
-  padding: 0;
-  color: var(--ink);
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: var(--card);
-  overflow: hidden;
-}
-.opportunities-workbench[hidden],
-.opportunities-workbench:not([open]) {
-  display: none;
-}
-.opportunities-overview-unavailable {
-  line-height: 1.6;
-}
-.opportunities-overview-unavailable h3 {
-  margin-top: 0;
-  font-size: 17px;
-}
-.opportunities-overview-unavailable p {
-  color: var(--muted);
-}
-.opportunities-workbench-header {
-  display: flex;
-  align-items: start;
-  justify-content: space-between;
-  gap: 20px;
-  padding: 22px 24px 16px;
-}
-.opportunities-workbench-header p {
-  margin: 0 0 7px;
-  color: var(--muted);
-  font-size: 13px;
-}
-.opportunities-workbench-actions {
-  display: flex;
-  flex-shrink: 0;
-  gap: 6px;
-}
-.opportunities-role-actions {
-  border-top: 1px solid var(--line);
-  margin-top: 24px;
-  padding-top: 16px;
-}
-.opportunities-workbench-dialog
-  :is(.opportunities-workbench-actions, .opportunities-role-actions)
-  button {
-  min-width: 44px;
-  min-height: 44px;
-}
-.opportunities-workbench-header h2 {
-  margin: 0;
-  font-size: 21px;
-  line-height: 1.35;
-  letter-spacing: -0.025em;
-}
 .opportunities-detail-tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
   border-bottom: 1px solid var(--line);
   padding: 0 16px;
@@ -128,32 +120,16 @@
   border-color: var(--accent);
   color: var(--accent);
 }
-.opportunities-workbench-scroll {
-  overflow: auto;
-  min-height: 0;
-  flex: 1;
-  padding: 22px 24px;
-  scrollbar-width: thin;
-  scrollbar-color: var(--scroll-thumb) var(--surface);
-}
-.opportunities-workbench-dialog {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  max-width: 100%;
-  height: 100dvh;
-  max-height: 100dvh;
-  margin: 0;
-  padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
-  border: 0;
-  border-radius: 0;
-  color: var(--ink);
-}
-.opportunities-workbench-dialog:not([open]) {
-  display: none;
-}
-.opportunities-workbench-dialog::backdrop {
-  background: var(--scrim);
+@media (max-width: 440px) {
+  .opportunities-detail-tabs {
+    gap: 0;
+    padding-inline: 8px;
+  }
+  .opportunities-detail-tabs button {
+    flex: 1 0 auto;
+    justify-content: center;
+    padding: 6px;
+  }
 }
 .opportunities-historical {
   margin-top: 24px;
@@ -167,59 +143,47 @@
   .discover-layout.has-workbench .discover-board {
     flex-basis: 272px;
   }
-  .opportunities-workbench-header,
-  .opportunities-workbench-scroll {
-    padding: 16px;
-  }
 }
-@media (max-width: 700px) {
-  .opportunities-workbench-header {
-    padding: 18px 20px 14px;
-  }
-  .opportunities-workbench-scroll {
-    padding: 20px;
-  }
-}
-.opportunities-workbench .dossier-header {
+.discover-inspector .dossier-header {
   padding: 0 0 12px;
   background: transparent;
 }
-.opportunities-workbench .dossier-header h2 {
+.discover-inspector .dossier-header h2 {
   display: none;
 }
-.opportunities-workbench .dossier-header p {
+.discover-inspector .dossier-header p {
   margin: 0;
 }
-.opportunities-workbench .dossier-header .pill,
-.opportunities-workbench .dossier-header .review-status {
+.discover-inspector .dossier-header .pill,
+.discover-inspector .dossier-header .review-status {
   font-size: 12px;
 }
-.opportunities-workbench .dossier-content,
-.opportunities-workbench .review-pane {
+.discover-inspector .dossier-content,
+.discover-inspector .review-pane {
   padding: 0;
   background: transparent;
 }
-.opportunities-workbench .editor-actions {
+.discover-inspector .editor-actions {
   margin-top: 0;
 }
-.opportunities-workbench .application-context {
+.discover-inspector .application-context {
   margin: 18px 0;
 }
-.opportunities-workbench .application-context > summary {
+.discover-inspector .application-context > summary {
   color: var(--muted);
   font-size: 13px;
 }
-.opportunities-workbench .review-pane textarea {
+.discover-inspector .review-pane textarea {
   min-height: 88px;
 }
-.opportunities-workbench-dialog .review-pane textarea {
+.discover-dialog .review-pane textarea {
   /* Keep the viewport stable when iPhone Safari focuses Comments. */
   font-size: 1rem;
 }
-.opportunities-workbench .review-header {
+.discover-inspector .review-header {
   margin-bottom: 16px;
 }
-.opportunities-workbench .application-review-history {
+.discover-inspector .application-review-history {
   margin: 0 0 24px;
 }
 .application-activity-list {
@@ -259,7 +223,8 @@
   gap: 12px;
   flex-wrap: wrap;
   align-items: end;
-  padding: 14px 24px;
+  padding: 0 0 14px;
+  margin-bottom: 16px;
   border-bottom: 1px solid var(--line);
 }
 .application-versions > label {
@@ -295,7 +260,7 @@
 @media (max-width: 700px) {
   .application-versions {
     grid-template-columns: minmax(0, 1fr);
-    padding: 12px 20px;
+    padding: 0 0 12px;
     gap: 8px;
   }
   .application-versions > a {

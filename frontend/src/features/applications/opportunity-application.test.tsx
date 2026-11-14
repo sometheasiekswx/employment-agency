@@ -13,6 +13,7 @@ import { OpportunityApplication } from "./opportunity-application";
 
 const fixture = vi.hoisted(() => ({
   action: vi.fn(),
+  readDocument: vi.fn(),
   run: vi.fn(),
   refresh: vi.fn(),
   notify: vi.fn(),
@@ -24,7 +25,12 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/discover/",
   useSearchParams: () => new URLSearchParams(),
 }));
-const client = { action: fixture.action, hosted: false, preview: false };
+const client = {
+  action: fixture.action,
+  readDocument: fixture.readDocument,
+  hosted: false,
+  preview: false,
+};
 vi.mock("@/components/workspace-provider", () => ({
   useWorkspace: () => ({
     state: {
@@ -73,7 +79,7 @@ function LeaveControl() {
   );
 }
 const workspace = (
-  tab: "documents" | "activity" = "documents",
+  tab: "documents" | "files" | "activity" = "documents",
   app = application,
 ) => (
   <DraftProvider>
@@ -94,6 +100,9 @@ beforeEach(() => {
       };
     return {};
   });
+  fixture.readDocument
+    .mockReset()
+    .mockResolvedValue(new Uint8Array([37, 80, 68, 70]));
   fixture.run.mockReset().mockResolvedValue(undefined);
   fixture.refresh.mockResolvedValue(undefined);
   vi.stubGlobal(
@@ -124,22 +133,23 @@ beforeEach(() => {
 });
 
 it("shows documents and metadata separately from activity without remounting the review draft", async () => {
-  const view = render(workspace());
+  const view = render(workspace("files"));
   const card = screen.getByRole("article");
   expect(screen.getByText("Melbourne")).not.toBeVisible();
   await userEvent.click(
     screen.getByText("Application details", { selector: "summary" }),
   );
   expect(screen.getByText("Melbourne")).toBeVisible();
-  expect(screen.getByRole("button", { name: "View / edit CV" })).toBeVisible();
-  expect(screen.getByRole("link", { name: "CV PDF" })).toHaveAttribute(
-    "href",
-    `/files/${application.id}/resume.pdf`,
-  );
+  expect(
+    screen.getByRole("button", { name: "View / edit cover letter" }),
+  ).toBeVisible();
+  expect(
+    screen.getByRole("link", { name: "Cover letter PDF" }),
+  ).toHaveAttribute("href", `/files/${application.id}/cover-letter.pdf`);
   expect(screen.queryByRole("textbox", { name: "Comments" })).toBeNull();
   view.rerender(workspace("activity"));
   expect(screen.getByRole("article")).toBe(card);
-  expect(screen.queryByRole("button", { name: "View / edit CV" })).toBeNull();
+  expect(screen.queryByRole("button", { name: "Edit CV" })).toBeNull();
   const comment = screen.getByRole("textbox", { name: "Comments" });
   await userEvent.type(comment, "My unfinished review.");
   view.rerender(workspace("documents"));
@@ -189,22 +199,20 @@ it("keeps the navigation guard while activity is hidden and saves the same draft
   confirm.mockRestore();
 });
 
-it("marks the displayed document version reviewed without saving a pending Activity comment", async () => {
-  const view = render(workspace("activity"));
-  await userEvent.type(screen.getByLabelText("Comments"), "Pending comment");
-  view.rerender(workspace("documents"));
-  await userEvent.click(
-    screen.getByRole("button", { name: "Mark this version reviewed" }),
+it("reads the verified CV without invoking the editor or marking the version reviewed", async () => {
+  render(workspace());
+  expect(screen.getByRole("heading", { name: "CV" })).toBeVisible();
+  expect(screen.getByRole("link", { name: "Download CV" })).toHaveAttribute(
+    "href",
+    "/files/application-a/resume.pdf",
   );
-  await waitFor(() =>
-    expect(fixture.run).toHaveBeenCalledWith(
-      "review",
-      { id: application.id, status: "reviewed" },
-      "This version is marked reviewed.",
-    ),
+  expect(screen.getByRole("button", { name: "Edit CV" })).toBeVisible();
+  expect(fixture.readDocument).toHaveBeenCalledExactlyOnceWith(
+    application.id,
+    "resume.pdf",
   );
-  view.rerender(workspace("activity"));
-  expect(screen.getByLabelText("Comments")).toHaveValue("Pending comment");
+  expect(fixture.action).not.toHaveBeenCalled();
+  expect(fixture.run).not.toHaveBeenCalled();
 });
 
 it("preserves the explicit submission confirmation when switching tabs without recording anything", async () => {
@@ -322,7 +330,7 @@ it("keeps the comment and confirmation drafts protected when recording a manual 
 
 it("opens the exact document version and retains unsaved edits until explicit discard, then restores focus", async () => {
   render(workspace());
-  const opener = screen.getByRole("button", { name: "View / edit CV" });
+  const opener = screen.getByRole("button", { name: "Edit CV" });
   await userEvent.click(opener);
   expect(fixture.action).toHaveBeenCalledWith("document-editor", {
     id: application.id,
@@ -353,7 +361,7 @@ it("opens the exact document version and retains unsaved edits until explicit di
 
 it("restores focus to the workspace when a document's invoking tab is hidden", async () => {
   const view = render(workspace());
-  await userEvent.click(screen.getByRole("button", { name: "View / edit CV" }));
+  await userEvent.click(screen.getByRole("button", { name: "Edit CV" }));
   await screen.findByRole("dialog");
   view.rerender(workspace("activity"));
   await userEvent.click(screen.getByRole("button", { name: "Close" }));
@@ -363,20 +371,29 @@ it("restores focus to the workspace when a document's invoking tab is hidden", a
   ).toHaveFocus();
 });
 
-it("opens and closes the existing Apply For Me review without authorizing an external action", async () => {
-  render(workspace("activity"));
-  const opener = screen.getByRole("button", { name: "Apply For Me" });
-  await userEvent.click(opener);
-  const dialog = await screen.findByRole("dialog", {
-    name: "Apply for Software Engineer",
+it("shows previous delivery receipts in Activity without offering another send", async () => {
+  fixture.action.mockResolvedValueOnce({
+    attempts: [
+      {
+        id: "confirmed-legacy",
+        application_id: application.id,
+        channel: "gmail",
+        status: "confirmed",
+        binding: { job_id: application.job_id },
+        receipt: { provider: "fixture", message_id: "fixture-message" },
+      },
+    ],
   });
-  await waitFor(() =>
-    expect(fixture.action).toHaveBeenCalledWith("apply-status"),
+  render(workspace("activity"));
+  expect(screen.queryByRole("button", { name: /apply for me/i })).toBeNull();
+  expect(
+    await screen.findByRole("region", { name: "Previous submission attempts" }),
+  ).toBeVisible();
+  await userEvent.click(
+    screen.getByText("Confirmation evidence", { selector: "summary" }),
   );
-  await userEvent.click(within(dialog).getByRole("button", { name: "Close" }));
-  expect(screen.queryByRole("dialog")).toBeNull();
-  expect(opener).toHaveFocus();
-  expect(fixture.action).toHaveBeenCalledTimes(1);
+  expect(screen.getByText(/fixture-message/)).toBeVisible();
+  expect(fixture.action).toHaveBeenCalledExactlyOnceWith("apply-status");
   expect(fixture.run).not.toHaveBeenCalled();
 });
 
@@ -389,7 +406,7 @@ it("keeps submitted documents linked to their exact record and preserves correct
       "Confirmed delivery evidence prevents correction.",
   };
   const view = render(workspace("documents", submitted));
-  expect(screen.getByRole("link", { name: "CV PDF" })).toHaveAttribute(
+  expect(screen.getByRole("link", { name: "Download CV" })).toHaveAttribute(
     "href",
     `/files/${submitted.id}/resume.pdf`,
   );
@@ -400,9 +417,7 @@ it("keeps submitted documents linked to their exact record and preserves correct
   expect(
     screen.queryByRole("button", { name: "Correct submission record…" }),
   ).toBeNull();
-  expect(
-    screen.getByRole("button", { name: "Submission details" }),
-  ).toBeVisible();
+  expect(screen.queryByRole("button", { name: /apply for me/i })).toBeNull();
   expect(screen.getByText("Review history (1)")).toBeVisible();
 });
 
@@ -414,9 +429,8 @@ it("starts a separate local review draft when the selected application changes",
   );
   view.rerender(workspace("activity", { ...application, id: "application-b" }));
   expect(screen.getByLabelText("Comments")).toHaveValue("");
-  expect(screen.getByRole("article")).toHaveAttribute(
-    "data-application-id",
-    "application-b",
-  );
+  expect(
+    screen.getByRole("article").closest("[data-application-id]"),
+  ).toHaveAttribute("data-application-id", "application-b");
   expect(fixture.run).not.toHaveBeenCalled();
 });

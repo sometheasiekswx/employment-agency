@@ -71,6 +71,8 @@ if __name__ == '__main__':
     browser('discovery-browser.cjs', '')
     with fixture('serve_sqlite_fixture.py') as url:
         browser('sqlite-company-browser.cjs', url)
+    with fixture('serve_sqlite_fixture.py') as url:
+        browser('application-journey-browser.cjs', url)
     with fixture('serve_concept_fixture.py') as url:
         browser('appearance-browser.cjs', url)
         browser('opportunities-browser.cjs', url)
@@ -80,7 +82,7 @@ if __name__ == '__main__':
         browser('requirement-evidence-browser.cjs', url)
     with fixture('serve_concept_fixture.py') as url:
         browser('discover-browser.cjs', url)
-        browser('source-viewer-browser.cjs', url)
+        browser('source-links-browser.cjs', url)
         browser('search-navigation-browser.cjs', url)
         browser('application-navigation-browser.cjs', url)
     with fixture('serve_concept_fixture.py') as url:

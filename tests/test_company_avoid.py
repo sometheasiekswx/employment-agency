@@ -15,7 +15,7 @@ from unittest.mock import patch
 from employment_agency import companies, store
 from employment_agency.server import server
 from employment_agency.service import Service
-from employment_agency.sqlite_workspace import DATABASE, SQLiteState
+from employment_agency.sqlite_workspace import DATABASE, DATABASE_VERSION, SQLiteState
 import test_workflow
 
 
@@ -216,6 +216,7 @@ class CompanyAvoid(unittest.TestCase):
         path = self.w.path
         self.w.close()
         with closing(sqlite3.connect(path / DATABASE)) as database, database:
+            database.execute('DROP TABLE agent_queue')
             database.execute('DROP TABLE employer_submissions')
             database.execute("""
                 CREATE TABLE employer_submissions (
@@ -229,7 +230,7 @@ class CompanyAvoid(unittest.TestCase):
 
         self.w = store.Workspace(path, create=False)
         self.s = Service(self.w)
-        self.assertEqual(self.w.database.connection.execute('PRAGMA user_version').fetchone(), (5,))
+        self.assertEqual(self.w.database.connection.execute('PRAGMA user_version').fetchone(), (DATABASE_VERSION,))
         self.assertEqual(self.avoid(), expected)
 
     def test_backfills_schema_three_and_rebuilds_after_portable_restore(self):
@@ -241,6 +242,7 @@ class CompanyAvoid(unittest.TestCase):
         manifest = (path / 'state.json').read_bytes()
         self.w.close()
         with closing(sqlite3.connect(path / DATABASE)) as database, database:
+            database.execute('DROP TABLE agent_queue')
             database.execute('DROP TABLE employer_submissions')
             database.execute('PRAGMA user_version = 3')
 
@@ -257,7 +259,7 @@ class CompanyAvoid(unittest.TestCase):
         self.assertEqual(json.loads(subprocess.check_output(cli, input=b'{}')), expected)
         self.w = store.Workspace(path, create=False)
         self.s = Service(self.w)
-        self.assertEqual(self.w.database.connection.execute('PRAGMA user_version').fetchone(), (5,))
+        self.assertEqual(self.w.database.connection.execute('PRAGMA user_version').fetchone(), (DATABASE_VERSION,))
         self.assertEqual(self.w.read(), before)
         self.assertEqual((path / 'state.json').read_bytes(), manifest)
 

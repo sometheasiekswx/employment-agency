@@ -4,7 +4,6 @@ import os
 from flask import Flask, request, Response, jsonify
 from werkzeug.exceptions import HTTPException
 from .cloud import config, Supabase, execute, CloudError
-from .listing_frame import listing_frame
 from .web_assets import asset, script_policy, MissingFrontendError
 
 app = Flask(__name__, static_folder=None)
@@ -47,16 +46,6 @@ def static_file(name):
 @app.get('/api/runtime')
 def runtime():
     return jsonify(mode='hosted')
-
-
-@app.get('/api/listing-preview-frame')
-def preview_frame():
-    hosts = request.args.getlist('host')
-    try:
-        html, headers = listing_frame(hosts[0] if len(hosts) == 1 else None)
-    except ValueError:
-        return jsonify(error='Invalid website preview host'), 400
-    return Response(html, headers=headers, mimetype='text/html')
 
 
 @app.get('/api/config')

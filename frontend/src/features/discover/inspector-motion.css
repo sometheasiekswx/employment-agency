@@ -91,18 +91,11 @@
   .discover-dialog .discover-inspector-body {
     padding-block: 16px;
   }
-  .discover-sheet-company {
-    padding: 16px 17px 0;
-  }
   .discover-dialog .discover-inspector-company .discover-employer-mark {
     width: 32px;
     height: 32px;
     flex-basis: 32px;
     font-size: 15px;
-  }
-  .discover-dialog .discover-inspector-body > h2 {
-    margin-top: 0;
-    margin-bottom: 10px;
   }
   .discover-dialog .discover-role-location {
     margin-block: 8px;
@@ -138,8 +131,5 @@
   }
   .discover-dialog .discover-inspector-body {
     padding-block-start: 0.625rem;
-  }
-  .discover-dialog .discover-inspector-body > h2 {
-    font-size: 1.25rem;
   }
 }

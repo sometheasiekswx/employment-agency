@@ -102,6 +102,9 @@ export function useSheetGesture({
   useLayoutEffect(() => {
     callbacks.current = { onDismiss, onGrab };
   }, [onDismiss, onGrab]);
+  const resetReading = useCallback(() => {
+    if (body.current) body.current.scrollTop = 0;
+  }, []);
 
   const stopReading = useCallback(() => {
     scrollGeneration.current += 1;
@@ -243,10 +246,13 @@ export function useSheetGesture({
       suppressClick.current = false;
       stopReading();
       const target = event.target as Element;
+      if (target.closest("dialog") !== element) return;
       const fromHeader = Boolean(target.closest(headerRegion));
       const fromBody = !fromHeader && scroller.contains(target);
       const fromFooter = Boolean(target.closest(footerRegion));
       if (!fromHeader && !fromBody && !fromFooter) return;
+      const heading = target.closest<HTMLElement>(".role-workspace-heading");
+      if (heading && heading.scrollHeight > heading.clientHeight + 1) return;
       if (
         target.closest(editable) ||
         window.getSelection()?.isCollapsed === false
@@ -441,6 +447,7 @@ export function useSheetGesture({
         event.ctrlKey ||
         event.deltaY <= 0 ||
         Math.abs(event.deltaX) > Math.abs(event.deltaY) ||
+        (event.target as Element).closest("dialog") !== element ||
         (event.target as Element).closest(editable)
       )
         return;
@@ -489,5 +496,5 @@ export function useSheetGesture({
     continueReading,
   ]);
 
-  return { dialog, body, handle, expanded, snap, cancel };
+  return { dialog, body, handle, expanded, snap, cancel, resetReading };
 }

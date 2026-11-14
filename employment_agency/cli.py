@@ -122,6 +122,10 @@ def main(argv=None):
         return
     if a.command == 'init' and not a.workspace:
         p.error('init requires --workspace before the command')
+    if a.command == 'action' and a.operation in (
+        'agent-application-start', 'agent-application-resume', 'agent-application-answer',
+    ):
+        p.error('Start, resume or answer a connected application through the running local app or its protected HTTP API.')
     try:
         path, create = selected_workspace(a.workspace)
         if a.command == 'init':
@@ -175,6 +179,8 @@ def main(argv=None):
             service.discovery.close()
         if service.delivery:
             service.delivery.close()
+        if service.agent_execution:
+            service.agent_execution.close()
         w.close()
 
 

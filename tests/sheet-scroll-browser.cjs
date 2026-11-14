@@ -66,6 +66,12 @@ fs.mkdirSync(output, { recursive: true });
     async function open() {
       await role.tap();
       await panel.waitFor();
+      await panel
+        .getByRole("button", { name: "Overview", exact: true })
+        .click();
+      await page.waitForURL(
+        (url) => url.searchParams.get("panel") === "overview",
+      );
       await settle();
     }
     async function drag(
@@ -87,8 +93,9 @@ fs.mkdirSync(output, { recursive: true });
         y = r.y + r.height * fraction;
       assert.ok(
         Math.min(y, y + delta, y + delta + reverse) > 0 &&
-          Math.max(y, y + delta, y + delta + reverse) < 844,
-        "Native touch evidence must remain inside the visible viewport",
+          Math.max(y, y + delta, y + delta + reverse) <
+            (await page.evaluate(() => innerHeight)),
+        `Native touch evidence must remain inside the visible viewport (start ${y.toFixed(1)}, travel ${delta})`,
       );
       await session.send("Input.dispatchTouchEvent", {
         type: "touchStart",
@@ -175,7 +182,7 @@ fs.mkdirSync(output, { recursive: true });
       }, startingScroll);
       assert.equal(await body.evaluate((e) => e.scrollTop), startingScroll);
       await drag(body, startingScroll + pull, {
-        fraction: 0.12,
+        fraction: 0.04,
         beforeEnd: async () => {
           assert.equal(await body.evaluate((e) => e.scrollTop), 0);
           const position = (await panel.boundingBox()).y;
@@ -312,10 +319,10 @@ fs.mkdirSync(output, { recursive: true });
       const footer = panel.locator(".discover-inspector-footer");
       const target =
         region === "title"
-          ? body.locator("h2")
+          ? panel.locator(".role-workspace-heading h2")
           : region === "footer action"
-            ? footer.getByRole("link", {
-                name: "Review documents",
+            ? footer.getByRole("button", {
+                name: "Save Cloud Software Engineer",
                 exact: true,
               })
             : region === "bookmark"
@@ -375,7 +382,7 @@ fs.mkdirSync(output, { recursive: true });
       await panel.waitFor();
       await settle();
       const disabled = panel.getByRole("button", {
-        name: "Prepare draft",
+        name: "Prepare application",
         exact: true,
       });
       assert.equal(await disabled.isDisabled(), true);
@@ -396,16 +403,14 @@ fs.mkdirSync(output, { recursive: true });
       await panel.waitFor({ state: "detached" });
     }
     await open();
-    await panel
-      .getByRole("link", { name: "Review documents", exact: true })
-      .tap();
+    await panel.getByRole("button", { name: "CV", exact: true }).tap();
     await page.waitForURL(
       (url) => url.searchParams.get("panel") === "documents",
     );
-    const workbench = page.locator(".opportunities-workbench:visible");
+    const workbench = page.locator(".discover-inspector:visible");
     await workbench.waitFor();
     await workbench
-      .getByRole("button", { name: "Close application workspace", exact: true })
+      .getByRole("button", { name: "Close opportunity details", exact: true })
       .tap();
     await workbench.waitFor({ state: "hidden" });
     await page.emulateMedia({ reducedMotion: "reduce" });
@@ -417,11 +422,9 @@ fs.mkdirSync(output, { recursive: true });
       "false",
       "reduced motion retains the same sub-threshold return rule",
     );
-    await drag(
-      panel.getByRole("link", { name: "Review documents", exact: true }),
-      -70,
-      { fraction: 0.5 },
-    );
+    await drag(panel.getByRole("button", { name: "CV", exact: true }), -70, {
+      fraction: 0.5,
+    });
     await settle();
     assert.equal(await grip.getAttribute("aria-expanded"), "true");
     await pullPastTop(Math.round((expanded.height - peekHeight) * 0.7));

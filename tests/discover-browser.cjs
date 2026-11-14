@@ -211,13 +211,13 @@ const fs = require("node:fs");
       .getByRole("heading", { name: "Cloud Software Engineer", exact: true })
       .waitFor();
     assert.equal(
-      await page.locator("dialog[open]").count(),
+      await page.locator("dialog:modal").count(),
       0,
       "desktop inspector is nonmodal",
     );
     assert.equal(
       await inspector()
-        .getByRole("link", { name: "Review documents", exact: true })
+        .getByRole("heading", { name: "CV", exact: true })
         .count(),
       1,
     );
@@ -276,16 +276,10 @@ const fs = require("node:fs");
     await openSourceTab(company, new URL("/", listingUrl).href);
     await openSourceTab(listing, listingUrl);
 
-    const existingDocuments = inspector().getByRole("link", {
-      name: "Review documents",
-      exact: true,
-    });
-    const existingApplication = new URL(
-      await existingDocuments.getAttribute("href"),
-      base,
-    ).searchParams.get("application");
-    await existingDocuments.click();
-    await page
+    const existingApplication = initial.applications.find(
+      (app) => app.job_id === selectedParams.get("opportunity"),
+    ).id;
+    await inspector()
       .locator(`[data-application-id="${existingApplication}"]`)
       .waitFor();
     assert.equal(new URL(page.url()).searchParams.get("view"), "all");
@@ -294,7 +288,7 @@ const fs = require("node:fs");
       selectedParams.get("opportunity"),
     );
     await page
-      .locator(".opportunities-workbench:visible")
+      .locator(".discover-inspector:visible")
       .getByRole("button", { name: "Overview", exact: true })
       .click();
     await page.waitForURL(
@@ -304,9 +298,7 @@ const fs = require("node:fs");
       .getByRole("heading", { name: "Cloud Software Engineer", exact: true })
       .waitFor();
     await page.waitForFunction(
-      () =>
-        document.activeElement?.getAttribute("aria-label") ===
-        "Close opportunity details",
+      () => document.activeElement?.textContent === "Overview",
     );
     await checkKeyboardNavigation();
     await page
@@ -456,13 +448,11 @@ const fs = require("node:fs");
       .click();
     const beforePrepare = (await state()).applications.length;
     await inspector()
-      .getByRole("button", { name: "Prepare draft", exact: true })
+      .getByRole("button", { name: "Prepare application", exact: true })
       .click();
-    const documents = inspector().getByRole("link", {
-      name: "Review documents",
-      exact: true,
-    });
-    await documents.waitFor();
+    await inspector()
+      .getByRole("heading", { name: "CV", exact: true })
+      .waitFor();
     assert.equal(preparations, 1);
     const afterPrepare = await state();
     assert.equal(afterPrepare.applications.length, beforePrepare + 1);
@@ -470,9 +460,6 @@ const fs = require("node:fs");
       (app) => app.employer === "Bayform Labs",
     );
     assert.ok(created);
-    const documentUrl = new URL(await documents.getAttribute("href"), base);
-    assert.equal(documentUrl.searchParams.get("application"), created.id);
-    await documents.click();
     await page.locator(`[data-application-id="${created.id}"]`).waitFor();
     await page.waitForURL(
       (url) => url.searchParams.get("application") === created.id,
@@ -488,20 +475,15 @@ const fs = require("node:fs");
         exact: true,
       })
       .click();
-    const submittedLink = inspector().getByRole("link", {
-      name: "View submission",
-      exact: true,
-    });
-    await submittedLink.waitFor();
-    assert.equal(
-      new URL(await submittedLink.getAttribute("href"), base).searchParams.get(
-        "application",
-      ),
-      submitted.id,
-    );
+    await inspector()
+      .locator(`[data-application-id="${submitted.id}"]`)
+      .waitFor();
+    await inspector()
+      .getByRole("heading", { name: "Submission record", exact: true })
+      .waitFor();
     assert.equal(
       await inspector()
-        .getByRole("button", { name: "Prepare draft", exact: true })
+        .getByRole("button", { name: "Prepare application", exact: true })
         .count(),
       0,
     );
@@ -546,9 +528,6 @@ const fs = require("node:fs");
       Boolean(url.searchParams.get("opportunity")),
     );
     const mobileSelectedRoute = page.url();
-    await modal
-      .getByRole("link", { name: "Review documents", exact: true })
-      .click();
     await page
       .locator(`[data-application-id="${existingApplication}"]`)
       .waitFor();
@@ -557,7 +536,7 @@ const fs = require("node:fs");
       new URL(mobileSelectedRoute).searchParams.get("opportunity"),
     );
     await page
-      .locator(".opportunities-workbench:visible")
+      .locator(".discover-inspector:visible")
       .getByRole("button", { name: "Overview", exact: true })
       .click();
     await page.waitForURL(
@@ -566,10 +545,17 @@ const fs = require("node:fs");
     await modal.waitFor();
     assert.equal(await modal.evaluate((element) => element.open), true);
     await checkKeyboardNavigation();
+    await modal.getByRole("button", { name: "Overview", exact: true }).click();
+    await page.waitForURL(
+      (url) => url.searchParams.get("panel") === "overview",
+    );
     const sheet = await modal.boundingBox();
     assert.ok(
-      sheet.y >= 844 * 0.4 - 1,
-      "default sheet leaves the shortlist visible",
+      sheet.y > 30 &&
+        (await modal
+          .getByRole("button", { name: "Resize opportunity details" })
+          .getAttribute("aria-expanded")) === "false",
+      "overview returns to its preview detent and leaves the shortlist visible",
     );
     await page.screenshot({
       path: "output/playwright/concept-a/discover-mobile-inspector.png",
@@ -625,7 +611,7 @@ const fs = require("node:fs");
       path: "output/playwright/concept-a/discover-mobile-inspector-expanded.png",
     });
     const advert = modal.getByRole("link", {
-      name: "View advert",
+      name: "View job listing",
       exact: true,
     });
     // A narrow desktop window still uses the browser's new-tab behavior.

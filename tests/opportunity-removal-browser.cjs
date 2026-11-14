@@ -660,17 +660,17 @@ const label = (job) => `${job.title} · ${job.employer}`;
       .click();
     await card(page, cloud).click();
     await panel(page)
-      .getByRole("button", { name: "Documents", exact: true })
+      .getByRole("button", { name: "CV", exact: true })
       .click();
-    const workbench = page.locator(".opportunities-workbench:visible");
+    const workbench = page.locator("dialog.discover-inspector[open]");
     await workbench
       .locator(`[data-application-id="${application.id}"]`)
       .waitFor();
     await workbench
-      .getByRole("button", { name: "View / edit CV", exact: true })
+      .getByRole("button", { name: "Edit CV", exact: true })
       .waitFor();
     await workbench
-      .getByRole("button", { name: "View / edit CV", exact: true })
+      .getByRole("button", { name: "Edit CV", exact: true })
       .click();
     const documentEditor = page.getByRole("dialog", {
       name: "CV",
@@ -729,6 +729,7 @@ const label = (job) => `${job.title} · ${job.employer}`;
       .getByRole("button", { name: "Discard changes", exact: true })
       .click();
     await documentEditor.waitFor({ state: "detached" });
+    await workbench.getByRole("button", { name: "Documents", exact: true }).click();
     await workbench
       .getByRole("link", { name: "View application history", exact: true })
       .click();
@@ -775,10 +776,10 @@ const label = (job) => `${job.title} · ${job.employer}`;
       .click();
     await card(page, submittedJob).click();
     await panel(page)
-      .getByRole("link", { name: "View submission", exact: true })
+      .getByRole("button", { name: "CV", exact: true })
       .click();
     await workbench
-      .getByRole("link", { name: "CV PDF", exact: true })
+      .getByRole("link", { name: "Download CV", exact: true })
       .waitFor();
     await workbench
       .getByRole("button", { name: "Activity", exact: true })
@@ -966,6 +967,9 @@ const label = (job) => `${job.title} · ${job.employer}`;
     await notice(mobile, cloud)
       .getByText(`Removed ${label(cloud)}.`, { exact: true })
       .waitFor();
+    const readingNextCv = await panel(mobile)
+      .getByRole("button", { name: "CV", exact: true, pressed: true })
+      .isVisible();
     assert.equal(
       await panel(mobile)
         .getByRole("button", {
@@ -973,8 +977,8 @@ const label = (job) => `${job.title} · ${job.employer}`;
           exact: true,
         })
         .getAttribute("aria-expanded"),
-      "false",
-      "Actual footer removal retains peek",
+      String(readingNextCv),
+      "Touch footer removal opens a prepared CV and keeps unprepared roles in peek",
     );
     await notice(mobile, cloud)
       .getByRole("button", { name: "Undo", exact: true })

@@ -89,9 +89,8 @@ const {
   await page.waitForURL((url) => Boolean(url.searchParams.get("opportunity")));
   const selectedJob = new URL(page.url()).searchParams.get("opportunity");
   await showPanel(page, "documents");
-  await page.waitForURL((url) => Boolean(url.searchParams.get("application")));
   const selectedApplication = {
-    id: new URL(page.url()).searchParams.get("application"),
+    id: await workbench(page).locator(".opportunity-application").getAttribute("data-application-id"),
     job_id: selectedJob,
     title: "Software Engineer",
     status: "draft",
@@ -99,11 +98,14 @@ const {
   await workbench(page)
     .getByRole("heading", { name: "Software Engineer", exact: true })
     .waitFor();
-  assert.equal(await page.locator('a[href^="/files/"]').count(), 8);
-  const fileLink = page.getByRole("link", { name: "CV PDF", exact: true });
+  const fileLink = workbench(page).getByRole("link", { name: "Download CV", exact: true });
   const download = page.waitForEvent("download");
   await fileLink.click();
   assert.match((await download).suggestedFilename(), /CV.*pdf$/);
+  await showPanel(page, "files");
+  assert.equal(await workbench(page).locator('a[href^="/files/"]:visible').count(), 2);
+  await workbench(page).getByText("Supporting files & source evidence", { exact: true }).click();
+  assert.equal(await workbench(page).locator('a[href^="/files/"]:visible').count(), 8);
   assert.equal(await page.locator('select[name="status"]').count(), 0);
   await page.locator(".application-context > summary").click();
   assert.equal(
@@ -176,7 +178,8 @@ const {
       .evaluate((element) => element.open),
     true,
   );
-  await page.getByText("Saved after submission.", { exact: false }).waitFor();
+  await workbench(page).locator(".application-review-history")
+    .getByText("Saved after submission.", { exact: false }).waitFor();
   fs.mkdirSync("output/playwright", { recursive: true });
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({
@@ -184,7 +187,7 @@ const {
     fullPage: true,
   });
   await page.setViewportSize({ width: 320, height: 900 });
-  await page.locator("dialog.opportunities-workbench:modal").waitFor();
+  await page.locator("dialog.discover-inspector:modal").waitFor();
   await page.evaluate(
     () =>
       new Promise((resolve) =>
@@ -204,7 +207,7 @@ const {
     fullPage: true,
   });
   await workbench(page)
-    .getByRole("button", { name: "Close application workspace", exact: true })
+    .getByRole("button", { name: "Close opportunity details", exact: true })
     .click();
   await page.getByRole("link", { name: "Settings" }).click();
   await page.getByRole("heading", { name: "Account and recovery" }).waitFor();

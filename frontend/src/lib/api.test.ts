@@ -158,3 +158,36 @@ describe("hosted session refresh", () => {
     });
   });
 });
+
+it("returns exact verified document bytes and rejects a read from the previous workspace", async () => {
+  const bytes = new Uint8Array([37, 80, 68, 70, 45]);
+  let complete!: (response: Response) => void;
+  const fetch = vi
+    .fn()
+    .mockResolvedValueOnce(json(envelope()))
+    .mockResolvedValueOnce(new Response(bytes))
+    .mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          complete = resolve;
+        }),
+    )
+    .mockResolvedValueOnce(json(envelope("/another/workspace", "new-token")));
+  vi.stubGlobal("fetch", fetch);
+  const client = new ApiClient(false);
+  await client.state();
+  await expect(
+    client.readDocument("exact-version", "resume.pdf"),
+  ).resolves.toEqual(bytes);
+  const [url, request] = fetch.mock.calls[1];
+  expect(url).toBe("/api/file");
+  expect(request.headers.get("X-Workspace-Token")).toBe("fixture-token");
+  expect(JSON.parse(request.body)).toEqual({
+    id: "exact-version",
+    name: "resume.pdf",
+  });
+  const pending = client.readDocument("old-version", "resume.pdf");
+  await client.state();
+  complete(new Response(bytes));
+  await expect(pending).rejects.toBeInstanceOf(WorkspaceChangedError);
+});

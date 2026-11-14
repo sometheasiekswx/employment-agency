@@ -7,6 +7,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
 const {
+  openApplication,
   roleCard,
   removalControl,
   selectApplication,
@@ -80,16 +81,17 @@ const {
     await card(fixture.sent).waitFor();
     assert.equal(await page.locator(".discover-card").count(), 1);
     assert.equal(
-      await card(fixture.sent).locator(".pill").innerText(),
-      "submitted",
+      await workbench(page).locator(".discover-status").innerText(),
+      "Submitted",
     );
     assert.equal(
-      await card(fixture.sent)
-        .getByRole("button", { name: "Apply For Me", exact: true })
+      await workbench(page)
+        .getByRole("button", { name: "Apply for me", exact: true })
         .count(),
       0,
     );
     await page.screenshot({ path: "output/playwright/queues/submitted.png" });
+    await workbench(page).getByRole("button", { name: "Close opportunity details" }).click();
     await page.getByLabel("Include earlier review queues").check();
     await tab("Submitted", 2).waitFor();
     assert.equal(new URL(page.url()).searchParams.get("location"), "Toronto");
@@ -111,9 +113,7 @@ const {
     );
     await page.getByLabel("Include earlier review queues").uncheck();
 
-    await page.goto(
-      base + "/?section=rejected&application=" + fixture.declined.id,
-    );
+    await openApplication(page, base, fixture.declined, "activity");
     await tab("Removed", 1).waitFor();
     await card(fixture.declined).waitFor();
     assert.equal(await page.locator(".discover-card").count(), 1);
@@ -127,6 +127,10 @@ const {
       0,
       "A removed application leaves the active board",
     );
+    if (await workbench(page).count()) {
+      await card(fixture.declined).waitFor({ state: "hidden" });
+      await workbench(page).getByRole("button", { name: "Close opportunity details" }).click();
+    }
     await workbench(page).waitFor({ state: "hidden" });
 
     await selectApplication(page, fixture.active);
@@ -136,7 +140,7 @@ const {
       await page.waitForFunction(
         ({ id, mobile }) => {
           const surface = document.querySelector(
-            ".opportunities-workbench:not([hidden])",
+            "dialog.discover-inspector[open]",
           );
           return (
             surface?.matches("dialog:modal") === mobile &&
@@ -153,9 +157,9 @@ const {
         false,
         "page overflow",
       );
-      const geometry = await active.locator(".review-header").evaluate((el) => {
-        const heading = el.querySelector("h3").getBoundingClientRect();
-        const button = el.querySelector("button").getBoundingClientRect();
+      const geometry = await active.locator(".dossier-header").evaluate((el) => {
+        const heading = el.querySelector("h2").getBoundingClientRect();
+        const button = el.querySelector(".bell-toggle__button").getBoundingClientRect();
         return {
           heading: {
             top: heading.top,
@@ -163,12 +167,10 @@ const {
             right: heading.right,
           },
           button: { top: button.top, left: button.left },
-          gap: parseFloat(getComputedStyle(el).rowGap),
         };
       });
-      assert.ok(geometry.gap >= 12);
       assert.ok(
-        geometry.button.top >= geometry.heading.bottom ||
+        geometry.button.top - geometry.heading.bottom >= 8 ||
           geometry.button.left - geometry.heading.right >= 12,
         "header has separation on either layout",
       );
@@ -278,6 +280,7 @@ const {
     await selectApplication(page, fixture.active);
     await card(fixture.active).waitFor();
     assert.equal(await page.locator(".discover-card").count(), 2);
+    await workbench(page).getByRole("button", { name: "Close opportunity details" }).click();
     await page.getByRole("link", { name: "History", exact: true }).click();
     await page.waitForURL("**/history/");
     const versions = initial.state.applications.filter(

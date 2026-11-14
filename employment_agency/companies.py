@@ -4,9 +4,11 @@ from calendar import monthrange
 from datetime import date, datetime, time, timezone
 
 from . import matching
-from .store import digest, encode, uid
+from urllib.parse import urlsplit
 
-HELD = {'executing', 'unknown', 'handed_off'}
+from .store import digest, encode, now, uid
+
+HELD = {'reserved', 'executing', 'unknown', 'handed_off'}
 SUBMITTED = {'submitted', 'sent', 'confirmed', 'applied'}
 DEFAULT_COOLDOWN_MONTHS = 3
 
@@ -258,6 +260,14 @@ def employer_name_ids(employers):
     return by_name
 
 
+def employer_evidence_conflict(job, employer):
+    evidence = job.get('employer_evidence', {})
+    if not isinstance(evidence, dict) or not evidence.get('name'):
+        return False
+    accepted = {name_key(name) for name in (employer['name'], *employer.get('aliases', []))}
+    return name_key(evidence['name']) not in accepted
+
+
 def discovery_employer(job, link, name_ids):
     if link:
         return link['employer_id']
@@ -394,7 +404,9 @@ def research(state, profile, job_ids):
             if (profile.get('needs_sponsorship') and job.get('sponsorship') != 'yes'
                     and job.get('eligibility') == 'confirmed'):
                 row['match']['unknowns'].append('Sponsorship availability needs confirmation')
-            roles.append(row)
+            current_employer = employers.get(link['employer_id']) if link else None
+            verified = bool(current_employer and not employer_evidence_conflict(job, current_employer))
+            roles.append({**row, 'job': {**job, 'hiring_employer_verified': verified}})
         if roles:
             companies.append({**group, 'sources': list(group['sources'].values()), 'roles': roles})
     companies.sort(key=lambda group: (
@@ -404,30 +416,40 @@ def research(state, profile, job_ids):
     return {'companies': companies[:5], 'needs_review': list(pending.values())}
 
 
-def check_slot(state, job_id, attempt_id=None):
+def slot_blocker(state, job_id, attempt_id=None):
     link = employer_link(state, job_id)
-    if not link:
-        raise ValueError('Confirm the hiring employer in Compare roles at this company before applying')
+    employer = by_id(state.get('employers', []), link['employer_id']) if link else None
+    if not employer:
+        return 'employer_unresolved', 'Confirm the actual hiring employer before applying'
+    job = by_id(state['jobs'], job_id)
+    if job and employer_evidence_conflict(job, employer):
+        return 'employer_evidence_conflict', 'The current listing names a different hiring employer. Recheck the listing before applying.'
     status = job_status(state, job_id)
     if status['cooling']:
-        raise ValueError('This company is paused until ' + status['cooldown_until'])
+        return 'company_paused', 'This company is paused until ' + status['cooldown_until']
     if status['review_needed']:
-        raise ValueError('Review this company’s unresolved application history before applying')
+        return 'company_history_unresolved', 'Review this company’s unresolved application history before applying'
     if link['vacancy_id'] in status.get('submitted_vacancies', []):
-        raise ValueError('This vacancy is already recorded as submitted')
+        return 'already_submitted', 'This vacancy is already recorded as submitted'
     for attempt in state.get('submission_attempts', []):
         if attempt['status'] in HELD:
             other = employer_link(state, attempt['binding']['job_id'])
             if other and other['vacancy_id'] == link['vacancy_id']:
                 if attempt['id'] == attempt_id:
-                    return link
-                raise ValueError('An active or uncertain attempt already holds this vacancy')
+                    return None
+                return 'application_in_progress', 'An active or uncertain attempt already holds this vacancy'
     if status['remaining'] < 1:
-        raise ValueError('Both application slots are in use at this company')
-    return link
+        return 'company_slots_used', 'Both application slots are in use at this company'
+    return None
 
 
-def map_job(state, args, zone, *, source_listing=False):
+def check_slot(state, job_id, attempt_id=None):
+    if blocker := slot_blocker(state, job_id, attempt_id):
+        raise ValueError(blocker[1])
+    return employer_link(state, job_id)
+
+
+def map_job(state, args, zone, *, provenance=None):
     job = by_id(state['jobs'], args['job_id'])
     if not job or args.get('confirmed') is not True:
         raise ValueError('Confirm the actual hiring employer for this listing')
@@ -447,7 +469,7 @@ def map_job(state, args, zone, *, source_listing=False):
             raise ValueError('Choose the existing employer or enter a distinct verified name')
         employer = {'id': uid(), 'name': name.strip(), 'aliases': [], 'source_ids': []}
         employers.append(employer)
-    if not source_listing and job['employer'] and job['employer'] not in employer['aliases']:
+    if provenance is None and job['employer'] and job['employer'] not in employer['aliases']:
         employer['aliases'].append(job['employer'])
     source_id = args.get('source_id')
     if source_id:
@@ -463,8 +485,12 @@ def map_job(state, args, zone, *, source_listing=False):
     if args.get('same_job_id') and (not same or same['employer_id'] != employer['id']):
         raise ValueError('Choose a verified listing for the same vacancy')
     if requisition:
-        same = next((link for link in state.get('employer_links', [])
-                     if link['employer_id'] == employer['id'] and link.get('requisition') == requisition), same)
+        matching_requisition = next((link for link in state.get('employer_links', [])
+                                     if link['employer_id'] == employer['id']
+                                     and link.get('requisition') == requisition), None)
+        if same and matching_requisition and same['vacancy_id'] != matching_requisition['vacancy_id']:
+            raise ValueError('The selected listing and requisition refer to different vacancies')
+        same = matching_requisition or same
     vacancy_id = same['vacancy_id'] if same else (existing['vacancy_id'] if existing else uid())
     if existing and existing['vacancy_id'] != vacancy_id:
         if job['id'] in submission_dates(state) or any(
@@ -481,14 +507,77 @@ def map_job(state, args, zone, *, source_listing=False):
             raise ValueError('Record a submission before confirming its date')
         link['submitted_on'] = valid_occurrence(args['submitted_on'], zone)
     if not existing:
+        link['provenance'] = {
+            **(provenance or {'actor': 'workspace-owner', 'source': 'user-confirmation', 'url': job.get('url', '')}),
+            'verified_at': now(),
+        }
         state.setdefault('employer_links', []).append(link)
     return link
 
 
+def confirm_researched_listing(state, args, zone):
+    from .application_context import https_address
+    from .service import text
+
+    job = by_id(state['jobs'], args.get('job_id'))
+    official_url = args.get('source_url')
+    evidence = text(args.get('evidence', ''), 2000)
+    name = text(args.get('name', ''), 300)
+    if (args.get('verified') is not True or not job or not https_address(official_url) or not evidence or not name
+            or not https_address(job.get('url'))
+            or urlsplit(official_url).hostname != urlsplit(job['url']).hostname):
+        raise ValueError('Provide the official same-site listing evidence identifying the hiring employer')
+    published = job.get('employer_evidence', {}).get('name') or job['employer']
+    matches = employer_name_ids(state.get('employers', [])).get(name_key(name), set())
+    names = {name_key(name), name_key(published)}
+    if name_key(published) != name_key(name) and (
+        not matches or employer_name_ids(state.get('employers', [])).get(name_key(published), set()) != matches
+    ):
+        raise ValueError('The listing and research identify different hiring employers')
+    if (len(matches) > 1 or (args.get('employer_id') and args['employer_id'] not in matches)
+            or names.intersection({'unknown', 'confidential', 'undisclosed', ''})):
+        raise ValueError('The hiring employer identity needs user confirmation')
+    return map_job(state, {'job_id': job['id'], 'name': name, 'employer_id': next(iter(matches), None),
+                           'requisition': args.get('requisition', job.get('employer_evidence', {}).get('requisition', '')),
+                           'confirmed': True}, zone, provenance={
+                               'actor': 'research-agent', 'source': 'verified-official-listing',
+                               'url': official_url, 'evidence': evidence, 'published_name': published,
+                           })
+
+
+def associate_board(state, source, employer_id=None, name=None, *, evidence_url):
+    """Persist a board owner when its official publishing relationship has been checked."""
+    from .job_feeds import EMPLOYER_BOARDS
+
+    if source['kind'] not in EMPLOYER_BOARDS:
+        raise ValueError('Choose an employer-owned careers board')
+    employer = by_id(state.get('employers', []), employer_id)
+    owner = source_employer(state, source['id'])
+    if owner and owner != employer_id:
+        raise ValueError('The careers board already has a different verified hiring employer')
+    if not employer:
+        employer = {'id': uid(), 'name': name, 'aliases': [], 'source_ids': []}
+        state.setdefault('employers', []).append(employer)
+    if source['id'] not in employer['source_ids']:
+        employer['source_ids'].append(source['id'])
+        source['employer_provenance'] = {'actor': 'research-agent', 'source': 'verified-employer-board',
+                                         'url': evidence_url, 'verified_at': now()}
+    return employer
+
+
+def accepted_board_names(source, employer):
+    return {name_key(value) for value in (employer['name'], *employer['aliases'], source['board'])}
+
+
 def link_source_jobs(state, source, jobs, zone):
+    from .job_feeds import EMPLOYER_BOARDS
+
     employer_id = source_employer(state, source['id'])
-    if not employer_id:
+    if not employer_id or source['kind'] not in EMPLOYER_BOARDS:
         return
+    employer = by_id(state['employers'], employer_id)
+    accepted_names = accepted_board_names(source, employer)
+    source_key = f"{source['kind']}:{source['board']}"
     mapped = {link['id']: link for link in state.get('employer_links', [])}
     vacancies = {
         listing['vacancy_requisition']: listing['id']
@@ -497,15 +586,51 @@ def link_source_jobs(state, source, jobs, zone):
         and (link := mapped.get(listing['id'])) and link['employer_id'] == employer_id
     }
     for job in jobs:
-        if job['id'] in mapped:
+        if (job['id'] in mapped or job.get('source') != source_key
+                or name_key(job['employer']) not in accepted_names):
             continue
         requisition = job.get('vacancy_requisition')
         map_job(state, {'job_id': job['id'], 'employer_id': employer_id,
                         'same_job_id': vacancies.get(requisition),
                         'requisition': f"{job['source']}:{requisition}" if requisition else job.get('source_requisition', ''),
-                        'confirmed': True}, zone, source_listing=True)
+                        'confirmed': True}, zone, provenance={
+                            'actor': 'discovery', 'source': 'verified-employer-board', 'source_id': source['id'],
+                            'url': job['url'], 'source_requisition': job.get('source_requisition', ''),
+                        })
         if requisition:
             vacancies.setdefault(requisition, job['id'])
+
+
+def link_verified_listing(state, job, zone):
+    """Reuse exact posting evidence or a confirmed employer's explicitly published alias."""
+    from .application_context import https_address
+
+    if employer_link(state, job['id']):
+        return
+    evidence = job.get('employer_evidence')
+    if not evidence or not https_address(evidence.get('url')):
+        return
+    name = name_key(evidence['name'])
+    if name != name_key(job['employer']) or name in ('unknown', 'confidential', 'undisclosed'):
+        return
+    employers = state.get('employers', [])
+    candidates = employer_name_ids(employers).get(name, set())
+    source_host = urlsplit(evidence['url']).hostname
+    known_sources = {item['id']: item for item in state['jobs']}
+    linked_hosts = {link['employer_id'] for link in state.get('employer_links', [])
+                    if link.get('provenance', {}).get('source') == 'verified-official-listing'
+                    and (other := known_sources.get(link['id']))
+                    and https_address(other.get('url'))
+                    and urlsplit(other['url']).hostname == source_host}
+    # The advert's spelling is independent evidence only when the publisher has
+    # already been verified as an official source for this exact employer.
+    if len(candidates) != 1 or candidates != linked_hosts:
+        return
+    map_job(state, {'job_id': job['id'], 'employer_id': next(iter(candidates)),
+                    'requisition': evidence.get('requisition', ''), 'confirmed': True}, zone, provenance={
+                        'actor': 'discovery', 'source': evidence['source'], 'url': evidence['url'],
+                        'published_name': evidence['name'],
+                    })
 
 
 def company_roles(state, job_id, profile_id):

@@ -43,6 +43,13 @@ def fail(message):
     raise ValueError(message)
 
 
+def queue_page_args(args):
+    limit, offset = args.get('limit', 50), args.get('offset', 0)
+    if type(limit) is not int or type(offset) is not int or not 1 <= limit <= 200 or not 0 <= offset < 2**63:
+        raise ValueError('Invalid application queue page')
+    return limit, offset
+
+
 def submitted_job_ids(state):
     """Preserved submitted versions outrank editable/imported job metadata."""
     versions = {app['job_id'] for app in state['applications']
@@ -167,7 +174,7 @@ def submission_records(root):
 
 def check_submission_correction(records, job_id):
     if any(record['binding']['job_id'] == job_id and record['status'] in
-           {'preparing', 'needs_user', 'awaiting_approval', 'executing', 'unknown', 'confirmed', 'handed_off'}
+           {'preparing', 'needs_user', 'awaiting_approval', 'reserved', 'executing', 'unknown', 'confirmed', 'handed_off'}
            for record in records):
         raise ValueError('An active, uncertain or confirmed delivery cannot be corrected as an unsent manual record')
 
@@ -199,6 +206,7 @@ class Service:
         self.worker_lock = threading.Lock()
         self.delivery = None
         self.discovery = None
+        self.agent_execution = None
 
     def state(self):
         with self.w.lock:
@@ -206,6 +214,9 @@ class Service:
             snapshot = self.w.database.summary() if self.w.database else None
             queue = self.w.database.queue_page(historical=True)['rows'] if self.w.database else None
         state.pop('workspace_id', None)
+        state.pop('application_answers', None)
+        state.pop('agent_runs', None)
+        state.pop('application_destinations', None)
         submitted = submitted_job_ids(state)
         submitted_dates = companies.submission_dates(state) if snapshot else {}
         rejected = legacy_rejections(state)
@@ -235,22 +246,27 @@ class Service:
         if snapshot:
             zone = self.workspace_zone()
             employers = state.get('employers', [])
+            employers_by_id = {row['id']: row for row in employers}
             employer_names = {row['id']: row['name'] for row in employers}
             employer_name_ids = companies.employer_name_ids(employers)
             employer_links = {row['id']: row for row in state.get('employer_links', [])}
             company_rounds = {row['id']: companies.allowance(row) for row in state.get('company_rounds', [])}
             state['_workspace']['snapshot'] = snapshot
+            state['_workspace']['agent_queue'] = True
             state['_workspace']['company_cooldown_months'] = state.get(
                 'company_cooldown_months', companies.DEFAULT_COOLDOWN_MONTHS)
             state['application_queue'] = queue
             state.pop('submission_attempts', None)
             for job in state['jobs']:
                 link = employer_links.get(job['id'])
+                employer = employers_by_id.get(link['employer_id']) if link else None
+                job['hiring_employer_verified'] = bool(employer and not companies.employer_evidence_conflict(job, employer))
                 employer_id = companies.discovery_employer(job, link, employer_name_ids)
                 if employer_id in employer_names:
                     status = company_rounds.get(employer_id, companies.allowance(None))
                     job['company'] = {
                         'id': employer_id, 'name': employer_names[employer_id],
+                        'submitted_vacancy': bool(link and link['vacancy_id'] in status.get('submitted_vacancies', [])),
                         **{key: status.get(key) for key in ('remaining', 'cooling', 'cooldown_until',
                                                            'cooldown_time_assumed')},
                     }
@@ -289,6 +305,42 @@ class Service:
     def action(self, action, a):
         if not isinstance(a, dict):
             raise ValueError("Expected JSON object")
+        if action in ('agent-capabilities', 'agent-application-start', 'agent-application-status',
+                      'agent-application-answer', 'agent-application-resume', 'agent-application-stop',
+                      'agent-application-resolve'):
+            if not self.w.database:
+                if action == 'agent-capabilities':
+                    return {'available': False, 'channels': {}, 'reason': 'Connected applications require the local SQLite workspace'}
+                raise ValueError('Connected applications require the local SQLite workspace')
+            with self.worker_lock:
+                if action in ('agent-application-start', 'agent-application-resume') and self.delivery and self.delivery.busy:
+                    raise ValueError('Wait for the active delivery before starting a connected application')
+                if self.agent_execution is None:
+                    from .agent_execution import AgentExecution
+                    self.agent_execution = AgentExecution(self)
+            return self.agent_execution.action(action, a)
+        if action in ('application-context', 'application-handoff', 'application-answer',
+                      'application-destination', 'agent-queue', 'agent-queue-mark', 'self-application-start'):
+            if not self.w.database:
+                raise ValueError('This operation requires a local SQLite workspace')
+            from . import application_context, application_queue, company_handoff
+
+            if action == 'application-context':
+                return application_context.read(self, a)
+            if action == 'application-handoff':
+                return application_context.handoff(self, a)
+            if action == 'application-answer':
+                return application_context.record(self, a, application_context.save_answer)
+            if action == 'application-destination':
+                return application_context.record(self, a, application_context.save_destination)
+            if action == 'self-application-start':
+                return company_handoff.start(self, a)
+            if action == 'agent-queue':
+                limit, offset = queue_page_args(a)
+                with self.w.lock:
+                    return self.w.database.agent_queue_page(limit=limit, offset=offset)
+            with self.w.edit() as state:
+                return application_queue.mark_agent(state, a.get('job_id'), a.get('marked'))
         if action in ("discovery-start", "discovery-status", "discovery-stop"):
             from .discovery import Discovery
 
@@ -300,6 +352,8 @@ class Service:
             if self.worker and self.worker.is_alive():
                 raise ValueError('Wait for the preparation run before applying')
             with self.worker_lock:
+                if action in ('apply-start', 'apply-approve', 'apply-resume') and self.agent_execution and self.agent_execution.busy:
+                    raise ValueError('Wait for the connected application before continuing this delivery')
                 if self.delivery is None:
                     from .application_delivery import Delivery
                     self.delivery = Delivery(self)
@@ -312,11 +366,9 @@ class Service:
             if not self.w.database:
                 raise ValueError('Paginated application queues require a SQLite workspace')
             stage = a.get('stage')
-            limit, offset = a.get('limit', 50), a.get('offset', 0)
             if stage not in (None, 'active', 'submitted', 'saved', 'removed'):
                 raise ValueError('Choose an application queue')
-            if type(limit) is not int or type(offset) is not int or not 1 <= limit <= 200 or offset < 0:
-                raise ValueError('Invalid application queue page')
+            limit, offset = queue_page_args(a)
             with self.w.lock:
                 return self.w.database.queue_page(stage=stage, historical=a.get('history') is True,
                                                   limit=limit, offset=offset)
@@ -553,7 +605,13 @@ class Service:
                 if any(job.get('url') == url and companies.discovery_status(state, job)['cooling']
                        for job in state['jobs']):
                     raise ValueError('Company is paused. The existing listing is still available in the workspace.')
-            return self.add_job(sources.url_job(url), match_url=True)
+            fetched = sources.url_job(url)
+            if self.w.database:
+                with self.w.edit() as state:
+                    listing = self.add_job(fetched, match_url=True, state=state, discovered=True)
+                    companies.link_verified_listing(state, listing, self.workspace_zone())
+                    return listing
+            return self.add_job(fetched, match_url=True)
         if action == "source":
             from .job_feeds import validate_selector
 
@@ -576,11 +634,17 @@ class Service:
             # Matching needs records, not document integrity or delivery checks.
             s = self.w.read()
             submitted = submitted_job_ids(s)
+            linked_employers = {}
             if self.w.database:
                 submitted.update(companies.submission_dates(s))
+                employers = {row['id']: row for row in s.get('employers', [])}
+                linked_employers = {row['id']: employers.get(row['employer_id']) for row in s.get('employer_links', [])}
             for job in s['jobs']:
                 if job['id'] in submitted:
                     job['prior_application'] = 'submitted'
+                if self.w.database:
+                    employer = linked_employers.get(job['id'])
+                    job['hiring_employer_verified'] = bool(employer and not companies.employer_evidence_conflict(job, employer))
             return matching.ranked(
                 self.discoverable_jobs(s), find(s["profiles"], a["profile_id"]), s["facts"]
             )
@@ -790,7 +854,11 @@ class Service:
             if not name:
                 raise ValueError('Provide the hiring employer name')
             if action == 'company-research-source':
-                return self.refresh(args['source_id'], research_name=name)
+                from .application_context import https_address
+                evidence_url = args.get('evidence_url')
+                if evidence_url is not None and not https_address(evidence_url):
+                    raise ValueError('Provide the official careers page that links this board')
+                return self.refresh(args['source_id'], research_name=name, research_evidence=evidence_url)
             return {'workspace': str(self.w.path), **companies.research_employer(self.w.read(), name)}
         if action == 'company-selection':
             result = companies.company_roles(self.w.read(), args['job_id'], args.get('profile_id'))
@@ -816,6 +884,8 @@ class Service:
                 return {'months': months}
             if action == 'company-map':
                 return companies.map_job(state, args, zone)
+            if action == 'company-resolve':
+                return companies.confirm_researched_listing(state, args, zone)
             if action == 'company-history-link':
                 record = next((row for row in state.get('historical_decisions', [])
                                if companies.history_id(row) == args.get('history_id')), None)
@@ -1078,6 +1148,8 @@ class Service:
                 j['requirement_evidence'] = existing['requirement_evidence']
             if 'careers_url' in existing:
                 j.setdefault('careers_url', existing['careers_url'])
+            if 'employer_evidence' in existing and existing.get('url') == j['url'] and existing['employer'] == j['employer']:
+                j['employer_evidence'] = existing['employer_evidence']
             for key in ('prior_application', 'source', 'checked_at'):
                 if key not in a:
                     j[key] = existing.get(key, j[key])
@@ -1110,13 +1182,15 @@ class Service:
             vacancy_requisition = existing.get('vacancy_requisition')
         if vacancy_requisition:
             j['vacancy_requisition'] = text(vacancy_requisition, 200)
+        if discovered and a.get('employer_evidence'):
+            j['employer_evidence'] = a['employer_evidence']
         if existing:
             state['jobs'][state['jobs'].index(existing)] = j
         else:
             state['jobs'].append(j)
         return j
 
-    def refresh(self, id, *, research_name=None):
+    def refresh(self, id, *, research_name=None, research_evidence=None):
         current = self.w.read()
         src = find(current['sources'], id)
         if companies.source_cooldown(current, id):
@@ -1153,6 +1227,7 @@ class Service:
             imported, _, skipped = self.import_discovery(
                 jobs, source_id=id, full_snapshot=full_snapshot, research_name=research_name,
                 expected_research_name=saved_name, save_research_name=research_request and not saved_name,
+                research_evidence=research_evidence,
             )
             if skipped:
                 return {'count': 0, 'skipped': skipped}
@@ -1172,7 +1247,7 @@ class Service:
 
     def import_discovery(self, jobs, *, source_id=None, full_snapshot=False, status="retrieved",
                          observed_jobs=None, deadline=None, research_name=None,
-                         expected_research_name=None, save_research_name=False):
+                         expected_research_name=None, save_research_name=False, research_evidence=None):
         if not source_id and not jobs:
             return [], set(), None
         with self.w.edit() as state:
@@ -1194,6 +1269,10 @@ class Service:
                     if not company["remaining"] or (owner_id and owner_id != company.get("id")):
                         return [], set(), "Company availability or source ownership changed"
                     owner_id, employer_name = company.get("id"), company["name"]
+                if research_evidence:
+                    owner = companies.associate_board(state, source, owner_id, employer_name,
+                                                      evidence_url=research_evidence)
+                    owner_id = owner['id']
             previous_ids = {job["id"] for job in state["jobs"]}
             verified_owners = {link["id"]: link["employer_id"] for link in state.get("employer_links", [])}
             observed = jobs if observed_jobs is None else observed_jobs
@@ -1201,11 +1280,17 @@ class Service:
             observed_keys = {job["source_requisition"] for job in observed if job.get("source_requisition")}
             seen = set()
             imported = []
+            source_key = f'{source["kind"]}:{source["board"]}' if source else None
+            board_names = (companies.accepted_board_names(source, owner or {
+                'name': employer_name, 'aliases': [],
+            }) if source and employer_name else set())
             for job in jobs:
                 key = job.get("source_requisition") or job["url"]
                 if key in seen:
                     continue
-                if employer_name:
+                board_match = (source_key and job.get('source') == source_key
+                               and companies.name_key(job.get('employer', '')) in board_names)
+                if board_match:
                     job = {**job, "employer": employer_name}
                 elif companies.discovery_status(state, job)["cooling"]:
                     continue
@@ -1215,14 +1300,15 @@ class Service:
                     discovered=True,
                 )
                 verified_owner = verified_owners.get(listing["id"])
-                if employer_name and verified_owner and verified_owner != owner_id:
+                if board_match and verified_owner and verified_owner != owner_id:
                     raise ValueError("The board posting is already linked to a different hiring employer")
                 if confirmed := companies.by_id(state.get("employers", []), verified_owner):
                     listing["employer"] = confirmed["name"]
+                if self.w.database:
+                    companies.link_verified_listing(state, listing, self.workspace_zone())
                 imported.append(listing)
             ids = {job["id"] for job in imported}
             if source:
-                source_key = f'{source["kind"]}:{source["board"]}'
                 if self.w.database:
                     companies.link_source_jobs(state, source, imported, self.workspace_zone())
                 if full_snapshot:
@@ -1436,7 +1522,8 @@ class Service:
             packages.validate(files, config)
             version = packages.publish(self.w.path, files, job, identity)
             app = {'id': id, 'job_id': job['id'], 'title': job['title'], 'employer': job['employer'],
-                   'created_at': now(), 'status': 'draft', 'comments': [], 'fact_ids': ids, **version}
+                   'created_at': now(), 'status': 'draft', 'comments': [], 'fact_ids': ids,
+                   'profile_id': profile['id'], **version}
             with self.w.edit() as state:
                 state['applications'].append(app)
                 if run_id:

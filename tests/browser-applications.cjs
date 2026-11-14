@@ -16,7 +16,7 @@ const applicationRoute = (application, panel = "documents") => {
   return `/discover/?${query}`;
 };
 
-const workbench = (page) => page.locator(".opportunities-workbench:visible");
+const workbench = (page) => page.locator("dialog.discover-inspector[open]");
 const removalControl = (page, application, restore = false) =>
   workbench(page).getByRole("button", {
     name: `${restore ? "Restore" : "Remove"} ${application.title}`,
@@ -29,13 +29,12 @@ const roleCard = (page, application) =>
     has: page.locator(`[data-opportunity-id="${application.job_id}"]`),
   });
 const showPanel = async (page, panel) => {
-  const name = panel[0].toUpperCase() + panel.slice(1);
-  const scope = (await workbench(page).count())
-    ? workbench(page)
-    : page.locator(".discover-inspector");
-  await scope.getByRole("button", { name, exact: true }).click();
-  await page.waitForURL((url) => url.searchParams.get("panel") === panel);
-  if (panel !== "overview") await workbench(page).waitFor();
+  const name = { overview: "Overview", documents: "CV", files: "Documents", activity: "Activity" }[panel];
+  const panels = workbench(page).getByRole("group", { name: "Role workspace" });
+  const button = panels.getByRole("button", { name, exact: true });
+  await button.waitFor();
+  if (await button.getAttribute("aria-pressed") !== "true") await button.click();
+  await panels.getByRole("button", { name, exact: true, pressed: true }).waitFor();
 };
 const selectApplication = async (page, application, panel = "activity") => {
   await roleCard(page, application).locator(".discover-card-open").click();

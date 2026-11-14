@@ -58,7 +58,7 @@ The recordings use a disposable fictional workspace. In the public demo, view th
 
 | View                   | What you can do                                                                                             |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------- |
-| **Opportunities**      | Compare Recommended, Browse, Saved and Applications. Review evidence, documents and activity in context.   |
+| **Opportunities**      | Compare roles, prepare a CV, apply yourself or queue roles for your agent in one role workspace.             |
 | **Career profile**     | Import your résumé, confirm experience and retain its sources.                                              |
 | **Search preferences** | Choose roles, locations and work models; manage sources and matching.                                       |
 | **History**            | Open the exact preserved version of a document.                                                             |
@@ -68,7 +68,7 @@ Assessments keep evidence, gaps and unknowns visible. Live search, loading skele
 
 **Clear the shortlist without losing your records.** Remove a role from Opportunities or Applications and continue with the next one. Open Applications → Removed to review its documents and activity, add a reason or restore it to its previous lists.
 
-**Preparing a draft does not submit an application.** You review the documents and control the decision. Work rights, sponsorship and vacancy availability still need verification. The source-only [Apply For Me preview](docs/apply-for-me.md) requires separate, explicit approval for sending or submission.
+**Prepare application → CV → Open application site → I've applied.** The CV opens automatically, and the original job listing stays available alongside documents and activity. **For my agent** saves a role for later without starting work. In the local app, [Apply for me](docs/apply-for-me.md) starts a connected agent when a supported runtime and application channel are available. Starting authorizes preparation and submission for the selected roles; missing information or access pauses the run for your help. Preparing a draft or marking a role alone never submits it.
 
 ## Run locally
 
@@ -102,7 +102,7 @@ Open **http://127.0.0.1:3000**. This uses a separate development workspace and s
 
 [Use your career workspace or serve the built app](docs/running-locally.md) · [Try sample jobs locally](docs/demo.md#existing-cli-demo) · [Open privately on iPhone via Tailscale](docs/tailscale.md).
 
-The public demo follows checked `main` releases. The published v0.6.0 wheel contains an earlier interface. [Release downloads](https://github.com/sometheasiekswx/employment-agency/releases) · [Upgrade and recovery](docs/running-locally.md#existing-environments-and-upgrades).
+The public demo follows checked `main` releases. The v0.7.0 wheel includes the simplified application journey; connected execution requires the optional local setup. [Release downloads](https://github.com/sometheasiekswx/employment-agency/releases) · [Upgrade and recovery](docs/running-locally.md#existing-environments-and-upgrades).
 
 ## Test locally
 

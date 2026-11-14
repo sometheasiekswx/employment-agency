@@ -360,6 +360,16 @@ def validate_state(state):
     required = ('facts', 'profiles', 'jobs', 'sources', 'runs', 'applications', 'events')
     if any(not isinstance(state.get(key), list) for key in required) or not isinstance(state.get('identity'), dict):
         raise ValueError('Workspace backup is missing required records')
+    for collection in ('agent_intents', 'application_answers', 'application_destinations', 'agent_runs'):
+        entries = state.get(collection, [])
+        if not isinstance(entries, list) or any(not isinstance(entry, dict) or not isinstance(entry.get('id'), str)
+                                               or not entry['id'] for entry in entries):
+            raise ValueError('Invalid application journey records in the workspace backup')
+        if len(entries) != len({entry['id'] for entry in entries}):
+            raise ValueError('Duplicate application journey records in the workspace backup')
+    if any(type(entry.get('marked')) is not bool or not isinstance(entry.get('updated_at'), str)
+           for entry in state.get('agent_intents', [])):
+        raise ValueError('Invalid agent intention in the workspace backup')
 
 
 def initialize_sqlite(root, state):

@@ -6,9 +6,8 @@ import { Check, Select } from "@/components/controls";
 import { useWorkspace } from "@/components/workspace-provider";
 import { useDraft } from "@/components/unsaved";
 import { destination, compareDestinations, displayDate } from "@/lib/format";
-import type { Application, EditorDocument, Job } from "@/lib/models";
+import type { Application, EditorDocument } from "@/lib/models";
 import { ApplicationCard } from "./application-card";
-import { ApplyForMe } from "./apply-for-me";
 import { DocumentEditor } from "./document-editor";
 import Link from "next/link";
 import { ArrowUpRight, FolderOpen, MapPin } from "lucide-react";
@@ -39,11 +38,6 @@ export function ApplicationsPage() {
   const selectedCity = filters.get("destination") || "All destinations";
   const includeHistorical = filters.get("history") === "true";
   const requestedApplication = filters.get("application") || "";
-  const [applying, setApplying] = useState<{
-    app: Application;
-    job: Partial<Job>;
-    opener: HTMLButtonElement;
-  }>();
   const [editing, setEditing] = useState<{
     document: EditorDocument;
     opener: HTMLButtonElement;
@@ -196,9 +190,6 @@ export function ApplicationsPage() {
           app={app}
           job={jobs.get(app.job_id) || {}}
           onEdit={(document, opener) => setEditing({ document, opener })}
-          onApply={(opener) =>
-            setApplying({ app, job: jobs.get(app.job_id) || {}, opener })
-          }
         />
       ))}
       {!filtered.length && (
@@ -238,9 +229,6 @@ export function ApplicationsPage() {
             ))}
           </section>
         )}
-      {applying && (
-        <ApplyForMe {...applying} onClose={() => setApplying(undefined)} />
-      )}
       {editing && (
         <DocumentEditor
           document={editing.document}

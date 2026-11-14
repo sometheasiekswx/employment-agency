@@ -97,18 +97,19 @@ const fs = require("node:fs");
     const stages = (page) =>
       page.getByRole("group", { name: "Application stage", exact: true });
     const inspector = (page) => page.locator(".discover-inspector:visible");
-    const workbench = (page) =>
-      page.locator(".opportunities-workbench:visible");
+    const workbench = (page) => page.locator(".discover-inspector:visible");
     const panel = async (page, name) => {
       await workbench(page).getByRole("button", { name, exact: true }).click();
       await page.waitForURL(
-        (url) => url.searchParams.get("panel") === name.toLowerCase(),
+        (url) =>
+          url.searchParams.get("panel") ===
+          ({ CV: "documents", Documents: "files" }[name] || name.toLowerCase()),
       );
     };
     const assertFits = async (page, label) => {
       const overflow = await page.evaluate(() => ({
         page: document.documentElement.scrollWidth > innerWidth + 1,
-        workbench: [...document.querySelectorAll(".opportunities-workbench")]
+        workbench: [...document.querySelectorAll(".discover-inspector")]
           .filter((element) => element.getClientRects().length)
           .some((element) => element.scrollWidth > element.clientWidth + 1),
       }));
@@ -226,23 +227,20 @@ const fs = require("node:fs");
         .getByRole("heading", { name: cloud.title, exact: true })
         .waitFor();
       assert.equal(
-        await page.locator("dialog[open]").count(),
+        await page.locator("dialog:modal").count(),
         width > 1000 ? 0 : 1,
       );
-      await inspector(page)
-        .getByRole("button", { name: "Documents", exact: true })
-        .click();
-      await page.waitForURL(
-        (url) =>
-          url.pathname === "/discover/" &&
-          url.searchParams.get("view") === "saved" &&
-          url.searchParams.get("application") === application.id &&
-          url.searchParams.get("panel") === "documents",
+      assert.equal(
+        await inspector(page)
+          .getByRole("button", { name: "CV", exact: true })
+          .getAttribute("aria-pressed"),
+        "true",
       );
+      assert.equal(new URL(page.url()).searchParams.get("view"), "saved");
       const dossier = () =>
         workbench(page).locator(`[data-application-id="${application.id}"]`);
       const editorButton = () =>
-        dossier().getByRole("button", { name: "View / edit CV", exact: true });
+        dossier().getByRole("button", { name: "Edit CV", exact: true });
       await editorButton().waitFor();
       assert.equal(
         await dossier()
@@ -292,7 +290,7 @@ const fs = require("node:fs");
         dossier().getByRole("textbox", { name: "Comments", exact: true });
       const note = `Opportunities ${label} review retained after a failed save (${runId}).`;
       await comment().fill(note);
-      await panel(page, "Documents");
+      await panel(page, "CV");
       await panel(page, "Activity");
       assert.equal(
         await comment().inputValue(),
@@ -303,7 +301,7 @@ const fs = require("node:fs");
       await cancelDiscard(page, () =>
         workbench(page)
           .getByRole("button", {
-            name: "Close application workspace",
+            name: "Close opportunity details",
             exact: true,
           })
           .click(),
@@ -342,7 +340,7 @@ const fs = require("node:fs");
         assert.equal(await comment().inputValue(), note);
         await page.locator(".discover-filters > summary").click();
       }
-      await panel(page, "Documents");
+      await panel(page, "CV");
       const commentDocumentUrl = page.url();
       await editorButton().click();
       await editor.waitFor();
@@ -496,7 +494,7 @@ const fs = require("node:fs");
           exact: true,
         })
         .click();
-      await workbench(page).waitFor({ state: "hidden" });
+      await dossier().waitFor({ state: "hidden" });
       if (await inspector(page).count())
         await inspector(page)
           .getByRole("button", {
@@ -538,7 +536,7 @@ const fs = require("node:fs");
           exact: true,
         })
         .click();
-      await workbench(page).waitFor({ state: "hidden" });
+      await dossier().waitFor({ state: "hidden" });
       await stages(page)
         .getByRole("button", { name: /^Active\b/ })
         .click();
@@ -566,7 +564,7 @@ const fs = require("node:fs");
         .getByRole("button", { name: "Saved", exact: true })
         .click();
       await card(page, cloud).waitFor();
-      assert.equal(await page.locator("dialog[open]").count(), 0);
+      assert.equal(await page.locator("dialog:modal").count(), 0);
       await assertFits(page, `${label} saved shortlist fits`);
       await page.screenshot({ path: `${output}/${label}-saved.png` });
       await views(page)
@@ -665,7 +663,7 @@ const fs = require("node:fs");
       await page.goto(`${base}/discover/?${query}`);
       await workbench(page)
         .locator(`[data-application-id="${current.id}"]`)
-        .getByRole("button", { name: "View / edit CV", exact: true })
+        .getByRole("button", { name: "Edit CV", exact: true })
         .click();
       const editor = page.getByRole("dialog", { name: "CV", exact: true });
       await editor.waitFor();
@@ -804,7 +802,7 @@ const fs = require("node:fs");
       assert.equal(draft.status, "draft");
       await workbench(page)
         .locator(`[data-application-id="${draft.id}"]`)
-        .getByRole("button", { name: "View / edit CV", exact: true })
+        .getByRole("button", { name: "Edit CV", exact: true })
         .waitFor();
       const savedUrl = page.url();
       await page.reload();
@@ -815,7 +813,7 @@ const fs = require("node:fs");
       );
       await workbench(page)
         .locator(`[data-application-id="${draft.id}"]`)
-        .getByRole("button", { name: "View / edit CV", exact: true })
+        .getByRole("button", { name: "Edit CV", exact: true })
         .click();
       await editor.waitFor();
       await assertEditorPreview(page, editor, width);
@@ -827,6 +825,7 @@ const fs = require("node:fs");
       );
       await editor.getByRole("button", { name: "Close", exact: true }).click();
       await editor.waitFor({ state: "detached" });
+      await panel(page, "Documents");
       const versions = () =>
         workbench(page).getByRole("combobox", {
           name: "Document version",
@@ -850,12 +849,8 @@ const fs = require("node:fs");
       await page.waitForURL(
         (url) =>
           url.searchParams.get("application") === current.id &&
-          url.searchParams.get("panel") === "documents",
+          url.searchParams.get("panel") === "files",
       );
-      const originalEditorButton = workbench(page)
-        .locator(`[data-application-id="${current.id}"]`)
-        .getByRole("button", { name: "View / edit CV", exact: true });
-      await originalEditorButton.waitFor();
       assert.equal(
         await versions().evaluate(
           (select) => select === document.activeElement,
@@ -863,6 +858,11 @@ const fs = require("node:fs");
         true,
         "Switching to an earlier document version retains keyboard focus",
       );
+      await panel(page, "CV");
+      const originalEditorButton = workbench(page)
+        .locator(`[data-application-id="${current.id}"]`)
+        .getByRole("button", { name: "Edit CV", exact: true });
+      await originalEditorButton.waitFor();
       await originalEditorButton.click();
       await editor.waitFor();
       await assertEditorPreview(page, editor, width);
@@ -874,11 +874,12 @@ const fs = require("node:fs");
       );
       await editor.getByRole("button", { name: "Close", exact: true }).click();
       await editor.waitFor({ state: "detached" });
+      await panel(page, "Documents");
       await versions().selectOption(draft.id);
       await page.waitForURL(
         (url) =>
           url.searchParams.get("application") === draft.id &&
-          url.searchParams.get("panel") === "documents",
+          url.searchParams.get("panel") === "files",
       );
       assert.equal(await versions().inputValue(), draft.id);
       const preserved = await guard.request.get(
@@ -1058,7 +1059,7 @@ const fs = require("node:fs");
       await card(page, cloud).waitFor();
       await workbench(page)
         .locator(`[data-application-id="${application.id}"]`)
-        .getByRole("button", { name: "View / edit CV", exact: true })
+        .getByRole("button", { name: "Edit CV", exact: true })
         .waitFor();
       assert.equal(
         rankings,
@@ -1067,7 +1068,7 @@ const fs = require("node:fs");
       );
       await workbench(page)
         .getByRole("button", {
-          name: "Close application workspace",
+          name: "Close opportunity details",
           exact: true,
         })
         .click();
@@ -1124,7 +1125,7 @@ const fs = require("node:fs");
           query.set("q", "no-fixture-role-has-this-text");
         await page.goto(`${base}/discover/?${query}`);
         await workbench(page)
-          .getByRole("button", { name: "View / edit CV", exact: true })
+          .getByRole("button", { name: "Edit CV", exact: true })
           .waitFor();
         await panel(page, "Overview");
         assert.equal(
@@ -1134,41 +1135,14 @@ const fs = require("node:fs");
         const overview = inspector(page);
         await overview
           .getByRole("heading", { name: cloud.title, exact: true })
-          .or(
-            workbench(page).getByRole("heading", {
-              name: "Listing overview unavailable",
-              exact: true,
-            }),
-          )
-          .first()
           .waitFor();
-        if (await overview.count()) {
-          await overview
-            .getByRole("heading", { name: cloud.title, exact: true })
-            .waitFor();
-          await overview
-            .getByRole("button", { name: "Documents", exact: true })
-            .click();
-        } else {
-          await workbench(page)
-            .getByRole("heading", {
-              name: "Listing overview unavailable",
-              exact: true,
-            })
-            .waitFor();
-          await workbench(page)
-            .getByRole("button", {
-              name: "Review saved documents",
-              exact: true,
-            })
-            .click();
-        }
+        await overview.getByRole("button", { name: "CV", exact: true }).click();
         await page.waitForURL(
           (url) => url.searchParams.get("panel") === "documents",
         );
         await workbench(page)
           .locator(`[data-application-id="${application.id}"]`)
-          .getByRole("button", { name: "View / edit CV", exact: true })
+          .getByRole("button", { name: "Edit CV", exact: true })
           .waitFor();
         await assertFits(page, `${width}px ${missing} overview recovery fits`);
         await context.close();
@@ -1270,7 +1244,7 @@ const fs = require("node:fs");
       await cancelDiscard(page, () =>
         workbench(page)
           .getByRole("button", {
-            name: "Close application workspace",
+            name: "Close opportunity details",
             exact: true,
           })
           .click(),
@@ -1328,7 +1302,7 @@ const fs = require("node:fs");
       page.on("dialog", unexpectedWarning);
       await workbench(page)
         .getByRole("button", {
-          name: "Close application workspace",
+          name: "Close opportunity details",
           exact: true,
         })
         .click();

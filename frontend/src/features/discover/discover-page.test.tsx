@@ -17,7 +17,6 @@ import type {
   WorkspaceState,
 } from "@/lib/models";
 import { DiscoverPage } from "./discover-page";
-import { OpportunitySourceProvider } from "./opportunity-source-preview";
 
 const fixture = vi.hoisted(() => ({
   query: "",
@@ -219,8 +218,10 @@ it("saves a quick confirmation as career evidence from the listing details", asy
   );
 });
 
-it("keeps an unsaved evidence example when a role panel change is cancelled", async () => {
+it("preserves drafts across panels and asks before leaving the role", async () => {
   fixture.state.jobs[0].requirements = ["Kubernetes"];
+  fixture.query =
+    "view=all&opportunity=job-a&assessment_profile=profile-a&panel=overview";
   fixture.state.applications = [
     {
       id: "app-a",
@@ -237,12 +238,7 @@ it("keeps an unsaved evidence example when a role panel change is cancelled", as
       <DiscoverPage />
     </DraftProvider>,
   );
-  await user.click(
-    await screen.findByRole("button", {
-      name: "Assess Cloud Engineer at Example Cloud",
-    }),
-  );
-  const inspector = within(screen.getByRole("complementary"));
+  const inspector = within(await screen.findByRole("dialog"));
   await user.click(
     inspector.getByRole("button", { name: "Add evidence for Kubernetes" }),
   );
@@ -253,9 +249,27 @@ it("keeps an unsaved evidence example when a role panel change is cancelled", as
   const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
   try {
     await user.click(inspector.getByRole("button", { name: "Documents" }));
-    expect(confirm).toHaveBeenCalledOnce();
+    expect(new URLSearchParams(fixture.query).get("panel")).toBe("files");
+    expect(example).not.toBeVisible();
+    await user.click(inspector.getByRole("button", { name: "Activity" }));
+    const comment = inspector.getByRole("textbox", { name: "Comments" });
+    await user.type(comment, "Review in progress.");
+    await user.click(inspector.getByRole("button", { name: "Overview" }));
     expect(example).toHaveValue("Worked on a cluster rollout.");
-    expect(new URLSearchParams(fixture.query).has("panel")).toBe(false);
+    expect(example).toBeVisible();
+    await user.click(inspector.getByRole("button", { name: "Activity" }));
+    expect(comment).toHaveValue("Review in progress.");
+    expect(comment).toBeVisible();
+    expect(confirm).not.toHaveBeenCalled();
+    await user.click(
+      inspector.getByRole("button", { name: "Next opportunity" }),
+    );
+    await user.click(
+      inspector.getByRole("button", { name: "Close opportunity details" }),
+    );
+    expect(confirm).toHaveBeenCalledTimes(2);
+    expect(new URLSearchParams(fixture.query).get("opportunity")).toBe("job-a");
+    expect(comment).toHaveValue("Review in progress.");
   } finally {
     confirm.mockRestore();
   }
@@ -296,7 +310,7 @@ it("retains the selected profile and role when a dirty review cancels a profile 
       <DiscoverPage />
     </DraftProvider>,
   );
-  await screen.findByRole("complementary");
+  await screen.findByRole("dialog");
   await userEvent.click(
     screen.getByRole("button", { name: "Keep review draft" }),
   );
@@ -349,7 +363,7 @@ it("protects a dirty form when removal is declined and confirms once before remo
       <DiscoverPage />
     </DraftProvider>,
   );
-  const inspector = await screen.findByRole("complementary", {
+  const inspector = await screen.findByRole("dialog", {
     name: "Cloud Engineer",
   });
   await user.type(
@@ -377,9 +391,7 @@ it("protects a dirty form when removal is declined and confirms once before remo
   confirm.mockClear().mockReturnValue(true);
   await user.click(remove);
   await waitFor(() => {
-    expect(screen.getByRole("complementary")).toHaveAccessibleName(
-      "Backend Engineer",
-    );
+    expect(screen.getByRole("dialog")).toHaveAccessibleName("Backend Engineer");
     expect(fixture.client.action).toHaveBeenCalledWith("remove-job", {
       id: "job-a",
       removal_id: expect.stringMatching(/^[a-f0-9]{32}$/),
@@ -460,7 +472,7 @@ it("keeps unknown salary in the inspector without repeating it on cards", async 
     }),
   );
   expect(
-    within(screen.getByRole("complementary")).getByText("Salary not listed"),
+    within(screen.getByRole("dialog")).getByText("Salary not listed"),
   ).toBeInTheDocument();
 });
 
@@ -481,7 +493,7 @@ it("keeps advertised pay on cards and its complete basis in the inspector", asyn
   ).toBeInTheDocument();
   fireEvent.click(open);
   expect(
-    within(screen.getByRole("complementary")).getByText(
+    within(screen.getByRole("dialog")).getByText(
       "CAD 90,000–120,000 / year gross base",
     ),
   ).toBeInTheDocument();
@@ -553,7 +565,7 @@ it("cycles across locations in place and restores focus to the current role when
   );
   fireEvent.click(screen.getByRole("button", { name: "Next opportunity" }));
   expect(
-    within(screen.getByRole("complementary")).getByRole("heading", {
+    within(screen.getByRole("dialog")).getByRole("heading", {
       name: "Backend Engineer",
     }),
   ).toBeInTheDocument();
@@ -606,7 +618,7 @@ it.each([false, true])(
       "Assess Backend Engineer at Example Studio",
     ]);
     await user.click(first);
-    const inspector = screen.getByRole(mobile ? "dialog" : "complementary");
+    const inspector = screen.getByRole("dialog");
     const next = within(inspector).getByRole("button", {
       name: "Next opportunity",
     });
@@ -661,7 +673,7 @@ it("does not take focus when another control activates navigation into a boundar
   expect(close).toHaveFocus();
   fireEvent.click(screen.getByRole("button", { name: "Next opportunity" }));
   expect(
-    within(screen.getByRole("complementary")).getByRole("heading", {
+    within(screen.getByRole("dialog")).getByRole("heading", {
       name: "Backend Engineer",
     }),
   ).toBeInTheDocument();
@@ -672,7 +684,7 @@ it("restores the selected assessment and its focus context when returning to its
   fixture.query =
     "view=all&location=Berlin&opportunity=job-b&assessment_profile=profile-a";
   const { unmount } = render(<DiscoverPage />);
-  const inspector = await screen.findByRole("complementary");
+  const inspector = await screen.findByRole("dialog");
   expect(
     within(inspector).getByRole("heading", { name: "Backend Engineer" }),
   ).toBeInTheDocument();
@@ -685,7 +697,7 @@ it("restores the selected assessment and its focus context when returning to its
   ).toHaveFocus();
   unmount();
   render(<DiscoverPage />);
-  expect(await screen.findByRole("complementary")).toHaveAccessibleName(
+  expect(await screen.findByRole("dialog")).toHaveAccessibleName(
     "Backend Engineer",
   );
   fireEvent.click(
@@ -714,7 +726,7 @@ it.each([
     await screen.findByRole("button", {
       name: "Assess Backend Engineer at Example Studio",
     });
-    expect(screen.queryByRole("complementary")).not.toBeInTheDocument();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(fixture.run).not.toHaveBeenCalled();
   },
 );
@@ -722,17 +734,15 @@ it.each([
 it("follows browser route changes and clears the assessment when filters change", async () => {
   fixture.query = "view=all&opportunity=job-a&assessment_profile=profile-a";
   const { rerender } = render(<DiscoverPage />);
-  expect(await screen.findByRole("complementary")).toHaveAccessibleName(
+  expect(await screen.findByRole("dialog")).toHaveAccessibleName(
     "Cloud Engineer",
   );
   fixture.query = "view=all&opportunity=job-b&assessment_profile=profile-a";
   rerender(<DiscoverPage />);
-  expect(screen.getByRole("complementary")).toHaveAccessibleName(
-    "Backend Engineer",
-  );
+  expect(screen.getByRole("dialog")).toHaveAccessibleName("Backend Engineer");
   fireEvent.click(screen.getByRole("button", { name: "Berlin" }));
   await waitFor(() =>
-    expect(screen.queryByRole("complementary")).not.toBeInTheDocument(),
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
   );
   expect(fixture.query).toBe("view=all&location=Berlin");
 });
@@ -886,12 +896,20 @@ it("links to the exact submitted version and never prepares another application 
       name: "Assess Cloud Engineer at Example Cloud",
     }),
   );
-  expect(screen.getByRole("link", { name: "View submission" })).toHaveAttribute(
-    "href",
-    "/discover?view=applications&section=submitted&application=sent&panel=documents",
+  const role = within(screen.getByRole("dialog"));
+  expect(role.getByRole("button", { name: "CV" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
   );
   expect(
-    screen.queryByRole("button", { name: "Prepare draft" }),
+    role.getByRole("region", { name: "CV" }).closest("[data-application-id]"),
+  ).toHaveAttribute("data-application-id", "sent");
+  expect(role.getByRole("link", { name: "View job listing" })).toHaveAttribute(
+    "href",
+    fixture.state.jobs[0].url,
+  );
+  expect(
+    screen.queryByRole("button", { name: "Prepare application" }),
   ).not.toBeInTheDocument();
 });
 
@@ -921,12 +939,10 @@ it("distinguishes an earlier submission record from a preserved local draft", as
       name: "Assess Cloud Engineer at Example Cloud",
     }),
   );
+  expect(screen.getByText("Submitted document version unknown.")).toBeVisible();
   expect(
-    screen.getByRole("link", { name: "Review preserved draft" }),
-  ).toHaveAttribute(
-    "href",
-    "/discover?view=applications&section=submitted&application=separate-draft&panel=documents",
-  );
+    screen.getByRole("region", { name: "CV" }).closest("[data-application-id]"),
+  ).toHaveAttribute("data-application-id", "separate-draft");
   expect(
     screen.queryByRole("link", { name: "View submission" }),
   ).not.toBeInTheDocument();
@@ -934,7 +950,7 @@ it("distinguishes an earlier submission record from a preserved local draft", as
     screen.queryByText(/keeps its exact document snapshot/),
   ).not.toBeInTheDocument();
   expect(
-    screen.queryByRole("button", { name: "Prepare draft" }),
+    screen.queryByRole("button", { name: "Prepare application" }),
   ).not.toBeInTheDocument();
 
   fixture.query =
@@ -962,12 +978,13 @@ it("consumes document focus once, leaving later refreshes and role navigation in
     comments: [],
   };
   fixture.state.applications = [app];
-  fixture.run.mockImplementation(async () => {
+  fixture.client.action.mockImplementation(async (operation: string) => {
+    if (operation !== "local-package") return ranked();
     fixture.state.applications = [
       ...fixture.state.applications,
       { ...app, id: "new-a", job_id: "job-a" },
     ];
-    return fixture.state.applications[1];
+    return { application: fixture.state.applications[1] };
   });
   const { rerender } = render(<DiscoverPage />);
   fireEvent.click(
@@ -975,13 +992,11 @@ it("consumes document focus once, leaving later refreshes and role navigation in
       name: "Assess Cloud Engineer at Example Cloud",
     }),
   );
-  fireEvent.click(screen.getByRole("button", { name: "Prepare draft" }));
+  fireEvent.click(screen.getByRole("button", { name: "Prepare application" }));
   await waitFor(() => expect(fixture.state.applications).toHaveLength(2));
   rerender(<DiscoverPage />);
-  const documents = await screen.findByRole("link", {
-    name: "Review documents",
-  });
-  await waitFor(() => expect(documents).toHaveFocus());
+  const cv = await screen.findByRole("heading", { name: "CV" });
+  await waitFor(() => expect(cv).toHaveFocus());
   const next = screen.getByRole("button", { name: "Next opportunity" });
   next.focus();
   fixture.state.applications = fixture.state.applications.map((record) => ({
@@ -992,11 +1007,8 @@ it("consumes document focus once, leaving later refreshes and role navigation in
   fireEvent.click(next);
   expect(next).toHaveFocus();
   expect(
-    screen.getByRole("link", { name: "Review documents" }),
-  ).toHaveAttribute(
-    "href",
-    "/discover?view=applications&section=active&application=existing-b&panel=documents",
-  );
+    screen.getByRole("region", { name: "CV" }).closest("[data-application-id]"),
+  ).toHaveAttribute("data-application-id", "existing-b");
 });
 
 it("prepares a local draft only after an explicit click", async () => {
@@ -1006,13 +1018,28 @@ it("prepares a local draft only after an explicit click", async () => {
       name: "Assess Cloud Engineer at Example Cloud",
     }),
   );
-  fireEvent.click(screen.getByRole("button", { name: "Prepare draft" }));
+  expect(fixture.client.action).not.toHaveBeenCalledWith(
+    "local-package",
+    expect.anything(),
+  );
+  fixture.client.action.mockResolvedValueOnce({
+    id: "explicit-version",
+    job_id: "job-a",
+    title: "Cloud Engineer",
+    employer: "Example Cloud",
+    status: "draft",
+    comments: [],
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Prepare application" }));
   await waitFor(() =>
-    expect(fixture.run).toHaveBeenCalledWith(
-      "local-package",
-      { profile_id: "profile-a", job_id: "job-a" },
-      expect.any(String),
-    ),
+    expect(fixture.client.action).toHaveBeenCalledWith("local-package", {
+      profile_id: "profile-a",
+      job_id: "job-a",
+    }),
+  );
+  expect(await screen.findByRole("heading", { name: "CV" })).toHaveFocus();
+  expect(new URLSearchParams(fixture.query).get("application")).toBe(
+    "explicit-version",
   );
 });
 
@@ -1028,7 +1055,7 @@ it.each(["recommended", "all"])(
     render(<DiscoverPage />);
     const assess = { name: "Assess Cloud Engineer at Example Cloud" };
     fireEvent.click(await screen.findByRole("button", assess));
-    const inspector = screen.getByRole("complementary");
+    const inspector = screen.getByRole("dialog");
     fireEvent.click(
       within(inspector).getByRole("button", { name: "Save Cloud Engineer" }),
     );
@@ -1069,11 +1096,11 @@ it("opens Saved for an earlier saved-status filter URL", async () => {
   ).not.toBeInTheDocument();
 });
 
-it("uses the recorded careers page for the company preview", async () => {
+it("links to the recorded careers page directly from the mobile role details", async () => {
   const careersUrl = "https://company.example.com/team/careers";
   fixture.mobile = true;
   fixture.state.jobs[0].careers_url = careersUrl;
-  render(<DiscoverPage />, { wrapper: OpportunitySourceProvider });
+  render(<DiscoverPage />);
   fireEvent.click(
     await screen.findByRole("button", {
       name: "Assess Cloud Engineer at Example Cloud",
@@ -1083,16 +1110,10 @@ it("uses the recorded careers page for the company preview", async () => {
     screen.getByRole("dialog", { name: "Cloud Engineer" }),
   ).getByRole("link", { name: "Example Cloud" });
   expect(company).toHaveAttribute("href", careersUrl);
-  fireEvent.click(company);
-  const preview = screen.getByRole("dialog", { name: "Company preview" });
-  expect(preview).toHaveTextContent("Careers site · company.example.com");
-  expect(within(preview).getByTitle("Company website preview")).toHaveAttribute(
-    "src",
-    `/api/listing-preview-frame?host=company.example.com#${encodeURIComponent(careersUrl)}`,
-  );
-  expect(
-    within(preview).getByRole("link", { name: "Open in new tab" }),
-  ).toHaveAttribute("href", careersUrl);
+  expect(company).toHaveAttribute("target", "_blank");
+  expect(company).toHaveAttribute("rel", "noopener noreferrer");
+  expect(fireEvent.click(company)).toBe(true);
+  expect(screen.getByRole("dialog", { name: "Cloud Engineer" })).toBeVisible();
 });
 
 it("leaves an unnamed employer without a link", async () => {
@@ -1101,7 +1122,7 @@ it("leaves an unnamed employer without a link", async () => {
   fireEvent.click(
     await screen.findByRole("button", { name: /^Assess Cloud Engineer/ }),
   );
-  const inspector = within(screen.getByRole("complementary"));
+  const inspector = within(screen.getByRole("dialog"));
   expect(inspector.queryByRole("link", { name: "" })).not.toBeInTheDocument();
   expect(inspector.getByRole("link", { name: "Cloud Engineer" })).toBeVisible();
 });
@@ -1123,7 +1144,7 @@ it("keeps an unsave failure visible after optimistic removal from Saved and rest
     }),
   );
   fireEvent.click(
-    within(screen.getByRole("complementary")).getByRole("button", {
+    within(screen.getByRole("dialog")).getByRole("button", {
       name: "Unsave Cloud Engineer",
     }),
   );
@@ -1208,7 +1229,7 @@ it("does not silently reopen the previous profile's selected job", async () => {
     }),
   );
   await waitFor(() =>
-    expect(screen.queryByRole("complementary")).not.toBeInTheDocument(),
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
   );
   expect(
     screen.getByRole("button", {
@@ -1409,7 +1430,7 @@ it("keeps a requested application's Overview usable outside the visible filter",
   ];
   fixture.query = "view=all&q=unmatched&application=app-a&panel=overview";
   render(<DiscoverPage />);
-  expect(await screen.findByRole("complementary")).toHaveAccessibleName(
+  expect(await screen.findByRole("dialog")).toHaveAccessibleName(
     "Cloud Engineer",
   );
   expect(screen.getByText("Built Python applications")).toBeInTheDocument();
@@ -1438,12 +1459,174 @@ it("offers saved documents and activity when a requested listing is missing", as
   fixture.query = "view=applications&application=missing-app&panel=overview";
   render(<DiscoverPage />);
   expect(screen.getByRole("dialog", { name: "Preserved role" })).toBeVisible();
-  expect(
-    screen.getByRole("heading", { name: "Listing overview unavailable" }),
-  ).toBeVisible();
-  await userEvent.click(
-    screen.getByRole("button", { name: "Review saved documents" }),
-  );
+  expect(screen.getByText("Job listing unavailable")).toBeVisible();
+  await userEvent.click(screen.getByRole("button", { name: "CV" }));
   expect(new URLSearchParams(fixture.query).get("panel")).toBe("documents");
   expect(fixture.client.action).not.toHaveBeenCalled();
+});
+
+it("ignores an exact preparation response after navigating to another role in the same workspace", async () => {
+  let resolveDraft: (value: unknown) => void = () => {};
+  fixture.client.action.mockImplementation(async (operation: string) =>
+    operation === "local-package"
+      ? new Promise((resolve) => {
+          resolveDraft = resolve;
+        })
+      : ranked(),
+  );
+  const { rerender } = render(<DiscoverPage />);
+  fireEvent.click(
+    await screen.findByRole("button", {
+      name: "Assess Cloud Engineer at Example Cloud",
+    }),
+  );
+  fireEvent.click(screen.getByRole("button", { name: "Prepare application" }));
+  fireEvent.click(screen.getByRole("button", { name: "Next opportunity" }));
+  rerender(<DiscoverPage />);
+  await act(async () => {
+    resolveDraft({
+      id: "stale-version",
+      job_id: "job-a",
+      title: "Cloud Engineer",
+      employer: "Example Cloud",
+      status: "draft",
+      comments: [],
+    });
+  });
+  expect(screen.getByRole("dialog")).toHaveAccessibleName("Backend Engineer");
+  expect(screen.queryByRole("heading", { name: "CV" })).toBeNull();
+  expect(new URLSearchParams(fixture.query).has("application")).toBe(false);
+});
+
+it("keeps role intention unchanged after a failed mark or unmark", async () => {
+  fixture.state._workspace.agent_queue = true;
+  fixture.state._workspace.demo = true;
+  fixture.client.action.mockImplementation(
+    async (operation: string, data: RequestData) => {
+      if (operation === "rank") return ranked();
+      if (operation === "agent-queue-mark") {
+        if (
+          (fixture.state.agent_intents?.length && data.marked === false) ||
+          !fixture.state.agent_intents
+        )
+          throw new Error("Queue update failed");
+        return { id: data.job_id, marked: data.marked };
+      }
+      return {};
+    },
+  );
+  fixture.refresh.mockRejectedValue(new Error("Offline refresh"));
+  const { rerender } = render(<DiscoverPage />);
+  fireEvent.click(
+    await screen.findByRole("button", {
+      name: "Assess Cloud Engineer at Example Cloud",
+    }),
+  );
+  const control = screen.getByRole("button", { name: "For my agent" });
+  fireEvent.click(control);
+  expect(await screen.findByRole("alert")).toHaveTextContent(
+    "Queue update failed",
+  );
+  expect(control).toHaveAttribute("aria-pressed", "false");
+  fixture.state.agent_intents = [];
+  fireEvent.click(control);
+  await waitFor(() => expect(control).toHaveAttribute("aria-pressed", "true"));
+  fixture.state.agent_intents = [
+    { id: "job-a", marked: true, updated_at: "2026-11-14" },
+  ];
+  rerender(<DiscoverPage />);
+  fireEvent.click(control);
+  expect(await screen.findByRole("alert")).toHaveTextContent(
+    "Queue update failed",
+  );
+  expect(control).toHaveAttribute("aria-pressed", "true");
+  expect(fixture.client.action).not.toHaveBeenCalledWith(
+    "local-package",
+    expect.anything(),
+  );
+});
+
+it("keeps the exact queue selection across pagination and offers manual copy on clipboard denial", async () => {
+  fixture.state._workspace.agent_queue = true;
+  fixture.state.agent_intents = fixture.state.jobs.map(({ id }) => ({
+    id,
+    marked: true,
+    updated_at: "2026-11-14",
+  }));
+  fixture.query = "view=applications&section=agent";
+  const queue = (role_id: string) => ({
+    role_id,
+    application_id: null,
+    marked_at: "2026-11-14",
+  });
+  fixture.client.action.mockImplementation(
+    async (operation: string, data: RequestData) => {
+      if (operation === "rank") return ranked();
+      if (operation === "agent-queue")
+        return data.offset === 50
+          ? { rows: [queue("job-b")], total: 51, next_offset: null }
+          : { rows: [queue("job-a")], total: 51, next_offset: 50 };
+      if (operation === "agent-application-status") return { runs: [] };
+      if (operation === "agent-capabilities")
+        return { available: false, reason: "No executor", channels: {} };
+      if (operation === "application-handoff")
+        return { text: "job-a, job-b. This handoff grants no authority." };
+      throw new Error(operation);
+    },
+  );
+  const user = userEvent.setup();
+  const deny = vi
+    .spyOn(navigator.clipboard, "writeText")
+    .mockRejectedValue(new Error("Clipboard denied"));
+  const view = render(<DiscoverPage />);
+  try {
+    await user.click(
+      await screen.findByRole("checkbox", {
+        name: "Select Cloud Engineer at Example Cloud",
+      }),
+    );
+    await user.click(screen.getByRole("button", { name: "Next page" }));
+    view.rerender(<DiscoverPage />);
+    await user.click(
+      await screen.findByRole("checkbox", {
+        name: "Select Backend Engineer at Example Studio",
+      }),
+    );
+    expect(screen.getByText("2 selected")).toBeVisible();
+    await user.click(
+      screen.getByRole("button", { name: "Copy agent instructions" }),
+    );
+    expect(
+      await screen.findByRole("textbox", {
+        name: "Select and copy the agent instructions",
+      }),
+    ).toHaveValue("job-a, job-b. This handoff grants no authority.");
+    expect(fixture.client.action).toHaveBeenCalledWith("application-handoff", {
+      job_ids: ["job-a", "job-b"],
+    });
+    expect(fixture.client.action).not.toHaveBeenCalledWith(
+      "agent-application-start",
+      expect.anything(),
+    );
+    fixture.state.jobs[1].company = {
+      id: "example-studio",
+      remaining: 1,
+      cooling: false,
+      submitted_vacancy: true,
+    };
+    view.rerender(<DiscoverPage />);
+    expect(screen.getByText("1 selected")).toBeVisible();
+    expect(
+      screen.queryByRole("textbox", {
+        name: "Select and copy the agent instructions",
+      }),
+    ).toBeNull();
+    expect(
+      screen.queryByRole("checkbox", {
+        name: "Select Backend Engineer at Example Studio",
+      }),
+    ).toBeNull();
+  } finally {
+    deny.mockRestore();
+  }
 });

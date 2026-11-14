@@ -66,7 +66,13 @@ async function run() {
     browser = await chromium.launch({ channel: "chrome" });
     const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
     const errors = [];
+    const requests = [];
     page.on("pageerror", error => errors.push(error.message));
+    page.on("request", request => {
+      const path = new URL(request.url()).pathname;
+      if (["/api/company-avoid", "/api/discovery-start"].includes(path))
+        requests.push([request.method(), path]);
+    });
     await page.goto(origin + "/search/");
     const heading = page.getByRole("heading", { name: "Find new jobs" });
     await heading.waitFor();
@@ -76,6 +82,9 @@ async function run() {
     );
     await page.getByRole("button", { name: "Find jobs", exact: true }).click();
     await page.getByRole("link", { name: "Fast Engineer", exact: true }).waitFor();
+    assert.deepEqual(requests, [
+      ["GET", "/api/company-avoid"], ["POST", "/api/discovery-start"],
+    ]);
     assert.ok(await page.getByRole("button", { name: "Stop search" }).isVisible());
     await page.getByRole("button", { name: "Stop search" }).click();
     await page.getByText(/Search stopped ·/).waitFor();
@@ -107,8 +116,31 @@ async function run() {
     assert.equal(api.status(), 200);
     const { result } = await api.json();
     assert.deepEqual(result.sources[0].job_ids, [body.state.jobs[0].id]);
+    await page.getByRole("textbox", { name: "Public URLs (one per line)" }).fill(
+      "https://fast.example.test/job/python",
+    );
+    const preflight = origin + "/api/company-avoid";
+    await page.route(preflight, route => route.fulfill({
+      status: 503, json: { error: "Cooldown lookup unavailable" },
+    }));
+    await page.getByRole("button", { name: "Find jobs", exact: true }).click();
+    await page.getByText("Cooldown lookup unavailable", { exact: true }).waitFor();
+    assert.deepEqual(requests.at(-1), ["GET", "/api/company-avoid"]);
+    assert.equal(requests.length, 3);
+    await page.unroute(preflight);
+    await Promise.all([
+      page.waitForResponse(response =>
+        new URL(response.url()).pathname === "/api/discovery-start" && response.ok(),
+      ),
+      page.getByRole("button", { name: "Find jobs", exact: true }).click(),
+    ]);
+    assert.deepEqual(requests, [
+      ["GET", "/api/company-avoid"], ["POST", "/api/discovery-start"],
+      ["GET", "/api/company-avoid"],
+      ["GET", "/api/company-avoid"], ["POST", "/api/discovery-start"],
+    ]);
     assert.deepEqual(errors, []);
-    console.log("PASS: discovery shows partial results, stop, blocked sources, public page text and prior results after a reload at desktop and mobile widths");
+    console.log("PASS: live cooldown preflight blocks a failed search and repeats on retry. Discovery retains partial results across reload at desktop and mobile widths.");
   } finally {
     await browser?.close();
     if (child.exitCode === null && child.signalCode === null) {

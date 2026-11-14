@@ -106,10 +106,183 @@
 .opportunity-application {
   min-width: 0;
 }
+.opportunity-application [hidden],
+.opportunity-application[hidden] {
+  display: none;
+}
 .opportunity-application .dossier {
   grid-template-columns: minmax(0, 1fr);
   margin: 0;
   background: var(--surface);
+}
+.application-cv {
+  display: grid;
+  gap: 0.875rem;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+.application-document-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+}
+.application-document-toolbar h3 {
+  margin: 0;
+  font-size: 1.125rem;
+}
+.application-document-toolbar .actions {
+  margin: 0;
+}
+.application-document-toolbar :is(button, .button) {
+  min-height: 2.75rem;
+  font-size: 0.8125rem;
+}
+.application-cv .editor-pdf-page,
+.application-cv .editor-pdf-pagination,
+.application-cv .editor-pdf-reading {
+  max-width: 45rem;
+  margin-inline: auto;
+}
+.application-demo-cv {
+  padding: clamp(1rem, 4vw, 3rem);
+  color: #25252a;
+  background: white;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.application-next-step,
+.application-completion,
+.application-exception,
+.submission-summary,
+.agent-progress,
+.agent-start,
+.agent-queue-tools {
+  display: grid;
+  gap: 0.625rem;
+  min-width: 0;
+}
+.application-next-step {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+.application-next-step .actions,
+.application-completion .actions,
+.agent-progress .actions,
+.agent-queue-tools .actions {
+  margin: 0;
+}
+.application-next-step :is(button, .button),
+.agent-progress :is(button, .button),
+.agent-start :is(button, .button),
+.agent-queue-tools :is(button, .button) {
+  min-height: 2.75rem;
+}
+.application-next-step :is(p, h4),
+.application-completion :is(p, h4),
+.application-exception :is(p, h4),
+.agent-start :is(p, h3),
+.agent-progress :is(p, h3),
+.submission-summary :is(p, h3) {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.application-next-step.has-details,
+.application-exception,
+.submission-summary,
+.agent-progress,
+.agent-start {
+  padding: 0.875rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-raised);
+}
+.agent-start,
+.agent-progress,
+.submission-summary {
+  margin-bottom: 1rem;
+}
+.agent-start > button {
+  justify-self: start;
+}
+.agent-start p,
+.agent-readiness,
+.application-receipt,
+.application-completion,
+.application-exception,
+.agent-progress p {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.application-exception form,
+.application-completion form,
+.agent-progress form {
+  width: 100%;
+}
+.application-exception form :is(input, select, textarea),
+.application-completion form :is(input, select, textarea),
+.agent-progress form :is(input, select, textarea),
+.agent-queue-tools textarea {
+  width: 100%;
+  min-width: 0;
+  font-size: 1rem;
+}
+.agent-progress pre,
+.application-receipt pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.agent-start-roles {
+  padding-inline-start: 1.125rem;
+  margin: 0;
+  font-size: 0.875rem;
+}
+.application-attempt {
+  padding-block: 0.875rem;
+  border-bottom: 1px solid var(--line);
+}
+.application-attempt-history {
+  margin-top: 1rem;
+}
+.application-receipt-evidence {
+  white-space: pre-wrap;
+}
+@media (max-width: 440px) {
+  .application-cv {
+    gap: 0.625rem;
+  }
+  .application-document-toolbar {
+    gap: 0.25rem;
+  }
+  .application-document-toolbar h3 {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .application-document-toolbar .application-cv-reading {
+    width: 2.75rem;
+    padding-inline: 0;
+  }
+  .application-document-toolbar :is(button, .button) {
+    padding-inline: 0.625rem;
+  }
+  .application-document-toolbar .actions {
+    gap: 0.25rem;
+  }
+  .application-cv-reading span {
+    display: none;
+  }
+}
+.application-receipt-technical,
+.application-receipt .actions,
+.application-receipt > button {
+  margin-top: 0.75rem;
 }
 .opportunity-application .dossier-header {
   padding: 1rem 1.25rem;

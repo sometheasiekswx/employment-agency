@@ -153,6 +153,33 @@ async function drag(page, control, delta, session) {
         grip = panel.getByRole("button", {
           name: "Resize opportunity details",
         });
+      const showOverview = async () => {
+        const overview = panel.getByRole("button", {
+          name: "Overview",
+          exact: true,
+        });
+        if ((await overview.getAttribute("aria-pressed")) !== "true") {
+          await overview.click();
+          await page.waitForURL(
+            (url) => url.searchParams.get("panel") === "overview",
+          );
+        }
+        await settled(page);
+        assert.equal(await grip.getAttribute("aria-expanded"), "false");
+      };
+      const backdropPoint = async () => {
+        const bounds = await panel.boundingBox();
+        assert.ok(
+          bounds && bounds.y > 16,
+          "The overview leaves a tappable backdrop",
+        );
+        return { x: bounds.x + bounds.width / 2, y: bounds.y / 2 };
+      };
+      const releaseBackdrop = async () => {
+        const { x, y } = await backdropPoint();
+        if (session) await page.touchscreen.tap(x, y);
+        else await page.mouse.click(x, y);
+      };
       assert.equal(
         await panel.evaluate(
           (element) =>
@@ -173,7 +200,15 @@ async function drag(page, control, delta, session) {
         await page.getByText("Collapse details", { exact: true }).count(),
         0,
       );
-      await drag(page, grip, -280, session);
+      await showOverview();
+      const peek = await panel.boundingBox();
+      assert.ok(peek);
+      await drag(
+        page,
+        grip,
+        -Math.min(280, Math.round((peek.y - 8) * 0.75)),
+        session,
+      );
       await settled(page);
       assert.equal(await grip.getAttribute("aria-expanded"), "true");
       await page.screenshot({
@@ -186,20 +221,24 @@ async function drag(page, control, delta, session) {
         true,
       );
       await role.click();
-      await settled(page);
+      await showOverview();
       if (session) {
         // The pointer release must work even when touch produces no click.
         await panel.evaluate((sheet) => {
-          sheet.addEventListener("touchend", (event) => event.preventDefault(), {
-            once: true,
-            passive: false,
-          });
+          sheet.addEventListener(
+            "touchend",
+            (event) => event.preventDefault(),
+            {
+              once: true,
+              passive: false,
+            },
+          );
         });
-        await page.touchscreen.tap(180, 200);
-      } else await page.mouse.click(180, 200);
+      }
+      await releaseBackdrop();
       await panel.waitFor({ state: "detached" });
       await role.click();
-      await settled(page);
+      await showOverview();
       await drag(page, grip, 330, session);
       await panel.waitFor({ state: "detached" });
       await page.emulateMedia({ reducedMotion: "reduce" });
@@ -227,18 +266,14 @@ async function drag(page, control, delta, session) {
       await panel
         .getByRole("button", { name: "Activity", exact: true })
         .click();
-      const workbench = page.locator(".opportunities-workbench");
-      const comment = workbench.getByRole("textbox", {
+      const comment = panel.getByRole("textbox", {
         name: "Comments",
         exact: true,
       });
       const originalComment = await comment.inputValue();
       const draftComment = `${originalComment} Pending mobile dismissal regression`;
       await comment.fill(draftComment);
-      await workbench
-        .getByRole("button", { name: "Overview", exact: true })
-        .click();
-      await settled(page);
+      await showOverview();
       const dirtyUrl = page.url();
       const cancelDismissal = async (trigger) => {
         const confirmation = page
@@ -286,9 +321,7 @@ async function drag(page, control, delta, session) {
           })
           .click(),
       );
-      await cancelDismissal(() =>
-        session ? page.touchscreen.tap(180, 200) : page.mouse.click(180, 200),
-      );
+      await cancelDismissal(releaseBackdrop);
       await cancelDismissal(() => drag(page, grip, 330, session));
       await cancelDismissal(() => page.goBack());
       await panel
@@ -300,10 +333,7 @@ async function drag(page, control, delta, session) {
         "cancelled sheet dismissal preserves the unsent Activity draft",
       );
       await comment.fill(originalComment);
-      await workbench
-        .getByRole("button", { name: "Overview", exact: true })
-        .click();
-      await settled(page);
+      await showOverview();
       // The editor deliberately keeps an edited draft dirty even after its text
       // is restored. Explicitly discard this test draft during cleanup only.
       const discardCleanup = (dialog) => dialog.accept();
@@ -314,6 +344,7 @@ async function drag(page, control, delta, session) {
       await page.setViewportSize({ width: 320, height: 700 });
       await page.goto(base + "/discover/");
       await role.click();
+      await showOverview();
       const gap = panel
         .locator(".discover-assessment-check")
         .filter({ hasText: "Evidence gap: Kubernetes" });

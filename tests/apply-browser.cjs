@@ -3,30 +3,19 @@ const AxeBuilder =
   require("../frontend/node_modules/@axe-core/playwright").default;
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
-const {
-  openApplication,
-  selectApplication,
-} = require("./browser-applications.cjs");
+const { openApplication } = require("./browser-applications.cjs");
+
 (async () => {
   const base = process.env.TEST_URL;
   assert.match(base, /^http:\/\/127\.0\.0\.1:\d+$/);
   const browser = await chromium.launch({ channel: "chrome", headless: true });
   try {
-    const context = await browser.newContext({
-      viewport: { width: 1440, height: 1000 },
-    });
+    const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
     const page = await context.newPage();
     const errors = [];
-    page.on("pageerror", (e) => errors.push(e.message));
-    await page.goto(base);
-    await page
-      .getByRole("heading", { name: "Software Engineer", exact: true })
-      .waitFor();
+    page.on("pageerror", (error) => errors.push(error.message));
     const initial = await (await page.request.get(base + "/api/state")).json();
-    assert.match(
-      initial.state._workspace.path,
-      /employment-agency-apply-fixture-/,
-    );
+    assert.match(initial.state._workspace.path, /employment-agency-apply-fixture-/);
     const emailApplication = initial.state.applications.find(
       (application) => application.title === "Software Engineer",
     );
@@ -34,190 +23,96 @@ const {
       (application) => application.title === "Platform Engineer",
     );
     assert.ok(emailApplication && websiteApplication);
-    await openApplication(page, base, emailApplication, "activity");
-    const app = page.locator(`[data-application-id="${emailApplication.id}"]`);
-    await app
-      .getByRole("button", { name: "Apply For Me", exact: true })
-      .click();
-    let dialog = page.locator(".apply-dialog");
-    await dialog
-      .getByText("alex@example.test", { exact: false })
-      .first()
-      .waitFor();
-    await dialog.getByLabel("Allow disclosure", { exact: false }).check();
-    await dialog
-      .getByRole("button", { name: "Prepare application", exact: true })
-      .click();
-    await dialog.getByText("awaiting approval", { exact: false }).waitFor();
-    const frame = dialog.locator("iframe");
-    assert.equal(await frame.count(), 2);
-    await page.waitForFunction(() =>
-      document.querySelector("dialog iframe")?.src.startsWith("blob:"),
-    );
-    await page.waitForTimeout(700); // Give the native PDF viewer time to paint after the verified bytes load.
+
+    const request = (operation, data, origin = base) =>
+      page.request.post(base + "/api/" + operation, {
+        data,
+        headers: { Origin: origin, "X-Workspace-Token": initial.token },
+      });
+    const action = async (operation, data) => {
+      const response = await request(operation, data);
+      const body = await response.json();
+      assert.equal(response.status(), 200, JSON.stringify(body));
+      return body.result;
+    };
+    const waitFor = async (id, status) => {
+      const deadline = Date.now() + 20_000;
+      let attempt;
+      while (Date.now() < deadline) {
+        attempt = await action("apply-get", { id });
+        if (attempt.status === status) return attempt;
+        if (["failed", "needs_user", "unknown"].includes(attempt.status)) break;
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+      throw new Error(`Controlled ${attempt?.channel} attempt: ${attempt?.status} ${attempt?.note}`);
+    };
+
+    await openApplication(page, base, emailApplication, "documents");
+    const cv = page.getByRole("region", { name: "CV" });
+    await cv.waitFor();
+    await cv.locator("canvas").first().waitFor();
     fs.mkdirSync("output/playwright/apply", { recursive: true });
     for (const width of [390, 768, 1440]) {
       await page.setViewportSize({ width, height: 1000 });
-      assert.equal(
-        await dialog.evaluate((e) => e.scrollWidth > e.clientWidth),
-        false,
-        "dialog overflow",
-      );
+      assert.equal(await cv.evaluate((el) => el.scrollWidth > el.clientWidth), false);
       assert.deepEqual(
         (
           await new AxeBuilder({ page })
             .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
             .analyze()
-        ).violations.map((v) => v.id),
+        ).violations.map((item) => item.id),
         [],
       );
-      await page.screenshot({
-        path: `output/playwright/apply/review-${width}.png`,
-      });
+      await page.screenshot({ path: `output/playwright/apply/review-${width}.png` });
     }
-    await dialog.getByRole("button", { name: "Close", exact: true }).focus();
-    for (let i = 0; i < 5; i++) {
-      await page.keyboard.press("Tab");
-      assert.equal(
-        await dialog.evaluate((el) => el.contains(document.activeElement)),
-        true,
-        "focus remains in modal",
-      );
-    }
-    await dialog.getByRole("button", { name: "Close", exact: true }).focus();
-    await page.keyboard.press("Escape");
-    assert.equal(await page.locator(".apply-dialog").count(), 0);
-    assert.equal(
-      await page.evaluate(() => document.activeElement?.textContent),
-      "Apply For Me",
-    );
-    await app
-      .getByRole("button", { name: "Apply For Me", exact: true })
-      .click();
-    dialog = page.locator(".apply-dialog");
-    await dialog.getByText("awaiting approval", { exact: false }).waitFor();
-    await page.waitForFunction(() =>
-      document.querySelector("dialog iframe")?.src.startsWith("blob:"),
-    );
-    // A stale approval and wrong HTTP origin cannot trigger a recording send.
-    const record = (
-      await (
-        await page.request.post(base + "/api/apply-status", {
-          data: {},
-          headers: { Origin: base, "X-Workspace-Token": initial.token },
-        })
-      ).json()
-    ).result.attempts[0];
-    assert.equal(
-      (
-        await page.request.post(base + "/api/apply-approve", {
-          data: { id: record.id, approved: true, fingerprint: "stale" },
-          headers: { Origin: base, "X-Workspace-Token": initial.token },
-        })
-      ).status(),
-      400,
-    );
-    assert.equal(
-      (
-        await page.request.post(base + "/api/apply-approve", {
-          data: {
-            id: record.id,
-            approved: true,
-            fingerprint: record.fingerprint,
-          },
-          headers: {
-            Origin: "https://evil.example",
-            "X-Workspace-Token": initial.token,
-          },
-        })
-      ).status(),
-      403,
-    );
-    await dialog.getByLabel("I reviewed this exact", { exact: false }).check();
-    await dialog
-      .getByRole("button", { name: "Send application", exact: true })
-      .click();
-    await dialog
-      .getByText("CONTROLLED RECORDING TRANSPORT", { exact: false })
-      .waitFor();
-    assert.ok((await dialog.innerText()).includes(record.binding.sha256));
-    assert.ok(
-      (await dialog.innerText()).includes(record.binding.cover_letter.sha256),
-    );
-    await page.screenshot({
-      path: "output/playwright/apply/gmail-confirmation.png",
+
+    const email = await action("apply-start", {
+      application_id: emailApplication.id,
+      disclosure_confirmed: true,
+      channel: "gmail",
+      to: "jobs@example.test",
+      subject: "Controlled application",
+      body: "Fictional fixture, no provider message.",
     });
-    await dialog.getByRole("button", { name: "Close", exact: true }).click();
-    await page
-      .getByRole("button", { name: "Submitted 1", exact: true })
-      .click();
-    await selectApplication(page, emailApplication);
-    await page
-      .getByRole("button", { name: "Submission details", exact: true })
-      .click();
-    await page.getByText("fixture-message", { exact: false }).waitFor();
-    await page
-      .locator(".apply-dialog")
-      .getByRole("button", { name: "Close", exact: true })
-      .click();
-    await page.getByRole("button", { name: "Active 1", exact: true }).click();
-    await selectApplication(page, websiteApplication);
-    await page
-      .getByRole("button", { name: "Apply For Me", exact: true })
-      .click();
-    dialog = page.locator(".apply-dialog");
-    await dialog
-      .getByRole("combobox", { name: "Application method" })
-      .selectOption("linkedin");
-    await dialog.getByLabel("Allow disclosure", { exact: false }).check();
-    await dialog
-      .getByRole("button", { name: "Prepare application", exact: true })
-      .click();
-    await dialog.getByText("awaiting approval", { exact: false }).waitFor();
-    await dialog
-      .getByRole("heading", { name: "Website review", exact: true })
-      .waitFor();
-    await page.screenshot({
-      path: "output/playwright/apply/linkedin-review.png",
+    const reviewed = await waitFor(email.id, "awaiting_approval");
+    const approval = { id: email.id, approved: true, fingerprint: reviewed.fingerprint };
+    assert.equal((await request("apply-approve", { ...approval, fingerprint: "stale" })).status(), 400);
+    assert.equal((await request("apply-approve", approval, "https://evil.example")).status(), 403);
+    assert.equal((await action("apply-get", { id: email.id })).status, "awaiting_approval");
+    await action("apply-approve", approval);
+    const sent = await waitFor(email.id, "confirmed");
+    assert.equal(sent.receipt.attachment_sha256, reviewed.binding.sha256);
+    assert.equal(sent.receipt.cover_letter_sha256, reviewed.binding.cover_letter.sha256);
+    await openApplication(page, base, { ...emailApplication, status: "submitted" }, "activity");
+    const history = page.getByRole("region", { name: "Previous submission attempts" });
+    await history.getByText("Confirmation evidence", { exact: true }).click();
+    await history.getByText(/CONTROLLED RECORDING TRANSPORT/).waitFor();
+    await history.getByText(/fixture-message/).waitFor();
+    assert.ok((await history.innerText()).includes(reviewed.binding.sha256));
+    assert.ok((await history.innerText()).includes(reviewed.binding.cover_letter.sha256));
+    await page.screenshot({ path: "output/playwright/apply/gmail-confirmation.png" });
+
+    const web = await action("apply-start", {
+      application_id: websiteApplication.id,
+      disclosure_confirmed: true,
+      channel: "linkedin",
     });
-    await dialog.getByLabel("I reviewed this exact", { exact: false }).check();
-    await dialog
-      .getByRole("button", { name: "Submit application", exact: true })
-      .click();
-    try {
-      await dialog
-        .getByText("Application sent", { exact: false })
-        .last()
-        .waitFor();
-    } catch (error) {
-      const result = await (
-        await page.request.post(base + "/api/apply-status", {
-          data: {},
-          headers: { Origin: base, "X-Workspace-Token": initial.token },
-        })
-      ).json();
-      console.error(
-        "Controlled attempt statuses:",
-        result.result.attempts.map((r) => ({
-          channel: r.channel,
-          status: r.status,
-          note: r.note,
-        })),
-      );
-      await page.screenshot({ path: "output/playwright/apply/failure.png" });
-      throw error;
-    }
-    await page.screenshot({
-      path: "output/playwright/apply/linkedin-confirmation.png",
-    });
+    const form = await waitFor(web.id, "awaiting_approval");
+    assert.equal(form.payload.site_review.upload_sha256, form.binding.sha256);
+    assert.equal(form.payload.site_review.cover_letter_sha256, form.binding.cover_letter.sha256);
+    await action("apply-approve", { id: web.id, approved: true, fingerprint: form.fingerprint });
+    const confirmed = await waitFor(web.id, "confirmed");
+    assert.equal(confirmed.receipt.confirmation, "Application sent");
+    await openApplication(page, base, { ...websiteApplication, status: "submitted" }, "activity");
+    await history.getByText("Confirmation evidence", { exact: true }).click();
+    await history.getByText(/Application sent/).waitFor();
+    await page.screenshot({ path: "output/playwright/apply/linkedin-confirmation.png" });
     assert.deepEqual(errors, []);
-    console.log(
-      "Apply UI PASS: custom PDF review, 3 widths/axe, approval+origin guards, recorded Gmail bytes+receipt, durable submission details, real browser adapter/controlled LinkedIn form receipt; no external application.",
-    );
+    console.log("Legacy delivery PASS: CV preview/3 widths/axe, approval and origin guards, exact PDFs and retained Gmail and browser receipts in Activity.");
   } finally {
     await browser.close();
   }
-})().catch((e) => {
-  console.error(e);
+})().catch((error) => {
+  console.error(error);
   process.exit(1);
 });
