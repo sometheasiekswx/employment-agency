@@ -239,3 +239,29 @@ it("supports restored feedback, an empty title and an editor without a notice", 
     screen.getByRole("form", { name: "Reason for removing" }),
   ).toBeVisible();
 });
+
+it("holds the feedback while hovered or keyboard-focused and releases on unmount", () => {
+  const onNoticeInteractionChange = vi.fn();
+  const view = render(
+    <>
+      <button>Keep browsing</button>
+      <RemovalFeedback
+        {...props()}
+        onNoticeInteractionChange={onNoticeInteractionChange}
+      />
+    </>,
+  );
+  const notice = screen.getByRole("region", { name: "Opportunity removal" });
+  notice.dispatchEvent(new MouseEvent("pointerenter"));
+  expect(onNoticeInteractionChange).toHaveBeenLastCalledWith(true);
+  screen.getByRole("button", { name: "Undo" }).focus();
+  notice.dispatchEvent(new MouseEvent("pointerleave"));
+  expect(onNoticeInteractionChange).toHaveBeenLastCalledWith(true);
+  screen.getByRole("button", { name: "Add reason" }).focus();
+  expect(onNoticeInteractionChange).toHaveBeenLastCalledWith(true);
+  screen.getByRole("button", { name: "Keep browsing" }).focus();
+  expect(onNoticeInteractionChange).toHaveBeenLastCalledWith(false);
+  notice.dispatchEvent(new MouseEvent("pointerenter"));
+  view.unmount();
+  expect(onNoticeInteractionChange).toHaveBeenLastCalledWith(false);
+});

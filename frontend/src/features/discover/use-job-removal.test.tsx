@@ -588,3 +588,118 @@ describe("opportunity removal controller", () => {
     expect(next.result.current.feedback?.status).toBe("removed");
   });
 });
+
+describe("successful removal feedback lifetime", () => {
+  const advance = (milliseconds: number) =>
+    act(() => vi.advanceTimersByTime(milliseconds));
+
+  async function removeAndConfirm(view: ReturnType<typeof setup>, job: Job) {
+    await act(async () => {
+      void view.result.current.remove(job);
+    });
+    const request = view.requests.at(-1)!;
+    await act(async () => {
+      request.pending.resolve(receipt(request.data));
+    });
+    return currentRemoval(view.result.current.jobWithRemoval(job))!;
+  }
+
+  it("pauses the remaining time while held or editing, then leaves the removal and draft available", async () => {
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "performance"] });
+    try {
+      const view = setup();
+      const removal = await removeAndConfirm(view, alpha);
+      advance(3_000);
+      act(() => view.result.current.setFeedbackHeld(true));
+      advance(10_000);
+      expect(view.result.current.feedback?.status).toBe("removed");
+      act(() => view.result.current.addReason(alpha, removal));
+      act(() => view.result.current.changeReason("Keep this draft"));
+      act(() => view.result.current.setFeedbackHeld(false));
+      advance(10_000);
+      expect(view.result.current.feedback?.status).toBe("removed");
+      act(() => view.result.current.closeReason());
+      view.rerender({ jobs: [alpha, beta] });
+      advance(4_999);
+      expect(view.result.current.feedback?.status).toBe("removed");
+      advance(1);
+      expect(view.result.current.feedback).toBeUndefined();
+      expect(
+        currentRemoval(view.result.current.jobWithRemoval(alpha))?.id,
+      ).toBe(removal.id);
+      act(() => view.result.current.addReason(alpha, removal));
+      expect(view.result.current.editor?.value).toBe("Keep this draft");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("gives a newer removal a full lifetime and cancels the old workspace timer on unmount", async () => {
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "performance"] });
+    try {
+      const view = setup();
+      await removeAndConfirm(view, alpha);
+      advance(7_000);
+      const newer = await removeAndConfirm(view, beta);
+      advance(7_999);
+      expect(view.result.current.feedback?.removalId).toBe(newer.id);
+      advance(1);
+      expect(view.result.current.feedback).toBeUndefined();
+
+      await removeAndConfirm(view, alpha);
+      expect(vi.getTimerCount()).toBeGreaterThan(0);
+      view.unmount();
+      expect(vi.getTimerCount()).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("waits for a successful receipt and keeps errors available past eight seconds", async () => {
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "performance"] });
+    try {
+      const view = setup();
+      await act(async () => {
+        void view.result.current.remove(alpha);
+      });
+      advance(10_000);
+      expect(view.result.current.feedback?.status).toBe("removing");
+      await act(async () => {
+        const request = view.requests[0];
+        request.pending.resolve(receipt(request.data));
+      });
+      advance(7_999);
+      expect(view.result.current.feedback?.status).toBe("removed");
+      await act(async () => {
+        void view.result.current.restore(
+          view.result.current.jobWithRemoval(alpha),
+        );
+      });
+      advance(10_000);
+      expect(view.result.current.feedback?.status).toBe("restoring");
+      await act(async () => {
+        view.requests[1].pending.reject(new Error("Restore failed"));
+      });
+      advance(10_000);
+      expect(view.result.current.feedback).toMatchObject({
+        status: "error",
+        error: "Restore failed",
+      });
+      await act(async () => {
+        void view.result.current.retry();
+      });
+      await act(async () => {
+        const request = view.requests[2];
+        request.pending.resolve(
+          receipt(request.data, { restored_at: event.at }),
+        );
+      });
+      advance(7_999);
+      expect(view.result.current.feedback?.status).toBe("restored");
+      advance(1);
+      expect(view.result.current.feedback).toBeUndefined();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});

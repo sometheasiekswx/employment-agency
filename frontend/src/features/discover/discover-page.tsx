@@ -361,7 +361,7 @@ export function DiscoverPage() {
     fallbackToRemoved: boolean;
   } | null>(null);
   const board = useRef<HTMLDivElement>(null);
-  const inspectorLayout = useRef<HTMLDivElement>(null);
+  const discoverScreen = useRef<HTMLDivElement>(null);
   const mobile = useMobileInspector();
   const profile = state.profiles.find((item) => item.id === profileId);
   const priorities = profile?.locations.length
@@ -785,46 +785,42 @@ export function DiscoverPage() {
   }, [animateInteractions]);
 
   useLayoutEffect(() => {
-    const layout = inspectorLayout.current;
-    if (!layout || !inspectorOpen || mobile) return;
-    let frame = 0;
+    const screen = discoverScreen.current;
+    if (!screen || !inspectorOpen || mobile) return;
+
     const measure = () => {
-      const top = Math.max(0, layout.getBoundingClientRect().top);
-      const height = `${Math.max(0, Math.floor(window.innerHeight - top - 16))}px`;
-      if (
-        layout.style.getPropertyValue("--discover-available-height") !== height
-      )
-        layout.style.setProperty("--discover-available-height", height);
-    };
-    const schedule = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(measure);
+      // Its position in the document reflects the shell and any notice above
+      // the columns. Leave a gutter below the pane even before scrolling.
+      const top = Math.max(
+        16,
+        screen.getBoundingClientRect().top + window.scrollY,
+      );
+      const offset = `${Math.ceil(top)}px`;
+      if (screen.style.getPropertyValue("--discover-pane-offset") !== offset)
+        screen.style.setProperty("--discover-pane-offset", offset);
     };
     measure();
     const observer =
       typeof ResizeObserver === "undefined"
         ? undefined
-        : new ResizeObserver(schedule);
-    // Content before this board can change height independently: public notice,
-    // profile context, validation messages and the responsive workspace header.
-    let branch: Element = layout;
-    while (branch.parentElement && branch.parentElement !== document.body) {
-      observer?.observe(branch.parentElement);
-      let previous = branch.previousElementSibling;
-      while (previous) {
-        observer?.observe(previous);
-        previous = previous.previousElementSibling;
-      }
-      branch = branch.parentElement;
+        : new ResizeObserver(measure);
+    for (
+      let branch: Element | null = screen;
+      branch && branch !== document.body;
+      branch = branch.parentElement
+    ) {
+      for (
+        let sibling = branch.previousElementSibling;
+        sibling;
+        sibling = sibling.previousElementSibling
+      )
+        observer?.observe(sibling);
     }
-    window.addEventListener("resize", schedule);
-    window.addEventListener("scroll", schedule, true);
+    window.addEventListener("resize", measure);
     return () => {
       observer?.disconnect();
-      cancelAnimationFrame(frame);
-      window.removeEventListener("resize", schedule);
-      window.removeEventListener("scroll", schedule, true);
-      layout.style.removeProperty("--discover-available-height");
+      window.removeEventListener("resize", measure);
+      screen.style.removeProperty("--discover-pane-offset");
     };
   }, [inspectorOpen, mobile]);
 
@@ -1040,6 +1036,7 @@ export function DiscoverPage() {
       void removal.retry();
     },
     onDismiss: removal.dismiss,
+    onNoticeInteractionChange: removal.setFeedbackHeld,
     onChangeReason: removal.changeReason,
     onSaveReason: () => {
       void removal.saveReason();
@@ -1143,854 +1140,870 @@ export function DiscoverPage() {
     }
   };
 
+  const desktopInspector = inspectorOpen && !mobile;
   return (
     <div
-      className="discover-screen"
+      ref={discoverScreen}
+      className={`discover-screen${desktopInspector ? " has-desktop-inspector" : ""}${desktopInspector && expandedApplication ? " has-workbench" : ""}`}
       data-interaction-motion={animateInteractions ? "on" : "off"}
     >
-      <div className="discover-controls">
-        <form
-          className="discover-local-search"
-          id="discover-search-form"
-          action="/discover/"
-          method="get"
-          role="search"
-          aria-label="Filter opportunities"
-          onSubmit={(event) => {
-            event.preventDefault();
-            updateFilters({ q: query });
-          }}
-        >
-          <Search size={18} aria-hidden="true" />
-          <label className="visually-hidden" htmlFor="discover-role-search">
-            Filter roles
-          </label>
-          <input
-            ref={searchInput}
-            id="discover-role-search"
-            name="q"
-            type="search"
-            value={query}
-            onChange={(event) => updateFilters({ q: event.target.value })}
-            placeholder={
-              applicationView ? "Search this queue" : "Title, company or skill"
-            }
-            autoComplete="off"
-            autoCapitalize="none"
-            spellCheck={false}
-            enterKeyHint="search"
-          />
-          {query && (
-            <button
-              type="button"
-              aria-label="Clear search"
-              onClick={(event) => {
-                updateFilters({ q: "" });
-                event.currentTarget.form
-                  ?.querySelector("input")
-                  ?.focus({ preventScroll: true });
-              }}
-            >
-              <X size={18} aria-hidden="true" />
-            </button>
-          )}
-          <input type="hidden" name="view" value={view} />
-          {location && <input type="hidden" name="location" value={location} />}
-          {statusFilter && (
-            <input type="hidden" name="status" value={statusFilter} />
-          )}
-        </form>
-        <div className="discover-toolbar">
-          <div
-            className="discover-views"
-            role="group"
-            aria-label="Opportunity views"
-          >
-            {(
-              [
-                ["jobs", "Jobs"],
-                ["to-apply", "To apply"],
-                ["applications", "Applications"],
-              ] as const
-            ).map(([value, label]) => (
-              <button
-                key={value}
-                type="button"
-                aria-pressed={view === value}
-                onClick={() => updateFilters({ view: value })}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-          {!applicationView && !removedView && (
-            <Action
-              className="discover-refresh"
-              previewAllowed
-              disabled={loading}
-              run={async () => setAttempt((value) => value + 1)}
-            >
-              <RefreshCw size={15} />
-              Refresh matches
-            </Action>
-          )}
-          <details className="discover-filters">
-            <summary>
-              <SlidersHorizontal size={16} />
-              Filters
-            </summary>
-            <div className="discover-filter-panel">
-              {!applicationView && (
-                <Select
-                  label="Opportunity state"
-                  value={removedView ? "removed" : "available"}
-                  options={[
-                    ["available", "Available roles"],
-                    ["removed", "Removed roles"],
-                  ]}
-                  onChange={(event) =>
-                    updateFilters({
-                      view:
-                        event.target.value === "removed"
-                          ? "applications"
-                          : "jobs",
-                      section:
-                        event.target.value === "removed" ? "removed" : "",
-                    })
-                  }
-                />
-              )}
-              {!applicationView && profile && (
-                <Select
-                  label="Profile"
-                  aria-label="Search profile"
-                  value={profileId}
-                  options={state.profiles.map((item) => [item.id, item.name])}
-                  onChange={(event) => {
-                    if (setSelectedId("")) selectProfile(event.target.value);
-                  }}
-                />
-              )}
-              <Select
-                label="Location"
-                value={location}
-                options={[
-                  ["", "All locations"],
-                  ...locations.map((city) => [city, city] as const),
-                ]}
-                onChange={(event) =>
-                  updateFilters({ location: event.target.value })
-                }
-              />
-              {(!applicationView || section !== "submitted") && (
-                <Select
-                  label="Application status"
-                  value={statusFilter}
-                  options={[
-                    ["", "Any status"],
-                    ["new", "New"],
-                    ["draft", "Draft"],
-                    ["reviewed", "Reviewed"],
-                    ["submitted", "Submitted"],
-                  ]}
-                  onChange={(event) => {
-                    const status = event.target.value;
-                    if (status === "submitted" && !removedView) {
-                      const disclosure = event.currentTarget.closest("details");
-                      focusSubmittedStage.current = true;
-                      const changed = updateFilters(
-                        applicationView
-                          ? { status, section: "submitted" }
-                          : {
-                              status,
-                              view: "applications",
-                              section: "submitted",
-                            },
-                      );
-                      if (changed && disclosure) disclosure.open = false;
-                      if (!changed) focusSubmittedStage.current = false;
-                    } else {
-                      updateFilters({ status });
-                    }
-                  }}
-                />
-              )}
-              <Link href="/search/">
-                Manage profiles and job sources <ArrowUpRight size={14} />
-              </Link>
-            </div>
-          </details>
-        </div>
-      </div>
-      {applicationView && (
-        <div className="opportunities-application-filters">
-          <div
-            className="opportunities-stages"
-            role="group"
-            aria-label="Application stage"
-          >
-            {applicationStages.map(([value, label]) => (
-              <button
-                key={value}
-                ref={value === "submitted" ? submittedStage : undefined}
-                type="button"
-                aria-pressed={section === value}
-                onClick={() =>
-                  updateFilters({
-                    section: value,
-                    status: "",
-                  })
-                }
-              >
-                {label}{" "}
-                <span>
-                  {value === "removed"
-                    ? removedRows.length
-                    : applicationJobs[value].size}
-                </span>
-              </button>
-            ))}
-          </div>
-          {!removedView && (
-            <Check
-              name="history"
-              label="Include earlier review queues"
-              checked={includeHistorical}
-              onChange={(event) =>
-                updateFilters({ history: String(event.target.checked) })
-              }
-            />
-          )}
-        </div>
-      )}
-      {agentTools && (
-        <AgentQueueTools
-          key={workspacePath}
-          jobs={chosenForAgent}
-          applicationIds={agentApplications}
-          pending={latestJobs}
-          onNavigate={(id) => setSelectedId(id, false, !inspectorOpen)}
-          onStartBusy={(busy) => {
-            selectionInFlight.current = busy;
-            setStartingAgent(busy);
-          }}
-        />
-      )}
-      {filters.has("application") && !requestedApplication && (
-        <div className="discover-request-error" role="status">
-          <p>
-            This application is no longer available. Choose another saved
-            application.
-          </p>
-          <button
-            type="button"
-            onClick={() => updateFilters({ view: "applications" })}
-          >
-            View applications
-          </button>
-        </div>
-      )}
-      <div className="discover-summary">
-        <span className="discover-result-count" role="status">
-          {loading
-            ? "Loading matches…"
-            : error && !rows.length
-              ? "Matches unavailable"
-              : `${removedView ? "Removed · " : ""}${visible.length} ${visible.length === 1 ? "role" : "roles"} · ${groups.length} ${groups.length === 1 ? "company" : "companies"}`}
-        </span>
-        {hasActiveFilters && visible.length > 0 && (
-          <button
-            type="button"
-            className="discover-removed-filter"
-            onClick={clearFilters}
-          >
-            Clear filters
-          </button>
-        )}
-        {(!applicationView || removedView) && (
-          <button
-            type="button"
-            className="discover-removed-filter"
-            aria-pressed={removedView}
-            onClick={() =>
-              updateFilters(
-                removedView
-                  ? { view: "jobs" }
-                  : { view: "applications", section: "removed" },
-              )
-            }
-          >
-            {removedView
-              ? "Show available roles"
-              : `Removed (${removedRows.length})`}
-          </button>
-        )}
-      </div>
-      {!inspectorOpen && (removal.feedback || removal.editor) && (
-        <div className="discover-removal-inline">
-          <RemovalFeedback
-            {...feedbackProps}
-            feedback={removal.feedback}
-            editor={removal.editor}
-          />
-        </div>
-      )}
-      {locations.length > 4 ? (
-        <div className="discover-location-select">
-          <Select
-            label="Filter by city"
-            value={location}
-            options={[
-              ["", "All locations"],
-              ...locations.map((city) => [city, city] as const),
-            ]}
-            onChange={(event) =>
-              updateFilters({ location: event.target.value })
-            }
-          />
-        </div>
-      ) : (
-        <div
-          className="discover-location-tabs"
-          role="group"
-          aria-label="Filter roles by location"
-        >
-          <button
-            type="button"
-            aria-pressed={!location}
-            onClick={() => updateFilters({ location: "" })}
-          >
-            All locations
-          </button>
-          {locations.map((city) => (
-            <button
-              key={city}
-              type="button"
-              aria-pressed={location === city}
-              onClick={() => updateFilters({ location: city })}
-            >
-              {city}
-            </button>
-          ))}
-        </div>
-      )}
-      {error && (
-        <div className="discover-request-error" role="alert">
-          <p>{error}</p>
-          <button
-            type="button"
-            disabled={retrying}
-            onClick={async () => {
-              setRetrying(true);
-              try {
-                await refresh();
-                setAttempt((value) => value + 1);
-              } catch {
-                // The provider exposes the failed state refresh; keep this assessment available to retry.
-              } finally {
-                setRetrying(false);
-              }
+      <div className="discover-results">
+        <div className="discover-controls">
+          <form
+            className="discover-local-search"
+            id="discover-search-form"
+            action="/discover/"
+            method="get"
+            role="search"
+            aria-label="Filter opportunities"
+            onSubmit={(event) => {
+              event.preventDefault();
+              updateFilters({ q: query });
             }}
           >
-            {retrying ? "Retrying…" : "Retry assessment"}
-          </button>
-        </div>
-      )}
-      {saveError && (
-        <div
-          ref={saveErrorNotice}
-          className="discover-request-error"
-          role="alert"
-          tabIndex={-1}
-        >
-          <p>{saveError}</p>
-          <p>
-            Your previous To apply choice is shown. Retry the action or refresh.
-          </p>
-        </div>
-      )}
-      {loading && !rows.length && !inspectorOpen && (
-        <div className="discover-skeleton-board" aria-hidden="true">
-          {[0, 1, 2].map((group) => (
-            <div className="discover-skeleton-group" key={group}>
-              <span className="discover-skeleton-line discover-skeleton-heading" />
-              {[0, 1].map((card) => (
-                <div className="discover-skeleton-card" key={card}>
-                  <span className="discover-skeleton-line discover-skeleton-badge" />
-                  <span className="discover-skeleton-line discover-skeleton-title" />
-                  <span className="discover-skeleton-line" />
-                  <span className="discover-skeleton-line discover-skeleton-short" />
-                  <span className="discover-skeleton-line discover-skeleton-short" />
-                </div>
+            <Search size={18} aria-hidden="true" />
+            <label className="visually-hidden" htmlFor="discover-role-search">
+              Filter roles
+            </label>
+            <input
+              ref={searchInput}
+              id="discover-role-search"
+              name="q"
+              type="search"
+              value={query}
+              onChange={(event) => updateFilters({ q: event.target.value })}
+              placeholder={
+                applicationView
+                  ? "Search this queue"
+                  : "Title, company or skill"
+              }
+              autoComplete="off"
+              autoCapitalize="none"
+              spellCheck={false}
+              enterKeyHint="search"
+            />
+            {query && (
+              <button
+                type="button"
+                aria-label="Clear search"
+                onClick={(event) => {
+                  updateFilters({ q: "" });
+                  event.currentTarget.form
+                    ?.querySelector("input")
+                    ?.focus({ preventScroll: true });
+                }}
+              >
+                <X size={18} aria-hidden="true" />
+              </button>
+            )}
+            <input type="hidden" name="view" value={view} />
+            {location && (
+              <input type="hidden" name="location" value={location} />
+            )}
+            {statusFilter && (
+              <input type="hidden" name="status" value={statusFilter} />
+            )}
+          </form>
+          <div className="discover-toolbar">
+            <div
+              className="discover-views"
+              role="group"
+              aria-label="Opportunity views"
+            >
+              {(
+                [
+                  ["jobs", "Jobs"],
+                  ["to-apply", "To apply"],
+                  ["applications", "Applications"],
+                ] as const
+              ).map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  aria-pressed={view === value}
+                  onClick={() => updateFilters({ view: value })}
+                >
+                  {label}
+                </button>
               ))}
             </div>
-          ))}
+            {!applicationView && !removedView && (
+              <Action
+                className="discover-refresh"
+                previewAllowed
+                disabled={loading}
+                run={async () => setAttempt((value) => value + 1)}
+              >
+                <RefreshCw size={15} />
+                Refresh matches
+              </Action>
+            )}
+            <details className="discover-filters">
+              <summary>
+                <SlidersHorizontal size={16} />
+                Filters
+              </summary>
+              <div className="discover-filter-panel">
+                {!applicationView && (
+                  <Select
+                    label="Opportunity state"
+                    value={removedView ? "removed" : "available"}
+                    options={[
+                      ["available", "Available roles"],
+                      ["removed", "Removed roles"],
+                    ]}
+                    onChange={(event) =>
+                      updateFilters({
+                        view:
+                          event.target.value === "removed"
+                            ? "applications"
+                            : "jobs",
+                        section:
+                          event.target.value === "removed" ? "removed" : "",
+                      })
+                    }
+                  />
+                )}
+                {!applicationView && profile && (
+                  <Select
+                    label="Profile"
+                    aria-label="Search profile"
+                    value={profileId}
+                    options={state.profiles.map((item) => [item.id, item.name])}
+                    onChange={(event) => {
+                      if (setSelectedId("")) selectProfile(event.target.value);
+                    }}
+                  />
+                )}
+                <Select
+                  label="Location"
+                  value={location}
+                  options={[
+                    ["", "All locations"],
+                    ...locations.map((city) => [city, city] as const),
+                  ]}
+                  onChange={(event) =>
+                    updateFilters({ location: event.target.value })
+                  }
+                />
+                {(!applicationView || section !== "submitted") && (
+                  <Select
+                    label="Application status"
+                    value={statusFilter}
+                    options={[
+                      ["", "Any status"],
+                      ["new", "New"],
+                      ["draft", "Draft"],
+                      ["reviewed", "Reviewed"],
+                      ["submitted", "Submitted"],
+                    ]}
+                    onChange={(event) => {
+                      const status = event.target.value;
+                      if (status === "submitted" && !removedView) {
+                        const disclosure =
+                          event.currentTarget.closest("details");
+                        focusSubmittedStage.current = true;
+                        const changed = updateFilters(
+                          applicationView
+                            ? { status, section: "submitted" }
+                            : {
+                                status,
+                                view: "applications",
+                                section: "submitted",
+                              },
+                        );
+                        if (changed && disclosure) disclosure.open = false;
+                        if (!changed) focusSubmittedStage.current = false;
+                      } else {
+                        updateFilters({ status });
+                      }
+                    }}
+                  />
+                )}
+                <Link href="/search/">
+                  Manage profiles and job sources <ArrowUpRight size={14} />
+                </Link>
+              </div>
+            </details>
+          </div>
         </div>
-      )}
-      {!loading && !visible.length && !inspectorOpen && (
-        <div className="discover-empty">
-          <Search size={27} aria-hidden="true" />
-          <h2>
-            {hasActiveFilters && scopedRows.length
-              ? applicationView
-                ? "No applications match these filters"
-                : "No roles match these filters"
-              : removedView
-                ? "No removed roles here"
-                : toApplyView
-                  ? "No roles to apply for yet"
-                  : applicationView
-                    ? `No ${section} applications`
-                    : pausedResults
-                      ? "Companies are paused"
-                      : !state.jobs.length
-                        ? "Add your first opportunity"
-                        : "No roles in Jobs"}
-          </h2>
-          <p>
-            {hasActiveFilters && scopedRows.length
-              ? "Clear the search and filters to see everything in this view."
-              : removedView
-                ? "Restore roles here to recover their application documents and activity."
-                : toApplyView
-                  ? "Choose Apply later on a role to find it here."
-                  : applicationView
-                    ? "Prepare a draft from a role to start an application."
-                    : pausedResults
-                      ? "Roles in To apply and application history are available during the cooldown."
-                      : !state.jobs.length
-                        ? "Import a job URL, paste an advert or refresh a configured source in Search preferences."
-                        : "Import more roles or review the ones you plan to apply for."}
-          </p>
-          {hasActiveFilters && scopedRows.length ? (
+        {applicationView && (
+          <div className="opportunities-application-filters">
+            <div
+              className="opportunities-stages"
+              role="group"
+              aria-label="Application stage"
+            >
+              {applicationStages.map(([value, label]) => (
+                <button
+                  key={value}
+                  ref={value === "submitted" ? submittedStage : undefined}
+                  type="button"
+                  aria-pressed={section === value}
+                  onClick={() =>
+                    updateFilters({
+                      section: value,
+                      status: "",
+                    })
+                  }
+                >
+                  {label}{" "}
+                  <span>
+                    {value === "removed"
+                      ? removedRows.length
+                      : applicationJobs[value].size}
+                  </span>
+                </button>
+              ))}
+            </div>
+            {!removedView && (
+              <Check
+                name="history"
+                label="Include earlier review queues"
+                checked={includeHistorical}
+                onChange={(event) =>
+                  updateFilters({ history: String(event.target.checked) })
+                }
+              />
+            )}
+          </div>
+        )}
+        {agentTools && (
+          <AgentQueueTools
+            key={workspacePath}
+            jobs={chosenForAgent}
+            applicationIds={agentApplications}
+            pending={latestJobs}
+            onNavigate={(id) => setSelectedId(id, false, !inspectorOpen)}
+            onStartBusy={(busy) => {
+              selectionInFlight.current = busy;
+              setStartingAgent(busy);
+            }}
+          />
+        )}
+        {filters.has("application") && !requestedApplication && (
+          <div className="discover-request-error" role="status">
+            <p>
+              This application is no longer available. Choose another saved
+              application.
+            </p>
             <button
               type="button"
-              className="discover-primary"
+              onClick={() => updateFilters({ view: "applications" })}
+            >
+              View applications
+            </button>
+          </div>
+        )}
+        <div className="discover-summary">
+          <span className="discover-result-count" role="status">
+            {loading
+              ? "Loading matches…"
+              : error && !rows.length
+                ? "Matches unavailable"
+                : `${removedView ? "Removed · " : ""}${visible.length} ${visible.length === 1 ? "role" : "roles"} · ${groups.length} ${groups.length === 1 ? "company" : "companies"}`}
+          </span>
+          {hasActiveFilters && visible.length > 0 && (
+            <button
+              type="button"
+              className="discover-removed-filter"
               onClick={clearFilters}
             >
               Clear filters
             </button>
-          ) : applicationView || toApplyView ? (
+          )}
+          {(!applicationView || removedView) && (
             <button
               type="button"
-              className="discover-primary"
-              onClick={() => updateFilters({ view: "jobs" })}
+              className="discover-removed-filter"
+              aria-pressed={removedView}
+              onClick={() =>
+                updateFilters(
+                  removedView
+                    ? { view: "jobs" }
+                    : { view: "applications", section: "removed" },
+                )
+              }
             >
-              View Jobs
+              {removedView
+                ? "Show available roles"
+                : `Removed (${removedRows.length})`}
             </button>
-          ) : pausedResults ? (
-            <button
-              type="button"
-              onClick={() => updateFilters({ view: "to-apply" })}
-            >
-              View To apply
-            </button>
-          ) : (
-            <Link
-              className="button discover-primary"
-              href="/search/#add-opportunity"
-            >
-              Add opportunities
-            </Link>
           )}
         </div>
-      )}
-      {(showBoard || inspectorOpen) && (
-        <div
-          ref={inspectorLayout}
-          className={`discover-layout ${inspectorOpen && !mobile ? "has-inspector" : ""} ${expandedApplication ? "has-workbench" : ""}`}
-        >
+        {(!inspectorOpen || !mobile) &&
+          (removal.feedback || (!inspectorOpen && removal.editor)) && (
+            <div className="discover-removal-inline">
+              <RemovalFeedback
+                {...feedbackProps}
+                feedback={removal.feedback}
+                editor={inspectorOpen ? undefined : removal.editor}
+              />
+            </div>
+          )}
+        {locations.length > 4 ? (
+          <div className="discover-location-select">
+            <Select
+              label="Filter by city"
+              value={location}
+              options={[
+                ["", "All locations"],
+                ...locations.map((city) => [city, city] as const),
+              ]}
+              onChange={(event) =>
+                updateFilters({ location: event.target.value })
+              }
+            />
+          </div>
+        ) : (
           <div
-            ref={board}
-            className="discover-board"
-            role="region"
-            aria-label="Opportunities by company"
-            tabIndex={selected && !mobile ? 0 : undefined}
+            className="discover-location-tabs"
+            role="group"
+            aria-label="Filter roles by location"
           >
-            {groups.map(({ id, name, roles: opportunities }) => (
-              <section
-                className="discover-column"
-                key={id}
-                aria-label={`${name} opportunities`}
+            <button
+              type="button"
+              aria-pressed={!location}
+              onClick={() => updateFilters({ location: "" })}
+            >
+              All locations
+            </button>
+            {locations.map((city) => (
+              <button
+                key={city}
+                type="button"
+                aria-pressed={location === city}
+                onClick={() => updateFilters({ location: city })}
               >
-                <header>
-                  <h2>
-                    <Building2 size={17} aria-hidden="true" />
-                    {name}
-                  </h2>
-                  <span>{opportunities.length}</span>
-                </header>
-                {opportunities.map((row) => {
-                  const { job, match } = row;
-                  const status = roleStatus(
-                    job,
-                    applications.get(job.id),
-                    client.preview,
-                  );
-                  const salary = advertisedSalary(job, {
-                    compact: true,
-                    missing: "",
-                  });
-                  const location = job.location || job.city;
-                  const metadata = [location, job.work_arrangement]
-                    .filter(Boolean)
-                    .join(" · ");
-                  const evidence = !applicationView
-                    ? requirementEvidence(match.evidence, state.facts, job)
-                    : [];
-                  const gaps = remainingEvidenceGaps(
-                    match.gaps,
-                    evidence,
-                  ).length;
-                  const caution =
-                    match.hard_conflicts[0] ||
-                    match.unknowns[0] ||
-                    (gaps
-                      ? `${gaps} evidence ${gaps === 1 ? "gap" : "gaps"}`
-                      : "");
-                  const related = evidence.filter(
-                    ({ facts, careerFacts, confirmedForJob }) =>
-                      facts.length || careerFacts.length || confirmedForJob,
-                  ).length;
-                  return (
-                    <article
-                      className={`discover-card ${selectedId === job.id ? "is-selected" : ""}`}
-                      data-job-id={job.id}
-                      key={job.id}
-                    >
-                      <div className="discover-card-top">
-                        <span className={`discover-status ${status.tone}`}>
-                          {status.label}
-                        </span>
-                        <div className="discover-card-tools">
-                          {agentTools && (
-                            <label className="discover-agent-selection">
-                              <input
-                                type="checkbox"
-                                checked={agentSelection.includes(job.id)}
-                                aria-label={`Select ${job.title} at ${job.employer}`}
-                                disabled={
-                                  startingAgent ||
-                                  (chosenForAgent.length >= 100 &&
-                                    !agentSelection.includes(job.id))
-                                }
-                                onChange={(event) => {
-                                  if (selectionInFlight.current) return;
-                                  const checked = event.currentTarget.checked;
-                                  setAgentSelection((current) =>
-                                    checked
-                                      ? [...new Set([...current, job.id])]
-                                      : current.filter((id) => id !== job.id),
-                                  );
-                                }}
-                              />
-                              Select
-                            </label>
-                          )}
-                          {currentRemoval(job) ? (
-                            <>
-                              <button
-                                type="button"
-                                className="discover-icon-button"
-                                aria-label={`Add removal reason for ${job.title}`}
-                                title="Add removal reason"
-                                onClick={() =>
-                                  addRemovalReason(job, currentRemoval(job)!)
-                                }
-                              >
-                                <MessageSquare size={16} />
-                              </button>
+                {city}
+              </button>
+            ))}
+          </div>
+        )}
+        {error && (
+          <div className="discover-request-error" role="alert">
+            <p>{error}</p>
+            <button
+              type="button"
+              disabled={retrying}
+              onClick={async () => {
+                setRetrying(true);
+                try {
+                  await refresh();
+                  setAttempt((value) => value + 1);
+                } catch {
+                  // The provider exposes the failed state refresh; keep this assessment available to retry.
+                } finally {
+                  setRetrying(false);
+                }
+              }}
+            >
+              {retrying ? "Retrying…" : "Retry assessment"}
+            </button>
+          </div>
+        )}
+        {saveError && (
+          <div
+            ref={saveErrorNotice}
+            className="discover-request-error"
+            role="alert"
+            tabIndex={-1}
+          >
+            <p>{saveError}</p>
+            <p>
+              Your previous To apply choice is shown. Retry the action or
+              refresh.
+            </p>
+          </div>
+        )}
+        {loading && !rows.length && !inspectorOpen && (
+          <div className="discover-skeleton-board" aria-hidden="true">
+            {[0, 1, 2].map((group) => (
+              <div className="discover-skeleton-group" key={group}>
+                <span className="discover-skeleton-line discover-skeleton-heading" />
+                {[0, 1].map((card) => (
+                  <div className="discover-skeleton-card" key={card}>
+                    <span className="discover-skeleton-line discover-skeleton-badge" />
+                    <span className="discover-skeleton-line discover-skeleton-title" />
+                    <span className="discover-skeleton-line" />
+                    <span className="discover-skeleton-line discover-skeleton-short" />
+                    <span className="discover-skeleton-line discover-skeleton-short" />
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
+        {!loading && !visible.length && !inspectorOpen && (
+          <div className="discover-empty">
+            <Search size={27} aria-hidden="true" />
+            <h2>
+              {hasActiveFilters && scopedRows.length
+                ? applicationView
+                  ? "No applications match these filters"
+                  : "No roles match these filters"
+                : removedView
+                  ? "No removed roles here"
+                  : toApplyView
+                    ? "No roles to apply for yet"
+                    : applicationView
+                      ? `No ${section} applications`
+                      : pausedResults
+                        ? "Companies are paused"
+                        : !state.jobs.length
+                          ? "Add your first opportunity"
+                          : "No roles in Jobs"}
+            </h2>
+            <p>
+              {hasActiveFilters && scopedRows.length
+                ? "Clear the search and filters to see everything in this view."
+                : removedView
+                  ? "Restore roles here to recover their application documents and activity."
+                  : toApplyView
+                    ? "Choose Apply later on a role to find it here."
+                    : applicationView
+                      ? "Prepare a draft from a role to start an application."
+                      : pausedResults
+                        ? "Roles in To apply and application history are available during the cooldown."
+                        : !state.jobs.length
+                          ? "Import a job URL, paste an advert or refresh a configured source in Search preferences."
+                          : "Import more roles or review the ones you plan to apply for."}
+            </p>
+            {hasActiveFilters && scopedRows.length ? (
+              <button
+                type="button"
+                className="discover-primary"
+                onClick={clearFilters}
+              >
+                Clear filters
+              </button>
+            ) : applicationView || toApplyView ? (
+              <button
+                type="button"
+                className="discover-primary"
+                onClick={() => updateFilters({ view: "jobs" })}
+              >
+                View Jobs
+              </button>
+            ) : pausedResults ? (
+              <button
+                type="button"
+                onClick={() => updateFilters({ view: "to-apply" })}
+              >
+                View To apply
+              </button>
+            ) : (
+              <Link
+                className="button discover-primary"
+                href="/search/#add-opportunity"
+              >
+                Add opportunities
+              </Link>
+            )}
+          </div>
+        )}
+        {(showBoard || inspectorOpen) && (
+          <div
+            className={`discover-layout${desktopInspector ? " has-inspector" : ""}`}
+          >
+            <div
+              ref={board}
+              className="discover-board"
+              role="region"
+              aria-label="Opportunities by company"
+              tabIndex={selected && !mobile ? 0 : undefined}
+            >
+              {groups.map(({ id, name, roles: opportunities }) => (
+                <section
+                  className="discover-column"
+                  key={id}
+                  aria-label={`${name} opportunities`}
+                >
+                  <header>
+                    <h2>
+                      <Building2 size={17} aria-hidden="true" />
+                      {name}
+                    </h2>
+                    <span>{opportunities.length}</span>
+                  </header>
+                  {opportunities.map((row) => {
+                    const { job, match } = row;
+                    const status = roleStatus(
+                      job,
+                      applications.get(job.id),
+                      client.preview,
+                    );
+                    const salary = advertisedSalary(job, {
+                      compact: true,
+                      missing: "",
+                    });
+                    const location = job.location || job.city;
+                    const metadata = [location, job.work_arrangement]
+                      .filter(Boolean)
+                      .join(" · ");
+                    const evidence = !applicationView
+                      ? requirementEvidence(match.evidence, state.facts, job)
+                      : [];
+                    const gaps = remainingEvidenceGaps(
+                      match.gaps,
+                      evidence,
+                    ).length;
+                    const caution =
+                      match.hard_conflicts[0] ||
+                      match.unknowns[0] ||
+                      (gaps
+                        ? `${gaps} evidence ${gaps === 1 ? "gap" : "gaps"}`
+                        : "");
+                    const related = evidence.filter(
+                      ({ facts, careerFacts, confirmedForJob }) =>
+                        facts.length || careerFacts.length || confirmedForJob,
+                    ).length;
+                    return (
+                      <article
+                        className={`discover-card ${selectedId === job.id ? "is-selected" : ""}`}
+                        data-job-id={job.id}
+                        key={job.id}
+                      >
+                        <div className="discover-card-top">
+                          <span className={`discover-status ${status.tone}`}>
+                            {status.label}
+                          </span>
+                          <div className="discover-card-tools">
+                            {agentTools && (
+                              <label className="discover-agent-selection">
+                                <input
+                                  type="checkbox"
+                                  checked={agentSelection.includes(job.id)}
+                                  aria-label={`Select ${job.title} at ${job.employer}`}
+                                  disabled={
+                                    startingAgent ||
+                                    (chosenForAgent.length >= 100 &&
+                                      !agentSelection.includes(job.id))
+                                  }
+                                  onChange={(event) => {
+                                    if (selectionInFlight.current) return;
+                                    const checked = event.currentTarget.checked;
+                                    setAgentSelection((current) =>
+                                      checked
+                                        ? [...new Set([...current, job.id])]
+                                        : current.filter((id) => id !== job.id),
+                                    );
+                                  }}
+                                />
+                                Select
+                              </label>
+                            )}
+                            {currentRemoval(job) ? (
+                              <>
+                                <button
+                                  type="button"
+                                  className="discover-icon-button"
+                                  aria-label={`Add removal reason for ${job.title}`}
+                                  title="Add removal reason"
+                                  onClick={() =>
+                                    addRemovalReason(job, currentRemoval(job)!)
+                                  }
+                                >
+                                  <MessageSquare size={16} />
+                                </button>
+                                <Action
+                                  previewAllowed
+                                  keepContentWhileBusy
+                                  className="discover-icon-button"
+                                  aria-label={`Restore ${job.title}`}
+                                  title="Restore role"
+                                  run={async () => restoreJob(job)}
+                                >
+                                  <RotateCcw size={16} />
+                                </Action>
+                              </>
+                            ) : (
                               <Action
                                 previewAllowed
                                 keepContentWhileBusy
                                 className="discover-icon-button"
-                                aria-label={`Restore ${job.title}`}
-                                title="Restore role"
-                                run={async () => restoreJob(job)}
+                                aria-label={`Remove ${job.title}`}
+                                title="Remove role"
+                                run={async () => removeJob(job)}
                               >
-                                <RotateCcw size={16} />
+                                <CircleMinus size={16} />
                               </Action>
-                            </>
-                          ) : (
-                            <Action
-                              previewAllowed
-                              keepContentWhileBusy
-                              className="discover-icon-button"
-                              aria-label={`Remove ${job.title}`}
-                              title="Remove role"
-                              run={async () => removeJob(job)}
-                            >
-                              <CircleMinus size={16} />
-                            </Action>
-                          )}
-                          {pendingRole(job) && (
-                            <Action
-                              previewAllowed
-                              keepContentWhileBusy
-                              data-opportunity-id={job.id}
-                              className={`discover-icon-button ${job.saved ? "is-saved" : ""}`}
-                              disabled={savingIds.includes(job.id)}
-                              aria-label={`${pendingActionLabel(job.saved)} · ${job.title}`}
-                              title={pendingActionLabel(job.saved)}
-                              aria-pressed={Boolean(job.saved)}
-                              run={async (button) =>
-                                saveJob(job.id, !job.saved, button)
-                              }
-                            >
-                              <Bookmark
-                                size={16}
-                                fill={job.saved ? "currentColor" : "none"}
-                              />
-                            </Action>
-                          )}
+                            )}
+                            {pendingRole(job) && (
+                              <Action
+                                previewAllowed
+                                keepContentWhileBusy
+                                data-opportunity-id={job.id}
+                                className={`discover-icon-button ${job.saved ? "is-saved" : ""}`}
+                                disabled={savingIds.includes(job.id)}
+                                aria-label={`${pendingActionLabel(job.saved)} · ${job.title}`}
+                                title={pendingActionLabel(job.saved)}
+                                aria-pressed={Boolean(job.saved)}
+                                run={async (button) =>
+                                  saveJob(job.id, !job.saved, button)
+                                }
+                              >
+                                <Bookmark
+                                  size={16}
+                                  fill={job.saved ? "currentColor" : "none"}
+                                />
+                              </Action>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                      <button
-                        ref={(element) => {
-                          if (element) {
-                            cardButtons.current.set(job.id, element);
-                            if (selectedId === job.id) opener.current = element;
-                          } else {
-                            cardButtons.current.delete(job.id);
-                          }
-                        }}
-                        type="button"
-                        className="discover-card-open"
-                        aria-label={`Assess ${job.title} at ${job.employer}`}
-                        aria-pressed={selectedId === job.id}
-                        onClick={(event) => {
-                          if (setSelectedId(job.id, false, !inspectorOpen)) {
-                            opener.current = event.currentTarget;
-                            setMotionRevision((value) => value + 1);
-                          }
-                        }}
-                      >
-                        <h3>{job.title}</h3>
-                      </button>
-                      {metadata && (
-                        <p className="discover-card-location">{metadata}</p>
-                      )}
-                      {client.preview && (
-                        <OpportunityListingLink
-                          url={job.url}
-                          className="discover-card-listing"
-                          label={`View listing for ${job.title} at ${job.employer}`}
-                        >
-                          View listing
-                        </OpportunityListingLink>
-                      )}
-                      {salary && (
-                        <p
-                          className="discover-card-salary"
-                          title={advertisedSalary(job)}
-                        >
-                          {salary}
-                        </p>
-                      )}
-                      {!applicationView && (related > 0 || caution) && (
-                        <div className="discover-card-fit">
-                          {related > 0 && (
-                            <p>
-                              Related evidence for {related}{" "}
-                              {related === 1 ? "requirement" : "requirements"}
-                            </p>
-                          )}
-                          {caution && (
-                            <p className="discover-card-check">
-                              <ShieldAlert size={14} aria-hidden="true" />
-                              <span>{caution}</span>
-                            </p>
-                          )}
-                        </div>
-                      )}
-                      {removedView && currentRemoval(job)?.reason && (
-                        <p
-                          className="discover-removal-reason"
-                          title={currentRemoval(job)?.reason}
-                        >
-                          Reason: {currentRemoval(job)?.reason}
-                        </p>
-                      )}
-                    </article>
-                  );
-                })}
-              </section>
-            ))}
-          </div>
-          {selected && (
-            <OpportunityInspector
-              animateInteractions={animateInteractions}
-              motionRevision={motionRevision}
-              row={selected}
-              application={selectedApplication}
-              panel={panel}
-              onOpenPanel={openPanel}
-              agentProgress={
-                localJourney &&
-                hasListingRecord &&
-                !state._workspace.demo && (
-                  <RoleAgentWork
-                    key={selected.job.id}
-                    job={selected.job}
-                    applicationId={selectedApplication?.id}
-                    canStart={
-                      !submitted &&
-                      !selected.job.company?.submitted_vacancy &&
-                      !currentRemoval(selected.job) &&
-                      Boolean(profileId)
-                    }
-                  />
-                )
-              }
-              submissionRecord={
-                submitted &&
-                panel !== "files" && (
-                  <SubmissionRecord
-                    key={selected.job.id}
-                    job={selected.job}
-                    application={selectedApplication}
-                    active
-                    recent={submission}
-                  />
-                )
-              }
-              applicationContent={
-                selectedApplication && (
-                  <>
-                    {(panel === "activity" || panel === "files") && (
-                      <ApplicationVersions
-                        application={selectedApplication}
-                        onSelect={(app) => openVersion(app, panel)}
-                      />
-                    )}
-                    <OpportunityApplication
-                      application={selectedApplication}
-                      job={selected.job}
-                      tab={panel}
-                      nextAction={
-                        localJourney &&
-                        hasListingRecord &&
-                        !state._workspace.demo &&
-                        selectedDraft ? (
-                          <CompanySubmission
-                            key={selectedApplication.id}
-                            app={selectedApplication}
-                            job={selected.job}
-                            visible={panel === "documents"}
-                            canStart={
-                              !submitted &&
-                              !selected.job.company?.submitted_vacancy &&
-                              !currentRemoval(selected.job)
+                        <button
+                          ref={(element) => {
+                            if (element) {
+                              cardButtons.current.set(job.id, element);
+                              if (selectedId === job.id)
+                                opener.current = element;
+                            } else {
+                              cardButtons.current.delete(job.id);
                             }
-                            onIntegrityIssue={() => openPanel("files")}
-                            onRecord={recordSubmission}
-                          />
-                        ) : undefined
-                      }
-                    />
-                  </>
-                )
-              }
-              facts={state.facts}
-              timezone={state._workspace.timezone}
-              mobile={mobile}
-              position={Math.max(0, selectedIndex)}
-              count={selectedIndex < 0 ? 1 : visible.length}
-              rankingCurrent={!loading && !error && assessmentAvailable}
-              assessmentAvailable={assessmentAvailable}
-              hasListingRecord={hasListingRecord}
-              canChangePending={pendingRole(selected.job)}
-              companyReview={
-                hasListingRecord &&
-                state._workspace.snapshot &&
-                !client.preview &&
-                !client.hosted ? (
-                  <CompanyReview job={selected.job} />
-                ) : undefined
-              }
-              onAddEvidence={
-                hasListingRecord && !client.preview
-                  ? async (requirement, details) => {
-                      await run(
-                        "requirement-evidence",
-                        {
-                          job_id: selected.job.id,
-                          requirement,
-                          ...(details ? { details } : { save_skill: true }),
-                        },
-                        details
-                          ? "Career evidence saved."
-                          : "Skill saved to career evidence.",
-                      );
-                    }
-                  : undefined
-              }
-              saving={savingIds.includes(selected.job.id)}
-              saveError={saveError}
-              preview={client.preview}
-              onClose={closeInspector}
-              onPrevious={() => moveSelection(selectedIndex - 1)}
-              onNext={() => moveSelection(selectedIndex + 1)}
-              onSave={async (button) =>
-                saveJob(selected.job.id, !selected.job.saved, button)
-              }
-              onPrepare={prepareApplication}
-              onRemove={() => removeJob(selected.job)}
-              onRestore={() => restoreJob(selected.job)}
-              removalFeedback={removalNotice}
-              removalEditor={removalEditor}
-              reasonEditorId={removal.editor?.removalId}
-            />
-          )}
-        </div>
-      )}
-      {agentTools && filteredRows.length > pendingPageSize && (
-        <div
-          className="actions agent-queue-pagination"
-          role="group"
-          aria-label="To apply pages"
-        >
-          <button
-            type="button"
-            className="secondary"
-            disabled={!pendingOffset}
-            onClick={() =>
-              updateFilters({ offset: String(pendingOffset - pendingPageSize) })
-            }
-          >
-            Previous page
-          </button>
-          <span>
-            {pendingOffset + 1}–{pendingOffset + visible.length} of{" "}
-            {filteredRows.length}
-          </span>
-          <button
-            type="button"
-            className="secondary"
-            disabled={pendingOffset + visible.length >= filteredRows.length}
-            onClick={() =>
-              updateFilters({ offset: String(pendingOffset + pendingPageSize) })
-            }
-          >
-            Next page
-          </button>
-        </div>
-      )}
-      {applicationView &&
-        section === "submitted" &&
-        Boolean(state.historical_decisions?.length) && (
-          <section className="opportunities-historical">
-            <h2>Earlier submission records</h2>
-            <p>
-              These records do not confirm which document bytes were submitted.
-            </p>
-            {state.historical_decisions?.map((record, index) => (
-              <p key={index}>
-                {record.employer} · {record.status}
-              </p>
-            ))}
-          </section>
+                          }}
+                          type="button"
+                          className="discover-card-open"
+                          aria-label={`Assess ${job.title} at ${job.employer}`}
+                          aria-pressed={selectedId === job.id}
+                          onClick={(event) => {
+                            if (setSelectedId(job.id, false, !inspectorOpen)) {
+                              opener.current = event.currentTarget;
+                              setMotionRevision((value) => value + 1);
+                            }
+                          }}
+                        >
+                          <h3>{job.title}</h3>
+                        </button>
+                        {metadata && (
+                          <p className="discover-card-location">{metadata}</p>
+                        )}
+                        {client.preview && (
+                          <OpportunityListingLink
+                            url={job.url}
+                            className="discover-card-listing"
+                            label={`View listing for ${job.title} at ${job.employer}`}
+                          >
+                            View listing
+                          </OpportunityListingLink>
+                        )}
+                        {salary && (
+                          <p
+                            className="discover-card-salary"
+                            title={advertisedSalary(job)}
+                          >
+                            {salary}
+                          </p>
+                        )}
+                        {!applicationView && (related > 0 || caution) && (
+                          <div className="discover-card-fit">
+                            {related > 0 && (
+                              <p>
+                                Related evidence for {related}{" "}
+                                {related === 1 ? "requirement" : "requirements"}
+                              </p>
+                            )}
+                            {caution && (
+                              <p className="discover-card-check">
+                                <ShieldAlert size={14} aria-hidden="true" />
+                                <span>{caution}</span>
+                              </p>
+                            )}
+                          </div>
+                        )}
+                        {removedView && currentRemoval(job)?.reason && (
+                          <p
+                            className="discover-removal-reason"
+                            title={currentRemoval(job)?.reason}
+                          >
+                            Reason: {currentRemoval(job)?.reason}
+                          </p>
+                        )}
+                      </article>
+                    );
+                  })}
+                </section>
+              ))}
+            </div>
+          </div>
         )}
+        {agentTools && filteredRows.length > pendingPageSize && (
+          <div
+            className="actions agent-queue-pagination"
+            role="group"
+            aria-label="To apply pages"
+          >
+            <button
+              type="button"
+              className="secondary"
+              disabled={!pendingOffset}
+              onClick={() =>
+                updateFilters({
+                  offset: String(pendingOffset - pendingPageSize),
+                })
+              }
+            >
+              Previous page
+            </button>
+            <span>
+              {pendingOffset + 1}–{pendingOffset + visible.length} of{" "}
+              {filteredRows.length}
+            </span>
+            <button
+              type="button"
+              className="secondary"
+              disabled={pendingOffset + visible.length >= filteredRows.length}
+              onClick={() =>
+                updateFilters({
+                  offset: String(pendingOffset + pendingPageSize),
+                })
+              }
+            >
+              Next page
+            </button>
+          </div>
+        )}
+        {applicationView &&
+          section === "submitted" &&
+          Boolean(state.historical_decisions?.length) && (
+            <section className="opportunities-historical">
+              <h2>Earlier submission records</h2>
+              <p>
+                These records do not confirm which document bytes were
+                submitted.
+              </p>
+              {state.historical_decisions?.map((record, index) => (
+                <p key={index}>
+                  {record.employer} · {record.status}
+                </p>
+              ))}
+            </section>
+          )}
+      </div>
+      {selected && (
+        <OpportunityInspector
+          animateInteractions={animateInteractions}
+          motionRevision={motionRevision}
+          row={selected}
+          application={selectedApplication}
+          panel={panel}
+          onOpenPanel={openPanel}
+          agentProgress={
+            localJourney &&
+            hasListingRecord &&
+            !state._workspace.demo && (
+              <RoleAgentWork
+                key={selected.job.id}
+                job={selected.job}
+                applicationId={selectedApplication?.id}
+                canStart={
+                  !submitted &&
+                  !selected.job.company?.submitted_vacancy &&
+                  !currentRemoval(selected.job) &&
+                  Boolean(profileId)
+                }
+              />
+            )
+          }
+          submissionRecord={
+            submitted &&
+            panel !== "files" && (
+              <SubmissionRecord
+                key={selected.job.id}
+                job={selected.job}
+                application={selectedApplication}
+                active
+                recent={submission}
+              />
+            )
+          }
+          applicationContent={
+            selectedApplication && (
+              <>
+                {(panel === "activity" || panel === "files") && (
+                  <ApplicationVersions
+                    application={selectedApplication}
+                    onSelect={(app) => openVersion(app, panel)}
+                  />
+                )}
+                <OpportunityApplication
+                  application={selectedApplication}
+                  job={selected.job}
+                  tab={panel}
+                  nextAction={
+                    localJourney &&
+                    hasListingRecord &&
+                    !state._workspace.demo &&
+                    selectedDraft ? (
+                      <CompanySubmission
+                        key={selectedApplication.id}
+                        app={selectedApplication}
+                        job={selected.job}
+                        visible={panel === "documents"}
+                        canStart={
+                          !submitted &&
+                          !selected.job.company?.submitted_vacancy &&
+                          !currentRemoval(selected.job)
+                        }
+                        onIntegrityIssue={() => openPanel("files")}
+                        onRecord={recordSubmission}
+                      />
+                    ) : undefined
+                  }
+                />
+              </>
+            )
+          }
+          facts={state.facts}
+          timezone={state._workspace.timezone}
+          mobile={mobile}
+          position={Math.max(0, selectedIndex)}
+          count={selectedIndex < 0 ? 1 : visible.length}
+          rankingCurrent={!loading && !error && assessmentAvailable}
+          assessmentAvailable={assessmentAvailable}
+          hasListingRecord={hasListingRecord}
+          canChangePending={pendingRole(selected.job)}
+          companyReview={
+            hasListingRecord &&
+            state._workspace.snapshot &&
+            !client.preview &&
+            !client.hosted ? (
+              <CompanyReview job={selected.job} />
+            ) : undefined
+          }
+          onAddEvidence={
+            hasListingRecord && !client.preview
+              ? async (requirement, details) => {
+                  await run(
+                    "requirement-evidence",
+                    {
+                      job_id: selected.job.id,
+                      requirement,
+                      ...(details ? { details } : { save_skill: true }),
+                    },
+                    details
+                      ? "Career evidence saved."
+                      : "Skill saved to career evidence.",
+                  );
+                }
+              : undefined
+          }
+          saving={savingIds.includes(selected.job.id)}
+          saveError={saveError}
+          preview={client.preview}
+          onClose={closeInspector}
+          onPrevious={() => moveSelection(selectedIndex - 1)}
+          onNext={() => moveSelection(selectedIndex + 1)}
+          onSave={async (button) =>
+            saveJob(selected.job.id, !selected.job.saved, button)
+          }
+          onPrepare={prepareApplication}
+          onRemove={() => removeJob(selected.job)}
+          onRestore={() => restoreJob(selected.job)}
+          removalFeedback={mobile ? removalNotice : undefined}
+          removalEditor={removalEditor}
+          reasonEditorId={removal.editor?.removalId}
+        />
+      )}
     </div>
   );
 }

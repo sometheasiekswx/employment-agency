@@ -82,7 +82,7 @@ const fs = require("node:fs");
         exact: true,
       });
     for (const width of [
-      320, 390, 768, 901, 930, 1000, 1001, 1024, 1150, 1151, 1280, 1440, 1920,
+      320, 390, 768, 900, 901, 930, 1000, 1001, 1024, 1150, 1151, 1280, 1440, 1920,
     ]) {
       await page.setViewportSize({ width, height: 1000 });
       await page.goto(base + "/discover/?view=all");

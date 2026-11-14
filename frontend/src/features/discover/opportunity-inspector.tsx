@@ -323,9 +323,11 @@ export function OpportunityInspector({
     reasonFocusIntent.current = intent;
     if (mobile) snapSheet(true, animateInteractions);
     body.current?.scrollTo?.({ top: 0 });
-    body.current
-      ?.querySelector<HTMLTextAreaElement>(".removal-reason-editor textarea")
-      ?.focus({ preventScroll: true });
+    const textarea = body.current?.querySelector<HTMLTextAreaElement>(
+      ".removal-reason-editor textarea",
+    );
+    textarea?.focus({ preventScroll: true });
+    if (!mobile) textarea?.scrollIntoView?.({ block: "nearest" });
   }, [reasonEditorId, mobile, snapSheet, animateInteractions, body]);
   const status = roleStatus(job, application, preview);
   const advert = safeUrl(job.url);
@@ -702,6 +704,87 @@ export function OpportunityInspector({
       <span className={`discover-status ${status.tone}`}>{status.label}</span>
     </div>
   );
+  const roleHeading = (
+    <>
+      <div
+        ref={heading}
+        className="role-workspace-heading"
+        data-overflow={mobile && headingOverflow ? "true" : undefined}
+        tabIndex={mobile && headingOverflow ? 0 : undefined}
+      >
+        {company}
+        {job.hiring_employer_verified === false && (
+          <p className="role-employer-unconfirmed">
+            Hiring employer unconfirmed
+          </p>
+        )}
+        <h2 id={titleId} ref={title} tabIndex={-1}>
+          {advert ? (
+            <a
+              className="discover-source-link"
+              href={advert}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {job.title}
+            </a>
+          ) : (
+            job.title
+          )}
+        </h2>
+      </div>
+      <div className="role-listing-row">
+        {advert ? (
+          <OpportunityListingLink url={advert} className="role-listing-link">
+            View job listing
+          </OpportunityListingLink>
+        ) : (
+          <p className="role-listing-link muted">Job listing unavailable</p>
+        )}
+      </div>
+      {application && onOpenPanel && (
+        <div
+          className="opportunities-detail-tabs"
+          role="group"
+          aria-label="Role workspace"
+        >
+          {(
+            [
+              ["overview", "Overview"],
+              ["documents", "CV"],
+              ["files", "Documents"],
+              ["activity", "Activity"],
+            ] as const
+          ).map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              aria-pressed={panel === value}
+              onClick={() => openPanel(value)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+    </>
+  );
+  const preparationNote = (
+    <>
+      {!preview && !hasDecision && !match.eligible_for_preparation && (
+        <p className="discover-preparation-note">
+          Resolve the flagged requirements or update your search profile before
+          preparing a draft.
+        </p>
+      )}
+      {preview && !application && (
+        <p className="discover-preparation-note">
+          Uses the résumé selected in{" "}
+          <Link href="/career/#import-resume">Career profile</Link>.
+        </p>
+      )}
+    </>
+  );
   const content = (
     <>
       <div
@@ -766,69 +849,10 @@ export function OpportunityInspector({
             </button>
           </div>
         </header>
-        <div
-          ref={heading}
-          className="role-workspace-heading"
-          data-overflow={mobile && headingOverflow ? "true" : undefined}
-          tabIndex={mobile && headingOverflow ? 0 : undefined}
-        >
-          {company}
-          {job.hiring_employer_verified === false && (
-            <p className="role-employer-unconfirmed">
-              Hiring employer unconfirmed
-            </p>
-          )}
-          <h2 id={titleId} ref={title} tabIndex={-1}>
-            {advert ? (
-              <a
-                className="discover-source-link"
-                href={advert}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {job.title}
-              </a>
-            ) : (
-              job.title
-            )}
-          </h2>
-        </div>
-        <div className="role-listing-row">
-          {advert ? (
-            <OpportunityListingLink url={advert} className="role-listing-link">
-              View job listing
-            </OpportunityListingLink>
-          ) : (
-            <p className="role-listing-link muted">Job listing unavailable</p>
-          )}
-        </div>
-        {application && onOpenPanel && (
-          <div
-            className="opportunities-detail-tabs"
-            role="group"
-            aria-label="Role workspace"
-          >
-            {(
-              [
-                ["overview", "Overview"],
-                ["documents", "CV"],
-                ["files", "Documents"],
-                ["activity", "Activity"],
-              ] as const
-            ).map(([value, label]) => (
-              <button
-                key={value}
-                type="button"
-                aria-pressed={panel === value}
-                onClick={() => openPanel(value)}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        )}
+        {mobile && roleHeading}
       </div>
       <div ref={body} className="discover-inspector-body">
+        {!mobile && roleHeading}
         {/* The role changes independently of the mounted scroll container. */}
         <div key={job.id}>
           {removalEditor}
@@ -865,6 +889,7 @@ export function OpportunityInspector({
                 </span>
               </p>
             )}
+            {!mobile && preparationNote}
             {hasListingRecord && <CopyJobReference job={job} />}
             {companyReview && (
               <details className="role-secondary">
@@ -1017,6 +1042,7 @@ export function OpportunityInspector({
               className={`secondary discover-pending-button ${job.saved ? "is-saved" : ""}`}
               disabled={saving}
               aria-pressed={Boolean(job.saved)}
+              aria-label={pendingActionLabel(job.saved)}
               run={onSave}
             >
               <Bookmark
@@ -1024,7 +1050,7 @@ export function OpportunityInspector({
                 size={17}
                 fill={job.saved ? "currentColor" : "none"}
               />
-              {pendingActionLabel(job.saved)}
+              {job.saved ? "To apply" : pendingActionLabel(false)}
             </Action>
           )}
           {removed && application && onRestore && (
@@ -1069,18 +1095,7 @@ export function OpportunityInspector({
             action.
           </p>
         )}
-        {!preview && !hasDecision && !match.eligible_for_preparation && (
-          <p className="discover-preparation-note">
-            Resolve the flagged requirements or update your search profile
-            before preparing a draft.
-          </p>
-        )}
-        {preview && !application && (
-          <p className="discover-preparation-note">
-            Uses the résumé selected in{" "}
-            <Link href="/career/#import-resume">Career profile</Link>.
-          </p>
-        )}
+        {mobile && preparationNote}
       </footer>
     </>
   );

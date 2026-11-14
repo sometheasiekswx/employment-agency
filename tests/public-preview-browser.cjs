@@ -515,7 +515,8 @@ const { showPanel } = require("./browser-applications.cjs");
       await inspector
         .getByRole("heading", { name: "Backend Engineer", exact: true })
         .waitFor();
-      await inspector
+      await page
+        .getByRole("region", { name: "Opportunity removal", exact: true })
         .getByRole("button", { name: "Add reason", exact: true })
         .click();
       const reason = inspector.getByRole("textbox", {

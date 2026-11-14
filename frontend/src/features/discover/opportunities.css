@@ -85,12 +85,6 @@
     flex-basis: 100%;
   }
 }
-.discover-screen .discover-layout.has-workbench {
-  gap: 20px;
-}
-.discover-layout.has-workbench .discover-board {
-  flex: 0 0 290px;
-}
 .opportunities-detail-tabs {
   display: flex;
   flex-wrap: wrap;
