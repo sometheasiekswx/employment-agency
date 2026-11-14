@@ -120,9 +120,19 @@ The Python checks use the built frontend. For end-to-end checks with fictional d
 
 ## Use your agent
 
-Codex, Claude Code or another coding agent can research jobs through the local CLI and API. To make local Codex require a successful company-cooldown lookup before search and browser calls, enable the gate once for your career workspace. [Codex setup](docs/agents.md#enable-the-codex-job-research-gate)
+Codex, Claude Code or another coding agent can research jobs through the local CLI and API.
 
-Start with this brief:
+### Enable the Codex job research gate
+
+After initializing your private SQLite career workspace, run this from the software checkout with Python 3.11 or later. On Windows, use `py -3` in place of `python3`.
+
+```sh
+python3 scripts/setup-codex-job-research-gate.py --workspace "/absolute/path/to/my-career-workspace"
+```
+
+Start the app with that workspace. Open the career workspace in local Codex and review and trust the `UserPromptSubmit` and `PreToolUse` project hooks. Codex then requires a successful `GET /api/company-avoid` for that workspace before each supported search or browser call, including on follow-ups. [Setup details and custom ports](docs/agents.md#enable-the-codex-job-research-gate)
+
+### Agent brief
 
 ```text
 Help me prepare applications using Employment Agency.
@@ -130,7 +140,7 @@ Read README.md, CONTRIBUTING.md and docs/agents.md in the software checkout.
 My private career workspace is: /absolute/path/to/my-private-workspace
 
 Check existing facts, profiles and decisions before making changes.
-Before researching jobs, run the local company-avoid lookup in docs/agents.md.
+Before each job search or follow-up, run the local company-avoid lookup in docs/agents.md.
 Research five eligible hiring companies in my chosen locations. Prioritize employers
 where I have never applied. Check each accessible official careers source and include
 every eligible role, ranked by company, with source URLs, checked dates and unknowns.
