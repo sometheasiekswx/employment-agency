@@ -926,7 +926,7 @@ async function bookmarkRollback(page, readState, label, mobile) {
       });
   if (!initialSaved) {
     await bookmark(false).click();
-    await page.locator("#notice").filter({ hasText: "Role added to To apply." }).waitFor();
+    await page.locator(".notification-card:not([inert])").filter({ hasText: "Role added to To apply." }).last().waitFor();
     await cloud(page).waitFor({ state: "detached" });
   }
   await page.getByRole("button", { name: "To apply", exact: true }).click();
@@ -1022,9 +1022,9 @@ async function bookmarkRollback(page, readState, label, mobile) {
     : bookmark(true);
   await retry.click();
   await page
-    .locator("#notice")
+    .locator(".notification-card:not([inert])")
     .filter({ hasText: "Role removed from To apply." })
-    .waitFor();
+    .last().waitFor();
   assert.equal(
     (await readState()).jobs.find(
       (job) => job.title === "Cloud Software Engineer",
@@ -1051,7 +1051,7 @@ async function bookmarkRollback(page, readState, label, mobile) {
   assert.equal(await bookmark(false).getAttribute("aria-pressed"), "false");
   if (initialSaved) {
     await bookmark(false).click();
-    await page.locator("#notice").filter({ hasText: "Role added to To apply." }).waitFor();
+    await page.locator(".notification-card:not([inert])").filter({ hasText: "Role added to To apply." }).last().waitFor();
     await page.getByRole("button", { name: "To apply", exact: true }).click();
     await bookmark(true).waitFor();
   }

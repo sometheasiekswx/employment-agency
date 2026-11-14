@@ -328,11 +328,7 @@ async function main() {
     const inspector = page.locator(".discover-inspector");
     const titleLink = inspector.getByRole("link", { name: "Feed Test Engineer" });
     await followSourceInNewTab(titleLink, advertUrl, "Live job advert");
-    await followSourceInNewTab(
-      inspector.getByRole("link", { name: "View job listing", exact: true }),
-      advertUrl,
-      "Live job advert",
-    );
+    assert.equal(await inspector.getByRole("link", { name: "View job listing", exact: true }).count(), 0);
     await followSourceInNewTab(
       inspector.getByRole("link", { name: "Bosch Group", exact: true }),
       careersUrl,
@@ -342,7 +338,7 @@ async function main() {
     await inspector
       .getByRole("button", { name: "Apply later", exact: true })
       .click();
-    await page.getByRole("status").filter({ hasText: "Role added to To apply." }).waitFor();
+    await page.locator(".notification-card:not([inert])").filter({ hasText: "Role added to To apply." }).last().waitFor();
     await inspector
       .getByRole("button", { name: "Close opportunity details", exact: true })
       .click();

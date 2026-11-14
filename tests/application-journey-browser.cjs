@@ -39,7 +39,7 @@ const exact = (scope, role, name) =>
 const actionButton = (page, name) => exact(panel(page), "button", name);
 const choose = (page, job) =>
   exact(page, "button", `Assess ${job.title} at ${job.employer}`);
-const listingLink = (page) => exact(panel(page), "link", "View job listing");
+const listingLink = (page) => panel(page).getByRole("heading", { level: 2 }).getByRole("link");
 
 async function screenshot(page, file) {
   if (output) {
@@ -216,6 +216,8 @@ async function verifyNoHorizontalOverflow(page, label) {
     );
 
     await actionButton(page, "Apply later").click();
+    await panel(page).getByLabel("Hiring employer name").fill(job.employer);
+    await actionButton(page, "Confirm employer").click();
     const markedAction = actionButton(page, "Remove from To apply");
     await markedAction.waitFor();
     assert.equal(await markedAction.getAttribute("aria-pressed"), "true");
@@ -224,6 +226,10 @@ async function verifyNoHorizontalOverflow(page, label) {
     await actionButton(page, "Close opportunity details").click();
     await choose(page, second).click();
     await actionButton(page, "Apply later").click();
+    const employers = await api("company-roles", { job_id: job.id });
+    await panel(page).getByLabel("Hiring employer", { exact: true }).selectOption(employers.employer.id);
+    await actionButton(page, "Confirm employer").click();
+    await actionButton(page, "Remove from To apply").waitFor();
     await actionButton(page, "Close opportunity details").click();
     await exact(page, "button", "To apply").click();
     await page.reload();
@@ -247,7 +253,8 @@ async function verifyNoHorizontalOverflow(page, label) {
       "Select and copy the agent instructions",
     ).inputValue();
     assert.ok(handoff.includes(job.id) && handoff.includes(second.id));
-    assert.match(handoff, /grants no authority/i);
+    assert.match(handoff, /^Apply for these exact roles/);
+    assert.match(handoff, /application-context/);
     assert.ok(!handoff.includes(initial.token));
     assert.deepEqual(
       (await api("agent-application-status", { job_ids: [job.id, second.id] }))
@@ -344,17 +351,11 @@ async function verifyNoHorizontalOverflow(page, label) {
     await screenshot(page, "cv-desktop");
     assert.equal(await listingLink(page).getAttribute("href"), listing);
 
-    // With the employer unresolved the CV stays visible. Completing the
-    // exception continues the same manual path and preserves the warning-free draft.
+    // The confirmed employer carries from To apply to the reserved website flow.
     await page.evaluate(() => {
       window.open = () => null;
     });
     await actionButton(page, "Open application site").click();
-    await exact(panel(page), "textbox", "Hiring employer name").fill(employer);
-    await panel(page)
-      .getByText("Confirming continues the action you started.", { exact: true })
-      .waitFor();
-    await actionButton(page, "Confirm employer").click();
     await actionButton(page, "I've applied").waitFor();
     assert.deepEqual(
       (await api("company-submission-status", { job_id: job.id })).map(

@@ -15,7 +15,8 @@ from .service import Service
 from .workspaces import inside, remember, configure, can_create_workspace
 from .folders import choose_folder
 from .web_assets import asset, script_policy
-from . import company_handoff, packages, history
+from . import company_handoff, company_logos, packages, history
+from .companies import CompanyBlocked
 
 
 def validate_tailscale_access(origin, user):
@@ -124,6 +125,14 @@ def server(service, port=8766, frontend_origin=None, tailscale_origin=None, tail
                 return self.send(200, encode({'state': service.state(), 'token': token}))
             if path == '/api/company-avoid':
                 return self.send(200, encode({'result': service.action('company-avoid', {})}))
+            if path == '/api/company-logo-inventory':
+                return self.send(200, encode({'result': service.action('company-logo-inventory', {})}))
+            if path.startswith('/api/company-logo/'):
+                route = re.fullmatch(r'/api/company-logo/([a-f0-9]{64})\.png', path)
+                body = company_logos.logo_bytes(service.w, route[1]) if route and not url.query else None
+                if body is None:
+                    return self.send(404, b'{}')
+                return self.send(200, body, 'image/png', headers={'Cross-Origin-Resource-Policy': 'same-origin'})
             if path == '/api/runtime':
                 return self.send(200, encode({'mode': 'local'}))
             if path == '/api/development' and frontend_origin:
@@ -217,6 +226,9 @@ def server(service, port=8766, frontend_origin=None, tailscale_origin=None, tail
                         return self.mutate(action, {'path': str(target)})
                 finally:
                     picker.release()
+            except CompanyBlocked as exc:
+                self.send(409, encode({'error': str(exc), 'code': exc.code,
+                                       **({'job_id': exc.job_id} if exc.job_id else {})}))
             except (ValueError, KeyError, TypeError, OverflowError, OSError) as exc:
                 self.send(400, encode({'error': str(exc)}))
             except Exception:

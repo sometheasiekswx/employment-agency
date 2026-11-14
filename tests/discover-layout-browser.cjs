@@ -311,7 +311,7 @@ const fs = require("node:fs");
           columns.map((column) => {
             const rect = column.getBoundingClientRect();
             return {
-              city: column.querySelector("h2").textContent.trim(),
+              city: column.querySelector(".discover-company-name").textContent.trim(),
               top: rect.top,
               bottom: rect.bottom,
               left: rect.left,
@@ -480,16 +480,10 @@ const fs = require("node:fs");
         exact: true,
       })
       .click();
-    await page.waitForFunction(() => {
-      const summary = document.querySelector(".discover-assessment-summary");
-      const footer = document.querySelector(".discover-inspector-footer");
-      return (
-        summary?.textContent.includes("Evidence gap: Kubernetes") &&
-        footer &&
-        summary.getBoundingClientRect().bottom <=
-          footer.getBoundingClientRect().top
-      );
-    });
+    const specificWarning = mobileInspector.getByText("Missing evidence: Kubernetes", { exact: true });
+    await specificWarning.scrollIntoViewIfNeeded();
+    assert.ok(await specificWarning.isVisible());
+    assert.equal(await mobileInspector.getByText("Check before applying", { exact: true }).count(), 0);
     assert.deepEqual(errors, []);
     console.log(
       "Discover layout passed: compact uneven cities, complete readable groups, responsive inspector, focus restoration, single/empty locations and long content.",

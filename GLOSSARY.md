@@ -42,6 +42,9 @@ A submitted application snapshot or a listing tagged Already submitted. It moves
 **Company cooldown**:
 The temporary pause on discovery and new applications at a hiring employer after two distinct confirmed submissions. Its deadline uses the workspace’s configured duration and the actual submission history.
 
+**Company allowance**:
+The capacity for two distinct vacancies at a hiring employer in the current application round. To apply choices, confirmed submissions in that round and active or uncertain submission holds share this capacity without counting the same vacancy twice. Pending choices do not trigger the cooldown or authorize a submission. See [ADR 0018](docs/adr/0018-count-to-apply-choices-in-company-allowance.md).
+
 **Hiring employer**:
 The organisation hiring for a vacancy, which can differ from the recruiter or listing source. An agent can resolve its identity from reliable evidence; an uncertain identity remains a question for the user.
 
@@ -53,6 +56,8 @@ The incoming list of opportunities available to assess. Stronger matches appear 
 
 **To apply**:
 The roles the user kept with **Apply later**, including roles with prepared drafts. Recording a submission removes the vacancy from this pending list. Removal preserves the choice for restoration. Earlier bookmarks and agent marks both carry forward into To apply.
+
+New choices must fit the hiring employer's remaining company allowance. Verified alternate names share the same employer identity; an uncertain match requires confirmation. See [ADR 0018](docs/adr/0018-count-to-apply-choices-in-company-allowance.md).
 
 **Job reference**:
 The title, company and full workspace job ID copied from a listing, with its original link when available. The ID identifies the exact role when titles and companies repeat.

@@ -17,6 +17,8 @@ def approval(service, state, args):
     job = companies.by_id(state['jobs'], version.get('job_id'))
     if not job:
         raise ValueError('Add the exact employer application URL to the listing first')
+    if blocker := application_context.role_blocker(state, job):
+        raise companies.CompanyBlocked(*blocker, job_id=job['id'])
     packages.check_submission_version(service.w.path, version, job, state['facts'])
     link = companies.check_slot(state, job['id'])
     destination = website_destination(state, job)
@@ -30,7 +32,8 @@ def approval(service, state, args):
     binding = {
         'job_id': job['id'], 'application_id': version['id'], 'employer_id': link['employer_id'],
         'vacancy_id': link['vacancy_id'], 'manifest_hash': version['manifest_hash'],
-        'job_sha256': digest(encode(job)), 'destination': destination['value'], 'documents': documents,
+        'job_sha256': digest(encode(application_context.without_branding(job))),
+        'destination': destination['value'], 'documents': documents,
     }
     return {'binding': binding, 'title': job['title'], 'employer': job['employer']}
 
@@ -44,7 +47,7 @@ def check_continuation(service, state, attempt):
     if not job or not version or version['job_id'] != job['id']:
         raise ValueError('The reserved application version is unavailable')
     if blocker := application_context.role_blocker(state, job):
-        raise ValueError(blocker[1])
+        raise companies.CompanyBlocked(*blocker, job_id=job['id'])
     link = companies.check_slot(state, job['id'], attempt_id=attempt['id'])
     if (link['employer_id'], link['vacancy_id']) != (binding['employer_id'], binding['vacancy_id']):
         raise ValueError('The hiring employer or vacancy changed since reserving the application')
@@ -91,10 +94,9 @@ def start(service, args):
         listing_hash = application_context.listing_sha256(job)
         if request['listing_sha256'] is not None and request['listing_sha256'] != listing_hash:
             raise ValueError('The listing changed. Refresh the role before proceeding.')
-        link = companies.employer_link(state, job['id'])
-        for blocker in (application_context.role_blocker(state, job), companies.slot_blocker(state, job['id'])):
-            if blocker:
-                raise ValueError(blocker[1])
+        if blocker := application_context.role_blocker(state, job):
+            raise companies.CompanyBlocked(*blocker, job_id=job['id'])
+        link = companies.check_slot(state, job['id'])
         destination = website_destination(state, job)
         if not destination:
             raise ValueError('Verify the website where this vacancy accepts applications')
@@ -235,7 +237,7 @@ def handoff(service, action, args):
                 if (attempt['channel'] != 'manual' or args.get('fingerprint') != attempt['fingerprint']
                         or args.get('application_id') != attempt['application_id']):
                     raise ValueError('Review the exact application again')
-                return attempt
+                return check_continuation(service, state, attempt) if attempt['status'] == 'handed_off' else attempt
             reviewed = approval(service, state, args)
             reviewed['id'] = attempt_id
             fingerprint = digest(encode(reviewed))

@@ -219,7 +219,7 @@ const label = (job) => `${job.title} · ${job.employer}`;
       );
       const outside = await page
         .locator(
-          ".removal-feedback:visible button, .removal-reason-editor:visible textarea",
+          ".removal-feedback:visible button, .removal-feedback-notice:visible button, .removal-reason-editor:visible textarea",
         )
         .evaluateAll((elements) =>
           elements
@@ -504,8 +504,7 @@ const label = (job) => `${job.title} · ${job.employer}`;
     await page.route("**/api/remove-job", removalFailure);
     await removeCard(page, saved).click();
     await notice(page, saved)
-      .getByRole("alert")
-      .filter({ hasText: "Fixture removal failure" })
+      .getByText("Fixture removal failure", { exact: false })
       .waitFor();
     await card(page, saved).waitFor();
     assert.equal(current(await jobState(saved)), undefined);
@@ -533,8 +532,7 @@ const label = (job) => `${job.title} · ${job.employer}`;
       .getByRole("button", { name: `Restore ${saved.title}`, exact: true })
       .click();
     await notice(page, saved)
-      .getByRole("alert")
-      .filter({ hasText: "Fixture restore failure" })
+      .getByText("Fixture restore failure", { exact: false })
       .waitFor();
     await card(page, saved).waitFor();
     assert.ok(current(await jobState(saved)));

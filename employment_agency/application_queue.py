@@ -99,14 +99,18 @@ def project_agent_queue(state):
                 yield role, None if archived else application, choices[role]
 
 
-def set_pending(state, job_id, saved, *, legacy_agent=False):
-    from .companies import by_id
+def set_pending(state, job_id, saved, *, legacy_agent=False, enforce_slots=False):
+    from .companies import ApplicationSlots, by_id
 
     if not isinstance(saved, bool):
         raise ValueError('Saved must be true or false')
     job = by_id(state['jobs'], job_id)
     if not job:
         raise ValueError('Choose a role in this workspace')
+    if enforce_slots and saved:
+        slots = ApplicationSlots(state)
+        if job_id not in slots.pending:
+            slots.check_pending(job_id)
     job['saved'] = saved
     intents = state.get('agent_intents', [])
     old = by_id(intents, job_id)
@@ -118,3 +122,13 @@ def set_pending(state, job_id, saved, *, legacy_agent=False):
     elif legacy_agent and saved:
         state.setdefault('agent_intents', []).append(record)
     return record
+
+
+def check_restored_choice(state, job_id, was_pending):
+    """Reject a changed record that would restore a hidden To apply choice."""
+    from .companies import ApplicationSlots
+
+    if not was_pending and job_id in pending_choices(state):
+        slots = ApplicationSlots(state)
+        if job_id in slots.pending:
+            slots.check_pending(job_id)

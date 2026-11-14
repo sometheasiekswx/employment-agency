@@ -13,7 +13,7 @@ from email.utils import parsedate_to_datetime
 from html.parser import HTMLParser
 from time import monotonic
 from unicodedata import normalize
-from urllib.parse import urljoin, urlsplit
+from urllib.parse import parse_qsl, urljoin, urlsplit
 
 import truststore
 
@@ -25,6 +25,11 @@ USER_AGENT = "EmploymentAgency/0.6 (public job metadata)"
 MAX_BYTES = 10 * 1024 * 1024
 REDIRECTS = (301, 302, 303, 307, 308)
 TLS_CONTEXT = truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+LOGO_QUERY_KEYS = frozenset({
+    'v', 'ver', 'version', 'rev', 'cache', 'cb',
+    'format', 'fm', 'auto', 'fit', 'crop', 'q', 'quality',
+    'w', 'width', 'h', 'height', 'dpr', 'resize', 'size',
+})
 
 
 class SourceError(ValueError):
@@ -32,6 +37,10 @@ class SourceError(ValueError):
         super().__init__(message)
         self.status = status
         self.retry_after = retry_after
+
+
+class ResponseTooLarge(SourceError):
+    pass
 
 
 @dataclass(frozen=True)
@@ -88,7 +97,7 @@ def remaining(deadline):
 
 
 def request(url, *, deadline, headers=None, redirects=0, data=None, allow_redirect=None,
-            accept_not_modified=False, stop_at_redirect=False):
+            accept_not_modified=False, stop_at_redirect=False, max_bytes=MAX_BYTES):
     """Read a bounded public HTTPS response with one budget across redirects."""
     u = public_url(url)
     if redirects > 3:
@@ -127,21 +136,25 @@ def request(url, *, deadline, headers=None, redirects=0, data=None, allow_redire
                 if stop_at_redirect:
                     return PublicResponse(b"", url, r.headers, r.status)
                 return request(destination, deadline=deadline, redirects=redirects + 1,
-                               allow_redirect=allow_redirect, accept_not_modified=accept_not_modified)
+                               allow_redirect=allow_redirect, accept_not_modified=accept_not_modified,
+                               max_bytes=max_bytes)
             if r.status == 304 and accept_not_modified:
                 return PublicResponse(b"", url, r.headers, r.status)
             if r.status != 200:
                 raise SourceError(f"Source returned HTTP {r.status}", status=r.status,
                                   retry_after=retry_delay(r.getheader("Retry-After")))
+            limit_message = "Source exceeds 10 MB" if max_bytes == MAX_BYTES else "Source exceeds its download size limit"
+            if r.length is not None and r.length > max_bytes:
+                raise ResponseTooLarge(limit_message)
             body = bytearray()
-            while not r.isclosed() and len(body) <= MAX_BYTES:
+            while not r.isclosed() and len(body) <= max_bytes:
                 transport.settimeout(remaining(deadline))
-                block = r.read1(min(65536, MAX_BYTES + 1 - len(body)))
+                block = r.read1(min(65536, max_bytes + 1 - len(body)))
                 if not block:
                     break
                 body.extend(block)
-            if len(body) > MAX_BYTES:
-                raise SourceError("Source exceeds 10 MB")
+            if len(body) > max_bytes:
+                raise ResponseTooLarge(limit_message)
             if r.length:
                 raise SourceError("Source returned an incomplete response")
             return PublicResponse(bytes(body), url, r.headers, r.status)
@@ -292,22 +305,63 @@ def posting_date(value):
     return value
 
 
-def structured_job(j, url, *, advert=""):
+def public_logo_query(query):
+    """Accept bounded public version and raster presentation options."""
+    if not query:
+        return True
+    if len(query) > 256:
+        return False
+    try:
+        pairs = parse_qsl(query, strict_parsing=True, keep_blank_values=True,
+                          max_num_fields=8, errors='strict')
+    except ValueError:
+        return False
+    keys = set()
+    for name, value in pairs:
+        key = name.casefold()
+        if (key not in LOGO_QUERY_KEYS or key in keys
+                or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._,-]{0,63}', value)):
+            return False
+        keys.add(key)
+    return bool(keys)
+
+
+def logo_candidate(value, page_url):
+    """Read an explicit schema.org logo URL or ImageObject."""
+    if isinstance(value, dict):
+        value = value.get("contentUrl") or value.get("url")
+    if (not isinstance(value, str) or not value or "\\" in value
+            or any(c.isspace() or ord(c) < 32 for c in value)):
+        return None
+    try:
+        parsed = public_url(urljoin(page_url, value))
+    except ValueError:
+        return None
+    if not public_logo_query(parsed.query):
+        return None
+    return parsed._replace(fragment="").geturl()
+
+
+def structured_job(j, url, *, advert="", page_url=None):
     location = listing_locations(j.get("jobLocation", []))
     remote = j.get("jobLocationType") == "TELECOMMUTE"
     if remote and (areas := listing_locations(j.get("applicantLocationRequirements", []))):
         location = "Remote — " + areas
     organization = j.get("hiringOrganization")
-    employer = organization.get("name") if isinstance(organization, dict) else organization
+    published = organization.get("name") if isinstance(organization, dict) else organization
     title = str(j.get("title") or "")
     description = str(j.get("description") or "")
-    employer = hiring_employer(title, employer, plain(description) + "\n" + advert)
+    employer = hiring_employer(title, published, plain(description) + "\n" + advert)
     evidence = {}
     if employer:
         identifier = j.get('identifier')
         requisition = identifier.get('value') if isinstance(identifier, dict) else ''
         evidence = {'name': employer, 'url': url, 'source': 'published-hiring-employer',
                     'requisition': str(requisition or '')[:200]}
+        if isinstance(organization, dict) and isinstance(published, str) and same_label(published, employer):
+            page = page_url or url
+            if logo := logo_candidate(organization.get("logo"), page):
+                evidence["logo"] = {"url": logo, "page_url": page}
     return normalized(
         title,
         employer,

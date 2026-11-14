@@ -16,7 +16,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowUpRight,
   Bookmark,
-  Building2,
   CircleMinus,
   MessageSquare,
   RotateCcw,
@@ -26,9 +25,15 @@ import {
   SlidersHorizontal,
   X,
 } from "lucide-react";
+import { ApiResponseError } from "@/lib/api";
 import { useDraft } from "@/components/unsaved";
 import { OpportunityApplication } from "@/features/applications/opportunity-application";
 import { ApplicationVersions } from "@/features/applications/application-versions";
+import {
+  ApplicationException,
+  canResolveCompanyBlocker,
+  companyBlockerMessage,
+} from "@/features/applications/application-exception";
 import { CompanySubmission } from "@/features/applications/company-submission";
 import { SubmissionRecord } from "@/features/applications/submission-records";
 import { RoleAgentWork } from "@/features/applications/agent-application";
@@ -44,13 +49,18 @@ import {
 } from "@/lib/format";
 import type {
   Application,
+  ApplicationBlocker,
   Job,
   JobRemoval,
   RankedJob,
   SubmissionAttempt,
 } from "@/lib/models";
 import { currentRemoval } from "@/lib/job-removal";
-import { RemovalFeedback } from "./removal-feedback";
+import {
+  RemovalFeedback,
+  RemovalNotice,
+  RemovalRecovery,
+} from "./removal-feedback";
 import { useJobRemoval } from "./use-job-removal";
 import {
   advertisedSalary,
@@ -67,7 +77,8 @@ import { OpportunityInspector, type RolePanel } from "./opportunity-inspector";
 import { OpportunityListingLink } from "./opportunity-listing-link";
 import { useInteractionMotion } from "./interaction-motion";
 import { cachedRanking, loadRanking } from "./rankings";
-import { CompanyReview } from "./company-review";
+import { CompanyMark, employerLogo } from "./company-mark";
+import { ResearchInstructions } from "./agent-instructions";
 import { AgentQueueTools } from "./agent-queue";
 import "./discover.css";
 import "./opportunities.css";
@@ -127,7 +138,7 @@ export function DiscoverPage() {
   useLayoutEffect(() => {
     motionAllowed.current = animateInteractions;
   }, [animateInteractions]);
-  const { state, client, run, refresh, profileId, selectProfile } =
+  const { state, client, run, notify, refresh, profileId, selectProfile } =
     useWorkspace();
   const [preparedVersion, setPreparedVersion] = useState<{
     workspace: string;
@@ -337,6 +348,11 @@ export function DiscoverPage() {
   );
   const closeRemovalReason = removal.closeReason;
   const [saveError, setSaveError] = useState("");
+  const [failedAdmission, setFailedAdmission] = useState<{
+    jobId: string;
+    blocker: ApplicationBlocker;
+  }>();
+  const [retryAdmissionId, setRetryAdmissionId] = useState("");
   const saving = useRef(new Set<string>());
   const saveErrorNotice = useRef<HTMLDivElement>(null);
   const searchInput = useRef<HTMLInputElement>(null);
@@ -378,6 +394,9 @@ export function DiscoverPage() {
       careers_url: undefined,
       matched_skill_evidence: undefined,
       hiring_employer_verified: undefined,
+      application_blocker: undefined,
+      pending_blocker: undefined,
+      company: undefined,
     })),
   });
   const requestKey = `${profileId}:${attempt}:${rankInput}`;
@@ -476,6 +495,12 @@ export function DiscoverPage() {
   const pending = new Map(
     [...latestJobs].filter(([, job]) => Boolean(job.saved) && pendingRole(job)),
   );
+  const pendingCount = state.jobs.filter((job) =>
+    !currentRemoval(job) &&
+    !hasRecordedSubmission(applications.get(job.id), job) &&
+    !job.company?.submitted_vacancy &&
+    (job.saved || legacyMarked.has(job.id)),
+  ).length;
   const chosenForAgent = agentSelection.flatMap((id) => {
     const job = pending.get(id);
     return job ? [job] : [];
@@ -574,7 +599,8 @@ export function DiscoverPage() {
     (selectedJob &&
     (requestedApplication ||
       removal.feedback?.job.id === selectedId ||
-      (view === "jobs" && selectedJob.saved && pendingRole(selectedJob)) ||
+      (view === "jobs" && pendingRole(selectedJob) &&
+        (selectedJob.saved || Boolean(selectedJob.pending_blocker || failedAdmission?.jobId === selectedId))) ||
       (toApplyView &&
         (pending.has(selectedId) || Boolean(savingIds.includes(selectedId)))) ||
       (applicationView && !removedView && !currentRemoval(selectedJob)) ||
@@ -587,6 +613,13 @@ export function DiscoverPage() {
   const selectedApplication =
     requestedApplication ||
     (selected ? applications.get(selected.job.id) : undefined);
+  const selectedPendingBlocker =
+    selected && !selected.job.saved && pendingRole(selected.job)
+      ? selected.job.pending_blocker ??
+        (failedAdmission?.jobId === selected.job.id ? failedAdmission.blocker : undefined)
+      : undefined;
+  const selectedApplicationBlocker = selected?.job.application_blocker;
+  const selectedRestriction = selectedPendingBlocker || selectedApplicationBlocker;
   const selectedDraft = Boolean(
     selectedApplication &&
     ["draft", "reviewed"].includes(selectedApplication.status),
@@ -789,8 +822,7 @@ export function DiscoverPage() {
     if (!screen || !inspectorOpen || mobile) return;
 
     const measure = () => {
-      // Its position in the document reflects the shell and any notice above
-      // the columns. Leave a gutter below the pane even before scrolling.
+      // Leave a gutter below the pane even before scrolling.
       const top = Math.max(
         16,
         screen.getBoundingClientRect().top + window.scrollY,
@@ -1015,46 +1047,62 @@ export function DiscoverPage() {
           ?.focus();
       });
   };
-  const feedbackProps = {
-    onUndo: () => {
+  const removalNotice = <RemovalNotice
+    feedback={removal.feedback}
+    onUndo={() => {
       const item = removal.feedback;
       const job = item && latestJobs.get(item.job.id);
       const event = job?.removals?.find(
         (event) => event.id === item?.removalId,
       );
       if (job && event) void removal.restore(job, event);
-    },
-    onAddReason: () => {
+    }}
+    onAddReason={() => {
       const item = removal.feedback;
       const job = item && latestJobs.get(item.job.id);
       const event = job?.removals?.find(
         (event) => event.id === item?.removalId,
       );
       if (job && event) addRemovalReason(job, event);
-    },
-    onRetryRemoval: () => {
-      void removal.retry();
-    },
-    onDismiss: removal.dismiss,
-    onNoticeInteractionChange: removal.setFeedbackHeld,
-    onChangeReason: removal.changeReason,
-    onSaveReason: () => {
-      void removal.saveReason();
-    },
-    onCloseReason: removal.closeReason,
-  };
-  const removalNotice = (
-    <RemovalFeedback {...feedbackProps} feedback={removal.feedback} />
+    }}
+    onRetryRemoval={() => { void removal.retry(); }}
+    onDismiss={removal.dismiss}
+    onNoticeInteractionChange={removal.setFeedbackHeld}
+  />;
+  const removalRecovery = (
+    <RemovalRecovery failure={removal.failure} dismiss={removal.dismissFailure} />
   );
   const removalEditor = (
-    <RemovalFeedback {...feedbackProps} editor={removal.editor} />
+    <RemovalFeedback
+      editor={removal.editor}
+      onChangeReason={removal.changeReason}
+      onSaveReason={() => {
+        void removal.saveReason().then((saved) => {
+          if (saved) notify?.("Removal reason saved.");
+        });
+      }}
+      onCloseReason={removal.closeReason}
+    />
   );
 
   const saveJob = async (
     id: string,
     saved: boolean,
     button?: HTMLButtonElement,
+    confirmed = false,
   ) => {
+    const job = latestJobs.get(id);
+    const blocked =
+      job?.pending_blocker ??
+      (failedAdmission?.jobId === id ? failedAdmission.blocker : undefined);
+    if (saved && blocked && !confirmed) {
+      if (canResolveCompanyBlocker(blocked) &&
+        (selectedId === id || setSelectedId(id, false, !inspectorOpen))) {
+        opener.current = cardButtons.current.get(id) || null;
+        setRetryAdmissionId(id);
+      }
+      return;
+    }
     const leavesView = !applicationView && saved !== toApplyView;
     if (
       saving.current.has(id) ||
@@ -1077,6 +1125,7 @@ export function DiscoverPage() {
         );
     }
     setSaveError("");
+    setFailedAdmission((current) => current?.jobId === id ? undefined : current);
     setSavedOverrides((previous) => ({ ...previous, [id]: saved }));
     setSavingIds((previous) => [...previous, id]);
     try {
@@ -1085,8 +1134,11 @@ export function DiscoverPage() {
         { id, saved },
         saved ? "Role added to To apply." : "Role removed from To apply.",
       );
-      if (!saved)
+      if (saved) {
+        setRetryAdmissionId((current) => (current === id ? "" : current));
+      } else {
         setAgentSelection((ids) => ids.filter((jobId) => jobId !== id));
+      }
       const icon = button?.querySelector("svg");
       if (
         motionAllowed.current &&
@@ -1119,7 +1171,22 @@ export function DiscoverPage() {
           .finally(() => bookmarkAnimations.current.delete(animation));
       }
     } catch (error) {
-      setSaveError(errorMessage(error));
+      const message = errorMessage(error);
+      if (saved && error instanceof ApiResponseError && error.code) {
+        const blocker = { code: error.code, message };
+        setFailedAdmission({ jobId: id, blocker });
+        if (canResolveCompanyBlocker(blocker) && selectedId === id)
+          setRetryAdmissionId(id);
+        void refresh()
+          .then(() => {
+            setFailedAdmission((current) =>
+              current?.jobId === id ? undefined : current,
+            );
+          })
+          .catch(() => {});
+      }
+      setSaveError(message);
+      notify?.(message, "error");
     } finally {
       saving.current.delete(id);
       setSavedOverrides((previous) => {
@@ -1368,10 +1435,14 @@ export function DiscoverPage() {
             )}
           </div>
         )}
+        {view === "jobs" && localJourney && <ResearchInstructions />}
         {agentTools && (
           <AgentQueueTools
             key={workspacePath}
             jobs={chosenForAgent}
+            selection={agentSelection}
+            pendingCount={pendingCount}
+            onClearSelection={() => setAgentSelection([])}
             applicationIds={agentApplications}
             pending={latestJobs}
             onNavigate={(id) => setSelectedId(id, false, !inspectorOpen)}
@@ -1431,16 +1502,11 @@ export function DiscoverPage() {
             </button>
           )}
         </div>
-        {(!inspectorOpen || !mobile) &&
-          (removal.feedback || (!inspectorOpen && removal.editor)) && (
-            <div className="discover-removal-inline">
-              <RemovalFeedback
-                {...feedbackProps}
-                feedback={removal.feedback}
-                editor={inspectorOpen ? undefined : removal.editor}
-              />
-            </div>
-          )}
+        {removalNotice}
+        {(!inspectorOpen || !mobile) && removalRecovery}
+        {!inspectorOpen && removal.editor && (
+          <div className="discover-removal-inline">{removalEditor}</div>
+        )}
         {locations.length > 4 ? (
           <div className="discover-location-select">
             <Select
@@ -1621,13 +1687,26 @@ export function DiscoverPage() {
                 >
                   <header>
                     <h2>
-                      <Building2 size={17} aria-hidden="true" />
-                      {name}
+                      <CompanyMark
+                        name={name}
+                        logoUrl={opportunities.map(({ job }) => employerLogo(job)).find(Boolean)}
+                      />
+                      <span className="discover-company-name">{name}</span>
                     </h2>
                     <span>{opportunities.length}</span>
                   </header>
                   {opportunities.map((row) => {
                     const { job, match } = row;
+                    const pendingBlocker = !job.saved
+                      ? job.pending_blocker ??
+                        (failedAdmission?.jobId === job.id ? failedAdmission.blocker : undefined)
+                      : undefined;
+                    const capacityBlocker = !currentRemoval(job) && !hasRecordedSubmission(applications.get(job.id), job)
+                      ? pendingBlocker || job.application_blocker
+                      : undefined;
+                    const blockerText = capacityBlocker &&
+                      companyBlockerMessage(capacityBlocker, job, state._workspace.timezone);
+                    const blockerId = blockerText ? `capacity-${job.id}` : undefined;
                     const status = roleStatus(
                       job,
                       applications.get(job.id),
@@ -1665,9 +1744,12 @@ export function DiscoverPage() {
                         key={job.id}
                       >
                         <div className="discover-card-top">
-                          <span className={`discover-status ${status.tone}`}>
-                            {status.label}
-                          </span>
+                          <div className="discover-card-identity">
+                            <CompanyMark name={job.company?.name || job.employer} logoUrl={employerLogo(job)} />
+                            <span className={`discover-status ${status.tone}`}>
+                              {status.label}
+                            </span>
+                          </div>
                           <div className="discover-card-tools">
                             {agentTools && (
                               <label className="discover-agent-selection">
@@ -1675,11 +1757,7 @@ export function DiscoverPage() {
                                   type="checkbox"
                                   checked={agentSelection.includes(job.id)}
                                   aria-label={`Select ${job.title} at ${job.employer}`}
-                                  disabled={
-                                    startingAgent ||
-                                    (chosenForAgent.length >= 100 &&
-                                      !agentSelection.includes(job.id))
-                                  }
+                                  disabled={startingAgent}
                                   onChange={(event) => {
                                     if (selectionInFlight.current) return;
                                     const checked = event.currentTarget.checked;
@@ -1735,7 +1813,9 @@ export function DiscoverPage() {
                                 keepContentWhileBusy
                                 data-opportunity-id={job.id}
                                 className={`discover-icon-button ${job.saved ? "is-saved" : ""}`}
-                                disabled={savingIds.includes(job.id)}
+                                disabled={savingIds.includes(job.id) ||
+                                  Boolean(pendingBlocker && !canResolveCompanyBlocker(pendingBlocker))}
+                                aria-describedby={blockerId}
                                 aria-label={`${pendingActionLabel(job.saved)} · ${job.title}`}
                                 title={pendingActionLabel(job.saved)}
                                 aria-pressed={Boolean(job.saved)}
@@ -1809,6 +1889,11 @@ export function DiscoverPage() {
                               </p>
                             )}
                           </div>
+                        )}
+                        {blockerText && (
+                          <p className="discover-capacity-note" id={blockerId}>
+                            {blockerText}
+                          </p>
                         )}
                         {removedView && currentRemoval(job)?.reason && (
                           <p
@@ -1898,6 +1983,7 @@ export function DiscoverPage() {
                 canStart={
                   !submitted &&
                   !selected.job.company?.submitted_vacancy &&
+                  !selected.job.application_blocker &&
                   !currentRemoval(selected.job) &&
                   Boolean(profileId)
                 }
@@ -1942,6 +2028,8 @@ export function DiscoverPage() {
                         canStart={
                           !submitted &&
                           !selected.job.company?.submitted_vacancy &&
+                          (!selected.job.application_blocker ||
+                            selected.job.application_blocker.code === "application_in_progress") &&
                           !currentRemoval(selected.job)
                         }
                         onIntegrityIssue={() => openPanel("files")}
@@ -1962,13 +2050,31 @@ export function DiscoverPage() {
           assessmentAvailable={assessmentAvailable}
           hasListingRecord={hasListingRecord}
           canChangePending={pendingRole(selected.job)}
-          companyReview={
-            hasListingRecord &&
-            state._workspace.snapshot &&
-            !client.preview &&
-            !client.hosted ? (
-              <CompanyReview job={selected.job} />
-            ) : undefined
+          pendingRestricted={Boolean(selectedPendingBlocker && !canResolveCompanyBlocker(selectedPendingBlocker))}
+          applicationRestriction={
+            selectedRestriction &&
+            !submitted &&
+            !currentRemoval(selected.job) && (
+              <ApplicationException
+                key={`${selected.job.id}:${selectedRestriction.code}`}
+                job={selected.job}
+                blocker={selectedRestriction}
+                mode="pending"
+                onResolved={async () => {
+                  const visit = roleVisit.current;
+                  await refresh();
+                  if (
+                    retryAdmissionId === selected.job.id &&
+                    selectedPendingBlocker &&
+                    visit === roleVisit.current
+                  ) {
+                    await saveJob(selected.job.id, true, undefined, true);
+                  } else {
+                    notify?.("Employer information saved.");
+                  }
+                }}
+              />
+            )
           }
           onAddEvidence={
             hasListingRecord && !client.preview
@@ -1999,7 +2105,7 @@ export function DiscoverPage() {
           onPrepare={prepareApplication}
           onRemove={() => removeJob(selected.job)}
           onRestore={() => restoreJob(selected.job)}
-          removalFeedback={mobile ? removalNotice : undefined}
+          removalFeedback={mobile ? removalRecovery : undefined}
           removalEditor={removalEditor}
           reasonEditorId={removal.editor?.removalId}
         />

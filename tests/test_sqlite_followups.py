@@ -33,6 +33,7 @@ class SQLiteFollowups(unittest.TestCase):
     def test_queues_preserve_authority_and_paginate_without_document_checks(self):
         old = self.draft()
         current = self.draft()
+        self.s.action('company-map', {'job_id': self.job['id'], 'confirmed': True})
         self.s.action('save-job', {'id': self.job['id'], 'saved': True})
         self.assertEqual(self.s.action('application-queue', {'stage': 'saved'})['rows'][0]['application_id'], current['id'])
         self.s.action('review', {'id': old['id'], 'status': 'submitted'})
@@ -57,6 +58,7 @@ class SQLiteFollowups(unittest.TestCase):
         with patch('employment_agency.service.sources.discover', return_value=[posting, posting]):
             self.assertEqual(self.s.action('discover', {'id': source['id']}), {'count': 1})
         listed = self.w.read()['jobs'][-1]
+        self.s.action('company-map', {'job_id': listed['id'], 'confirmed': True})
         self.s.action('save-job', {'id': listed['id'], 'saved': True})
         moved = {**posting, 'url': 'https://example.test/moved-posting'}
         with patch('employment_agency.service.sources.discover', return_value=[moved, {'title': ''}]):

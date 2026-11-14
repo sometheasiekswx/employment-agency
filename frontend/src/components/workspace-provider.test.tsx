@@ -8,6 +8,7 @@ import {
 import { beforeEach, expect, it, vi } from "vitest";
 import type { WorkspaceState } from "@/lib/models";
 import { DiscoverPage } from "@/features/discover/discover-page";
+import { NotificationProvider } from "./notification-center";
 import { Shell } from "./shell";
 import { WorkspaceProvider, useWorkspace } from "./workspace-provider";
 
@@ -66,11 +67,13 @@ function Controls() {
   );
 }
 const app = () => (
-  <WorkspaceProvider>
-    <Shell>
-      <Controls />
-    </Shell>
-  </WorkspaceProvider>
+  <NotificationProvider>
+    <WorkspaceProvider>
+      <Shell>
+        <Controls />
+      </Shell>
+    </WorkspaceProvider>
+  </NotificationProvider>
 );
 
 beforeEach(() => {
@@ -129,17 +132,18 @@ it("shows a neutral static workspace skeleton until the actual state request com
   ).toBeInTheDocument();
 });
 
-it("retains success feedback during polling recovery and clears it when leaving the page", async () => {
+it("retains recent success and durable refresh recovery across navigation", async () => {
   const view = render(app());
   fireEvent.click(await screen.findByRole("button", { name: "Save comment" }));
-  expect(await screen.findByRole("status")).toHaveTextContent("Comment saved.");
+  const notifications = await screen.findByRole("region", { name: "Notifications" });
+  expect(notifications).toHaveTextContent("Comment saved.");
   fixture.client.state.mockRejectedValueOnce(new Error("Failed to fetch"));
   await act(async () => fixture.poll());
   expect(await screen.findByRole("alert")).toHaveTextContent(
     "Cannot connect to the app. Check your connection and that the app is running, then try again.",
   );
   expect(screen.getByRole("alert")).toHaveClass("error");
-  expect(screen.getByRole("status")).toHaveTextContent("Comment saved.");
+  expect(notifications).toHaveTextContent("Comment saved.");
   fireEvent.click(screen.getByRole("button", { name: "Retry workspace" }));
   await waitFor(() =>
     expect(screen.queryByRole("alert")).not.toBeInTheDocument(),
@@ -149,7 +153,7 @@ it("retains success feedback during polling recovery and clears it when leaving 
   expect(
     screen.queryByText(/Cannot connect to the app/),
   ).not.toBeInTheDocument();
-  expect(screen.getByRole("status")).toBeEmptyDOMElement();
+  expect(notifications).toHaveTextContent("Comment saved.");
 });
 
 it("does not replace recovery with an older polling failure", async () => {
@@ -228,21 +232,21 @@ it("recovers both workspace and assessment errors through Retry assessment witho
     return {};
   });
   const view = render(
-    <WorkspaceProvider>
-      <Shell>
-        <Controls />
-        <DiscoverPage />
-      </Shell>
-    </WorkspaceProvider>,
+    <NotificationProvider>
+      <WorkspaceProvider>
+        <Shell>
+          <Controls />
+          <DiscoverPage />
+        </Shell>
+      </WorkspaceProvider>
+    </NotificationProvider>,
   );
   expect(await screen.findByRole("alert")).toHaveTextContent(
     "Assessment unavailable",
   );
   fireEvent.click(screen.getByRole("button", { name: "Save comment" }));
-  expect(await screen.findByText("Comment saved.")).toHaveAttribute(
-    "role",
-    "status",
-  );
+  const notifications = await screen.findByRole("region", { name: "Notifications" });
+  expect(notifications).toHaveTextContent("Comment saved.");
   fixture.client.state.mockRejectedValueOnce(new Error("Failed to fetch"));
   await act(async () => fixture.poll());
   expect(screen.getAllByRole("alert")).toHaveLength(2);
@@ -279,5 +283,5 @@ it("recovers both workspace and assessment errors through Retry assessment witho
     </WorkspaceProvider>,
   );
   expect(screen.queryByRole("alert")).not.toBeInTheDocument();
-  expect(screen.getByRole("status")).toBeEmptyDOMElement();
+  expect(notifications).toHaveTextContent("Comment saved.");
 });

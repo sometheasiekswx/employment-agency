@@ -345,29 +345,14 @@ async function drag(page, control, delta, session) {
       await page.goto(base + "/discover/");
       await role.click();
       await showOverview();
-      const gap = panel
-        .locator(".discover-assessment-check")
-        .filter({ hasText: "Evidence gap: Kubernetes" });
-      await gap.waitFor();
+      const gap = panel.getByText("Missing evidence: Kubernetes", { exact: true });
+      await gap.scrollIntoViewIfNeeded();
       await page.evaluate(() => document.fonts.ready);
-      await page.waitForFunction(
-        () => {
-          const check = [
-            ...document.querySelectorAll(".discover-assessment-check"),
-          ].find((element) =>
-            element.textContent.includes("Evidence gap: Kubernetes"),
-          );
-          const footer = document.querySelector(".discover-inspector-footer");
-          return (
-            check &&
-            footer &&
-            check.getBoundingClientRect().bottom <=
-              footer.getBoundingClientRect().top
-          );
-        },
-        undefined,
-        { timeout: 3000 },
-      );
+      assert.ok(await gap.isVisible());
+      assert.equal(await panel.getByText("Check before applying", { exact: true }).count(), 0);
+      const gapRect = await gap.boundingBox();
+      const footerRect = await panel.locator(".discover-inspector-footer").boundingBox();
+      assert.ok(gapRect.y + gapRect.height <= footerRect.y + 1);
       await page.screenshot({ path: path.join(output, `${label}-320.png`) });
       assert.equal(
         await page.evaluate(

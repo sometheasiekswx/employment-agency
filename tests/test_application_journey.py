@@ -63,6 +63,8 @@ class ApplicationJourney(unittest.TestCase):
     def test_pending_choice_unions_legacy_records_and_restores_without_execution(self):
         saved = self.role('saved')
         both = self.role('both')
+        self.map()
+        self.map(saved, name='A different fictional employer', record_alias=False)
         with self.w.edit() as state:
             for job in state['jobs']:
                 job['saved'] = job['id'] in {saved['id'], both['id']}
@@ -75,7 +77,8 @@ class ApplicationJourney(unittest.TestCase):
         handoff = self.s.action('application-handoff', {'job_ids': [self.job['id'], saved['id']]})
         self.assertEqual(handoff['workspace_id'], self.w.workspace_id)
         self.assertIn('application-context', handoff['text'])
-        self.assertIn('grants no authority', handoff['text'])
+        self.assertIn('Apply for these exact roles', handoff['text'])
+        self.assertEqual(handoff['blockers'], [])
         self.assertNotIn(self.fact['text'], handoff['text'])
         self.assertNotIn('alex@example.test', handoff['text'])
         self.assertFalse(self.w.read()['applications'])
@@ -166,7 +169,8 @@ class ApplicationJourney(unittest.TestCase):
         self.assertEqual((path / 'state.json').read_bytes(), before)
 
     def test_agent_queue_migration_is_transactional_and_preserves_snapshot(self):
-        self.mark()
+        with self.w.edit() as state:
+            state['agent_intents'] = [{'id': self.job['id'], 'marked': True, 'updated_at': store.now()}]
         path = self.w.path
         before = (path / 'state.json').read_bytes()
         self.w.close()
@@ -232,10 +236,13 @@ class ApplicationJourney(unittest.TestCase):
             self.s.action('company-resolve', {'job_id': rejected['id'], 'name': self.job['employer'],
                 'source_url': rejected['url'], 'evidence': 'Recruiter lists an unnamed client.', 'verified': True})
         self.assertIsNone(self.context(rejected)['employer'])
+        manual = self.map(requisition='REQ-196')
         link = self.s.action('company-resolve', {'job_id': self.job['id'], 'name': self.job['employer'],
             'source_url': self.job['url'], 'evidence': 'Official careers site names exact hiring employer.',
             'verified': True, 'requisition': 'REQ-196'})
         self.assertEqual(link['provenance']['actor'], 'research-agent')
+        self.assertEqual(link['employer_id'], manual['employer_id'])
+        self.assertEqual(link['vacancy_id'], manual['vacancy_id'])
         posting = {**self.job, 'id': None, 'url': 'https://example.test/jobs/duplicate',
                    'employer_evidence': {'name': self.job['employer'], 'url': 'https://example.test/jobs/duplicate',
                                          'source': 'published-hiring-employer', 'requisition': 'REQ-196'}}
@@ -483,7 +490,7 @@ class ApplicationJourney(unittest.TestCase):
             background.join(3)
 
     def test_hosted_operations_do_not_expose_local_context_queue_or_execution(self):
-        for action in ('application-context', 'agent-queue', 'agent-queue-mark', 'application-handoff',
+        for action in ('application-context', 'agent-queue', 'agent-queue-mark', 'application-handoff', 'research-handoff',
                        'self-application-start', 'agent-capabilities', 'agent-application-start'):
             with self.subTest(action=action):
                 with self.assertRaisesRegex(cloud.CloudError, 'available only in the local app'):

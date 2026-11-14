@@ -269,7 +269,7 @@ describe("opportunity removal controller", () => {
     const { result, requests } = setup([removed]);
     act(() => result.current.addReason(removed, event));
     act(() => result.current.changeReason("Outside my preferred location"));
-    let save!: Promise<void>;
+    let save!: Promise<boolean>;
     await act(async () => {
       save = result.current.saveReason();
     });
@@ -321,7 +321,7 @@ describe("opportunity removal controller", () => {
     const { result, requests } = setup([removed]);
     act(() => result.current.addReason(removed, event));
     act(() => result.current.changeReason("First saved text"));
-    let save!: Promise<void>;
+    let save!: Promise<boolean>;
     await act(async () => {
       save = result.current.saveReason();
     });
@@ -492,7 +492,7 @@ describe("opportunity removal controller", () => {
     refresh.mockRejectedValue(new Error("Refresh is unavailable"));
     act(() => result.current.addReason(removed, event));
     act(() => result.current.changeReason("Keep this confirmed reason"));
-    let save!: Promise<void>;
+    let save!: Promise<boolean>;
     let undo!: Promise<boolean>;
     await act(async () => {
       save = result.current.saveReason();
@@ -655,7 +655,7 @@ describe("successful removal feedback lifetime", () => {
     }
   });
 
-  it("waits for a successful receipt and keeps errors available past eight seconds", async () => {
+  it("waits for a successful receipt and keeps durable recovery after the error notice expires", async () => {
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "performance"] });
     try {
       const view = setup();
@@ -681,12 +681,13 @@ describe("successful removal feedback lifetime", () => {
         view.requests[1].pending.reject(new Error("Restore failed"));
       });
       advance(10_000);
-      expect(view.result.current.feedback).toMatchObject({
+      expect(view.result.current.feedback).toBeUndefined();
+      expect(view.result.current.failure?.feedback).toMatchObject({
         status: "error",
         error: "Restore failed",
       });
       await act(async () => {
-        void view.result.current.retry();
+        void view.result.current.failure?.retry();
       });
       await act(async () => {
         const request = view.requests[2];
@@ -694,8 +695,9 @@ describe("successful removal feedback lifetime", () => {
           receipt(request.data, { restored_at: event.at }),
         );
       });
-      advance(7_999);
+      advance(4_999);
       expect(view.result.current.feedback?.status).toBe("restored");
+      expect(view.result.current.failure).toBeUndefined();
       advance(1);
       expect(view.result.current.feedback).toBeUndefined();
     } finally {

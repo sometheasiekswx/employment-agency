@@ -108,7 +108,7 @@ export function CompanySubmission({
   visible?: boolean;
   canStart?: boolean;
 }) {
-  const { client, refresh, state, profileId } = useWorkspace();
+  const { client, refresh, state, profileId, notify } = useWorkspace();
   const { canLeave } = useDraft();
   const status = useManualAttempts(job.id);
   const [blocker, setBlocker] = useState<ApplicationBlocker>();
@@ -137,6 +137,8 @@ export function CompanySubmission({
   const canUseReservedVersion = Boolean(
     boundVersion || attempt?.application_id === app.id,
   );
+  const canContinue = !job.application_blocker ||
+    job.application_blocker.code === "application_in_progress";
   const hasDetails = Boolean(
     attempt || blocker || problem || status.error || reportNote,
   );
@@ -147,7 +149,7 @@ export function CompanySubmission({
   }, [certifying, visible]);
 
   async function continueToSite(resolved = false) {
-    if (inFlight.current || (!resolved && !canLeave())) return;
+    if (inFlight.current || !canContinue || (!resolved && !canLeave())) return;
     inFlight.current = true;
     const tab = createApplicationTab();
     const surface = container.current;
@@ -263,7 +265,13 @@ export function CompanySubmission({
       openReserved(reserved);
       void refresh().catch(() => {});
     } catch (error) {
-      setProblem(errorMessage(error));
+      const message = errorMessage(error);
+      if (error instanceof ApiResponseError && error.code) {
+        setBlocker({ code: error.code, message });
+        void refresh().catch(() => {});
+      } else {
+        setProblem(message);
+      }
       status.reload();
     } finally {
       if (!opened) tab?.close();
@@ -304,9 +312,9 @@ export function CompanySubmission({
     request.current = null;
     setContinuation(undefined);
     setCertifying(undefined);
-    setReportNote(
-      result.status === "not_sent" ? "Application slot released." : "",
-    );
+    setReportNote("");
+    if (result.status === "not_sent")
+      notify?.("Application slot released.", "info");
     if (result.status === "confirmed") onRecord(result);
     void refresh().catch(() => {});
   }
@@ -349,7 +357,7 @@ export function CompanySubmission({
           </button>
         </p>
       )}
-      {canStart && !attempt && status.records && (
+      {canStart && !job.application_blocker && !attempt && status.records && (
         <div className="actions">
           <button
             type="button"
@@ -415,7 +423,7 @@ export function CompanySubmission({
             >
               I've applied
             </button>
-            {canStart &&
+            {canStart && canContinue &&
               (continuation && !certifying ? (
                 <a
                   className="button secondary"

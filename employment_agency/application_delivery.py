@@ -8,14 +8,14 @@ import queue
 import re
 import threading
 
-from . import packages, providers, matching, master
+from . import application_context, companies, master, matching, packages, providers
 from .store import atomic, encode, digest, uid, now
 from .workspaces import inside, settings
 from .delivery_connections import Gmail, codex_select
 from .linkedin_apply import LinkedIn, NeedsUser, linkedin_url
 from .service import submitted_job_ids
 
-ACTIVE = {'preparing', 'needs_user', 'awaiting_approval', 'executing', 'unknown'}
+ACTIVE = {'preparing', 'needs_user', 'awaiting_approval', 'cancelling', 'executing', 'unknown'}
 
 
 def fingerprint(value):
@@ -66,7 +66,9 @@ class Delivery:
         self.connection = {"status": "idle"}
         # Restoring an export or restarting cannot replay an external action.
         for record in self.records():
-            if record['status'] in ('preparing', 'executing'):
+            if record['status'] == 'cancelling':
+                self.update(record, status='cancelled', note='Cancelled before submission')
+            elif record['status'] in ('preparing', 'executing'):
                 self.update(record, status='unknown', note='Interrupted. Verify the external outcome before resolving this attempt.')
             elif record['status'] in ('awaiting_approval', 'needs_user') and record['channel'] == 'linkedin':
                 self.update(record, status='needs_user', note='Browser session closed. Resume to rebuild and review the form.')
@@ -121,9 +123,38 @@ class Delivery:
 
     def check_company(self, record, *, state=None):
         if self.w.database:
-            from .companies import check_slot
-            return check_slot(state if state is not None else self.w.read(),
-                              record['binding']['job_id'], attempt_id=record.get('id'))
+            state = state if state is not None else self.w.read()
+            job = companies.by_id(state['jobs'], record['binding']['job_id'])
+            if not job:
+                raise ValueError('Choose a role in this workspace')
+            if blocker := application_context.role_blocker(state, job):
+                raise companies.CompanyBlocked(*blocker, job_id=job['id'])
+            link = companies.check_slot(state, job['id'], attempt_id=record.get('id'))
+            if any(record.get(key) not in (None, link[key]) for key in ('employer_id', 'vacancy_id')):
+                raise ValueError('The employer or vacancy changed. Review the application again.')
+            return link
+
+    def company_binding(self, record, *, state):
+        link = self.check_company(record, state=state)
+        return {key: link[key] for key in ('employer_id', 'vacancy_id')}
+
+    def before_browser_disclosure(self, record):
+        """Validate the durable hold before each browser write."""
+        with self.w.lock:
+            if self.w.database:
+                state = self.w.read()
+                stored = companies.by_id(state.get('submission_attempts', []), record['id'])
+                if not stored or stored['status'] != 'preparing':
+                    raise NeedsUser('Cancelled before submission')
+                try:
+                    self.check_company(stored, state=state)
+                    self.check_binding(stored, state=state)
+                    if stored['payload']['contact'] != self.contact(state['identity']):
+                        raise ValueError('Contact details changed. Review the application again.')
+                except ValueError as exc:
+                    raise NeedsUser(str(exc)) from exc
+            elif self.get(record['id'])['status'] != 'preparing':
+                raise NeedsUser('Cancelled before submission')
 
     def begin_dispatch(self, record):
         if not self.w.database:
@@ -134,10 +165,8 @@ class Delivery:
                                if row['id'] == record['id']), None)
                 if not stored or stored['status'] != 'executing' or stored.get('dispatched_at'):
                     raise ValueError('This attempt is already dispatched or no longer approved')
-                link = self.check_company(stored, state=state)
-                if any(link[key] != stored.get(key) for key in ('employer_id', 'vacancy_id')):
-                    raise ValueError('The employer or vacancy changed. Review the application again.')
-                self.check_binding(stored)
+                self.check_company(stored, state=state)
+                self.check_binding(stored, state=state)
                 self.update(record, state=state, dispatched_at=now())
         except ValueError as exc:
             raise NeedsUser(str(exc)) from exc
@@ -150,8 +179,8 @@ class Delivery:
         if settings(self.w.path).get('demo'):
             raise ValueError('External applications are disabled in demo workspaces')
 
-    def document(self, app_id):
-        state = self.w.read()
+    def document(self, app_id, *, state=None):
+        state = state if state is not None else self.w.read()
         app = next((a for a in state['applications'] if a['id'] == app_id), None)
         if not app or not app.get('folder') or app['status'] == 'submitted':
             raise ValueError('Choose an unsubmitted job-specific application version')
@@ -162,12 +191,17 @@ class Delivery:
         path = packages.path_for(self.w.path, app, 'resume.pdf')
         return app, job, state['identity'], path
 
-    def check_binding(self, record):
+    @staticmethod
+    def contact(identity):
+        return {'Email address': identity.get('email', ''), 'Mobile phone number': identity.get('phone', '')}
+
+    def check_binding(self, record, *, state=None):
         if not record['binding'].get('cover_letter'):
             raise ValueError('Prepare a new attempt with this listing’s custom résumé and cover letter')
-        app, job, identity, resume = self.document(record['application_id'])
+        app, job, identity, resume = self.document(record['application_id'], state=state)
         binding = {'job_id': job['id'], 'application_id': app['id'], 'folder': app['folder'],
-                   'resume': resume.relative_to(self.w.path).as_posix(), 'sha256': digest(resume.read_bytes()), 'job_sha256': fingerprint(job)}
+                   'resume': resume.relative_to(self.w.path).as_posix(), 'sha256': digest(resume.read_bytes()),
+                   'job_sha256': fingerprint(application_context.without_branding(job))}
         if record['binding'].get('cover_letter'):
             cover = packages.path_for(self.w.path, app, 'cover-letter.pdf')
             binding['cover_letter'] = {'path': cover.relative_to(self.w.path).as_posix(), 'sha256': digest(cover.read_bytes())}
@@ -220,7 +254,10 @@ class Delivery:
             if operation == 'apply-cancel':
                 if record['status'] not in ('preparing', 'awaiting_approval', 'needs_user', 'failed'):
                     raise ValueError('Wait for the current operation; uncertain or completed sends cannot be cancelled')
-                self.update(record, status='cancelled', note='Cancelled before submission')
+                if record['status'] == 'preparing' or (record['channel'] == 'linkedin' and self.browser_attempt == record['id']):
+                    self.update(record, status='cancelling', note='Closing the browser before releasing this application slot')
+                else:
+                    self.update(record, status='cancelled', note='Cancelled before submission')
                 self.enqueue('close', record['id'])
             elif operation == 'apply-resolve':
                 if record['status'] != 'unknown' or args.get('outcome') not in ('confirmed', 'not_sent'):
@@ -242,9 +279,14 @@ class Delivery:
             elif operation == 'apply-resume':
                 if record['channel'] != 'linkedin' or record['status'] != 'needs_user':
                     raise ValueError('This attempt is not waiting for browser assistance')
-                self.check_binding(record)
-                self.check_company(record)
-                self.update(record, status='preparing', note='Inspecting the visible browser; no submission yet')
+                changes = {'status': 'preparing', 'note': 'Inspecting the visible browser; no submission yet'}
+                if self.w.database:
+                    with self.w.edit() as state:
+                        self.check_binding(record, state=state)
+                        self.update(record, state=state, **changes, **self.company_binding(record, state=state))
+                else:
+                    self.check_binding(record)
+                    self.update(record, **changes)
                 self.enqueue('prepare', record['id'])
             elif operation == 'apply-approve':
                 if (self.w.database and record['status'] in ('executing', 'unknown', 'confirmed')
@@ -254,10 +296,9 @@ class Delivery:
                     raise ValueError('Review the current complete application before approving')
                 if self.w.database:
                     with self.w.edit() as state:
-                        self.check_binding(record)
-                        link = self.check_company(record, state=state)
+                        self.check_binding(record, state=state)
                         self.update(record, state=state, status='executing', approved_at=now(),
-                                    employer_id=link['employer_id'], vacancy_id=link['vacancy_id'],
+                                    **self.company_binding(record, state=state),
                                     note='Approved action executing; do not retry')
                 else:
                     self.check_binding(record)
@@ -274,7 +315,6 @@ class Delivery:
         if args.get('disclosure_confirmed') is not True:
             raise ValueError('Confirm disclosure of these documents/contact details to the selected destination')
         app, job, identity, resume = self.document(args['application_id'])
-        self.check_company({'binding': {'job_id': job['id']}})
         for r in self.records():
             if r['binding']['job_id'] == job['id'] and r['status'] in ACTIVE | {'confirmed'}:
                 raise ValueError('An active, uncertain or confirmed attempt already exists for this job')
@@ -284,11 +324,12 @@ class Delivery:
         if channel not in ('gmail', 'linkedin'):
             raise ValueError('Choose Gmail or LinkedIn')
         binding = {'job_id': job['id'], 'application_id': app['id'], 'folder': app['folder'],
-                   'resume': resume.relative_to(self.w.path).as_posix(), 'sha256': digest(resume.read_bytes()), 'job_sha256': fingerprint(job)}
+                   'resume': resume.relative_to(self.w.path).as_posix(), 'sha256': digest(resume.read_bytes()),
+                   'job_sha256': fingerprint(application_context.without_branding(job))}
         cover = packages.path_for(self.w.path, app, 'cover-letter.pdf')
         binding['cover_letter'] = {'path': cover.relative_to(self.w.path).as_posix(), 'sha256': digest(cover.read_bytes())}
         payload = {'job': {'id': job['id'], 'title': job['title'], 'employer': job['employer']},
-                   'contact': {'Email address': identity.get('email', ''), 'Mobile phone number': identity.get('phone', '')}}
+                   'contact': self.contact(identity)}
         if channel == 'gmail':
             sender = address(self.mail.sender())
             payload.update({'from': sender, 'to': address(args.get('to', job.get('email', ''))),
@@ -302,7 +343,14 @@ class Delivery:
             payload['url'] = linkedin_url(job.get('url', ''))
         record = {'id': uid(), 'created_at': now(), 'application_id': app['id'], 'channel': channel,
                   'binding': binding, 'payload': payload, 'status': 'preparing', 'note': 'Preparing; no application sent'}
-        self.update(record)
+        if self.w.database:
+            with self.w.edit() as state:
+                self.check_binding(record, state=state)
+                if state['identity'] != identity:
+                    raise ValueError('Contact details changed. Review the application again.')
+                self.update(record, state=state, **self.company_binding(record, state=state))
+        else:
+            self.update(record)
         self.enqueue('prepare', record['id'])
         return record
 
@@ -351,6 +399,10 @@ class Delivery:
                     if self.browser and self.browser_attempt == id:
                         self.browser.close(); self.browser = None
                         self.browser_attempt = None
+                    with self.lock:
+                        record = self.get(id)
+                        if record['status'] == 'cancelling':
+                            self.update(record, status='cancelled', note='Cancelled before submission')
                     continue
                 record = self.get(id)
                 if record['status'] not in ('preparing', 'executing'):
@@ -369,16 +421,18 @@ class Delivery:
                             self.browser = self.browser_factory()
                             self.browser_attempt = id
                             self.browser.open(record['payload']['url'])
-                        self.browser.cancelled = lambda: self.get(id)['status'] == 'cancelled'
+                        self.browser.cancelled = lambda: self.get(id)['status'] in ('cancelling', 'cancelled')
                         cover = self.staged(record, cover_letter=True)
-                        site = self.browser.prepare(record['payload'], resume, cover)
+                        self.before_browser_disclosure(record)
+                        site = self.browser.prepare(record['payload'], resume, cover,
+                                                    before_disclosure=lambda: self.before_browser_disclosure(record))
                         if site.get('upload_sha256') != record['binding']['sha256']:
                             raise NeedsUser('Browser upload does not match the approved custom résumé')
                         if site.get('cover_letter_sha256') != record['binding']['cover_letter']['sha256']:
                             raise NeedsUser('Browser upload does not match the approved custom cover letter')
                         record['payload']['site_review'] = site
                     with self.lock:
-                        if self.get(id)['status'] == 'cancelled':
+                        if self.get(id)['status'] != 'preparing':
                             continue
                         self.update(record, status='awaiting_approval', fingerprint=fingerprint({'binding': record['binding'], 'payload': record['payload']}),
                                     note='Review the exact résumé, destination and all answers; nothing submitted yet')
@@ -413,16 +467,24 @@ class Delivery:
                         self.browser.close(); self.browser = None
                         self.browser_attempt = None
             except NeedsUser as exc:
-                current = self.get(id)
-                if current['status'] != 'cancelled':
-                    self.update(current, status='needs_user', note=str(exc))
+                with self.lock:
+                    current = self.get(id)
+                    if current['status'] in ('preparing', 'executing'):
+                        if current.get('dispatched_at'):
+                            self.update(current, status='unknown',
+                                        note='Outcome uncertain. Check the job site or Gmail Sent before resolving.')
+                        else:
+                            self.update(current, status='needs_user', note=str(exc))
             except Exception:
-                record = self.get(id)
-                if record['status'] == 'cancelled':
-                    continue
-                self.update(record, status='unknown' if command == 'submit' else 'failed',
-                    note='Outcome uncertain. Check Gmail Sent or the job site before resolving; never blindly retry.' if command == 'submit'
-                         else 'Preparation failed. Check connection setup or the browser, then cancel and prepare again. No submit action was requested.')
+                with self.lock:
+                    record = self.get(id)
+                    if record['status'] in ('cancelling', 'cancelled'):
+                        continue
+                    unknown = command == 'submit' and (record.get('dispatched_at') or not self.w.database)
+                    status = 'unknown' if unknown else ('needs_user' if record['channel'] == 'linkedin' else 'failed')
+                    note = ('Outcome uncertain. Check Gmail Sent or the job site before resolving; never blindly retry.'
+                            if unknown else 'Preparation failed. Check the connection or browser. No submit action was requested.')
+                    self.update(record, status=status, note=note)
             finally:
                 self.commands.task_done()
                 if command == 'stop' and self.browser:

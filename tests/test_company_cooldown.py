@@ -226,7 +226,8 @@ class CompanyCooldown(unittest.TestCase):
     def test_paused_company_alias_filters_unlinked_listings_from_discovery(self):
         second = self.role(2)
         unlinked = self.s.action('job', {**self.job, 'id': None, 'url': 'https://employer.example.test/fresh-role'})
-        self.s.action('save-job', {'id': unlinked['id'], 'saved': True})
+        with self.w.edit() as state:
+            companies.by_id(state['jobs'], unlinked['id'])['saved'] = True
         with patch.object(companies, 'clock', return_value=datetime(2026, 2, 1, tzinfo=timezone.utc)):
             self.submit(self.job, '2026-01-10')
             self.submit(second, '2026-01-30')

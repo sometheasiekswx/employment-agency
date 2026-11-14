@@ -12,7 +12,7 @@ from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 from unittest.mock import patch
 
-from employment_agency import companies, store
+from employment_agency import companies, sources, store
 from employment_agency.server import server
 from employment_agency.service import Service
 from employment_agency.sqlite_workspace import DATABASE, DATABASE_VERSION, SQLiteState
@@ -34,15 +34,31 @@ class CompanyAvoid(unittest.TestCase):
         })['employer_id']
 
     def role(self, suffix, *, employer=None, requisition=None, submitted_on=None, mapped=True):
-        job = self.s.action('job', {
+        fields = {
             **self.first, 'id': None, 'url': f'https://employer.example.test/role-{suffix}',
             'employer': employer or self.first['employer'],
             'prior_application': 'submitted' if submitted_on else 'none',
-        })
+        }
+        record_alias = bool(employer and employer != self.first['employer'])
+        if record_alias:
+            listing = sources.structured_job({
+                'title': fields['title'], 'description': fields['description'],
+                'hiringOrganization': {'name': employer},
+            }, fields['url'])
+            _, _, _ = self.s.import_discovery([{**fields, **listing}])
+            job = next(row for row in self.w.read()['jobs'] if row['url'] == fields['url'])
+        else:
+            job = self.s.action('job', fields)
         if mapped:
+            alias_confirmation = {}
+            if record_alias:
+                company = self.s.action('company-roles', {'job_id': job['id']})
+                alias_confirmation = {'record_alias': True, 'published_alias': company['published_alias'],
+                                      'published_alias_proof': company['published_alias_proof']}
             self.s.action('company-map', {
                 'job_id': job['id'], 'confirmed': True, 'employer_id': self.employer,
                 'requisition': requisition or suffix, 'submitted_on': submitted_on,
+                **alias_confirmation,
             })
         return job
 

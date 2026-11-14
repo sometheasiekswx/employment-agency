@@ -213,9 +213,11 @@ class Service:
             state = self.w.read()
             snapshot = self.w.database.summary() if self.w.database else None
             queue = self.w.database.queue_page(historical=True)['rows'] if self.w.database else None
+        from .application_context import role_blocker
         from .application_queue import pending_choices
 
         choices = pending_choices(state)
+        slots = companies.ApplicationSlots(state) if snapshot else None
         state.pop('workspace_id', None)
         state.pop('application_answers', None)
         state.pop('agent_runs', None)
@@ -248,14 +250,16 @@ class Service:
             state['unlisted_removals'] = unlisted
         state['_workspace'] = {'path': str(self.w.path), **settings(self.w.path)}
         if snapshot:
+            from . import company_logos
+
             zone = self.workspace_zone()
             employers = state.get('employers', [])
             employers_by_id = {row['id']: row for row in employers}
-            employer_names = {row['id']: row['name'] for row in employers}
             employer_name_ids = companies.employer_name_ids(employers)
-            employer_links = {row['id']: row for row in state.get('employer_links', [])}
-            company_rounds = {row['id']: companies.allowance(row) for row in state.get('company_rounds', [])}
+            employer_links = slots.links
+            logos = company_logos.logo_urls(self.w.path, state)
             state['_workspace']['snapshot'] = snapshot
+            state['_workspace']['workspace_id'] = self.w.workspace_id
             state['_workspace']['agent_queue'] = True
             state['_workspace']['company_cooldown_months'] = state.get(
                 'company_cooldown_months', companies.DEFAULT_COOLDOWN_MONTHS)
@@ -264,16 +268,29 @@ class Service:
             for job in state['jobs']:
                 link = employer_links.get(job['id'])
                 employer = employers_by_id.get(link['employer_id']) if link else None
+                evidence = job.get('employer_evidence', {})
+                if 'logo' in evidence:
+                    job['employer_evidence'] = {key: value for key, value in evidence.items() if key != 'logo'}
+                if (alias_proof := companies.alias_confirmation(job).get('published_alias_proof')):
+                    job['published_alias_proof'] = alias_proof
                 job['hiring_employer_verified'] = bool(employer and not companies.employer_evidence_conflict(job, employer))
                 employer_id = companies.discovery_employer(job, link, employer_name_ids)
-                if employer_id in employer_names:
-                    status = company_rounds.get(employer_id, companies.allowance(None))
+                if employer_id in employers_by_id:
+                    status = slots.status(employer_id)
                     job['company'] = {
-                        'id': employer_id, 'name': employer_names[employer_id],
+                        'id': employer_id, 'name': employers_by_id[employer_id]['name'],
+                        'vacancy_id': link['vacancy_id'] if link else None,
                         'submitted_vacancy': bool(link and link['vacancy_id'] in status.get('submitted_vacancies', [])),
                         **{key: status.get(key) for key in ('remaining', 'cooling', 'cooldown_until',
-                                                           'cooldown_time_assumed')},
+                                                           'cooldown_time_assumed', 'overflow', 'review_needed')},
                     }
+                    if job['hiring_employer_verified'] and employer_id in logos:
+                        job['company']['logo_url'] = logos[employer_id]
+                stage, _ = slots.queue.get(job['id'], (None, False))
+                if blocker := role_blocker(state, job, stage=stage) or slots.blocker(job['id']):
+                    job['application_blocker'] = {'code': blocker[0], 'message': blocker[1]}
+                if blocker := slots.blocker(job['id'], for_pending=True):
+                    job['pending_blocker'] = {'code': blocker[0], 'message': blocker[1]}
                 if job['id'] in submitted_dates:
                     submitted_on = link.get('submitted_on') if link else None
                     job['submission_time'] = companies.submission_time(
@@ -323,7 +340,7 @@ class Service:
                     from .agent_execution import AgentExecution
                     self.agent_execution = AgentExecution(self)
             return self.agent_execution.action(action, a)
-        if action in ('application-context', 'application-handoff', 'application-answer',
+        if action in ('application-context', 'application-handoff', 'research-handoff', 'application-answer',
                       'application-destination', 'agent-queue', 'agent-queue-mark', 'self-application-start'):
             if not self.w.database:
                 raise ValueError('This operation requires a local SQLite workspace')
@@ -333,6 +350,8 @@ class Service:
                 return application_context.read(self, a)
             if action == 'application-handoff':
                 return application_context.handoff(self, a)
+            if action == 'research-handoff':
+                return application_context.research_handoff(self, a)
             if action == 'application-answer':
                 return application_context.record(self, a, application_context.save_answer)
             if action == 'application-destination':
@@ -344,7 +363,8 @@ class Service:
                 with self.w.lock:
                     return self.w.database.agent_queue_page(limit=limit, offset=offset)
             with self.w.edit() as state:
-                return application_queue.set_pending(state, a.get('job_id'), a.get('marked'), legacy_agent=True)
+                return application_queue.set_pending(state, a.get('job_id'), a.get('marked'),
+                                                     legacy_agent=True, enforce_slots=True)
         if action in ("discovery-start", "discovery-status", "discovery-stop"):
             from .discovery import Discovery
 
@@ -389,7 +409,7 @@ class Service:
         if action == 'document-editor':
             return editor.load(self.w, a)
         if action in ('preview-document', 'save-document'):
-            return editor.edit(self.w, a, save=action == 'save-document')
+            return editor.edit(self, a, save=action == 'save-document')
         if action == 'workspace-settings':
             previous_zone = settings(self.w.path)['timezone']
             result = configure(self.w.path, a)
@@ -408,11 +428,13 @@ class Service:
                 conflicts(state)
             return result
         if action == 'history-adopt':
+            from .application_context import without_branding
+
             with self.w.lock:
                 entry = packages.catalogue(self.w.path).get(a['id'])
                 if not entry:
                     raise ValueError('Historical version not found')
-                folder, data = entry
+                folder, _ = entry
                 index = json.loads(inside(self.w.path, '.recovery/index.json').read_text())
                 baseline_hash = index.get(folder)
                 if not baseline_hash:
@@ -421,28 +443,34 @@ class Service:
                 original = {'folder': folder, 'manifest_hash': baseline_hash, 'documents': packages.document_map(baseline)}
                 state = self.w.read()
                 raw_job = baseline['job']
-                job = next((j for j in state['jobs'] if j['id'] == raw_job.get('id') or (j.get('url') and j.get('url') == raw_job.get('url'))),
-                           {**raw_job, 'id': digest(encode(raw_job))[:24], 'availability': 'unknown', 'eligibility': 'unknown', 'requirements': raw_job.get('requirements', [])})
-                version = packages.adopt_edits(self.w.path, original, job, state['identity'])
-                new = {**version, 'id': uid(), 'job_id': job['id'], 'title': job['title'], 'employer': job['employer'],
+                job = next((j for j in state['jobs'] if j['id'] == raw_job.get('id') or (j.get('url') and j.get('url') == raw_job.get('url'))), None)
+                if not job:
+                    job = {**without_branding(raw_job), 'id': digest(encode(raw_job))[:24],
+                           'availability': 'unknown', 'eligibility': 'unknown',
+                           'requirements': raw_job.get('requirements', []), 'saved': False}
+                    job.pop('company', None)
+                new = {'id': uid(), 'job_id': job['id'], 'title': job['title'], 'employer': job['employer'],
                        'status': 'draft', 'created_at': now(), 'comments': [], 'fact_ids': [], 'derived_from_folder': folder}
                 with self.w.edit() as state:
-                    if not any(j['id'] == job['id'] for j in state['jobs']): state['jobs'].append(job)
-                    state['applications'].append(new)
+                    was_pending = self.pending_before_change(state, job['id'])
+                    if not any(j['id'] == job['id'] for j in state['jobs']):
+                        state['jobs'].append(job)
+                    self.register_draft(state, new, was_pending)
+                    new.update(packages.adopt_edits(self.w.path, original, without_branding(job), state['identity']))
                 return new
         if action == 'adopt-edits':
-            with self.w.lock:
-                state = self.w.read()
+            from .application_context import without_branding
+
+            with self.w.edit() as state:
                 original = find(state['applications'], a['id'])
                 job = find(state['jobs'], original['job_id'])
-                version = packages.adopt_edits(self.w.path, original, job, state['identity'])
-                new = {**original, **version, 'id': uid(), 'created_at': now(), 'status': 'draft',
+                new = {**original, 'id': uid(), 'created_at': now(), 'status': 'draft',
                        'comments': [], 'derived_from': original['id']}
                 for key in ('reviewed_at', 'submitted_at', 'file_changes', 'archived',
                             'submission_record', 'submission_correction'):
                     new.pop(key, None)
-                with self.w.edit() as state:
-                    state['applications'].append(new)
+                self.register_draft(state, new, self.pending_before_change(state, job['id']))
+                new.update(packages.adopt_edits(self.w.path, original, without_branding(job), state['identity']))
                 return new
         if action == "identity":
             identity = {
@@ -599,7 +627,7 @@ class Service:
             from .application_queue import set_pending
 
             with self.w.edit() as state:
-                choice = set_pending(state, a.get("id"), a.get("saved"))
+                choice = set_pending(state, a.get("id"), a.get("saved"), enforce_slots=bool(self.w.database))
             return {"id": choice["id"], "saved": choice["marked"]}
         if action == "url":
             url = text(a['url'], 2000)
@@ -610,10 +638,13 @@ class Service:
                     raise ValueError('Company is paused. The existing listing is still available in the workspace.')
             fetched = sources.url_job(url)
             if self.w.database:
+                from . import company_logos
+
                 with self.w.edit() as state:
                     listing = self.add_job(fetched, match_url=True, state=state, discovered=True)
                     companies.link_verified_listing(state, listing, self.workspace_zone())
-                    return listing
+                company_logos.enrich_discovered(self.w, [listing['id']])
+                return listing
             return self.add_job(fetched, match_url=True)
         if action == "source":
             from .job_feeds import validate_selector
@@ -648,9 +679,14 @@ class Service:
                 if self.w.database:
                     employer = linked_employers.get(job['id'])
                     job['hiring_employer_verified'] = bool(employer and not companies.employer_evidence_conflict(job, employer))
-            return matching.ranked(
+            rows = matching.ranked(
                 self.discoverable_jobs(s), find(s["profiles"], a["profile_id"]), s["facts"]
             )
+            if self.w.database:
+                from . import company_logos
+
+                company_logos.decorate_jobs(self.w.path, s, (row['job'] for row in rows))
+            return rows
         if action == "consent":
             provider = a["provider"]
             if provider not in ("agent", "openai"):
@@ -764,6 +800,19 @@ class Service:
             return {"file": dest.name}
         raise ValueError("Unknown operation")
 
+    def pending_before_change(self, state, job_id):
+        from .application_queue import pending_choices
+
+        return bool(self.w.database and job_id in pending_choices(state)
+                    and job_id in companies.ApplicationSlots(state).pending)
+
+    def register_draft(self, state, draft, was_pending):
+        from .application_queue import check_restored_choice
+
+        state['applications'].append(draft)
+        if self.w.database:
+            check_restored_choice(state, draft['job_id'], was_pending)
+
     def review(self, s, a):
         app = find(s["applications"], a["id"])
         if 'status' not in a:
@@ -779,6 +828,9 @@ class Service:
             raise ValueError('This manual submission was corrected; review the recovered draft instead')
         if app["status"] == "submitted" and status != "submitted":
             raise ValueError("Submitted snapshot is immutable")
+        job_id = application_role(app)
+        check_restore = self.w.database and status in ('draft', 'reviewed') and status != app["status"]
+        was_pending = self.pending_before_change(s, job_id) if check_restore else False
         intact = not packages.changed(self.w.path, app) if app.get('folder') else documents.intact(self.w.path / 'packages' / app['id'])
         if status in ('reviewed', 'submitted') and not intact:
             raise ValueError("Files changed; cannot approve")
@@ -809,6 +861,10 @@ class Service:
                 "status": status,
             }
         )
+        if check_restore:
+            from .application_queue import check_restored_choice
+
+            check_restored_choice(s, job_id, was_pending)
         return app
 
     def workspace_zone(self):
@@ -832,6 +888,11 @@ class Service:
                 raise ValueError('company-avoid takes no arguments')
             with self.w.lock:
                 return {'workspace': str(self.w.path), 'companies': self.w.database.employers_to_avoid()}
+        if action in ('company-logo-inventory', 'company-logo-backfill'):
+            from . import company_logos
+
+            operation = company_logos.inventory if action == 'company-logo-inventory' else company_logos.backfill
+            return operation(self.w, args)
         if action == 'company-research':
             ids = args.get('job_ids')
             if not isinstance(ids, list) or any(not isinstance(job_id, str) for job_id in ids):
@@ -864,12 +925,18 @@ class Service:
                 return self.refresh(args['source_id'], research_name=name, research_evidence=evidence_url)
             return {'workspace': str(self.w.path), **companies.research_employer(self.w.read(), name)}
         if action == 'company-selection':
-            result = companies.company_roles(self.w.read(), args['job_id'], args.get('profile_id'))
+            from .application_context import selected_jobs
+
+            state = self.w.read()
+            result = companies.company_roles(state, args['job_id'], args.get('profile_id'))
             requested = args.get('job_ids')
-            if (not isinstance(requested, list) or any(not isinstance(value, str) for value in requested)
-                    or not 1 <= len(requested) <= result['status']['remaining']
-                    or len(set(requested)) != len(requested)):
+            if not isinstance(requested, list) or not 1 <= len(requested) <= companies.ROUND_CAPACITY:
                 raise ValueError('Choose one or two roles within the available application slots')
+            selected_jobs(state, args)
+            slots = companies.ApplicationSlots(state)
+            if problems := slots.selection_blockers(requested):
+                job_id, blocker = next(iter(problems.items()))
+                raise companies.CompanyBlocked(*blocker, job_id=job_id)
             eligible = {row['job']['id'] for row in result['roles']}
             if not set(requested) <= eligible:
                 raise ValueError('Choose an available role from this company shortlist')
@@ -878,6 +945,13 @@ class Service:
             from .company_handoff import handoff
             return handoff(self, action, args)
         zone = self.workspace_zone()
+        if action == 'company-resolve':
+            from . import company_logos
+
+            with self.w.edit() as state:
+                link = companies.confirm_researched_listing(state, args, zone)
+            company_logos.enrich_discovered(self.w, [link['id']])
+            return link
         with self.w.edit() as state:
             if action == 'company-cooldown-settings':
                 months = args.get('months')
@@ -887,8 +961,6 @@ class Service:
                 return {'months': months}
             if action == 'company-map':
                 return companies.map_job(state, args, zone)
-            if action == 'company-resolve':
-                return companies.confirm_researched_listing(state, args, zone)
             if action == 'company-history-link':
                 record = next((row for row in state.get('historical_decisions', [])
                                if companies.history_id(row) == args.get('history_id')), None)
@@ -905,7 +977,7 @@ class Service:
                 return entry
             if action == 'company-pause':
                 link = companies.employer_link(state, args['job_id'])
-                status = companies.job_status(state, args['job_id'])
+                status = companies.company_status(state, link['employer_id']) if link else {}
                 if not link or status['review_needed'] or status['remaining'] != 1 or len(status.get('used', [])) != 1:
                     raise ValueError('A company can be paused after one confirmed submission')
                 pause = {'id': uid(), 'employer_id': link['employer_id'], 'at': companies.clock().isoformat()}
@@ -1028,6 +1100,7 @@ class Service:
             elif action == 'restore-job':
                 # Undo belongs to one event, never to a subsequent removal.
                 if event is active:
+                    was_pending = self.pending_before_change(s, job_id)
                     event['restored_at'] = now()
                     if legacy and event.get('legacy_application_id') == legacy['id']:
                         legacy['status'] = 'draft'
@@ -1041,6 +1114,10 @@ class Service:
                             'at': event['restored_at'], 'status': 'draft',
                             'text': 'Restored from Removed.',
                         })
+                    if self.w.database:
+                        from .application_queue import check_restored_choice
+
+                        check_restored_choice(s, job_id, was_pending)
             elif event['reason'] != comment:
                 event.update({'reason': comment, 'reason_updated_at': now()})
         return {'id': job_id, 'removals': removals}
@@ -1188,7 +1265,12 @@ class Service:
         if discovered and a.get('employer_evidence'):
             j['employer_evidence'] = a['employer_evidence']
         if existing:
+            was_pending = self.pending_before_change(state, j['id'])
             state['jobs'][state['jobs'].index(existing)] = j
+            if self.w.database:
+                from .application_queue import check_restored_choice
+
+                check_restored_choice(state, j['id'], was_pending)
         else:
             state['jobs'].append(j)
         return j
@@ -1212,7 +1294,7 @@ class Service:
             owner_id = companies.source_employer(current, id)
             if owner_id and owner_id != company.get('id'):
                 raise ValueError('The board belongs to a different hiring employer')
-            if not company['remaining']:
+            if not company['research_eligible']:
                 return {'count': 0, 'skipped': 'Company is paused or its history needs review'}
         try:
             if src['kind'] in ("greenhouse", "lever"):
@@ -1269,7 +1351,7 @@ class Service:
                 name = research_name or (saved_name if not owner_id else None)
                 if name:
                     company = companies.research_employer(state, name)
-                    if not company["remaining"] or (owner_id and owner_id != company.get("id")):
+                    if not company["research_eligible"] or (owner_id and owner_id != company.get("id")):
                         return [], set(), "Company availability or source ownership changed"
                     owner_id, employer_name = company.get("id"), company["name"]
                 if research_evidence:
@@ -1328,7 +1410,12 @@ class Service:
                     source["checked_at"] = checked_at
             if deadline is not None:
                 sources.remaining(deadline)
-            return list(dict.fromkeys(job["id"] for job in imported)), ids - previous_ids, None
+            result = list(dict.fromkeys(job["id"] for job in imported)), ids - previous_ids, None
+        if self.w.database:
+            from . import company_logos
+
+            company_logos.enrich_discovered(self.w, result[0], deadline=deadline)
+        return result
 
     def start(self, a):
         with self.worker_lock:
@@ -1491,6 +1578,9 @@ class Service:
             self.update_run(id, status='failed', note='Run interrupted by an error; inspect inputs and resume')
 
     def prepare(self, job, profile, identity, facts, m, ids, *, run_id=None):
+        from .application_context import without_branding
+
+        job = without_branding(job)
         m["salary_expectation"] = matching.salary_expectation(job, m)
         ids = providers.selection({"fact_ids": ids}, facts)
         chosen = [find(facts, i) for i in ids]
@@ -1523,12 +1613,12 @@ class Service:
                 raise ValueError('Master changed during generation; review and retry')
             files = {name: (p / name).read_bytes() for name in documents.FILES}
             packages.validate(files, config)
-            version = packages.publish(self.w.path, files, job, identity)
             app = {'id': id, 'job_id': job['id'], 'title': job['title'], 'employer': job['employer'],
                    'created_at': now(), 'status': 'draft', 'comments': [], 'fact_ids': ids,
-                   'profile_id': profile['id'], **version}
+                   'profile_id': profile['id']}
             with self.w.edit() as state:
-                state['applications'].append(app)
+                self.register_draft(state, app, self.pending_before_change(state, job['id']))
+                app.update(packages.publish(self.w.path, files, job, identity))
                 if run_id:
                     run = find(state['runs'], run_id)
                     run['done'].append(job['id'])

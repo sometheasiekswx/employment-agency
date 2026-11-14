@@ -283,7 +283,7 @@ function AgentStart({
   onStart: (result: StatusResult) => void;
   onStartBusy?: (busy: boolean) => void;
 }) {
-  const { client, profileId } = useWorkspace();
+  const { client, profileId, refresh } = useWorkspace();
   const { canLeave } = useDraft();
   const description = useId();
   const [barriers, setBarriers] = useState<
@@ -329,16 +329,24 @@ function AgentStart({
           matches.push(role);
           companies.set(role.employer.id, matches);
         }
-        const hasSlotConflict = [...companies.values()].some(
-          (roles) => roles.length > roles[0].allowance.remaining,
-        );
         setBarriers(blocked);
         if (blocked.length) return;
-        if (hasSlotConflict) {
-          setProblem(
-            "Your selection exceeds a company's available application slots. Select the roles you want to prioritize.",
-          );
-          return;
+        for (const sameCompany of companies.values()) {
+          const { allowance } = sameCompany[0];
+          const occupied = new Set(allowance.occupied || []);
+          const vacancies = sameCompany.flatMap((role) => {
+            const id = role.employer_link?.vacancy_id || role.job.company?.vacancy_id;
+            return id ? [id] : [];
+          });
+          if (new Set(vacancies).size !== vacancies.length) {
+            setProblem("Select one listing for each vacancy before starting.");
+            return;
+          }
+          const newlyOccupied = vacancies.filter((vacancy) => !occupied.has(vacancy));
+          if (newlyOccupied.length > allowance.remaining) {
+            setProblem("Select roles within each company’s available application slots.");
+            return;
+          }
         }
         if (!surface?.isConnected || surface.closest("[hidden]")) return;
         request.current = { key: crypto.randomUUID(), args };
@@ -360,7 +368,15 @@ function AgentStart({
       request.current = null;
       onStart(result);
     } catch (error) {
-      setProblem(errorMessage(error));
+      const message = errorMessage(error);
+      const job = error instanceof ApiResponseError &&
+        jobs.find(({ id }) => id === error.jobId);
+      if (job && error instanceof ApiResponseError && error.code) {
+        setBarriers([{ job, blocker: { code: error.code, message } }]);
+        void refresh().catch(() => {});
+      } else {
+        setProblem(message);
+      }
     } finally {
       inFlight.current = false;
       onStartBusy?.(false);

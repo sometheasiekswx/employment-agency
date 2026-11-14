@@ -1,6 +1,5 @@
 """Durable selected-role execution and the service-owned application tools."""
 
-from collections import Counter
 from datetime import datetime, timedelta, timezone
 import hmac
 import json
@@ -284,18 +283,15 @@ class AgentExecution:
         created = []
         with self.w.edit() as state:
             self.release_inert_reservations(state, set(job_ids))
-            company_counts = Counter()
-            vacancies = set()
-            for job in context.selected_jobs(state, args):
-                role = context.role_context(self.service, state, job, versions.get(job['id']), profile_id)
+            jobs = context.selected_jobs(state, args)
+            slots = companies.ApplicationSlots(state)
+            if problems := slots.selection_blockers(job_ids):
+                job_id, blocker = next(iter(problems.items()))
+                raise companies.CompanyBlocked(*blocker, job_id=job_id)
+            for job in jobs:
+                role = context.role_context(self.service, state, job, versions.get(job['id']), profile_id, slots=slots)
                 self.check_start(role, ready['channels'])
                 link = role['employer_link']
-                if link['vacancy_id'] in vacancies:
-                    raise ValueError('Choose one listing for this vacancy before starting')
-                vacancies.add(link['vacancy_id'])
-                company_counts[link['employer_id']] += 1
-                if company_counts[link['employer_id']] > role['allowance']['remaining']:
-                    raise ValueError('Choose which roles to apply for within ' + role['employer']['name'] + '’s available slots')
                 if any(run['authority']['vacancy_id'] == link['vacancy_id'] and
                        self.summary(state, run)['status'] in RUNNING | RESUMABLE | {'uncertain', 'record_pending'}
                        and self.same_origin(run) and self.has_permit(run)
@@ -430,7 +426,10 @@ class AgentExecution:
         job = get_row(state, 'jobs', run['job_id'])
         if not job or context.role_blocker(state, job):
             raise Help('This role is no longer eligible for the authorized application.')
-        role = context.role_context(self.service, state, job, run['application_id'], authority['profile_id'])
+        slots = companies.ApplicationSlots(state)
+        if blocker := slots.blocker(job['id'], attempt_id=run.get('attempt_id')):
+            raise companies.CompanyBlocked(*blocker, job_id=job['id'])
+        role = context.role_context(self.service, state, job, run['application_id'], authority['profile_id'], slots=slots)
         link = role['employer_link'] or {}
         if (any(link.get(key) != authority[key] for key in ('employer_id', 'vacancy_id'))
                 or role['listing_sha256'] != authority['listing_sha256']

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { AppearanceSync } from "@/components/appearance";
 import { DraftProvider } from "@/components/unsaved";
+import { NotificationProvider } from "@/components/notification-center";
 import { WorkspaceProvider } from "@/components/workspace-provider";
 import { Shell } from "@/components/shell";
 import { appearanceBootstrap } from "@/lib/appearance";
@@ -26,9 +27,11 @@ export default function RootLayout({
       <body>
         <AppearanceSync />
         <DraftProvider>
-          <WorkspaceProvider>
-            <Shell>{children}</Shell>
-          </WorkspaceProvider>
+          <NotificationProvider>
+            <WorkspaceProvider>
+              <Shell>{children}</Shell>
+            </WorkspaceProvider>
+          </NotificationProvider>
         </DraftProvider>
       </body>
     </html>

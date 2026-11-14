@@ -1019,18 +1019,6 @@ details details {
     grid-template-columns: minmax(0, 1fr);
   }
 }
-#notice {
-  margin: 0 0 16px;
-  padding: 10px 12px;
-  border-radius: 7px;
-  background: var(--positive-bg);
-  color: var(--positive-ink);
-  font-size: 0.8125rem;
-}
-#notice:empty {
-  margin: 0;
-  padding: 0;
-}
 #content {
   min-width: 0;
 }

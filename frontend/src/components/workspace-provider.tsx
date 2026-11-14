@@ -9,6 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { useNotifications } from "./notification-center";
 import { ApiClient, connect } from "@/lib/api";
 import { errorMessage } from "@/lib/format";
 import type { RequestData, WorkspaceState } from "@/lib/models";
@@ -16,9 +17,8 @@ import type { RequestData, WorkspaceState } from "@/lib/models";
 interface WorkspaceContextValue {
   state: WorkspaceState;
   client: ApiClient;
-  notice: string;
   refreshError: string;
-  notify: (message: string) => void;
+  notify: ReturnType<typeof useNotifications>["notify"];
   refresh: () => Promise<void>;
   run: <T = unknown>(
     action: string,
@@ -35,7 +35,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [client, setClient] = useState<ApiClient>();
   const [state, setState] = useState<WorkspaceState>();
   const [error, setError] = useState("");
-  const [notice, notify] = useState("");
+  const { notify, clearNotifications } = useNotifications();
   const [refreshError, setRefreshError] = useState("");
   const [signedIn, setSignedIn] = useState(false);
   const [attempt, setAttempt] = useState(0);
@@ -79,11 +79,12 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     setRefreshError("");
     if (workspace.current !== result.state._workspace.path) {
       selectProfile("");
-      notify("Workspace changed.");
+      clearNotifications();
+      notify("Workspace changed.", "info");
       workspace.current = result.state._workspace.path;
     }
     setState(result.state);
-  }, [client]);
+  }, [client, clearNotifications, notify]);
 
   const running = state?.runs.some((run) => run.status === "running");
   const ready = Boolean(state);
@@ -106,6 +107,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const run = useCallback(
     async <T,>(action: string, data: RequestData = {}, message = "Saved.") => {
       if (!client) throw new Error("Application is still loading.");
+      const path = workspace.current;
       const result = await client.action<T>(action, data);
       await refresh();
       if (
@@ -115,10 +117,10 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         typeof result.error === "string"
       )
         throw new Error(result.error);
-      notify(message);
+      if (workspace.current === path) notify(message);
       return result;
     },
-    [client, refresh],
+    [client, notify, refresh],
   );
 
   const clearSession = useCallback(() => {
@@ -128,9 +130,9 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     setSignedIn(false);
     setState(undefined);
     selectProfile("");
-    notify("");
+    clearNotifications();
     setRefreshError("");
-  }, [client]);
+  }, [client, clearNotifications]);
 
   if (error)
     return (
@@ -215,7 +217,6 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       value={{
         state,
         client,
-        notice,
         refreshError,
         notify,
         refresh,

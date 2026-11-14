@@ -25,6 +25,9 @@ import {
   Sparkles,
   X,
 } from "lucide-react";
+import { CompanyMark, employerLogo } from "./company-mark";
+import { OpportunityListingLink } from "./opportunity-listing-link";
+import { useNotifications } from "@/components/notification-center";
 import { Action } from "@/components/controls";
 import { useDraft } from "@/components/unsaved";
 import { displayDate, safeUrl } from "@/lib/format";
@@ -37,7 +40,6 @@ import {
   roleStatus,
 } from "./discovery";
 import { OpportunityCareerEvidence } from "./opportunity-career-evidence";
-import { OpportunityListingLink } from "./opportunity-listing-link";
 import { useSheetGesture } from "./use-sheet-gesture";
 import { currentRemoval } from "@/lib/job-removal";
 import "./inspector-motion.css";
@@ -145,7 +147,8 @@ function playMotion(
 }
 
 interface InspectorProps {
-  companyReview?: ReactNode;
+  applicationRestriction?: ReactNode;
+  pendingRestricted?: boolean;
   row: RankedJob;
   application?: Application;
   facts: Fact[];
@@ -181,7 +184,8 @@ interface InspectorProps {
 }
 
 function CopyJobReference({ job }: { job: RankedJob["job"] }) {
-  const [result, setResult] = useState<"copied" | "manual">();
+  const [manualCopy, setManualCopy] = useState(false);
+  const { notify } = useNotifications();
   const title = job.title.replace(/\s+/g, " ").trim();
   const company = job.employer.replace(/\s+/g, " ").trim();
   const role = [title, company].filter(Boolean).join(" — ");
@@ -197,22 +201,16 @@ function CopyJobReference({ job }: { job: RankedJob["job"] }) {
         onClick={async () => {
           try {
             await navigator.clipboard.writeText(reference);
-            setResult("copied");
+            setManualCopy(false);
+            notify("Job reference copied.");
           } catch {
-            setResult("manual");
+            setManualCopy(true);
           }
         }}
       >
         <Copy size={16} aria-hidden="true" /> Copy job reference
       </button>
-      <span role="status">
-        {result === "copied"
-          ? "Copied"
-          : result === "manual"
-            ? "Clipboard access unavailable"
-            : ""}
-      </span>
-      {result === "manual" && (
+      {manualCopy && (
         <label>
           Select and copy the job reference
           <textarea
@@ -239,7 +237,8 @@ export function OpportunityInspector({
   assessmentAvailable = true,
   hasListingRecord = true,
   onAddEvidence,
-  companyReview,
+  applicationRestriction,
+  pendingRestricted = false,
   saving,
   saveError,
   preview = false,
@@ -282,8 +281,6 @@ export function OpportunityInspector({
   const reasonFocusIntent = useRef("");
   const title = useRef<HTMLHeadingElement>(null);
   const heading = useRef<HTMLDivElement>(null);
-  const assessmentSummary = useRef<HTMLParagraphElement>(null);
-  const footer = useRef<HTMLElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
   const saveErrorNotice = useRef<HTMLParagraphElement>(null);
   const [headingOverflow, setHeadingOverflow] = useState(false);
@@ -338,12 +335,6 @@ export function OpportunityInspector({
   const submitted = application?.status === "submitted";
   const historicalSubmission =
     job.prior_application === "submitted" && !submitted;
-  const hasDecision =
-    Boolean(application) ||
-    Boolean(
-      job.prior_application === "submitted" ||
-      job.prior_application === "rejected",
-    );
   const readingApplication = panel !== "overview" && Boolean(application);
 
   const restoreRejectedClose = useCallback(() => {
@@ -445,24 +436,6 @@ export function OpportunityInspector({
       ...evidenceGaps.map((gap) => `Missing evidence: ${gap}`),
     ]),
   ];
-  const checks = [
-    ...new Set([
-      ...match.hard_conflicts,
-      ...match.unknowns,
-      ...(assessmentAvailable || job.eligibility === "confirmed"
-        ? []
-        : [
-            job.eligibility === "conflict"
-              ? "Confirmed work-rights conflict"
-              : "Work rights / sponsorship need confirmation",
-          ]),
-    ]),
-  ];
-  const summary = [
-    ...checks.slice(0, evidenceGaps.length ? 2 : 3),
-    ...(evidenceGaps.length ? [`Evidence gap: ${evidenceGaps[0]}`] : []),
-  ];
-  const hasAssessmentSummary = !readingApplication && summary.length > 0;
   useLayoutEffect(() => {
     const previous = readingPanel.current;
     readingPanel.current = { panel, jobId: job.id };
@@ -491,48 +464,6 @@ export function OpportunityInspector({
     resetReading,
     snapSheet,
   ]);
-
-  useLayoutEffect(() => {
-    const sheet = dialog.current;
-    const reading = body.current;
-    const summary = assessmentSummary.current;
-    const actions = footer.current;
-    if (!mobile || !sheet || !reading) return;
-    if (!summary || !actions) {
-      sheet.style.removeProperty("--discover-peek-content");
-      return;
-    }
-
-    function fitAssessment() {
-      if (
-        !sheet?.open ||
-        sheet.style.height ||
-        !reading ||
-        !summary ||
-        !actions
-      )
-        return;
-      const summaryEnd =
-        summary.getBoundingClientRect().bottom -
-        sheet.getBoundingClientRect().top +
-        reading.scrollTop;
-      // Leave a little space between the final check and the action bar.
-      const contentHeight = Math.ceil(summaryEnd + actions.offsetHeight + 12);
-      const height = `${Math.min(contentHeight, Math.round(window.innerHeight * 0.8))}px`;
-      if (sheet.style.getPropertyValue("--discover-peek-content") !== height)
-        sheet.style.setProperty("--discover-peek-content", height);
-    }
-
-    fitAssessment();
-    if (typeof ResizeObserver === "undefined") return;
-    const observer = new ResizeObserver(fitAssessment);
-    observer.observe(summary);
-    observer.observe(actions);
-    if (title.current) observer.observe(title.current);
-    if (reading.previousElementSibling)
-      observer.observe(reading.previousElementSibling);
-    return () => observer.disconnect();
-  }, [mobile, dialog, body, job.id, expanded, hasAssessmentSummary]);
 
   useLayoutEffect(() => {
     const element = dialog.current;
@@ -682,11 +613,10 @@ export function OpportunityInspector({
     change();
   };
 
+  const employerName = job.hiring_employer_verified ? job.company?.name || job.employer : job.employer;
   const company = (
     <div className="discover-inspector-company">
-      <span className="discover-employer-mark" aria-hidden="true">
-        {job.employer.slice(0, 1)}
-      </span>
+      <CompanyMark name={job.company?.name || job.employer} logoUrl={employerLogo(job)} />
       <strong>
         {companyUrl ? (
           <a
@@ -695,10 +625,10 @@ export function OpportunityInspector({
             target="_blank"
             rel="noopener noreferrer"
           >
-            {job.employer}
+            {employerName}
           </a>
         ) : (
-          job.employer
+          employerName
         )}
       </strong>
       <span className={`discover-status ${status.tone}`}>{status.label}</span>
@@ -713,33 +643,22 @@ export function OpportunityInspector({
         tabIndex={mobile && headingOverflow ? 0 : undefined}
       >
         {company}
-        {job.hiring_employer_verified === false && (
+        {job.hiring_employer_verified === false && !applicationRestriction && (
           <p className="role-employer-unconfirmed">
             Hiring employer unconfirmed
           </p>
         )}
         <h2 id={titleId} ref={title} tabIndex={-1}>
           {advert ? (
-            <a
-              className="discover-source-link"
-              href={advert}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <OpportunityListingLink url={advert} className="discover-source-link">
               {job.title}
-            </a>
+            </OpportunityListingLink>
           ) : (
             job.title
           )}
         </h2>
-      </div>
-      <div className="role-listing-row">
-        {advert ? (
-          <OpportunityListingLink url={advert} className="role-listing-link">
-            View job listing
-          </OpportunityListingLink>
-        ) : (
-          <p className="role-listing-link muted">Job listing unavailable</p>
+        {!advert && (
+          <p className="role-listing-unavailable muted">Source listing unavailable</p>
         )}
       </div>
       {application && onOpenPanel && (
@@ -769,22 +688,18 @@ export function OpportunityInspector({
       )}
     </>
   );
-  const preparationNote = (
-    <>
-      {!preview && !hasDecision && !match.eligible_for_preparation && (
-        <p className="discover-preparation-note">
-          Resolve the flagged requirements or update your search profile before
-          preparing a draft.
-        </p>
+  const preparationNote = !application && (preview ? (
+    <p className="discover-preparation-note">
+      Uses the résumé selected in{" "}
+      <Link href="/career/#import-resume">Career profile</Link>.
+    </p>
+  ) : rankingCurrent && !match.eligible_for_preparation ? (
+    <p className="discover-preparation-note">
+      {match.hard_conflicts[0] || (
+        <>Review role requirements or <Link href="/search/">search preferences</Link> before preparing a draft.</>
       )}
-      {preview && !application && (
-        <p className="discover-preparation-note">
-          Uses the résumé selected in{" "}
-          <Link href="/career/#import-resume">Career profile</Link>.
-        </p>
-      )}
-    </>
-  );
+    </p>
+  ) : null);
   const content = (
     <>
       <div
@@ -853,6 +768,8 @@ export function OpportunityInspector({
       </div>
       <div ref={body} className="discover-inspector-body">
         {!mobile && roleHeading}
+        {removalFeedback}
+        {applicationRestriction}
         {/* The role changes independently of the mounted scroll container. */}
         <div key={job.id}>
           {removalEditor}
@@ -869,34 +786,8 @@ export function OpportunityInspector({
               </span>
             </p>
             <p className="discover-inspector-salary">{advertisedSalary(job)}</p>
-            {hasAssessmentSummary && (
-              <p
-                ref={assessmentSummary}
-                className="discover-assessment-summary"
-              >
-                <ShieldCheck size={16} aria-hidden="true" />
-                <span>
-                  <strong>
-                    {match.hard_conflicts.length
-                      ? "Preparation blocked"
-                      : "Check before applying"}
-                  </strong>
-                  {summary.map((check) => (
-                    <span key={check} className="discover-assessment-check">
-                      {check}
-                    </span>
-                  ))}
-                </span>
-              </p>
-            )}
             {!mobile && preparationNote}
             {hasListingRecord && <CopyJobReference job={job} />}
-            {companyReview && (
-              <details className="role-secondary">
-                <summary>Company research</summary>
-                {companyReview}
-              </details>
-            )}
             <OpportunityCareerEvidence
               job={job}
               rows={evidence}
@@ -1003,7 +894,7 @@ export function OpportunityInspector({
           {applicationContent}
         </div>
       </div>
-      <footer ref={footer} className="discover-inspector-footer">
+      <footer className="discover-inspector-footer">
         <div className="discover-inspector-actions">
           {removed && !application && onRestore ? (
             <Action
@@ -1040,7 +931,7 @@ export function OpportunityInspector({
               keepContentWhileBusy
               data-opportunity-id={job.id}
               className={`secondary discover-pending-button ${job.saved ? "is-saved" : ""}`}
-              disabled={saving}
+              disabled={saving || pendingRestricted}
               aria-pressed={Boolean(job.saved)}
               aria-label={pendingActionLabel(job.saved)}
               run={onSave}
@@ -1083,7 +974,7 @@ export function OpportunityInspector({
             </button>
           )}
         </div>
-        {removalFeedback}
+        <div data-notification-anchor />
         {mobile && saveError && (
           <p
             ref={saveErrorNotice}

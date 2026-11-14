@@ -66,7 +66,7 @@ const { applicationCard, openApplication, showPanel } = require("./browser-appli
   await page
     .getByRole("button", { name: "Validate edits as a new draft" })
     .click();
-  await page.locator("#notice").filter({ hasText: "Saved." }).waitFor();
+  await page.locator(".notification-card:not([inert])").filter({ hasText: "Saved." }).last().waitFor();
   const after = await (
     await page.request.get(new URL("/api/state", page.url()).href)
   ).json();

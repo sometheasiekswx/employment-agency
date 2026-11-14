@@ -202,9 +202,9 @@ const fs = require("node:fs");
         await card(page, cloud).waitFor();
         await save.click();
         await page
-          .locator("#notice")
+          .locator(".notification-card:not([inert])")
           .filter({ hasText: "Role added to To apply." })
-          .waitFor();
+          .last().waitFor();
       }
       await card(page, cloud).waitFor({ state: "detached" });
       await views(page)
@@ -740,7 +740,7 @@ const fs = require("node:fs");
         "Preview uses the reordered sections",
       );
       await editor
-        .getByRole("status")
+        .locator(".notification-card:not([inert])")
         .filter({ hasText: "Preview updated" })
         .waitFor();
       if (width <= 760) {

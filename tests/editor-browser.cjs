@@ -119,7 +119,7 @@ const { openApplication, showPanel, workbench } = require("./browser-application
   await dialog.getByLabel("Text", { exact: true }).last().fill(previewText);
   await dialog.getByRole("button", { name: "Update preview" }).click();
   await dialog
-    .getByRole("status")
+    .locator(".notification-card:not([inert])")
     .filter({ hasText: "Preview updated" })
     .waitFor();
   await dialog.getByRole("button", { name: "Read text", exact: true }).click();
@@ -141,9 +141,9 @@ const { openApplication, showPanel, workbench } = require("./browser-application
   });
   await dialog.getByRole("button", { name: "Save as new draft" }).click();
   await page
-    .locator("#notice")
+    .locator(".notification-card:not([inert])")
     .filter({ hasText: "Saved as a new draft" })
-    .waitFor();
+    .last().waitFor();
   const after = (await readState()).applications;
   assert.equal(
     after.length,

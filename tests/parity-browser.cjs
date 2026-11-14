@@ -119,7 +119,7 @@ const crypto = require("node:crypto");
     );
     await page.unroute("**/api/identity");
     await page.getByRole("button", { name: "Save details" }).click();
-    await page.locator("#notice").filter({ hasText: "Saved." }).waitFor();
+    await page.locator(".notification-card:not([inert])").filter({ hasText: "Saved." }).last().waitFor();
     await page.getByText("Add experience or a skill", { exact: true }).click();
     const addFact = page
       .locator("details")
@@ -146,9 +146,9 @@ const crypto = require("node:crypto");
       .uncheck();
     await page.getByRole("button", { name: "Import for review" }).click();
     await page
-      .locator("#notice")
+      .locator(".notification-card:not([inert])")
       .filter({ hasText: "candidate facts imported" })
-      .waitFor();
+      .last().waitFor();
 
     await page.getByRole("link", { name: "Search preferences" }).click();
     await page.getByText("Saved jobs (2)", { exact: true }).click();
@@ -165,7 +165,7 @@ const crypto = require("node:crypto");
     await page.getByLabel("Advertised maximum", { exact: true }).fill("6000");
     await page.getByLabel("Proposed expectation", { exact: true }).fill("5500");
     await page.getByRole("button", { name: "Save job", exact: true }).click();
-    await page.locator("#notice").filter({ hasText: "Saved." }).waitFor();
+    await page.locator(".notification-card:not([inert])").filter({ hasText: "Saved." }).last().waitFor();
     const saved = (await read()).state.jobs.find((item) => item.id === job.id);
     assert.equal(saved.posted_at, "about a week ago");
     assert.equal(saved.salary.max, 6000);
@@ -255,7 +255,7 @@ const crypto = require("node:crypto");
     await match
       .getByRole("button", { name: "Prepare from selected facts", exact: true })
       .click();
-    await page.locator("#notice").filter({ hasText: "Saved." }).waitFor();
+    await page.locator(".notification-card:not([inert])").filter({ hasText: "Saved." }).last().waitFor();
     assert.equal((await read()).state.applications.length, 3);
 
     await page.getByRole("link", { name: "Settings" }).click();

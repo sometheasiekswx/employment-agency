@@ -469,7 +469,7 @@ export function CareerPage() {
                 defaultChecked
               />
               <small>
-                PDF, DOCX, TXT, Markdown or TeX, up to {client.hosted ? 2 : 10} MB. Scanned files need OCR text.
+                Up to {client.hosted ? 2 : 10} MB. Scanned files need OCR text.
                 Imported TeX is never executed.
               </small>
               <button>Import for review</button>

@@ -37,7 +37,8 @@ class Browser:
     def open(self, url):
         self.url = url
 
-    def prepare(self, payload, resume, cover=None):
+    def prepare(self, payload, resume, cover=None, *, before_disclosure=lambda: None):
+        before_disclosure()
         self.received = resume.read_bytes()
         if self.pause:
             raise NeedsUser('Complete required work-rights question yourself')

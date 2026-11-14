@@ -9,6 +9,7 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Form } from "@/components/controls";
+import { ApiResponseError } from "@/lib/api";
 import { DraftProvider, useDraft } from "@/components/unsaved";
 import type {
   Profile,
@@ -853,7 +854,7 @@ it("links to the exact submitted version and never prepares another application 
   expect(
     role.getByRole("region", { name: "CV" }).closest("[data-application-id]"),
   ).toHaveAttribute("data-application-id", "sent");
-  expect(role.getByRole("link", { name: "View job listing" })).toHaveAttribute(
+  expect(role.getByRole("link", { name: /^Cloud Engineer$/ })).toHaveAttribute(
     "href",
     fixture.state.jobs[0].url,
   );
@@ -1401,7 +1402,7 @@ it.each(["all", "applications"])(
     expect(
       within(board)
         .getAllByRole("heading", { level: 2 })
-        .map((heading) => heading.textContent),
+        .map((heading) => heading.querySelector(".discover-company-name")?.textContent),
     ).toEqual(["Example Cloud", "Example Studio"]);
     const locationOptions = screen.getByRole("combobox", {
       name: "Location",
@@ -1471,7 +1472,7 @@ it("offers saved documents and activity when a requested listing is missing", as
   fixture.query = "view=applications&application=missing-app&panel=overview";
   render(<DiscoverPage />);
   expect(screen.getByRole("dialog", { name: "Preserved role" })).toBeVisible();
-  expect(screen.getByText("Job listing unavailable")).toBeVisible();
+  expect(screen.getByText("Source listing unavailable")).toBeVisible();
   await userEvent.click(screen.getByRole("button", { name: "CV" }));
   expect(new URLSearchParams(fixture.query).get("panel")).toBe("documents");
   expect(fixture.client.action).not.toHaveBeenCalled();
@@ -1637,7 +1638,12 @@ it("keeps the exact queue selection across pagination and offers manual copy on 
     if (operation === "agent-capabilities")
       return { available: false, reason: "No executor", channels: {} };
     if (operation === "application-handoff")
-      return { text: "job-a, job-b. This handoff grants no authority." };
+      return {
+        workspace: fixture.state._workspace.path,
+        job_ids: ["job-a", "job-b"],
+        blockers: [],
+        text: "Apply for job-a and job-b.",
+      };
     throw new Error(operation);
   });
   const user = userEvent.setup();
@@ -1666,7 +1672,7 @@ it("keeps the exact queue selection across pagination and offers manual copy on 
       await screen.findByRole("textbox", {
         name: "Select and copy the agent instructions",
       }),
-    ).toHaveValue("job-a, job-b. This handoff grants no authority.");
+    ).toHaveValue("Apply for job-a and job-b.");
     expect(fixture.client.action).toHaveBeenCalledWith("application-handoff", {
       job_ids: ["job-a", "job-b"],
     });
@@ -1674,14 +1680,9 @@ it("keeps the exact queue selection across pagination and offers manual copy on 
       "agent-application-start",
       expect.anything(),
     );
-    fixture.state.jobs.find(({ id }) => id === "job-b")!.company = {
-      id: "example-studio",
-      remaining: 1,
-      cooling: false,
-      submitted_vacancy: true,
-    };
+    fixture.state.jobs.find(({ id }) => id === "job-b")!.prior_application = "submitted";
     view.rerender(<DiscoverPage />);
-    expect(screen.getByText("1 selected")).toBeVisible();
+    expect(screen.getByText("2 selected")).toBeVisible();
     expect(screen.queryByRole("group", { name: "To apply pages" })).toBeNull();
     expect(
       screen.getByRole("checkbox", {
@@ -1689,16 +1690,97 @@ it("keeps the exact queue selection across pagination and offers manual copy on 
       }),
     ).toBeChecked();
     expect(
-      screen.queryByRole("textbox", {
-        name: "Select and copy the agent instructions",
-      }),
-    ).toBeNull();
-    expect(
       screen.queryByRole("checkbox", {
         name: "Select Backend Engineer at Example Studio",
       }),
     ).toBeNull();
+    await user.click(screen.getByRole("button", { name: "Clear selection" }));
+    expect(screen.queryByRole("textbox", { name: "Select and copy the agent instructions" })).toBeNull();
+    expect(screen.getByText("All To apply (50)")).toBeVisible();
   } finally {
     deny.mockRestore();
   }
+});
+
+it("copies a fixed live all-pending scope across filters and rejects an obsolete selected response", async () => {
+  fixture.state._workspace.agent_queue = true;
+  fixture.state.jobs[0].saved = true;
+  fixture.state.jobs[1].saved = true;
+  fixture.query = "view=to-apply&q=Cloud";
+  let resolveSelected!: (result: unknown) => void;
+  const requested = vi.fn();
+  fixture.client.action.mockImplementation(async (operation: string, args: RequestData) => {
+    if (operation === "rank") return ranked();
+    if (operation === "agent-application-status") return { runs: [] };
+    if (operation === "agent-capabilities") return { available: false };
+    if (operation === "application-handoff") {
+      requested(args);
+      if (args.all_pending) {
+        return {
+          workspace: fixture.state._workspace.path,
+          job_ids: ["job-a", "job-b"],
+          blockers: [],
+          text: "Apply for the frozen queue: job-a, job-b.",
+        };
+      }
+      return new Promise((resolve) => { resolveSelected = resolve; });
+    }
+    throw new Error(operation);
+  });
+  const user = userEvent.setup();
+  const clipboard = vi.spyOn(navigator.clipboard, "writeText").mockResolvedValue(undefined);
+  const view = render(<DiscoverPage />);
+  try {
+    expect(screen.getByText("All To apply (2)")).toBeVisible();
+    expect(screen.queryByRole("checkbox", { name: /^Select Backend Engineer/ })).toBeNull();
+    await user.click(screen.getByRole("button", { name: "Copy agent instructions" }));
+    await waitFor(() => expect(requested).toHaveBeenLastCalledWith({ all_pending: true }));
+    expect(clipboard).toHaveBeenLastCalledWith("Apply for the frozen queue: job-a, job-b.");
+    const selected = screen.getByRole("checkbox", { name: /^Select Cloud Engineer/ });
+    await user.click(selected);
+    await user.click(screen.getByRole("button", { name: "Copy agent instructions" }));
+    expect(requested).toHaveBeenLastCalledWith({ job_ids: ["job-a"] });
+    await user.click(selected);
+    await act(async () => resolveSelected({
+      workspace: fixture.state._workspace.path,
+      job_ids: ["job-a"],
+      blockers: [],
+      text: "Obsolete selected role instructions.",
+    }));
+    expect(clipboard).toHaveBeenCalledTimes(1);
+    expect(screen.getByText("All To apply (2)")).toBeVisible();
+    view.rerender(<DiscoverPage />);
+  } finally {
+    clipboard.mockRestore();
+  }
+});
+
+
+it("keeps an open Activity draft when another role's stale bookmark needs employer verification", async () => {
+  fixture.state.applications = [{
+    id: "draft",
+    job_id: "job-a",
+    title: "Cloud Engineer",
+    employer: "Example Cloud",
+    status: "draft",
+    comments: [],
+  }];
+  fixture.query = "view=jobs&opportunity=job-a&assessment_profile=profile-a&panel=activity";
+  fixture.run.mockRejectedValueOnce(new ApiResponseError(
+    "Confirm the actual hiring employer before applying",
+    409,
+    "employer_unresolved",
+    "job-b",
+  ));
+  const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
+  render(<DraftProvider><DiscoverPage /></DraftProvider>);
+  const inspector = within(await screen.findByRole("dialog", { name: "Cloud Engineer" }));
+  const comment = inspector.getByRole("textbox", { name: "Comments" });
+  fireEvent.change(comment, { target: { value: "Keep this activity draft." } });
+  fireEvent.click(screen.getByRole("button", { name: "Apply later · Backend Engineer" }));
+  const refusal = await screen.findByRole("alert");
+  expect(refusal).toHaveTextContent("Confirm the actual hiring employer");
+  expect(comment).toHaveValue("Keep this activity draft.");
+  expect(screen.getByRole("dialog", { name: "Cloud Engineer" })).toBeInTheDocument();
+  expect(confirm).not.toHaveBeenCalled();
 });

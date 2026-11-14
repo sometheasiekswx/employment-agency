@@ -229,7 +229,8 @@ def html_page(body, url, charset=None):
         target = listing_url(posting, url, len(postings) > 1)
         if not target:
             continue
-        job = structured_job(posting, target, advert=main_text[:TEXT_LIMIT] if len(postings) == 1 else "")
+        job = structured_job(posting, target, advert=main_text[:TEXT_LIMIT] if len(postings) == 1 else "",
+                             page_url=url)
         if job["title"] and job["employer"] and job["description"]:
             jobs[target] = job
         elif job["title"] and job["description"]:

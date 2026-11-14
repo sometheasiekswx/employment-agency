@@ -12,6 +12,7 @@ function WorkspaceLocation({ setup = false }: { setup?: boolean }) {
   const { state, client, refresh, notify } = useWorkspace();
   const { canLeave } = useDraft();
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
   const button = useRef<HTMLButtonElement>(null);
   const restoreFocus = useRef(false);
   useEffect(() => {
@@ -36,19 +37,21 @@ function WorkspaceLocation({ setup = false }: { setup?: boolean }) {
           onClick={async () => {
             if (!canLeave()) return;
             setBusy(true);
-            notify("Choose a workspace folder in the folder window.");
+            setError("");
             try {
               const result = await client.action<{
                 cancelled?: boolean;
                 reload?: boolean;
               }>("workspace-browse");
-              if (result.cancelled) notify("Folder selection cancelled.");
+              if (result.cancelled) notify("Folder selection cancelled.", "info");
               else {
                 await refresh();
                 notify("Workspace opened.");
               }
             } catch (error) {
-              notify(errorMessage(error));
+              const message = errorMessage(error);
+              setError(message);
+              notify(message, "error");
             } finally {
               restoreFocus.current = true;
               setBusy(false);
@@ -59,6 +62,7 @@ function WorkspaceLocation({ setup = false }: { setup?: boolean }) {
           {busy ? "Choose a folder…" : "Open Folder"}
         </button>
       </div>
+      {error && <p className="error" role="alert">{error}</p>}
       {setup ? (
         <p className="muted">
           Open an existing workspace or start one in an empty folder or a new Git repository.

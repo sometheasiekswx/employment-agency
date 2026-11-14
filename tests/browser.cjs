@@ -28,7 +28,7 @@ const {
   await page.getByLabel("Name", { exact: true }).fill("Alex Morgan");
   await page.getByLabel("Email", { exact: true }).fill("alex@example.test");
   await page.getByRole("button", { name: "Save details" }).click();
-  await page.locator("#notice").filter({ hasText: "Saved." }).waitFor();
+  await page.locator(".notification-card:not([inert])").filter({ hasText: "Saved." }).last().waitFor();
   await page.getByText("Add experience or a skill", { exact: true }).click();
   await page
     .getByLabel("Statement", { exact: true })

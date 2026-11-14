@@ -62,10 +62,17 @@ interface SubmissionTime {
 
 export interface Job {
   hiring_employer_verified?: boolean;
+  published_alias_proof?: string;
+  application_blocker?: ApplicationBlocker;
+  pending_blocker?: ApplicationBlocker;
   company?: {
     id: string;
     name?: string;
     remaining: number;
+    vacancy_id?: string | null;
+    overflow?: boolean;
+    review_needed?: boolean;
+    logo_url?: string;
     cooling: boolean;
     submitted_vacancy?: boolean;
     cooldown_until?: string;
@@ -156,6 +163,7 @@ export interface Application {
 }
 export interface WorkspaceSettings {
   agent_queue?: boolean;
+  workspace_id?: string;
   snapshot?: {
     status: "current" | "pending" | "conflict";
     revision: number;
@@ -281,11 +289,32 @@ export interface ApplicationBlocker {
   message: string;
 }
 
+export interface ApplicationHandoff {
+  workspace: string;
+  workspace_id: string;
+  job_ids: string[];
+  text: string | null;
+  blockers: (ApplicationBlocker & { job_id: string | null })[];
+}
+
+export interface ResearchHandoff {
+  workspace: string;
+  workspace_id: string;
+  profile_id: string | null;
+  text: string;
+}
+
 export interface RoleApplicationContext {
   job: Job;
   application: Application | null;
   employer: { id: string; name: string } | null;
-  allowance: { remaining: number };
+  employer_link?: { vacancy_id: string } | null;
+  allowance: {
+    remaining: number;
+    occupied?: string[];
+    overflow?: boolean;
+    pending_job_ids?: string[];
+  };
   listing_sha256: string;
   destinations: {
     channel: AgentChannel;

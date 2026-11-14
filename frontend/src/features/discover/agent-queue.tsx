@@ -1,8 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import { Action, TextArea } from "@/components/controls";
-import { useWorkspace } from "@/components/workspace-provider";
 import {
   AgentLauncher,
   AgentRunStatus,
@@ -10,30 +7,28 @@ import {
   useAgentRuns,
 } from "@/features/applications/agent-application";
 import type { Job } from "@/lib/models";
+import { ApplicationInstructions } from "./agent-instructions";
 
 export function AgentQueueTools({
   jobs,
+  selection,
+  pendingCount,
   applicationIds,
   pending,
   onNavigate,
   onStartBusy,
+  onClearSelection,
 }: {
   jobs: Job[];
+  selection: string[];
+  pendingCount: number;
   applicationIds: Record<string, string>;
   pending: Map<string, Job>;
   onNavigate: (id: string) => void;
   onStartBusy: (busy: boolean) => void;
+  onClearSelection: () => void;
 }) {
-  const { client } = useWorkspace();
   const { runs, update, problem, retry } = useAgentRuns();
-  const [handoff, setHandoff] = useState<{
-    selection: string;
-    text: string;
-    copied: boolean;
-  }>();
-  const ids = jobs.map(({ id }) => id);
-  const selection = ids.join(",");
-  const currentHandoff = handoff?.selection === selection ? handoff : undefined;
   const openRuns =
     runs?.filter((run) => !["submitted", "stopped"].includes(run.status)) ?? [];
   const activeIds = new Set(
@@ -41,48 +36,25 @@ export function AgentQueueTools({
   );
   const containsActive = jobs.some(({ id }) => activeIds.has(id));
 
-  async function copy() {
-    setHandoff(undefined);
-    const { text } = await client.action<{ text: string }>(
-      "application-handoff",
-      {
-        job_ids: ids,
-      },
-    );
-    try {
-      await navigator.clipboard.writeText(text);
-      setHandoff({ selection, text, copied: true });
-    } catch {
-      setHandoff({ selection, text, copied: false });
-    }
-  }
-
   return (
     <section
       className="agent-queue-tools"
       aria-label="Agent actions for To apply"
     >
-      {jobs.length > 0 ? (
-        <div className="actions">
-          <strong role="status">{jobs.length} selected</strong>
-          <Action run={copy}>Copy agent instructions</Action>
-        </div>
-      ) : (
-        <p className="muted" role="status">
-          Open a job to apply yourself, or select jobs for your agent.
+      <ApplicationInstructions
+        selection={selection}
+        pendingCount={pendingCount}
+        jobs={pending}
+        onOpen={onNavigate}
+        onClearSelection={onClearSelection}
+      />
+      {selection.length !== jobs.length && (
+        <p>
+          Some selected roles have left To apply.{" "}
+          <button type="button" className="secondary" onClick={onClearSelection}>
+            Clear selection
+          </button>
         </p>
-      )}
-      {currentHandoff?.copied && (
-        <p role="status">Agent instructions copied.</p>
-      )}
-      {currentHandoff && !currentHandoff.copied && (
-        <TextArea
-          label="Select and copy the agent instructions"
-          readOnly
-          rows={6}
-          value={currentHandoff.text}
-          onFocus={(event) => event.currentTarget.select()}
-        />
       )}
       {problem ? (
         <p role="alert">
@@ -93,6 +65,8 @@ export function AgentQueueTools({
         </p>
       ) : (
         jobs.length > 0 &&
+        selection.length === jobs.length &&
+        jobs.length <= 100 &&
         !containsActive &&
         runs && (
           <AgentLauncher
@@ -103,6 +77,9 @@ export function AgentQueueTools({
             showReadiness
           />
         )
+      )}
+      {jobs.length > 100 && (
+        <p>Select up to 100 roles to start a connected agent.</p>
       )}
       {containsActive && <p>Open running roles below to see progress.</p>}
       {openRuns.length > 0 && (

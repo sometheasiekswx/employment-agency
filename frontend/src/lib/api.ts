@@ -12,6 +12,8 @@ export class ApiResponseError extends Error {
   constructor(
     message: string,
     readonly status: number,
+    readonly code?: string,
+    readonly jobId?: string,
   ) {
     super(message);
   }
@@ -59,6 +61,8 @@ export class ApiClient {
       throw new ApiResponseError(
         body.error || `Request failed (${response.status}). Please try again.`,
         response.status,
+        typeof body.code === "string" ? body.code : undefined,
+        typeof body.job_id === "string" ? body.job_id : undefined,
       );
     }
     return response;

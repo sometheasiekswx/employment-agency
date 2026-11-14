@@ -103,7 +103,7 @@ async function checkSourceLinks(browser, profile, label) {
     await assess(cloud);
     await openSource(cloud.title, listingUrl, "Fictional live listing");
     await openSource(cloud.employer, careersUrl, "Fictional careers site");
-    await openSource("View job listing", listingUrl, "Fictional live listing");
+    assert.equal(await inspector.getByRole("link", { name: "View job listing", exact: true }).count(), 0);
     await inspector
       .getByRole("button", { name: "Close opportunity details" })
       .tap();

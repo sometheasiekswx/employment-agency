@@ -63,7 +63,7 @@ export function DocumentEditor({
     navigator.vendor !== "Apple Computer, Inc.";
   const [dirty, setDirty] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [status, setStatus] = useState("");
+  const [problem, setProblem] = useState("");
   const [confirmClose, setConfirmClose] = useState(false);
   const keepEditingButton = useRef<HTMLButtonElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
@@ -131,7 +131,7 @@ export function DocumentEditor({
 
   const changed = () => {
     setDirty(true);
-    setStatus("Unsaved changes. Update preview to see them.");
+
   };
   const updateBlock = (index: number, part: 0 | 1, value: string) => {
     setBlocks((items) =>
@@ -166,7 +166,7 @@ export function DocumentEditor({
     )
       return;
     setBusy(true);
-    setStatus(save ? "Saving a new draft…" : "Building preview…");
+    setProblem("");
     const args: RequestData = {
       id: document.id,
       document: document.document,
@@ -203,14 +203,14 @@ export function DocumentEditor({
           args,
         );
         setPdf(result.pdf);
-        setStatus("Preview updated. Changes are not saved yet.");
+        notify("Preview updated. Changes are not saved yet.", "info");
       }
     } catch (error) {
-      setStatus(
-        isConnectionError(error)
-          ? `Your edits are still in this editor. Check your connection and that the app is running, then try ${save ? "Save as new draft" : "Update preview"} again.`
-          : errorMessage(error),
-      );
+      const message = isConnectionError(error)
+        ? `Your edits are still in this editor. Check your connection and that the app is running, then try ${save ? "Save as new draft" : "Update preview"} again.`
+        : errorMessage(error);
+      setProblem(message);
+      notify(message, "error");
     } finally {
       setBusy(false);
     }
@@ -247,6 +247,7 @@ export function DocumentEditor({
         } else onClose();
       }}
     >
+      <div data-notification-anchor />
       {confirmClose && (
         <section className="editor-discard">
           <h2 id="editor-discard-title">Discard unsaved document edits?</h2>
@@ -284,9 +285,12 @@ export function DocumentEditor({
             ? "Read-only example. Download PDF or Word files from Documents."
             : "Save as a new draft. Your original stays unchanged."}
         </p>
-        <p role="status" className="editor-status">
-          {status}
-        </p>
+        {dirty && (
+          <p className="editor-status" role="status">
+            Unsaved changes. Update preview to see them.
+          </p>
+        )}
+        {problem && <p className="error" role="alert">{problem}</p>}
         {document.mode === "view" && <p>{document.notice}</p>}
         {document.mode !== "view" && (
           <div className="editor-navigation">

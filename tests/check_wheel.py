@@ -141,6 +141,7 @@ try:
     assert journey.action('application-queue', {'stage': 'submitted'})['rows'][0]['application_id'] == application['id']
     legacy_receipt = journey.action('apply-status', {})['attempts'][0]
     assert legacy_receipt['id'] == attempt['id'] and legacy_receipt['receipt']['message_id'] == 'wheel-message'
+    journey.action('company-map', {'job_id': listing_id, 'confirmed': True})
     journey.action('agent-queue-mark', {'job_id': listing_id, 'marked': True})
     pending = journey.action('agent-queue', {})
     assert pending['total'] == 1 and pending['rows'][0]['role_id'] == listing_id
@@ -149,7 +150,8 @@ try:
     assert context['workspace_id'] == sqlite.workspace_id and context['authority'] == {'granted': False}
     assert context['roles'][0]['application'] is None and journey.agent_execution is None
     handoff = journey.action('application-handoff', {'job_ids': [listing_id]})
-    assert 'application-context' in handoff['text'] and 'grants no authority' in handoff['text']
+    assert 'application-context' in handoff['text'] and 'Apply for these exact roles' in handoff['text']
+    assert handoff['blockers'] == [] and handoff['job_ids'] == [listing_id]
     assert 'alex@example.test' not in handoff['text']
     with patch.dict(os.environ, {'PATH': ''}):
         capabilities = journey.action('agent-capabilities', {})

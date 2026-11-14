@@ -1,10 +1,11 @@
 import { StrictMode } from "react";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterAll, beforeEach, expect, it, vi } from "vitest";
 import type { RankedJob } from "@/lib/models";
 import { OpportunityInspector } from "./opportunity-inspector";
 
-const motion = vi.hoisted(() => ({ animate: vi.fn() }));
+const motion = vi.hoisted(() => ({ animate: vi.fn(), notify: vi.fn() }));
+vi.mock("@/components/notification-center", () => ({ useNotifications: () => ({ notify: motion.notify }) }));
 vi.mock("motion", () => ({ animate: motion.animate }));
 const originalAnimate = Object.getOwnPropertyDescriptor(
   Element.prototype,
@@ -65,6 +66,7 @@ function inspectorProps() {
 }
 
 beforeEach(() => {
+  motion.notify.mockReset();
   animations.length = 0;
   sheetAnimations.length = 0;
   Object.defineProperty(Element.prototype, "animate", {
@@ -146,7 +148,9 @@ it.each([true, false])(
         screen.getByRole("button", { name: "Copy job reference" }),
       );
       expect(writeText).toHaveBeenCalledExactlyOnceWith(reference);
-      if (available) await screen.findByText("Copied");
+      if (available) await waitFor(() => {
+        expect(motion.notify).toHaveBeenCalledWith("Job reference copied.");
+      });
       else {
         expect(
           await screen.findByRole("textbox", {
@@ -160,13 +164,14 @@ it.each([true, false])(
           row={{ ...row, job: { ...row.job, id: "two", employer: "" } }}
         />,
       );
-      expect(screen.queryByText("Copied")).not.toBeInTheDocument();
       expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
       fireEvent.click(
         screen.getByRole("button", { name: "Copy job reference" }),
       );
       expect(writeText).toHaveBeenLastCalledWith("Engineer (job ID: two)");
-      if (available) await screen.findByText("Copied");
+      if (available) await waitFor(() => {
+        expect(motion.notify).toHaveBeenCalledWith("Job reference copied.");
+      });
       else await screen.findByRole("textbox");
     } finally {
       if (original) Object.defineProperty(navigator, "clipboard", original);

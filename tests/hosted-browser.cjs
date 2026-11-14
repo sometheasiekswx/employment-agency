@@ -35,7 +35,7 @@ const {
   await page.getByLabel("Name", { exact: true }).fill("Alex Morgan");
   await page.getByLabel("Email", { exact: true }).fill("alex@example.test");
   await page.getByRole("button", { name: "Save details" }).click();
-  await page.locator("#notice").filter({ hasText: "Saved." }).waitFor();
+  await page.locator(".notification-card:not([inert])").filter({ hasText: "Saved." }).last().waitFor();
   await page.getByText("Add experience or a skill", { exact: true }).click();
   await page
     .getByLabel("Statement", { exact: true })
@@ -80,20 +80,20 @@ const {
     page.getByRole("button", { name: "Prepare application", exact: true }).click(),
   ]);
   assert.equal(prepared.status(), 200);
-  await page.locator("#notice").filter({ hasText: /^Saved\.$/ }).waitFor();
+  await page.locator(".notification-card:not([inert])").filter({ hasText: /^Saved\.$/ }).last().waitFor();
   await page.getByRole("link", { name: "Opportunities", exact: true }).click();
   const assess = page.getByRole("button", {
     name: "Assess Software Engineer at Fictional Systems",
     exact: true,
   });
   await page.getByRole("button", { name: "Apply later · Software Engineer", exact: true }).click();
-  await page.getByText("Role added to To apply.", { exact: true }).waitFor();
+  await page.getByRole("region", { name: "Notifications" }).getByText("Role added to To apply.", { exact: true }).waitFor();
   await assess.waitFor({ state: "detached" });
   await page.getByRole("button", { name: "To apply", exact: true }).click();
   await assess.waitFor();
   assert.equal(await page.getByRole("button", { name: "Copy agent instructions", exact: true }).count(), 0);
   await page.getByRole("button", { name: "Remove from To apply · Software Engineer", exact: true }).click();
-  await page.getByText("Role removed from To apply.", { exact: true }).waitFor();
+  await page.getByRole("region", { name: "Notifications" }).getByText("Role removed from To apply.", { exact: true }).waitFor();
   await assess.waitFor({ state: "detached" });
   await page.getByRole("button", { name: "Jobs", exact: true }).click();
   await assess.waitFor();

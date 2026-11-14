@@ -59,12 +59,13 @@ class LinkedIn:
             raise NeedsUser('Open Easy Apply for this job in the visible browser, then choose Resume')
         return dialogs
 
-    def prepare(self, payload, resume, cover=None):
+    def prepare(self, payload, resume, cover=None, *, before_disclosure=lambda: None):
         self.guard()
         if not self.page.get_by_role('dialog').count():
             button = self.page.get_by_role('button', name=re.compile(r'Easy Apply', re.I))
             if button.count() != 1:
                 raise NeedsUser('This listing has no unambiguous Easy Apply form; use the browser to inspect it')
+            before_disclosure()
             button.click()
         for _ in range(12):
             self.guard()
@@ -73,6 +74,7 @@ class LinkedIn:
             for label, value in payload['contact'].items():
                 field = dialog.get_by_label(label, exact=True)
                 if value and field.count() == 1 and field.first.get_attribute('type') != 'file':
+                    before_disclosure()
                     field.fill(value)
             uploads = dialog.locator('input[type=file]')
             for index in range(uploads.count()):
@@ -86,6 +88,7 @@ class LinkedIn:
                     raise NeedsUser('Cannot identify this document upload. Inspect the form before continuing')
                 if document is None:
                     raise NeedsUser('A custom cover letter is required before preparing this form')
+                before_disclosure()
                 upload.set_input_files(str(document))
                 expected_hash = digest(document.read_bytes())
                 if self.file_hashes(upload) != [expected_hash]:
@@ -104,6 +107,7 @@ class LinkedIn:
             next_button = dialog.get_by_role('button', name=re.compile(r'^(Next|Review)$', re.I))
             if next_button.count() != 1 or not next_button.is_enabled():
                 raise NeedsUser('Review this unsupported form step in the browser, then choose Resume')
+            before_disclosure()
             next_button.click()
         raise NeedsUser('Form step limit reached. Inspect the browser before continuing')
 

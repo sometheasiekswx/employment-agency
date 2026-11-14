@@ -44,7 +44,7 @@ const path = require("node:path");
     await open().focus();
     await page.keyboard.press("Enter");
     await page
-      .getByRole("status")
+      .locator(".notification-card:not([inert])")
       .filter({ hasText: "Folder selection cancelled." })
       .waitFor();
     assert.equal(await open().isEnabled(), true);
@@ -66,13 +66,13 @@ const path = require("node:path");
       .getByLabel("Timezone for version dates")
       .fill("Australia/Melbourne");
     await page.getByRole("button", { name: "Save", exact: true }).click();
-    await page.getByRole("status").filter({ hasText: "Saved." }).waitFor();
+    await page.locator(".notification-card:not([inert])").filter({ hasText: "Saved." }).last().waitFor();
     assert.equal((await read())._workspace.timezone, "Australia/Melbourne");
     assert.equal((await read())._workspace.label, initial._workspace.label);
     queue([{ error: "Folder chooser unavailable" }]);
     await open().click();
     await page
-      .getByRole("status")
+      .getByRole("alert")
       .filter({ hasText: "Folder chooser unavailable" })
       .waitFor();
     assert.equal(await open().isEnabled(), true);
@@ -82,7 +82,7 @@ const path = require("node:path");
     queue([unrelated]);
     await open().click();
     await page
-      .getByRole("status")
+      .getByRole("alert")
       .filter({ hasText: "This folder has files but no career workspace" })
       .waitFor();
     assert.equal(fs.existsSync(path.join(unrelated, "state.json")), false);

@@ -47,6 +47,7 @@ class SQLiteWorkspace(unittest.TestCase):
     def test_archive_and_git_snapshot_restore_into_isolated_folders(self):
         self.seed()
         self.convert()
+        self.s.action('company-map', {'job_id': self.w.read()['jobs'][0]['id'], 'confirmed': True})
         self.s.action('save-job', {'id': self.w.read()['jobs'][0]['id'], 'saved': True})
         with self.w.edit() as state:
             state['consents']['agent'] = {'purpose': 'select_application_facts'}
@@ -78,9 +79,10 @@ class SQLiteWorkspace(unittest.TestCase):
         self.s.action('job', {'title': 'Second role', 'description': 'Fictional vacancy', 'employer': 'Example'})
         self.convert()
         path = self.w.path
+        id = self.w.read()['jobs'][0]['id']
+        self.s.action('company-map', {'job_id': id, 'confirmed': True})
         files = lambda: {f.relative_to(path): f.read_bytes() for f in path.glob('state/**/*.json')}
         original = files()
-        id = self.w.read()['jobs'][0]['id']
         with patch('employment_agency.sqlite_workspace.atomic', side_effect=OSError('disk full')):
             self.s.action('save-job', {'id': id, 'saved': True})
         self.assertTrue(self.w.read()['jobs'][0]['saved'])
@@ -96,6 +98,7 @@ class SQLiteWorkspace(unittest.TestCase):
         self.seed()
         self.convert()
         job = self.w.read()['jobs'][0]
+        self.s.action('company-map', {'job_id': job['id'], 'confirmed': True})
         path = self.w.path / 'state' / 'jobs' / (job['id'] + '.json')
         path.write_bytes(path.read_bytes() + b' ')
         changed = path.read_bytes()

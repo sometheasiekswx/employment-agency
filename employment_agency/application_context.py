@@ -11,11 +11,24 @@ from .store import digest, encode, now, uid
 from .workspaces import inside, settings
 
 CHANNELS = ('website', 'telegram', 'email')
+CONTEXT_BATCH_LIMIT = 100
+UNSET_STAGE = object()
 LISTING_FIELDS = (
     'id', 'title', 'employer', 'location', 'description', 'requirements', 'url', 'email',
     'availability', 'eligibility', 'sponsorship', 'closes', 'source', 'source_requisition',
     'vacancy_requisition', 'salary', 'expectation', 'seniority', 'work_arrangement',
 )
+
+
+def without_branding(job):
+    """Keep logo references and UI confirmation proof out of application artifacts."""
+    clean = dict(job)
+    clean.pop('published_alias_proof', None)
+    if 'logo_url' in clean.get('company', {}):
+        clean['company'] = {key: value for key, value in clean['company'].items() if key != 'logo_url'}
+    if 'logo' in clean.get('employer_evidence', {}):
+        clean['employer_evidence'] = {key: value for key, value in clean['employer_evidence'].items() if key != 'logo'}
+    return clean
 
 
 def listing_sha256(job):
@@ -157,11 +170,12 @@ def record(service, args, save):
         return save(state, **inputs)
 
 
-def selected_jobs(state, args):
+def selected_jobs(state, args, *, limit=CONTEXT_BATCH_LIMIT):
     ids = args.get('job_ids')
-    if (not isinstance(ids, list) or not 1 <= len(ids) <= 100
+    if (not isinstance(ids, list) or not ids or (limit is not None and len(ids) > limit)
             or any(not isinstance(job_id, str) for job_id in ids) or len(set(ids)) != len(ids)):
-        raise ValueError('Select up to 100 distinct roles by workspace job ID')
+        suffix = f' (up to {limit})' if limit is not None else ''
+        raise ValueError('Select distinct roles by workspace job ID' + suffix)
     known = {job['id']: job for job in state['jobs']}
     if set(ids) - known.keys():
         raise ValueError('The selection includes an unknown workspace job ID')
@@ -196,8 +210,8 @@ def version_blocker(root, state, job, application):
     return None
 
 
-def role_blocker(state, job, *, stage=None):
-    if stage is None:
+def role_blocker(state, job, *, stage=UNSET_STAGE):
+    if stage is UNSET_STAGE:
         stage = next((row[2] for row in project(state) if row[0] == job['id']), None)
     if stage == 'removed':
         return 'role_removed', 'Restore this role before applying'
@@ -210,11 +224,12 @@ def role_blocker(state, job, *, stage=None):
     return None
 
 
-def role_context(service, state, job, application_id=None, profile_id=None, *, queue_entry=None):
+def role_context(service, state, job, application_id=None, profile_id=None, *, queue_entry=None, slots=None):
     _, scope = scoped_job(state, job['id'])
     link = companies.employer_link(state, job['id'])
     employer = companies.by_id(state.get('employers', []), link['employer_id']) if link else None
-    allowance = companies.job_status(state, job['id'])
+    slots = slots or companies.ApplicationSlots(state)
+    allowance = slots.status(link['employer_id'] if link else None)
     if not employer:
         unresolved = companies.history_review(state, {companies.name_key(job['employer'])}, companies.submission_dates(state))
         allowance = {**allowance, 'remaining': 0, 'review_needed': bool(unresolved), 'unresolved': unresolved}
@@ -237,7 +252,7 @@ def role_context(service, state, job, application_id=None, profile_id=None, *, q
     attempts = [attempt for attempt in state.get('submission_attempts', [])
                 if attempt['binding']['job_id'] == job['id'] or (link and attempt['binding'].get('vacancy_id') == link['vacancy_id'])]
     blockers = []
-    for result in (role_blocker(state, job, stage=stage), companies.slot_blocker(state, job['id'])):
+    for result in (role_blocker(state, job, stage=stage), slots.blocker(job['id'])):
         if result and all(code != result[0] for code, _ in blockers):
             blockers.append(result)
     if employer and not verified and not companies.employer_evidence_conflict(job, employer):
@@ -288,8 +303,9 @@ def read(service, args):
                 or any(not isinstance(version, str) or not version for version in versions.values())):
             raise ValueError('Specify an application version only for a selected role')
         queue = {entry[0]: entry for entry in project(state, include_unqueued=True)}
+        slots = companies.ApplicationSlots(state, {job_id: (row[2], row[5]) for job_id, row in queue.items()})
         roles = [role_context(service, state, job, versions.get(job['id']), args.get('profile_id'),
-                              queue_entry=queue.get(job['id'])) for job in jobs]
+                              queue_entry=queue.get(job['id']), slots=slots) for job in jobs]
         return {
             'workspace_id': service.w.workspace_id, 'workspace': str(service.w.path), 'roles': roles,
             'authority': {'granted': False},
@@ -301,17 +317,64 @@ def read(service, args):
 
 
 def handoff(service, args):
-    jobs = selected_jobs(service.w.read(), args)
-    ids = [job['id'] for job in jobs]
-    lines = [f'Workspace: {service.w.path}', f'Workspace ID: {service.w.workspace_id}', '', 'Selected role IDs:']
-    lines.extend(f'- {job_id}' for job_id in ids)
-    lines.extend([
-        '', 'Use the running app’s protected application-context operation with these job_ids. '
-        'Verify that workspace_id matches before handling any role. If the app is stopped, use the '
-        'shared CLI action application-context for the same workspace. Report if workspace access is unavailable.',
-        'Read the live employer, version, destination, company allowance, attempts and required answers. '
-        'Use shared preparation and submission operations to retain evidence and report any help needed.',
-        'This handoff grants no authority to contact an employer, disclose documents or submit. '
-        'Only proceed with the user’s separate, role-specific instruction.',
-    ])
-    return {'workspace_id': service.w.workspace_id, 'job_ids': ids, 'text': '\n'.join(lines)}
+    all_pending = args.get('all_pending') is True
+    if set(args) != ({'all_pending'} if all_pending else {'job_ids'}):
+        raise ValueError('Choose exact To apply job IDs or request all pending roles')
+    state = service.w.read()
+    slots = companies.ApplicationSlots(state)
+    ids = sorted(slots.pending) if all_pending else [job['id'] for job in selected_jobs(state, args, limit=None)]
+    result = {'workspace_id': service.w.workspace_id, 'workspace': str(service.w.path), 'job_ids': ids}
+    if not ids:
+        return {**result, 'text': None, 'blockers': [
+            {'job_id': None, 'code': 'empty_queue', 'message': 'Add a role to To apply first'}]}
+    problems = slots.selection_blockers(ids)
+    for job_id in ids:
+        job = slots.jobs[job_id]
+        stage, _ = slots.queue.get(job_id, (None, False))
+        role_problem = role_blocker(state, job, stage=stage)
+        if role_problem:
+            problems[job_id] = role_problem
+        elif job_id not in slots.pending:
+            problems[job_id] = ('role_not_pending', 'This role is no longer in To apply. Refresh your selection.')
+    if problems:
+        return {**result, 'text': None, 'blockers': [
+            {'job_id': job_id, 'code': code, 'message': message}
+            for job_id, (code, message) in problems.items()]}
+    lines = [
+        'Apply for these exact roles using Employment Agency.',
+        f'Workspace: {service.w.path}',
+        f'Workspace ID: {service.w.workspace_id}',
+        'Read the workspace instructions and the shared app’s docs/agents.md.',
+        f'Use application-context on these job_ids in batches of up to {CONTEXT_BATCH_LIMIT}. '
+        'Verify workspace_id in every batch. If the local app is stopped, use the shared CLI for the same workspace.',
+        'Recheck the live company allowance, exact documents, destination and earlier attempts. '
+        'Use the shared preparation and reserved submission operations, record the evidence, and ask about blockers.',
+        'Job IDs:',
+        *[f'- {job_id}' for job_id in ids],
+    ]
+    return {**result, 'text': '\n'.join(lines), 'blockers': []}
+
+
+def research_handoff(service, args):
+    if set(args) - {'profile_id'}:
+        raise ValueError('Choose the search profile for the research prompt')
+    profile_id = args.get('profile_id')
+    if profile_id is not None and (
+        not isinstance(profile_id, str) or not companies.by_id(service.w.read()['profiles'], profile_id)
+    ):
+        raise ValueError('Choose a search profile in this workspace')
+    lines = [
+        'Find five additional eligible hiring companies with Employment Agency.',
+        f'Workspace: {service.w.path}',
+        f'Workspace ID: {service.w.workspace_id}',
+        f'Search profile ID: {profile_id}' if profile_id else 'Use the current workspace search preferences.',
+        'Read the workspace instructions and the five-company workflow in the shared app’s docs/agents.md.',
+        'Before opening sources, call GET /api/company-avoid and verify its workspace path. '
+        'Skip active cooldowns and companies already presented. Run company-research-check for each employer '
+        'before targeted fetching and prioritize employers with no previous submissions.',
+        'Check the official careers site and employer-owned boards. Import verified listings through the shared app '
+        'and show every eligible role by company, with source links, gaps in coverage and unknown requirements.',
+        'Keep this request to job research.',
+    ]
+    return {'workspace_id': service.w.workspace_id, 'workspace': str(service.w.path),
+            'profile_id': profile_id, 'text': '\n'.join(lines)}

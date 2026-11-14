@@ -6,7 +6,7 @@ import threading
 from time import monotonic
 from urllib.parse import urlsplit
 
-from . import companies, job_feeds, matching, public_pages
+from . import companies, company_logos, job_feeds, matching, public_pages
 from .discovery_fetch import FETCH_FAILURES, Fetch, ResponseCache, label_error
 from .store import now, uid
 
@@ -325,6 +325,7 @@ class Discovery:
             profile_id = self.result["profile_id"]
             profile = next((item for item in state["profiles"] if item["id"] == profile_id), {})
             self.result["jobs"] = rank_results(state, profile, imported, new_jobs)
+            company_logos.decorate_jobs(self.service.w.path, state, [row["job"] for row in self.result["jobs"]])
             self.result["new_job_count"] = len(new_jobs)
             valid_urls = {job["url"] for job in valid}
             self.result["leads"] = [lead for lead in self.result["leads"] if lead["url"] not in valid_urls]
@@ -402,7 +403,7 @@ def source_skip_reason(state, target, paused_names):
         if not companies.source_employer(state, source_id):
             source = companies.by_id(state["sources"], source_id)
             name = companies.source_research_name(state, source)
-            if name and not companies.research_employer(state, name)["remaining"]:
+            if name and not companies.research_employer(state, name)["research_eligible"]:
                 return "Company is paused or its history needs review"
     url = target.get("url")
     if url and any(url in (job.get("url"), job.get("careers_url"))

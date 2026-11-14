@@ -5,12 +5,10 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   useEffect,
-  useLayoutEffect,
   useRef,
   type FormEvent,
   type ReactNode,
 } from "react";
-import { animate } from "motion";
 import {
   Compass,
   History,
@@ -32,7 +30,6 @@ import { applicationQueues } from "@/features/applications/queues";
 import { WorkspaceSetup } from "@/features/settings/workspace-settings";
 import { PublicPreviewNotice } from "./public-preview-notice";
 import { appearanceOptions } from "@/lib/appearance";
-import "./shell-motion.css";
 
 const pages = [
   {
@@ -77,67 +74,15 @@ function initials(name: string) {
     .toUpperCase();
 }
 
-function revealShellFeedback(
-  element: HTMLParagraphElement | null,
-  message: string,
-  keyboardInput: boolean,
-  distance: number,
-  duration: number,
-) {
-  const preference = window.matchMedia?.("(prefers-reduced-motion: reduce)");
-  if (
-    !element ||
-    !message ||
-    keyboardInput ||
-    !preference ||
-    preference.matches
-  )
-    return () => {};
-
-  const controls = animate(
-    element,
-    {
-      opacity: [0.5, 1],
-      transform: [`translateY(${distance}px)`, "translateY(0px)"],
-    },
-    { duration, ease: [0.16, 1, 0.3, 1] },
-  );
-  let active = true;
-  const stop = () => {
-    if (!active) return;
-    active = false;
-    preference.removeEventListener("change", stopIfReduced);
-    controls.cancel();
-    // cancel() restores the first frame; return the notice to its visible CSS state.
-    element.style.removeProperty("opacity");
-    element.style.removeProperty("transform");
-  };
-  const stopIfReduced = () => {
-    if (preference.matches) stop();
-  };
-  preference.addEventListener("change", stopIfReduced);
-  return stop;
-}
-
 export function Shell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { state, client, notice, notify, refreshError, profileId } =
-    useWorkspace();
+  const { state, client, refreshError, profileId, refresh } = useWorkspace();
   const { canLeave } = useDraft();
   const { appearance, setAppearance } = useAppearance();
   const workspaceHeader = useRef<HTMLElement>(null);
   const mobileMenu = useRef<HTMLDetailsElement>(null);
-  const noticeElement = useRef<HTMLParagraphElement>(null);
-  const errorElement = useRef<HTMLParagraphElement>(null);
   const keyboardInput = useRef(false);
-  const stopNoticeMotion = useRef(() => {});
-  const stopErrorMotion = useRef(() => {});
-  const feedbackRoute = useRef(pathname);
-  useEffect(() => {
-    if (feedbackRoute.current !== pathname) notify("");
-    feedbackRoute.current = pathname;
-  }, [pathname, notify]);
   const current = pages.find(({ href }) => href === pathname) || pages[0];
   const isDiscover = current.href === "/discover/";
   const profile = state.profiles.find(({ id }) => id === profileId);
@@ -155,28 +100,6 @@ export function Shell({ children }: { children: ReactNode }) {
     document.title = `${current.label} | Employment Agency | ${label}`;
     if (mobileMenu.current) mobileMenu.current.open = false;
   }, [current.label, label]);
-  useLayoutEffect(() => {
-    const stop = revealShellFeedback(
-      noticeElement.current,
-      notice,
-      keyboardInput.current,
-      4,
-      0.18,
-    );
-    stopNoticeMotion.current = stop;
-    return stop;
-  }, [notice]);
-  useLayoutEffect(() => {
-    const stop = revealShellFeedback(
-      errorElement.current,
-      refreshError,
-      keyboardInput.current,
-      0,
-      0.14,
-    );
-    stopErrorMotion.current = stop;
-    return stop;
-  }, [refreshError]);
   const guardedNavigation = (event: { preventDefault: () => void }) => {
     if (!canLeave()) {
       event.preventDefault();
@@ -204,15 +127,11 @@ export function Shell({ children }: { children: ReactNode }) {
   return (
     <div
       className="workspace"
-      onKeyDownCapture={(event) => {
+      onKeyDownCapture={() => {
         keyboardInput.current = true;
-        event.currentTarget.dataset.feedbackInput = "keyboard";
-        stopNoticeMotion.current();
-        stopErrorMotion.current();
       }}
-      onPointerDownCapture={(event) => {
+      onPointerDownCapture={() => {
         keyboardInput.current = false;
-        event.currentTarget.dataset.feedbackInput = "pointer";
       }}
       onFocusCapture={({ target }) => {
         const header = workspaceHeader.current;
@@ -432,18 +351,16 @@ export function Shell({ children }: { children: ReactNode }) {
           {client.preview && (
             <PublicPreviewNotice resume={client.demoDrafts?.demoResume} />
           )}
-          <p
-            ref={noticeElement}
-            id="notice"
-            className="shell-feedback"
-            role="status"
-            aria-live="polite"
-          >
-            {notice}
-          </p>
           {refreshError && (
-            <p ref={errorElement} role="alert" className="error shell-feedback">
-              {refreshError}
+            <p role="alert" className="error">
+              {refreshError}{" "}
+              <button
+                type="button"
+                className="secondary"
+                onClick={() => void refresh().catch(() => {})}
+              >
+                Retry workspace refresh
+              </button>
             </p>
           )}
           <main

@@ -341,7 +341,7 @@ const fs = require("node:fs");
       .focus();
     await page.keyboard.press("Enter");
     await cloud().waitFor({ state: "detached" });
-    await page.locator("#notice").filter({ hasText: "Role added to To apply." }).waitFor();
+    await page.locator(".notification-card:not([inert])").filter({ hasText: "Role added to To apply." }).last().waitFor();
     const allRoles = page.getByRole("button", {
       name: "Jobs",
       exact: true,
@@ -404,9 +404,9 @@ const fs = require("node:fs");
       .click();
     await cloud().waitFor({ state: "detached" });
     await page
-      .locator("#notice")
+      .locator(".notification-card:not([inert])")
       .filter({ hasText: "Role removed from To apply." })
-      .waitFor();
+      .last().waitFor();
     assert.equal(
       (await state()).jobs.find((job) => job.employer === "Emberlane Systems")
         .saved,
@@ -610,10 +610,7 @@ const fs = require("node:fs");
     await page.screenshot({
       path: "output/playwright/concept-a/discover-mobile-inspector-expanded.png",
     });
-    const advert = modal.getByRole("link", {
-      name: "View job listing",
-      exact: true,
-    });
+    const advert = modal.locator(".role-workspace-heading h2").getByRole("link");
     // A narrow desktop window still uses the browser's new-tab behavior.
     await openSourceTab(advert, listingUrl);
 

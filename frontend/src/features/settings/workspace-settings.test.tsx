@@ -80,7 +80,10 @@ it.each(["cancelled", "error"])(
       outcome === "cancelled"
         ? "Folder selection cancelled."
         : "Folder chooser unavailable",
+      outcome === "cancelled" ? "info" : "error",
     );
+    if (outcome === "error")
+      expect(screen.getByRole("alert")).toHaveTextContent("Folder chooser unavailable");
 
     other.focus();
     rerender(<WorkspaceSettings />);

@@ -396,6 +396,7 @@ class DiscoveryRunTests(unittest.TestCase):
             options = {"urls": [url, url + "#details"], "profile_id": self.profile["id"]}
             self.service.action("discovery-start", options)
             first = self.service.discovery.wait()
+            self.service.action("company-map", {"job_id": first["jobs"][0]["job"]["id"], "confirmed": True})
             self.service.action("save-job", {"id": first["jobs"][0]["job"]["id"], "saved": True})
             self.service.action("discovery-start", options)
             second = self.service.discovery.wait()
@@ -514,7 +515,7 @@ class DiscoveryRunTests(unittest.TestCase):
                 "links": [{"title": "Our jobs", "url": "https://boards.greenhouse.io/fixture"}]}
         with patch.object(Fetch, "page", return_value=("http", page)), patch.object(
             Fetch, "feed", return_value=[job("https://example.org/careers/python", "posting-1")],
-        ) as grab, patch("employment_agency.companies.research_employer", return_value={"remaining": 0}):
+        ) as grab, patch("employment_agency.companies.research_employer", return_value={"research_eligible": False}):
             self.service.action("discovery-start", {"urls": [careers]})
             result = self.service.discovery.wait()
         grab.assert_not_called()

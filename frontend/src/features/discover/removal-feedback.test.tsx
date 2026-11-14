@@ -1,10 +1,12 @@
-import { useState } from "react";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { useState, type ComponentProps } from "react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, it, vi } from "vitest";
+import { NotificationProvider } from "@/components/notification-center";
 import { DraftProvider } from "@/components/unsaved";
 import {
-  RemovalFeedback,
+  RemovalFeedback as ReasonEditor,
+  RemovalNotice,
   type RemovalFeedbackProps,
   type RemovalReasonEditor,
 } from "./removal-feedback";
@@ -20,13 +22,30 @@ const secondJob = {
   employer: "Example Studio",
 };
 
-function props(): RemovalFeedbackProps {
+type Props = RemovalFeedbackProps & ComponentProps<typeof RemovalNotice>;
+
+function RemovalFeedback({ editor, onChangeReason, onSaveReason, onCloseReason, ...notice }: Props) {
+  return (
+    <NotificationProvider>
+      <RemovalNotice {...notice} />
+      <ReasonEditor
+        editor={editor}
+        onChangeReason={onChangeReason}
+        onSaveReason={onSaveReason}
+        onCloseReason={onCloseReason}
+      />
+    </NotificationProvider>
+  );
+}
+
+function props() {
   return {
-    feedback: { job: firstJob, removalId: "first-removal", status: "removed" },
+    feedback: { job: firstJob, removalId: "first-removal", status: "removed" as const },
     onUndo: vi.fn(),
     onAddReason: vi.fn(),
     onRetryRemoval: vi.fn(),
     onDismiss: vi.fn(),
+    onNoticeInteractionChange: vi.fn(),
     onChangeReason: vi.fn(),
     onSaveReason: vi.fn(),
     onCloseReason: vi.fn(),
@@ -59,7 +78,7 @@ it("names the removed job and exposes recovery without moving focus", async () =
     </>,
   );
   expect(browsing).toHaveFocus();
-  expect(screen.getByRole("status")).toHaveTextContent(
+  expect(await screen.findByRole("region", { name: "Opportunity removal" })).toHaveTextContent(
     "Removed Cloud Engineer · Example Cloud.",
   );
   await userEvent.click(screen.getByRole("button", { name: "Undo" }));
@@ -80,7 +99,7 @@ it("allows queued Undo during removal and offers retry for an error", async () =
       feedback={{ ...callbacks.feedback!, status: "removing" }}
     />,
   );
-  expect(screen.getByRole("status")).toHaveTextContent(
+  expect(await screen.findByRole("region", { name: "Opportunity removal" })).toHaveTextContent(
     "Removing Cloud Engineer · Example Cloud.",
   );
   expect(screen.queryByRole("button", { name: "Add reason" })).toBeNull();
@@ -97,17 +116,17 @@ it("allows queued Undo during removal and offers retry for an error", async () =
       }}
     />,
   );
-  expect(screen.getByRole("alert")).toHaveTextContent(
+  expect(screen.getByRole("region", { name: "Opportunity removal" })).toHaveTextContent(
     "Couldn’t update Cloud Engineer · Example Cloud.",
   );
-  expect(screen.getByRole("alert")).toHaveTextContent(
+  expect(screen.getByRole("region", { name: "Opportunity removal" })).toHaveTextContent(
     "The workspace is locked. Try again.",
   );
   await userEvent.click(screen.getByRole("button", { name: "Retry" }));
   expect(callbacks.onRetryRemoval).toHaveBeenCalledOnce();
 });
 
-it("keeps an earlier job's reason editor separate from later removal feedback", () => {
+it("keeps an earlier job's reason editor separate from later removal feedback", async () => {
   const callbacks = props();
   const editor = reasonEditor();
   const view = render(<RemovalFeedback {...callbacks} editor={editor} />);
@@ -127,7 +146,7 @@ it("keeps an earlier job's reason editor separate from later removal feedback", 
       }}
     />,
   );
-  expect(screen.getByRole("status")).toHaveTextContent(
+  expect(await screen.findByRole("region", { name: "Opportunity removal" })).toHaveTextContent(
     "Removed Backend Engineer · Example Studio.",
   );
   const form = screen.getByRole("form", { name: "Reason for removing" });
@@ -209,7 +228,7 @@ it("keeps text editable while saving and retries the retained draft after failur
   expect(callbacks.onChangeReason).toHaveBeenLastCalledWith("");
 });
 
-it("supports restored feedback, an empty title and an editor without a notice", () => {
+it("supports restored feedback, an empty title and an editor without a notice", async () => {
   const callbacks = props();
   const view = render(
     <RemovalFeedback
@@ -221,7 +240,7 @@ it("supports restored feedback, an empty title and an editor without a notice", 
       }}
     />,
   );
-  expect(screen.getByRole("status")).toHaveTextContent(
+  expect(await screen.findByRole("region", { name: "Opportunity removal" })).toHaveTextContent(
     "Restored Untitled opportunity.",
   );
   expect(screen.queryByRole("button", { name: "Undo" })).toBeNull();
@@ -232,36 +251,33 @@ it("supports restored feedback, an empty title and an editor without a notice", 
       editor={reasonEditor()}
     />,
   );
-  expect(
+  await waitFor(() => expect(
     screen.queryByRole("region", { name: "Opportunity removal" }),
-  ).toBeNull();
+  ).toBeNull());
   expect(
     screen.getByRole("form", { name: "Reason for removing" }),
   ).toBeVisible();
 });
 
-it("holds the feedback while hovered or keyboard-focused and releases on unmount", () => {
+it("holds the feedback while hovered or focused and releases on unmount", async () => {
   const onNoticeInteractionChange = vi.fn();
   const view = render(
     <>
       <button>Keep browsing</button>
-      <RemovalFeedback
-        {...props()}
-        onNoticeInteractionChange={onNoticeInteractionChange}
-      />
+      <RemovalFeedback {...props()} onNoticeInteractionChange={onNoticeInteractionChange} />
     </>,
   );
-  const notice = screen.getByRole("region", { name: "Opportunity removal" });
-  notice.dispatchEvent(new MouseEvent("pointerenter"));
+  const notice = await screen.findByRole("region", { name: "Opportunity removal" });
+  fireEvent.pointerOver(notice);
+  await waitFor(() => expect(onNoticeInteractionChange).toHaveBeenLastCalledWith(true));
+  fireEvent.focusIn(screen.getByRole("button", { name: "Undo" }));
+  fireEvent.pointerOut(notice);
   expect(onNoticeInteractionChange).toHaveBeenLastCalledWith(true);
-  screen.getByRole("button", { name: "Undo" }).focus();
-  notice.dispatchEvent(new MouseEvent("pointerleave"));
-  expect(onNoticeInteractionChange).toHaveBeenLastCalledWith(true);
-  screen.getByRole("button", { name: "Add reason" }).focus();
-  expect(onNoticeInteractionChange).toHaveBeenLastCalledWith(true);
-  screen.getByRole("button", { name: "Keep browsing" }).focus();
+  fireEvent.focusOut(screen.getByRole("button", { name: "Undo" }), {
+    relatedTarget: screen.getByRole("button", { name: "Keep browsing" }),
+  });
   expect(onNoticeInteractionChange).toHaveBeenLastCalledWith(false);
-  notice.dispatchEvent(new MouseEvent("pointerenter"));
+  fireEvent.pointerOver(notice);
   view.unmount();
   expect(onNoticeInteractionChange).toHaveBeenLastCalledWith(false);
 });

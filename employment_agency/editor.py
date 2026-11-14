@@ -3,7 +3,7 @@ import base64
 import json
 import tempfile
 from pathlib import Path
-from . import documents, packages, master
+from . import application_context, documents, packages, master
 from .store import encode, digest, uid, now
 from .workspaces import settings
 
@@ -46,7 +46,8 @@ def load(workspace, args):
     return result
 
 
-def edit(workspace, args, *, save=False):
+def edit(service, args, *, save=False):
+    workspace = service.w
     with workspace.lock:
         app, stem = original(workspace, args)
         if args.get('base') != app['manifest_hash']:
@@ -90,11 +91,12 @@ def edit(workspace, args, *, save=False):
             files['evidence.json'] = encode(evidence)
             packages.validate(files, config)  # Also rebuild exact unsent PDF attachments.
             record = packages.record(workspace.path, app)
-            version = packages.publish(workspace.path, files, record['job'], workspace.read()['identity'], source='In-page user edit')
-            new = {**app, **version, 'id':uid(), 'status':'draft', 'created_at':now(), 'comments':[], 'derived_from':app['id']}
+            job = application_context.without_branding(record['job'])
+            new = {**app, 'id':uid(), 'status':'draft', 'created_at':now(), 'comments':[], 'derived_from':app['id']}
             for key in ('reviewed_at', 'submitted_at', 'file_changes', 'archived',
                         'submission_record', 'submission_correction'):
                 new.pop(key, None)
             with workspace.edit() as state:
-                state['applications'].append(new)
+                service.register_draft(state, new, service.pending_before_change(state, app['job_id']))
+                new.update(packages.publish(workspace.path, files, job, state['identity'], source='In-page user edit'))
             return new

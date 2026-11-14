@@ -107,6 +107,23 @@ class AgentTests(AgentTestWorkspace):
             self.start(job_ids=[self.job['id'], other['id']])
         self.assertEqual(self.service.w.read().get('agent_runs', []), [])
 
+    def test_two_pending_roles_can_start_and_submit_in_their_existing_slots(self):
+        employer = companies.employer_link(self.service.w.read(), self.job['id'])['employer_id']
+        other = self.service.action('job', {**self.job, 'id': None, 'url': 'https://employer.example.test/another'})
+        self.service.action('company-map', {'job_id': other['id'], 'employer_id': employer, 'confirmed': True})
+        fixture.destination(self.service, other, 'website', fixture.TARGET)
+        ids = [self.job['id'], other['id']]
+        for job_id in ids:
+            self.service.action('save-job', {'id': job_id, 'saved': True})
+        result = self.service.action('agent-application-start', {'job_ids': ids, 'request_key': 'fictional-two-pending'})
+        for run in result['runs']:
+            self.status(run, {'submitted'})
+        self.assertEqual(len(self.site.requests), 2)
+        self.assertEqual(self.service.action('agent-queue', {})['total'], 0)
+        status = self.service.action('company-roles', {'job_id': other['id']})['status']
+        self.assertTrue(status['cooling'])
+        self.assertEqual(len(status['submitted_vacancies']), 2)
+
     def test_unknown_dispatch_never_falls_back_and_can_reconcile(self):
         def timeout():
             raise TimeoutError('fictional connection lost')

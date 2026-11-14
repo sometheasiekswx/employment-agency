@@ -52,7 +52,7 @@ const assert = require("node:assert/strict");
       "true",
     );
     const opener = await workspace
-      .getByRole("link", { name: "View job listing", exact: true })
+      .getByRole("link", { name: expected.title, exact: true })
       .elementHandle();
     await workspace
       .getByRole("button", { name: "Documents", exact: true })

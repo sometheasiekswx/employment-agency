@@ -287,6 +287,11 @@ const viewports = [
         assert.ok(bounds.footer <= bounds.viewportHeight && bounds.body > 200);
         assert.ok(bounds.scrollingWidth <= bounds.width + 1);
       };
+      await page.addInitScript(() => {
+        Object.defineProperty(navigator, "clipboard", {
+          value: { writeText: async () => {} },
+        });
+      });
       await page.goto(
         base + "/discover/?view=to-apply&q=Senior+Cloud+Platform",
       );
@@ -301,23 +306,13 @@ const viewports = [
       const original = await geometry();
       assertVisible(original);
 
-      await page.locator("#notice").evaluate((element) => {
-        element.textContent =
-          "Fictional workspace feedback above the opportunity list.";
-      });
-      await page.waitForFunction(() => {
-        const pane = document.querySelector(".discover-inspector");
-        return pane.getBoundingClientRect().bottom <= innerHeight - 15;
-      });
+      await page.getByRole("button", { name: "Copy job reference" }).click();
+      const notice = page.locator(".notification-card:not([inert])").filter({ hasText: "Job reference copied." });
+      await notice.waitFor();
       const afterNotice = await geometry();
-      assert.ok(
-        afterNotice.y > original.y,
-        "Shell feedback changes the starting position",
-      );
-      assert.ok(
-        afterNotice.body < original.body,
-        "Pane fits the remaining viewport",
-      );
+      assert.deepEqual(afterNotice, original, "Floating feedback preserves pane position and size");
+      await notice.getByRole("button", { name: "Dismiss notification" }).click();
+      await notice.waitFor({ state: "detached" });
       assertVisible(afterNotice);
       await page.setViewportSize({ width: 1024, height: 580 });
       await page.waitForFunction(
@@ -370,7 +365,7 @@ const viewports = [
       assertVisible(await geometry());
       await context.close();
       console.log(
-        "PASS: one-role view, preceding shell feedback, viewport resize, 200% pane text, and wide CV panel.",
+        "PASS: one-role view, floating feedback geometry, viewport resize, 200% pane text, and wide CV panel.",
       );
     }
     fs.writeFileSync(

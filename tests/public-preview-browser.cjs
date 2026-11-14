@@ -182,7 +182,7 @@ const { showPanel } = require("./browser-applications.cjs");
         exact: true,
       })
       .waitFor();
-    await page.locator("#notice").filter({ hasText: "Role added to To apply." }).waitFor();
+    await page.locator(".notification-card:not([inert])").filter({ hasText: "Role added to To apply." }).last().waitFor();
     assert.equal(await assessCloud().count(), 0);
     await page.waitForFunction(
       () =>
@@ -219,9 +219,9 @@ const { showPanel } = require("./browser-applications.cjs");
       })
       .click();
     await page
-      .locator("#notice")
+      .locator(".notification-card:not([inert])")
       .filter({ hasText: "Role removed from To apply." })
-      .waitFor();
+      .last().waitFor();
     await assessCloud().waitFor();
 
     const independent = await browser.newContext({
@@ -284,16 +284,16 @@ const { showPanel } = require("./browser-applications.cjs");
       })
       .click();
     await firstTab
-      .locator("#notice")
+      .locator(".notification-card:not([inert])")
       .filter({ hasText: "Role added to To apply." })
-      .waitFor();
+      .last().waitFor();
     await secondTab
       .getByRole("button", { name: "Apply later · Backend Engineer", exact: true })
       .click();
     await secondTab
-      .locator("#notice")
+      .locator(".notification-card:not([inert])")
       .filter({ hasText: "Role added to To apply." })
-      .waitFor();
+      .last().waitFor();
     for (const tab of [firstTab, secondTab]) {
       await tab.reload();
       await tab.getByRole("button", { name: "To apply", exact: true }).click();

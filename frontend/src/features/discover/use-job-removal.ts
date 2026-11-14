@@ -3,10 +3,10 @@
 import {
   useCallback,
   useEffect,
-  useLayoutEffect,
   useRef,
   useState,
 } from "react";
+import { useNotificationExpiry, usePageHidden } from "@/components/notification-center";
 import type { ApiClient } from "@/lib/api";
 import { errorMessage } from "@/lib/format";
 import { currentRemoval, removalId } from "@/lib/job-removal";
@@ -22,7 +22,6 @@ import type {
 } from "./removal-feedback";
 
 type Overlay = { removals: JobRemoval[]; pending: boolean };
-const feedbackDuration = 8_000;
 const keyFor = (jobId: string, eventId: string) => `${jobId}:${eventId}`;
 
 function includesReceipt(history: JobRemoval[], receipt: JobRemoval[]) {
@@ -51,9 +50,11 @@ export function useJobRemoval({
   const [overlays, setOverlays] = useState<Record<string, Overlay>>({});
   const [feedback, setFeedback] = useState<RemovalFeedbackState>();
   const [feedbackHeld, setFeedbackHeld] = useState(false);
-  const countdown = useRef<
-    { feedback: RemovalFeedbackState; remaining: number } | undefined
-  >(undefined);
+  const [failure, setFailure] = useState<{
+    feedback: RemovalFeedbackState;
+    retry: () => Promise<boolean>;
+  }>();
+  const hidden = usePageHidden();
   const [drafts, setDrafts] = useState<Record<string, RemovalReasonEditor>>({});
   const [editorKey, setEditorKey] = useState("");
   const revisions = useRef(new Map<string, number>());
@@ -99,28 +100,18 @@ export function useJobRemoval({
   }, [jobs]);
 
   const editingReason = Boolean(drafts[editorKey]);
-  useLayoutEffect(() => {
-    if (feedback?.status !== "removed" && feedback?.status !== "restored") {
-      countdown.current = undefined;
-      return;
-    }
-    if (countdown.current?.feedback !== feedback)
-      countdown.current = { feedback, remaining: feedbackDuration };
-    if (feedbackHeld || editingReason) return;
-
-    const timer = countdown.current;
-    const started = performance.now();
-    const timeout = window.setTimeout(() => {
-      setFeedback((current) => (current === feedback ? undefined : current));
-    }, timer.remaining);
-    return () => {
-      window.clearTimeout(timeout);
-      timer.remaining = Math.max(
-        0,
-        timer.remaining - (performance.now() - started),
-      );
-    };
-  }, [feedback, feedbackHeld, editingReason]);
+  const duration =
+    feedback?.status === "restored"
+      ? 5_000
+      : feedback?.status === "removed" || feedback?.status === "error"
+        ? 8_000
+        : null;
+  useNotificationExpiry(
+    feedback,
+    duration,
+    feedbackHeld || editingReason || hidden,
+    () => setFeedback((current) => current === feedback ? undefined : current),
+  );
 
   const sync = () => {
     if (active.current) void refresh().catch(() => {});
@@ -179,7 +170,9 @@ export function useJobRemoval({
       removalId: event.id,
       status: restore ? "restoring" : "removing",
     });
-    retry.current = () => change(job, event, restore);
+    const retryChange = () => change(job, event, restore);
+    retry.current = retryChange;
+    setFailure((old) => old?.feedback.job.id === job.id ? undefined : old);
     try {
       const result = await enqueue(
         job.id,
@@ -221,11 +214,16 @@ export function useJobRemoval({
           else delete next[job.id];
           return next;
         });
+        const failed = {
+          job: summary,
+          removalId: event.id,
+          status: "error" as const,
+          error: errorMessage(error),
+        };
         setFeedback((old) =>
-          old?.job.id === job.id && old.removalId === event.id
-            ? { ...old, status: "error", error: errorMessage(error) }
-            : old,
+          old?.job.id === job.id && old.removalId === event.id ? failed : old,
         );
+        setFailure({ feedback: failed, retry: retryChange });
         sync();
       }
       return false;
@@ -264,7 +262,7 @@ export function useJobRemoval({
   };
   const saveReason = async () => {
     const draft = drafts[editorKey];
-    if (!draft || draft.saving) return;
+    if (!draft || draft.saving) return false;
     const key = editorKey;
     const value = draft.value;
     const revision = revisions.current.get(draft.job.id) || 0;
@@ -278,7 +276,7 @@ export function useJobRemoval({
         removal_id: draft.removalId,
         comment: value,
       });
-      if (!active.current) return;
+      if (!active.current) return false;
       confirmed.current.set(draft.job.id, result.removals);
       receipts.current.set(draft.job.id, result.removals);
       if ((revisions.current.get(draft.job.id) || 0) === revision)
@@ -300,6 +298,7 @@ export function useJobRemoval({
         return next;
       });
       sync();
+      return true;
     } catch (error) {
       if (active.current)
         setDrafts((old) => ({
@@ -310,6 +309,7 @@ export function useJobRemoval({
             error: errorMessage(error),
           },
         }));
+      return false;
     }
   };
 
@@ -317,6 +317,8 @@ export function useJobRemoval({
   return {
     jobWithRemoval,
     feedback,
+    failure,
+    dismissFailure: () => setFailure(undefined),
     setFeedbackHeld,
     editor: drafts[editorKey],
     remove,

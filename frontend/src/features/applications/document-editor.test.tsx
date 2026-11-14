@@ -77,9 +77,9 @@ it("previews without saving, sends the original base, and saves a preserved draf
   await user.click(
     within(dialog).getByRole("button", { name: "Update preview" }),
   );
-  expect(await within(dialog).findByRole("status")).toHaveTextContent(
-    "Preview updated",
-  );
+  await waitFor(() => expect(fixture.notify).toHaveBeenCalledWith(
+    "Preview updated. Changes are not saved yet.", "info",
+  ));
   expect(fixture.action).toHaveBeenNthCalledWith(1, "preview-document", {
     id: "app",
     document: "resume",
@@ -166,7 +166,7 @@ it("keeps unsaved edits and the dialog open when the backend rejects a stale doc
   await user.type(screen.getByLabelText("Text"), " with unsaved changes");
   await user.click(screen.getByRole("button", { name: "Save as new draft" }));
   await waitFor(() =>
-    expect(screen.getByRole("status")).toHaveTextContent("Files changed"),
+    expect(screen.getByRole("alert")).toHaveTextContent("Files changed"),
   );
   expect(screen.getByLabelText("Text")).toHaveValue(
     "Original text with unsaved changes",
@@ -206,7 +206,7 @@ it.each([
     });
     await userEvent.click(screen.getByRole("button", { name: label }));
     await waitFor(() =>
-      expect(screen.getByRole("status")).toHaveTextContent(
+      expect(screen.getByRole("alert")).toHaveTextContent(
         `Your edits are still in this editor. Check your connection and that the app is running, then try ${label} again.`,
       ),
     );
@@ -227,9 +227,9 @@ it.each([
     );
     if (saving) await waitFor(() => expect(close).toHaveBeenCalledOnce());
     else {
-      expect(await screen.findByRole("status")).toHaveTextContent(
-        "Preview updated. Changes are not saved yet.",
-      );
+      await waitFor(() => expect(fixture.notify).toHaveBeenCalledWith(
+        "Preview updated. Changes are not saved yet.", "info",
+      ));
       expect(close).not.toHaveBeenCalled();
       expect(protectsDraft()).toBe(true);
     }
