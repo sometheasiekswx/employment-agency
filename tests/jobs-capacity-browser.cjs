@@ -1,4 +1,6 @@
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
 const { chromium, webkit } = require(
   process.env.PLAYWRIGHT_PATH || "../frontend/node_modules/playwright",
 );
@@ -15,6 +17,69 @@ const AxeBuilder = require("../frontend/node_modules/@axe-core/playwright").defa
       reducedMotion: "reduce",
     });
     const page = await context.newPage();
+    if (engine === chromium) await context.grantPermissions(["clipboard-read", "clipboard-write"], { origin: base });
+    const readClipboard = () => engine === chromium
+      ? page.evaluate(() => navigator.clipboard.readText())
+      : readClipboardByPaste();
+    async function readClipboardByPaste() {
+      // Paste through a real keyboard event to exercise WebKit without a
+      // readText permission prompt. This field exists only in the test.
+      await page.evaluate(() => {
+        const field = document.createElement("textarea");
+        field.setAttribute("aria-label", "Clipboard reader");
+        field.style.position = "fixed";
+        field.style.inset = "0 auto auto 0";
+        document.body.append(field);
+        field.focus();
+      });
+      const field = page.getByRole("textbox", { name: "Clipboard reader" });
+      await field.press(process.platform === "darwin" ? "Meta+v" : "Control+v");
+      const value = await field.inputValue();
+      await field.evaluate((element) => element.remove());
+      return value;
+    }
+    const trigger = page.getByRole("button", { name: "Copy agent instructions", exact: true });
+    const rowStyle = () => trigger.evaluate((button) => {
+      const row = button.closest(".agent-instructions");
+      const { left } = button.getBoundingClientRect();
+      const { padding, borderTopWidth } = getComputedStyle(row.parentElement);
+      const control = getComputedStyle(button.parentElement);
+      return {
+        left,
+        padding,
+        borderTopWidth,
+        gap: control.gap,
+        scopeFontSize: control.fontSize,
+        buttonHeight: button.getBoundingClientRect().height,
+      };
+    });
+    const visualWidths = [1440, 390];
+    const rowEvidence = {};
+    async function captureRow(board) {
+      for (const width of visualWidths) {
+        await page.setViewportSize({ width, height: 930 });
+        const style = await rowStyle();
+        if (board === "jobs") rowEvidence[width] = style;
+        else assert.deepEqual(style, rowEvidence[width]);
+        if (process.env.EA_COPY_SCREENSHOTS && engine === chromium) {
+          fs.mkdirSync(process.env.EA_COPY_SCREENSHOTS, { recursive: true });
+          await trigger.locator("../..").screenshot({
+            path: path.join(process.env.EA_COPY_SCREENSHOTS, board + "-" + width + ".png"),
+          });
+        }
+      }
+      await page.setViewportSize({ width: 1440, height: 930 });
+    }
+    async function copyPrompt() {
+      const url = page.url();
+      await trigger.click();
+      const copied = page.getByText("Agent instructions copied.", { exact: true });
+      const fallback = page.getByRole("dialog", { name: "Agent instructions", exact: true });
+      await copied.or(fallback).waitFor();
+      assert.equal(await fallback.count(), 0, await fallback.textContent({ timeout: 100 }).catch(() => ""));
+      assert.equal(page.url(), url);
+      return readClipboard();
+    }
     page.setDefaultTimeout(8000);
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));
@@ -69,11 +134,12 @@ const AxeBuilder = require("../frontend/node_modules/@axe-core/playwright").defa
     });
     const compact = company.locator(".discover-compact-role");
     const change = company.getByRole("link", { name: "Change selections" });
-    const allPrompt = page.getByRole("dialog", { name: "Agent instructions" });
     const chip = page.getByRole("button", { name: "Clear company filter: " + employer });
     const inspect = (job) => page.getByRole("dialog", { name: job.title, exact: true });
     await page.goto(jobsUrl);
     await company.getByText("2 of 2 selected", { exact: true }).waitFor();
+    await captureRow("jobs");
+    assert.match(await copyPrompt(), /^Find five additional eligible hiring companies/);
     assert.equal(await compact.count(), 2);
     assert.equal(await company.getByText("2 of 2 selected", { exact: true }).count(), 1);
     assert.ok(await role(third).isVisible() && await role(fourth).isVisible());
@@ -127,10 +193,18 @@ const AxeBuilder = require("../frontend/node_modules/@axe-core/playwright").defa
     assert.ok(await role(first).isVisible() && await role(second).isVisible());
     assert.equal(await role(otherPending).count(), 0);
     await page.getByText("All To apply (3)", { exact: true }).waitFor();
-    await page.getByRole("button", { name: "Copy agent instructions" }).click();
-    const instructions = await allPrompt.getByRole("textbox", { name: "Prompt" }).inputValue();
+    assert.equal(await page.getByRole("button", { name: "Select", exact: true }).count(), 0);
+    assert.equal(await page.locator(".discover-card input[type=checkbox]").count(), 0);
+    await captureRow("to-apply");
+    const requests = [];
+    const captureRequest = (request) => {
+      if (request.method() === "POST") requests.push(new URL(request.url()).pathname);
+    };
+    page.on("request", captureRequest);
+    const instructions = await copyPrompt();
+    page.off("request", captureRequest);
+    assert.deepEqual(requests.filter((request) => request !== "/api/agent-application-status"), ["/api/application-handoff"]);
     for (const pending of [first, second, otherPending]) assert.ok(instructions.includes(pending.id));
-    await allPrompt.getByRole("button", { name: "Close agent instructions" }).click();
     await page.goBack();
     await change.waitFor();
     assert.equal(new URL(page.url()).searchParams.get("q"), fourth.title);

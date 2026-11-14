@@ -132,12 +132,11 @@ const path = require("node:path");
     assert.match(instructions, /^Apply for these exact roles/);
     assert.ok(instructions.includes(second.id));
     assert.ok(!instructions.includes(last.id));
-    await instructionsField.fill(instructions + "\nFictional edited request.");
-    await prompt.getByRole("button", { name: "Copy", exact: true }).click();
     await prompt.getByRole("alert").getByText(/Clipboard access failed/).waitFor();
-    assert.equal(await instructionsField.inputValue(), instructions + "\nFictional edited request.");
-    await prompt.getByRole("button", { name: "Reset", exact: true }).click();
-    assert.equal(await instructionsField.inputValue(), instructions);
+    assert.equal(await instructionsField.getAttribute("readonly"), "");
+    assert.ok(await instructionsField.evaluate((field) =>
+      field === document.activeElement && field.selectionStart === 0 && field.selectionEnd === field.value.length
+    ));
     await prompt.getByRole("button", { name: "Close agent instructions" }).click();
     if (process.env.EA_SQLITE_SCREENSHOT) {
       const target = process.env.EA_SQLITE_SCREENSHOT.replace("cooldown.png", "shortlist.png");

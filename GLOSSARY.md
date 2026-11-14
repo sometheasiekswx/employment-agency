@@ -60,10 +60,10 @@ The roles the user kept with **Apply later**, including roles with prepared draf
 New choices must fit the hiring employer's remaining company allowance. Verified alternate names share the same employer identity; an uncertain match requires confirmation. See [ADR 0018](docs/adr/0018-count-to-apply-choices-in-company-allowance.md).
 
 **Selected roles**:
-The temporary subset of To apply chosen for a grouped action or exact agent instructions. Selecting a role does not add it to To apply, change the company allowance or authorize submission. With no temporary selection, application instructions use the entire pending To apply list. The Jobs status **2 selected** refers to two pending vacancies already chosen at that employer, rather than this temporary subset.
+The pending vacancies already chosen with **Apply later** at an employer. The Jobs status **2 selected** means two pending vacancies count towards that employer's allowance.
 
 **Agent instructions**:
-An editable prompt describing a research task or an exact set of pending application roles in the active workspace. Copying it does not start an agent or submit an application. Edits belong to the current generated prompt and are not a saved reusable template.
+A generated prompt for a research task in **Jobs** or the whole pending queue in **To apply**. **Copy agent instructions** copies it to the clipboard and leaves the workspace as it was. If clipboard access fails, the prompt is available for manual copying.
 
 **Job reference**:
 The title, company and full workspace job ID copied from a listing, with its original link when available. The ID identifies the exact role when titles and companies repeat.

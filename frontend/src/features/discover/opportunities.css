@@ -34,33 +34,8 @@
   font-size: 12px;
   color: var(--muted);
 }
-.agent-queue-tools {
-  margin-bottom: 1rem;
-  padding: 0.875rem;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: var(--card);
-}
-.agent-queue-tools .agent-start,
-.agent-queue-tools .agent-progress {
-  margin-bottom: 0;
-}
-.agent-readiness > p,
-.agent-queue-tools > p {
-  margin: 0;
-}
-.agent-queue-tools details.agent-readiness {
-  margin-block-start: 0.375rem;
-}
-.agent-queue-tools details.agent-readiness > summary {
-  width: fit-content;
-  padding-block: 0.375rem;
-  color: var(--muted);
-  cursor: pointer;
-  font-size: 0.8125rem;
-}
-.agent-queue-tools details.agent-readiness[open] > summary {
-  margin-block-end: 0.375rem;
+.agent-queue-progress {
+  margin-block-end: 0.75rem;
 }
 .agent-queue-role {
   margin-top: 0.75rem;
@@ -70,82 +45,6 @@
 }
 .agent-queue-pagination {
   margin-top: 1rem;
-}
-.agent-queue-toolbar,
-.agent-selection-tools {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.375rem 0.625rem;
-}
-.agent-queue-toolbar {
-  gap: 0.5rem 1rem;
-}
-.agent-selection-tools {
-  color: var(--muted);
-  font-size: 0.8125rem;
-  font-variant-numeric: tabular-nums;
-}
-.agent-selection-tools button {
-  font-size: inherit;
-}
-.discover-agent-selection {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  flex: none;
-  place-items: center;
-  min-width: 2.75rem;
-  min-height: 2.75rem;
-  margin: 0;
-  cursor: pointer;
-}
-.discover-agent-selection input[type="checkbox"] {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  min-height: 100%;
-  height: 100%;
-  margin: 0;
-  opacity: 0;
-  cursor: inherit;
-}
-.discover-agent-selection span {
-  display: grid;
-  place-items: center;
-  width: 1.125rem;
-  height: 1.125rem;
-  border: 1px solid var(--field-border);
-  border-radius: 50%;
-  pointer-events: none;
-}
-.discover-agent-selection svg {
-  visibility: hidden;
-}
-.discover-agent-selection input:checked + span {
-  color: var(--link);
-  background: var(--accent-soft);
-  border-color: var(--accent);
-}
-.discover-agent-selection input:checked + span svg {
-  visibility: visible;
-}
-.discover-agent-selection input:focus-visible + span {
-  outline: 2px solid var(--focus);
-  outline-offset: 3px;
-}
-.discover-agent-selection:has(input:disabled) {
-  opacity: 0.6;
-  cursor: default;
-}
-@media (forced-colors: active) {
-  .discover-agent-selection span {
-    border-color: ButtonText;
-  }
-}
-.discover-card-tools:has(.discover-agent-selection) {
-  flex-wrap: wrap;
-  justify-content: flex-end;
 }
 .discover-capacity-status {
   align-self: center;
@@ -364,6 +263,15 @@
   padding-inline: 0.625rem;
   font-size: 0.8125rem;
   white-space: normal;
+}
+
+.agent-instructions-feedback {
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.agent-instructions-feedback:empty {
+  position: absolute;
 }
 
 .agent-instructions-control > span {

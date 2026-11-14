@@ -1614,13 +1614,9 @@ it("preserves the destination on a legacy agent URL and shows unprepared roles u
   expect(route.has("destination")).toBe(false);
 });
 
-it("keeps the exact queue selection across pagination and offers manual copy on clipboard denial", async () => {
+it("copies the complete To apply queue from another page and offers manual copy on denial", async () => {
   fixture.state._workspace.agent_queue = true;
-  fixture.state.jobs[0].saved = true;
-  fixture.state.agent_intents = [
-    { id: "job-a", marked: true, updated_at: "2026-11-14" },
-    { id: "job-b", marked: true, updated_at: "2026-11-14" },
-  ];
+  fixture.state.jobs.forEach((job) => { job.saved = true; });
   fixture.state.jobs.splice(
     1,
     0,
@@ -1628,101 +1624,65 @@ it("keeps the exact queue selection across pagination and offers manual copy on 
       ...fixture.state.jobs[0],
       id: `pending-${index}`,
       title: `Fictional role ${index}`,
-      saved: true,
     })),
   );
-  fixture.query = "view=applications&section=agent";
+  const ids = fixture.state.jobs.map(({ id }) => id);
+  const text = `Apply for these exact roles.\n${ids.join("\n")}`;
+  fixture.query = "view=to-apply&offset=50";
   fixture.client.action.mockImplementation(async (operation: string) => {
     if (operation === "rank") return ranked();
-    if (operation === "agent-application-status") return { runs: [] };
-    if (operation === "agent-capabilities")
-      return { available: false, reason: "No executor", channels: {} };
-    if (operation === "application-handoff")
-      return {
-        workspace: fixture.state._workspace.path,
-        job_ids: ["job-a", "job-b"],
-        blockers: [],
-        text: "Apply for job-a and job-b.",
-      };
+    if (operation === "agent-application-status") return {
+      runs: [{
+        id: "existing-run",
+        job_id: "job-a",
+        status: "interrupted",
+        message: "Fictional run paused",
+        can_resume: true,
+        can_stop: true,
+        updated_at: "2026-11-14",
+      }],
+    };
+    if (operation === "application-handoff") return {
+      workspace: fixture.state._workspace.path,
+      job_ids: ids,
+      blockers: [],
+      text,
+    };
     throw new Error(operation);
   });
   const user = userEvent.setup();
-  const deny = vi
-    .spyOn(navigator.clipboard, "writeText")
-    .mockRejectedValue(new Error("Clipboard denied"));
-  const view = render(<DiscoverPage />);
-  try {
-    expect(screen.queryByRole("checkbox", { name: /^Select Cloud Engineer/ })).toBeNull();
-    await user.click(screen.getByRole("button", { name: "Select" }));
-    expect(screen.getByText("0 selected · All To apply (51)")).toBeVisible();
-    await user.click(
-      await screen.findByRole("checkbox", {
-        name: "Select Cloud Engineer at Example Cloud",
-      }),
-    );
-    await user.click(screen.getByRole("button", { name: "Next page" }));
-    view.rerender(<DiscoverPage />);
-    await user.click(
-      await screen.findByRole("checkbox", {
-        name: "Select Backend Engineer at Example Studio",
-      }),
-    );
-    expect(screen.getByText("2 selected")).toBeVisible();
-    const readiness = await screen.findByText("Connected agent unavailable");
-    expect(readiness.closest("details")).not.toHaveAttribute("open");
-    await user.click(readiness);
-    expect(readiness.closest("details")).toHaveAttribute("open");
-    expect(screen.getByText("No executor")).toBeVisible();
-    expect(screen.getByRole("link", { name: "Set up the connected agent" })).toBeVisible();
-    expect(screen.queryByRole("button", { name: /Start agent/ })).toBeNull();
-    await user.click(readiness);
-    await user.click(
-      screen.getByRole("button", { name: "Copy agent instructions" }),
-    );
-    const prompt = await screen.findByRole("textbox", { name: "Prompt" });
-    expect(prompt).toHaveValue("Apply for job-a and job-b.");
-    expect(deny).not.toHaveBeenCalled();
-    fireEvent.change(prompt, { target: { value: "My edited prompt.\n" } });
-    await user.click(screen.getByRole("button", { name: "Copy" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent("Clipboard access failed");
-    expect(deny).toHaveBeenCalledWith("My edited prompt.\n");
-    expect(prompt).toHaveValue("My edited prompt.\n");
-    expect(prompt).toHaveFocus();
-    expect(fixture.client.action).toHaveBeenCalledWith("application-handoff", {
-      job_ids: ["job-a", "job-b"],
-    });
-    expect(fixture.client.action).not.toHaveBeenCalledWith(
-      "agent-application-start",
-      expect.anything(),
-    );
-    fixture.state.jobs.find(({ id }) => id === "job-b")!.prior_application = "submitted";
-    view.rerender(<DiscoverPage />);
-    expect(screen.getByText("2 selected")).toBeVisible();
-    expect(screen.getByText("The scope changed. Refresh to generate new instructions.")).toBeVisible();
-    expect(prompt).toHaveAttribute("readonly");
-    expect(prompt).toHaveValue("My edited prompt.\n");
-    expect(screen.queryByRole("button", { name: "Copy" })).toBeNull();
-    await user.click(screen.getByRole("button", { name: "Close agent instructions" }));
-    expect(screen.queryByRole("group", { name: "To apply pages" })).toBeNull();
-    expect(
-      screen.getByRole("checkbox", {
-        name: "Select Cloud Engineer at Example Cloud",
-      }),
-    ).toBeChecked();
-    expect(
-      screen.queryByRole("checkbox", {
-        name: "Select Backend Engineer at Example Studio",
-      }),
-    ).toBeNull();
-    await user.click(screen.getByRole("button", { name: "Clear selection" }));
-    expect(screen.getByRole("button", { name: "Done" })).toHaveFocus();
-    expect(screen.getByText("0 selected · All To apply (50)")).toBeVisible();
-    await user.click(screen.getByRole("button", { name: "Done" }));
-    expect(screen.queryByRole("checkbox", { name: /^Select Cloud Engineer/ })).toBeNull();
-    expect(screen.getByText("All To apply (50)")).toBeVisible();
-  } finally {
-    deny.mockRestore();
-  }
+  const clipboard = vi.spyOn(navigator.clipboard, "writeText");
+  clipboard.mockRejectedValueOnce(new Error("Clipboard denied"));
+  render(<DiscoverPage />);
+  expect(screen.getByText("All To apply (51)")).toBeVisible();
+  expect(screen.getByRole("button", { name: /Assess Backend Engineer/ })).toBeVisible();
+  expect(screen.queryByRole("button", { name: /Assess Cloud Engineer/ })).toBeNull();
+  expect(screen.queryByRole("button", { name: "Select" })).toBeNull();
+  expect(screen.queryByRole("checkbox", { name: /^Select / })).toBeNull();
+  await user.click(await screen.findByText("Agent work in progress (1)"));
+  expect(screen.getByRole("button", { name: "Resume" })).toBeVisible();
+  expect(screen.getByRole("button", { name: "Stop" })).toBeVisible();
+  fixture.client.action.mockClear();
+  const trigger = screen.getByRole("button", { name: "Copy agent instructions" });
+  await user.click(trigger);
+  const fallback = within(await screen.findByRole("dialog", { name: "Agent instructions" }));
+  const prompt = fallback.getByRole("textbox", { name: "Prompt" });
+  expect(fallback.getByRole("alert")).toHaveTextContent("Clipboard access failed");
+  expect(clipboard).toHaveBeenCalledWith(text);
+  expect(prompt).toHaveValue(text);
+  expect(prompt).toHaveAttribute("readonly");
+  expect(prompt).toHaveFocus();
+
+  await user.click(fallback.getByRole("button", { name: "Retry" }));
+  expect(await screen.findByText("Agent instructions copied.")).toBeVisible();
+  expect(screen.queryByRole("dialog")).toBeNull();
+  expect(trigger).toHaveFocus();
+  expect(fixture.client.action.mock.calls.filter(([operation]) => operation !== "agent-application-status")).toEqual([
+    ["application-handoff", { all_pending: true }],
+    ["application-handoff", { all_pending: true }],
+  ]);
+  expect(fixture.run).not.toHaveBeenCalled();
+  expect(fixture.replace).not.toHaveBeenCalled();
 });
 
 it("projects a full employer allowance consistently in the Jobs card and inspector", async () => {
@@ -1764,70 +1724,109 @@ it("projects a full employer allowance consistently in the Jobs card and inspect
   expect(inspector.getByRole("button", { name: "Apply later" })).toBeEnabled();
 });
 
-it("copies a fixed live all-pending scope across filters and rejects an obsolete selected response", async () => {
+it("copies the unfiltered To apply prompt directly and rejects an obsolete response", async () => {
   fixture.state._workspace.agent_queue = true;
   fixture.state.jobs[0].saved = true;
   fixture.state.jobs[1].saved = true;
   fixture.query = "view=to-apply&q=Cloud";
-  let resolveSelected!: (result: unknown) => void;
-  const requested = vi.fn();
+  let resolveObsolete!: (result: unknown) => void;
+  const handoff = {
+    workspace: fixture.state._workspace.path,
+    job_ids: ["job-a", "job-b"],
+    blockers: [],
+    text: "Apply for the frozen queue: job-a, job-b.\n",
+  };
+  const requested = vi.fn().mockResolvedValueOnce(handoff).mockImplementationOnce(
+    () => new Promise((resolve) => { resolveObsolete = resolve; }),
+  );
   fixture.client.action.mockImplementation(async (operation: string, args: RequestData) => {
-    if (operation === "rank") return ranked();
     if (operation === "agent-application-status") return { runs: [] };
-    if (operation === "agent-capabilities") return { available: false };
-    if (operation === "application-handoff") {
-      requested(args);
-      if (args.all_pending) {
-        return {
-          workspace: fixture.state._workspace.path,
-          job_ids: ["job-a", "job-b"],
-          blockers: [],
-          text: "Apply for the frozen queue: job-a, job-b.",
-        };
-      }
-      return new Promise((resolve) => { resolveSelected = resolve; });
-    }
+    if (operation === "application-handoff") return requested(args);
     throw new Error(operation);
   });
   const user = userEvent.setup();
-  const clipboard = vi.spyOn(navigator.clipboard, "writeText").mockResolvedValue(undefined);
-  const view = render(<DiscoverPage />);
+  class TestClipboardItem {
+    constructor(readonly data: Record<string, Promise<Blob>>) {}
+  }
+  vi.stubGlobal("ClipboardItem", TestClipboardItem);
+  const write = vi.fn(async ([item]: TestClipboardItem[]) => {
+    const blob = await item.data["text/plain"];
+    return new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result));
+      reader.onerror = () => reject(reader.error);
+      reader.readAsText(blob);
+    });
+  });
+  Object.defineProperty(navigator.clipboard, "write", { configurable: true, value: write });
   try {
+    const view = render(<DiscoverPage />);
     expect(screen.getByText("All To apply (2)")).toBeVisible();
-    expect(screen.queryByRole("checkbox", { name: /^Select Backend Engineer/ })).toBeNull();
-    await user.click(screen.getByRole("button", { name: "Copy agent instructions" }));
-    await waitFor(() => expect(requested).toHaveBeenLastCalledWith({ all_pending: true }));
-    const prompt = await screen.findByRole("textbox", { name: "Prompt" });
-    expect(prompt).toHaveValue("Apply for the frozen queue: job-a, job-b.");
-    fireEvent.change(prompt, { target: { value: "   " } });
-    expect(screen.getByRole("button", { name: "Copy" })).toBeDisabled();
-    await user.click(screen.getByRole("button", { name: "Reset" }));
-    expect(prompt).toHaveValue("Apply for the frozen queue: job-a, job-b.");
-    fireEvent.change(prompt, { target: { value: "  Edited: job-a and job-b.\n" } });
-    await user.click(screen.getByRole("button", { name: "Copy" }));
-    expect(clipboard).toHaveBeenLastCalledWith("  Edited: job-a and job-b.\n");
-    await user.click(screen.getByRole("button", { name: "Close agent instructions" }));
-    await user.click(screen.getByRole("button", { name: "Select" }));
-    const selected = screen.getByRole("checkbox", { name: /^Select Cloud Engineer/ });
-    await user.click(selected);
-    await user.click(screen.getByRole("button", { name: "Copy agent instructions" }));
-    expect(requested).toHaveBeenLastCalledWith({ job_ids: ["job-a"] });
+    expect(screen.queryByRole("button", { name: /Assess Backend Engineer/ })).toBeNull();
+    const trigger = screen.getByRole("button", { name: "Copy agent instructions" });
+    await user.click(trigger);
+    expect(await screen.findByText("Agent instructions copied.")).toBeVisible();
+    await expect(write.mock.results[0].value).resolves.toBe(handoff.text);
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(trigger).toHaveFocus();
+
+    await user.click(trigger);
+    expect(requested.mock.calls).toEqual([[{ all_pending: true }], [{ all_pending: true }]]);
+    expect(screen.getByText("Preparing instructions…")).toBeVisible();
     fixture.profileId = "profile-b";
     view.rerender(<DiscoverPage />);
-    await act(async () => resolveSelected({
-      workspace: fixture.state._workspace.path,
-      job_ids: ["job-a"],
-      blockers: [],
-      text: "Obsolete selected role instructions.",
-    }));
-    expect(clipboard).toHaveBeenCalledTimes(1);
-    expect(screen.getByText("The scope changed. Refresh to generate new instructions.")).toBeVisible();
-    expect(screen.queryByRole("textbox", { name: "Prompt" })).toBeNull();
+    await act(async () => resolveObsolete(handoff));
+    expect(write).toHaveBeenCalledTimes(2);
+    await expect(write.mock.results[1].value).rejects.toThrow("No current instructions to copy");
+    expect(screen.getByText("The scope changed. Copy again to generate new instructions.")).toBeVisible();
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(fixture.run).not.toHaveBeenCalled();
+    expect(fixture.replace).not.toHaveBeenCalled();
   } finally {
-    clipboard.mockRestore();
+    Reflect.deleteProperty(navigator.clipboard, "write");
+    vi.unstubAllGlobals();
   }
 });
 
+it("shows a To apply blocker without copying and can open the affected role", async () => {
+  fixture.state._workspace.agent_queue = true;
+  fixture.state.jobs[0].saved = true;
+  fixture.query = "view=to-apply";
+  fixture.client.action.mockImplementation(async (operation: string) => {
+    if (operation === "agent-application-status") return { runs: [] };
+    if (operation === "application-handoff") return {
+      workspace: fixture.state._workspace.path,
+      job_ids: ["job-a"],
+      blockers: [{
+        job_id: "job-a",
+        code: "employer_unresolved",
+        message: "Confirm the actual hiring employer",
+      }],
+      text: null,
+    };
+    throw new Error(operation);
+  });
+  const user = userEvent.setup();
+  const clipboard = vi.spyOn(navigator.clipboard, "writeText");
+  render(<DiscoverPage />);
+  await user.click(screen.getByRole("button", { name: "Copy agent instructions" }));
+  const instructions = within(await screen.findByRole("dialog", { name: "Agent instructions" }));
+  expect(instructions.getByRole("alert")).toHaveTextContent("Confirm the actual hiring employer");
+  expect(clipboard).not.toHaveBeenCalled();
+  expect(instructions.queryByRole("textbox", { name: "Prompt" })).toBeNull();
+  await user.click(instructions.getByRole("button", { name: "Open Cloud Engineer" }));
+  expect(await screen.findByRole("dialog", { name: "Cloud Engineer" })).toBeVisible();
+  expect(screen.queryByRole("dialog", { name: "Agent instructions" })).toBeNull();
+});
+
+it("disables application instructions when the To apply queue is empty", () => {
+  fixture.state._workspace.agent_queue = true;
+  fixture.query = "view=to-apply";
+  fixture.client.action.mockResolvedValue({ runs: [] });
+  render(<DiscoverPage />);
+  expect(screen.getByText("No roles in To apply")).toBeVisible();
+  expect(screen.getByRole("button", { name: "Copy agent instructions" })).toBeDisabled();
+});
 
 it("keeps an open Activity draft when another role's stale bookmark needs employer verification", async () => {
   fixture.state.applications = [{

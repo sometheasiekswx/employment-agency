@@ -54,8 +54,9 @@ Preparing a new draft creates a version. **History** retains previous versions; 
 | --- | --- |
 | **Open application site** | Checks the employer, exact document version and available company slot, then opens the verified site for you. Complete that site's process yourself. |
 | **I've applied** | Records your actual submission time, channel and confirmation evidence. Confirm whether you used the displayed documents. The role then appears in **Applications → Submitted**. |
-| **Apply later** | Adds the role to **To apply**. Start from that list when ready to apply yourself or choose roles for an agent. |
-| **Apply for me** | Starts a configured local agent and authorizes preparation and submission for the selected roles. Missing answers or access pause it for your help. See [optional setup and channel limits](apply-for-me.md). |
+| **Apply later** | Adds the role to **To apply**. Open the role from that list when ready to apply. |
+| **Apply for me** | Starts a configured local agent and authorizes preparation and submission for the open role. Missing answers or access pause it for your help. See [optional setup and channel limits](apply-for-me.md). |
+| **Copy agent instructions** | In **To apply**, copies a handoff for the whole pending queue. In **Jobs**, copies research instructions for the active profile. |
 
 An unresolved employer or submission history needs clarification before reserving a company slot. A manually added role may show an inline employer form: enter or select the verified hiring employer and choose **Confirm employer**. This continues the action you started: after **Open application site**, it reserves the slot and opens the site automatically, so you do not need to click Open application site again. Use the organisation actually hiring, which can differ from the recruiter; leave it unresolved if the advert does not identify it. If you did not submit, record that outcome instead of marking the role Submitted. If you are unsure whether a send succeeded, check the website or Sent folder before retrying. Pending supporting documents belong in the submitted role's follow-up.
 

@@ -173,7 +173,7 @@ async function verifyNoHorizontalOverflow(page, label) {
       );
     }
     await protect(desktop);
-    // Force manual clipboard fallback; its text must describe the same selection.
+    // Force manual clipboard fallback for the whole pending queue.
     await desktop.addInitScript(() => {
       Object.defineProperty(navigator, "clipboard", {
         value: {
@@ -241,24 +241,11 @@ async function verifyNoHorizontalOverflow(page, label) {
       [],
     );
     assert.equal(await page.locator(".discover-card input[type=checkbox]").count(), 0);
-    await exact(page, "button", "Select").click();
-    await page
-      .getByRole("checkbox", { name: `Select ${job.title} at ${employer}` })
-      .check();
-    await page
-      .getByRole("checkbox", { name: `Select ${second.title} at ${employer}` })
-      .check();
-    const readiness = page.locator(".agent-queue-tools details.agent-readiness");
-    const readinessSummary = readiness.getByText("Connected agent unavailable", { exact: true });
-    await readinessSummary.waitFor();
-    assert.equal(await readiness.evaluate((details) => details.open), false);
-    await readinessSummary.focus();
-    await page.keyboard.press("Enter");
-    await readiness.getByText("No connected executor in this browser fixture", { exact: true }).waitFor();
-    await page.keyboard.press("Enter");
-    assert.equal(await readiness.evaluate((details) => details.open), false);
+    assert.equal(await exact(page, "button", "Select").count(), 0);
+    await page.getByText("All To apply (2)", { exact: true }).waitFor();
     await exact(page, "button", "Copy agent instructions").click();
     const prompt = exact(page, "dialog", "Agent instructions");
+    await prompt.getByRole("alert").getByText(/Clipboard access failed/).waitFor();
     const handoff = await exact(prompt, "textbox", "Prompt").inputValue();
     assert.ok(handoff.includes(job.id) && handoff.includes(second.id));
     assert.match(handoff, /^Apply for these exact roles/);
@@ -267,7 +254,6 @@ async function verifyNoHorizontalOverflow(page, label) {
     await page.keyboard.press("Escape");
     await prompt.waitFor({ state: "hidden" });
     assert.ok(await exact(page, "button", "Copy agent instructions").evaluate((button) => button === document.activeElement));
-    await exact(page, "button", "Done").click();
     assert.equal(await page.locator(".discover-card input[type=checkbox]").count(), 0);
     assert.deepEqual(
       (await api("agent-application-status", { job_ids: [job.id, second.id] }))
@@ -481,7 +467,8 @@ async function verifyNoHorizontalOverflow(page, label) {
       .waitFor();
     await submission.getByText("Reported by you", { exact: true }).waitFor();
     assert.equal(await listingLink(page).getAttribute("href"), listing);
-    assert.equal(await actionButton(page, "Remove from To apply").count(), 0);
+    // The receipt renders before the refreshed queue removes this action.
+    await actionButton(page, "Remove from To apply").waitFor({ state: "detached" });
     const sentState = await readState();
     assert.equal(
       sentState.applications.find((app) => app.id === draft.id).status,
@@ -569,7 +556,7 @@ async function verifyNoHorizontalOverflow(page, label) {
       await mobile.close();
     }
     console.log(
-      "PASS SQLite application journey: exact CV reading and fallback, persistent listing, queued selection, manual outcome, immutable bytes, keyboard and narrow layout.",
+      "PASS SQLite application journey: exact CV reading and fallback, persistent listing, pending-queue handoff, manual outcome, immutable bytes, keyboard and narrow layout.",
     );
   } finally {
     await desktop.close();

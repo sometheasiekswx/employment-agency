@@ -159,8 +159,7 @@
 .application-exception,
 .submission-summary,
 .agent-progress,
-.agent-start,
-.agent-queue-tools {
+.agent-start {
   display: grid;
   gap: 0.625rem;
   min-width: 0;
@@ -172,14 +171,13 @@
 }
 .application-next-step .actions,
 .application-completion .actions,
-.agent-progress .actions,
-.agent-queue-tools .actions {
+.agent-progress .actions {
   margin: 0;
 }
 .application-next-step :is(button, .button),
 .agent-progress :is(button, .button),
 .agent-start :is(button, .button),
-.agent-queue-tools :is(button, .button) {
+.agent-queue-progress :is(button, .button) {
   min-height: 2.75rem;
 }
 .application-next-step :is(p, h4),
@@ -225,8 +223,7 @@
 }
 .application-exception form :is(input, select, textarea),
 .application-completion form :is(input, select, textarea),
-.agent-progress form :is(input, select, textarea),
-.agent-queue-tools textarea {
+.agent-progress form :is(input, select, textarea) {
   width: 100%;
   min-width: 0;
   font-size: 1rem;

@@ -16,7 +16,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowUpRight,
   Bookmark,
-  Check as CheckIcon,
   ChevronRight,
   CircleMinus,
   MessageSquare,
@@ -84,8 +83,11 @@ import { OpportunityListingLink } from "./opportunity-listing-link";
 import { useInteractionMotion } from "./interaction-motion";
 import { cachedRanking, loadRanking } from "./rankings";
 import { CompanyMark, employerLogo } from "./company-mark";
-import { ResearchInstructions } from "./agent-instructions";
-import { AgentQueueTools } from "./agent-queue";
+import {
+  ApplicationInstructions,
+  ResearchInstructions,
+} from "./agent-instructions";
+import { AgentQueueProgress } from "./agent-queue";
 import "./discover.css";
 import "./opportunities.css";
 
@@ -260,13 +262,6 @@ export function DiscoverPage() {
     if (legacySavedFilter) filters.delete("status");
   }
   const queryString = filters.toString();
-  const [selecting, setSelecting] = useState(false);
-  const [agentSelection, setAgentSelection] = useState<string[]>([]);
-  const [startingAgent, setStartingAgent] = useState(false);
-  if (!agentTools && selecting) {
-    setSelecting(false);
-    setAgentSelection([]);
-  }
   const offset = Number(filters.get("offset") ?? filters.get("agent_offset"));
   const requestedOffset =
     Number.isSafeInteger(offset) && offset > 0
@@ -425,11 +420,6 @@ export function DiscoverPage() {
       : ranking;
   const loading =
     view === "jobs" && Boolean(profile) && currentRanking.key !== requestKey;
-  const selectionInFlight = useRef(false);
-  const clearAgentSelection = () => {
-    if (!selectionInFlight.current) setAgentSelection([]);
-  };
-
   useEffect(() => {
     if (!profileId || applicationView) return;
     let active = true;
@@ -511,16 +501,6 @@ export function DiscoverPage() {
     !job.company?.submitted_vacancy;
   const pending = new Map(
     [...latestJobs].filter(([, job]) => Boolean(job.saved) && pendingRole(job)),
-  );
-  const chosenForAgent = agentSelection.flatMap((id) => {
-    const job = pending.get(id);
-    return job ? [job] : [];
-  });
-  const agentApplications = Object.fromEntries(
-    chosenForAgent.flatMap(({ id }) => {
-      const app = applications.get(id);
-      return app && !app.archived ? [[id, app.id]] : [];
-    }),
   );
   const assessedById = new Map(rows.map((row) => [row.job.id, row]));
   const discoveryRows = [
@@ -1171,8 +1151,6 @@ export function DiscoverPage() {
       );
       if (saved) {
         setRetryAdmissionId((current) => (current === id ? "" : current));
-      } else {
-        setAgentSelection((ids) => ids.filter((jobId) => jobId !== id));
       }
       const icon = button?.querySelector("svg");
       if (
@@ -1475,27 +1453,18 @@ export function DiscoverPage() {
         )}
         {view === "jobs" && localJourney && <ResearchInstructions />}
         {agentTools && (
-          <AgentQueueTools
-            key={workspacePath}
-            selecting={selecting}
-            onToggleSelection={() => {
-              if (selectionInFlight.current) return;
-              if (selecting) clearAgentSelection();
-              setSelecting(!selecting);
-            }}
-            starting={startingAgent}
-            jobs={chosenForAgent}
-            selection={agentSelection}
-            pendingIds={[...pending.keys()]}
-            onClearSelection={clearAgentSelection}
-            applicationIds={agentApplications}
-            pending={latestJobs}
-            onNavigate={(id) => setSelectedId(id, false, !inspectorOpen)}
-            onStartBusy={(busy) => {
-              selectionInFlight.current = busy;
-              setStartingAgent(busy);
-            }}
-          />
+          <>
+            <ApplicationInstructions
+              pendingIds={[...pending.keys()]}
+              jobs={latestJobs}
+              onOpen={(id) => setSelectedId(id, false, !inspectorOpen)}
+            />
+            <AgentQueueProgress
+              key={workspacePath}
+              jobs={latestJobs}
+              onNavigate={(id) => setSelectedId(id, false, !inspectorOpen)}
+            />
+          </>
         )}
         {filters.has("application") && !requestedApplication && (
           <div className="discover-request-error" role="status">
@@ -1842,26 +1811,6 @@ export function DiscoverPage() {
                               </span>
                             </div>
                             <div className="discover-card-tools">
-                              {agentTools && selecting && (
-                                <label className="discover-agent-selection">
-                                  <input
-                                    type="checkbox"
-                                    checked={agentSelection.includes(job.id)}
-                                    aria-label={`Select ${job.title} at ${job.employer}`}
-                                    disabled={startingAgent}
-                                    onChange={(event) => {
-                                      if (selectionInFlight.current) return;
-                                      const checked = event.currentTarget.checked;
-                                      setAgentSelection((current) =>
-                                        checked
-                                          ? [...new Set([...current, job.id])]
-                                          : current.filter((id) => id !== job.id),
-                                      );
-                                    }}
-                                  />
-                                  <span aria-hidden="true"><CheckIcon size={12} /></span>
-                                </label>
-                              )}
                               {currentRemoval(job) ? (
                                 <>
                                   <button

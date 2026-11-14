@@ -1,10 +1,10 @@
 # Connected applications
 
-The connected application agent runs in the local SQLite app. The role workspace shows **Apply for me** when it detects a ChatGPT-signed-in Codex runtime and an available channel for that role. **Apply later** adds a role to **To apply**. You can open it there to apply yourself, select roles to start together, or copy the selected roles’ context to an external agent. Saving and copying leave submission authority with the user.
+The connected application agent runs in the local SQLite app. The role workspace shows **Apply for me** when it detects a ChatGPT-signed-in Codex runtime and an available channel for that role. **Apply later** adds a role to **To apply**. Open the pending role to apply yourself or start the connected agent for that role. **Copy agent instructions** copies the handoff for the whole pending queue, including roles outside the current filter or page. Saving and copying leave submission authority with the user.
 
 ## Starting and returning to a run
 
-Starting authorizes preparing, disclosing the required information and documents, and submitting for the selected roles. The local app verifies the hiring employer, live company allowance, destination and selected version. It prepares a version from confirmed facts if one is needed. The runtime uses the existing ChatGPT usage allowance for GPT‑6.1 Sol at Max and receives the selected role title, employer and channel types. The local app retains control of the destination, contact information, exact document bytes and submission evidence.
+Starting authorizes preparing, disclosing the required information and documents, and submitting for the open role. The local app verifies the hiring employer, live company allowance, destination and selected version. It prepares a version from confirmed facts if one is needed. The runtime uses the existing ChatGPT usage allowance for GPT‑6.1 Sol at Max and receives that role’s title, employer and channel types. The local app retains control of the destination, contact information, exact document bytes and submission evidence.
 
 Role instructions determine the allowed channels. Otherwise, the agent tries the verified website, then Telegram, then recruitment email. A confirmed outcome finishes the run. A verified unavailable channel can advance to the next available channel. Sign-in, verification, unsupported forms and missing answers appear as **Needs your help**. Any unresolved outcome after possible disclosure requires checking the channel before further attempts.
 
