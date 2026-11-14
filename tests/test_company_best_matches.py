@@ -34,7 +34,16 @@ class CompanyBestMatches(unittest.TestCase):
         }
 
     def save(self, **changes):
-        return self.s.action('company-best-matches', {**self.comparison, **changes})
+        payload = {**self.comparison, **changes}
+        if 'basis' not in payload:
+            payload['basis'] = self.read_basis()['basis']
+        return self.s.action('company-best-matches', payload)
+
+    def read_basis(self, **changes):
+        fields = ('workspace_id', 'employer_id', 'profile_id')
+        return self.s.action('company-best-matches-basis', {
+            **{key: self.comparison[key] for key in fields}, **changes,
+        })
 
     def picks(self):
         return self.s.state()['company_best_matches']
@@ -99,6 +108,7 @@ class CompanyBestMatches(unittest.TestCase):
         unrelated = self.role('other-employer', employer='Somewhere Else', mapped=False)
         self.s.action('company-map', {'job_id': unrelated['id'], 'confirmed': True})
         fact = self.s.action('fact', {'text': 'Unconfirmed note'})
+        current_basis = self.read_basis()['basis']
         unconfirmed = {**self.comparison['picks'][0], 'fact_ids': [fact['id']]}
         missing_fact = {**unconfirmed, 'fact_ids': ['missing']}
         for changes, message in [
@@ -112,7 +122,7 @@ class CompanyBestMatches(unittest.TestCase):
             ({'picks': [missing_fact, self.comparison['picks'][1]]}, 'confirmed career facts'),
         ]:
             with self.subTest(changes=changes), self.assertRaisesRegex(ValueError, message):
-                self.save(**changes)
+                self.save(basis=current_basis, **changes)
         self.assertEqual(self.picks(), [])
 
     def test_unavailable_removed_and_hard_conflicts_hide_pair(self):
@@ -126,8 +136,8 @@ class CompanyBestMatches(unittest.TestCase):
                 with self.w.edit() as state:
                     state['jobs'][0].update(changes)
                 self.assertEqual(self.picks(), [])
-                with self.assertRaisesRegex(ValueError, 'current, suitable'):
-                    self.save()
+                with self.assertRaisesRegex(ValueError, 'At least three distinct suitable vacancies'):
+                    self.read_basis()
                 with self.w.edit() as state:
                     for key in changes:
                         if key in self.first:
@@ -138,7 +148,8 @@ class CompanyBestMatches(unittest.TestCase):
     def test_profiles_store_independent_pairs_and_invalid_record_is_omitted(self):
         self.save()
         other = self.s.action('profile', {**self.profile, 'id': None, 'name': 'Second profile'})
-        self.save(profile_id=other['id'], picks=list(reversed(self.comparison['picks'])))
+        basis = self.read_basis(profile_id=other['id'])['basis']
+        self.save(profile_id=other['id'], basis=basis, picks=list(reversed(self.comparison['picks'])))
         by_profile = {record['profile_id']: record['picks'] for record in self.picks()}
         orders = {key: [pick['job_id'] for pick in value] for key, value in by_profile.items()}
         self.assertEqual(orders[self.profile['id']], list(reversed(orders[other['id']])))
@@ -154,12 +165,18 @@ class CompanyBestMatches(unittest.TestCase):
                 origin = f'http://127.0.0.1:{http.server_port}'
                 url = origin + '/api/company-best-matches'
                 headers = {'Origin': origin, 'Content-Type': 'application/json'}
-                payload = json.dumps(self.comparison).encode()
+                payload = json.dumps({**self.comparison, 'basis': self.read_basis()['basis']}).encode()
                 with self.assertRaises(HTTPError) as rejected:
                     urlopen(Request(url, data=payload, headers=headers), timeout=3)
                 self.assertEqual(rejected.exception.code, 403)
                 with urlopen(origin + '/api/state', timeout=3) as response:
                     headers['X-Workspace-Token'] = json.load(response)['token']
+                basis_payload = {key: self.comparison[key] for key in ('workspace_id', 'employer_id', 'profile_id')}
+                basis_request = Request(url + '-basis', data=json.dumps(basis_payload).encode(), headers=headers)
+                with urlopen(basis_request, timeout=3) as response:
+                    context = json.load(response)['result']
+                self.assertEqual({job['id'] for job in context['jobs']}, set(self.comparison['compared_job_ids']))
+                self.assertEqual(context['basis'], json.loads(payload)['basis'])
                 with urlopen(Request(url, data=payload, headers=headers), timeout=3) as response:
                     self.assertEqual(json.load(response)['result']['employer_id'], self.employer)
                 with urlopen(origin + '/api/state', timeout=3) as response:
@@ -167,3 +184,31 @@ class CompanyBestMatches(unittest.TestCase):
             finally:
                 http.shutdown()
                 thread.join(3)
+
+    def test_basis_detects_edits_before_save_and_new_confirmed_facts(self):
+        old_basis = self.read_basis()['basis']
+        with self.w.edit() as state:
+            state['jobs'][1]['requirements'].append('New backend requirement')
+        with self.assertRaisesRegex(ValueError, 'basis changed'):
+            self.save(basis=old_basis)
+        self.save()
+        original = self.read_basis()['basis']
+        new_fact = self.s.action('fact', {'text': 'Designed release and support workflows.'})
+        self.assertEqual(self.read_basis()['basis'], original)
+        self.assertEqual(len(self.picks()), 1)
+        self.s.action('confirm', {'id': new_fact['id']})
+        self.assertNotEqual(self.read_basis()['basis'], original)
+        self.assertEqual(self.picks(), [])
+
+    def test_basis_omits_contact_records_and_requires_its_token(self):
+        contact = self.s.action('fact', {'text': 'Private reference', 'category': 'reference'})
+        self.s.action('confirm', {'id': contact['id']})
+        basis = self.read_basis()
+        self.assertNotIn(contact['id'], {fact['id'] for fact in basis['facts']})
+        self.assertNotIn('email', basis['jobs'][0])
+        with self.assertRaisesRegex(ValueError, 'complete comparison'):
+            self.s.action('company-best-matches', self.comparison)
+        with self.assertRaisesRegex(ValueError, 'confirmed career facts'):
+            self.save(picks=[
+                {**self.comparison['picks'][0], 'fact_ids': [contact['id']]}, self.comparison['picks'][1],
+            ])

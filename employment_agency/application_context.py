@@ -380,8 +380,9 @@ def research_handoff(service, args):
         'For each verified employer check company-logo-inventory and use company-logo-backfill with official '
         'branding evidence when its logo is missing. Verify the mark in Jobs and report any gap.',
         'When more than two distinct vacancies suit the selected profile, compare all of them against the '
-        'confirmed career facts. Save exactly two recommendations with company-best-matches, including all '
-        'compared job IDs, short fit reasons and confirmed fact IDs for each pick. Keep unknowns explicit.',
+        'confirmed career facts. Read company-best-matches-basis for the verified employer and active profile '
+        'before reviewing. Save exactly two recommendations with company-best-matches, including that basis, '
+        'all compared job IDs, short fit reasons and confirmed fact IDs for each pick. Keep unknowns explicit.',
         'Keep this request to job research.',
     ]
     return {'workspace_id': service.w.workspace_id, 'workspace': str(service.w.path),

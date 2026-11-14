@@ -10,6 +10,8 @@ from .store import digest, now
 
 REVIEW_FIELD = 'best_match_reviews'
 MAX_REASON = 240
+MAX_COMPARED_JOBS = 2000
+MAX_REVIEW_FACTS = 5000
 
 
 def public_employer(employer):
@@ -56,7 +58,11 @@ def comparison_context(state):
         {row['id']: row for row in state.get('employer_links', [])},
         submitted_job_ids(state) | companies.submission_dates(state).keys()
         | confirmed_equivalents(state, equivalent_submissions(state)) | legacy_rejections(state).keys(),
-        {row['id']: row for row in matching.available(state['facts'])},
+        {
+            row['id']: {field: row[field] for field in ('id', 'text', 'category', 'association', 'dates') if field in row}
+            for row in matching.available(state['facts'])
+            if str(row.get('category', '')).casefold() not in ('reference', 'referee', 'contact', 'references', 'referees')
+        },
     )
 
 
@@ -76,14 +82,48 @@ def check_compared_inventory(inventory, jobs, compared):
 
 
 
-def comparison_fingerprint(profile, inventory, facts, compared, picks):
+def basis_fingerprint(employer, profile, inventory, facts):
     return fingerprint({
+        'employer_id': employer['id'],
         'profile': profile,
         'inventory': inventory,
-        'facts': {fact_id: facts[fact_id] for pick in picks for fact_id in pick['fact_ids']},
-        'compared': compared,
-        'picks': picks,
+        'facts': facts,
     })
+
+
+def target(workspace, state, args):
+    if args.get('workspace_id') != workspace.workspace_id:
+        raise ValueError('Provide a complete comparison for the current workspace')
+    employer = companies.by_id(state['employers'], args.get('employer_id'))
+    profile = companies.by_id(state['profiles'], args.get('profile_id'))
+    if not employer or not profile:
+        raise ValueError('Choose a known verified employer and search profile from this workspace')
+    return employer, profile
+
+
+def basis(workspace, args):
+    if set(args) != {'workspace_id', 'employer_id', 'profile_id'}:
+        raise ValueError('Provide the current workspace, verified employer and search profile')
+    state = workspace.read()
+    employer, profile = target(workspace, state, args)
+    links, unavailable, facts = comparison_context(state)
+    inventory = eligible_inventory(state, employer, profile, links, unavailable)
+    if len({item['vacancy_id'] for item in inventory.values()}) < 3:
+        raise ValueError('At least three distinct suitable vacancies are required')
+    if len(inventory) > MAX_COMPARED_JOBS or len(facts) > MAX_REVIEW_FACTS:
+        raise ValueError('The company review input exceeds the supported size')
+    return {
+        'workspace_id': workspace.workspace_id, 'employer_id': employer['id'], 'profile': profile,
+        'basis': basis_fingerprint(employer, profile, inventory, facts),
+        'jobs': [
+            {**{field: job.get(field) for field in (
+                'id', 'title', 'location', 'description', 'requirements', 'requirement_evidence', 'url',
+                'posted_at', 'closes', 'eligibility', 'sponsorship', 'salary', 'work_arrangement', 'seniority',
+            )}, 'vacancy_id': inventory[job['id']]['vacancy_id']}
+            for job in state['jobs'] if job['id'] in inventory
+        ],
+        'facts': list(facts.values()),
+    }
 
 
 def normalize_picks(picks):
@@ -103,21 +143,22 @@ def normalize_picks(picks):
 
 
 def save(workspace, args):
-    fields = {'workspace_id', 'employer_id', 'profile_id', 'compared_job_ids', 'picks'}
+    fields = {'workspace_id', 'employer_id', 'profile_id', 'compared_job_ids', 'picks', 'basis'}
     if set(args) != fields or args['workspace_id'] != workspace.workspace_id:
         raise ValueError('Provide a complete comparison for the current workspace')
-    compared = unique_ids(args['compared_job_ids'], 3, 2000, 'Provide at least three distinct compared job IDs')
+    compared = unique_ids(args['compared_job_ids'], 3, MAX_COMPARED_JOBS,
+                          'Provide at least three distinct compared job IDs')
     reviewed = normalize_picks(args['picks'])
     if not {pick['job_id'] for pick in reviewed} <= set(compared):
         raise ValueError('Both recommendations must be included in the compared roles')
 
     with workspace.edit() as state:
-        employer = companies.by_id(state['employers'], args['employer_id'])
-        profile = companies.by_id(state['profiles'], args['profile_id'])
-        if not employer or not profile:
-            raise ValueError('Choose a known verified employer and search profile from this workspace')
+        employer, profile = target(workspace, state, args)
         links, unavailable, facts = comparison_context(state)
         inventory = eligible_inventory(state, employer, profile, links, unavailable)
+        current_basis = basis_fingerprint(employer, profile, inventory, facts)
+        if args['basis'] != current_basis:
+            raise ValueError('The comparison basis changed. Read the current listings and facts and review again')
         if not set(compared) <= inventory.keys():
             raise ValueError('Every compared role must be a current, suitable listing at the verified employer')
         jobs = {row['id']: row for row in state['jobs']}
@@ -129,7 +170,8 @@ def save(workspace, args):
             'compared_job_ids': compared,
             'picks': reviewed,
             'reviewed_at': now(),
-            'fingerprint': comparison_fingerprint(profile, inventory, facts, compared, reviewed),
+            'basis': current_basis,
+            'fingerprint': fingerprint([current_basis, compared, reviewed]),
         }
         reviews = employer.get(REVIEW_FIELD)
         if not isinstance(reviews, dict):
@@ -156,14 +198,16 @@ def project(state):
             profile = profiles[profile_id]
             try:
                 picks = normalize_picks(review.get('picks'))
-                compared = unique_ids(review.get('compared_job_ids'), 3, 2000, 'Invalid compared jobs')
+                compared = unique_ids(review.get('compared_job_ids'), 3, MAX_COMPARED_JOBS, 'Invalid compared jobs')
             except ValueError:
                 continue
             if any(fact_id not in facts for pick in picks for fact_id in pick['fact_ids']):
                 continue
             inventory = eligible_inventory(state, employer, profile, links, unavailable)
+            current_basis = basis_fingerprint(employer, profile, inventory, facts)
             if (set(compared) <= inventory.keys() and {pick['job_id'] for pick in picks} <= set(compared)
-                    and comparison_fingerprint(profile, inventory, facts, compared, picks) == review.get('fingerprint')):
+                    and current_basis == review.get('basis')
+                    and fingerprint([current_basis, compared, picks]) == review.get('fingerprint')):
                 visible.append({
                     'employer_id': employer['id'],
                     'profile_id': profile_id,

@@ -152,13 +152,17 @@ employment-agency --workspace /absolute/path/to/workspace action company-researc
 
 For a missing logo, send `company-logo-backfill` the workspace ID, verified `company_ids` and, when needed, `sources` keyed by company ID. Each supplied source contains the official branding page `url` and a short `evidence` description. To select a specific supported mark published on that page, supply both `logo_url` and the `expected_sha256` of the reviewed, normalized PNG. Check the result and Jobs readback.
 
-Send a reviewed pair as the following JSON to the protected `POST /api/company-best-matches`.
+Before comparing roles, send `workspace_id`, `profile_id` and `employer_id` to the protected
+`POST /api/company-best-matches-basis`. Review the returned listings, search profile and confirmed career
+facts within the private workspace. Use the returned `basis` with the reviewed pair in
+`POST /api/company-best-matches`.
 
 ```json
 {
   "workspace_id": "CURRENT_WORKSPACE_ID",
   "profile_id": "SELECTED_PROFILE_ID",
   "employer_id": "VERIFIED_COMPANY_ID",
+  "basis": "BASIS_FROM_REVIEW_CONTEXT",
   "compared_job_ids": ["ROLE_A", "ROLE_B", "ROLE_C"],
   "picks": [
     {"job_id": "ROLE_B", "reason": "Your Python API work maps to the integration responsibilities.", "fact_ids": ["FACT_1"]},
@@ -167,7 +171,7 @@ Send a reviewed pair as the following JSON to the protected `POST /api/company-b
 }
 ```
 
-Use locally confirmed facts and source-verified listings for the review. The server checks the company, profile, role and fact IDs and detects material changes. Jobs omits stale pairs until the research is reviewed again. Confirmed fact IDs support the fit rationale without establishing full qualification or work authorization.
+The server checks the company, profile, role and fact IDs and requires a fresh review if the basis changes before saving. Jobs omits stale pairs until the research is reviewed again. Confirmed fact IDs support the fit rationale without establishing full qualification or work authorization.
 
 ### Optional OpenAI selection
 

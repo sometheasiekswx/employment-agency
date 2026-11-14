@@ -894,10 +894,11 @@ class Service:
                 if companies.discovery_employer(job, links.get(job['id']), name_ids) not in cooling]
 
     def company_action(self, action, args):
-        if action == 'company-best-matches':
+        if action in ('company-best-matches-basis', 'company-best-matches'):
             from . import company_best_matches
 
-            return company_best_matches.save(self.w, args)
+            operation = company_best_matches.basis if action == 'company-best-matches-basis' else company_best_matches.save
+            return operation(self.w, args)
         if action == 'company-avoid':
             if args:
                 raise ValueError('company-avoid takes no arguments')
