@@ -102,21 +102,37 @@
   font-size: 12px;
   white-space: nowrap;
 }
-.discover-layout {
-  display: flex;
-  align-items: stretch;
-  gap: 16px;
+.discover-results {
   min-width: 0;
 }
-.discover-layout.has-inspector {
-  height: var(--discover-available-height, calc(100dvh - 20rem));
-  min-height: 0;
+@media (min-width: 1001px) {
+  .discover-screen.has-desktop-inspector {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(
+        350px,
+        calc(100vw - 60rem),
+        430px
+      );
+    align-items: start;
+    gap: 16px;
+  }
+  .discover-screen.has-desktop-inspector.has-workbench {
+    grid-template-columns: minmax(290px, 30%) minmax(0, 1fr);
+  }
+  .discover-screen.has-desktop-inspector .discover-toolbar,
+  .discover-screen.has-desktop-inspector .discover-summary {
+    flex-wrap: wrap;
+  }
+  .discover-screen.has-desktop-inspector .discover-views {
+    flex: 1 0 auto;
+    max-width: 100%;
+    flex-wrap: wrap;
+  }
 }
 .discover-board {
   --discover-row-size: 4px;
   --discover-group-gap: 16px;
   display: grid;
-  flex: 1;
   min-width: 0;
   grid-template-columns: repeat(
     auto-fill,
@@ -130,12 +146,6 @@
 .discover-board[data-compact="true"] {
   grid-auto-rows: var(--discover-row-size);
   row-gap: 0;
-}
-.discover-layout.has-inspector .discover-board {
-  overflow-y: auto;
-  scrollbar-gutter: stable;
-  scrollbar-color: var(--scroll-thumb) var(--surface);
-  scrollbar-width: thin;
 }
 .discover-screen .discover-column {
   min-width: 0;
@@ -422,10 +432,8 @@
   position: relative;
   inset: auto;
   display: flex;
-  /* Keep room for readable shortlist columns before enlarging the inspector. */
-  flex: 0 0 clamp(350px, calc(100vw - 60rem), 430px);
   flex-direction: column;
-  width: clamp(350px, calc(100vw - 60rem), 430px);
+  width: 100%;
   min-width: 0;
   min-height: 0;
   height: 100%;
@@ -441,9 +449,37 @@
   display: none;
 }
 @media (min-width: 1001px) {
-  .discover-screen .discover-inspector.is-reading-application {
-    flex: 1 1 auto;
-    width: auto;
+  .discover-screen .discover-inspector {
+    position: sticky;
+    top: 16px;
+    height: max(14rem, calc(100dvh - var(--discover-pane-offset, 16px) - 16px));
+  }
+  .discover-screen .discover-inspector-toolbar,
+  .discover-screen .discover-inspector-footer {
+    padding: 8px 12px;
+  }
+  .discover-screen .discover-inspector-body {
+    padding: 0 16px 16px;
+  }
+  .discover-screen .role-workspace-heading {
+    padding: 12px 0 0;
+  }
+  .discover-screen .role-listing-row {
+    padding-inline: 0;
+  }
+  .discover-inspector-actions > :is(button, .button) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-align: center;
+  }
+  .discover-inspector-actions > :is(button, .button) svg {
+    flex-shrink: 0;
+  }
+  .discover-inspector-actions > .discover-primary {
+    flex-basis: max-content;
+    max-width: 100%;
   }
 }
 .discover-inspector-toolbar {
@@ -501,6 +537,7 @@
   flex: 1;
   font-size: 13px;
   font-weight: 500;
+  overflow-wrap: anywhere;
 }
 .discover-inspector-company .discover-status {
   font-size: 12px;
@@ -1078,9 +1115,6 @@
   .discover-screen .discover-location-tabs button[aria-pressed="true"] {
     color: var(--accent);
     border-bottom-color: var(--accent);
-  }
-  .discover-layout {
-    display: block;
   }
   .discover-board {
     --discover-group-gap: 22px;

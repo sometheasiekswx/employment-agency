@@ -769,57 +769,6 @@ it("restores a selected mobile assessment as a modal and returns focus to its ro
   expect(fixture.query).toBe("view=jobs");
 });
 
-it("resizes the inspector to remaining viewport space when preceding content or viewport height changes", async () => {
-  let top = 300;
-  let notifyResize: () => void = () => {};
-  vi.stubGlobal("innerHeight", 768);
-  vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
-    callback(0);
-    return 1;
-  });
-  vi.stubGlobal("cancelAnimationFrame", vi.fn());
-  vi.stubGlobal(
-    "ResizeObserver",
-    class {
-      constructor(callback: () => void) {
-        notifyResize = callback;
-      }
-      observe() {}
-      disconnect() {}
-    },
-  );
-  vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(
-    function (this: HTMLElement) {
-      return new DOMRect(
-        0,
-        this.classList.contains("discover-layout") ? top : 0,
-        100,
-        100,
-      );
-    },
-  );
-  const { container } = render(<DiscoverPage />);
-  fireEvent.click(
-    await screen.findByRole("button", {
-      name: "Assess Cloud Engineer at Example Cloud",
-    }),
-  );
-  const layout = container.querySelector<HTMLElement>(".discover-layout")!;
-  expect(layout.style.getPropertyValue("--discover-available-height")).toBe(
-    "452px",
-  );
-  top = 450;
-  act(() => notifyResize());
-  expect(layout.style.getPropertyValue("--discover-available-height")).toBe(
-    "302px",
-  );
-  vi.stubGlobal("innerHeight", 600);
-  fireEvent.resize(window);
-  expect(layout.style.getPropertyValue("--discover-available-height")).toBe(
-    "134px",
-  );
-});
-
 it.each(["recommended", "all", "saved"])(
   "moves recorded submissions and tagged listings out of %s",
   async (view) => {

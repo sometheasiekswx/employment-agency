@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import type { ApiClient } from "@/lib/api";
 import { errorMessage } from "@/lib/format";
 import { currentRemoval, removalId } from "@/lib/job-removal";
@@ -16,6 +22,7 @@ import type {
 } from "./removal-feedback";
 
 type Overlay = { removals: JobRemoval[]; pending: boolean };
+const feedbackDuration = 8_000;
 const keyFor = (jobId: string, eventId: string) => `${jobId}:${eventId}`;
 
 function includesReceipt(history: JobRemoval[], receipt: JobRemoval[]) {
@@ -43,6 +50,10 @@ export function useJobRemoval({
 }) {
   const [overlays, setOverlays] = useState<Record<string, Overlay>>({});
   const [feedback, setFeedback] = useState<RemovalFeedbackState>();
+  const [feedbackHeld, setFeedbackHeld] = useState(false);
+  const countdown = useRef<
+    { feedback: RemovalFeedbackState; remaining: number } | undefined
+  >(undefined);
   const [drafts, setDrafts] = useState<Record<string, RemovalReasonEditor>>({});
   const [editorKey, setEditorKey] = useState("");
   const revisions = useRef(new Map<string, number>());
@@ -86,6 +97,30 @@ export function useJobRemoval({
         : Object.fromEntries(pending);
     });
   }, [jobs]);
+
+  const editingReason = Boolean(drafts[editorKey]);
+  useLayoutEffect(() => {
+    if (feedback?.status !== "removed" && feedback?.status !== "restored") {
+      countdown.current = undefined;
+      return;
+    }
+    if (countdown.current?.feedback !== feedback)
+      countdown.current = { feedback, remaining: feedbackDuration };
+    if (feedbackHeld || editingReason) return;
+
+    const timer = countdown.current;
+    const started = performance.now();
+    const timeout = window.setTimeout(() => {
+      setFeedback((current) => (current === feedback ? undefined : current));
+    }, timer.remaining);
+    return () => {
+      window.clearTimeout(timeout);
+      timer.remaining = Math.max(
+        0,
+        timer.remaining - (performance.now() - started),
+      );
+    };
+  }, [feedback, feedbackHeld, editingReason]);
 
   const sync = () => {
     if (active.current) void refresh().catch(() => {});
@@ -142,7 +177,7 @@ export function useJobRemoval({
     setFeedback({
       job: summary,
       removalId: event.id,
-      status: restore ? "restored" : "removing",
+      status: restore ? "restoring" : "removing",
     });
     retry.current = () => change(job, event, restore);
     try {
@@ -282,6 +317,7 @@ export function useJobRemoval({
   return {
     jobWithRemoval,
     feedback,
+    setFeedbackHeld,
     editor: drafts[editorKey],
     remove,
     restore,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, type FormEvent } from "react";
+import { useId, useLayoutEffect, useRef, type FormEvent } from "react";
 import { X } from "lucide-react";
 import { Action, TextArea } from "@/components/controls";
 import "./removal-feedback.css";
@@ -14,7 +14,7 @@ export interface RemovalFeedbackJob {
 export interface RemovalFeedbackState {
   job: RemovalFeedbackJob;
   removalId: string;
-  status: "removing" | "removed" | "restored" | "error";
+  status: "removing" | "removed" | "restoring" | "restored" | "error";
   error?: string;
 }
 
@@ -33,6 +33,7 @@ export interface RemovalFeedbackProps {
   onAddReason: () => void;
   onRetryRemoval: () => void;
   onDismiss: () => void;
+  onNoticeInteractionChange?: (held: boolean) => void;
   onChangeReason: (value: string) => void;
   onSaveReason: () => void;
   onCloseReason: () => void;
@@ -50,12 +51,54 @@ export function RemovalFeedback({
   onAddReason,
   onRetryRemoval,
   onDismiss,
+  onNoticeInteractionChange,
   onChangeReason,
   onSaveReason,
   onCloseReason,
 }: RemovalFeedbackProps) {
   const reasonHeading = useId();
   const reasonError = useId();
+  const notice = useRef<HTMLElement>(null);
+  const noticeId = feedback?.removalId;
+  const noticeStatus = feedback?.status;
+  useLayoutEffect(() => {
+    const element = notice.current;
+    if (!element || !onNoticeInteractionChange) return;
+    let hovered = element.matches(":hover");
+    let focused = element.contains(document.activeElement);
+    const update = () => onNoticeInteractionChange(hovered || focused);
+    const enter = (event: PointerEvent) => {
+      if (event.pointerType === "touch") return;
+      hovered = true;
+      update();
+    };
+    const leave = () => {
+      hovered = false;
+      update();
+    };
+    const focus = () => {
+      focused = true;
+      update();
+    };
+    const blur = (event: FocusEvent) => {
+      focused =
+        event.relatedTarget instanceof Node &&
+        element.contains(event.relatedTarget);
+      update();
+    };
+    update();
+    element.addEventListener("pointerenter", enter);
+    element.addEventListener("pointerleave", leave);
+    element.addEventListener("focusin", focus);
+    element.addEventListener("focusout", blur);
+    return () => {
+      element.removeEventListener("pointerenter", enter);
+      element.removeEventListener("pointerleave", leave);
+      element.removeEventListener("focusin", focus);
+      element.removeEventListener("focusout", blur);
+      onNoticeInteractionChange(false);
+    };
+  }, [noticeId, noticeStatus, onNoticeInteractionChange]);
   if (!feedback && !editor) return null;
 
   const saveReason = (event: FormEvent<HTMLFormElement>) => {
@@ -68,6 +111,7 @@ export function RemovalFeedback({
       {feedback && (
         <section
           key={feedback.removalId}
+          ref={notice}
           className="removal-feedback-notice"
           aria-label="Opportunity removal"
           data-job-id={feedback.job.id}
@@ -80,6 +124,7 @@ export function RemovalFeedback({
             >
               {feedback.status === "removing" && "Removing "}
               {feedback.status === "removed" && "Removed "}
+              {feedback.status === "restoring" && "Restoring "}
               {feedback.status === "restored" && "Restored "}
               {feedback.status === "error" && "Couldn’t update "}
               <strong>{jobLabel(feedback.job)}</strong>.

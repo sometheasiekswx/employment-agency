@@ -216,11 +216,10 @@ async function verifyNoHorizontalOverflow(page, label) {
     );
 
     await actionButton(page, "Apply later").click();
-    await page.waitForFunction(() =>
-      [...document.querySelectorAll("button[aria-pressed=true]")].some(
-        (button) => button.textContent.trim() === "Remove from To apply",
-      ),
-    );
+    const markedAction = actionButton(page, "Remove from To apply");
+    await markedAction.waitFor();
+    assert.equal(await markedAction.getAttribute("aria-pressed"), "true");
+    assert.equal((await markedAction.textContent()).trim(), "To apply");
     await screenshot(page, "before-desktop");
     await actionButton(page, "Close opportunity details").click();
     await choose(page, second).click();

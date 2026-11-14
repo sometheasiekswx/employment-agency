@@ -79,6 +79,8 @@ if __name__ == '__main__':
     with fixture('serve_concept_fixture.py') as url:
         browser('discover-layout-browser.cjs', url)
     with fixture('serve_concept_fixture.py') as url:
+        browser('desktop-role-details-browser.cjs', url)
+    with fixture('serve_concept_fixture.py') as url:
         browser('requirement-evidence-browser.cjs', url)
     with fixture('serve_concept_fixture.py') as url:
         browser('discover-browser.cjs', url)
