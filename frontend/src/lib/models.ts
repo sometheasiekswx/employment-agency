@@ -49,6 +49,7 @@ export interface JobRemoval {
   reason: string;
   reason_updated_at?: string;
   restored_at?: string;
+  superseded_by_submission?: boolean;
   legacy_application_id?: string;
 }
 export interface JobRemovalResult {

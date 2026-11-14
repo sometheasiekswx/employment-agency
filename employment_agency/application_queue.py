@@ -5,6 +5,9 @@ from datetime import datetime, timezone
 from .store import now
 
 
+COMPANY_CLEANUP_SOURCE = 'company-application-limit'
+
+
 def timestamp(value):
     try:
         stamp = datetime.fromisoformat(value)
@@ -34,9 +37,32 @@ def pending_choices(state):
 
 
 def equivalent_submissions(state):
-    vacancies = {vacancy for row in state.get('company_rounds', [])
+    vacancies = {(row['id'], vacancy) for row in state.get('company_rounds', [])
                  for vacancy in row.get('submitted_vacancies', [])}
-    return {link['id'] for link in state.get('employer_links', []) if link['vacancy_id'] in vacancies}
+    return {link['id'] for link in state.get('employer_links', [])
+            if (link['employer_id'], link['vacancy_id']) in vacancies}
+
+
+def confirmed_equivalents(state, equivalents):
+    from .companies import employer_evidence_conflict
+
+    links = {row['id']: row['employer_id'] for row in state.get('employer_links', []) if row['id'] in equivalents}
+    employers = {row['id']: row for row in state.get('employers', [])}
+    return {job['id'] for job in state['jobs'] if (employer := employers.get(links.get(job['id'])))
+            and not employer_evidence_conflict(job, employer)}
+
+
+def superseded_removal(removals, confirmed):
+    latest = removals[-1] if removals else None
+    return latest if confirmed and latest and not latest.get('restored_at') and (
+        latest.get('source') == COMPANY_CLEANUP_SOURCE and not latest.get('legacy_application_id')
+    ) else None
+
+
+def visible_removals(removals, confirmed):
+    if latest := superseded_removal(removals, confirmed):
+        return [*removals[:-1], {**latest, 'superseded_by_submission': True}]
+    return removals
 
 
 def project(state, *, include_unqueued=False, choices=None):
@@ -63,11 +89,13 @@ def project(state, *, include_unqueued=False, choices=None):
     unlisted = state.get('unlisted_removals', {})
     choices = pending_choices(state) if choices is None else choices
     equivalent = equivalent_submissions(state)
+    confirmed = submitted | confirmed_equivalents(state, equivalent)
     for role in dict.fromkeys([*jobs, *selected, *unlisted]):
         job = jobs.get(role, {})
         _, version, at = selected.get(role, (None, {}, None))
         removals = job.get('removals') or unlisted.get(role, [])
-        if (removals and not removals[-1].get('restored_at')) or role in legacy_removed:
+        if ((removals and not removals[-1].get('restored_at') and not superseded_removal(removals, role in confirmed))
+                or role in legacy_removed):
             stage = 'removed'
         elif role in submitted or job.get('prior_application') == 'submitted':
             stage = 'submitted'

@@ -82,8 +82,9 @@ class CompanyCooldown(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, 'Company is paused'):
                     self.s.action('url', {'url': third['url']})
                 fetch.assert_not_called()
-            with self.assertRaisesRegex(ValueError, 'paused'):
+            with self.assertRaisesRegex(ValueError, 'Restore this role'):
                 self.preview(third)
+            removal, = companies.by_id(self.w.read()['jobs'], third['id'])['removals']
             backup = self.w.export(self.root / 'pause.zip')
             restored = self.root / 'paused-copy'
             restore(backup, restored)
@@ -94,6 +95,8 @@ class CompanyCooldown(unittest.TestCase):
                 copy.close()
         with patch.object(companies, 'clock', return_value=datetime(2026, 5, 1, tzinfo=timezone.utc)):
             self.assertEqual(self.company()['status']['remaining'], 2)
+            self.assertNotIn(third['id'], {row['job']['id'] for row in self.company()['roles']})
+            self.s.action('restore-job', {'id': third['id'], 'removal_id': removal['id']})
             self.assertIn(third['id'], {row['job']['id'] for row in self.company()['roles']})
             self.assertEqual(len(self.w.read()['applications']), 3)
 

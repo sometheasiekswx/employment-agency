@@ -94,6 +94,7 @@
   font-size: 13px;
 }
 .discover-summary {
+  flex-wrap: wrap;
   justify-content: space-between;
   margin: 0 0 12px;
 }
@@ -416,6 +417,92 @@
   gap: 5px;
   flex-wrap: wrap;
   color: var(--discover-muted);
+}
+.discover-stack-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  column-gap: 12px;
+  padding-inline: 2px;
+  color: var(--discover-muted);
+  font-size: 0.8125rem;
+}
+.discover-stack-heading > span {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.discover-stack-heading > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: 4px;
+  color: var(--link);
+  font-weight: 550;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.discover-screen .discover-compact-role {
+  padding: 0;
+  margin-block-end: 3px;
+  border-radius: 10px;
+}
+.discover-screen .discover-compact-end {
+  margin-block-end: 16px;
+}
+.discover-compact-layers::before {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  inset: 100% 13px auto;
+  height: 5px;
+  border: 1px solid var(--line);
+  border-block-start: 0;
+  border-radius: 0 0 7px 7px;
+  background: var(--surface);
+  box-shadow: 0 3px 0 -1px var(--line);
+}
+.discover-screen .discover-compact-role .discover-card-open {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 12px;
+  min-height: 44px;
+  padding: 8px 12px;
+}
+.discover-compact-role .discover-card-open h3 {
+  grid-column: 1;
+  margin: 0;
+  font-size: 0.875rem;
+}
+.discover-compact-role .discover-card-location {
+  grid-column: 1;
+  margin-block-start: 2px;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.discover-compact-role .discover-card-open > svg {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  color: var(--discover-muted);
+}
+.discover-screen .discover-employer-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  max-width: 100%;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--neutral-bg);
+  color: var(--neutral-ink);
+  text-align: start;
+  overflow-wrap: anywhere;
+}
+.discover-employer-filter > svg {
+  flex-shrink: 0;
 }
 .discover-card-salary {
   color: var(--ink-soft);
@@ -1113,6 +1200,9 @@ p.discover-capacity-note {
   }
   .discover-screen .discover-card {
     padding: 15px;
+  }
+  .discover-screen .discover-compact-role {
+    padding: 0;
   }
   .discover-card-open h3 {
     font-size: 17px;

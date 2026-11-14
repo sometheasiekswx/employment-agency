@@ -164,41 +164,66 @@ def calculate_round(state, employer, dates, zone, months, holds):
     links = [link for link in state.get('employer_links', []) if link['employer_id'] == employer_id]
     jobs = {job['id']: job for job in state['jobs']}
     dates_by_vacancy = {}
+    trusted_dates = {}
     for link in links:
         job_id = link['id']
         if job_id in dates:
             candidates = [link['submitted_on']] if link.get('submitted_on') else dates[job_id]
             dates_by_vacancy.setdefault(link['vacancy_id'], []).extend(candidates)
+            job = jobs.get(job_id)
+            if not job or not employer_evidence_conflict(job, employer):
+                trusted_dates.setdefault(link['vacancy_id'], []).extend(candidates)
     names = {name_key(name) for name in [employer['name'], *employer['aliases']]}
     unresolved = history_review(state, names, dates)
-    events = []
-    unknown = set()
-    for vacancy, candidates in dates_by_vacancy.items():
-        instant, date_only = submission_occurrence(candidates, zone)
-        if instant:
-            events.append((instant, vacancy, date_only))
-        else:
-            unknown.add(vacancy)
+    occurrences = {vacancy: submission_occurrence(candidates, zone)
+                   for vacancy, candidates in dates_by_vacancy.items()}
+    unknown = {vacancy for vacancy, (instant, _) in occurrences.items() if not instant}
     unresolved.extend(
         {'job_id': link['id'], 'title': jobs.get(link['id'], {}).get('title', 'Historical listing'),
          'reason': 'Confirm the submission date'}
         for link in links if link['vacancy_id'] in unknown
     )
+    pauses = []
     for pause in state.get('company_pauses', []):
         if pause['employer_id'] == employer_id:
             instant, _ = occurrence(pause['at'], zone)
             if instant:
-                events.append((instant, '', False))
+                pauses.append((instant, '', False))
+    used, until, assumed, over_limit, confirmations = round_window(occurrences, pauses, zone, months)
+    trusted = occurrences
+    if trusted_dates != dates_by_vacancy:
+        # Keep the existing allowance/history even if a listing's employer
+        # evidence has since conflicted. Destructive decisions require a
+        # separate, still-trustworthy occurrence for each vacancy.
+        trusted = {vacancy: submission_occurrence(candidates, zone)
+                   for vacancy, candidates in trusted_dates.items()}
+        _, _, _, _, confirmations = round_window(trusted, pauses, zone, months)
+    held = sorted(vacancy_id for (owner_id, vacancy_id) in holds if owner_id == employer_id)
+    record = {'id': employer_id, 'used': sorted(used | unknown), 'held': held,
+              'submitted_vacancies': sorted(dates_by_vacancy), 'unresolved': unresolved,
+              'cooldown_until': until.isoformat() if until else None,
+              'cooldown_time_assumed': bool(until and assumed), 'over_limit': over_limit}
+    return record, confirmations, trusted
+
+
+def round_window(occurrences, pauses, zone, months):
+    events = [(instant, vacancy, date_only) for vacancy, (instant, date_only) in occurrences.items() if instant]
+    has_undated = len(events) < len(occurrences)
+    events.extend(pauses)
     used = set()
     until = None
     assumed = False
     over_limit = 0
+    first_confirmations = []
     for instant, vacancy, date_only in sorted(events, key=lambda event: (
         event[0].astimezone(timezone.utc), not event[1], event[1],
     )):
         if until and instant >= until:
             used.clear()
+            first_confirmations.clear()
             until = None
+        if vacancy and len(first_confirmations) < ROUND_CAPACITY:
+            first_confirmations.append(vacancy)
         if until:
             if vacancy:
                 over_limit += 1
@@ -210,26 +235,30 @@ def calculate_round(state, employer, dates, zone, months, holds):
             continue
         if vacancy:
             used.add(vacancy)
-        if len(used) == ROUND_CAPACITY or ((used or unknown) and not vacancy):
+        if len(used) == ROUND_CAPACITY or ((used or has_undated) and not vacancy):
             until = cooldown_after(instant, zone, months)
             assumed = date_only
-    held = sorted(vacancy_id for (owner_id, vacancy_id) in holds if owner_id == employer_id)
-    return {'id': employer_id, 'used': sorted(used | unknown), 'held': held,
-            'submitted_vacancies': sorted(dates_by_vacancy), 'unresolved': unresolved,
-            'cooldown_until': until.isoformat() if until else None,
-            'cooldown_time_assumed': bool(until and assumed), 'over_limit': over_limit}
+    return used, until, assumed, over_limit, (until, first_confirmations)
+
+
+def round_evidence(state, zone):
+    employers = state.get('employers', [])
+    if not employers:
+        return {}
+    dates = submission_dates(state)
+    holds = active_holds(state)
+    months = state.get('company_cooldown_months', DEFAULT_COOLDOWN_MONTHS)
+    return {employer['id']: calculate_round(state, employer, dates, zone, months, holds)
+            for employer in employers}
 
 
 def update_rounds(state, zone):
     employers = state.get('employers', [])
     if not employers and 'company_rounds' not in state:
-        return
-    dates = submission_dates(state)
-    holds = active_holds(state)
-    months = state.get('company_cooldown_months', DEFAULT_COOLDOWN_MONTHS)
-    state['company_rounds'] = [
-        calculate_round(state, employer, dates, zone, months, holds) for employer in employers
-    ]
+        return {}
+    evidence = round_evidence(state, zone)
+    state['company_rounds'] = [record for record, _, _ in evidence.values()]
+    return evidence
 
 
 def allowance(round_record, pending=None):

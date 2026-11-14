@@ -260,6 +260,12 @@ class Workspace:
             with self.database.transaction() if self.database else nullcontext():
                 state = self.read()
                 previous_permissions = encode(state.get('consents', {}))
+                if self.database:
+                    from . import companies, company_cleanup
+                    from .workspaces import settings, time_zone
+
+                    zone = time_zone(settings(self.path)['timezone'])
+                    previous_rounds = companies.round_evidence(state, zone)
                 yield state
                 permissions = encode(state.get('consents', {}))
                 if state.get('schema') == 2:
@@ -267,9 +273,8 @@ class Workspace:
                         raise ValueError('Workspace identity cannot be edited')
                     state['consents'] = {}
                 if self.database:
-                    from .companies import update_rounds
-                    from .workspaces import settings, time_zone
-                    update_rounds(state, time_zone(settings(self.path)['timezone']))
+                    current_rounds = companies.update_rounds(state, zone)
+                    company_cleanup.after_submission(state, previous_rounds, current_rounds)
                     self.database.save(state)
                 else:
                     atomic(self.path / 'state.json', encode(state))

@@ -17,6 +17,7 @@ import {
   ArrowUpRight,
   Bookmark,
   Check as CheckIcon,
+  ChevronRight,
   CircleMinus,
   MessageSquare,
   RotateCcw,
@@ -67,6 +68,7 @@ import {
   advertisedSalary,
   applicationsByJob,
   displayedBlocker,
+  employerQueueHref,
   filterOpportunities,
   groupOpportunities,
   remainingEvidenceGaps,
@@ -74,6 +76,7 @@ import {
   roleStatus,
   pendingActionLabel,
   pendingCapacityStatus,
+  stacksAtPendingLimit,
   type DiscoveryView,
 } from "./discovery";
 import { OpportunityInspector, type RolePanel } from "./opportunity-inspector";
@@ -242,6 +245,7 @@ export function DiscoverPage() {
   const applicationView = view === "applications";
   const toApplyView = view === "to-apply";
   const agentTools = localJourney && toApplyView;
+  const employerScope = toApplyView ? filters.get("employer") || "" : "";
   const section = removedView ? "removed" : filters.get("section") || "active";
   if (requestedView && requestedView !== view) filters.set("view", view);
   if (toApplyView && rawSection === "agent") {
@@ -364,6 +368,8 @@ export function DiscoverPage() {
   const saving = useRef(new Set<string>());
   const saveErrorNotice = useRef<HTMLDivElement>(null);
   const searchInput = useRef<HTMLInputElement>(null);
+  const employerFilter = useRef<HTMLButtonElement>(null);
+  const previousEmployerScope = useRef("");
   const submittedStage = useRef<HTMLButtonElement>(null);
   const focusSubmittedStage = useRef(false);
   useLayoutEffect(() => {
@@ -546,12 +552,22 @@ export function DiscoverPage() {
     ({ job }) => !job.company?.cooling,
   );
   const pausedResults = incomingRows.length > 0 && !availableIncoming.length;
+  const scopedEmployer = employerScope
+    ? [...latestJobs.values()].find(({ company, hiring_employer_verified }) =>
+        hiring_employer_verified && company?.id === employerScope,
+      )
+    : undefined;
+  const scopedEmployerName = scopedEmployer?.company?.name || scopedEmployer?.employer || "Company";
   const sourceRows = removedView
     ? removedRows
     : applicationView
       ? applicationRows
       : toApplyView
-        ? discoveryRows.filter(({ job }) => pending.has(job.id))
+        ? discoveryRows.filter(({ job }) =>
+            pending.has(job.id) &&
+            (!employerScope ||
+              (job.hiring_employer_verified && job.company?.id === employerScope)),
+          )
         : availableIncoming;
   const scopedRows = filterOpportunities(
     sourceRows,
@@ -594,7 +610,12 @@ export function DiscoverPage() {
   const visible = agentTools
     ? filteredRows.slice(pendingOffset, pendingOffset + pendingPageSize)
     : filteredRows;
-  const groups = groupOpportunities(visible);
+  const groups = groupOpportunities(visible).map((group) => ({
+    ...group,
+    stackEmployer: view === "jobs"
+      ? group.roles.find(({ job }) => stacksAtPendingLimit(job))?.job.company?.id
+      : undefined,
+  }));
   const navigationRows = groups.flatMap(({ roles }) => roles);
   const selectedRow = visible.find((row) => row.job.id === selectedId);
   const assessedRow = assessedById.get(selectedId);
@@ -717,6 +738,15 @@ export function DiscoverPage() {
     replaceQuery(current);
   };
   const inspectorOpen = Boolean(selected);
+  useEffect(() => {
+    if (
+      employerScope &&
+      employerScope !== previousEmployerScope.current &&
+      !selectedId
+    )
+      employerFilter.current?.focus({ preventScroll: true });
+    previousEmployerScope.current = employerScope;
+  }, [employerScope, selectedId]);
   const selectedIndex = navigationRows.findIndex(
     (row) => row.job.id === selectedId,
   );
@@ -968,6 +998,7 @@ export function DiscoverPage() {
       next.delete("removed");
       next.delete("section");
       next.delete("status");
+      next.delete("employer");
     }
     if (!Object.hasOwn(values, "offset")) next.delete("offset");
     next.delete("agent_offset");
@@ -986,7 +1017,7 @@ export function DiscoverPage() {
     return true;
   };
   const clearFilters = () => {
-    if (updateFilters({ q: "", location: "", status: "" }))
+    if (updateFilters({ q: "", location: "", status: "", employer: "" }))
       searchInput.current?.focus({ preventScroll: true });
   };
 
@@ -1268,6 +1299,9 @@ export function DiscoverPage() {
               </button>
             )}
             <input type="hidden" name="view" value={view} />
+            {employerScope && (
+              <input type="hidden" name="employer" value={employerScope} />
+            )}
             {location && (
               <input type="hidden" name="location" value={location} />
             )}
@@ -1485,6 +1519,20 @@ export function DiscoverPage() {
                 ? "Matches unavailable"
                 : `${removedView ? "Removed · " : ""}${visible.length} ${visible.length === 1 ? "role" : "roles"} · ${groups.length} ${groups.length === 1 ? "company" : "companies"}`}
           </span>
+          {employerScope && (
+            <button
+              ref={employerFilter}
+              type="button"
+              className="discover-employer-filter"
+              aria-label={`Clear company filter: ${scopedEmployerName}`}
+              onClick={() => {
+                if (updateFilters({ employer: "" }))
+                  searchInput.current?.focus({ preventScroll: true });
+              }}
+            >
+              {scopedEmployerName} <X size={14} aria-hidden="true" />
+            </button>
+          )}
           {hasActiveFilters && visible.length > 0 && (
             <button
               type="button"
@@ -1622,7 +1670,9 @@ export function DiscoverPage() {
                 : removedView
                   ? "No removed roles here"
                   : toApplyView
-                    ? "No roles to apply for yet"
+                    ? employerScope
+                      ? "No To apply roles at this company"
+                      : "No roles to apply for yet"
                     : applicationView
                       ? `No ${section} applications`
                       : pausedResults
@@ -1637,7 +1687,9 @@ export function DiscoverPage() {
                 : removedView
                   ? "Restore roles here to recover their application documents and activity."
                   : toApplyView
-                    ? "Choose Apply later on a role to find it here."
+                    ? employerScope
+                      ? "Clear the company filter to see all To apply roles."
+                      : "Choose Apply later on a role to find it here."
                     : applicationView
                       ? "Prepare a draft from a role to start an application."
                       : pausedResults
@@ -1690,7 +1742,7 @@ export function DiscoverPage() {
               aria-label="Opportunities by company"
               tabIndex={selected && !mobile ? 0 : undefined}
             >
-              {groups.map(({ id, name, roles: opportunities }) => (
+              {groups.map(({ id, name, roles: opportunities, stackEmployer }) => (
                 <section
                   className="discover-column"
                   key={id}
@@ -1706,8 +1758,26 @@ export function DiscoverPage() {
                     </h2>
                     <span>{opportunities.length}</span>
                   </header>
-                  {opportunities.map((row) => {
+                  {stackEmployer && (
+                    <div className="discover-stack-heading">
+                      <span>2 of 2 selected</span>
+                      <Link
+                        href={employerQueueHref(stackEmployer)}
+                        onNavigate={(event) => {
+                          if (!canLeave()) event.preventDefault();
+                        }}
+                      >
+                        Change selections
+                      </Link>
+                    </div>
+                  )}
+                  {opportunities.map((row, index) => {
                     const { job, match } = row;
+                    const compact = Boolean(stackEmployer && stacksAtPendingLimit(job));
+                    const nextJob = opportunities[index + 1]?.job;
+                    const endsStack = compact && (!nextJob || !stacksAtPendingLimit(nextJob));
+                    const previousJob = opportunities[index - 1]?.job;
+                    const layered = endsStack && previousJob && stacksAtPendingLimit(previousJob);
                     const pendingBlocker = !job.saved
                       ? job.pending_blocker ??
                         (failedAdmission?.jobId === job.id ? failedAdmission.blocker : undefined)
@@ -1734,7 +1804,7 @@ export function DiscoverPage() {
                     const metadata = [location, job.work_arrangement]
                       .filter(Boolean)
                       .join(" · ");
-                    const evidence = !applicationView
+                    const evidence = !applicationView && !compact
                       ? requirementEvidence(match.evidence, state.facts, job)
                       : [];
                     const gaps = remainingEvidenceGaps(
@@ -1753,102 +1823,110 @@ export function DiscoverPage() {
                     ).length;
                     return (
                       <article
-                        className={`discover-card ${selectedId === job.id ? "is-selected" : ""}`}
+                        className={[
+                          "discover-card",
+                          compact && "discover-compact-role",
+                          endsStack && "discover-compact-end",
+                          layered && "discover-compact-layers",
+                          selectedId === job.id && "is-selected",
+                        ].filter(Boolean).join(" ")}
                         data-job-id={job.id}
                         key={job.id}
                       >
-                        <div className="discover-card-top">
-                          <div className="discover-card-identity">
-                            <CompanyMark name={job.company?.name || job.employer} logoUrl={employerLogo(job)} />
-                            <span className={`discover-status ${status.tone}`}>
-                              {status.label}
-                            </span>
-                          </div>
-                          <div className="discover-card-tools">
-                            {agentTools && selecting && (
-                              <label className="discover-agent-selection">
-                                <input
-                                  type="checkbox"
-                                  checked={agentSelection.includes(job.id)}
-                                  aria-label={`Select ${job.title} at ${job.employer}`}
-                                  disabled={startingAgent}
-                                  onChange={(event) => {
-                                    if (selectionInFlight.current) return;
-                                    const checked = event.currentTarget.checked;
-                                    setAgentSelection((current) =>
-                                      checked
-                                        ? [...new Set([...current, job.id])]
-                                        : current.filter((id) => id !== job.id),
-                                    );
-                                  }}
-                                />
-                                <span aria-hidden="true"><CheckIcon size={12} /></span>
-                              </label>
-                            )}
-                            {currentRemoval(job) ? (
-                              <>
-                                <button
-                                  type="button"
-                                  className="discover-icon-button"
-                                  aria-label={`Add removal reason for ${job.title}`}
-                                  title="Add removal reason"
-                                  onClick={() =>
-                                    addRemovalReason(job, currentRemoval(job)!)
-                                  }
-                                >
-                                  <MessageSquare size={16} />
-                                </button>
+                        {!compact && (
+                          <div className="discover-card-top">
+                            <div className="discover-card-identity">
+                              <CompanyMark name={job.company?.name || job.employer} logoUrl={employerLogo(job)} />
+                              <span className={`discover-status ${status.tone}`}>
+                                {status.label}
+                              </span>
+                            </div>
+                            <div className="discover-card-tools">
+                              {agentTools && selecting && (
+                                <label className="discover-agent-selection">
+                                  <input
+                                    type="checkbox"
+                                    checked={agentSelection.includes(job.id)}
+                                    aria-label={`Select ${job.title} at ${job.employer}`}
+                                    disabled={startingAgent}
+                                    onChange={(event) => {
+                                      if (selectionInFlight.current) return;
+                                      const checked = event.currentTarget.checked;
+                                      setAgentSelection((current) =>
+                                        checked
+                                          ? [...new Set([...current, job.id])]
+                                          : current.filter((id) => id !== job.id),
+                                      );
+                                    }}
+                                  />
+                                  <span aria-hidden="true"><CheckIcon size={12} /></span>
+                                </label>
+                              )}
+                              {currentRemoval(job) ? (
+                                <>
+                                  <button
+                                    type="button"
+                                    className="discover-icon-button"
+                                    aria-label={`Add removal reason for ${job.title}`}
+                                    title="Add removal reason"
+                                    onClick={() =>
+                                      addRemovalReason(job, currentRemoval(job)!)
+                                    }
+                                  >
+                                    <MessageSquare size={16} />
+                                  </button>
+                                  <Action
+                                    previewAllowed
+                                    keepContentWhileBusy
+                                    className="discover-icon-button"
+                                    aria-label={`Restore ${job.title}`}
+                                    title="Restore role"
+                                    run={async () => restoreJob(job)}
+                                  >
+                                    <RotateCcw size={16} />
+                                  </Action>
+                                </>
+                              ) : (
                                 <Action
                                   previewAllowed
                                   keepContentWhileBusy
                                   className="discover-icon-button"
-                                  aria-label={`Restore ${job.title}`}
-                                  title="Restore role"
-                                  run={async () => restoreJob(job)}
+                                  aria-label={`Remove ${job.title}`}
+                                  title="Remove role"
+                                  run={async () => removeJob(job)}
                                 >
-                                  <RotateCcw size={16} />
+                                  <CircleMinus size={16} />
                                 </Action>
-                              </>
-                            ) : (
-                              <Action
-                                previewAllowed
-                                keepContentWhileBusy
-                                className="discover-icon-button"
-                                aria-label={`Remove ${job.title}`}
-                                title="Remove role"
-                                run={async () => removeJob(job)}
-                              >
-                                <CircleMinus size={16} />
-                              </Action>
-                            )}
-                            {pendingRole(job) && (pendingCapacity ? (
-                              <span className="discover-capacity-status">
-                                {pendingCapacity}<span className="visually-hidden"> for this company</span>
-                              </span>
-                            ) : (
-                              <Action
-                                previewAllowed
-                                keepContentWhileBusy
-                                data-opportunity-id={job.id}
-                                className={`discover-icon-button ${job.saved ? "is-saved" : ""}`}
-                                disabled={savingIds.includes(job.id) ||
-                                  Boolean(pendingBlocker && !canResolveCompanyBlocker(pendingBlocker))}
-                                aria-describedby={blockerId}
-                                aria-label={`${pendingActionLabel(job.saved)} · ${job.title}`}
-                                title={pendingActionLabel(job.saved)}
-                                aria-pressed={Boolean(job.saved)}
-                                run={async (button) =>
-                                  saveJob(job.id, !job.saved, button)
-                                }
-                              >
-                                <Bookmark
-                                  size={16}
-                                  fill={job.saved ? "currentColor" : "none"}
-                                />
-                              </Action>
-                            ))}
+                              )}
+                              {pendingRole(job) && (pendingCapacity ? (
+                                <span className="discover-capacity-status">
+                                  {pendingCapacity}<span className="visually-hidden"> for this company</span>
+                                </span>
+                              ) : (
+                                <Action
+                                  previewAllowed
+                                  keepContentWhileBusy
+                                  data-opportunity-id={job.id}
+                                  className={`discover-icon-button ${job.saved ? "is-saved" : ""}`}
+                                  disabled={savingIds.includes(job.id) ||
+                                    Boolean(pendingBlocker && !canResolveCompanyBlocker(pendingBlocker))}
+                                  aria-describedby={blockerId}
+                                  aria-label={`${pendingActionLabel(job.saved)} · ${job.title}`}
+                                  title={pendingActionLabel(job.saved)}
+                                  aria-pressed={Boolean(job.saved)}
+                                  run={async (button) =>
+                                    saveJob(job.id, !job.saved, button)
+                                  }
+                                >
+                                  <Bookmark
+                                    size={16}
+                                    fill={job.saved ? "currentColor" : "none"}
+                                  />
+                                </Action>
+                              ))}
+                            </div>
                           </div>
-                        </div>
+                        )}
                         <button
                           ref={(element) => {
                             if (element) {
@@ -1871,55 +1949,65 @@ export function DiscoverPage() {
                           }}
                         >
                           <h3>{job.title}</h3>
+                          {compact && (
+                            <>
+                              {metadata && <span className="discover-card-location">{metadata}</span>}
+                              <ChevronRight size={16} aria-hidden="true" />
+                            </>
+                          )}
                         </button>
-                        {metadata && (
-                          <p className="discover-card-location">{metadata}</p>
-                        )}
-                        {client.preview && (
-                          <OpportunityListingLink
-                            url={job.url}
-                            className="discover-card-listing"
-                            label={`View listing for ${job.title} at ${job.employer}`}
-                          >
-                            View listing
-                          </OpportunityListingLink>
-                        )}
-                        {salary && (
-                          <p
-                            className="discover-card-salary"
-                            title={advertisedSalary(job)}
-                          >
-                            {salary}
-                          </p>
-                        )}
-                        {!applicationView && (related > 0 || caution) && (
-                          <div className="discover-card-fit">
-                            {related > 0 && (
-                              <p>
-                                Related evidence for {related}{" "}
-                                {related === 1 ? "requirement" : "requirements"}
+                        {!compact && (
+                          <>
+                            {metadata && (
+                              <p className="discover-card-location">{metadata}</p>
+                            )}
+                            {client.preview && (
+                              <OpportunityListingLink
+                                url={job.url}
+                                className="discover-card-listing"
+                                label={`View listing for ${job.title} at ${job.employer}`}
+                              >
+                                View listing
+                              </OpportunityListingLink>
+                            )}
+                            {salary && (
+                              <p
+                                className="discover-card-salary"
+                                title={advertisedSalary(job)}
+                              >
+                                {salary}
                               </p>
                             )}
-                            {caution && (
-                              <p className="discover-card-check">
-                                <ShieldAlert size={14} aria-hidden="true" />
-                                <span>{caution}</span>
+                            {!applicationView && (related > 0 || caution) && (
+                              <div className="discover-card-fit">
+                                {related > 0 && (
+                                  <p>
+                                    Related evidence for {related}{" "}
+                                    {related === 1 ? "requirement" : "requirements"}
+                                  </p>
+                                )}
+                                {caution && (
+                                  <p className="discover-card-check">
+                                    <ShieldAlert size={14} aria-hidden="true" />
+                                    <span>{caution}</span>
+                                  </p>
+                                )}
+                              </div>
+                            )}
+                            {blockerText && !pendingCapacity && (
+                              <p className="discover-capacity-note" id={blockerId}>
+                                {blockerText}
                               </p>
                             )}
-                          </div>
-                        )}
-                        {blockerText && !pendingCapacity && (
-                          <p className="discover-capacity-note" id={blockerId}>
-                            {blockerText}
-                          </p>
-                        )}
-                        {removedView && currentRemoval(job)?.reason && (
-                          <p
-                            className="discover-removal-reason"
-                            title={currentRemoval(job)?.reason}
-                          >
-                            Reason: {currentRemoval(job)?.reason}
-                          </p>
+                            {removedView && currentRemoval(job)?.reason && (
+                              <p
+                                className="discover-removal-reason"
+                                title={currentRemoval(job)?.reason}
+                              >
+                                Reason: {currentRemoval(job)?.reason}
+                              </p>
+                            )}
+                          </>
                         )}
                       </article>
                     );

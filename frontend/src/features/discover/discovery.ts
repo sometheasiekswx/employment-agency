@@ -15,12 +15,30 @@ export function pendingActionLabel(saved?: boolean) {
   return saved ? "Remove from To apply" : "Apply later";
 }
 
+function pendingCapacityBlocked(job: Job, blocker?: ApplicationBlocker) {
+  return !job.saved && blocker?.code === "company_slots_used" &&
+    (!job.application_blocker || job.application_blocker.code === blocker.code);
+}
+
 export function pendingCapacityStatus(job: Job, blocker?: ApplicationBlocker) {
-  if (
-    job.saved || blocker?.code !== "company_slots_used" ||
-    (job.application_blocker && job.application_blocker.code !== blocker.code)
-  ) return undefined;
+  if (!pendingCapacityBlocked(job, blocker)) return undefined;
   return job.company?.pending_only_count === 2 ? "2 selected" : "No slots left";
+}
+
+export function stacksAtPendingLimit(job: Job) {
+  return Boolean(
+    job.hiring_employer_verified &&
+    job.company?.id &&
+    job.company.pending_only_count === 2 &&
+    pendingCapacityBlocked(job, job.pending_blocker),
+  );
+}
+
+export function employerQueueHref(employerId: string) {
+  return `/discover/?${new URLSearchParams({
+    view: "to-apply",
+    employer: employerId,
+  })}`;
 }
 
 export function displayedBlocker(job: Job, pending?: ApplicationBlocker) {

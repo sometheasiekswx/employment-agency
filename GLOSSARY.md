@@ -78,7 +78,10 @@ A link to a job listing, company careers page or listing site's home page. In a 
 The system browser view opened from an installed mobile app when following a listing or company link. Closing it returns to the workspace.
 
 **Removed opportunity**:
-A role the user has set aside across search profiles and application lists. Removed holds its listing, application versions, documents and decisions. Restore returns the role and its application to their previous lists. Current applications rejected in an earlier version also appear here and restore as drafts.
+A role set aside across search profiles and application lists by the user or the approved company-limit policy. Removed holds its listing, application versions, documents and decisions. Restore returns the role and its application to their previous lists. Current applications rejected in an earlier version also appear here and restore as drafts.
+
+**Company-limit removal**:
+A recoverable removal of a remaining Jobs role after two distinct confirmed submissions in its verified employer's current round. It preserves documents and history and leaves To apply choices and submitted vacancies intact. A cooldown ending does not restore the role automatically. See [ADR 0019](docs/adr/0019-remove-remaining-jobs-after-two-confirmed-submissions.md).
 
 **Removal reason**:
 An optional comment associated with removing an opportunity. Adding it is separate from removal and never a prerequisite for continuing to browse.

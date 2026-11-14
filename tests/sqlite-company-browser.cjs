@@ -147,11 +147,20 @@ const path = require("node:path");
     const draft = await action("local-package", { job_id: second.id, profile_id: profile.id });
     await action("review", { id: draft.id, status: "submitted" });
     await page.goto(base + "/discover/?view=all");
-    await page.getByText("Companies are paused", { exact: true }).waitFor();
-    assert.equal(await page.getByRole("button", { name: "Assess Infrastructure Engineer at Fictional Harbour" }).count(), 0);
+    await page.getByText("No roles in Jobs", { exact: true }).waitFor();
+    const remainingRole = page.getByRole("button", { name: "Assess Infrastructure Engineer at Fictional Harbour" });
+    assert.equal(await remainingRole.count(), 0);
     const pausedAdd = await request("save-job", { id: last.id, saved: true });
     assert.equal(pausedAdd.status(), 409);
-    assert.equal((await pausedAdd.json()).code, "company_paused");
+    assert.equal((await pausedAdd.json()).code, "role_removed");
+    await page.getByRole("button", { name: "Removed (1)" }).click();
+    await remainingRole.waitFor();
+    await page.getByText("Reason: Company application limit reached", { exact: true }).waitFor();
+    const removedQueue = await action("application-queue", { stage: "removed" });
+    assert.deepEqual(removedQueue.rows.map(({ job_id }) => job_id), [last.id]);
+    const retainedSubmissions = await action("application-queue", { stage: "submitted" });
+    assert.deepEqual(new Set(retainedSubmissions.rows.map(({ job_id }) => job_id)), new Set([first.id, second.id]));
+    assert.deepEqual(await (await page.request.get(`${base}/files/${held[0].application_id}/resume.pdf`)).body(), original);
     const paused = (await action("company-roles", { job_id: last.id })).status;
     assert.equal(paused.remaining, 0);
     assert.ok(Number.isFinite(Date.parse(paused.cooldown_until)));
@@ -174,7 +183,7 @@ const path = require("node:path");
     await months.waitFor();
     assert.equal(await months.inputValue(), "6");
 
-    console.log(`SQLite mobile-width ${useWebKit ? "WebKit" : "Chromium"} passed: inline employer resolution, reserved self-apply, exact submitted bytes, shortlist, cooldown and settings`);
+    console.log(`SQLite mobile-width ${useWebKit ? "WebKit" : "Chromium"} passed: inline employer resolution, reserved self-apply, exact submitted bytes, shortlist, automatic removal, cooldown and settings`);
   } finally {
     await browser.close();
   }

@@ -1733,17 +1733,24 @@ it("projects a full employer allowance consistently in the Jobs card and inspect
   };
   job.pending_blocker = full;
   job.application_blocker = full;
+  job.hiring_employer_verified = true;
   job.company = { id: "fictional-employer", cooling: false, remaining: 0, pending_only_count: 2 };
   fixture.query = "view=jobs&opportunity=job-a&assessment_profile=profile-a";
   const view = render(<DiscoverPage />);
   const inspector = within(await screen.findByRole("dialog", { name: "Cloud Engineer" }));
-  expect(await screen.findAllByText("2 selected")).toHaveLength(2);
+  expect(await screen.findAllByText("2 of 2 selected")).toHaveLength(1);
+  expect(inspector.getByText("2 selected")).toBeVisible();
   expect(inspector.queryByRole("button", { name: "Apply later" })).toBeNull();
   expect(screen.queryByRole("button", { name: "Apply later · Cloud Engineer" })).toBeNull();
+  const href = screen.getByRole("link", { name: "Change selections" }).getAttribute("href");
+  expect(new URL(href!, "http://localhost").searchParams.toString()).toBe(
+    "view=to-apply&employer=fictional-employer",
+  );
 
   job.company = { ...job.company, pending_only_count: 1 };
   view.rerender(<DiscoverPage />);
   expect(screen.getAllByText("No slots left")).toHaveLength(2);
+  expect(screen.queryByRole("link", { name: "Change selections" })).toBeNull();
 
   job.application_blocker = { code: "listing_closed", message: "This vacancy is closed" };
   view.rerender(<DiscoverPage />);

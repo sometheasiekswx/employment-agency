@@ -199,6 +199,10 @@ Pass `{"job_ids":["JOB_ID"]}` to `application-handoff` for explicit choices or `
 
 In Jobs, `research-handoff` produces the five-company research prompt for an optional `profile_id`. The prompt uses the live cooldown and employer checks above. `company-research-check` exposes both `remaining` application slots and `research_eligible`. Pending choices affect the former while confirmed cooldowns and unresolved history continue to govern research.
 
+After two dated, confirmed vacancies in the current round, the local SQLite app moves remaining Jobs at the verified employer to Removed. Submitted vacancies, equivalent listings, To apply choices and active application work stay in place. Removed roles retain their drafts and documents and can be restored explicitly. Cooldown expiry opens two slots. It leaves the removal history intact.
+
+For an authorized cleanup of existing active rounds, use the shared Jobs cleanup preview and apply operations. They list the exact affected roles and any skipped unresolved or protected work. See [the existing-round operation contract](../tasks/clean-selection-agent-prompts/jobs-cleanup-verification.md#existing-round-operation).
+
 Call these operations through the running app's [protected API](#when-the-local-server-is-running). If the app is stopped, the same validators are available through the shared CLI.
 
 ```sh

@@ -214,7 +214,7 @@ class Service:
             snapshot = self.w.database.summary() if self.w.database else None
             queue = self.w.database.queue_page(historical=True)['rows'] if self.w.database else None
         from .application_context import role_blocker
-        from .application_queue import pending_choices
+        from .application_queue import confirmed_equivalents, equivalent_submissions, pending_choices, visible_removals
 
         choices = pending_choices(state)
         slots = companies.ApplicationSlots(state) if snapshot else None
@@ -224,6 +224,9 @@ class Service:
         state.pop('application_destinations', None)
         submitted = submitted_job_ids(state)
         submitted_dates = companies.submission_dates(state) if snapshot else {}
+        confirmed = submitted | submitted_dates.keys()
+        if snapshot:
+            confirmed.update(confirmed_equivalents(state, equivalent_submissions(state)))
         rejected = legacy_rejections(state)
         skills = matching.skills_by_key(matching.available(state['facts']))
         unlisted = state.get('unlisted_removals', {})
@@ -239,6 +242,8 @@ class Service:
                 job['prior_application'] = 'submitted'
             if job['id'] in rejected:
                 include_legacy_removal(job.setdefault('removals', []), rejected.pop(job['id']))
+            if snapshot and 'removals' in job:
+                job['removals'] = visible_removals(job['removals'], job['id'] in confirmed)
             skill_evidence = matching.skill_evidence(job.get('requirements'), skills)
             if skill_evidence:
                 job['matched_skill_evidence'] = skill_evidence
@@ -894,6 +899,10 @@ class Service:
 
             operation = company_logos.inventory if action == 'company-logo-inventory' else company_logos.backfill
             return operation(self.w, args)
+        if action in ('company-jobs-cleanup-preview', 'company-jobs-cleanup-apply'):
+            from . import company_cleanup
+
+            return company_cleanup.operation(self, action, args)
         if action == 'company-research':
             ids = args.get('job_ids')
             if not isinstance(ids, list) or any(not isinstance(job_id, str) for job_id in ids):
@@ -1071,6 +1080,8 @@ class Service:
             return record
 
     def job_removal(self, action, a):
+        from .application_queue import confirmed_equivalents, equivalent_submissions, superseded_removal, visible_removals
+
         job_id, removal_id = a.get('id'), a.get('removal_id')
         if not isinstance(job_id, str) or not re.fullmatch(r'[a-f0-9]{24,32}', job_id):
             raise ValueError('Invalid job ID')
@@ -1090,6 +1101,12 @@ class Service:
             event = next((item for item in removals if item['id'] == removal_id), None)
             latest = removals[-1] if removals else None
             active = latest if latest and not latest.get('restored_at') else None
+            confirmed = False
+            if self.w.database and active:
+                confirmed = (job_id in companies.submission_dates(s)
+                             or job_id in confirmed_equivalents(s, equivalent_submissions(s)))
+                if superseded_removal(removals, confirmed):
+                    active = None
             if action == 'remove-job':
                 # A delayed retry must not reapply an event that was restored.
                 if event is None:
@@ -1121,7 +1138,7 @@ class Service:
                         check_restored_choice(s, job_id, was_pending)
             elif event['reason'] != comment:
                 event.update({'reason': comment, 'reason_updated_at': now()})
-        return {'id': job_id, 'removals': removals}
+        return {'id': job_id, 'removals': visible_removals(removals, confirmed)}
 
     def add_job(self, a, *, match_url=False, state=None, source_requisition=None, discovered=False):
         if state is None:

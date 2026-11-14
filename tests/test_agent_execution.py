@@ -1,6 +1,7 @@
 """Connected authorization, worker lifecycle and recoverable artifact recording."""
 
 from pathlib import Path
+from datetime import datetime, timezone
 import shutil
 import sqlite3
 import tempfile
@@ -110,7 +111,9 @@ class AgentTests(AgentTestWorkspace):
     def test_two_pending_roles_can_start_and_submit_in_their_existing_slots(self):
         employer = companies.employer_link(self.service.w.read(), self.job['id'])['employer_id']
         other = self.service.action('job', {**self.job, 'id': None, 'url': 'https://employer.example.test/another'})
-        self.service.action('company-map', {'job_id': other['id'], 'employer_id': employer, 'confirmed': True})
+        standby = self.service.action('job', {**self.job, 'id': None, 'url': 'https://employer.example.test/standby'})
+        for job in (other, standby):
+            self.service.action('company-map', {'job_id': job['id'], 'employer_id': employer, 'confirmed': True})
         fixture.destination(self.service, other, 'website', fixture.TARGET)
         ids = [self.job['id'], other['id']]
         for job_id in ids:
@@ -123,6 +126,8 @@ class AgentTests(AgentTestWorkspace):
         status = self.service.action('company-roles', {'job_id': other['id']})['status']
         self.assertTrue(status['cooling'])
         self.assertEqual(len(status['submitted_vacancies']), 2)
+        removed, = self.service.action('application-queue', {'stage': 'removed'})['rows']
+        self.assertEqual(removed['job_id'], standby['id'])
 
     def test_unknown_dispatch_never_falls_back_and_can_reconcile(self):
         def timeout():
@@ -143,20 +148,33 @@ class AgentTests(AgentTestWorkspace):
         self.assertEqual(len(self.site.requests), 1)
         self.assertEqual(companies.job_status(self.service.w.read(), self.job['id'])['remaining'], 2)
 
-    def test_user_confirmed_outcome_keeps_unknown_version_unassociated(self):
+    @patch.object(companies, 'clock', return_value=datetime(2026, 11, 14, tzinfo=timezone.utc))
+    def test_user_confirmed_outcome_keeps_unknown_version_unassociated(self, _):
         def timeout():
             raise TimeoutError('fictional connection lost')
 
+        link = companies.employer_link(self.service.w.read(), self.job['id'])
+        first = self.service.action('job', {**self.job, 'id': None, 'url': 'https://employer.example.test/confirmed'})
+        standby = self.service.action('job', {**self.job, 'id': None, 'url': 'https://employer.example.test/standby'})
+        for job in (first, standby):
+            self.service.action('company-map', {'job_id': job['id'], 'employer_id': link['employer_id'], 'confirmed': True})
+        app = self.service.action('local-package', {'job_id': first['id'], 'profile_id': self.profile['id']})
+        self.service.action('review', {'id': app['id'], 'status': 'submitted', 'occurred_at': '2026-11-12'})
         self.site.after = timeout
         run = self.start()
         self.status(run, {'uncertain'})
+        self.assertEqual(self.service.action('application-queue', {'stage': 'removed'})['rows'], [])
         result = self.service.action('agent-application-resolve', {'id': run['id'], 'outcome': 'confirmed',
                                      'evidence': 'I verified the other document on the controlled website.',
                                      'occurred_at': '2026-11-13T14:00:00+00:00', 'confirmed': True})['runs'][0]
         self.assertEqual(result['status'], 'submitted')
         self.assertIsNone(result['document_application_id'])
         self.assertNotIn('application_id', result)
-        self.assertEqual(self.service.w.read()['applications'][0]['status'], 'draft')
+        state = self.service.w.read()
+        submitted_draft = next(item for item in state['applications'] if item['job_id'] == self.job['id'])
+        self.assertEqual(submitted_draft['status'], 'draft')
+        removed, = self.service.action('application-queue', {'stage': 'removed'})['rows']
+        self.assertEqual(removed['job_id'], standby['id'])
         self.assertEqual(len(self.site.requests), 1)
 
     def test_expired_undispatched_reservation_can_be_stopped_and_replaced(self):

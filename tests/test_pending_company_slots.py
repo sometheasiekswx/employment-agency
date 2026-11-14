@@ -138,7 +138,12 @@ class PendingCompanySlots(TestCase):
             self.report(self.start(second_draft), documents_used=True, occurred_at='2026-01-16')
             self.assertTrue(self.context(third)['allowance']['cooling'])
             self.assertTrue(self.s.action('company-avoid', {})['companies'])
+            removal, = companies.by_id(self.w.read()['jobs'], third['id'])['removals']
         with patch.object(companies, 'clock', return_value=datetime(2026, 4, 17, tzinfo=timezone.utc)):
+            self.assertEqual(self.context(third)['allowance']['remaining'], 2)
+            with self.assertRaisesRegex(ValueError, 'Restore this role'):
+                self.choice(third)
+            self.s.action('restore-job', {'id': third['id'], 'removal_id': removal['id']})
             self.choice(third)
             self.assertEqual(self.context(third)['allowance']['remaining'], 1)
 
