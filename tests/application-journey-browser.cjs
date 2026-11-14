@@ -140,16 +140,26 @@ async function verifyNoHorizontalOverflow(page, label) {
           ? route.continue()
           : route.abort(),
       );
-      for (const [url, title] of [
-        [listing, "Fictional platform listing"],
-        [applicationSite, "Fictional platform application form"],
-      ])
-        await context.route(url, (route) =>
-          route.fulfill({
-            contentType: "text/html",
-            body: `<h1>${title}</h1>`,
-          }),
-        );
+      await context.route(listing, (route) =>
+        route.fulfill({
+          contentType: "text/html",
+          body: "<h1>Fictional platform listing</h1>",
+        }),
+      );
+      // Playwright intercepts the initial request, but Chrome skips its route
+      // handler after a real external redirect. Check the actual server's 302
+      // and deliver the fictional form to this popup without any external I/O.
+      await context.route("**/api/application-site/**", async (route) => {
+        const redirect = await route.fetch({ maxRedirects: 0 });
+        assert.equal(redirect.status(), 302);
+        assert.equal(redirect.headers().location, applicationSite);
+        assert.equal(redirect.headers()["referrer-policy"], "no-referrer");
+        assert.equal(redirect.headers()["cache-control"], "no-store");
+        await route.fulfill({
+          contentType: "text/html",
+          body: "<h1>Fictional platform application form</h1>",
+        });
+      });
       await context.route("**/api/agent-capabilities", (route) =>
         route.fulfill({
           json: {
@@ -389,7 +399,9 @@ async function verifyNoHorizontalOverflow(page, label) {
       page.waitForEvent("popup"),
       actionButton(page, "Open application site").click(),
     ]);
-    await popup.waitForURL(applicationSite);
+    await popup.waitForURL((url) =>
+      url.pathname.startsWith("/api/application-site/"),
+    );
     await popup
       .getByRole("heading", { name: "Fictional platform application form" })
       .waitFor();
