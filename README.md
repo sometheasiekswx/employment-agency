@@ -16,7 +16,7 @@ Find roles in your chosen locations, assess the match and prepare applications y
 
 [**Explore the live demo →**](https://employment-agency-demo.vercel.app/discover/)
 
-Employer listings · Seven destinations · No sign-in
+Reviewed employer listings · Tab-local drafts · No sign-in
 
 [The workspace](#the-workspace) · [Run locally](#run-locally) · [Test locally](#test-locally) · [Use your agent](#use-your-agent) · [Documentation](#documentation)
 
@@ -24,12 +24,12 @@ Employer listings · Seven destinations · No sign-in
 
 ### Desktop · Keep the shortlist in view
 
-Compare opportunities, choose a profile in Filters and inspect supporting evidence in the same workspace.
+Compare roles by company, filter by location and inspect supporting evidence in the same workspace. Company headers show verified logos when available and initials otherwise; opening a role keeps its details beside the board.
 
 <a href="docs/media/discover-review.gif">
   <picture>
     <source media="(prefers-reduced-motion: reduce)" srcset="docs/media/discover-review.png">
-    <img src="docs/media/discover-review.gif" alt="Desktop Opportunities workspace comparing fictional roles by location, opening the inspector and reviewing career evidence without leaving the shortlist" width="1120">
+    <img src="docs/media/discover-review.gif" alt="Desktop Opportunities workspace comparing fictional roles by company, opening role details and reviewing career evidence without leaving the board" width="1120">
   </picture>
 </a>
 
@@ -64,7 +64,9 @@ The recordings use a disposable fictional workspace. In the public demo, view th
 | **History**            | Open the exact preserved version of a document.                                                             |
 | **Settings**           | Choose Dark, Light or System, select a workspace, manage consent and export a backup.                       |
 
-Assessments keep evidence, gaps and unknowns visible. Live search, loading skeletons, save feedback and recoverable errors support the review flow. Keyboard navigation stays immediate; motion follows your reduced-motion preference.
+Assessments keep evidence, gaps and unknowns visible. The company board puts the job title first, with Remove and Apply later stacked beside it and status beside location. Company logos appear in headers and opened details. Work-rights uncertainty stays in the details, with other relevant cautions available in the preview. Keyboard navigation stays immediate; motion follows your reduced-motion preference.
+
+Saving or removing a role keeps the remaining companies in their columns and preserves review order. A new search, filter, profile or responsive column count can start a new layout. Companies with more than two suitable distinct roles can show two evidence-backed highlights while retaining the other roles; these recommendations do not choose applications for you.
 
 **Clear the shortlist without losing your records.** Remove a role from Opportunities or Applications and continue with the next one. Open Applications → Removed to review its documents and activity, add a reason or restore it to its previous lists.
 
@@ -74,7 +76,7 @@ Assessments keep evidence, gaps and unknowns visible. Live search, loading skele
 
 Start here to use the app for your own job search. Your **software folder** contains the app; your **career workspace** contains your CV, preferences and applications. Keep the career workspace outside this public repository. No provider API key is needed to import a CV, save jobs or prepare documents.
 
-You need Git, **Python 3.11+**, and **Node.js 24+ with npm** to build from source. Check `python3 --version` and `node --version` first. A [prebuilt release wheel](https://github.com/sometheasiekswx/employment-agency/releases) already includes the frontend and needs only Python; see [wheel installation](docs/running-locally.md#install-a-release-wheel).
+You need Git, **Python 3.11+**, and **Node.js 24+ with npm** to build from source. Check `python3 --version` and `node --version` first. A [prebuilt release wheel](https://github.com/sometheasiekswx/employment-agency/releases) already includes the frontend and needs only Python; see [wheel installation](docs/running-locally.md#install-a-release-wheel). This README describes current `main`; a tagged wheel contains the features at its release, so check its release notes before choosing an installation.
 
 <a id="quickstart"></a>
 
@@ -92,7 +94,7 @@ npm --prefix frontend run build
 .venv/bin/python -m employment_agency --workspace "$HOME/Documents/my-career-workspace" init
 ```
 
-The last command creates your private career workspace. Replace that path with another **new folder** if you prefer. To open an existing workspace, skip `init` and use its path when starting the app.
+The last command creates your private SQLite career workspace. Replace that path with another **new folder** if you prefer. To open an existing workspace, skip `init` and use its path when starting the app. A Git clone of a SQLite workspace contains its readable snapshot rather than its live database; [restore the snapshot into a new folder](docs/running-locally.md#sqlite-workspaces-and-backups) before opening it.
 
 <details>
 <summary>Windows PowerShell commands</summary>
@@ -126,7 +128,7 @@ Open **http://127.0.0.1:8766** and choose **Use this workspace** on first launch
 
 1. Under **Career profile → Import resume**, choose PDF, DOCX, TXT, Markdown or TeX. Keep **Use this file as my master resume** checked and click **Import for review**. Choose **Review master changes**, review the proposed facts and confirm the ones you want to use. Check the contact details under **Your details**.
 2. **Search preferences:** in **Create your first profile**, enter target roles and locations in priority order. Separate locations with commas or new lines. Put Remote or Hybrid in **Work arrangements**. Only record work rights you can confirm, then click **Save profile**.
-3. Use **Find new jobs** with a public careers URL or configured source, or use **Add opportunity** to paste an advert. Open **Jobs** to compare the imported roles and see any preference mismatches. Choose **Apply later** to keep a role in **To apply**.
+3. In **Search preferences**, use **Find new jobs** with a public careers URL or configured source, or **Add opportunity** to paste an advert. Open **Jobs** to compare the imported roles and see any preference mismatches. Choose **Apply later** to keep a role in **To apply**.
 4. Open a role and choose **Prepare application**. Review its CV and cover letter, then use **Open application site** to apply yourself. Return to **I've applied** to record the submission and its evidence. **Apply for me** starts a configured agent and authorizes submission for the selected roles.
 
 [Full first-application walkthrough](docs/getting-started.md) · [Codex gate setup](#enable-the-codex-job-research-gate) · [Backup and restore](docs/running-locally.md#back-up-without-upgrading)
@@ -177,6 +179,11 @@ Before each job search or follow-up, run the local company-avoid lookup in docs/
 Research five eligible hiring companies in my chosen locations. Prioritize employers
 where I have never applied. Check each accessible official careers source and include
 every eligible role, ranked by company, with source URLs, checked dates and unknowns.
+Check each hiring employer with company-research-check before its targeted fetch.
+Attempt each company's official logo and retain source evidence; report missing assets.
+When a company has more than two suitable distinct roles, save exactly two supported
+company highlights and retain the other roles. Run company-research-complete for the
+current workspace, profile and checked job IDs before reporting research complete.
 Use confirmed experience, preserve document versions and ask about unknowns.
 Stop before paid requests, uploads, sending or submission.
 Keep personal data out of the public repository and its screenshots.
@@ -187,6 +194,8 @@ Keep personal data out of the public repository and its screenshots.
 ## Documentation
 
 [First application](docs/getting-started.md) · [Local setup and troubleshooting](docs/running-locally.md) · [Connected agent setup](docs/apply-for-me.md) · [Contributing](CONTRIBUTING.md) · [System design](docs/system-design.md) · [Design system](DESIGN.md) · [Document editing](docs/document-editor.md) · [Security](SECURITY.md) · [Deployment and recovery](docs/public-demo-deployment.md) · [Private hosted pilot](docs/hosted-pilot.md)
+
+[Documentation index](docs/README.md) separates current guides from dated implementation and verification records. [Changelog](CHANGELOG.md) distinguishes source updates from tagged releases.
 
 <details>
 <summary>See document review and preserved history</summary>

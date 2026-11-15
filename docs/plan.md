@@ -1,5 +1,7 @@
 # Delivery plan
 
+> Historical plan for the original 0.1 release. The dependency count and delivery boundaries below describe that scope. Use [current setup](../README.md#run-locally), [dependencies](dependencies.md) and [system design](system-design.md) for the maintained application.
+
 1. Workspace and career facts: atomic storage, provenance, confirmation/conflicts, import limits. Verify corruption and unconfirmed-fact rejection.
 2. Discovery and profiles: source adapters, safe URL retrieval, hard/soft filtering, salary/eligibility uncertainty. Verify fixtures and live public endpoints separately.
 3. Documents and runs: bounded resumable jobs, immutable versions, DOCX/PDF/LaTeX/EML, fact-only provider selection. Verify parsed outputs and cancellation/resume.

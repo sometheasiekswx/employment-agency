@@ -1,6 +1,14 @@
-> For the current local 0.2 build, see [workspace refactor verification](workspace-refactor.md). Results below concern earlier releases.
+# Verification
 
-# Release verification — 0.1.0
+## Current checks
+
+Follow [local setup and commands](../README.md#test-locally) for lint, type checking, frontend unit tests, the production build and Python tests. [Contributing](../CONTRIBUTING.md#browser-checks) covers production-export browser workflows with disposable local and hosted fixtures. Run `.venv/bin/python tests/check_wheel.py path/to/wheel.whl` for the installed-package checks, using the Windows Python path there. Linux CI also exercises the installed wheel in Chrome.
+
+GitHub Actions runs the contract and packaging checks on Linux, macOS and Windows. Linux also runs the browser suites, including static public preview and connected application fixtures. The public demo's exact-commit checks are documented in its [deployment runbook](public-demo-deployment.md#verify-and-recover). The hosted browser fixture uses synthetic authentication and storage. Live Google sign-in, hosted storage policies and native dialogs need separate checks. [Workflow](../.github/workflows/check.yml) · [Hosted pilot](hosted-pilot.md#provider-setup-required-before-enabling-the-pilot)
+
+## Release verification — 0.1.0
+
+The following results are historical. [0.2 workspace refactor verification](workspace-refactor.md) · [0.3 startup verification](startup-verification.md)
 
 ## Passed locally on macOS
 

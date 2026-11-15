@@ -31,16 +31,16 @@ The owner confirmed these decisions on 14 November 2026:
 
 The owner confirmed these requirements and the complete journey, including replacing the earlier final-approval policy, during the documented design interview on 14 November 2026.
 
-## Current behavior and evidence
+## Behavior before implementation and evidence
 
-Source inspected on 14 November 2026:
+Source inspected on 14 November 2026. The table describes the earlier interface, before this journey was implemented. Removed component links are pinned to the preceding source revision:
 
 | Finding | Owning source |
 | --- | --- |
 | Preparing a draft refreshes the role and replaces the primary action with **Review documents**; the user still opens the separate document panel. | [Discover page](../../frontend/src/features/discover/discover-page.tsx), [role inspector](../../frontend/src/features/discover/opportunity-inspector.tsx) |
-| Overview, Documents and Activity are separate panels. The document view offers CV and cover-letter editing, review status, and both PDF downloads. | [Role workbench](../../frontend/src/features/discover/opportunity-workbench.tsx), [application card](../../frontend/src/features/applications/application-card.tsx) |
+| Overview, Documents and Activity are separate panels. The document view offers CV and cover-letter editing, review status, and both PDF downloads. | [Historical role workbench](https://github.com/sometheasiekswx/employment-agency/blob/da492c130b12508974d055e5dc9ae8a83c0f1364/frontend/src/features/discover/opportunity-workbench.tsx), [application card](../../frontend/src/features/applications/application-card.tsx) |
 | The inspector uses **View advert**, the document card uses **Open application listing**, and the latter lives inside content hidden in Activity. | [Role inspector](../../frontend/src/features/discover/opportunity-inspector.tsx), [application card](../../frontend/src/features/applications/application-card.tsx) |
-| Employer mapping is exposed through **Compare roles at this company**. Submission checks require a confirmed employer; `local-package` itself does not impose that confirmation as a prerequisite. | [Company review](../../frontend/src/features/discover/company-review.tsx), [company rules](../../employment_agency/companies.py), [service preparation](../../employment_agency/service.py) |
+| Employer mapping is exposed through **Compare roles at this company**. Submission checks require a confirmed employer; `local-package` itself does not impose that confirmation as a prerequisite. | [Historical company review](https://github.com/sometheasiekswx/employment-agency/blob/da492c130b12508974d055e5dc9ae8a83c0f1364/frontend/src/features/discover/company-review.tsx), [company rules](../../employment_agency/companies.py), [service preparation](../../employment_agency/service.py) |
 | Manual application handoff exposes document/destination review, a separate reservation form, an application-site link and an outcome form under Activity. | [Company submission](../../frontend/src/features/applications/company-submission.tsx), [handoff operations](../../employment_agency/company_handoff.py) |
 | The present Codex connection selects confirmed fact IDs in a restricted process. It explicitly forbids tools, contacting anyone and applying. The existing `handoff` operation is for fact selection, not submission context. | [Connections](../../employment_agency/delivery_connections.py), [provider handoff](../../employment_agency/providers.py) |
 | The separate delivery implementation accepts Gmail and LinkedIn channels. Its documentation identifies controlled verification and unresolved live-integration limits. This is not a general-purpose agent application bridge. | [Delivery](../../employment_agency/application_delivery.py), [preview documentation](../../docs/apply-for-me.md) |

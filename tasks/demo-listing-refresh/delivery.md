@@ -36,7 +36,7 @@ The static export now includes verified company identities, local logo assets an
 | Desktop and mobile browser suites | Both passed against the static site with the production CSP |
 | Diff and privacy review | Passed; no private workspace data in catalog or sample fixture, including parsed documents |
 
-Browser checks cover all seven destination counts, every company role count, exact two-pick ordering and reasons, remaining roles, nine decoded logos, 25 initials fallbacks, source links, saved choices, sample controls, tab drafts, document import/export and accessibility. [Final browser receipt](../../output/demo-listing-refresh/browser-verification.json). Earlier failure logs are retained as diagnosis evidence and are superseded by the receipt.
+Browser checks cover all seven destination counts, every company role count, exact two-pick ordering and reasons, remaining roles, nine decoded logos, 25 initials fallbacks, source links, saved choices, sample controls, tab drafts, document import/export and accessibility. The final browser receipt was local ignored output, now archived at `output/worktree-archive/employment-agency-demo-refresh/output/demo-listing-refresh/browser-verification.json`; it is not distributed with the repository. Earlier failure logs are retained as diagnosis evidence and are superseded by the receipt.
 
 Local test logs and the full shared completion receipt are under `output/demo-listing-refresh/` (ignored build/research output). Full Linux/macOS/Windows CI, wheel/install checks and live deployment checks have not run for this uncommitted candidate. The existing publishing workflow must still pass those gates.
 

@@ -1,21 +1,21 @@
 # Workspace folder selection
 
-## Requirements
+## Open or create a workspace
 
-Show the workspace location, without a workspace-name field, during setup and in Settings. Replace the separate open/create path forms with **Open Folder**, which opens the computer's folder chooser. Use **Save** for workspace settings. Retain existing labels in stored data for compatibility, but do not use a user-defined name in the interface.
+Check the folder shown during setup or in **Settings → Workspace files**. **Open Folder** opens the desktop chooser on the machine running the local app. Select an existing live workspace to open it, or choose an empty folder or new Git repository to initialize a SQLite workspace. **Save** stores changes to workspace settings. Existing workspace labels remain in stored data for compatibility.
 
-Choosing an existing schema-2 workspace opens it and remembers its location. Choosing an empty folder creates a workspace. Cancel leaves the current workspace and selection unchanged. Nonempty folders without a workspace, locked workspaces, incompatible schemas and active runs must fail without replacing the current workspace. No documents are moved or uploaded.
+The app remembers the selected path. It supports current SQLite workspaces and compatible legacy schema-2 JSON workspaces. A Git snapshot without its live database needs `restore-snapshot` first. Cancel keeps the current selection. A failed open also preserves it, including when the target is locked, too new or contains unrelated files. Finish the current preparation run, delivery or connected application before switching. The app closes an in-progress discovery run when switching to another workspace. [Recovery and migration commands](running-locally.md#sqlite-workspaces-and-backups)
 
-The local server supplies the full path because browser file inputs do not supply a usable server-side directory path. Native adapters use AppleScript on macOS, Windows Forms via PowerShell on Windows, and Zenity or KDialog on Linux. Commands have fixed arguments, no shell interpolation, bounded execution and explicit cancellation. Hosted accounts keep their cloud workspace and do not expose a local picker.
+The chooser uses AppleScript on macOS, Windows Forms through PowerShell on Windows, and Zenity or KDialog on Linux. On a headless machine use `--workspace` before `serve`. When accessing the app through Tailscale, the chooser appears on the server's desktop. Hosted accounts use their cloud workspaces. [Explicit workspace selection](running-locally.md#install-from-source)
 
-## Plan
+## Implementation record — 30 October 2026
 
 - [x] Add the native chooser and a protected local browse action. Reuse validated workspace opening/creation, token rotation and active-run checks. Keep state reads available while the picker is open; reject simultaneous pickers and stale requests.
 - [x] Replace the setup/settings controls, keep existing settings and stored labels compatible, and use a generic sidebar caption/title. Cover loading, cancellation, errors and keyboard focus.
 - [x] Verify adapter success/cancellation/failure contracts and workspace-switch preservation using temporary fixtures. Exercise setup, settings, Save, chooser cancellation/error, new/existing folders and responsive views in Chrome. All tests isolate machine configuration, including the earlier workspace-selection regression fix.
 - [x] Review the full diff and run the repository checks. Preserve private data and the pinned local installation. A push is authorized; an explicit production deployment or local installed-build upgrade is outside this request.
 
-Commit/push and remote CI status are reported with the delivered revision in chat.
+This checklist records the original folder-selection change. It shipped in [`b1d5826`](https://github.com/sometheasiekswx/employment-agency/commit/b1d5826).
 
 ## Verification and release
 
@@ -27,4 +27,4 @@ Verified on macOS, 30 October 2026:
 - JavaScript syntax and `git diff --check` passed. Review covered the actual change, input escaping, local-only authorization, bounded fixed subprocess commands without shell interpolation, cancellation, concurrency, compatibility and responsive controls. No unresolved blocking finding remained in that scope.
 - Native chooser execution is mocked in automated tests; actual desktop dialog interaction is not claimed. Windows/Linux native dialogs require verification on those desktops. Linux needs Zenity or KDialog; unsupported/headless environments can use the explicit CLI workspace option.
 
-No data schema or dependency change is required. Stored labels remain compatible. Recovery is to use the prior installed release and an explicit `--workspace` path; tests and previews do not upgrade the owner's pinned installation or alter private application documents.
+The original folder picker change used the existing workspace schema. Follow the current [backup and upgrade runbook](running-locally.md#existing-environments-and-upgrades) before changing an installed build.

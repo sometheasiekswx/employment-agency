@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: superseded by ADR-0011 and ADR-0012
 ---
 # Preview opportunity links using recorded information
 

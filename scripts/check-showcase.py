@@ -45,7 +45,7 @@ report = {
     'limitations': [
         'The lossless source is sampled at the measured capture rate rather than the browser refresh rate; short transitions can span only a few captured frames.',
         'GIF uses a 256-colour palette and centisecond timing. PNG posters preserve source pixels.',
-        'The walkthroughs show the full local application; they do not verify the read-only public deployment or prove a real application was sent.',
+        'The walkthroughs use the local app and a fictional fixture. The public static deployment has separate release verification.',
     ],
     'clips': [],
 }

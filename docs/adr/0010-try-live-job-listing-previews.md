@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: superseded by ADR-0011 and ADR-0012
 ---
 # Try live job listing previews in private workspaces
 

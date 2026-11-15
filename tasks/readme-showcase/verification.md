@@ -18,7 +18,7 @@ All three walkthroughs were re-recorded against the current exported application
 - Root and independent reviewer opened all fresh posters and decoded action contact sheets. The independent audit found **no material issues** in product, README, scripts, media privacy/proportions and reproducibility.
 - Script syntax, local Markdown links, formatting and diff hygiene pass. `npm --prefix frontend audit --audit-level=moderate` found zero vulnerabilities. Remote publication is verified separately during the release step.
 
-Local receipts live in ignored `output/readme-showcase/`: `capture.log`, `encode.log`, `quality.log`, `draft-readme-check.json`, native GitHub screenshots, `release-review.md` and decoded contact sheets. Public media receipts are [capture provenance](../../docs/media/showcase-provenance.json) and [quality checks](../../docs/media/quality-report.json).
+Local receipts include `capture.log`, `encode.log`, `quality.log`, `draft-readme-check.json`, native GitHub screenshots, `release-review.md` and decoded contact sheets. The published snapshot preserves the GIFs and receipts from this verification. [Media snapshot](https://github.com/sometheasiekswx/employment-agency/tree/b7241ceeab9cf76192ad777bea5f1ba78f142681/docs/media) · [Capture provenance](https://github.com/sometheasiekswx/employment-agency/blob/b7241ceeab9cf76192ad777bea5f1ba78f142681/docs/media/showcase-provenance.json) · [Quality checks](https://github.com/sometheasiekswx/employment-agency/blob/b7241ceeab9cf76192ad777bea5f1ba78f142681/docs/media/quality-report.json)
 
 ## Publication and recovery
 

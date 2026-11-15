@@ -1,15 +1,15 @@
 {
-  "captured_at": "2026-11-06T13:08:06.429Z",
+  "captured_at": "2026-11-15T16:26:27.961Z",
   "source": "Lossless 2x Chromium PNG capture of the actual built application; real clicks, hover and scrolling with measured frame timestamps",
   "fixture": "tests/serve_concept_fixture.py",
   "candidate": "Alex Morgan \u2014 fictional",
   "opportunities": "Six invented illustrative roles and employers, not live vacancies",
-  "application_mode": "Normal local application on a disposable fictional workspace; the public preview is a separate read-only mode",
-  "mutations": "One sample bookmark toggle, restored outside the published clip; no drafts edited, documents saved, messages sent or applications submitted",
+  "application_mode": "Normal local application on a disposable fictional workspace. The public preview uses a separate static catalog.",
+  "mutations": "The desktop capture toggles one sample To apply choice and restores it outside the published clip. Drafts, documents and submissions are unaffected.",
   "external_requests": "No employer links or external accounts opened",
-  "served_html_sha256": "0cf8205565de1e00f80ddfa4d3610e8162459b2db9a32142ea8a64e6fda28bcc",
+  "served_html_sha256": "a7c27a7486834366b363acadfab761405e1556ea7a215d09047fbe1e2abfcc1d",
   "served_html_unchanged_before_after_capture": true,
-  "source_commit": "bad915b5060cef4f94a0c14741b66e49829fa107",
+  "source_commit": "0025aa2f84449a34300699854afaa7ab664fd9c7",
   "source_working_tree_dirty": true,
   "clips": [
     {
@@ -24,939 +24,946 @@
       "output_width": 2240,
       "target_capture_fps": 20,
       "body_font_at_display_width_px": 14,
-      "duration_seconds": 13.819,
+      "duration_seconds": 13.834,
       "poster": "docs/media/discover-review.png",
       "actions": [
         {
-          "name": "Location shortlist",
-          "at_ms": 1458
+          "name": "Company shortlist",
+          "at_ms": 1173
         },
         {
           "name": "Find the profile chooser inside Filters",
-          "at_ms": 2685
+          "at_ms": 2356
         },
         {
-          "name": "Assess a role without leaving the location board",
-          "at_ms": 4657
+          "name": "Assess a role without leaving the company board",
+          "at_ms": 4560
         },
         {
           "name": "Open supporting career evidence",
-          "at_ms": 6349
+          "at_ms": 6207
         },
         {
           "name": "Review gaps and requirements",
-          "at_ms": 8553
+          "at_ms": 8406
         },
         {
           "name": "Move to the next opportunity in place",
-          "at_ms": 10347
+          "at_ms": 10179
         },
         {
-          "name": "Save a sample role",
-          "at_ms": 12132
+          "name": "Add a sample role to To apply",
+          "at_ms": 11830
         },
         {
           "name": "Return to the preserved shortlist",
-          "at_ms": 13576
+          "at_ms": 13306
         }
       ],
-      "frames": 111,
-      "capture_samples": 189,
-      "measured_capture_fps": 13.68,
-      "median_capture_interval_ms": 67,
-      "maximum_capture_interval_ms": 298,
-      "capture_run_completed_at": "2026-11-06T13:01:24.824Z",
+      "frames": 112,
+      "capture_samples": 233,
+      "measured_capture_fps": 16.84,
+      "median_capture_interval_ms": 52,
+      "maximum_capture_interval_ms": 116,
       "source_frames": [
         {
           "file": "output/readme-showcase/png-discover-review/00001.png",
-          "at_ms": 1458,
+          "at_ms": 1173,
           "width": 2240,
           "height": 1680,
-          "sha256": "9012de07c2a289347199b502c5abf9018298f40e96698ff466655fd7ada1d8ef",
-          "duration_ms": 117
+          "sha256": "13f1e4c64927d02d8e5d4f9b66e15912c45ded75a6b6623d02b036615fa6541c",
+          "duration_ms": 948
         },
         {
           "file": "output/readme-showcase/png-discover-review/00002.png",
-          "at_ms": 1575,
+          "at_ms": 2121,
           "width": 2240,
           "height": 1680,
-          "sha256": "15f92600440bd651b38e4d7395467edd4f94e10417c8d8c8fff10048289becce",
-          "duration_ms": 74
+          "sha256": "bc92d335e1c751bd50be3bbf4fc3d9361dea87992897403c60c0fe3355f23119",
+          "duration_ms": 60
         },
         {
           "file": "output/readme-showcase/png-discover-review/00003.png",
-          "at_ms": 1649,
+          "at_ms": 2181,
           "width": 2240,
           "height": 1680,
-          "sha256": "9012de07c2a289347199b502c5abf9018298f40e96698ff466655fd7ada1d8ef",
-          "duration_ms": 163
+          "sha256": "13f1e4c64927d02d8e5d4f9b66e15912c45ded75a6b6623d02b036615fa6541c",
+          "duration_ms": 172
         },
         {
           "file": "output/readme-showcase/png-discover-review/00004.png",
-          "at_ms": 1812,
+          "at_ms": 2353,
           "width": 2240,
           "height": 1680,
-          "sha256": "69111c6e2363d4fd3e163c71534b6e4ee39d4799dd85ca29971af83d0f5eef20",
-          "duration_ms": 84
+          "sha256": "cad28eccde5388dd353f06f67e65d2d1e0db47a9ca5b27535d2753015134623b",
+          "duration_ms": 336
         },
         {
           "file": "output/readme-showcase/png-discover-review/00005.png",
-          "at_ms": 1896,
+          "at_ms": 2689,
           "width": 2240,
           "height": 1680,
-          "sha256": "9012de07c2a289347199b502c5abf9018298f40e96698ff466655fd7ada1d8ef",
-          "duration_ms": 481
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00006.png",
-          "at_ms": 2377,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "15f92600440bd651b38e4d7395467edd4f94e10417c8d8c8fff10048289becce",
-          "duration_ms": 68
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00007.png",
-          "at_ms": 2445,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "69111c6e2363d4fd3e163c71534b6e4ee39d4799dd85ca29971af83d0f5eef20",
-          "duration_ms": 88
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00008.png",
-          "at_ms": 2533,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "9012de07c2a289347199b502c5abf9018298f40e96698ff466655fd7ada1d8ef",
-          "duration_ms": 188
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00009.png",
-          "at_ms": 2721,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "56154edb49f196fd7531f422783d0583f89c1d192e24a48f1442cf9737c06b61",
-          "duration_ms": 156
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00010.png",
-          "at_ms": 2877,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "5d817590b7ac7758cd3b230a124a60f31e7f58cd879cec413be08ec9fe5f2d1a",
-          "duration_ms": 165
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00011.png",
-          "at_ms": 3042,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "50ad67b1bb820d90233d3622419f129e8c5076c16d6db4287e1a502a0150e206",
-          "duration_ms": 65
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00012.png",
-          "at_ms": 3107,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "56154edb49f196fd7531f422783d0583f89c1d192e24a48f1442cf9737c06b61",
+          "sha256": "b381f4669cd10b128fc85271717406c7096785372cbd63a94d67b1a185cb7717",
           "duration_ms": 72
         },
         {
-          "file": "output/readme-showcase/png-discover-review/00013.png",
-          "at_ms": 3179,
+          "file": "output/readme-showcase/png-discover-review/00006.png",
+          "at_ms": 2761,
           "width": 2240,
           "height": 1680,
-          "sha256": "5d817590b7ac7758cd3b230a124a60f31e7f58cd879cec413be08ec9fe5f2d1a",
-          "duration_ms": 313
+          "sha256": "cad28eccde5388dd353f06f67e65d2d1e0db47a9ca5b27535d2753015134623b",
+          "duration_ms": 69
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00007.png",
+          "at_ms": 2830,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "62af8341927495d311f52a42fb7897a54095fff85f040ee427dde457d1db8ebe",
+          "duration_ms": 58
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00008.png",
+          "at_ms": 2888,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "cad28eccde5388dd353f06f67e65d2d1e0db47a9ca5b27535d2753015134623b",
+          "duration_ms": 225
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00009.png",
+          "at_ms": 3113,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "b381f4669cd10b128fc85271717406c7096785372cbd63a94d67b1a185cb7717",
+          "duration_ms": 64
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00010.png",
+          "at_ms": 3177,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "cad28eccde5388dd353f06f67e65d2d1e0db47a9ca5b27535d2753015134623b",
+          "duration_ms": 71
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00011.png",
+          "at_ms": 3248,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "b381f4669cd10b128fc85271717406c7096785372cbd63a94d67b1a185cb7717",
+          "duration_ms": 82
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00012.png",
+          "at_ms": 3330,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "41345b02527448d26fdbead675fa25ce548445762a4e04be6eb034ec3c8fa3df",
+          "duration_ms": 169
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00013.png",
+          "at_ms": 3499,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "13f1e4c64927d02d8e5d4f9b66e15912c45ded75a6b6623d02b036615fa6541c",
+          "duration_ms": 182
         },
         {
           "file": "output/readme-showcase/png-discover-review/00014.png",
-          "at_ms": 3492,
+          "at_ms": 3681,
           "width": 2240,
           "height": 1680,
-          "sha256": "56154edb49f196fd7531f422783d0583f89c1d192e24a48f1442cf9737c06b61",
-          "duration_ms": 68
+          "sha256": "41345b02527448d26fdbead675fa25ce548445762a4e04be6eb034ec3c8fa3df",
+          "duration_ms": 168
         },
         {
           "file": "output/readme-showcase/png-discover-review/00015.png",
-          "at_ms": 3560,
+          "at_ms": 3849,
           "width": 2240,
           "height": 1680,
-          "sha256": "5d817590b7ac7758cd3b230a124a60f31e7f58cd879cec413be08ec9fe5f2d1a",
-          "duration_ms": 85
+          "sha256": "33e258fb0c9909981ac982181e0bc3ad32948ba37d0c0aa5eb6b4d67a1aca53a",
+          "duration_ms": 174
         },
         {
           "file": "output/readme-showcase/png-discover-review/00016.png",
-          "at_ms": 3645,
+          "at_ms": 4023,
           "width": 2240,
           "height": 1680,
-          "sha256": "9012de07c2a289347199b502c5abf9018298f40e96698ff466655fd7ada1d8ef",
-          "duration_ms": 68
+          "sha256": "53b88a2686e2cdeaec80e6185a7882347da2b24445f50c0e4c19af8ef0492917",
+          "duration_ms": 71
         },
         {
           "file": "output/readme-showcase/png-discover-review/00017.png",
-          "at_ms": 3713,
+          "at_ms": 4094,
           "width": 2240,
           "height": 1680,
-          "sha256": "15f92600440bd651b38e4d7395467edd4f94e10417c8d8c8fff10048289becce",
+          "sha256": "33e258fb0c9909981ac982181e0bc3ad32948ba37d0c0aa5eb6b4d67a1aca53a",
           "duration_ms": 66
         },
         {
           "file": "output/readme-showcase/png-discover-review/00018.png",
-          "at_ms": 3779,
+          "at_ms": 4160,
           "width": 2240,
           "height": 1680,
-          "sha256": "9012de07c2a289347199b502c5abf9018298f40e96698ff466655fd7ada1d8ef",
-          "duration_ms": 180
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00019.png",
-          "at_ms": 3959,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "15f92600440bd651b38e4d7395467edd4f94e10417c8d8c8fff10048289becce",
-          "duration_ms": 76
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00020.png",
-          "at_ms": 4035,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "9012de07c2a289347199b502c5abf9018298f40e96698ff466655fd7ada1d8ef",
-          "duration_ms": 69
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00021.png",
-          "at_ms": 4104,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "15f92600440bd651b38e4d7395467edd4f94e10417c8d8c8fff10048289becce",
-          "duration_ms": 144
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00022.png",
-          "at_ms": 4248,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "9012de07c2a289347199b502c5abf9018298f40e96698ff466655fd7ada1d8ef",
-          "duration_ms": 349
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00023.png",
-          "at_ms": 4597,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "8cd49d999200fcedef9cfa8c8312448b21260c4ba9b1ae437ac4cc191805403e",
+          "sha256": "53b88a2686e2cdeaec80e6185a7882347da2b24445f50c0e4c19af8ef0492917",
           "duration_ms": 91
         },
         {
-          "file": "output/readme-showcase/png-discover-review/00024.png",
-          "at_ms": 4688,
+          "file": "output/readme-showcase/png-discover-review/00019.png",
+          "at_ms": 4251,
           "width": 2240,
           "height": 1680,
-          "sha256": "369e179cbce6fd580d1a821b9abe46054c2a35a867ddce62a5fab17b388ab810",
-          "duration_ms": 82
+          "sha256": "8daf3fe0b3f9834bec7b1d261e5b402bbc14f2a5b9a59f0848243f5947d73da4",
+          "duration_ms": 111
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00020.png",
+          "at_ms": 4362,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "5ec801206a11f773105c063ea329b1369d18f0e08e4f72533905cc0dc8756773",
+          "duration_ms": 98
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00021.png",
+          "at_ms": 4460,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "fe1c58971bbc39d52e4e38bbe56ac60ba80e23f2f4641d882bab38e01a72a14d",
+          "duration_ms": 99
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00022.png",
+          "at_ms": 4559,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "490a67c3c66553faa56a2024521ceef3109dfa88aa76665ee005e2060eb639a5",
+          "duration_ms": 84
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00023.png",
+          "at_ms": 4643,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "fb5ba778056320ae768ac54eb57b10730a8a7f652c4086a52be6e33e8666a009",
+          "duration_ms": 69
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00024.png",
+          "at_ms": 4712,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "cde806c855730e2e41d6e4396b1c59d6ea205e47f4d35a0d46a78294d2927bdd",
+          "duration_ms": 76
         },
         {
           "file": "output/readme-showcase/png-discover-review/00025.png",
-          "at_ms": 4770,
+          "at_ms": 4788,
           "width": 2240,
           "height": 1680,
-          "sha256": "34f9ffb3b8abe0f7da633e9a28e0a69d2874a1ecb431d7655f4e37268e0eb78c",
-          "duration_ms": 89
+          "sha256": "d472e44b91569ade242c2b371388ee3ea1c7c8c82213318ef5e84d407c002cee",
+          "duration_ms": 80
         },
         {
           "file": "output/readme-showcase/png-discover-review/00026.png",
-          "at_ms": 4859,
+          "at_ms": 4868,
           "width": 2240,
           "height": 1680,
-          "sha256": "070bf35f552b9c19d5aecfd4dbca696ad2cd54f1955d35ce45af4db2b98d698e",
-          "duration_ms": 247
+          "sha256": "8dcdfaa08019e0026375a2190b892a464e6e61d48d97027f1893fdb80dad9376",
+          "duration_ms": 87
         },
         {
           "file": "output/readme-showcase/png-discover-review/00027.png",
-          "at_ms": 5106,
+          "at_ms": 4955,
           "width": 2240,
           "height": 1680,
-          "sha256": "71ff6cb4d5e9dabe47e081ebcd5222648b2482006a9195754d8111334fa8d8e8",
-          "duration_ms": 298
+          "sha256": "da8e9320e02032250507a02ba5cb3b46f05ee538760a35ef8955bc48fa43cf77",
+          "duration_ms": 86
         },
         {
           "file": "output/readme-showcase/png-discover-review/00028.png",
-          "at_ms": 5404,
+          "at_ms": 5041,
           "width": 2240,
           "height": 1680,
-          "sha256": "46b77454870aca6fcad859c207144fc79a896ea1145157277262d2827ce2f845",
-          "duration_ms": 260
+          "sha256": "cde806c855730e2e41d6e4396b1c59d6ea205e47f4d35a0d46a78294d2927bdd",
+          "duration_ms": 74
         },
         {
           "file": "output/readme-showcase/png-discover-review/00029.png",
-          "at_ms": 5664,
+          "at_ms": 5115,
           "width": 2240,
           "height": 1680,
-          "sha256": "75b6e1905d44b21c05cd6ce033c0c20741738bdf4dfd7728a67e6172c4e1b3db",
-          "duration_ms": 193
+          "sha256": "bd30eda068dc34679901f2da49d79e5bdf1bb51f6a58f11df42928d33f66adf1",
+          "duration_ms": 78
         },
         {
           "file": "output/readme-showcase/png-discover-review/00030.png",
-          "at_ms": 5857,
+          "at_ms": 5193,
           "width": 2240,
           "height": 1680,
-          "sha256": "46b77454870aca6fcad859c207144fc79a896ea1145157277262d2827ce2f845",
-          "duration_ms": 119
+          "sha256": "d472e44b91569ade242c2b371388ee3ea1c7c8c82213318ef5e84d407c002cee",
+          "duration_ms": 63
         },
         {
           "file": "output/readme-showcase/png-discover-review/00031.png",
-          "at_ms": 5976,
+          "at_ms": 5256,
           "width": 2240,
           "height": 1680,
-          "sha256": "75b6e1905d44b21c05cd6ce033c0c20741738bdf4dfd7728a67e6172c4e1b3db",
-          "duration_ms": 161
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00032.png",
-          "at_ms": 6137,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "46b77454870aca6fcad859c207144fc79a896ea1145157277262d2827ce2f845",
-          "duration_ms": 161
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00033.png",
-          "at_ms": 6298,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "75b6e1905d44b21c05cd6ce033c0c20741738bdf4dfd7728a67e6172c4e1b3db",
-          "duration_ms": 85
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00034.png",
-          "at_ms": 6383,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "960c13cff2a7b1e5956162741c95a84567bd3d36a1afeaa0a6ed248d8266b86a",
-          "duration_ms": 143
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00035.png",
-          "at_ms": 6526,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "908115c8b32a31fefd6e82dfcc639596c70312677582cbfbdebe73ed8c645b7c",
-          "duration_ms": 116
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00036.png",
-          "at_ms": 6642,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "960c13cff2a7b1e5956162741c95a84567bd3d36a1afeaa0a6ed248d8266b86a",
-          "duration_ms": 66
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00037.png",
-          "at_ms": 6708,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "908115c8b32a31fefd6e82dfcc639596c70312677582cbfbdebe73ed8c645b7c",
-          "duration_ms": 217
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00038.png",
-          "at_ms": 6925,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "960c13cff2a7b1e5956162741c95a84567bd3d36a1afeaa0a6ed248d8266b86a",
-          "duration_ms": 232
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00039.png",
-          "at_ms": 7157,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "908115c8b32a31fefd6e82dfcc639596c70312677582cbfbdebe73ed8c645b7c",
-          "duration_ms": 221
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00040.png",
-          "at_ms": 7378,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "960c13cff2a7b1e5956162741c95a84567bd3d36a1afeaa0a6ed248d8266b86a",
-          "duration_ms": 147
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00041.png",
-          "at_ms": 7525,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "908115c8b32a31fefd6e82dfcc639596c70312677582cbfbdebe73ed8c645b7c",
-          "duration_ms": 61
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00042.png",
-          "at_ms": 7586,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "a8058cf296035083d9d6e3ccab7c046e6dc989f7e30dedea3bf4b0c6394263fd",
-          "duration_ms": 73
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00043.png",
-          "at_ms": 7659,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "ed622f2e8f564683ef6bdfd61fad55a71a4e3d54402353b33da0636a7766bcba",
-          "duration_ms": 64
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00044.png",
-          "at_ms": 7723,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "1e4d4aec73d48c350f796bea1115323519140b6fd070efea80c0adbe5fe7d967",
-          "duration_ms": 59
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00045.png",
-          "at_ms": 7782,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "14418802dcb60c770774e006114e715976d38d342d261067f586cb2636f5dcd4",
-          "duration_ms": 57
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00046.png",
-          "at_ms": 7839,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "0a0428749ad7315e621c3f9876c24dd0f7ff5615432bd05e6aa991d232b94a8b",
-          "duration_ms": 65
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00047.png",
-          "at_ms": 7904,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "c154b05f36bdacde3d8481bc122980430002323c3339c581289fc098a060d92e",
-          "duration_ms": 75
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00048.png",
-          "at_ms": 7979,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "64f7059b99c8e37ffa882f262637b6d99fe31ad8932a694bafd91a41342d9109",
-          "duration_ms": 65
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00049.png",
-          "at_ms": 8044,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "e0d5432e56a00fb2ed76f16c16c8467abca1d380fb041b65226e03accdbf8505",
+          "sha256": "cde806c855730e2e41d6e4396b1c59d6ea205e47f4d35a0d46a78294d2927bdd",
           "duration_ms": 67
         },
         {
-          "file": "output/readme-showcase/png-discover-review/00050.png",
-          "at_ms": 8111,
+          "file": "output/readme-showcase/png-discover-review/00032.png",
+          "at_ms": 5323,
           "width": 2240,
           "height": 1680,
-          "sha256": "5583a15f68ffbb6f35485af3766b1c9e5a52900cd5e1f5a4886e9702c3394bb7",
-          "duration_ms": 73
+          "sha256": "bd30eda068dc34679901f2da49d79e5bdf1bb51f6a58f11df42928d33f66adf1",
+          "duration_ms": 69
         },
         {
-          "file": "output/readme-showcase/png-discover-review/00051.png",
-          "at_ms": 8184,
+          "file": "output/readme-showcase/png-discover-review/00033.png",
+          "at_ms": 5392,
           "width": 2240,
           "height": 1680,
-          "sha256": "a5cdcd6e8046ff1398ff188d4ca6f570c3baf2f87543fe090455bd431f49151c",
-          "duration_ms": 57
+          "sha256": "cde806c855730e2e41d6e4396b1c59d6ea205e47f4d35a0d46a78294d2927bdd",
+          "duration_ms": 67
         },
         {
-          "file": "output/readme-showcase/png-discover-review/00052.png",
-          "at_ms": 8241,
+          "file": "output/readme-showcase/png-discover-review/00034.png",
+          "at_ms": 5459,
           "width": 2240,
           "height": 1680,
-          "sha256": "122bfc191f799a04f1ff501b53eecc9c218f9666af7ac6e97d0c533c35519333",
-          "duration_ms": 59
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00053.png",
-          "at_ms": 8300,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "3721a89e212ca9a035da43d71f667e1f4d58ab2b0a94cca70f8d2c8233087154",
-          "duration_ms": 57
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00054.png",
-          "at_ms": 8357,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "d22c48426489162f46a4c7e023a3da8debe1fdda9c7fac567f9d3f8934cc8452",
+          "sha256": "bd30eda068dc34679901f2da49d79e5bdf1bb51f6a58f11df42928d33f66adf1",
           "duration_ms": 62
         },
         {
-          "file": "output/readme-showcase/png-discover-review/00055.png",
-          "at_ms": 8419,
+          "file": "output/readme-showcase/png-discover-review/00035.png",
+          "at_ms": 5521,
           "width": 2240,
           "height": 1680,
-          "sha256": "8aca21710b47a2b3de5284bfeae2b340eaa4aecacf785d219ffc0aa41032b31b",
+          "sha256": "cde806c855730e2e41d6e4396b1c59d6ea205e47f4d35a0d46a78294d2927bdd",
+          "duration_ms": 118
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00036.png",
+          "at_ms": 5639,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "bd30eda068dc34679901f2da49d79e5bdf1bb51f6a58f11df42928d33f66adf1",
+          "duration_ms": 64
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00037.png",
+          "at_ms": 5703,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "cde806c855730e2e41d6e4396b1c59d6ea205e47f4d35a0d46a78294d2927bdd",
+          "duration_ms": 370
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00038.png",
+          "at_ms": 6073,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "bd30eda068dc34679901f2da49d79e5bdf1bb51f6a58f11df42928d33f66adf1",
+          "duration_ms": 61
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00039.png",
+          "at_ms": 6134,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "cde806c855730e2e41d6e4396b1c59d6ea205e47f4d35a0d46a78294d2927bdd",
+          "duration_ms": 100
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00040.png",
+          "at_ms": 6234,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "ef4a09e621de21edf3bfb7bb2098208129b4a547e0000883e398fabb515602c2",
+          "duration_ms": 571
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00041.png",
+          "at_ms": 6805,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "e7cbf757f627b29597a001fca0c084944e431415dac226dc30156e952ffae006",
+          "duration_ms": 62
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00042.png",
+          "at_ms": 6867,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "ef4a09e621de21edf3bfb7bb2098208129b4a547e0000883e398fabb515602c2",
+          "duration_ms": 454
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00043.png",
+          "at_ms": 7321,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "88baf4f5e224b76f958b27239cc3cdabd0101950aba878905b3a2db4b1508fc0",
+          "duration_ms": 66
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00044.png",
+          "at_ms": 7387,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "ef4a09e621de21edf3bfb7bb2098208129b4a547e0000883e398fabb515602c2",
+          "duration_ms": 67
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00045.png",
+          "at_ms": 7454,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "6e9e00792d257831ead0d685094266e7dc4f6836a091ee51744f236d9812687c",
+          "duration_ms": 63
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00046.png",
+          "at_ms": 7517,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "a79598b204da7f289ea984290fd21df6f2e1e8e539567db1a5065b1462da1157",
+          "duration_ms": 50
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00047.png",
+          "at_ms": 7567,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "6a48820d2caeee4ebf20f12c1c749b364b5d04211571ed1f5840195c43fbbf3f",
+          "duration_ms": 50
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00048.png",
+          "at_ms": 7617,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "b4765daa2b21eb30292663d5e927399662abc763a29d0d9ae9f64d81aa35bcdc",
+          "duration_ms": 50
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00049.png",
+          "at_ms": 7667,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "62065c61f6587f7b6e744027b7d19c9b1f7398ff97f1d79c0947cecf43bc4dd5",
+          "duration_ms": 52
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00050.png",
+          "at_ms": 7719,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "26dd21641805eab4822c83e6cf9262a93f6a0941e929f3cb8d4b672492a552e6",
+          "duration_ms": 49
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00051.png",
+          "at_ms": 7768,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "4f518e165b2f8dd9ebbc4af8c2389ae600f1f5f14c55df48ab913ffe3565b5a3",
+          "duration_ms": 53
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00052.png",
+          "at_ms": 7821,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "e7629f67b650bf590ec7841ea39da3037ffba9c1b2ba11e18f2cd2e70a5b731e",
+          "duration_ms": 52
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00053.png",
+          "at_ms": 7873,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "c1136549f5259161e2818d01f4842ecbec0e6c7ba0da4130aa01507e5bc87825",
+          "duration_ms": 65
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00054.png",
+          "at_ms": 7938,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "b642a488fbd7f5a470f6ae49cff4ea536f6141486bcb45828785e1de6340c6b6",
+          "duration_ms": 71
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00055.png",
+          "at_ms": 8009,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "812978cdc68d17defeee053777769a2488063c0a86c7d3d772ede541b816595d",
           "duration_ms": 67
         },
         {
           "file": "output/readme-showcase/png-discover-review/00056.png",
-          "at_ms": 8486,
+          "at_ms": 8076,
           "width": 2240,
           "height": 1680,
-          "sha256": "bcce5179c6df9767c355b0bcf883b619cf5de0cf6da2cbe5f6ffc30e9b9c85c5",
-          "duration_ms": 53
+          "sha256": "ac3ad742501a6a8695fb465dacc409a9b75f16c33df4918b8885610dbf318b3a",
+          "duration_ms": 66
         },
         {
           "file": "output/readme-showcase/png-discover-review/00057.png",
-          "at_ms": 8539,
+          "at_ms": 8142,
           "width": 2240,
           "height": 1680,
-          "sha256": "9065e7644686d18077f7681c62af6ef1161aac6c6c9f4482ee4b02d7c2a0b441",
-          "duration_ms": 119
+          "sha256": "c25f9332f947f3998e89a48be5f56b464022976e96b7c67c79b892eeedb1d4a7",
+          "duration_ms": 66
         },
         {
           "file": "output/readme-showcase/png-discover-review/00058.png",
-          "at_ms": 8658,
+          "at_ms": 8208,
           "width": 2240,
           "height": 1680,
-          "sha256": "f58c4aeea1da9884611fb50bebc1615b0ff2238118065d91eb84682a6391a99b",
-          "duration_ms": 63
+          "sha256": "14e85b6999a4b61142f53c07ddf2c2cef3c941ad339e0592bf1d54c145e46dda",
+          "duration_ms": 75
         },
         {
           "file": "output/readme-showcase/png-discover-review/00059.png",
-          "at_ms": 8721,
+          "at_ms": 8283,
           "width": 2240,
           "height": 1680,
-          "sha256": "9065e7644686d18077f7681c62af6ef1161aac6c6c9f4482ee4b02d7c2a0b441",
-          "duration_ms": 220
+          "sha256": "af9aadd254cdd82d98867a33d66cec938cc0eb1a794b715c9a38b829c5cc9e8f",
+          "duration_ms": 75
         },
         {
           "file": "output/readme-showcase/png-discover-review/00060.png",
-          "at_ms": 8941,
+          "at_ms": 8358,
           "width": 2240,
           "height": 1680,
-          "sha256": "f58c4aeea1da9884611fb50bebc1615b0ff2238118065d91eb84682a6391a99b",
-          "duration_ms": 65
+          "sha256": "b5d42b4062196adb70a49e076cf569132f1544c1187a222d2a06670d09ad4b94",
+          "duration_ms": 59
         },
         {
           "file": "output/readme-showcase/png-discover-review/00061.png",
-          "at_ms": 9006,
+          "at_ms": 8417,
           "width": 2240,
           "height": 1680,
-          "sha256": "9065e7644686d18077f7681c62af6ef1161aac6c6c9f4482ee4b02d7c2a0b441",
-          "duration_ms": 420
+          "sha256": "6499a5145fe92660dd44ce3cbfb3c88f46ea39a0cde3d11e1f31d738d374e289",
+          "duration_ms": 271
         },
         {
           "file": "output/readme-showcase/png-discover-review/00062.png",
-          "at_ms": 9426,
+          "at_ms": 8688,
           "width": 2240,
           "height": 1680,
-          "sha256": "f58c4aeea1da9884611fb50bebc1615b0ff2238118065d91eb84682a6391a99b",
+          "sha256": "ae2ae26c7a8f96446a2d7dd6e53f706ed571c1daae6c02fc44b61702740c7299",
           "duration_ms": 64
         },
         {
           "file": "output/readme-showcase/png-discover-review/00063.png",
-          "at_ms": 9490,
+          "at_ms": 8752,
           "width": 2240,
           "height": 1680,
-          "sha256": "9065e7644686d18077f7681c62af6ef1161aac6c6c9f4482ee4b02d7c2a0b441",
-          "duration_ms": 58
+          "sha256": "6499a5145fe92660dd44ce3cbfb3c88f46ea39a0cde3d11e1f31d738d374e289",
+          "duration_ms": 320
         },
         {
           "file": "output/readme-showcase/png-discover-review/00064.png",
-          "at_ms": 9548,
+          "at_ms": 9072,
           "width": 2240,
           "height": 1680,
-          "sha256": "f58c4aeea1da9884611fb50bebc1615b0ff2238118065d91eb84682a6391a99b",
-          "duration_ms": 56
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00065.png",
-          "at_ms": 9604,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "9065e7644686d18077f7681c62af6ef1161aac6c6c9f4482ee4b02d7c2a0b441",
-          "duration_ms": 181
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00066.png",
-          "at_ms": 9785,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "f58c4aeea1da9884611fb50bebc1615b0ff2238118065d91eb84682a6391a99b",
-          "duration_ms": 84
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00067.png",
-          "at_ms": 9869,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "9065e7644686d18077f7681c62af6ef1161aac6c6c9f4482ee4b02d7c2a0b441",
-          "duration_ms": 178
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00068.png",
-          "at_ms": 10047,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "f58c4aeea1da9884611fb50bebc1615b0ff2238118065d91eb84682a6391a99b",
-          "duration_ms": 66
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00069.png",
-          "at_ms": 10113,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "9065e7644686d18077f7681c62af6ef1161aac6c6c9f4482ee4b02d7c2a0b441",
-          "duration_ms": 66
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00070.png",
-          "at_ms": 10179,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "f58c4aeea1da9884611fb50bebc1615b0ff2238118065d91eb84682a6391a99b",
-          "duration_ms": 61
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00071.png",
-          "at_ms": 10240,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "9065e7644686d18077f7681c62af6ef1161aac6c6c9f4482ee4b02d7c2a0b441",
-          "duration_ms": 124
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00072.png",
-          "at_ms": 10364,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "efc5a519d682a01bd84eaadcfc57902dd4db9b4ca244d81b0ac53b49873b9e0f",
-          "duration_ms": 76
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00073.png",
-          "at_ms": 10440,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "8ae4ace7d88d9e93332a9155d0eb321ec0563cd410ee29c746e6a5612ba8c6b8",
+          "sha256": "ae2ae26c7a8f96446a2d7dd6e53f706ed571c1daae6c02fc44b61702740c7299",
           "duration_ms": 64
         },
         {
-          "file": "output/readme-showcase/png-discover-review/00074.png",
-          "at_ms": 10504,
+          "file": "output/readme-showcase/png-discover-review/00065.png",
+          "at_ms": 9136,
           "width": 2240,
           "height": 1680,
-          "sha256": "ed51f1c647a2750fa8dafcb3814f98668b6680d3939b6a37dd8dc93003ce7f30",
-          "duration_ms": 62
+          "sha256": "6499a5145fe92660dd44ce3cbfb3c88f46ea39a0cde3d11e1f31d738d374e289",
+          "duration_ms": 318
         },
         {
-          "file": "output/readme-showcase/png-discover-review/00075.png",
-          "at_ms": 10566,
+          "file": "output/readme-showcase/png-discover-review/00066.png",
+          "at_ms": 9454,
           "width": 2240,
           "height": 1680,
-          "sha256": "87f46cf3c58c0373a2792cc5b63dec5a704443fbeb3e6ff5a7c6dcd100187347",
-          "duration_ms": 57
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00076.png",
-          "at_ms": 10623,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "ed51f1c647a2750fa8dafcb3814f98668b6680d3939b6a37dd8dc93003ce7f30",
-          "duration_ms": 110
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00077.png",
-          "at_ms": 10733,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "87f46cf3c58c0373a2792cc5b63dec5a704443fbeb3e6ff5a7c6dcd100187347",
-          "duration_ms": 57
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00078.png",
-          "at_ms": 10790,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "ed51f1c647a2750fa8dafcb3814f98668b6680d3939b6a37dd8dc93003ce7f30",
-          "duration_ms": 216
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00079.png",
-          "at_ms": 11006,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "87f46cf3c58c0373a2792cc5b63dec5a704443fbeb3e6ff5a7c6dcd100187347",
+          "sha256": "e0b6c294e9688d8d7e2ad6a698a412bf75fcbcdcf09bce1cac9a14ed23141637",
           "duration_ms": 63
         },
         {
-          "file": "output/readme-showcase/png-discover-review/00080.png",
-          "at_ms": 11069,
+          "file": "output/readme-showcase/png-discover-review/00067.png",
+          "at_ms": 9517,
           "width": 2240,
           "height": 1680,
-          "sha256": "ed51f1c647a2750fa8dafcb3814f98668b6680d3939b6a37dd8dc93003ce7f30",
-          "duration_ms": 524
+          "sha256": "6499a5145fe92660dd44ce3cbfb3c88f46ea39a0cde3d11e1f31d738d374e289",
+          "duration_ms": 472
         },
         {
-          "file": "output/readme-showcase/png-discover-review/00081.png",
-          "at_ms": 11593,
+          "file": "output/readme-showcase/png-discover-review/00068.png",
+          "at_ms": 9989,
           "width": 2240,
           "height": 1680,
-          "sha256": "87f46cf3c58c0373a2792cc5b63dec5a704443fbeb3e6ff5a7c6dcd100187347",
-          "duration_ms": 498
+          "sha256": "3b89aa81372d74aff6804e4435b324aac24bcbf4b53a0b32f1cbea1a1f4ecce6",
+          "duration_ms": 63
         },
         {
-          "file": "output/readme-showcase/png-discover-review/00082.png",
-          "at_ms": 12091,
+          "file": "output/readme-showcase/png-discover-review/00069.png",
+          "at_ms": 10052,
           "width": 2240,
           "height": 1680,
-          "sha256": "ed51f1c647a2750fa8dafcb3814f98668b6680d3939b6a37dd8dc93003ce7f30",
-          "duration_ms": 68
+          "sha256": "6499a5145fe92660dd44ce3cbfb3c88f46ea39a0cde3d11e1f31d738d374e289",
+          "duration_ms": 154
         },
         {
-          "file": "output/readme-showcase/png-discover-review/00083.png",
-          "at_ms": 12159,
+          "file": "output/readme-showcase/png-discover-review/00070.png",
+          "at_ms": 10206,
           "width": 2240,
           "height": 1680,
-          "sha256": "6adfd0ff313d2dbf0477fba1b10042bce60c49ea900035494bb3b8c074a85e1a",
-          "duration_ms": 72
+          "sha256": "204cec641ed7c62700d8846a413f79ce896fcd85b41aabcf2fa901cc89487c17",
+          "duration_ms": 47
         },
         {
-          "file": "output/readme-showcase/png-discover-review/00084.png",
-          "at_ms": 12231,
+          "file": "output/readme-showcase/png-discover-review/00071.png",
+          "at_ms": 10253,
           "width": 2240,
           "height": 1680,
-          "sha256": "1d6ea474f5a95e669ae0a630786eaecf792b456cc92557e87211921287ad08e0",
+          "sha256": "cf094ed4bfb5625bd0290bb60ee82a08a2e940bd3dae0e14b667332afa1a949e",
           "duration_ms": 62
         },
         {
-          "file": "output/readme-showcase/png-discover-review/00085.png",
-          "at_ms": 12293,
+          "file": "output/readme-showcase/png-discover-review/00072.png",
+          "at_ms": 10315,
           "width": 2240,
           "height": 1680,
-          "sha256": "7a7407aaf4aa94a764bd09489ae191768b7cf00387588725c1db03bc68116b64",
-          "duration_ms": 62
+          "sha256": "c34f6cb377dc7a009e3c2bf83db234ab568a8c259345cb654f4e50a64a75a754",
+          "duration_ms": 55
         },
         {
-          "file": "output/readme-showcase/png-discover-review/00086.png",
-          "at_ms": 12355,
+          "file": "output/readme-showcase/png-discover-review/00073.png",
+          "at_ms": 10370,
           "width": 2240,
           "height": 1680,
-          "sha256": "14db632ca43d9acb6ddb1ec12c8fa35e0c1e3cb48b061904624549df069db24e",
-          "duration_ms": 83
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00087.png",
-          "at_ms": 12438,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "9aa9d8885ab2b4b02fbf5617b0fadc8ce7ba00acff39c0e2baa9492ae4c4edf5",
-          "duration_ms": 86
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00088.png",
-          "at_ms": 12524,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "b2227065dfcd8c2a3fd672bc1bc3c189a894cf591ed2734b6de9273f2e234e8e",
-          "duration_ms": 68
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00089.png",
-          "at_ms": 12592,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "097413cf2f5b0c04692cae284e27d643fafe377f96f31604ae9b9d98ae0b58c5",
-          "duration_ms": 67
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00090.png",
-          "at_ms": 12659,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "6a3be826b0a3af213852a0a8f9a03bf2c01dc44b836a824e69ce258112fc096d",
-          "duration_ms": 68
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00091.png",
-          "at_ms": 12727,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "097413cf2f5b0c04692cae284e27d643fafe377f96f31604ae9b9d98ae0b58c5",
-          "duration_ms": 70
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00092.png",
-          "at_ms": 12797,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "6a3be826b0a3af213852a0a8f9a03bf2c01dc44b836a824e69ce258112fc096d",
-          "duration_ms": 147
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00093.png",
-          "at_ms": 12944,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "097413cf2f5b0c04692cae284e27d643fafe377f96f31604ae9b9d98ae0b58c5",
-          "duration_ms": 69
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00094.png",
-          "at_ms": 13013,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "6a3be826b0a3af213852a0a8f9a03bf2c01dc44b836a824e69ce258112fc096d",
-          "duration_ms": 477
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00095.png",
-          "at_ms": 13490,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "097413cf2f5b0c04692cae284e27d643fafe377f96f31604ae9b9d98ae0b58c5",
-          "duration_ms": 103
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00096.png",
-          "at_ms": 13593,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "74f7b458c2cb87da85e0ba31a89feb1d25d36ec92fe2fbb9d30996919b5474ab",
-          "duration_ms": 62
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00097.png",
-          "at_ms": 13655,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "55deb238816bf8a9b28cdaa48fe29c002438633161b04d9fea56756d1e68e4fd",
-          "duration_ms": 80
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00098.png",
-          "at_ms": 13735,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "4f7d0ff2654334c707b81b0b12e68b39d5b4a4c454b23f14d382e92221fd23be",
-          "duration_ms": 150
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00099.png",
-          "at_ms": 13885,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "38dfc930fd923dbbded9ede26d8565ad50ba45206bfc0073ed00670282e562f2",
-          "duration_ms": 153
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00100.png",
-          "at_ms": 14038,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "4f7d0ff2654334c707b81b0b12e68b39d5b4a4c454b23f14d382e92221fd23be",
-          "duration_ms": 128
-        },
-        {
-          "file": "output/readme-showcase/png-discover-review/00101.png",
-          "at_ms": 14166,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "38dfc930fd923dbbded9ede26d8565ad50ba45206bfc0073ed00670282e562f2",
+          "sha256": "a9e1236656919ecff1cc4254ea450aace0d13677ab6487ce914499d44e75af28",
           "duration_ms": 169
         },
         {
-          "file": "output/readme-showcase/png-discover-review/00102.png",
-          "at_ms": 14335,
+          "file": "output/readme-showcase/png-discover-review/00074.png",
+          "at_ms": 10539,
           "width": 2240,
           "height": 1680,
-          "sha256": "4f7d0ff2654334c707b81b0b12e68b39d5b4a4c454b23f14d382e92221fd23be",
-          "duration_ms": 84
+          "sha256": "c4eea0a6da530f65982b78e681223c4184ca7ee5e5dc602e853ec9b2d6eb2017",
+          "duration_ms": 64
         },
         {
-          "file": "output/readme-showcase/png-discover-review/00103.png",
-          "at_ms": 14419,
+          "file": "output/readme-showcase/png-discover-review/00075.png",
+          "at_ms": 10603,
           "width": 2240,
           "height": 1680,
-          "sha256": "38dfc930fd923dbbded9ede26d8565ad50ba45206bfc0073ed00670282e562f2",
-          "duration_ms": 168
+          "sha256": "a9e1236656919ecff1cc4254ea450aace0d13677ab6487ce914499d44e75af28",
+          "duration_ms": 272
         },
         {
-          "file": "output/readme-showcase/png-discover-review/00104.png",
-          "at_ms": 14587,
+          "file": "output/readme-showcase/png-discover-review/00076.png",
+          "at_ms": 10875,
           "width": 2240,
           "height": 1680,
-          "sha256": "4f7d0ff2654334c707b81b0b12e68b39d5b4a4c454b23f14d382e92221fd23be",
+          "sha256": "c4eea0a6da530f65982b78e681223c4184ca7ee5e5dc602e853ec9b2d6eb2017",
+          "duration_ms": 65
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00077.png",
+          "at_ms": 10940,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "a9e1236656919ecff1cc4254ea450aace0d13677ab6487ce914499d44e75af28",
+          "duration_ms": 70
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00078.png",
+          "at_ms": 11010,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "c4eea0a6da530f65982b78e681223c4184ca7ee5e5dc602e853ec9b2d6eb2017",
+          "duration_ms": 85
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00079.png",
+          "at_ms": 11095,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "784d9052dd661629cba1dd4dc8167d9591989c82d8851086d47748d966a57ac7",
+          "duration_ms": 94
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00080.png",
+          "at_ms": 11189,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "e4c9348e16f2a39dfc49c904aa06534fcc81db91e9fc043320676243f57de2d9",
+          "duration_ms": 85
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00081.png",
+          "at_ms": 11274,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "a9e1236656919ecff1cc4254ea450aace0d13677ab6487ce914499d44e75af28",
+          "duration_ms": 73
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00082.png",
+          "at_ms": 11347,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "c4eea0a6da530f65982b78e681223c4184ca7ee5e5dc602e853ec9b2d6eb2017",
+          "duration_ms": 80
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00083.png",
+          "at_ms": 11427,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "c4ad16e4a2a4bf1eaf03bcd5645d0bfb1dc8869ddfed966542f81992ef510aa3",
+          "duration_ms": 82
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00084.png",
+          "at_ms": 11509,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "e4c9348e16f2a39dfc49c904aa06534fcc81db91e9fc043320676243f57de2d9",
+          "duration_ms": 85
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00085.png",
+          "at_ms": 11594,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "c4eea0a6da530f65982b78e681223c4184ca7ee5e5dc602e853ec9b2d6eb2017",
+          "duration_ms": 80
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00086.png",
+          "at_ms": 11674,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "fa1433171a852eb15d89da842f51832e06c6698851a8204b1bfde6faddc9f567",
+          "duration_ms": 62
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00087.png",
+          "at_ms": 11736,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "a9e1236656919ecff1cc4254ea450aace0d13677ab6487ce914499d44e75af28",
+          "duration_ms": 99
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00088.png",
+          "at_ms": 11835,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "ea1762d88fde197e61e8b1a97c20103dde21f1d4be9f9d0d788458890e4e7239",
+          "duration_ms": 50
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00089.png",
+          "at_ms": 11885,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "a82f4fa74e5992c2a8c7b0e225a04f27f58a77a99e1cd698ae82a0d9bce9172a",
           "duration_ms": 53
         },
         {
-          "file": "output/readme-showcase/png-discover-review/00105.png",
-          "at_ms": 14640,
+          "file": "output/readme-showcase/png-discover-review/00090.png",
+          "at_ms": 11938,
           "width": 2240,
           "height": 1680,
-          "sha256": "38dfc930fd923dbbded9ede26d8565ad50ba45206bfc0073ed00670282e562f2",
-          "duration_ms": 57
+          "sha256": "a349917ddf31bbbc68b430cd20ca97036f3dd46b25131bcddbaeafe9845a656d",
+          "duration_ms": 48
         },
         {
-          "file": "output/readme-showcase/png-discover-review/00106.png",
-          "at_ms": 14697,
+          "file": "output/readme-showcase/png-discover-review/00091.png",
+          "at_ms": 11986,
           "width": 2240,
           "height": 1680,
-          "sha256": "4f7d0ff2654334c707b81b0b12e68b39d5b4a4c454b23f14d382e92221fd23be",
-          "duration_ms": 67
+          "sha256": "97bec6f03e5b4c85e007bc0b8b4a81246022c66099632733d35857dbb35e1ffe",
+          "duration_ms": 51
         },
         {
-          "file": "output/readme-showcase/png-discover-review/00107.png",
-          "at_ms": 14764,
+          "file": "output/readme-showcase/png-discover-review/00092.png",
+          "at_ms": 12037,
           "width": 2240,
           "height": 1680,
-          "sha256": "38dfc930fd923dbbded9ede26d8565ad50ba45206bfc0073ed00670282e562f2",
+          "sha256": "be10210de59ea5348a91645df0e019b73ec9334900deb8c60ffc12d5f47af8b9",
           "duration_ms": 60
         },
         {
-          "file": "output/readme-showcase/png-discover-review/00108.png",
-          "at_ms": 14824,
+          "file": "output/readme-showcase/png-discover-review/00093.png",
+          "at_ms": 12097,
           "width": 2240,
           "height": 1680,
-          "sha256": "4f7d0ff2654334c707b81b0b12e68b39d5b4a4c454b23f14d382e92221fd23be",
-          "duration_ms": 116
+          "sha256": "4adbeba37be4d6d498964a2efe47fbbb93de251eedd3b0172e3303b45e9d9b58",
+          "duration_ms": 53
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00094.png",
+          "at_ms": 12150,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "17ac3ecd9866c0cfe7b44fe3bdf7221890904cf992b9b77f0ee83a1d7bfc629c",
+          "duration_ms": 51
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00095.png",
+          "at_ms": 12201,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "5382262bdfc34fb587f83400813462a942572b57923e39772a646b03e098e098",
+          "duration_ms": 51
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00096.png",
+          "at_ms": 12252,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "6e553ab8feeac455ba9db8ecf7ab2cdc1599ffc76811a9893dcbcf0d53b5cd1d",
+          "duration_ms": 169
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00097.png",
+          "at_ms": 12421,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "4d4c7724507144d5efcecd120a1343cd7ecb43cbecfc5d0debde0b4923295c7c",
+          "duration_ms": 62
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00098.png",
+          "at_ms": 12483,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "6e553ab8feeac455ba9db8ecf7ab2cdc1599ffc76811a9893dcbcf0d53b5cd1d",
+          "duration_ms": 263
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00099.png",
+          "at_ms": 12746,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "bebc4fe68cbdb38f4dff08ff05bf53e2f4b547d30bff967c192d5eb4f09317a9",
+          "duration_ms": 56
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00100.png",
+          "at_ms": 12802,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "6e553ab8feeac455ba9db8ecf7ab2cdc1599ffc76811a9893dcbcf0d53b5cd1d",
+          "duration_ms": 219
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00101.png",
+          "at_ms": 13021,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "bebc4fe68cbdb38f4dff08ff05bf53e2f4b547d30bff967c192d5eb4f09317a9",
+          "duration_ms": 61
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00102.png",
+          "at_ms": 13082,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "6e553ab8feeac455ba9db8ecf7ab2cdc1599ffc76811a9893dcbcf0d53b5cd1d",
+          "duration_ms": 254
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00103.png",
+          "at_ms": 13336,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "cac175f3088bf10b8f4d738f873943608779cc9b2840a78dfcd702af3e2ae9f4",
+          "duration_ms": 51
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00104.png",
+          "at_ms": 13387,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "e3f658dbde5a7e56d1acc035d0623b8774d46063bfb7a81fdeb8609b18f0668d",
+          "duration_ms": 54
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00105.png",
+          "at_ms": 13441,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "428213ca38da66ee7aace625e7c6e6bc5b98ab210c0acba1499e6e1942dfad6c",
+          "duration_ms": 71
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00106.png",
+          "at_ms": 13512,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "8d08973c0d47d33b4859e543ee4fd1cf139acdfe4bd8d739182c59737cf1c900",
+          "duration_ms": 69
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00107.png",
+          "at_ms": 13581,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "a4472c2c9eee7c31f2960f40b54a4a29bd9ee8359261460a560aae5b989ebe95",
+          "duration_ms": 622
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00108.png",
+          "at_ms": 14203,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "967c120a1f73c8a057d5c396e3563800d58ff4687662974557ccbc5ffc6308ef",
+          "duration_ms": 62
         },
         {
           "file": "output/readme-showcase/png-discover-review/00109.png",
-          "at_ms": 14940,
+          "at_ms": 14265,
           "width": 2240,
           "height": 1680,
-          "sha256": "38dfc930fd923dbbded9ede26d8565ad50ba45206bfc0073ed00670282e562f2",
-          "duration_ms": 66
+          "sha256": "a4472c2c9eee7c31f2960f40b54a4a29bd9ee8359261460a560aae5b989ebe95",
+          "duration_ms": 573
         },
         {
           "file": "output/readme-showcase/png-discover-review/00110.png",
-          "at_ms": 15006,
+          "at_ms": 14838,
           "width": 2240,
           "height": 1680,
-          "sha256": "4f7d0ff2654334c707b81b0b12e68b39d5b4a4c454b23f14d382e92221fd23be",
-          "duration_ms": 271
+          "sha256": "967c120a1f73c8a057d5c396e3563800d58ff4687662974557ccbc5ffc6308ef",
+          "duration_ms": 61
+        },
+        {
+          "file": "output/readme-showcase/png-discover-review/00111.png",
+          "at_ms": 14899,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "a4472c2c9eee7c31f2960f40b54a4a29bd9ee8359261460a560aae5b989ebe95",
+          "duration_ms": 108
         }
       ],
       "width": 2240,
       "height": 1680,
-      "duration_ms": 13830,
+      "duration_ms": 13840,
       "minimum_frame_duration_ms": 10,
-      "median_motion_frame_duration_ms": 70,
-      "maximum_reading_hold_ms": 530,
+      "median_motion_frame_duration_ms": 65.0,
+      "maximum_reading_hold_ms": 950,
       "gif": "docs/media/discover-review.gif",
-      "bytes": 2023976,
-      "sha256": "ff6d385066cde7f28c34974ca5e7bb88c5eb36f15ca35c0668c4d330dba94aa4"
+      "bytes": 3997865,
+      "sha256": "f75ccf9324917f4ded27b9941a808b13251245e51d34aafbe12f6fa8715efaaf"
     },
     {
       "slug": "mobile-review",
@@ -970,1471 +977,1606 @@
       "output_width": 780,
       "target_capture_fps": 20,
       "body_font_at_display_width_px": 14,
-      "duration_seconds": 16.961,
+      "duration_seconds": 17.323,
       "poster": "docs/media/mobile-review.png",
       "actions": [
         {
-          "name": "Mobile location shortlist",
-          "at_ms": 999
+          "name": "Mobile company shortlist",
+          "at_ms": 1011
         },
         {
           "name": "Filter roles live while typing",
-          "at_ms": 2579
+          "at_ms": 2549
         },
         {
           "name": "Slide the native review sheet up from the bottom",
-          "at_ms": 4040
+          "at_ms": 3996
         },
         {
           "name": "Expand from the content and keep reading in one swipe",
-          "at_ms": 6086
+          "at_ms": 6233
         },
         {
-          "name": "Continue reading with native touch scrolling",
-          "at_ms": 8346
+          "name": "Continue reading in the expanded sheet",
+          "at_ms": 8341
         },
         {
           "name": "Drag the company header down to the partial sheet",
-          "at_ms": 9879
+          "at_ms": 9868
         },
         {
           "name": "Swipe up from the footer control to expand",
-          "at_ms": 12083
+          "at_ms": 12056
         },
         {
           "name": "Drag the partial-sheet content down to close",
-          "at_ms": 14842
+          "at_ms": 14802
         },
         {
           "name": "Tap supporting evidence normally",
-          "at_ms": 16169
+          "at_ms": 16532
         },
         {
           "name": "Tap outside to dismiss",
-          "at_ms": 16960
+          "at_ms": 17333
         },
         {
           "name": "Return to the same shortlist position",
-          "at_ms": 16960
+          "at_ms": 17333
         }
       ],
-      "frames": 176,
-      "capture_samples": 305,
-      "measured_capture_fps": 17.98,
-      "median_capture_interval_ms": 52,
-      "maximum_capture_interval_ms": 194,
-      "capture_run_completed_at": "2026-11-06T13:01:24.824Z",
+      "frames": 193,
+      "capture_samples": 334,
+      "measured_capture_fps": 19.28,
+      "median_capture_interval_ms": 51,
+      "maximum_capture_interval_ms": 74,
       "source_frames": [
         {
           "file": "output/readme-showcase/png-mobile-review/00001.png",
-          "at_ms": 999,
+          "at_ms": 1011,
           "width": 780,
           "height": 1688,
-          "sha256": "840cde2b8d369138ecc562830ba6f99660aac136d8fd1f9a3e8b0990726ed8cd",
-          "duration_ms": 126
+          "sha256": "d482c2412cc2b1b39704a5004b5826974f126318b3cd55df51ba436a31bcf52f",
+          "duration_ms": 119
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00002.png",
-          "at_ms": 1125,
+          "at_ms": 1130,
           "width": 780,
           "height": 1688,
-          "sha256": "b295d009bef8bc3ca59594772827c60bda39d3092add6fb27bc70f943ab18556",
-          "duration_ms": 48
+          "sha256": "3eb71e3a8553037e40dc3e938cc453a2cf59db80f697ee07d1b6b88463735f6b",
+          "duration_ms": 59
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00003.png",
-          "at_ms": 1173,
+          "at_ms": 1189,
           "width": 780,
           "height": 1688,
-          "sha256": "840cde2b8d369138ecc562830ba6f99660aac136d8fd1f9a3e8b0990726ed8cd",
-          "duration_ms": 73
+          "sha256": "d482c2412cc2b1b39704a5004b5826974f126318b3cd55df51ba436a31bcf52f",
+          "duration_ms": 673
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00004.png",
-          "at_ms": 1246,
+          "at_ms": 1862,
           "width": 780,
           "height": 1688,
-          "sha256": "a91ea2f59361bb30b04140f81c488d6239a71b5d1926e09171f143b4715ead99",
-          "duration_ms": 57
+          "sha256": "3eb71e3a8553037e40dc3e938cc453a2cf59db80f697ee07d1b6b88463735f6b",
+          "duration_ms": 48
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00005.png",
-          "at_ms": 1303,
-          "width": 780,
-          "height": 1688,
-          "sha256": "840cde2b8d369138ecc562830ba6f99660aac136d8fd1f9a3e8b0990726ed8cd",
-          "duration_ms": 305
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00006.png",
-          "at_ms": 1608,
-          "width": 780,
-          "height": 1688,
-          "sha256": "b295d009bef8bc3ca59594772827c60bda39d3092add6fb27bc70f943ab18556",
-          "duration_ms": 170
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00007.png",
-          "at_ms": 1778,
-          "width": 780,
-          "height": 1688,
-          "sha256": "840cde2b8d369138ecc562830ba6f99660aac136d8fd1f9a3e8b0990726ed8cd",
-          "duration_ms": 68
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00008.png",
-          "at_ms": 1846,
-          "width": 780,
-          "height": 1688,
-          "sha256": "a91ea2f59361bb30b04140f81c488d6239a71b5d1926e09171f143b4715ead99",
-          "duration_ms": 64
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00009.png",
           "at_ms": 1910,
           "width": 780,
           "height": 1688,
-          "sha256": "840cde2b8d369138ecc562830ba6f99660aac136d8fd1f9a3e8b0990726ed8cd",
+          "sha256": "d482c2412cc2b1b39704a5004b5826974f126318b3cd55df51ba436a31bcf52f",
+          "duration_ms": 150
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00006.png",
+          "at_ms": 2060,
+          "width": 780,
+          "height": 1688,
+          "sha256": "848223736dc88864cab66ce16531cc8fd751fde37c297eecd4d57fdfe995ae60",
+          "duration_ms": 102
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00007.png",
+          "at_ms": 2162,
+          "width": 780,
+          "height": 1688,
+          "sha256": "3cdcaaa39a4dfe65e7849ac179f49b3d18194372d15184fa8a79cc344892e624",
+          "duration_ms": 108
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00008.png",
+          "at_ms": 2270,
+          "width": 780,
+          "height": 1688,
+          "sha256": "9f7a4e73a1dbe871bda625b5792f1e384702e21ce1b0109904f76fc1291c836c",
+          "duration_ms": 102
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00009.png",
+          "at_ms": 2372,
+          "width": 780,
+          "height": 1688,
+          "sha256": "c78198fe9e83c1536549a0822d3b07772e8f5ef9251b9f6abe2f0d689ce17ec4",
           "duration_ms": 102
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00010.png",
-          "at_ms": 2012,
+          "at_ms": 2474,
           "width": 780,
           "height": 1688,
-          "sha256": "a96db70f31035cfa292cbd25ce37f2f64ec04895073269b64f5f33d5641c21a7",
-          "duration_ms": 73
+          "sha256": "0f4c7c22b888059f45f972d4a80e3c74b91dd876269787a0b92687d24ea92e81",
+          "duration_ms": 513
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00011.png",
-          "at_ms": 2085,
+          "at_ms": 2987,
           "width": 780,
           "height": 1688,
-          "sha256": "b2c7beb734e7eff91a04e6f33ac241f8c32d0816382c8ee3990c4605c3e9559e",
-          "duration_ms": 80
+          "sha256": "ebd44390ee2c7db2f983ed1bc92bc1254fcff2d6f16ba08f12030e69d6b49329",
+          "duration_ms": 356
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00012.png",
-          "at_ms": 2165,
+          "at_ms": 3343,
           "width": 780,
           "height": 1688,
-          "sha256": "fd03f25046b03c6625e012479ba6f97a236f733417fcbb94c8b548ca7dba8640",
-          "duration_ms": 131
+          "sha256": "64db1de884aee4896a67ec0d8d1781ab25ac61e557c620a4adc309c365b56026",
+          "duration_ms": 49
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00013.png",
-          "at_ms": 2296,
+          "at_ms": 3392,
           "width": 780,
           "height": 1688,
-          "sha256": "b17c2875624e4abe9724415a538eb38f3720c5998fc494b6bcd5d03b143761b3",
-          "duration_ms": 65
+          "sha256": "aff55ac94a91dd7d9ff91aaaa53ed6e0e5bd94f87dd6a84201c13c63a45b22bf",
+          "duration_ms": 371
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00014.png",
-          "at_ms": 2361,
+          "at_ms": 3763,
           "width": 780,
           "height": 1688,
-          "sha256": "8fb5f40063b0cb7d1c3e888b2231c55f2f64506a67aefca0624b543a3ba65bf7",
-          "duration_ms": 57
+          "sha256": "64db1de884aee4896a67ec0d8d1781ab25ac61e557c620a4adc309c365b56026",
+          "duration_ms": 117
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00015.png",
-          "at_ms": 2418,
+          "at_ms": 3880,
           "width": 780,
           "height": 1688,
-          "sha256": "9523b3569217a74cbb1b186919acf7e9527d1a825efce3fed9972604f925db87",
-          "duration_ms": 58
+          "sha256": "53004d7d5d2ceee41b9aae9b07133a520234569653a17034b6b3c13869dbe150",
+          "duration_ms": 49
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00016.png",
-          "at_ms": 2476,
+          "at_ms": 3929,
           "width": 780,
           "height": 1688,
-          "sha256": "5f1df485dcdcb475d187950c179ed5df00f667a8b3c3047a03845aecb7105386",
-          "duration_ms": 508
+          "sha256": "cd7ef10f86e3f062b8bbce97cfa8edfafa17cf3ca01a1ea82ff44645e70d7f41",
+          "duration_ms": 73
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00017.png",
-          "at_ms": 2984,
+          "at_ms": 4002,
           "width": 780,
           "height": 1688,
-          "sha256": "3833fa646cb7a73a1bc7c59fa577801bf5a28bbdaf14995148920d663e06ef99",
-          "duration_ms": 368
+          "sha256": "4b70e02c8253c8218d51630e52bdd1efb1723b162f63d942623fcf84a6736d82",
+          "duration_ms": 56
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00018.png",
-          "at_ms": 3352,
+          "at_ms": 4058,
           "width": 780,
           "height": 1688,
-          "sha256": "a96db70f31035cfa292cbd25ce37f2f64ec04895073269b64f5f33d5641c21a7",
-          "duration_ms": 373
+          "sha256": "257b989dd99e2c0eff36e30a29d46be1689fdf3564c9b8afbea394a3fc684600",
+          "duration_ms": 51
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00019.png",
-          "at_ms": 3725,
+          "at_ms": 4109,
           "width": 780,
           "height": 1688,
-          "sha256": "e6a81a8bef529ae7a486b971ffde486a6605dad245062b3f6b8150421af14b34",
-          "duration_ms": 59
+          "sha256": "275721de1f945529fb1727aba0e3becaec0a68f0e2441559cc877583b4f82e3f",
+          "duration_ms": 49
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00020.png",
-          "at_ms": 3784,
+          "at_ms": 4158,
           "width": 780,
           "height": 1688,
-          "sha256": "a96db70f31035cfa292cbd25ce37f2f64ec04895073269b64f5f33d5641c21a7",
-          "duration_ms": 50
+          "sha256": "fbd024c18ec0407d1001f7fd953436c55b12f07cc86ef42c71c7666bfd986a74",
+          "duration_ms": 51
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00021.png",
-          "at_ms": 3834,
+          "at_ms": 4209,
           "width": 780,
           "height": 1688,
-          "sha256": "c43115e533ca1f136c871906ecf2559c4613e84a4a20dd263e1e53d075a0ca1f",
-          "duration_ms": 216
+          "sha256": "234ba67658353c8fbf313c0a2fddc11ebfa0d107ccf71a3af21cb50afbfa5fc7",
+          "duration_ms": 51
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00022.png",
-          "at_ms": 4050,
+          "at_ms": 4260,
           "width": 780,
           "height": 1688,
-          "sha256": "168d191c17d6633536f9ec6e1bc57578b12db5ca3572bad53a22790d3a74ebb7",
-          "duration_ms": 54
+          "sha256": "12258e27c74a47f5055cc310573d92075672c9b3f999e0ea27814c837927f36d",
+          "duration_ms": 51
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00023.png",
-          "at_ms": 4104,
+          "at_ms": 4311,
           "width": 780,
           "height": 1688,
-          "sha256": "f6e061f5b6211031068e4f09bbd721c7deae7961ca0d3def35208c53eaf36a5b",
+          "sha256": "9095f77c04e35f308ca58f855524358d1962edb8668a2a78390efd780f82a4c6",
           "duration_ms": 51
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00024.png",
-          "at_ms": 4155,
+          "at_ms": 4362,
           "width": 780,
           "height": 1688,
-          "sha256": "380370e6847165850e575d5f7dc3c2e1318b91507de72cdecab65cd1f99e8627",
-          "duration_ms": 50
+          "sha256": "fb8dcb35ed9f3e089a7cc23d51fec22749cea7af68ce7cb780eefb69ca8cbe98",
+          "duration_ms": 74
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00025.png",
-          "at_ms": 4205,
+          "at_ms": 4436,
           "width": 780,
           "height": 1688,
-          "sha256": "d7272c0f42557fce39014d6cce229bdd82cf5e9a70a916fd8a0b06ff98049a3f",
-          "duration_ms": 51
+          "sha256": "cf2cf7998c9cb230c22a892840718f9169fd6cf41dfe72b8755048def8b1007c",
+          "duration_ms": 57
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00026.png",
-          "at_ms": 4256,
+          "at_ms": 4493,
           "width": 780,
           "height": 1688,
-          "sha256": "5f72407a19367d58660701a2b2034a9d1ae8afc7b68c77fc995093fae0cf887c",
-          "duration_ms": 54
+          "sha256": "ac9ce4f718ecb13f8d058a774def407990583390a08a3408687fdf23c5090ea0",
+          "duration_ms": 50
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00027.png",
-          "at_ms": 4310,
+          "at_ms": 4543,
           "width": 780,
           "height": 1688,
-          "sha256": "844893ccfa5bb9590f67efdd86f1b7d1f27de23b75761d56ab92da13f2f8e3e3",
-          "duration_ms": 50
+          "sha256": "746ce69599da207859f131039d37dbe10d6432c98f2a4a2916db02a64f89dd2d",
+          "duration_ms": 370
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00028.png",
-          "at_ms": 4360,
+          "at_ms": 4913,
           "width": 780,
           "height": 1688,
-          "sha256": "2d34793ef6db9bf0d46965369ca359f6b9f0150de2612f2e4c79f8f9ee4fd2d9",
-          "duration_ms": 50
+          "sha256": "b692156b81fd87e59081279d6778544e70f6d5ceca6c33ef53225347064d2a87",
+          "duration_ms": 164
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00029.png",
-          "at_ms": 4410,
+          "at_ms": 5077,
           "width": 780,
           "height": 1688,
-          "sha256": "dd3ac8d230226714047a10149fa8fb2d011d1f9d93ce9738a494df6c2a4dec8f",
-          "duration_ms": 508
+          "sha256": "746ce69599da207859f131039d37dbe10d6432c98f2a4a2916db02a64f89dd2d",
+          "duration_ms": 118
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00030.png",
-          "at_ms": 4918,
+          "at_ms": 5195,
           "width": 780,
           "height": 1688,
-          "sha256": "98b4ea787e6ac4d3f157667bd955e20aac1fa6f259d26aa3b663dbe7895f25bc",
-          "duration_ms": 52
+          "sha256": "b692156b81fd87e59081279d6778544e70f6d5ceca6c33ef53225347064d2a87",
+          "duration_ms": 47
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00031.png",
-          "at_ms": 4970,
+          "at_ms": 5242,
           "width": 780,
           "height": 1688,
-          "sha256": "8dfe810f2527b95bd82e3066757011492cffe1162363b10442f2796a556dd961",
-          "duration_ms": 50
+          "sha256": "746ce69599da207859f131039d37dbe10d6432c98f2a4a2916db02a64f89dd2d",
+          "duration_ms": 35
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00032.png",
-          "at_ms": 5020,
+          "at_ms": 5277,
           "width": 780,
           "height": 1688,
-          "sha256": "e34b5d92420306ae206680d9c3eadc24ab74c68af16b76bd52b39e40c0bd7416",
-          "duration_ms": 54
+          "sha256": "4d103fa2ca4e90fcb937a9bccd0696953814a47967260dd776a5556dec6811ba",
+          "duration_ms": 36
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00033.png",
-          "at_ms": 5074,
+          "at_ms": 5313,
           "width": 780,
           "height": 1688,
-          "sha256": "1c8a2c0aa54a69a197c3c1da4646b3205741422fc39353fc60232149cccfbd43",
-          "duration_ms": 50
+          "sha256": "08f31b0e8d0915f2abea761ec0ae13af276c675417f70ccadbd7e3744f0eceff",
+          "duration_ms": 58
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00034.png",
-          "at_ms": 5124,
+          "at_ms": 5371,
           "width": 780,
           "height": 1688,
-          "sha256": "cb7d337f8c25f6ad3f433c8c377b0d0dab36e4ece8a5e5d96349c44742ceaa31",
-          "duration_ms": 48
+          "sha256": "e32b5c27062466906f457d83fbdeb768fe3a7b80b35a4826f54f271dbf38b124",
+          "duration_ms": 43
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00035.png",
-          "at_ms": 5172,
+          "at_ms": 5414,
           "width": 780,
           "height": 1688,
-          "sha256": "c43e0188f11d756dd631d8e2325ae7ee411bbe5247c1944ef1c96c1161220ff6",
-          "duration_ms": 52
+          "sha256": "a75600d9adf32df5b7b0bd1ad7a461ebda167bbd31670443e7b4f33efa9823b0",
+          "duration_ms": 57
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00036.png",
-          "at_ms": 5224,
+          "at_ms": 5471,
           "width": 780,
           "height": 1688,
-          "sha256": "9eac649fc572dfa6472c398b77cc64a04c4421a75032c60bc6c5485625020f23",
-          "duration_ms": 51
+          "sha256": "0bbd5c7d2a1e5f99e18d2936733f6beb42727ce941fe19fd7199e74f82ba8fbb",
+          "duration_ms": 50
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00037.png",
-          "at_ms": 5275,
+          "at_ms": 5521,
           "width": 780,
           "height": 1688,
-          "sha256": "878683b695e174cdd12ef773f7a7ea9e851adc1e5247e505d83b2cf8e7567e13",
-          "duration_ms": 52
+          "sha256": "e1d1dcf35e7cffc15362bdde0fd83e1ac6601e35e33c269de9d3b71095b279b5",
+          "duration_ms": 51
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00038.png",
-          "at_ms": 5327,
+          "at_ms": 5572,
           "width": 780,
           "height": 1688,
-          "sha256": "4f22b60bba6e95e84877c08816aa7e67c9ba8b3bf452d2bf64314a5c71ea151a",
-          "duration_ms": 63
+          "sha256": "640220c8e1d919377a9015b90aae0447bfe8d8c64d1b799a07e0749c94a83006",
+          "duration_ms": 50
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00039.png",
-          "at_ms": 5390,
+          "at_ms": 5622,
           "width": 780,
           "height": 1688,
-          "sha256": "d44c7073439545ee05e74ff6d9b8105f415fd9b99cf03c4a24489c23519c8819",
-          "duration_ms": 53
+          "sha256": "9447ddd721107bf1573b00dab5c16994ad16029efb01b88913c90ccd18fed541",
+          "duration_ms": 51
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00040.png",
-          "at_ms": 5443,
+          "at_ms": 5673,
           "width": 780,
           "height": 1688,
-          "sha256": "53aef13a6f1814075f8ca67873fb7f99ff82a5526edf223ef0bb7b9594f2990d",
-          "duration_ms": 194
+          "sha256": "695be16c3cb818221567edb111166ef328d5f6a4000e7087fc5b59b8eaad2c8f",
+          "duration_ms": 49
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00041.png",
-          "at_ms": 5637,
+          "at_ms": 5722,
           "width": 780,
           "height": 1688,
-          "sha256": "8827dcf54748c51a50954d2bfed124ef16848707ab8448b7b44cb1482918e135",
-          "duration_ms": 188
+          "sha256": "43d06b53c9da13cf523b221c3be9a5bbef7ed258744551773e78de7cb3883940",
+          "duration_ms": 51
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00042.png",
-          "at_ms": 5825,
+          "at_ms": 5773,
           "width": 780,
           "height": 1688,
-          "sha256": "e0478e1d6673b425273e5c019854deea98dc90e5e9c7ccb7657e9acbc432ada6",
+          "sha256": "cad9a9611f69dd7189b0083dc9cc96c32dd228180d426cc9106c4635d5e5fa8f",
           "duration_ms": 50
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00043.png",
-          "at_ms": 5875,
+          "at_ms": 5823,
           "width": 780,
           "height": 1688,
-          "sha256": "f56797fe7c77b0f3972c993a417f427a74cc4e8abf7d8558b3195c1fa92bd8db",
-          "duration_ms": 49
+          "sha256": "4b0738f86fb8e6d02ba6d1b1ad57f7bc912699f9d067e798c1f102bbf6c38995",
+          "duration_ms": 50
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00044.png",
-          "at_ms": 5924,
+          "at_ms": 5873,
           "width": 780,
           "height": 1688,
-          "sha256": "f4644887436d15faa3be00bc4e180d9924ea9428afe5f43de69e7b00f31ef156",
-          "duration_ms": 50
+          "sha256": "d71072a693854c3721e781216a59f9469bfdd6ae29b3b8ec06272d67e067446a",
+          "duration_ms": 51
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00045.png",
-          "at_ms": 5974,
+          "at_ms": 5924,
           "width": 780,
           "height": 1688,
-          "sha256": "a5e7cf2a124966b6aaa235196ad0142a736f5b47ad13509cc3ab5cd81a5e22e5",
-          "duration_ms": 70
+          "sha256": "4f1d7c46fa311420bbf6936d5229684e56e459c39f892c9a737604b418919e85",
+          "duration_ms": 51
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00046.png",
-          "at_ms": 6044,
+          "at_ms": 5975,
           "width": 780,
           "height": 1688,
-          "sha256": "bae5840984e67602e6d10c1df23b82eae3b28435ab5077a6dd481c3723a69ec7",
-          "duration_ms": 65
+          "sha256": "0fd5c28bd0d7861e21e98998eed00e763b0eb6af0449616405b6f946698497c0",
+          "duration_ms": 50
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00047.png",
-          "at_ms": 6109,
+          "at_ms": 6025,
           "width": 780,
           "height": 1688,
-          "sha256": "95b3e441451fe34170450d03686c13ad3daf71dff7f2b3b9d8b4e58eff24783e",
-          "duration_ms": 220
+          "sha256": "4c236108d601d1b9e81303613c3e180bef6a987ea7ff142bf11c083338bc7875",
+          "duration_ms": 50
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00048.png",
-          "at_ms": 6329,
+          "at_ms": 6075,
           "width": 780,
           "height": 1688,
-          "sha256": "a2d4408ceeaafc770ffa2cabf232e79904e22d28061efd4909c667919ccc965d",
-          "duration_ms": 64
+          "sha256": "eb893d0dfc0602e7b4a5e990846e4d9a93d4506a24814571d55f88c6851cf732",
+          "duration_ms": 212
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00049.png",
-          "at_ms": 6393,
+          "at_ms": 6287,
           "width": 780,
           "height": 1688,
-          "sha256": "95b3e441451fe34170450d03686c13ad3daf71dff7f2b3b9d8b4e58eff24783e",
-          "duration_ms": 108
+          "sha256": "da741f2ea87f9b3c73687525197a44b5a35a5a6bb6ab31107724e6f3829933e2",
+          "duration_ms": 42
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00050.png",
-          "at_ms": 6501,
+          "at_ms": 6329,
           "width": 780,
           "height": 1688,
-          "sha256": "a2d4408ceeaafc770ffa2cabf232e79904e22d28061efd4909c667919ccc965d",
-          "duration_ms": 53
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00051.png",
-          "at_ms": 6554,
-          "width": 780,
-          "height": 1688,
-          "sha256": "95b3e441451fe34170450d03686c13ad3daf71dff7f2b3b9d8b4e58eff24783e",
-          "duration_ms": 352
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00052.png",
-          "at_ms": 6906,
-          "width": 780,
-          "height": 1688,
-          "sha256": "a2d4408ceeaafc770ffa2cabf232e79904e22d28061efd4909c667919ccc965d",
-          "duration_ms": 86
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00053.png",
-          "at_ms": 6992,
-          "width": 780,
-          "height": 1688,
-          "sha256": "95b3e441451fe34170450d03686c13ad3daf71dff7f2b3b9d8b4e58eff24783e",
-          "duration_ms": 81
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00054.png",
-          "at_ms": 7073,
-          "width": 780,
-          "height": 1688,
-          "sha256": "59c61713da683711b488b263ca95981c0334440cb8e1397fd5bd33d6ff98dc64",
-          "duration_ms": 132
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00055.png",
-          "at_ms": 7205,
-          "width": 780,
-          "height": 1688,
-          "sha256": "a967744b1d7814b714298a35d94d6fe03adfb7407d2ea19ff71a75f6eebf0251",
-          "duration_ms": 65
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00056.png",
-          "at_ms": 7270,
-          "width": 780,
-          "height": 1688,
-          "sha256": "540ebeaaed08411a79ff198cf3015547e044295678eb894acbdeab378b7a7e25",
-          "duration_ms": 118
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00057.png",
-          "at_ms": 7388,
-          "width": 780,
-          "height": 1688,
-          "sha256": "3e420aa27eeec38c3f572cec4dfa83c4ea554098abc8334968e5d408162ab3e6",
-          "duration_ms": 65
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00058.png",
-          "at_ms": 7453,
-          "width": 780,
-          "height": 1688,
-          "sha256": "50e6a090ff90ec03107a3d6351cab95408b155c54cc731c470bce1754d4aec56",
-          "duration_ms": 67
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00059.png",
-          "at_ms": 7520,
-          "width": 780,
-          "height": 1688,
-          "sha256": "d9e9c678da1f24571081ba6ecd56bb35132a729b2c493eaed4e910f06907b348",
-          "duration_ms": 118
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00060.png",
-          "at_ms": 7638,
-          "width": 780,
-          "height": 1688,
-          "sha256": "d0c571a2c32c0720c3483f24dcdfd495188f73245b9a6acef882052643d17c7c",
-          "duration_ms": 62
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00061.png",
-          "at_ms": 7700,
-          "width": 780,
-          "height": 1688,
-          "sha256": "ec9f22f4a10853c88fd646da3923ca37f6dc7d629fd34db005cba329d28fb7e5",
-          "duration_ms": 66
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00062.png",
-          "at_ms": 7766,
-          "width": 780,
-          "height": 1688,
-          "sha256": "8d26bdaf194ad4359e8f5ef851d739c2d1c2ab2dfc255c58143daecb45ce1b79",
-          "duration_ms": 70
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00063.png",
-          "at_ms": 7836,
-          "width": 780,
-          "height": 1688,
-          "sha256": "aba9c3e9ad68a0d6671d7e15f8b22102abb0726470dd08b5d13e33cf7e937919",
-          "duration_ms": 261
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00064.png",
-          "at_ms": 8097,
-          "width": 780,
-          "height": 1688,
-          "sha256": "31e8d14640bae64502d2026fcd1f89d0b08ef4673f608a587ad98dc5c5b931e1",
-          "duration_ms": 61
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00065.png",
-          "at_ms": 8158,
-          "width": 780,
-          "height": 1688,
-          "sha256": "aba9c3e9ad68a0d6671d7e15f8b22102abb0726470dd08b5d13e33cf7e937919",
-          "duration_ms": 169
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00066.png",
-          "at_ms": 8327,
-          "width": 780,
-          "height": 1688,
-          "sha256": "31e8d14640bae64502d2026fcd1f89d0b08ef4673f608a587ad98dc5c5b931e1",
-          "duration_ms": 60
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00067.png",
-          "at_ms": 8387,
-          "width": 780,
-          "height": 1688,
-          "sha256": "aba9c3e9ad68a0d6671d7e15f8b22102abb0726470dd08b5d13e33cf7e937919",
-          "duration_ms": 425
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00068.png",
-          "at_ms": 8812,
-          "width": 780,
-          "height": 1688,
-          "sha256": "31e8d14640bae64502d2026fcd1f89d0b08ef4673f608a587ad98dc5c5b931e1",
-          "duration_ms": 58
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00069.png",
-          "at_ms": 8870,
-          "width": 780,
-          "height": 1688,
-          "sha256": "aba9c3e9ad68a0d6671d7e15f8b22102abb0726470dd08b5d13e33cf7e937919",
-          "duration_ms": 103
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00070.png",
-          "at_ms": 8973,
-          "width": 780,
-          "height": 1688,
-          "sha256": "4feeb0c0511fbf41f949ee6180433481eafedda682ee1efa40f69bdb4fda39f9",
-          "duration_ms": 53
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00071.png",
-          "at_ms": 9026,
-          "width": 780,
-          "height": 1688,
-          "sha256": "7cd0b5397571018403d980b56960e7c644b2d090f746dabede4aa891a78a4f91",
-          "duration_ms": 48
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00072.png",
-          "at_ms": 9074,
-          "width": 780,
-          "height": 1688,
-          "sha256": "4cb62b33af8afbce6781e4b24d093fe35548369dfc8c0d871f63cf46a528076c",
-          "duration_ms": 49
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00073.png",
-          "at_ms": 9123,
-          "width": 780,
-          "height": 1688,
-          "sha256": "f818abf7a0dfe5b6d0d69c07834e0974796e4f6abec2a10888ae277b6f29dd9a",
-          "duration_ms": 59
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00074.png",
-          "at_ms": 9182,
-          "width": 780,
-          "height": 1688,
-          "sha256": "a0d300853eecdb6c4d6252bfad23f83c028e276d5e9ca3d0220aa8f10c89b360",
-          "duration_ms": 46
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00075.png",
-          "at_ms": 9228,
-          "width": 780,
-          "height": 1688,
-          "sha256": "b8c49099880d2803c196d29dbe7bdb91823dbec97e7c8479a3a26cee8d967856",
-          "duration_ms": 56
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00076.png",
-          "at_ms": 9284,
-          "width": 780,
-          "height": 1688,
-          "sha256": "1b52dbe18329c64660ab71332b360d463e6335fe4f5d705637ff811d0d56585e",
-          "duration_ms": 54
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00077.png",
-          "at_ms": 9338,
-          "width": 780,
-          "height": 1688,
-          "sha256": "a16373bd694ec446f26cd998ba2b43eaa10b2030839e6d500d99127dbd98d82a",
-          "duration_ms": 54
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00078.png",
-          "at_ms": 9392,
-          "width": 780,
-          "height": 1688,
-          "sha256": "b9da05695959631ac5b05ddeb7929f089bd6df97ca69feabfa069ee76927a417",
-          "duration_ms": 51
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00079.png",
-          "at_ms": 9443,
-          "width": 780,
-          "height": 1688,
-          "sha256": "49b89633b08c3a9637828be2c5eacf5afd7f54f674d7b3764f520a27a41384a9",
-          "duration_ms": 50
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00080.png",
-          "at_ms": 9493,
-          "width": 780,
-          "height": 1688,
-          "sha256": "f013ad30e3b3168493079b58f12657d549d6894a9d55817d83f6c6266b920515",
-          "duration_ms": 49
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00081.png",
-          "at_ms": 9542,
-          "width": 780,
-          "height": 1688,
-          "sha256": "72ff80cf061128b4f9dd6879f38bc7c0c06d6c4bbc5a1569fbf547cf39280874",
-          "duration_ms": 52
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00082.png",
-          "at_ms": 9594,
-          "width": 780,
-          "height": 1688,
-          "sha256": "87ff10d15a0dd1d7e7e59c54a619f9f29bfccc4a9f6b020e0402cc698657bc71",
-          "duration_ms": 57
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00083.png",
-          "at_ms": 9651,
-          "width": 780,
-          "height": 1688,
-          "sha256": "b04b66b8872a4e4d90d5a1af3c6a3dcb1c82ad98fed215bddd51d339173b21b4",
-          "duration_ms": 54
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00084.png",
-          "at_ms": 9705,
-          "width": 780,
-          "height": 1688,
-          "sha256": "8073b4794eb5517e58567ba94936c2b08db9bb9b6f3bd95a5c964ca74614fe1e",
-          "duration_ms": 49
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00085.png",
-          "at_ms": 9754,
-          "width": 780,
-          "height": 1688,
-          "sha256": "c81aab4d48d9cce8f2e0364133e453c35317bf711a780975f0befe3aa531bbf4",
-          "duration_ms": 151
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00086.png",
-          "at_ms": 9905,
-          "width": 780,
-          "height": 1688,
-          "sha256": "a897e2dcb1da405b2594c9d871c8da865720152800180c5e337e9c99c4b791dc",
-          "duration_ms": 51
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00087.png",
-          "at_ms": 9956,
-          "width": 780,
-          "height": 1688,
-          "sha256": "597a3122bf89bc8380912f772386705abf330929dc23b6fc15cc8f70126fc589",
-          "duration_ms": 50
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00088.png",
-          "at_ms": 10006,
-          "width": 780,
-          "height": 1688,
-          "sha256": "4ce40b0acc0fd88a782fb9ab29163ddaaf9428ed60a46066f0dc285e7595d80c",
-          "duration_ms": 51
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00089.png",
-          "at_ms": 10057,
-          "width": 780,
-          "height": 1688,
-          "sha256": "3394a80927e51469f3b9af27729e6c8aed428980da745256e179b9b4c2132180",
+          "sha256": "d9d104def7bbe31cda0e7db0e6491552b765fe445c6bad45c808c3ad6feaf300",
           "duration_ms": 68
         },
         {
-          "file": "output/readme-showcase/png-mobile-review/00090.png",
-          "at_ms": 10125,
+          "file": "output/readme-showcase/png-mobile-review/00051.png",
+          "at_ms": 6397,
           "width": 780,
           "height": 1688,
-          "sha256": "64bf55cdf190d2ed46c638116c76ee7b0d7d0a190812bbf80352233cc26b9886",
+          "sha256": "da741f2ea87f9b3c73687525197a44b5a35a5a6bb6ab31107724e6f3829933e2",
+          "duration_ms": 47
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00052.png",
+          "at_ms": 6444,
+          "width": 780,
+          "height": 1688,
+          "sha256": "d9d104def7bbe31cda0e7db0e6491552b765fe445c6bad45c808c3ad6feaf300",
+          "duration_ms": 219
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00053.png",
+          "at_ms": 6663,
+          "width": 780,
+          "height": 1688,
+          "sha256": "da741f2ea87f9b3c73687525197a44b5a35a5a6bb6ab31107724e6f3829933e2",
+          "duration_ms": 47
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00054.png",
+          "at_ms": 6710,
+          "width": 780,
+          "height": 1688,
+          "sha256": "d9d104def7bbe31cda0e7db0e6491552b765fe445c6bad45c808c3ad6feaf300",
+          "duration_ms": 168
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00055.png",
+          "at_ms": 6878,
+          "width": 780,
+          "height": 1688,
+          "sha256": "da741f2ea87f9b3c73687525197a44b5a35a5a6bb6ab31107724e6f3829933e2",
+          "duration_ms": 48
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00056.png",
+          "at_ms": 6926,
+          "width": 780,
+          "height": 1688,
+          "sha256": "d9d104def7bbe31cda0e7db0e6491552b765fe445c6bad45c808c3ad6feaf300",
+          "duration_ms": 152
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00057.png",
+          "at_ms": 7078,
+          "width": 780,
+          "height": 1688,
+          "sha256": "65992b61934e05592d0b85e873256b4335dcf5f03422cd2fd7b4f32a827a9bee",
+          "duration_ms": 59
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00058.png",
+          "at_ms": 7137,
+          "width": 780,
+          "height": 1688,
+          "sha256": "b3ed69c24935ae452d6efa54552d0e524c9b9b2b45a8aff82a1481ff5148910e",
+          "duration_ms": 50
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00059.png",
+          "at_ms": 7187,
+          "width": 780,
+          "height": 1688,
+          "sha256": "0a8ac8d1c89f47a9c7934a2b0528f484a06c1e3fca7d9b6a1b3eead4cc549bd5",
+          "duration_ms": 51
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00060.png",
+          "at_ms": 7238,
+          "width": 780,
+          "height": 1688,
+          "sha256": "7bb85c3ce344d3600fb62c89796aed1356cb6b070fceb78f2838e1dd366dc9ff",
+          "duration_ms": 50
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00061.png",
+          "at_ms": 7288,
+          "width": 780,
+          "height": 1688,
+          "sha256": "baa3cccd4d950c01fb3d2bb4c92110cb460819fecdf02e4fb16e3a5f33e412aa",
+          "duration_ms": 50
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00062.png",
+          "at_ms": 7338,
+          "width": 780,
+          "height": 1688,
+          "sha256": "2151a20122f5b72d377be1587bc74f61df9e0b45aff9bc82e9279270a9f67534",
+          "duration_ms": 50
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00063.png",
+          "at_ms": 7388,
+          "width": 780,
+          "height": 1688,
+          "sha256": "3a03bfc6995008c3cf593d512ddb05f5077d6f68383add1e060a917f5dce397b",
+          "duration_ms": 51
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00064.png",
+          "at_ms": 7439,
+          "width": 780,
+          "height": 1688,
+          "sha256": "ab98eaae6e13c61bbfe828cf26f26f74e0c61b83a9357f89bc7a5d538d786b06",
+          "duration_ms": 50
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00065.png",
+          "at_ms": 7489,
+          "width": 780,
+          "height": 1688,
+          "sha256": "751a3879ba33c70364125d3d3e71dc573cf06f9efdaf2a17a266c075ef360e4a",
+          "duration_ms": 50
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00066.png",
+          "at_ms": 7539,
+          "width": 780,
+          "height": 1688,
+          "sha256": "b3b52ba675cc69eea65dcc601c835eda026e3cc49a1845ba25d851430c6c31ee",
+          "duration_ms": 50
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00067.png",
+          "at_ms": 7589,
+          "width": 780,
+          "height": 1688,
+          "sha256": "84d803e1a2ee7a5d64c6337526f7fc9fa2bb55c68b7bd7baa9bdb19b7e540c4c",
+          "duration_ms": 50
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00068.png",
+          "at_ms": 7639,
+          "width": 780,
+          "height": 1688,
+          "sha256": "20987d51ccba9523b8df59ec0b11b2a35699434a902da1c74752de883b2fd3c7",
+          "duration_ms": 50
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00069.png",
+          "at_ms": 7689,
+          "width": 780,
+          "height": 1688,
+          "sha256": "60fd8ea585b85e5dc9776eac4382f1d4dcb20f197d62d346f8d9d0b00e5acf94",
+          "duration_ms": 51
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00070.png",
+          "at_ms": 7740,
+          "width": 780,
+          "height": 1688,
+          "sha256": "d3801f543104e98afe1ffe0cc679e28b30a4eb8858ae51a20b6de4e47aa1586c",
+          "duration_ms": 50
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00071.png",
+          "at_ms": 7790,
+          "width": 780,
+          "height": 1688,
+          "sha256": "f033cca88f119935917e869f83f95110efb21390ef32092776e67986fbe213cc",
+          "duration_ms": 51
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00072.png",
+          "at_ms": 7841,
+          "width": 780,
+          "height": 1688,
+          "sha256": "e8e3158a4888d143e2dc843306d1f80f0955a644896f0b630ffb1de05f9bc76a",
+          "duration_ms": 722
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00073.png",
+          "at_ms": 8563,
+          "width": 780,
+          "height": 1688,
+          "sha256": "5b1ac97317c3ed4774f7677e2aab3f5495745fd8597ff61a26e95ad1758991b5",
+          "duration_ms": 48
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00074.png",
+          "at_ms": 8611,
+          "width": 780,
+          "height": 1688,
+          "sha256": "e8e3158a4888d143e2dc843306d1f80f0955a644896f0b630ffb1de05f9bc76a",
+          "duration_ms": 68
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00075.png",
+          "at_ms": 8679,
+          "width": 780,
+          "height": 1688,
+          "sha256": "5b1ac97317c3ed4774f7677e2aab3f5495745fd8597ff61a26e95ad1758991b5",
+          "duration_ms": 47
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00076.png",
+          "at_ms": 8726,
+          "width": 780,
+          "height": 1688,
+          "sha256": "e8e3158a4888d143e2dc843306d1f80f0955a644896f0b630ffb1de05f9bc76a",
+          "duration_ms": 172
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00077.png",
+          "at_ms": 8898,
+          "width": 780,
+          "height": 1688,
+          "sha256": "5b1ac97317c3ed4774f7677e2aab3f5495745fd8597ff61a26e95ad1758991b5",
+          "duration_ms": 65
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00078.png",
+          "at_ms": 8963,
+          "width": 780,
+          "height": 1688,
+          "sha256": "6b35f9f0f1550d5781f91865baffde9d419b5b8ef2cdd60c0e318e80fda10e00",
+          "duration_ms": 54
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00079.png",
+          "at_ms": 9017,
+          "width": 780,
+          "height": 1688,
+          "sha256": "c6c2d1ef25651151a93d72d68816fe6b43c233482ba14bd8e3b4e04c1ed40301",
+          "duration_ms": 51
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00080.png",
+          "at_ms": 9068,
+          "width": 780,
+          "height": 1688,
+          "sha256": "06c92a77c2cb69965dc8ca0cbf2e017261416ba853908bd8355b2376914d00b7",
+          "duration_ms": 43
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00081.png",
+          "at_ms": 9111,
+          "width": 780,
+          "height": 1688,
+          "sha256": "4c1e02cdf6292ac785c5389766872f273a188537b1d79e37d8284dfa162bc235",
+          "duration_ms": 51
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00082.png",
+          "at_ms": 9162,
+          "width": 780,
+          "height": 1688,
+          "sha256": "7464d528124a59d1987f702996e6e2d2d505be2a744b3ae81a8e0e24d93f8775",
+          "duration_ms": 49
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00083.png",
+          "at_ms": 9211,
+          "width": 780,
+          "height": 1688,
+          "sha256": "7aba0560d0f5f49ae928f9f452044f6c08680c09085f905605db05812cf33e26",
+          "duration_ms": 59
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00084.png",
+          "at_ms": 9270,
+          "width": 780,
+          "height": 1688,
+          "sha256": "3477968093f931d3e0bb58dde9f6d7c94ac308215c36a8cde6c86a1a824d09fa",
+          "duration_ms": 43
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00085.png",
+          "at_ms": 9313,
+          "width": 780,
+          "height": 1688,
+          "sha256": "cf654a443ea9947d960d0659d7c0aae25181cdc02b1ae46cc72fca73e5778aa3",
           "duration_ms": 58
         },
         {
-          "file": "output/readme-showcase/png-mobile-review/00091.png",
-          "at_ms": 10183,
+          "file": "output/readme-showcase/png-mobile-review/00086.png",
+          "at_ms": 9371,
           "width": 780,
           "height": 1688,
-          "sha256": "3394a80927e51469f3b9af27729e6c8aed428980da745256e179b9b4c2132180",
-          "duration_ms": 356
+          "sha256": "e977e354b92278a62f8c396662c84e8a88e1a066ddb445b20fab6d6bb3e5ebfb",
+          "duration_ms": 44
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00087.png",
+          "at_ms": 9415,
+          "width": 780,
+          "height": 1688,
+          "sha256": "e35cd93810a2354ea6e1008ae1f45873d0f17a569dd9cff347109191f364146c",
+          "duration_ms": 56
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00088.png",
+          "at_ms": 9471,
+          "width": 780,
+          "height": 1688,
+          "sha256": "d5d14a601429fdd342ac3ba008a67400f625afaf2dd33bf26e577d63c3c7ebe1",
+          "duration_ms": 42
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00089.png",
+          "at_ms": 9513,
+          "width": 780,
+          "height": 1688,
+          "sha256": "b9121b57a876f422da19842bcae129a41d36509ff63c37b5c7850b8ca0bc9d55",
+          "duration_ms": 58
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00090.png",
+          "at_ms": 9571,
+          "width": 780,
+          "height": 1688,
+          "sha256": "379cf684a59404f45ae501a5f3a21e8c1c45ecad45336513c0a0b6f4f88e5520",
+          "duration_ms": 50
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00091.png",
+          "at_ms": 9621,
+          "width": 780,
+          "height": 1688,
+          "sha256": "a9e4e1e86a46dc8d6dbf3519f614d6cc5ddf10d06c7ec56d5ad7e0b662961c30",
+          "duration_ms": 51
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00092.png",
-          "at_ms": 10539,
+          "at_ms": 9672,
           "width": 780,
           "height": 1688,
-          "sha256": "e4c0267862b6e6c6a18358d16d693ffdf54064ce1f4efbf4402e5a0c05755ac3",
+          "sha256": "c2b6ad5b9f9ae40a811c53d687a23d52513ebd6dcf6230745d48c78638a4d193",
           "duration_ms": 51
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00093.png",
-          "at_ms": 10590,
+          "at_ms": 9723,
           "width": 780,
           "height": 1688,
-          "sha256": "d038575cfc755c640d3eb0a595c05be1f93a5a86b1134cbd45799afea84e74d1",
-          "duration_ms": 47
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00094.png",
-          "at_ms": 10637,
-          "width": 780,
-          "height": 1688,
-          "sha256": "e7b2b9ead80b8afa68e9afa3ffe29b3c9185e3762d10487de3207203f577ab69",
-          "duration_ms": 55
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00095.png",
-          "at_ms": 10692,
-          "width": 780,
-          "height": 1688,
-          "sha256": "8226684e36ae4fc34c7258ff959d8fb54a0e904d22395f218ce84db20bd4f302",
-          "duration_ms": 49
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00096.png",
-          "at_ms": 10741,
-          "width": 780,
-          "height": 1688,
-          "sha256": "a91518d896cfbd4dc1848f3f14d1cd43cb3be4b3abd15eeb6e570e5d62344c8d",
-          "duration_ms": 62
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00097.png",
-          "at_ms": 10803,
-          "width": 780,
-          "height": 1688,
-          "sha256": "46818d3e0df4953fd1cf3937ea9466834d42d032e61ca6084789ea85fcc7ebe2",
-          "duration_ms": 54
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00098.png",
-          "at_ms": 10857,
-          "width": 780,
-          "height": 1688,
-          "sha256": "dc2186456dad31907cad3d8d911c8c9eb9f586870b5aab360aed251f49cbad87",
-          "duration_ms": 49
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00099.png",
-          "at_ms": 10906,
-          "width": 780,
-          "height": 1688,
-          "sha256": "9394f925cf22d5d96635e7ca1b18114131165485b22592768bb2034cd925072e",
-          "duration_ms": 48
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00100.png",
-          "at_ms": 10954,
-          "width": 780,
-          "height": 1688,
-          "sha256": "4512a3335af619d62ab4db815791002be48066d939949536beb539c49d03ce37",
-          "duration_ms": 54
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00101.png",
-          "at_ms": 11008,
-          "width": 780,
-          "height": 1688,
-          "sha256": "0a774e87f69ea7c9e4f17c18e6b837a9a2de1068bf57d346ac636beeb1031f0f",
-          "duration_ms": 47
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00102.png",
-          "at_ms": 11055,
-          "width": 780,
-          "height": 1688,
-          "sha256": "1b08d82dfd9dace9b690e4938eef05bcef57313e13810b94d77b6ea673818bb2",
-          "duration_ms": 55
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00103.png",
-          "at_ms": 11110,
-          "width": 780,
-          "height": 1688,
-          "sha256": "479ab22780bd9bf814c6291ce1fbf8912cbc5b4c164581260b0dfd56bfb01aab",
-          "duration_ms": 49
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00104.png",
-          "at_ms": 11159,
-          "width": 780,
-          "height": 1688,
-          "sha256": "19ee73454c364f6a4b6f3467ebcf116ebff2eaa92865d3d5c4495374d3bc9f04",
-          "duration_ms": 49
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00105.png",
-          "at_ms": 11208,
-          "width": 780,
-          "height": 1688,
-          "sha256": "93e583b09205023b2a61b1c0684151ba71a3f827fb3dbd851a811b0cfceee618",
-          "duration_ms": 58
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00106.png",
-          "at_ms": 11266,
-          "width": 780,
-          "height": 1688,
-          "sha256": "7d9ead96ecb3ff1b1070b278dbab545ecace2b1c4cb35f496ee11d4efd5cff1b",
-          "duration_ms": 54
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00107.png",
-          "at_ms": 11320,
-          "width": 780,
-          "height": 1688,
-          "sha256": "b145808e8a95892a90789ed7d38301f65db0598741d6b17bace6d47cf2b6d22c",
-          "duration_ms": 153
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00108.png",
-          "at_ms": 11473,
-          "width": 780,
-          "height": 1688,
-          "sha256": "aba9c3e9ad68a0d6671d7e15f8b22102abb0726470dd08b5d13e33cf7e937919",
-          "duration_ms": 321
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00109.png",
-          "at_ms": 11794,
-          "width": 780,
-          "height": 1688,
-          "sha256": "31e8d14640bae64502d2026fcd1f89d0b08ef4673f608a587ad98dc5c5b931e1",
-          "duration_ms": 61
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00110.png",
-          "at_ms": 11855,
-          "width": 780,
-          "height": 1688,
-          "sha256": "aba9c3e9ad68a0d6671d7e15f8b22102abb0726470dd08b5d13e33cf7e937919",
-          "duration_ms": 303
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00111.png",
-          "at_ms": 12158,
-          "width": 780,
-          "height": 1688,
-          "sha256": "4feeb0c0511fbf41f949ee6180433481eafedda682ee1efa40f69bdb4fda39f9",
-          "duration_ms": 49
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00112.png",
-          "at_ms": 12207,
-          "width": 780,
-          "height": 1688,
-          "sha256": "7cd0b5397571018403d980b56960e7c644b2d090f746dabede4aa891a78a4f91",
-          "duration_ms": 63
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00113.png",
-          "at_ms": 12270,
-          "width": 780,
-          "height": 1688,
-          "sha256": "4cb62b33af8afbce6781e4b24d093fe35548369dfc8c0d871f63cf46a528076c",
-          "duration_ms": 54
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00114.png",
-          "at_ms": 12324,
-          "width": 780,
-          "height": 1688,
-          "sha256": "1124d55f7ddacf23606ad465dcbbed7ed11a02f3cd94fa902b1fb456d32c9f98",
-          "duration_ms": 47
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00115.png",
-          "at_ms": 12371,
-          "width": 780,
-          "height": 1688,
-          "sha256": "a0d300853eecdb6c4d6252bfad23f83c028e276d5e9ca3d0220aa8f10c89b360",
-          "duration_ms": 53
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00116.png",
-          "at_ms": 12424,
-          "width": 780,
-          "height": 1688,
-          "sha256": "37cbf00353066359a9200fda4f9c529cbd9462f97985d13522ce539e858fe122",
-          "duration_ms": 51
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00117.png",
-          "at_ms": 12475,
-          "width": 780,
-          "height": 1688,
-          "sha256": "1b52dbe18329c64660ab71332b360d463e6335fe4f5d705637ff811d0d56585e",
-          "duration_ms": 51
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00118.png",
-          "at_ms": 12526,
-          "width": 780,
-          "height": 1688,
-          "sha256": "a16373bd694ec446f26cd998ba2b43eaa10b2030839e6d500d99127dbd98d82a",
-          "duration_ms": 61
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00119.png",
-          "at_ms": 12587,
-          "width": 780,
-          "height": 1688,
-          "sha256": "c873aba580eb5c4f378167581087f6a6194ffc043f981e81a33c6be84d6be3e0",
-          "duration_ms": 49
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00120.png",
-          "at_ms": 12636,
-          "width": 780,
-          "height": 1688,
-          "sha256": "49b89633b08c3a9637828be2c5eacf5afd7f54f674d7b3764f520a27a41384a9",
-          "duration_ms": 54
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00121.png",
-          "at_ms": 12690,
-          "width": 780,
-          "height": 1688,
-          "sha256": "2a5a86c855950f88210e4cb0eb3e4703c7be3c858af6fcc4c7c978596e57c2b3",
-          "duration_ms": 51
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00122.png",
-          "at_ms": 12741,
-          "width": 780,
-          "height": 1688,
-          "sha256": "72ff80cf061128b4f9dd6879f38bc7c0c06d6c4bbc5a1569fbf547cf39280874",
-          "duration_ms": 50
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00123.png",
-          "at_ms": 12791,
-          "width": 780,
-          "height": 1688,
-          "sha256": "bb193cd5f5ca877c637c52b9c678f0d929a1702ee3b36a40a96310cb8b5c2915",
-          "duration_ms": 48
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00124.png",
-          "at_ms": 12839,
-          "width": 780,
-          "height": 1688,
-          "sha256": "b04b66b8872a4e4d90d5a1af3c6a3dcb1c82ad98fed215bddd51d339173b21b4",
-          "duration_ms": 55
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00125.png",
-          "at_ms": 12894,
-          "width": 780,
-          "height": 1688,
-          "sha256": "8073b4794eb5517e58567ba94936c2b08db9bb9b6f3bd95a5c964ca74614fe1e",
-          "duration_ms": 56
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00126.png",
-          "at_ms": 12950,
-          "width": 780,
-          "height": 1688,
-          "sha256": "c81aab4d48d9cce8f2e0364133e453c35317bf711a780975f0befe3aa531bbf4",
-          "duration_ms": 153
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00127.png",
-          "at_ms": 13103,
-          "width": 780,
-          "height": 1688,
-          "sha256": "7724376670eae8c420761a93864c89ac43980ee89290e27149c99e203e3314ec",
-          "duration_ms": 50
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00128.png",
-          "at_ms": 13153,
-          "width": 780,
-          "height": 1688,
-          "sha256": "305db20cffa3a65b3db0c6024c7fd2dbfbfa2ba4e331cbccdab3d17acb843b54",
-          "duration_ms": 50
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00129.png",
-          "at_ms": 13203,
-          "width": 780,
-          "height": 1688,
-          "sha256": "169fa4f92601870d369e8afd26f57b97ee5281cc24ce35f0ea902ad908834b55",
-          "duration_ms": 374
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00130.png",
-          "at_ms": 13577,
-          "width": 780,
-          "height": 1688,
-          "sha256": "151664a860e5b345ea8c9ca5eb296fec3e6931f31686cff45b3141d35970bf14",
-          "duration_ms": 67
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00131.png",
-          "at_ms": 13644,
-          "width": 780,
-          "height": 1688,
-          "sha256": "a2ca343a9f5109a228aefce1f11cf033fc240f11880f37d6011823e35045fa33",
-          "duration_ms": 57
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00132.png",
-          "at_ms": 13701,
-          "width": 780,
-          "height": 1688,
-          "sha256": "8ce1387f84be3d71d63dc7e7743ac392f741f5e3886f8f3aff3d9193aac1f870",
-          "duration_ms": 58
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00133.png",
-          "at_ms": 13759,
-          "width": 780,
-          "height": 1688,
-          "sha256": "e94f3c2005e65a97bd6c44d1524cf1816e711a121109e47aca8d99bc02b5ab1b",
-          "duration_ms": 67
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00134.png",
-          "at_ms": 13826,
-          "width": 780,
-          "height": 1688,
-          "sha256": "fac424b64d2add22deb404aea7f47d0406f6249931776a09dde82ae7c59016da",
-          "duration_ms": 63
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00135.png",
-          "at_ms": 13889,
-          "width": 780,
-          "height": 1688,
-          "sha256": "076f3955addf8c5c4c493d95e82eb3b02f4c81425dc7b0891e05587bbb7e4f32",
-          "duration_ms": 49
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00136.png",
-          "at_ms": 13938,
-          "width": 780,
-          "height": 1688,
-          "sha256": "56ba2c0c613c38739339a4bf8b724c7b073ae6fd4679c1f586c10d5e56044f7f",
-          "duration_ms": 53
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00137.png",
-          "at_ms": 13991,
-          "width": 780,
-          "height": 1688,
-          "sha256": "fc092a3fb0054e716757fbf66f4f835c32ea21f5ce1b290613eae34b9784aa57",
-          "duration_ms": 49
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00138.png",
-          "at_ms": 14040,
-          "width": 780,
-          "height": 1688,
-          "sha256": "8c6d28b34924ca25b737c03b59ba4974c5f09ba00dba9d0c742baabc950d06b8",
-          "duration_ms": 50
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00139.png",
-          "at_ms": 14090,
-          "width": 780,
-          "height": 1688,
-          "sha256": "f1dc3e95166198869aebc356588c303aa12ea4e0dc8d92b13144f6614e79036d",
-          "duration_ms": 50
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00140.png",
-          "at_ms": 14140,
-          "width": 780,
-          "height": 1688,
-          "sha256": "f4773832e964ec660babc478ae837c5962779e4edbe3801c07266910bb045dc4",
-          "duration_ms": 48
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00141.png",
-          "at_ms": 14188,
-          "width": 780,
-          "height": 1688,
-          "sha256": "c8783e71cce6126261d98b380d4ae09a1c5f76bd27cf9a961b8ed63c73a9bbdb",
-          "duration_ms": 54
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00142.png",
-          "at_ms": 14242,
-          "width": 780,
-          "height": 1688,
-          "sha256": "56abba434474357b0fead0f3fd8d30c564284e6abcdcc1944ddb518e23ced71d",
-          "duration_ms": 49
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00143.png",
-          "at_ms": 14291,
-          "width": 780,
-          "height": 1688,
-          "sha256": "90700bc234a70dac6ee6174c0917d1963aed4b7ef8b7b464819e9fb09062a03a",
-          "duration_ms": 52
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00144.png",
-          "at_ms": 14343,
-          "width": 780,
-          "height": 1688,
-          "sha256": "51dcc5eff2eaf26f6b2eca765c5a7955f4ac87cdf309a6afc22cd5608a2c25ba",
-          "duration_ms": 58
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00145.png",
-          "at_ms": 14401,
-          "width": 780,
-          "height": 1688,
-          "sha256": "d6c346f48afe0c069ebe930871162fe8a447236c8c2a74d111be4d626e309a89",
-          "duration_ms": 52
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00146.png",
-          "at_ms": 14453,
-          "width": 780,
-          "height": 1688,
-          "sha256": "d52e1d766ab35e32ff3c6188fb226f44796ad5d8b706e01d466627fc41a97abd",
+          "sha256": "27e1a076b44a1c75122c7090feb480ef0f1b7d3e3302e3f235234919ef57ce81",
           "duration_ms": 152
         },
         {
-          "file": "output/readme-showcase/png-mobile-review/00147.png",
-          "at_ms": 14605,
+          "file": "output/readme-showcase/png-mobile-review/00094.png",
+          "at_ms": 9875,
           "width": 780,
           "height": 1688,
-          "sha256": "0444e0e7bf26fcf10af89480e8ddc584577f19b5b61ec61c04430267071efcb4",
+          "sha256": "2fde3bd7a9517c3aa083c8705452e1d66e96de0120006fd01335c3623788038a",
+          "duration_ms": 50
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00095.png",
+          "at_ms": 9925,
+          "width": 780,
+          "height": 1688,
+          "sha256": "602fe890981d334f2a761bff56f1eeb30b2879a56843d3e1728f074763456b39",
+          "duration_ms": 51
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00096.png",
+          "at_ms": 9976,
+          "width": 780,
+          "height": 1688,
+          "sha256": "d90ddc95b61c88d7d61c099e2ab808d250fdcc3555d8e2d0532c1b8ec873770c",
+          "duration_ms": 50
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00097.png",
+          "at_ms": 10026,
+          "width": 780,
+          "height": 1688,
+          "sha256": "9ddd357745b7001e6912fa521a2b641e056efd42ae7d0cac76a24c4955dd2c92",
+          "duration_ms": 219
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00098.png",
+          "at_ms": 10245,
+          "width": 780,
+          "height": 1688,
+          "sha256": "916d6b59e6b35647ffb76b4829735eb7fbff020917e371f5f2af40eea941bce4",
+          "duration_ms": 48
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00099.png",
+          "at_ms": 10293,
+          "width": 780,
+          "height": 1688,
+          "sha256": "9ddd357745b7001e6912fa521a2b641e056efd42ae7d0cac76a24c4955dd2c92",
+          "duration_ms": 170
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00100.png",
+          "at_ms": 10463,
+          "width": 780,
+          "height": 1688,
+          "sha256": "3f0f57f8b61c9a2456e3c35516dbafc87d38d025ba2cbff7d52a3ef4336c2d1c",
+          "duration_ms": 49
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00101.png",
+          "at_ms": 10512,
+          "width": 780,
+          "height": 1688,
+          "sha256": "04348002ed34d35cddf72ed98fd7005c29fc77bb3dca74d6ebd3f70385a56f93",
+          "duration_ms": 59
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00102.png",
+          "at_ms": 10571,
+          "width": 780,
+          "height": 1688,
+          "sha256": "4fbabd9e33ccfcec2244e121f44f1643050154f22973f248c127509b8c0a05a5",
+          "duration_ms": 43
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00103.png",
+          "at_ms": 10614,
+          "width": 780,
+          "height": 1688,
+          "sha256": "606e23bc7c1f042f24a88e08a210a892336e6fca30bf25ae960cccc8c9240927",
+          "duration_ms": 58
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00104.png",
+          "at_ms": 10672,
+          "width": 780,
+          "height": 1688,
+          "sha256": "0a948a36ee70b8beab2c02a5cafd31a02b90b87a83747ec269d8625e2ac86c60",
+          "duration_ms": 50
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00105.png",
+          "at_ms": 10722,
+          "width": 780,
+          "height": 1688,
+          "sha256": "3b2bdc690c92ae07f0693ced62c5e2f13911f6f4b4562cffeb2b5fdae638969b",
+          "duration_ms": 52
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00106.png",
+          "at_ms": 10774,
+          "width": 780,
+          "height": 1688,
+          "sha256": "60cabe89d181b86aa85b96cbafc7f8045be9569bf3de19bfda916ae2fac312cb",
+          "duration_ms": 49
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00107.png",
+          "at_ms": 10823,
+          "width": 780,
+          "height": 1688,
+          "sha256": "11e4e4e00dee59f06689b29cb405ee27a7f295a99b7d59fe52216be6aafdde0e",
+          "duration_ms": 50
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00108.png",
+          "at_ms": 10873,
+          "width": 780,
+          "height": 1688,
+          "sha256": "3a86711ec669a779991e843fa9e6d04134ca231ba4ae27645968ed98dc71caf7",
+          "duration_ms": 50
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00109.png",
+          "at_ms": 10923,
+          "width": 780,
+          "height": 1688,
+          "sha256": "6c6f0adddca45d8ee287a2ff02d95fd137ba0be3c5def423ec293345f64ae99c",
+          "duration_ms": 51
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00110.png",
+          "at_ms": 10974,
+          "width": 780,
+          "height": 1688,
+          "sha256": "d7be9be46fd20852ec1d05e7c4cb141a0c289d39d13209d3f127758b961226ae",
+          "duration_ms": 50
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00111.png",
+          "at_ms": 11024,
+          "width": 780,
+          "height": 1688,
+          "sha256": "c0332a2f9ba48ff1ff7b717a9decd30c0a55513b30f1975ac3532655dd4fdc2f",
+          "duration_ms": 51
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00112.png",
+          "at_ms": 11075,
+          "width": 780,
+          "height": 1688,
+          "sha256": "cf11469daaf09557ba294f268f680b27617c2ddc688ff1e6a9932188b2b7c532",
+          "duration_ms": 50
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00113.png",
+          "at_ms": 11125,
+          "width": 780,
+          "height": 1688,
+          "sha256": "4347516d435a625f886d2cea3483599a5e5ac05ebcf7da465d316795e9359306",
+          "duration_ms": 52
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00114.png",
+          "at_ms": 11177,
+          "width": 780,
+          "height": 1688,
+          "sha256": "9ebb9521efb913955156ee6fad4bfbe5a309d4b14f153d409dc37f3f0c22db13",
+          "duration_ms": 50
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00115.png",
+          "at_ms": 11227,
+          "width": 780,
+          "height": 1688,
+          "sha256": "faebacd9aa30567ac71e12967853c57aa937b886c648219575c58c93d2ec04e4",
+          "duration_ms": 52
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00116.png",
+          "at_ms": 11279,
+          "width": 780,
+          "height": 1688,
+          "sha256": "076999d94f5a3b7bb17f787c74f32898d5da735af77750087c366809bae895ba",
+          "duration_ms": 59
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00117.png",
+          "at_ms": 11338,
+          "width": 780,
+          "height": 1688,
+          "sha256": "0db91fcdaac2e3d93f0641ea5403c9351177f6c2450a43631bfb3d67940e5da3",
+          "duration_ms": 150
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00118.png",
+          "at_ms": 11488,
+          "width": 780,
+          "height": 1688,
+          "sha256": "e8e3158a4888d143e2dc843306d1f80f0955a644896f0b630ffb1de05f9bc76a",
+          "duration_ms": 574
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00119.png",
+          "at_ms": 12062,
+          "width": 780,
+          "height": 1688,
+          "sha256": "5b1ac97317c3ed4774f7677e2aab3f5495745fd8597ff61a26e95ad1758991b5",
+          "duration_ms": 56
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00120.png",
+          "at_ms": 12118,
+          "width": 780,
+          "height": 1688,
+          "sha256": "9060671d7e731f65460f7315767daefc57cc7f41b25c6c59d4628cf40f5ec142",
+          "duration_ms": 43
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00121.png",
+          "at_ms": 12161,
+          "width": 780,
+          "height": 1688,
+          "sha256": "1f18e0f07d274541b32cce83b4c5fb59fb96e0dd8340ca11039cd6ee86298c3d",
+          "duration_ms": 49
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00122.png",
+          "at_ms": 12210,
+          "width": 780,
+          "height": 1688,
+          "sha256": "9c83013cb665faa416d19240559c5d5391eb78985f221610c4f6803c1dbc6cbe",
+          "duration_ms": 61
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00123.png",
+          "at_ms": 12271,
+          "width": 780,
+          "height": 1688,
+          "sha256": "e2a7dc34d4176c0251c6e6a558e2eac62f8cf0ce54a96739099ee8f1b7ccf6fe",
+          "duration_ms": 42
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00124.png",
+          "at_ms": 12313,
+          "width": 780,
+          "height": 1688,
+          "sha256": "da29efa928c58943b08100aca1bdbb3fdeadd9c427114f6e70926d7197c65c00",
+          "duration_ms": 58
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00125.png",
+          "at_ms": 12371,
+          "width": 780,
+          "height": 1688,
+          "sha256": "7aba0560d0f5f49ae928f9f452044f6c08680c09085f905605db05812cf33e26",
+          "duration_ms": 52
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00126.png",
+          "at_ms": 12423,
+          "width": 780,
+          "height": 1688,
+          "sha256": "3477968093f931d3e0bb58dde9f6d7c94ac308215c36a8cde6c86a1a824d09fa",
+          "duration_ms": 48
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00127.png",
+          "at_ms": 12471,
+          "width": 780,
+          "height": 1688,
+          "sha256": "62622ef5740fb323a6f9bac28eeb9b350c63bbcaf2cfd64531e30f32030b3d39",
+          "duration_ms": 54
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00128.png",
+          "at_ms": 12525,
+          "width": 780,
+          "height": 1688,
+          "sha256": "e977e354b92278a62f8c396662c84e8a88e1a066ddb445b20fab6d6bb3e5ebfb",
+          "duration_ms": 52
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00129.png",
+          "at_ms": 12577,
+          "width": 780,
+          "height": 1688,
+          "sha256": "e35cd93810a2354ea6e1008ae1f45873d0f17a569dd9cff347109191f364146c",
+          "duration_ms": 49
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00130.png",
+          "at_ms": 12626,
+          "width": 780,
+          "height": 1688,
+          "sha256": "d5d14a601429fdd342ac3ba008a67400f625afaf2dd33bf26e577d63c3c7ebe1",
+          "duration_ms": 50
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00131.png",
+          "at_ms": 12676,
+          "width": 780,
+          "height": 1688,
+          "sha256": "b9121b57a876f422da19842bcae129a41d36509ff63c37b5c7850b8ca0bc9d55",
+          "duration_ms": 52
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00132.png",
+          "at_ms": 12728,
+          "width": 780,
+          "height": 1688,
+          "sha256": "379cf684a59404f45ae501a5f3a21e8c1c45ecad45336513c0a0b6f4f88e5520",
+          "duration_ms": 59
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00133.png",
+          "at_ms": 12787,
+          "width": 780,
+          "height": 1688,
+          "sha256": "a9e4e1e86a46dc8d6dbf3519f614d6cc5ddf10d06c7ec56d5ad7e0b662961c30",
+          "duration_ms": 49
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00134.png",
+          "at_ms": 12836,
+          "width": 780,
+          "height": 1688,
+          "sha256": "c2b6ad5b9f9ae40a811c53d687a23d52513ebd6dcf6230745d48c78638a4d193",
+          "duration_ms": 43
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00135.png",
+          "at_ms": 12879,
+          "width": 780,
+          "height": 1688,
+          "sha256": "170740894d1dca0424899793fbef40104affc3a97ecc59188c956c49cbf095c9",
+          "duration_ms": 67
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00136.png",
+          "at_ms": 12946,
+          "width": 780,
+          "height": 1688,
+          "sha256": "21b1354cd65346d64b11d054915b39e53fc613ae8b3aee5bab3fa98e9dd7a79c",
+          "duration_ms": 54
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00137.png",
+          "at_ms": 13000,
+          "width": 780,
+          "height": 1688,
+          "sha256": "27e1a076b44a1c75122c7090feb480ef0f1b7d3e3302e3f235234919ef57ce81",
+          "duration_ms": 52
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00138.png",
+          "at_ms": 13052,
+          "width": 780,
+          "height": 1688,
+          "sha256": "7729aabcba8b10cedfd2591cdf2367c6208260ea2eb51e5788796e6eaca22a1e",
+          "duration_ms": 42
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00139.png",
+          "at_ms": 13094,
+          "width": 780,
+          "height": 1688,
+          "sha256": "602fe890981d334f2a761bff56f1eeb30b2879a56843d3e1728f074763456b39",
+          "duration_ms": 51
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00140.png",
+          "at_ms": 13145,
+          "width": 780,
+          "height": 1688,
+          "sha256": "d90ddc95b61c88d7d61c099e2ab808d250fdcc3555d8e2d0532c1b8ec873770c",
+          "duration_ms": 58
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00141.png",
+          "at_ms": 13203,
+          "width": 780,
+          "height": 1688,
+          "sha256": "9ddd357745b7001e6912fa521a2b641e056efd42ae7d0cac76a24c4955dd2c92",
+          "duration_ms": 355
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00142.png",
+          "at_ms": 13558,
+          "width": 780,
+          "height": 1688,
+          "sha256": "3de8947401344faeea5306f185f8e692c17df4b4404724b00491a189631a9a7a",
+          "duration_ms": 99
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00143.png",
+          "at_ms": 13657,
+          "width": 780,
+          "height": 1688,
+          "sha256": "bf14509e7b09131a73b375bdc3c22981416a36176e9b511edbdd93164047d6ad",
+          "duration_ms": 51
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00144.png",
+          "at_ms": 13708,
+          "width": 780,
+          "height": 1688,
+          "sha256": "ba92621f0ac56b3909fa98f6fae0635c1e7ff1ceb22c88b1c075570ca15d9959",
+          "duration_ms": 51
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00145.png",
+          "at_ms": 13759,
+          "width": 780,
+          "height": 1688,
+          "sha256": "c11945026fd3738b90b4dec3eba75be2a4efdc408b02ce966039206ae9cadedd",
+          "duration_ms": 50
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00146.png",
+          "at_ms": 13809,
+          "width": 780,
+          "height": 1688,
+          "sha256": "495bb57200c482371395d0beed1d7c4371085eafc8fde07a6ec8afc9bc3762de",
+          "duration_ms": 52
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00147.png",
+          "at_ms": 13861,
+          "width": 780,
+          "height": 1688,
+          "sha256": "a342578c35a06b781cf718d2bfdc7f3b7b79cae39bc2c398e7611e1b7a662c0f",
           "duration_ms": 50
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00148.png",
-          "at_ms": 14655,
+          "at_ms": 13911,
           "width": 780,
           "height": 1688,
-          "sha256": "3e99a74bd301006590e7a8f3cf92da72f8977e6a52cdebb119fc988fd8bd7591",
-          "duration_ms": 151
+          "sha256": "aeb60d8e58a1393ed168ca26c661365fca50a545a36d7a44194444d6504b8f39",
+          "duration_ms": 59
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00149.png",
-          "at_ms": 14806,
+          "at_ms": 13970,
           "width": 780,
           "height": 1688,
-          "sha256": "c943713e6697699b6512b75bbb21577e421feb588662f4a598c183b0e09a3b4c",
-          "duration_ms": 72
+          "sha256": "0ff1e2ab17cbf0009f6363c6737c9d5ca06edb9cc453a13e1f26c27c4ef58d9a",
+          "duration_ms": 50
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00150.png",
-          "at_ms": 14878,
+          "at_ms": 14020,
           "width": 780,
           "height": 1688,
-          "sha256": "b61799a501e3e3874d31eee43dbb13c05c1d32463c40ce4311098fc16f868d8b",
-          "duration_ms": 61
+          "sha256": "2b97c1e298aef12f28488014a023f57ba25a6336addad4ce21be52f3fe68b93a",
+          "duration_ms": 43
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00151.png",
-          "at_ms": 14939,
+          "at_ms": 14063,
           "width": 780,
           "height": 1688,
-          "sha256": "c943713e6697699b6512b75bbb21577e421feb588662f4a598c183b0e09a3b4c",
-          "duration_ms": 312
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00152.png",
-          "at_ms": 15251,
-          "width": 780,
-          "height": 1688,
-          "sha256": "b61799a501e3e3874d31eee43dbb13c05c1d32463c40ce4311098fc16f868d8b",
-          "duration_ms": 52
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00153.png",
-          "at_ms": 15303,
-          "width": 780,
-          "height": 1688,
-          "sha256": "c943713e6697699b6512b75bbb21577e421feb588662f4a598c183b0e09a3b4c",
-          "duration_ms": 253
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00154.png",
-          "at_ms": 15556,
-          "width": 780,
-          "height": 1688,
-          "sha256": "27ebbe3240ef43724e7c421e52535a63bd1097083b7dd3b491c4c8be6b294d1c",
-          "duration_ms": 51
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00155.png",
-          "at_ms": 15607,
-          "width": 780,
-          "height": 1688,
-          "sha256": "b1099e8befee0696e7327c92d42b1f7258b5b1ff5f28a94b993cc89eaa36d1d2",
-          "duration_ms": 52
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00156.png",
-          "at_ms": 15659,
-          "width": 780,
-          "height": 1688,
-          "sha256": "236d447567977a0c620f491717f8872f9c1c0d18fb016571daa0d3b91804f0ba",
+          "sha256": "fb2d044225ecf7d975df5bb6d27bba1ec7c32270793737fabd5a9b756cd6336a",
           "duration_ms": 57
         },
         {
-          "file": "output/readme-showcase/png-mobile-review/00157.png",
-          "at_ms": 15716,
+          "file": "output/readme-showcase/png-mobile-review/00152.png",
+          "at_ms": 14120,
           "width": 780,
           "height": 1688,
-          "sha256": "c4e0b564e864503b8c62cb3af987abc007c0b2efac4d2256cb4cf2cc767a6afa",
-          "duration_ms": 53
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00158.png",
-          "at_ms": 15769,
-          "width": 780,
-          "height": 1688,
-          "sha256": "3a3130113497fd351741232626a431e87bcc6d4146e9c271d376ebc2cc1ab1d7",
-          "duration_ms": 52
-        },
-        {
-          "file": "output/readme-showcase/png-mobile-review/00159.png",
-          "at_ms": 15821,
-          "width": 780,
-          "height": 1688,
-          "sha256": "0403fa3aecb2d29f9792267942c1f98ecafb40a763774fe191d0ab63ef7b43ad",
+          "sha256": "b5082b6a16854b8e6448d1031bdf26516bf54ff9878417dea58538b895685d2a",
           "duration_ms": 51
         },
         {
-          "file": "output/readme-showcase/png-mobile-review/00160.png",
-          "at_ms": 15872,
+          "file": "output/readme-showcase/png-mobile-review/00153.png",
+          "at_ms": 14171,
           "width": 780,
           "height": 1688,
-          "sha256": "47ae8a96adb2ab0525d47350fb27006277cdc7b446f2a6621c50ef3ce284d88f",
-          "duration_ms": 47
+          "sha256": "0bfe977e8112a956f823267e5d6d560098e721be06450302fb5541e91bb569d9",
+          "duration_ms": 49
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00154.png",
+          "at_ms": 14220,
+          "width": 780,
+          "height": 1688,
+          "sha256": "404c7031d451d8fd69cc3b9f86f08021dbdeec9cce8bfe987940b98f0b496966",
+          "duration_ms": 43
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00155.png",
+          "at_ms": 14263,
+          "width": 780,
+          "height": 1688,
+          "sha256": "2d016939ea05932b6698e934347577baaf6023d27a4223b6d30bdff35140743a",
+          "duration_ms": 58
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00156.png",
+          "at_ms": 14321,
+          "width": 780,
+          "height": 1688,
+          "sha256": "fd3fe4851261fdf19977cb06a0498fb2a0ed473255e5f62f661e6a25ab6a58a3",
+          "duration_ms": 51
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00157.png",
+          "at_ms": 14372,
+          "width": 780,
+          "height": 1688,
+          "sha256": "c0b3b92f7e0c5269e4fa443b0886c126ecd1576b14cb2611aa0a772db24d6abb",
+          "duration_ms": 151
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00158.png",
+          "at_ms": 14523,
+          "width": 780,
+          "height": 1688,
+          "sha256": "9839932958ee775a9fb987334bc82401678ca298dc003fc2c6a6b8cdf40d3533",
+          "duration_ms": 51
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00159.png",
+          "at_ms": 14574,
+          "width": 780,
+          "height": 1688,
+          "sha256": "47ec9638279b56f6519b4580034734e0ffaa3af804315b5c0ce5e6fc3fd48c59",
+          "duration_ms": 50
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00160.png",
+          "at_ms": 14624,
+          "width": 780,
+          "height": 1688,
+          "sha256": "e25da2b26fba1f80f4b023e40c923c0a9d99dcb341bfe18e8ae093593e07ca1e",
+          "duration_ms": 151
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00161.png",
-          "at_ms": 15919,
+          "at_ms": 14775,
           "width": 780,
           "height": 1688,
-          "sha256": "dd3ac8d230226714047a10149fa8fb2d011d1f9d93ce9738a494df6c2a4dec8f",
-          "duration_ms": 266
+          "sha256": "13914d85074d7c13d1633b8f7e72eb02e95ed6826a1e878adc6c9dd091fb1d41",
+          "duration_ms": 421
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00162.png",
-          "at_ms": 16185,
+          "at_ms": 15196,
           "width": 780,
           "height": 1688,
-          "sha256": "6e8ab26baf7d92ff9c1669acd13021a14c86ef8741c9d72b452e9af0cae1b6e9",
-          "duration_ms": 101
+          "sha256": "89b6c4318e29214f998c0f1a94f0adb1895abe7fdbd31aabd975243af9bcac00",
+          "duration_ms": 48
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00163.png",
-          "at_ms": 16286,
+          "at_ms": 15244,
           "width": 780,
           "height": 1688,
-          "sha256": "65d13587b9d1faadac5a481bddac4ecc00eb11a7c32a12c34ce0c581521ddc2b",
-          "duration_ms": 54
+          "sha256": "13914d85074d7c13d1633b8f7e72eb02e95ed6826a1e878adc6c9dd091fb1d41",
+          "duration_ms": 119
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00164.png",
-          "at_ms": 16340,
+          "at_ms": 15363,
           "width": 780,
           "height": 1688,
-          "sha256": "8233910fc5b71c0f79e02e2492034c17a5dfe66f386d6bc258166de35c966f8e",
+          "sha256": "89b6c4318e29214f998c0f1a94f0adb1895abe7fdbd31aabd975243af9bcac00",
           "duration_ms": 48
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00165.png",
-          "at_ms": 16388,
+          "at_ms": 15411,
           "width": 780,
           "height": 1688,
-          "sha256": "8528a21334d72360facde92be45d0465818fc0fda2a8cf40a7ae89aa350bbbf9",
-          "duration_ms": 221
+          "sha256": "13914d85074d7c13d1633b8f7e72eb02e95ed6826a1e878adc6c9dd091fb1d41",
+          "duration_ms": 68
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00166.png",
-          "at_ms": 16609,
+          "at_ms": 15479,
           "width": 780,
           "height": 1688,
-          "sha256": "e629b327d5af75c5a1d24010ce58cb8b6a22f05b5165d4712cbae026ecc3478f",
-          "duration_ms": 61
+          "sha256": "89b6c4318e29214f998c0f1a94f0adb1895abe7fdbd31aabd975243af9bcac00",
+          "duration_ms": 52
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00167.png",
-          "at_ms": 16670,
+          "at_ms": 15531,
           "width": 780,
           "height": 1688,
-          "sha256": "8528a21334d72360facde92be45d0465818fc0fda2a8cf40a7ae89aa350bbbf9",
-          "duration_ms": 51
+          "sha256": "857e0ac138755ccd40124b0b50fb7a3e01025e8c9b0789e37bada9282a944ef1",
+          "duration_ms": 57
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00168.png",
-          "at_ms": 16721,
+          "at_ms": 15588,
           "width": 780,
           "height": 1688,
-          "sha256": "2be9beb857c17fb97a221218f98ef766d99623daa1a7960ce3791d5962b59884",
-          "duration_ms": 51
+          "sha256": "9653d970b65ab19141edca77e2762d93f5da8ec42b9155e325e45578604cfbf7",
+          "duration_ms": 41
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00169.png",
-          "at_ms": 16772,
+          "at_ms": 15629,
           "width": 780,
           "height": 1688,
-          "sha256": "756af36d25fd3f00e5f65cd5764f0d3aae7df0bf7f06c16f65f037503dd32a7c",
-          "duration_ms": 50
+          "sha256": "df382b407908afa1fb372fcea216d49e49da7e550ac4c9ee6fece02f04f7d50f",
+          "duration_ms": 58
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00170.png",
-          "at_ms": 16822,
+          "at_ms": 15687,
           "width": 780,
           "height": 1688,
-          "sha256": "3e99a74bd301006590e7a8f3cf92da72f8977e6a52cdebb119fc988fd8bd7591",
-          "duration_ms": 99
+          "sha256": "d9529b5c8c54a33a3a0ed283fb01774b051e9f60899b1c46d6dbd3724a427a57",
+          "duration_ms": 50
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00171.png",
-          "at_ms": 16921,
+          "at_ms": 15737,
           "width": 780,
           "height": 1688,
-          "sha256": "c943713e6697699b6512b75bbb21577e421feb588662f4a598c183b0e09a3b4c",
-          "duration_ms": 221
+          "sha256": "71dc6d3546ba9c49999acadf0d0179d63bcecee0b301dd730dbba6ae35eeb8e6",
+          "duration_ms": 51
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00172.png",
-          "at_ms": 17142,
+          "at_ms": 15788,
           "width": 780,
           "height": 1688,
-          "sha256": "b61799a501e3e3874d31eee43dbb13c05c1d32463c40ce4311098fc16f868d8b",
-          "duration_ms": 61
+          "sha256": "268e76c313bd10c60e5d24b7b7f2368028611e3900f7be87fded72381d3cbc0c",
+          "duration_ms": 50
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00173.png",
-          "at_ms": 17203,
+          "at_ms": 15838,
           "width": 780,
           "height": 1688,
-          "sha256": "c943713e6697699b6512b75bbb21577e421feb588662f4a598c183b0e09a3b4c",
-          "duration_ms": 422
+          "sha256": "7423c394e04476b5807c1e598ca800cc99fd35253eb1bf5200ecef35abf88cfe",
+          "duration_ms": 50
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00174.png",
-          "at_ms": 17625,
+          "at_ms": 15888,
           "width": 780,
           "height": 1688,
-          "sha256": "a7a42a4508c43eae9713624cc1b3d98427ea8738ddb8e6cf06aca3860beb6cf9",
-          "duration_ms": 59
+          "sha256": "fb8dcb35ed9f3e089a7cc23d51fec22749cea7af68ce7cb780eefb69ca8cbe98",
+          "duration_ms": 51
         },
         {
           "file": "output/readme-showcase/png-mobile-review/00175.png",
-          "at_ms": 17684,
+          "at_ms": 15939,
           "width": 780,
           "height": 1688,
-          "sha256": "c943713e6697699b6512b75bbb21577e421feb588662f4a598c183b0e09a3b4c",
-          "duration_ms": 276
+          "sha256": "7f64b743f4bed8de44527a58f30cc77cac0358368c43df25e25eded16f914ac0",
+          "duration_ms": 50
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00176.png",
+          "at_ms": 15989,
+          "width": 780,
+          "height": 1688,
+          "sha256": "a2ad7d61fecdd41294194487ac46da22b2a51d515c9d74a156d0e808697bf921",
+          "duration_ms": 50
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00177.png",
+          "at_ms": 16039,
+          "width": 780,
+          "height": 1688,
+          "sha256": "f83ffa837b772332a89a9c1a93eb08cef845936d0144c36a4ae1dec77850c094",
+          "duration_ms": 51
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00178.png",
+          "at_ms": 16090,
+          "width": 780,
+          "height": 1688,
+          "sha256": "746ce69599da207859f131039d37dbe10d6432c98f2a4a2916db02a64f89dd2d",
+          "duration_ms": 414
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00179.png",
+          "at_ms": 16504,
+          "width": 780,
+          "height": 1688,
+          "sha256": "a5742cb1468c18caa1f90ac42ee39eec126fca8ecaff16f8f13676cae218872d",
+          "duration_ms": 50
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00180.png",
+          "at_ms": 16554,
+          "width": 780,
+          "height": 1688,
+          "sha256": "eb6889363cbaeaf690613c56312201a8b96fdad3e9098dad0a7a122d2ce94036",
+          "duration_ms": 100
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00181.png",
+          "at_ms": 16654,
+          "width": 780,
+          "height": 1688,
+          "sha256": "35f147601f71932b9803dd82396d8e77f210725e21ab5fd4f30708e930670276",
+          "duration_ms": 52
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00182.png",
+          "at_ms": 16706,
+          "width": 780,
+          "height": 1688,
+          "sha256": "19f73209694e885ce9e2e2616f6e037af6f9bc7c6d4de893bda9a4d726ab24ea",
+          "duration_ms": 353
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00183.png",
+          "at_ms": 17059,
+          "width": 780,
+          "height": 1688,
+          "sha256": "21aac232cb9734b4da14cf897a9e4fe0c39be2af5668e883b18c673a1031eb9c",
+          "duration_ms": 50
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00184.png",
+          "at_ms": 17109,
+          "width": 780,
+          "height": 1688,
+          "sha256": "e274d7f3001254d3034179634cde3d655d6eb4bb7f99c1d5169855e0ecf267aa",
+          "duration_ms": 51
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00185.png",
+          "at_ms": 17160,
+          "width": 780,
+          "height": 1688,
+          "sha256": "e25da2b26fba1f80f4b023e40c923c0a9d99dcb341bfe18e8ae093593e07ca1e",
+          "duration_ms": 152
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00186.png",
+          "at_ms": 17312,
+          "width": 780,
+          "height": 1688,
+          "sha256": "13914d85074d7c13d1633b8f7e72eb02e95ed6826a1e878adc6c9dd091fb1d41",
+          "duration_ms": 66
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00187.png",
+          "at_ms": 17378,
+          "width": 780,
+          "height": 1688,
+          "sha256": "89b6c4318e29214f998c0f1a94f0adb1895abe7fdbd31aabd975243af9bcac00",
+          "duration_ms": 98
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00188.png",
+          "at_ms": 17476,
+          "width": 780,
+          "height": 1688,
+          "sha256": "13914d85074d7c13d1633b8f7e72eb02e95ed6826a1e878adc6c9dd091fb1d41",
+          "duration_ms": 220
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00189.png",
+          "at_ms": 17696,
+          "width": 780,
+          "height": 1688,
+          "sha256": "89b6c4318e29214f998c0f1a94f0adb1895abe7fdbd31aabd975243af9bcac00",
+          "duration_ms": 48
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00190.png",
+          "at_ms": 17744,
+          "width": 780,
+          "height": 1688,
+          "sha256": "13914d85074d7c13d1633b8f7e72eb02e95ed6826a1e878adc6c9dd091fb1d41",
+          "duration_ms": 119
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00191.png",
+          "at_ms": 17863,
+          "width": 780,
+          "height": 1688,
+          "sha256": "89b6c4318e29214f998c0f1a94f0adb1895abe7fdbd31aabd975243af9bcac00",
+          "duration_ms": 58
+        },
+        {
+          "file": "output/readme-showcase/png-mobile-review/00192.png",
+          "at_ms": 17921,
+          "width": 780,
+          "height": 1688,
+          "sha256": "13914d85074d7c13d1633b8f7e72eb02e95ed6826a1e878adc6c9dd091fb1d41",
+          "duration_ms": 413
         }
       ],
       "width": 780,
       "height": 1688,
-      "duration_ms": 16970,
+      "duration_ms": 17330,
       "minimum_frame_duration_ms": 10,
-      "median_motion_frame_duration_ms": 50,
-      "maximum_reading_hold_ms": 510,
+      "median_motion_frame_duration_ms": 50.0,
+      "maximum_reading_hold_ms": 720,
       "gif": "docs/media/mobile-review.gif",
-      "bytes": 5831762,
-      "sha256": "b5076262ba71192bc4ff6f3c535eaf9744304a0264d13846690ddd4a93bb4fdb"
+      "bytes": 7213630,
+      "sha256": "a0414c24a6dae55303fb080b9b8106199b74edf70af3aceb889e1e7d24663dc1"
     },
     {
       "slug": "application-documents",
@@ -2448,498 +2590,474 @@
       "output_width": 2240,
       "target_capture_fps": 20,
       "body_font_at_display_width_px": 14,
-      "duration_seconds": 8.995,
+      "duration_seconds": 9.314,
       "poster": "docs/media/application-documents.png",
       "actions": [
         {
           "name": "Review application packages",
-          "at_ms": 1087
+          "at_ms": 805
         },
         {
           "name": "Review sample document files and their preserved version",
-          "at_ms": 2962
+          "at_ms": 3154
         },
         {
           "name": "Inspect supporting files and source evidence",
-          "at_ms": 4965
+          "at_ms": 5126
         },
         {
           "name": "Find preserved document versions in History",
-          "at_ms": 6154
+          "at_ms": 6266
         }
       ],
-      "frames": 56,
-      "capture_samples": 159,
-      "measured_capture_fps": 17.68,
-      "median_capture_interval_ms": 52,
-      "maximum_capture_interval_ms": 81,
-      "capture_run_completed_at": "2026-11-06T13:08:06.429Z",
+      "frames": 55,
+      "capture_samples": 174,
+      "measured_capture_fps": 18.68,
+      "median_capture_interval_ms": 51,
+      "maximum_capture_interval_ms": 71,
       "source_frames": [
         {
           "file": "output/readme-showcase/png-application-documents/00001.png",
-          "at_ms": 1087,
+          "at_ms": 805,
           "width": 2240,
           "height": 1680,
-          "sha256": "7014ed4d677565ba4a7be5eaa362f40369f841b21ad0a2338146015eda7da9c1",
-          "duration_ms": 436
+          "sha256": "91ba8470a4c5400e0795cc9c89587981f80d15dca42bfab65928d139ee5dd9a5",
+          "duration_ms": 446
         },
         {
           "file": "output/readme-showcase/png-application-documents/00002.png",
-          "at_ms": 1523,
+          "at_ms": 1251,
           "width": 2240,
           "height": 1680,
-          "sha256": "da3b7c93156febb7f23193bc2455bbc5f750b4919cdf284d0385a3fd590ec038",
-          "duration_ms": 53
+          "sha256": "c30b89a74966c22199475bf0dfd2144a57e2441815a2b9e856ffa0bdaf19fe5f",
+          "duration_ms": 60
         },
         {
           "file": "output/readme-showcase/png-application-documents/00003.png",
-          "at_ms": 1576,
+          "at_ms": 1311,
           "width": 2240,
           "height": 1680,
-          "sha256": "7014ed4d677565ba4a7be5eaa362f40369f841b21ad0a2338146015eda7da9c1",
-          "duration_ms": 372
+          "sha256": "91ba8470a4c5400e0795cc9c89587981f80d15dca42bfab65928d139ee5dd9a5",
+          "duration_ms": 572
         },
         {
           "file": "output/readme-showcase/png-application-documents/00004.png",
-          "at_ms": 1948,
+          "at_ms": 1883,
           "width": 2240,
           "height": 1680,
-          "sha256": "da3b7c93156febb7f23193bc2455bbc5f750b4919cdf284d0385a3fd590ec038",
-          "duration_ms": 62
+          "sha256": "419695f8f283389266c9f20fcfa9cfaecd33431d624eae9dc0e4e4d0b5fda1dc",
+          "duration_ms": 60
         },
         {
           "file": "output/readme-showcase/png-application-documents/00005.png",
-          "at_ms": 2010,
+          "at_ms": 1943,
           "width": 2240,
           "height": 1680,
-          "sha256": "7014ed4d677565ba4a7be5eaa362f40369f841b21ad0a2338146015eda7da9c1",
-          "duration_ms": 476
+          "sha256": "91ba8470a4c5400e0795cc9c89587981f80d15dca42bfab65928d139ee5dd9a5",
+          "duration_ms": 263
         },
         {
           "file": "output/readme-showcase/png-application-documents/00006.png",
-          "at_ms": 2486,
+          "at_ms": 2206,
           "width": 2240,
           "height": 1680,
-          "sha256": "3545e9e36fd2817be596bb87f41343e1e68de82adae0835aeaa00ccffc28bc26",
-          "duration_ms": 74
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00007.png",
-          "at_ms": 2560,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "1d789c51e298adfa9edf33076b3f43f7d702b9a42c36a07d6d5d137e5ff6cb2c",
-          "duration_ms": 65
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00008.png",
-          "at_ms": 2625,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "cb6950213b54bc574bfed2b3b4b454672ce3285e8720b95f0eb7902c6b26f9c4",
-          "duration_ms": 59
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00009.png",
-          "at_ms": 2684,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "875e2bc74d1acdcd42a8f71476df4eb25320da5dd78f0c76cff3ab2692d76426",
-          "duration_ms": 59
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00010.png",
-          "at_ms": 2743,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "639e8ca8e178a8866f9a3f3ee38ac949d7c43454fd847d9e1563fe76943da74a",
-          "duration_ms": 58
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00011.png",
-          "at_ms": 2801,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "9697c72c5d54833411c7b66944c79cdc7090f77e56598f84bf363254dbfe1376",
-          "duration_ms": 57
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00012.png",
-          "at_ms": 2858,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "f32ba539e0b76bf05fda75606c91c50e78732facde25097d8158d24732a32e85",
-          "duration_ms": 62
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00013.png",
-          "at_ms": 2920,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "b022ef4c7fe3012ee62bb23a6b07f5196074be854ffa24013a6c6346c7138e32",
-          "duration_ms": 56
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00014.png",
-          "at_ms": 2976,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "1600c978d5904557fc953cff9df74c84f0783896227ef850c62cd5ed06c4a18a",
-          "duration_ms": 55
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00015.png",
-          "at_ms": 3031,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "b022ef4c7fe3012ee62bb23a6b07f5196074be854ffa24013a6c6346c7138e32",
-          "duration_ms": 318
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00016.png",
-          "at_ms": 3349,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "1600c978d5904557fc953cff9df74c84f0783896227ef850c62cd5ed06c4a18a",
-          "duration_ms": 63
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00017.png",
-          "at_ms": 3412,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "b022ef4c7fe3012ee62bb23a6b07f5196074be854ffa24013a6c6346c7138e32",
-          "duration_ms": 321
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00018.png",
-          "at_ms": 3733,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "1600c978d5904557fc953cff9df74c84f0783896227ef850c62cd5ed06c4a18a",
-          "duration_ms": 63
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00019.png",
-          "at_ms": 3796,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "b022ef4c7fe3012ee62bb23a6b07f5196074be854ffa24013a6c6346c7138e32",
-          "duration_ms": 362
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00020.png",
-          "at_ms": 4158,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "10cd8dbeac83ea7756a68896bbe301e9152fe42a4cebb3553787d0d9761c84d3",
-          "duration_ms": 76
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00021.png",
-          "at_ms": 4234,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "dd5f77b553bfae593f0a1a59dc25658769e26b6d855d8ffe5c702dbe4be518bd",
-          "duration_ms": 75
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00022.png",
-          "at_ms": 4309,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "b573b91a38310203e42f201103d3447c4ddbf4f9382fb189271b9efec7d11d0b",
-          "duration_ms": 738
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00023.png",
-          "at_ms": 5047,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "08278cb3e198474141fa99be42918c23be6bc78511d3c75c5b11209b9d076be3",
-          "duration_ms": 298
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00024.png",
-          "at_ms": 5345,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "dd5f77b553bfae593f0a1a59dc25658769e26b6d855d8ffe5c702dbe4be518bd",
-          "duration_ms": 371
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00025.png",
-          "at_ms": 5716,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "08278cb3e198474141fa99be42918c23be6bc78511d3c75c5b11209b9d076be3",
-          "duration_ms": 64
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00026.png",
-          "at_ms": 5780,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "dd5f77b553bfae593f0a1a59dc25658769e26b6d855d8ffe5c702dbe4be518bd",
-          "duration_ms": 210
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00027.png",
-          "at_ms": 5990,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "08278cb3e198474141fa99be42918c23be6bc78511d3c75c5b11209b9d076be3",
-          "duration_ms": 55
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00028.png",
-          "at_ms": 6045,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "dd5f77b553bfae593f0a1a59dc25658769e26b6d855d8ffe5c702dbe4be518bd",
-          "duration_ms": 123
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00029.png",
-          "at_ms": 6168,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "2dbd8cf51999744d7046c5317ac3170c63e905d02bc59e5b575202b0a0e139a7",
-          "duration_ms": 431
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00030.png",
-          "at_ms": 6599,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "2d165d7872ea2f97aefb51ac332cee634333a8d3a668edda3b28b9bcea015631",
-          "duration_ms": 62
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00031.png",
-          "at_ms": 6661,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "2dbd8cf51999744d7046c5317ac3170c63e905d02bc59e5b575202b0a0e139a7",
-          "duration_ms": 420
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00032.png",
-          "at_ms": 7081,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "2d165d7872ea2f97aefb51ac332cee634333a8d3a668edda3b28b9bcea015631",
+          "sha256": "34fa6eef3316832ad00d43c34a54859398ab8ce8eedcd82a6c7b09a10464529a",
           "duration_ms": 61
         },
         {
-          "file": "output/readme-showcase/png-application-documents/00033.png",
-          "at_ms": 7142,
+          "file": "output/readme-showcase/png-application-documents/00007.png",
+          "at_ms": 2267,
           "width": 2240,
           "height": 1680,
-          "sha256": "2dbd8cf51999744d7046c5317ac3170c63e905d02bc59e5b575202b0a0e139a7",
-          "duration_ms": 468
+          "sha256": "4dca6c0bb2537abb1f385f8dd3e5d807f2488f115f8b662596caa00c54b2e724",
+          "duration_ms": 51
         },
         {
-          "file": "output/readme-showcase/png-application-documents/00034.png",
-          "at_ms": 7610,
+          "file": "output/readme-showcase/png-application-documents/00008.png",
+          "at_ms": 2318,
           "width": 2240,
           "height": 1680,
-          "sha256": "459db8e677e8699a8acc07b173c52aec6fbca44f4fd5ab4c147ffdef5e071d96",
-          "duration_ms": 122
+          "sha256": "2de1471822f17bfea0c99646bb1986458ff5b5f70bdd41f2687925cac3971491",
+          "duration_ms": 52
         },
         {
-          "file": "output/readme-showcase/png-application-documents/00035.png",
-          "at_ms": 7732,
+          "file": "output/readme-showcase/png-application-documents/00009.png",
+          "at_ms": 2370,
           "width": 2240,
           "height": 1680,
-          "sha256": "f724c5dcc03da6dcb4b41201350d858071cdb0dcb0132670eef910e0820f6646",
-          "duration_ms": 63
+          "sha256": "da271ad715f81d49b0f370c871ab4d83722cc0226ed8e1e4e51951f97a9f5e9d",
+          "duration_ms": 57
         },
         {
-          "file": "output/readme-showcase/png-application-documents/00036.png",
-          "at_ms": 7795,
+          "file": "output/readme-showcase/png-application-documents/00010.png",
+          "at_ms": 2427,
           "width": 2240,
           "height": 1680,
-          "sha256": "459db8e677e8699a8acc07b173c52aec6fbca44f4fd5ab4c147ffdef5e071d96",
-          "duration_ms": 371
+          "sha256": "28ebc622893b449668e1854ba41cfb3d149a931743d1947e6a745c77ad63d8ac",
+          "duration_ms": 53
         },
         {
-          "file": "output/readme-showcase/png-application-documents/00037.png",
-          "at_ms": 8166,
+          "file": "output/readme-showcase/png-application-documents/00011.png",
+          "at_ms": 2480,
           "width": 2240,
           "height": 1680,
-          "sha256": "f724c5dcc03da6dcb4b41201350d858071cdb0dcb0132670eef910e0820f6646",
-          "duration_ms": 63
+          "sha256": "e3920c6f867e4711104e0a373a1031a6d2e971d53494bbe5a002b5f3b50490bb",
+          "duration_ms": 51
         },
         {
-          "file": "output/readme-showcase/png-application-documents/00038.png",
-          "at_ms": 8229,
+          "file": "output/readme-showcase/png-application-documents/00012.png",
+          "at_ms": 2531,
           "width": 2240,
           "height": 1680,
-          "sha256": "459db8e677e8699a8acc07b173c52aec6fbca44f4fd5ab4c147ffdef5e071d96",
-          "duration_ms": 119
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00039.png",
-          "at_ms": 8348,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "f724c5dcc03da6dcb4b41201350d858071cdb0dcb0132670eef910e0820f6646",
-          "duration_ms": 64
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00040.png",
-          "at_ms": 8412,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "459db8e677e8699a8acc07b173c52aec6fbca44f4fd5ab4c147ffdef5e071d96",
-          "duration_ms": 172
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00041.png",
-          "at_ms": 8584,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "f724c5dcc03da6dcb4b41201350d858071cdb0dcb0132670eef910e0820f6646",
-          "duration_ms": 62
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00042.png",
-          "at_ms": 8646,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "459db8e677e8699a8acc07b173c52aec6fbca44f4fd5ab4c147ffdef5e071d96",
-          "duration_ms": 220
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00043.png",
-          "at_ms": 8866,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "f724c5dcc03da6dcb4b41201350d858071cdb0dcb0132670eef910e0820f6646",
-          "duration_ms": 75
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00044.png",
-          "at_ms": 8941,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "0caaa97db0faf6b65eb2b16e35b1ffaa8f531a9285a12adf01ddf7c2eb5f5ee5",
-          "duration_ms": 65
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00045.png",
-          "at_ms": 9006,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "8908e48df8e09564c02646450605c3bd0654ba9e7ffc05578c8b364d77e86679",
-          "duration_ms": 56
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00046.png",
-          "at_ms": 9062,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "62f6ed681ac8d244bce48c1062a7d9d213b7c6fe62d167dbe6830808b1f18bdd",
+          "sha256": "900d299373e183848398ea84b209a298e1366c31ec5e12714b084fc971f140f6",
           "duration_ms": 50
         },
         {
-          "file": "output/readme-showcase/png-application-documents/00047.png",
-          "at_ms": 9112,
+          "file": "output/readme-showcase/png-application-documents/00013.png",
+          "at_ms": 2581,
           "width": 2240,
           "height": 1680,
-          "sha256": "f9a3ba043cbc88209d25b210938d06851aa1ab76264adf85e3e23a88bb4d43fb",
+          "sha256": "424b7cb4a5d3b0a2e699f8e25bc75ba1a735f2824dcdd0bbfd8714bb148e3c03",
+          "duration_ms": 51
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00014.png",
+          "at_ms": 2632,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "fa6caf75ce6244055a8d6b524bcdd827069fbf24acb4fc0010bc25d6f533fcf2",
+          "duration_ms": 50
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00015.png",
+          "at_ms": 2682,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "98e32357991ebe156bcfe5da42011cc8e74323d2a63bf679a80bd640dcc7029a",
+          "duration_ms": 270
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00016.png",
+          "at_ms": 2952,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "37f3c22e39ff568dbf58228b21e97079c7792caffaf8629539bf2ff381378fc6",
+          "duration_ms": 62
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00017.png",
+          "at_ms": 3014,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "98e32357991ebe156bcfe5da42011cc8e74323d2a63bf679a80bd640dcc7029a",
+          "duration_ms": 151
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00018.png",
+          "at_ms": 3165,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "02f20295dbc22827f8ed8a342a7fc387c3df9bf91a816da67586953e742702bb",
+          "duration_ms": 50
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00019.png",
+          "at_ms": 3215,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "ed4c53be61bc9ea158526561ea48b9743faef5562bc19ce344f06964b15d08af",
+          "duration_ms": 51
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00020.png",
+          "at_ms": 3266,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "d269fdc01021e01df3459c6afab06b63d8f49da263dabe83b0d170f6afc3719a",
+          "duration_ms": 51
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00021.png",
+          "at_ms": 3317,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "808c2d9909bfb565a3e0b651e0f5edc95e24039bd9ce086a72916498a99f7b66",
+          "duration_ms": 370
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00022.png",
+          "at_ms": 3687,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "4a756e8610d2a09e15b37c2334a4dfecdfbb421128f865043eda8a3338b43280",
+          "duration_ms": 61
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00023.png",
+          "at_ms": 3748,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "808c2d9909bfb565a3e0b651e0f5edc95e24039bd9ce086a72916498a99f7b66",
+          "duration_ms": 272
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00024.png",
+          "at_ms": 4020,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "4a756e8610d2a09e15b37c2334a4dfecdfbb421128f865043eda8a3338b43280",
+          "duration_ms": 62
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00025.png",
+          "at_ms": 4082,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "808c2d9909bfb565a3e0b651e0f5edc95e24039bd9ce086a72916498a99f7b66",
+          "duration_ms": 252
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00026.png",
+          "at_ms": 4334,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "07f43d60f738a847a28ed758db29a422a42a45610bb3b61aac5e14731faaf94a",
+          "duration_ms": 59
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00027.png",
+          "at_ms": 4393,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "ae9854b688c97870b73bfa7654a052ee4aab61071c0873c8a52ab3e58a8c5cfd",
+          "duration_ms": 53
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00028.png",
+          "at_ms": 4446,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "2e2bbbdd552802dbf18d76a7bc7e475c291d053991dc8f8edc4fcd58c02e96a2",
+          "duration_ms": 63
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00029.png",
+          "at_ms": 4509,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "070e38e7f135188b07524c76ea1752c356da5f3de77106fe085cb3f5c792f1a4",
+          "duration_ms": 71
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00030.png",
+          "at_ms": 4580,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "95ea0a114eb0b23ef792064827d5882e8d11e2bd207380f2206473d91703841a",
+          "duration_ms": 534
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00031.png",
+          "at_ms": 5114,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "8d9627bac8ddd522a7572d83b7ef4825ce4a24b1788a54a4ea1bfbfb3663fc98",
+          "duration_ms": 55
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00032.png",
+          "at_ms": 5169,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "157b632e84a563235af0fa17a1cac1771d96d115c68c509866a8d02823768814",
+          "duration_ms": 129
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00033.png",
+          "at_ms": 5298,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "0a4ae3ee33029eb3246ee9851b1f5bb3a79d3e37f97bc2f0adf464bd4f68ccea",
+          "duration_ms": 423
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00034.png",
+          "at_ms": 5721,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "a8cffe66dbcd5d2b8d95b1454199cae14f111718fcf0df1a40624cd9b78d8b88",
+          "duration_ms": 63
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00035.png",
+          "at_ms": 5784,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "0a4ae3ee33029eb3246ee9851b1f5bb3a79d3e37f97bc2f0adf464bd4f68ccea",
+          "duration_ms": 497
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00036.png",
+          "at_ms": 6281,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "c700f1838925d7813eb029ce75dd62af3a67c789747bfb8773285dc821a52dcc",
+          "duration_ms": 271
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00037.png",
+          "at_ms": 6552,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "b6366971f4159e04605a762606bcc039029d4ce0defffe8d3c87a134d72c3c9f",
+          "duration_ms": 61
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00038.png",
+          "at_ms": 6613,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "c700f1838925d7813eb029ce75dd62af3a67c789747bfb8773285dc821a52dcc",
+          "duration_ms": 571
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00039.png",
+          "at_ms": 7184,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "b6366971f4159e04605a762606bcc039029d4ce0defffe8d3c87a134d72c3c9f",
+          "duration_ms": 60
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00040.png",
+          "at_ms": 7244,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "c700f1838925d7813eb029ce75dd62af3a67c789747bfb8773285dc821a52dcc",
+          "duration_ms": 468
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00041.png",
+          "at_ms": 7712,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "c5666c028339a0c88e8ab6c2e4fe5ce03243279586f27f32e2ef4b6aaaca9d90",
+          "duration_ms": 722
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00042.png",
+          "at_ms": 8434,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "d0a04ce43a17f4d31eaaf2c2da8ce4de84d57bc0c152d68c6a2513e14d90fc9f",
+          "duration_ms": 61
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00043.png",
+          "at_ms": 8495,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "c5666c028339a0c88e8ab6c2e4fe5ce03243279586f27f32e2ef4b6aaaca9d90",
+          "duration_ms": 324
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00044.png",
+          "at_ms": 8819,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "d0a04ce43a17f4d31eaaf2c2da8ce4de84d57bc0c152d68c6a2513e14d90fc9f",
+          "duration_ms": 64
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00045.png",
+          "at_ms": 8883,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "c5666c028339a0c88e8ab6c2e4fe5ce03243279586f27f32e2ef4b6aaaca9d90",
+          "duration_ms": 101
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00046.png",
+          "at_ms": 8984,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "13f05f3f860a616d9166e3adea50300d8fb9c90775514840bbfd6c3a5e801cd4",
+          "duration_ms": 48
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00047.png",
+          "at_ms": 9032,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "794611bb0cbcd2e21d3a2d462ad96c6c7cf5d19abf96fd3b88aeac8520381417",
           "duration_ms": 50
         },
         {
           "file": "output/readme-showcase/png-application-documents/00048.png",
-          "at_ms": 9162,
+          "at_ms": 9082,
           "width": 2240,
           "height": 1680,
-          "sha256": "c76a97d55782f8e37e494d6383fcf5ba0445b8c7ddde9fdc6b3c974c50247397",
+          "sha256": "23e2e72ed49b1eada338afd2eaed8d4ed93862c2671631ca5bda884aea31f227",
           "duration_ms": 51
         },
         {
           "file": "output/readme-showcase/png-application-documents/00049.png",
-          "at_ms": 9213,
+          "at_ms": 9133,
           "width": 2240,
           "height": 1680,
-          "sha256": "c90fa8b5b1835e14e8ee0358e0dec609aef8170b533ee4f31542cf57b3136223",
-          "duration_ms": 61
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00050.png",
-          "at_ms": 9274,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "c27cd07facb8c3521b8fefbc35660502781cd407a4644836404d68e8b281f01e",
-          "duration_ms": 54
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00051.png",
-          "at_ms": 9328,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "873a9669e5d3e9ebbe6764014461eb08488b36dce6e48161e59bdd6190c2ca17",
+          "sha256": "dbb3b39b1dff32a3e7b042e8c424dd9c13a85e1d586fcb9723045ae642b765ea",
           "duration_ms": 50
         },
         {
-          "file": "output/readme-showcase/png-application-documents/00052.png",
-          "at_ms": 9378,
+          "file": "output/readme-showcase/png-application-documents/00050.png",
+          "at_ms": 9183,
           "width": 2240,
           "height": 1680,
-          "sha256": "7014ed4d677565ba4a7be5eaa362f40369f841b21ad0a2338146015eda7da9c1",
-          "duration_ms": 270
+          "sha256": "cb9632e6baa2736462e8864a62a68a306eef31b2e26711775a973a4bec3f85d7",
+          "duration_ms": 59
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00051.png",
+          "at_ms": 9242,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "358bf5ca5d46685d5b7875f148093af26c277db9550fe4027566967df6cf5a80",
+          "duration_ms": 51
+        },
+        {
+          "file": "output/readme-showcase/png-application-documents/00052.png",
+          "at_ms": 9293,
+          "width": 2240,
+          "height": 1680,
+          "sha256": "198bb1ee3e93d190ffa269527a0525468bb99528908e248e825bc03ce31c0d22",
+          "duration_ms": 50
         },
         {
           "file": "output/readme-showcase/png-application-documents/00053.png",
-          "at_ms": 9648,
+          "at_ms": 9343,
           "width": 2240,
           "height": 1680,
-          "sha256": "da3b7c93156febb7f23193bc2455bbc5f750b4919cdf284d0385a3fd590ec038",
-          "duration_ms": 63
+          "sha256": "9fa70d4e72beff9c2008ceaa4e2d6ac51a70002555c94ee31184e340e0a94d85",
+          "duration_ms": 51
         },
         {
           "file": "output/readme-showcase/png-application-documents/00054.png",
-          "at_ms": 9711,
+          "at_ms": 9394,
           "width": 2240,
           "height": 1680,
-          "sha256": "7014ed4d677565ba4a7be5eaa362f40369f841b21ad0a2338146015eda7da9c1",
-          "duration_ms": 320
-        },
-        {
-          "file": "output/readme-showcase/png-application-documents/00055.png",
-          "at_ms": 10031,
-          "width": 2240,
-          "height": 1680,
-          "sha256": "da3b7c93156febb7f23193bc2455bbc5f750b4919cdf284d0385a3fd590ec038",
-          "duration_ms": 51
+          "sha256": "91ba8470a4c5400e0795cc9c89587981f80d15dca42bfab65928d139ee5dd9a5",
+          "duration_ms": 725
         }
       ],
       "width": 2240,
       "height": 1680,
-      "duration_ms": 9010,
+      "duration_ms": 9320,
       "minimum_frame_duration_ms": 10,
-      "median_motion_frame_duration_ms": 60,
-      "maximum_reading_hold_ms": 740,
+      "median_motion_frame_duration_ms": 50,
+      "maximum_reading_hold_ms": 720,
       "gif": "docs/media/application-documents.gif",
-      "bytes": 1668398,
-      "sha256": "705908d83fac86d4edac0696d90adb1f5b35ec76f5ec3bcd26aa81739f4a58f6"
-    }
-  ],
-  "capture_runs": [
-    {
-      "completed_at": "2026-11-06T13:01:24.824Z",
-      "clips": [
-        "discover-review",
-        "mobile-review"
-      ]
-    },
-    {
-      "completed_at": "2026-11-06T13:08:06.429Z",
-      "clips": [
-        "application-documents"
-      ]
+      "bytes": 2009521,
+      "sha256": "fcc4e632bdf5e4ca5cd19c1490ca6440155967803a1a47b970947b8ff0c93b72"
     }
   ],
   "encoding": "Lossless 2x PNG source; no WebM, JPEG or spatial resizing. 256-colour GIF with no dithering, source timestamps rounded to GIF centiseconds, unchanged frames represented as reading holds, and frame-difference compression. No synthetic frames or interpolation.",

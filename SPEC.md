@@ -1,4 +1,4 @@
-> Version 0.2 workspace architecture is specified and verified in [the workspace refactor](docs/workspace-refactor.md). The original release contract below remains historical context.
+> Historical 0.1 release contract. The 0.2 [workspace refactor](docs/workspace-refactor.md) is also a dated record. Current behavior, SQLite storage and explicitly authorized connected applications are described in [PRODUCT.md](PRODUCT.md), [system design](docs/system-design.md) and the [documentation index](docs/README.md).
 
 # Employment Agency 0.1
 

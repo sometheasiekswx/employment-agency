@@ -16,7 +16,7 @@ The public repository owns the application. Career workspaces contain data only.
 | `frontend/out/`, `employment_agency/web/` | Generated static export and packaged copy, both ignored by Git |
 | `tests/` | Python contracts and production-export browser workflows |
 
-The frontend uses React and TypeScript with Next.js App Router. Production uses a static export served alongside the existing Python APIs. There is no second Node production server, frontend database, Server Action or duplicate document engine. All private data is fetched at runtime; builds never load a workspace. A built Python wheel includes the export and needs no Node runtime.
+The frontend uses React and TypeScript with Next.js App Router. The local app and hosted pilot serve a static export alongside Python APIs, with no second Node production server or Server Actions. Private workspaces are read at runtime. The separate public-demo build has a browser-only adapter for tab-local drafts and packages approved public inputs. A built Python wheel includes the normal export and needs no Node runtime.
 
 ## Setup and checks
 
@@ -76,20 +76,9 @@ The launcher lifecycle is covered by `python -m unittest discover -s tests -p te
 
 For live changes through an existing private phone URL, use the [Tailscale development gateway](docs/tailscale.md#live-code-changes-on-the-same-private-url). It adds Caddy and Python source reloads while retaining the owner/origin/token checks. `python -m unittest discover -s tests -p 'test_live_*.py' -v` verifies private gateway access, WebSockets and reload lifecycle; `python tests/check_private_development.py` proves real Next Fast Refresh before and after a Python behavior change in an isolated fictional workspace. These checks require Caddy, and the browser check requires Chrome. Normal local `dev` remains a two-process option.
 
-## Editing button colours
+## Interface styling
 
-The **Apply For Me** and **Submission details** labels belong to the same button in `frontend/src/features/applications/application-card.tsx`. Its default fill/text colours currently come from `.review-pane button:not([name])` in `frontend/src/app/globals.css`. That rule also styles Save comment.
-
-To style only the header button, add a more specific rule to `globals.css`:
-
-```css
-.review-pane .review-header > button.secondary {
-  background: #0593c6;
-  color: #171717;
-}
-```
-
-`background` changes the fill and `color` changes the text. This is an example; it applies to both button labels without changing the decision or Save comment buttons.
+Use the tokens and component rules in [DESIGN.md](DESIGN.md). Shared styles live in `frontend/src/app/globals.css`; the company board and role inspector also have feature styles under `frontend/src/features/discover/`. The current application journey lives in `frontend/src/features/applications/opportunity-application.tsx`. Check the rendered component and its scoped styles before changing a control: historical task screenshots and older button selectors are not a map of the current interface.
 
 ## Adding or changing a feature
 
@@ -102,7 +91,7 @@ To style only the header button, add a more specific rule to `globals.css`:
 
 ## Builds and hosted releases
 
-The public fictional showcase deploys automatically after the full `Checks` matrix passes for a current `main` revision. CI publishes the tested static artifact to its dedicated Vercel project and verifies it before and after promotion. See [public deployment and recovery](docs/public-demo-deployment.md). Keep this separate from the private hosted pilot: root `vercel.json` and the local `.vercel` link belong to that Flask deployment, whose releases remain explicit.
+The public showcase deploys automatically after the full `Checks` matrix passes for a current `main` revision. CI publishes the tested static artifact to its dedicated Vercel project and verifies it before and after promotion. See [public deployment and recovery](docs/public-demo-deployment.md). Keep this separate from the private hosted pilot: root `vercel.json` and the local `.vercel` link belong to that Flask deployment, whose releases remain explicit.
 
 Run `npm --prefix frontend run build` before `python -m pip wheel --no-deps .`. The build copies the static export into the Python package. Vercel remains configured as a Flask application; its build command installs and builds the frontend. Select Node.js 24+ for the build environment. Server-side Supabase keys stay in Python environment configuration, never a `NEXT_PUBLIC_` variable.
 

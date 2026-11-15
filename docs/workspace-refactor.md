@@ -1,5 +1,7 @@
 # Shared application and portable career workspaces
 
+> Historical 0.2 refactor and 29 October 2026 verification. Current local workspaces use SQLite and current onboarding leads with an external personal workspace. The JSON/vanilla-JavaScript stack and commands below belong to this earlier change; see [system design](system-design.md) and [the current local runbook](running-locally.md).
+
 The confirmed scope is recorded in [ADR 0001](adr/0001-shared-application-data-only-workspaces.md), [ADR 0002](adr/0002-authoritative-workspace-files.md) and [ADR 0003](adr/0003-reconcile-edits-and-preserve-migration-history.md). All reusable functionality belongs in this package. Workspaces contain personal data and declarative configuration only.
 
 ## Acceptance contract

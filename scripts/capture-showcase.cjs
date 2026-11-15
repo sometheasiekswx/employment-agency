@@ -216,7 +216,7 @@ async function desktop(page, note, zero) {
   await ready(page);
   const card = page.getByRole('button', { name: 'Assess Cloud Software Engineer at Emberlane Systems', exact: true });
   const start_ms = Date.now() - zero;
-  note('Location shortlist');
+  note('Company shortlist');
   await capturePoster(page, path.join(output, 'discover-board-poster.png'));
   await wait(page, 1000);
   const filters = page.locator('.discover-filters > summary');
@@ -231,7 +231,8 @@ async function desktop(page, note, zero) {
   await card.click();
   const inspector = page.locator('.discover-inspector');
   await inspector.waitFor();
-  note('Assess a role without leaving the location board');
+  await showPanel(page, 'overview');
+  note('Assess a role without leaving the company board');
   await wait(page, 1500);
   const poster = relative(path.join(output, 'discover-review-poster.png'));
   await capturePoster(page, path.join(root, poster));
@@ -244,18 +245,19 @@ async function desktop(page, note, zero) {
   await inspector.getByRole('button', { name: 'Next opportunity', exact: true }).click();
   note('Move to the next opportunity in place');
   await wait(page, 1600);
-  const bookmark = inspector.locator('.discover-inspector-actions button[aria-pressed]');
+  const bookmark = inspector.getByRole('button', { name: /^(Apply later|Remove from To apply)$/ });
   const originalSaved = await bookmark.getAttribute('aria-pressed') === 'true';
-  const selectedTitle = await inspector.locator('.discover-inspector-body > h2').innerText();
+  const selectedTitle = await inspector.locator('.role-workspace-heading h2').innerText();
   await bookmark.click();
-  note(originalSaved ? 'Unsave a sample role' : 'Save a sample role');
+  note(originalSaved ? 'Remove a sample role from To apply' : 'Add a sample role to To apply');
   await wait(page, 1400);
   await inspector.getByRole('button', { name: 'Close opportunity details', exact: true }).click();
   note('Return to the preserved shortlist');
   await wait(page, 1700);
   const end_ms = Date.now() - zero;
   // Restore the disposable fixture outside the published clip, so reruns agree.
-  const restoreLabel = `${originalSaved ? 'Save' : 'Unsave'} ${selectedTitle}`;
+  await page.getByRole('button', { name: originalSaved ? 'Jobs' : 'To apply', exact: true }).click();
+  const restoreLabel = `${originalSaved ? 'Apply later' : 'Remove from To apply'} · ${selectedTitle}`;
   await page.getByRole('button', { name: restoreLabel, exact: true }).click();
   await wait(page, 700);
   return { start_ms, end_ms, poster };
@@ -265,7 +267,7 @@ async function mobile(page, note, zero) {
   await page.goto(origin + '/discover/?view=all');
   await ready(page);
   const start_ms = Date.now() - zero;
-  note('Mobile location shortlist');
+  note('Mobile company shortlist');
   await wait(page, 1000);
   const search = page.getByRole('search', { name: 'Filter opportunities' }).getByRole('searchbox');
   await search.pressSequentially('Cloud', { delay: 90 });
@@ -279,6 +281,7 @@ async function mobile(page, note, zero) {
   const inspector = page.locator('.discover-inspector');
   await inspector.waitFor();
   note('Slide the native review sheet up from the bottom');
+  await showPanel(page, 'overview');
   await wait(page, 800);
   const poster = relative(path.join(output, 'mobile-review-poster.png'));
   await capturePoster(page, path.join(root, poster));
@@ -298,18 +301,22 @@ async function mobile(page, note, zero) {
   await touchDrag(page, body, -140, { fraction: 0.75 });
   await wait(page, 350);
   assert.ok(await body.evaluate(element => element.scrollTop) > previousScroll + 40,
-    'The next expanded contact must scroll natively');
-  note('Continue reading with native touch scrolling');
+    'The next expanded contact must continue scrolling the body');
+  note('Continue reading in the expanded sheet');
   await wait(page, 550);
   await touchDrag(page, company, 320);
   note('Drag the company header down to the partial sheet');
   await wait(page, 600);
   assert.equal(await grip.getAttribute('aria-expanded'), 'false');
-  await touchDrag(page, footer.getByRole('link', { name: 'Review documents', exact: true }), -330);
+  const bookmark = footer.getByRole('button', { name: /^(Apply later|Remove from To apply)$/ });
+  const originalSaved = await bookmark.getAttribute('aria-pressed');
+  await touchDrag(page, bookmark, -330);
   await wait(page, 600);
   assert.equal(await grip.getAttribute('aria-expanded'), 'true');
+  assert.equal(await bookmark.getAttribute('aria-pressed'), originalSaved,
+    'Swiping from the footer must preserve the To apply choice');
   assert.equal(await inspector.getByRole('button', { name: 'Overview', exact: true }).getAttribute('aria-pressed'), 'true',
-    'Swiping a footer control must not activate its document action');
+    'Swiping from the footer must keep Overview selected');
   note('Swipe up from the footer control to expand');
   await touchDrag(page, company, 320);
   await wait(page, 500);
@@ -320,6 +327,7 @@ async function mobile(page, note, zero) {
   await wait(page, 650);
   await role.tap();
   await inspector.waitFor();
+  await showPanel(page, 'overview');
   await wait(page, 550);
   const evidence = inspector.getByText('Related evidence (1 fact)', { exact: true }).first();
   await evidence.tap();
@@ -342,14 +350,16 @@ async function documents(page, note, zero) {
   note('Review application packages');
   await wait(page, 1300);
   await page.getByRole('button', { name: 'Assess Cloud Software Engineer at Emberlane Systems', exact: true }).click();
-  await showPanel(page, 'documents');
+  await showPanel(page, 'files');
   await page.getByRole('combobox', { name: 'Document version', exact: true }).waitFor();
   assert.match(await page.getByRole('link', { name: 'CV PDF', exact: true }).first().getAttribute('href'), /^\/files\//);
   note('Review sample document files and their preserved version');
   await wait(page, 1100);
   await page.getByText('Supporting files & source evidence', { exact: true }).first().click();
-  await pacedScroll(page, page.locator('.opportunities-workbench-scroll'), 280, 12);
-  const evidenceFile = await page.getByRole('link', { name: 'Source evidence', exact: true }).first().boundingBox();
+  await pacedScroll(page, page.locator('.discover-inspector-body'), 280, 12);
+  const sourceEvidence = page.getByRole('link', { name: 'Source evidence', exact: true }).first();
+  await sourceEvidence.scrollIntoViewIfNeeded();
+  const evidenceFile = await sourceEvidence.boundingBox();
   assert.ok(evidenceFile && evidenceFile.y > 0 &&
     evidenceFile.y + evidenceFile.height < page.viewportSize().height,
   'The supporting source-evidence file must be visible in the recording');
@@ -395,6 +405,9 @@ async function documents(page, note, zero) {
     const servedAfter = await after.request.get(origin + '/discover/?view=all');
     assert.equal(crypto.createHash('sha256').update(await servedAfter.body()).digest('hex'), servedHtmlHash,
       'The served application must not change during capture');
+    const { state: stateAfter } = await (await after.request.get(origin + '/api/state')).json();
+    const savedIds = ({ jobs }) => jobs.filter(job => job.saved).map(job => job.id).sort();
+    assert.deepEqual(savedIds(stateAfter), savedIds(state), 'The capture restores the fictional To apply choices');
     await after.close();
     fs.writeFileSync(path.join(output, 'manifest.json'), JSON.stringify({
       captured_at: new Date().toISOString(),
@@ -402,8 +415,8 @@ async function documents(page, note, zero) {
       fixture: 'tests/serve_concept_fixture.py',
       candidate: 'Alex Morgan — fictional',
       opportunities: 'Six invented illustrative roles and employers, not live vacancies',
-      application_mode: 'Normal local application on a disposable fictional workspace; the public preview is a separate read-only mode',
-      mutations: 'One sample bookmark toggle, restored outside the published clip; no drafts edited, documents saved, messages sent or applications submitted',
+      application_mode: 'Normal local application on a disposable fictional workspace. The public preview uses a separate static catalog.',
+      mutations: 'The desktop capture toggles one sample To apply choice and restores it outside the published clip. Drafts, documents and submissions are unaffected.',
       external_requests: 'No employer links or external accounts opened',
       served_html_sha256: servedHtmlHash,
       served_html_unchanged_before_after_capture: true,

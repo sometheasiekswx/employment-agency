@@ -2,7 +2,9 @@
 
 The mobile Opportunities workspace preserves its charcoal/lavender style, employment mark, factual content and native dialogs. Search is visible in the main view, filters immediately without per-key ranking/network requests, keeps focus, and synchronizes the URL. Real initial boot and ranking loads have static, accessible skeletons; refresh retains available results. Errors remain actionable and never masquerade as zero matches.
 
-## Motion and scrolling plan
+The board groups roles by hiring company and filters destinations across groups. Within the same view, profile and filters, Apply later and Remove update the location options and keep the existing tabs or dropdown. This holds the board's starting position as the affected gap closes.
+
+## Motion and scrolling
 
 | Transition  | Trigger and purpose                                                          | Properties and timing                                                                                                                                   | Interruption and reduced motion                                                                                                                   |
 | ----------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -12,11 +14,11 @@ The mobile Opportunities workspace preserves its charcoal/lavender style, employ
 | Dismiss     | Drag fully down, outside tap or Close                                        | Whole-surface translate down, 220ms deceleration; keyboard/Escape immediate                                                                             | Preserve native modal until dismissal commits. Rejected discard prompt restores geometry and focus; pending unsaved drafts remain intact          |
 | Read        | Scroll expanded content and hand off at the top                               | Touch travel first scrolls the content. Remaining downward travel lowers the sheet. Bounded momentum continues reading after release.                    | Reversal raises the sheet and resumes reading. Reduced motion keeps direct tracking and settles without momentum.                                 |
 
-The default peek is 60dvh with a 480px minimum bounded by the viewport, giving salary/overview content more room. Expanded height retains an 8px top gap. A visual grip replaces the Expand/Collapse words; its accessible button name, tap toggle, ArrowUp/ArrowDown and Close remain alternatives. Mobile comparison, close and bookmark targets are 44px. Labels in the bottom navigation stay on one line at 320px. The profile chooser is inside Filters; the main workspace retains a compact result count.
+The peek starts at 60dvh. Its minimum is 480px, or 520px at widths up to 360px. The measured heading and action area can raise that minimum within the viewport. The expanded sheet retains an 8px top gap. The grip has an accessible name, a tap toggle and ArrowUp/ArrowDown controls. Close remains available. Mobile comparison, close and bookmark targets are 44px. The profile chooser is inside Filters.
 
 ## Scrolling from peek
 
-A partial sheet follows upward movement from every starting region. Release commits expansion after 20% of the remaining distance, or an upward flick with at least 32px travel and 600px/s recent speed. Smaller slow drags return to peek. These application-specific thresholds use the same rule for the grip, header, reading body and footer. During the initial contact, movement first increases sheet height; excess movement advances the content before the finger lifts. Reversal first undoes scrolling introduced by that contact, then lowers the sheet. Bounds discard unused travel so reversal never needs to retrace overshoot.
+A partial sheet follows upward movement from the grip, header, reading body and footer. Release commits expansion after 20% of the remaining distance, with an 8px minimum, or a flick that raises the sheet at least 32px at a recent speed of 600px/s. Smaller slow drags return to peek. During the initial contact, movement first increases sheet height. Excess movement advances the content before the finger lifts. Reversal first undoes scrolling introduced by that contact, then lowers the sheet. Bounds discard unused travel so reversal never needs to retrace overshoot.
 
 This handoff follows Apple's detent-then-content behavior. The company identity stays in one contiguous header region with the grip, toolbar, tabs and intervening space, giving reliable full-width dragging even while the body is scrolled.
 
@@ -38,14 +40,14 @@ The sheet owns vertical touch movement from the start because the browser fixes 
 - Delegating once at the dialog avoids double-consuming movement from nested header/company elements. Cancellation and a second pointer restore scrolling introduced by the contact and the committed detent.
 - New presses clear prior drag click suppression before excluding interactive targets. Evidence links/toggles work after cancelled drags.
 - Closing respects draft guards for pointer Close, backdrop, drag and native close; cancelling confirmation restores a visible modal and retained draft.
-- Bookmark optimism/rollback, retries and submission safeguards are unchanged. Resize/dismiss never sends an application.
-- Existing `motion@14.9.0` APIs/types are reused. No dependencies were installed. Whole-sheet arrival/dismissal use transforms; real height during resize is the existing measured exception that keeps native scrolling/footer geometry correct without scaling text or React renders on pointer moves.
+- Bookmark actions show the change immediately, preserve it through the confirming state refresh, and offer recovery when the action fails.
+- Whole-sheet arrival and dismissal use transforms. Real height during resize preserves the scroll viewport and footer geometry. The gesture handler writes the bounded height directly using the installed Motion APIs.
 - CSS and JavaScript honor reduced motion. Skeletons have no shimmer or artificial delay.
 - Static Next.js export remains the production build; no private data enters source or fixtures.
 
 ## Verification
 
-See [the task contract](../tasks/mobile-workspace/plan.md) and [verification record](../tasks/mobile-workspace/verification.md). Existing motion/browser suites cover rapid reversal, cancellation, focus, Back, failed saves/retry and reduced motion. New mobile acceptance covers live search, header tap during arrival, full/peek drag dismissal, outside taps, dirty-close cancellation, Chromium touch and optional installed WebKit. Recordings/screenshots live in ignored `output/playwright/mobile-workspace/`; they are local observations rather than physical iPhone measurements.
+The mobile workspace and sheet-scroll browser checks cover live search, touch expansion, pull-to-collapse, dismissal, interruption, focus and reduced motion with fictional data. The README recording uses Chromium touch input at a mobile viewport. The dated verification record lists its engine and device coverage. [Mobile workspace verification](../tasks/mobile-workspace/verification.md) · [Current walkthrough evidence](demo.md#current-interface-gifs)
 
 ## Research
 
@@ -68,4 +70,4 @@ The confirmed contract was direct finger tracking from anywhere inside the parti
 
 This contract supersedes the earlier region-dependent short-swipe release rule. Xcode native UI tests reproduced two inconsistencies in the released build: a slow 70-point grip drag returned to peek, while a slow 20-point body drag expanded fully. Both unchanged assertions pass with the shared release rule. The candidate also keeps drag ownership during settling and accepts upward intent after small initial sideways drift. This is implementation and Simulator evidence, rather than physical-device acceptance.
 
-The owner then requested testing on this Mac so the physical phone remains available for normal use. The physical Safari automation session was ended successfully. Its incomplete native touch releases are an automation limitation and do not establish app correctness. Continue with Xcode native UI tests in the installed iPhone Simulator; distinguish that result from physical-device acceptance.
+Testing continued in the iPhone Simulator so the physical phone remained available for normal use. The physical Safari automation session ended after incomplete native touch releases. Physical-device acceptance remained open at that follow-up.

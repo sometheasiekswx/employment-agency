@@ -1,13 +1,13 @@
-# Hosted pilot implementation contract
+# Private hosted pilot
 
-Confirmed scope: Google sign-in, server-enforced invite-only access, private account workspaces, resume import and fact confirmation, search profiles, supported public-source discovery/import, evidence-based fit summaries, template PDF/DOCX/EML generation, direct application decisions, export and account deletion. Local filesystem watching, custom TeX execution and connected-agent integration remain local-only. Empty metadata is hidden but material warnings remain visible. README imagery uses fictional data only.
+The private pilot uses Google sign-in and a server-enforced account allowlist. It supports private workspaces, résumé imports, fact confirmation, profiles, Greenhouse and Lever feed controls, JobPosting URL import, evidence-based ranking, template PDF/DOCX/EML generation, application decisions, export and account deletion. The local app provides **Find new jobs**, filesystem watching, custom TeX and connected agents.
 
-No paid services, funded AI calls, automatic submission or automatic private-workspace upload. Owner allowlist belongs in deployment configuration, not public source. Deployment must remain closed until provider setup and live isolation/recovery checks pass.
+The pilot's scope excludes paid AI and automated submission. Keep the owner allowlist in deployment configuration. Enable access after verifying provider configuration, isolation and recovery.
 
 ## Plan and acceptance
 
 1. Shared summaries and metadata presentation: use confirmed facts, state gaps without asserting qualification, hide unknown values, retain important warnings. Verify with unit/browser tests.
-2. Hosted boundary: authenticate with Supabase on every request, enforce verified Google identity and allowlist; private storage and RLS; temporary workspace; optimistic concurrency and bounded quotas. Reject local paths, custom TeX, paid AI and agent operations. Verify auth, cross-owner access, conflict preservation, no-secret responses and import/generation/export/delete using fictional fixtures.
+2. Authenticate protected API requests with Supabase and enforce the verified Google identity and account allowlist. Use private storage with RLS, temporary workspaces, concurrency checks and quotas. Exercise auth, cross-owner access, conflict preservation, safe responses and import, generation, export and deletion in fictional fixtures.
 3. Hosted interface: Google sign-in, explicit cloud-storage notice, shared career/search/application UI, export/sign-out/deletion. No local-folder controls. Test desktop/mobile and failure states.
 4. Release: fictional README preview, setup instructions and exact limitations, package/build verification. Deploy only within authorized free plans; record missing configuration and never describe an unconfigured landing page as a working service.
 
@@ -25,7 +25,7 @@ Pilot workspaces are bounded portable snapshots in a private Supabase bucket, wi
 
 ### Pilot limits and recovery
 
-Automatic Git deployments are disabled through `git.deploymentEnabled` in the root `vercel.json`, using [Vercel's documented deployment gate](https://vercel.com/docs/project-configuration/git-configuration). Publishing source or merging a PR must not upgrade this private pilot. An authorized pilot upgrade requires a separately verified, explicit deployment while preserving its protection and owner allowlist. The [public fictional demo](demo.md) has its own static build and Vercel project.
+The root `vercel.json` configures Flask with `app.py` serving the packaged frontend. Use Node.js 24 or newer for the build. Vercel bootstraps Python dependencies before the npm build, using `[tool.uv] package = false` to consume the source checkout. `git.deploymentEnabled` is `false`. Release this pilot through an explicit deployment that preserves Vercel protection and the owner allowlist. The public demo uses a separate static Vercel project. [Vercel deployment configuration](https://vercel.com/docs/project-configuration/git-configuration) · [Public demo deployment](public-demo-deployment.md)
 
 One package is generated per request; browser users can prepare additional matches individually. No background threads or paid APIs run in hosted mode. Imports are limited to 2 MB; current workspaces to 3 MB compressed / 30 MB expanded; 25 packages, 300 jobs and 500 facts. Historical cloud snapshots consume a cumulative 50 MB and 250-save cap per account; the SQL transaction enforces this before publishing a new pointer. This deliberately small pilot retains snapshots for recovery and prevents unbounded owner storage. Export to the local app when a cap is reached; failed mutations preserve the prior state.
 
@@ -35,16 +35,28 @@ The free tier is a pilot constraint, not a promise of production reliability or 
 
 ## Repeatable local verification
 
-Run `python -m unittest discover -s tests -v`. For the hosted browser fixture, run `PYTHONPATH=. python tests/serve_hosted_fixture.py`, then `PLAYWRIGHT_PATH=/path/to/playwright node tests/hosted-browser.cjs`. This fixture uses an in-memory fake provider and synthetic session, binds only to loopback and is excluded from deployment. It does not verify real Google OAuth or Supabase RLS.
+After [source setup](../README.md#set-up-once), run the Python suite and the [production-export browser runner](../CONTRIBUTING.md#browser-checks). The runner starts a disposable hosted fixture on loopback, sets `TEST_URL` and uses an in-memory provider with a synthetic session. To run just the hosted workflow from the macOS/Linux checkout, use two terminals with the existing normal frontend build and Playwright Chrome installed.
+
+```sh
+PYTHONPATH=. .venv/bin/python tests/serve_hosted_fixture.py --port 8769
+```
+
+```sh
+TEST_URL=http://127.0.0.1:8769 PLAYWRIGHT_PATH="$PWD/frontend/node_modules/playwright" node tests/hosted-browser.cjs
+```
+
+The fixture verifies application behavior through the hosted boundary. Real Google OAuth and Supabase RLS need the separate live checks above. `.venv/bin/python tests/check_hosted_install.py` uses uv to reproduce Vercel's Python bootstrap in a disposable folder.
 
 ## Verification status — 29 October 2026
+
+The following observations apply to the initial pilot deployment.
 
 - 44 unit/integration tests passed, including auth allowlist/verified-provider rejection, account separation, private import confirmation, export/restore, deletion, conflict preservation, no-secret configuration, and rejection of local/paid operations.
 - Local and hosted Chrome workflows passed with fictional data: identity, confirmed facts, profile/job, ranking, document generation/download, direct decisions/comments, reload persistence; no page errors or overflow at 320/768/1024/1440. Hosted tests use a fake provider, not real OAuth or database policies.
 - README screenshot refreshed from the local fictional fixture. JavaScript syntax, Python compilation and diff checks passed. Private-workspace export/restore verified before local upgrade; personal application records preserved.
 - Vercel Hobby deployment built successfully. Initial live startup failed because Flask was only optional; it is now an explicit dependency. The corrected deployment serves `/` with HTTP 200 and `/api/config` with the expected HTTP 503 configuration gate, using the owner's authenticated Vercel access.
 - Production URL: https://sams-employment-agency.vercel.app . Vercel deployment protection remains enabled. Supabase and Google OAuth were subsequently configured by the owner. The gate was enabled for the approved owner identity only; the owner confirmed successful Google sign-in and dashboard access. Anonymous database access was denied in a live check. **Still an invite-only verification pilot, not a generally available service.** Live authenticated storage, multi-account isolation, recovery and deletion acceptance remain unverified by the agent.
-- Changes are local and uncommitted. No Git push, paid upgrade, invitation email or employer submission was performed.
+- The initial check used the owner's approved sign-in and fictional fixtures for automated tests. Paid upgrades, invitations and employer submissions were outside its scope.
 
 
 ## Release checks — 29 October 2026

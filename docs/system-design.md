@@ -1,10 +1,10 @@
 # Employment Agency system design
 
-Source baseline: version 0.6.0, reviewed 31 October 2026. This document describes the implemented local application and hosted pilot. Deployment configuration and live acceptance are separate from source behavior; see [hosted pilot status](hosted-pilot.md), [startup verification](startup-verification.md) and [0.4 redesign verification](redesign-0.4.md).
+Source baseline: current `main`, reviewed 16 November 2026. Package metadata is 0.7.0; source changes after the tagged 0.7.0 wheel include SQLite schema 7 and the current company board. This document describes implemented source behavior. An installed wheel or hosted deployment has its own accepted revision; see [local installation and recovery](running-locally.md), [hosted pilot status](hosted-pilot.md) and [public-demo deployment](public-demo-deployment.md).
 
 ## Purpose and invariants
 
-The system prepares career applications from user-confirmed evidence. Users import experience, confirm facts, define search profiles, discover or enter jobs, inspect matches, generate documents and record their own review/submission decisions. The application never sends an application or email. An EML is a downloadable draft.
+The system prepares career applications from user-confirmed evidence. Users import experience, confirm facts, define search profiles, discover or enter jobs, inspect matches and generate documents. Self-apply records the user's completed submission. In the local SQLite app, starting **Apply for me** authorizes a supported connected agent to prepare and submit for the named role. Draft generation, an EML download, an Apply later choice and a manual submission record do not send anything. Hosted and public-demo modes do not execute applications. See [connected applications](apply-for-me.md).
 
 The software repository owns reusable UI, application rules, document rendering and storage. A career workspace owns personal data and generated documents. Workspaces are declarative data; they cannot load executable plugins. Public software distributions must contain no private workspace. See [ADR 0001](adr/0001-shared-application-data-only-workspaces.md).
 
@@ -23,7 +23,8 @@ flowchart LR
         Browser[Browser] --> HTTP[Python loopback HTTP server]
         HTTP --> Assets[Packaged HTML / JS / CSS]
         HTTP --> Service[Shared Python Service]
-        Service --> Disk[Selected workspace files]
+        Service --> DB[(Local SQLite records)]
+        Service --> Disk[Canonical documents / Git snapshot]
         Service --> Optional[Optional public sources / AI]
     end
     Wheel --> HTTP
@@ -33,7 +34,7 @@ React owns rendering and browser interactions. Next.js generates HTML, JavaScrip
 
 Python serves those static files and the API from the same origin. Returning the built HTML from Python is normal: Python is the web server, while React is the interactive UI. Developers author JSX/TSX components instead of manually assembling quoted HTML. The local server uses `ThreadingHTTPServer`; the hosted adapter uses Flask/WSGI. Both invoke the same `Service` and document engine.
 
-The interface uses system typography and a labelled React Bits Dock adaptation over the same state/API layer. Motion handles the small interruptible navigation spring; touch and reduced-motion modes stay static. The local HTTP listener permits a backlog of 64 to accommodate parallel static asset requests on older Python versions. See `DESIGN.md` for the implemented visual system.
+The interface uses locally hosted Inter, a desktop sidebar and a labelled mobile Dock over the same state/API layer. Motion supports navigation, role details and stable board updates; reduced-motion settings suppress decorative movement. The local HTTP listener permits a backlog of 64 to accommodate parallel static asset requests on older Python versions. See [DESIGN.md](../DESIGN.md) for the implemented visual system.
 
 The build requires Python 3.11+, Node 24+ and npm. `setup.py` rejects packaging without the frontend and clears stale Python build output before copying the package. Generated web assets are ignored in Git and rebuilt for distribution. Frontend dependencies are locked in `frontend/package-lock.json`; Python dependencies have version ranges in `pyproject.toml` and are resolved at installation, so different install dates can resolve different compatible versions.
 
@@ -43,7 +44,7 @@ Vercel bootstraps Python dependencies before its configured frontend build. `[to
 
 | Component | Responsibility |
 | --- | --- |
-| `frontend/src/app/` | Routes: applications `/`, career `/career/`, search `/search/`, settings `/settings/`, history `/history/`, and not-found page |
+| `frontend/src/app/` | Opportunities `/discover/`, career `/career/`, search `/search/`, settings `/settings/`, history `/history/`; `/` preserves legacy application links through a redirect |
 | `frontend/src/features/` | Feature components and forms; no direct workspace filesystem access |
 | `frontend/src/components/` | Shell, shared controls, draft navigation protection and workspace state ownership |
 | `frontend/src/lib/api.ts`, `auth.ts`, `models.ts` | Explicit API transport, hosted session lifecycle and typed view contracts |
@@ -53,23 +54,26 @@ Vercel bootstraps Python dependencies before its configured frontend build. `[to
 | `imports.py`, `master.py` | Resume extraction, master change proposals, explicit reconciliation and trusted local TeX |
 | `sources.py`, `matching.py`, `summaries.py` | Public-source retrieval, explainable matching, evidence/gap summaries |
 | `documents.py`, `editor.py`, `packages.py`, `history.py` | Render/preview/edit, version publication, integrity checks, history and verified downloads |
-| `store.py`, `migrate.py` | Atomic file writes, workspace locking, portable export/restore, explicit legacy migration |
+| `store.py`, `sqlite_workspace.py`, `migrate.py` | Workspace locking, transactional SQLite records and queue indexes, readable snapshots, portable export/restore and explicit legacy migration |
+| `companies.py`, `company_best_matches.py`, `company_logos.py` | Verified employer identity, company allowance/cooldown, reviewed recommendations and sourced logo assets |
+| `application_context.py`, `agent_execution.py`, `agent_website.py`, `codex_runtime.py` | Exact role/document context, scoped connected-agent execution, channel checks and durable outcomes |
 | `providers.py` | Consent-scoped optional AI/agent fact selection and budget reservation |
 | `hosted.py`, `cloud.py`, `supabase/migrations/` | Hosted auth boundary, per-request workspace snapshots, private storage, SQL revision/quota controls |
+| `public_catalog.py`, `public_preview.py`, `frontend/src/lib/public-preview.ts`, `public-listings.ts`, `demo-*.ts` | Reviewed public catalog, sample dataset and browser-only public-demo interactions |
 
 ## Local startup and workspace selection
 
 The CLI selects an explicit `--workspace`, otherwise the remembered location in `$EA_CONFIG_HOME/location.json` (default `~/.config/employment-agency`), otherwise a default workspace. A source checkout normally defaults to its ignored `workspace/`. An installed package outside a checkout defaults to `~/EmploymentAgency/workspace`. Use `--workspace PATH init` to create a workspace at an explicit path. Startup remembers the selected folder after binding its port. `workspace.lock.json` records a user's accepted installation.
 
-Opening a workspace acquires an operating-system advisory lock in `.lock`. Another process cannot open that workspace through this application until the first closes. A thread lock serializes file-state edits inside the process. Startup initializes a new schema-2 state when missing and pauses interrupted runs. It does not accept unknown schemas; serving schema 1 requires explicit migration first. Opening is therefore a write operation, which is why upgrade checks should use a restored copy.
+Opening a workspace acquires an operating-system advisory lock in `.lock`. Another process cannot open that workspace through this application until the first closes. A thread lock serializes state edits inside the process. `init` and new local workspace creation use SQLite; existing schema-2 JSON workspaces remain readable without automatic conversion. Current SQLite database schema is 7, while the internal service state retains schema 2 and portable snapshots use schema 3. Opening can migrate an older supported database, publish its snapshot and pause interrupted runs, so upgrade checks must use a restored copy. Unknown/newer schemas are rejected. A Git-only snapshot with no database must be restored explicitly; it is not mistaken for an empty workspace.
 
-The server binds only `127.0.0.1`. A request gate coordinates operations with workspace switching. Switching is blocked during an active run. The server validates a replacement and saves the selection before changing the active workspace and rotating the token. If saving the selection fails, the previous workspace and token stay active. A native folder dialog runs without holding the request gate, so state reads remain available. The server accepts one chooser at a time and rejects a result if a workspace switch occurred while it was open.
+The server binds only `127.0.0.1`. A request gate coordinates operations with workspace switching. Switching is refused during preparation, delivery or connected application work; a successful switch closes discovery. The server validates a replacement and saves the selection before changing the active workspace and rotating the token. If saving the selection fails, the previous workspace and token stay active. A native folder dialog runs without holding the request gate, so state reads remain available. The server accepts one chooser at a time and rejects a result if a workspace switch occurred while it was open.
 
 Open Folder uses the native chooser on macOS, Windows, or Linux. Cancellation keeps the selection. Select an existing workspace, an empty folder, or a new Git repository. Use `init` when deliberately initializing a folder that already holds other files.
 
 ## Browser state and API contracts
 
-The browser first requests `/api/runtime`. Local mode uses a local `ApiClient`; hosted mode initializes Google/Supabase authentication after fetching public configuration. `WorkspaceProvider` owns the current server state and refresh sequence. Feature forms own drafts; draft protection prevents navigation from silently discarding unsaved edits. Local state polls every eight seconds while the tab is visible, or two seconds during a run. Hosted idle state does not poll continuously.
+The normal build first requests `/api/runtime`. Local mode uses a local `ApiClient`; hosted mode initializes Google/Supabase authentication after fetching public configuration. The public-preview build selects its static adapter without an application API. `WorkspaceProvider` owns the current state and accepted refresh sequence. Feature forms own drafts; draft protection prevents navigation from silently discarding unsaved edits. Local state polls every eight seconds while the tab is visible, or two seconds during a preparation run. Hosted idle state and the static preview do not poll continuously. Connected application progress has its own status requests.
 
 The API is operation-oriented JSON rather than a general CRUD/REST model. `Service` validates operation inputs and is the authority for durable changes. TypeScript types help development but do not replace Python input validation.
 
@@ -82,11 +86,15 @@ The API is operation-oriented JSON rather than a general CRUD/REST model. `Servi
 | Hosted requests | Bearer identity on every protected request; POST origin equals configured public HTTPS origin; request limit 3 MiB |
 | Local document routes | `/files/{application-id}/{role}` resolves the recorded mapping and redirects to verified `/history/files/{version-id}/{filename}` |
 | Hosted document routes | Authenticated POST `file` or `history-file` returns binary bytes; browser creates a temporary download/preview URL |
-| Exports | Local action returns a download path under `.runtime/exports/` (no automatic cleanup guarantee); hosted action streams a private ZIP |
+| Exports | Local action returns `{result: {file: "<id>.zip"}}`; `/exports/<id>.zip` serves the bytes stored under `.runtime/exports/` (no automatic cleanup guarantee). The hosted action streams a private ZIP |
 
 Operations cover identity, import, fact/confirm/retire, profiles, jobs/URL/source/discovery, rank, consent, master proposal/acceptance, prepare/run/resume/cancel, document preview/save, external-edit adoption, history, review/comments and export. Local workspace-open/create/browse are handled by the HTTP adapter. Hosted deliberately allows a smaller set; it rejects local folder access, agent/paid AI runs and custom TeX execution.
 
 The Jobs and To apply boards use workspace listings and the selected profile’s ranking. To apply uses the effective `saved` value exposed by the state response. Legacy bookmark and agent-mark records both contribute to that choice. SQLite schema 7 rebuilds the application and agent queue indexes in one transaction from the canonical records. Portable records retain their existing format. Both compatibility mutations update the same pending choice, and the pending queue views omit removed and submitted vacancies.
+
+The board groups by hiring company and filters by location. `use-review-order.ts` preserves remaining review order, and `use-board-layout.ts` preserves each company's column and the board's scroll extent during ordinary save/remove actions. A deliberate review-scope change or responsive column-count change resets placement. Optimistic saved/removed state is held until an accepted post-mutation state read; a failed or superseded refresh must not briefly resurrect the old card. Company logos appear in the group header and opened role details, with an initials fallback. Preview titles share their top row with vertical remove/save actions; the generic work-rights confirmation notice stays in details.
+
+Company allowance counts distinct vacancies across pending choices, confirmed submissions and active or uncertain submission holds. Two confirmed submissions trigger the configured cooldown; two pending choices alone do not. Remaining Jobs can be removed recoverably by the company-limit policy. Research with more than two suitable distinct vacancies at a covered employer requires exactly two supported highlights and a current review before `company-research-complete` succeeds. Those recommendations do not consume application slots. [Agent operations](agents.md)
 
 The client tracks request generations. A response issued before a workspace change cannot overwrite the newly selected workspace's UI state. The server token also invalidates stale mutations. Drafts and profile selection reset at the workspace boundary.
 
@@ -104,11 +112,13 @@ erDiagram
     VERSION ||--o{ DOCUMENT : hashes
 ```
 
-These are logical relationships in JSON and files, not database-enforced foreign keys. Imported historical versions may exist in the history catalogue without a current application record. The service validates relevant references at operation boundaries.
+These are domain relationships, not a one-to-one diagram of SQL tables. SQLite stores canonical JSON records with derived relational indexes for queue and application operations; document bytes remain in canonical folders. Imported historical versions may exist in the history catalogue without a current application record. The service validates references and file integrity at operation boundaries.
 
 | Location | Contents and authority |
 | --- | --- |
-| `state.json` (schema 2) | Identity, facts and provenance/confirmation, profiles, jobs, sources, runs, applications, comments, events and decision timestamps |
+| `workspace.sqlite3` (database schema 7) | Current local authority for identity, facts, profiles, jobs, runs, decisions, employer records and derived queue indexes; ignored by Git |
+| `state/` and `state.json` (snapshot schema 3) | App-published readable records plus revision/hash manifest for private Git and verified snapshot restore; not an editable input to the live database |
+| Legacy `state.json` (state schema 2) | Authority for older JSON workspaces, the offline CLI demo and hosted snapshot workspaces; fewer local capabilities |
 | `workspace.json` (settings schema 1) | Master path, timezone, layout/page limits, location preferences and setup status |
 | `master/`, `imports/`, research and records | Source documents and retained supporting evidence; imported content is untrusted data |
 | `applications/City/Company/Job/DD-MM-YYYY[/Time]/` | Canonical generated documents and `version.json`; regeneration creates a distinct folder |
@@ -118,9 +128,11 @@ These are logical relationships in JSON and files, not database-enforced foreign
 | `.runtime/` | Disposable exports and build/preview artifacts; excluded from backups/Git |
 | External configuration directory | Remembered workspace and provider permissions keyed to workspace ID and local path |
 
-Schema-2 `state.json` retains a workspace ID and an empty consent field. First open assigns an ID to older workspaces. Legacy path-only grants require new consent. Restore assigns a new ID to local copies. API-only fields such as `_workspace`, `_master`, fit summaries and file-change warnings are derived on read.
+The internal state retains a workspace ID. Portable records omit local consent; permission grants are bound to workspace identity and local path. Legacy path-only grants require new consent. Restore assigns a new ID to local copies. API-only fields such as `_workspace`, `_master`, fit summaries and file-change warnings are derived on read.
 
-Individual file writes use a temporary file in the same directory, flush/fsync, then `os.replace`. Document publication stages a complete folder and renames it into place, then seals recovery bytes and appends application state. **The entire operation is not a database transaction across all files.** A crash between stages can leave a version discoverable in history without its queue record. Recovery manifests, original bytes and explicit adoption preserve inspectable evidence; off-device backups are still required. External editors do not honor the application's locks.
+SQLite state edits and queue-index updates use database transactions. Snapshot publication follows the committed database revision, writes changed records atomically and publishes its manifest last. A disk failure leaves publication pending; unexpected edits to snapshot files produce a conflict rather than overwriting them. `snapshot-status` distinguishes the database revision from the published revision. Restore verifies the complete snapshot digest.
+
+Individual file writes flush/fsync and use `os.replace`; document publication stages a complete folder, seals recovery bytes and records the version. **A SQLite transaction does not make the database and every document/snapshot file one atomic filesystem transaction.** A crash can leave a version discoverable in history without its queue record, or a database revision awaiting snapshot publication. Recovery manifests, original bytes and explicit adoption preserve inspectable evidence; off-device backups are still required. External editors do not honor the application's locks.
 
 ## Main workflows
 
@@ -183,7 +195,7 @@ The standard renderer uses ReportLab and python-docx. The trusted local master r
 
 Editor preview does not publish. Saving publishes a new draft; previous canonical documents remain. External edits are detected against recovery hashes and block approval/download as verified content. Explicit adoption validates the edited PDFs/companions, publishes a new draft and restores the original verified version. A changed Word file requires a matching exported PDF; PDF-only edits drop stale editable companions. History reads verify the exact version rather than falling back to another folder.
 
-Comments can save independently of decision changes. Submitted status also establishes review, records the user's own action and cannot be reversed into a draft. New content belongs in another version.
+Comments can save independently of decision changes. Submitted status also establishes review and preserves exact document provenance. A verified agent receipt can establish a submission through the connected workflow. Correcting an eligible mistaken manual submission preserves the original decision and creates a recovered draft with the verified documents; it does not rewrite the submitted snapshot. New content belongs in another version.
 
 ### Bounded local runs and optional providers
 
@@ -246,14 +258,22 @@ Python tests cover business workflows, storage/recovery, imports, matching, cons
 
 To add a feature, first define its shared `Service` validation and persistence behavior, then expose it through the allowed adapter(s), update the typed API/view model, and add UI to its feature folder. Preserve schema and document versions or provide explicit migration. To add a source, reuse the bounded public-source fetcher. To change rendering, keep package validation and immutable version publication in the path.
 
-A local database is a future option if measurements show that whole-state reads, serialized writes or JSON relationship validation are limiting. SQLite could add transactional metadata and indexes while retaining canonical documents on disk; adopting it would require versioned migration, portable backup compatibility and restored-copy acceptance. A multi-user hosted service would likely need normalized metadata, incremental document objects and durable jobs instead of whole ZIP snapshots. Neither migration is implemented or required to run the current single-user local app.
+Local SQLite is implemented, including explicit legacy conversion, versioned database migrations, queue indexes and verified Git/ZIP recovery. The hosted pilot still uses whole ZIP snapshots and is a different storage boundary. A larger multi-user hosted service would need a separately reviewed design for normalized metadata, incremental document objects and durable jobs; that expansion is not implemented.
 
 ## Isolated demonstrations
 
 The local `demo` command creates a new marked workspace using the same import, master reconciliation, fact confirmation, profile, job, package and review operations. It reads bundled fictional resume data and public job snapshots offline. Creation is staged; existing destinations are refused. `--open` validates demo/config/state markers before opening a store. `--serve` isolates application configuration beneath the demo runtime folder, preserving the remembered personal workspace. Demo consent is never granted, real submissions are never seeded, and snapshot availability is dated rather than guaranteed. The extra optional `demo` settings flag defaults to false for existing schema-1 settings; career state remains schema 2. See [demo sources and reproduction](demo.md).
 
-## Local Apply For Me preview (unreleased)
+## Connected applications and earlier delivery attempts
 
-`application_delivery.py` owns a single local worker, JSON attempt journal under `records/submissions/`, exact document/job/answer fingerprints, approval and uncertain-result reconciliation. It calls `delivery_connections.py` for Gmail/Keychain and restricted Codex evidence selection, and `linkedin_apply.py` for the experimental visible browser. The service routes protected local `apply-*` operations; the hosted action allowlist excludes them. Browser operations stay on their owning worker thread. Workspace switching waits for active delivery work; closing drains the worker before releasing the workspace lock.
+`agent_execution.py` owns selected-role execution for local SQLite workspaces. A supported ChatGPT-signed-in Codex process receives a restricted service-owned tool, while the service verifies employer allowance, destination, document bytes and returned receipts. Website execution supports bounded same-endpoint HTTPS forms; unsupported JavaScript forms, sign-in and missing answers require help. Gmail uses the optional local connection. A scoped personal Telegram connection is not implemented. Starting the run grants authority for the named role, bound to the workspace/path and expiring after 24 hours. Restore preserves the audit trail without replaying that authority. Stop, safe-checkpoint resume and uncertain-result reconciliation are explicit operations. [Channel setup and verification limits](apply-for-me.md)
+
+`application_delivery.py` retains earlier delivery attempts, their JSON journal under `records/submissions/`, exact document/job/answer fingerprints, final approval and uncertain-result reconciliation. It calls `delivery_connections.py` for Gmail/Keychain and restricted evidence selection, and `linkedin_apply.py` for the earlier experimental visible browser. The service routes protected local `apply-*` operations; the hosted allowlist excludes both these and connected-agent execution. Browser operations stay on their owning worker thread. Workspace switching is refused while delivery is busy; closing drains the worker before releasing the workspace lock.
 
 The staged résumé is copied once and hash-verified. It must not be atomically replaced between browser selection and final approval: Chrome retains a File reference whose contents can become unreadable after replacement. Durable records link the original immutable version and receipts; staged bytes and browser sessions are excluded from portable exports. Interrupted execution becomes outcome unknown on reopening; it never auto-replays. [Connection setup and verification limits](apply-for-me.md).
+
+## Static public showcase
+
+The public demo is a separately built static site with no Flask/SQLite application backend. `public_catalog.py` validates dated, reviewed employer listings, logo evidence and supported two-role highlights. `public_preview.py` builds sample activity and documents. Local/PR fixtures use a fictional candidate; an authorized production build substitutes the approved public résumé and regenerates the profile/sample documents. It never reads a private workspace.
+
+The browser adapter lets visitors keep roles, inspect samples, import a résumé and prepare editable drafts. Apply later and removal choices use browser-local storage. Imported résumé content and new drafts live in tab memory and clear on reload or close; downloads are explicit. Sample submissions are simulated and no application is sent. Ordinary navigation to employer sites leaves the static site. Catalog refresh is an explicit reviewed publication step, not an automatic feed substitution on page refresh. CI deploys its tested static artifact to a dedicated Vercel project after the complete matrix succeeds. Root `vercel.json` belongs to the separate hosted pilot. [Demo data](demo.md) · [Deployment and rollback](public-demo-deployment.md)

@@ -5,7 +5,7 @@ Shared local application software with independently located personal career dat
 ## Language
 
 **Application installation**:
-The reusable software and UI that manages career information, discovery, tailoring, application review and storage. It contains no real user's data in its public distribution.
+The reusable software and UI that manages career information, discovery, tailoring, application review and storage. It does not contain a personal career workspace. The separate public showcase includes only an explicitly approved public profile and catalog.
 
 **Career workspace**:
 A selected local folder containing one person's master resumes, confirmed facts, supplemental information, research, preferences, templates, generated applications and decision history. It contains data and configuration, not executable application extensions or a private UI fork.
@@ -34,7 +34,7 @@ Review of proposed career-fact updates and conflicts detected after a master res
 The exact application documents recorded as submitted, preserved with their provenance and submission decision. Later edits or generations do not change what was submitted.
 
 **Application decision**:
-A user's recorded review or manual submission. Recording Submitted also confirms review. Active contains Draft and Reviewed packages for roles without a recorded submission. Earlier Rejected decisions are retained in activity.
+A recorded review or confirmed submission. Recording Submitted also confirms review; a supported connected-agent run can record its verified channel receipt against the exact version. Active contains Draft and Reviewed packages for roles without a recorded submission. Earlier Rejected decisions are retained in activity.
 
 **Recorded submission**:
 A submitted application snapshot or a listing tagged Already submitted. It moves the role from Jobs or To apply into Applications → Submitted. A listing tag leaves the submitted document version unknown. Any unfinished draft for that listing is accessible from Submitted as a separate version.
@@ -52,7 +52,7 @@ The organisation hiring for a vacancy, which can differ from the recruiter or li
 Hiring employers whose company cooldown is active at the time of a job search.
 
 **Jobs**:
-The incoming list of opportunities available to assess. Stronger matches appear first, and profile mismatches remain visible.
+The incoming list of opportunities available to assess, grouped by company. Initial ranking and reviewed company highlights guide the order; ordinary save/remove actions preserve the remaining review order and company columns. Profile mismatches remain visible.
 
 **To apply**:
 The roles the user kept with **Apply later**, including roles with prepared drafts. Recording a submission removes the vacancy from this pending list. Removal preserves the choice for restoration. Earlier bookmarks and agent marks both carry forward into To apply.

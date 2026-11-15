@@ -4,13 +4,13 @@ Use the [README setup](../README.md#run-locally) to start the local app with you
 
 ## 1. Choose your workspace
 
-At first launch, check the displayed folder and choose **Use this workspace**. This confirms where the app will store your personal data. Use **Open Folder** if it is the wrong folder; an existing workspace stays separate from the one you were viewing. Settings → Workspace files shows the active path later.
+At first launch, check the displayed folder and choose **Use this workspace**. Use **Open Folder** to select an existing workspace or create a separate one in an empty folder or new Git repository. **Settings → Workspace files** shows the active path later. [Folder selection and platform requirements](workspace-folder-selection.md)
 
 ## 2. Add your master CV and review the facts
 
 Open **Career profile → Import resume**. Supported files are PDF, DOCX, TXT, Markdown and TeX, up to 10 MB in the local app. A scanned PDF needs selectable text or OCR before import. Imported TeX is read as text; it is not compiled.
 
-Leave **Use this file as my master resume** checked for your main CV and click **Import for review**. Importing preserves the file and proposes facts; it does not confirm those facts. Choose **Review master changes**, inspect the statements, exclude headers or lines you do not want in applications, then confirm the remaining facts. **Source changes** shows the original text differences if you need them. Review **Your details** and save your name, contact details and location separately when they were not extracted.
+Leave **Use this file as my master resume** checked for your main CV and click **Import for review**. Choose **Review master changes**, inspect the proposed facts, exclude unwanted lines and confirm the remainder. **Source changes** shows the text differences. Review **Your details** and save any contact details the import did not extract.
 
 To add supporting experience without replacing the master, uncheck **Use this file as my master resume**, or use **Add experience or a skill**. These facts need individual confirmation. Edit inaccurate text, category, employer association or dates before confirming it. Keep an uncertain employer association blank. Retire an irrelevant fact to exclude it from future drafts; previous application documents remain preserved.
 
@@ -20,9 +20,9 @@ If you edit the master file later, return to **Review master changes**. Reconcil
 
 ## 3. Choose roles and locations
 
-Open **Search preferences**. In the already expanded **Create your first profile** section, give it a name and enter target roles and locations in priority order. Locations accept commas or new lines, for example `Toronto, Melbourne`. Set `Remote` or `Hybrid` under **Work arrangements**, rather than treating them as cities. A location preference does not establish work rights or sponsorship. Click **Save profile** to use these preferences.
+Open **Search preferences**. In **Create your first profile**, give it a name and enter target roles and locations in priority order. Separate locations with commas or new lines. Choose **Remote** or **Hybrid** under **Work arrangements**. Record only work rights and sponsorship details you can confirm, then click **Save profile**.
 
-**Required matches** flags known mismatches in Jobs and blocks draft preparation for those roles. Missing information remains visible for review. **Prepare drafts when eligibility or other checks need confirmation** permits a draft with unresolved checks. Verify eligibility before applying. You can keep several profiles and choose the active one.
+**Required matches** controls which preference conflicts block draft preparation. **Prepare drafts when eligibility or other checks need confirmation** allows unresolved checks on a draft that meets the other preparation requirements. Verify eligibility before applying. You can keep several profiles and choose the active one.
 
 The location list in **Settings → Workspace files** organises application documents. The active **search profile** determines job matching.
 
@@ -40,7 +40,7 @@ Choose the route that matches the information you have:
 
 The app searches supplied sources, not the whole web. Some sites require login, JavaScript or manual review. Optional browser rendering and Firecrawl are described in [local discovery](running-locally.md#find-new-jobs); routine imports and drafts do not require either.
 
-Open **Opportunities → Jobs** to see imported roles. Open a role to review its match to the active profile, the source dates and any missing information. Choose **Apply later** to move it to **To apply**. You can still open roles in **To apply** and view application history during a company cooldown.
+Open **Opportunities → Jobs** to compare imported roles by hiring employer. Where a verified logo is available, it appears in the company header and opened role details. Review the active profile match, source dates and any missing information. If the company's research includes two reviewed highlights for this profile, Jobs shows their fit reasons. Choose **Apply later** to move a role to **To apply**, subject to employer confirmation and the available company allowance. You can still open pending roles and view history during a cooldown.
 
 ## 5. Prepare and review documents
 
@@ -56,7 +56,7 @@ Preparing a new draft creates a version. **History** retains previous versions; 
 | **I've applied** | Records your actual submission time, channel and confirmation evidence. Confirm whether you used the displayed documents. The role then appears in **Applications → Submitted**. |
 | **Apply later** | Adds the role to **To apply**. Open the role from that list when ready to apply. |
 | **Apply for me** | Starts a configured local agent and authorizes preparation and submission for the open role. Missing answers or access pause it for your help. See [optional setup and channel limits](apply-for-me.md). |
-| **Copy agent instructions** | In **To apply**, copies a handoff for the whole pending queue. In **Jobs**, copies research instructions for the active profile. |
+| **Copy agent instructions** | In **To apply**, copies a handoff for the whole pending queue. In **Jobs**, copies five-company research instructions for the active profile. |
 
 An unresolved employer or submission history needs clarification before reserving a company slot. A manually added role may show an inline employer form: enter or select the verified hiring employer and choose **Confirm employer**. This continues the action you started: after **Open application site**, it reserves the slot and opens the site automatically, so you do not need to click Open application site again. Use the organisation actually hiring, which can differ from the recruiter; leave it unresolved if the advert does not identify it. If you did not submit, record that outcome instead of marking the role Submitted. If you are unsure whether a send succeeded, check the website or Sent folder before retrying. Pending supporting documents belong in the submitted role's follow-up.
 
@@ -64,6 +64,6 @@ A connected Codex/ChatGPT Gmail tool is separate from the app's Gmail connection
 
 ## 7. Back up and return later
 
-Use **Settings → Export private workspace** and save the ZIP outside the public software repository. It includes personal career data, application versions and recovery files; keep it private. Restoration creates a new folder and resets local provider permissions. [Exact backup and restore commands](running-locally.md#back-up-without-upgrading). Before changing the installed build, follow the separate [upgrade checks](running-locally.md#existing-environments-and-upgrades)
+Use **Settings → Export private workspace** and save the ZIP outside the public software repository. It contains personal career data, application versions and recovery files. Restore it into a new folder and grant any local provider permissions again. Before changing the installed build, verify the candidate against a restored copy. [Backup and restore commands](running-locally.md#back-up-without-upgrading) · [Upgrade checks](running-locally.md#existing-environments-and-upgrades)
 
 Stop the app with Ctrl+C before running a CLI operation on the same workspace. Next time, run the same `--workspace ... serve` command from the README. You do not need to import your CV or initialize the folder again.

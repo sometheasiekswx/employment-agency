@@ -1,5 +1,7 @@
 # Application decisions and listing details
 
+> Historical agreement and verification from 29 October 2026. Rejected has since become part of Removed, the current role journey records submission evidence, and eligible manual mistakes can be corrected without rewriting submitted documents. See [current terms](../GLOSSARY.md), [application workflow](apply-for-me.md) and [unified removal](adr/0008-unified-removed-section.md).
+
 Agreed 29 October 2026: Active, Submitted and Rejected sections with counts; direct Reviewed, Reject and Submitted buttons; separate comment saving. Submitted implies review without a prerequisite click or confirmation dialog. File integrity checks and immutable submitted snapshots remain. Rejected packages can return to Active. No sending is added.
 
 Display available location, work arrangement, advertised salary, posting/reposting/deadline, availability/last-check, generation/review/submission dates. Unknowns stay unknown; do not infer posting from generation or import dates. Preserve approximate wording. See GLOSSARY.md and ADR 0002 for durable records.

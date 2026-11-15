@@ -1,5 +1,7 @@
 # Interface 0.4 — design and release verification
 
+> Historical 0.4 design and verification record. Its palette, typography, test counts and deployment status describe that revision. Use [DESIGN.md](../DESIGN.md), [current system design](system-design.md) and [deployment guidance](public-demo-deployment.md) for the maintained interface and release process.
+
 31 October 2026. Preserve the application and change how it is presented: compact navigation, a clear document/evidence area, adjacent review controls and a familiar Apple-inspired control vocabulary. The owner confirmed all local/hosted workflows and private career files must be preserved, and authorized GitHub publication plus the existing Vercel deployment.
 
 ## Implementation

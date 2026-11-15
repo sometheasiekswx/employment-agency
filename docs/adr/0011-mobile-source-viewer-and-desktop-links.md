@@ -3,7 +3,7 @@ status: superseded
 ---
 # Use an in-app source viewer on mobile
 
-On 14 November 2026, the owner replaced the mobile web viewer with the same new-tab links used on desktop. See the [current opportunity link behavior](../frontend-rebuild.md#required-parity).
+On 14 November 2026, the owner replaced the mobile web viewer with the same new-tab links used on desktop. See the [current opportunity link behavior](../frontend-rebuild.md#required-parity). The description below preserves the earlier viewer design.
 
 The owner wants fast access to job and company websites on iPhone and Android while keeping the selected role open. In the workspace web app, a normal link activation in a touch-first browser opens a full-screen source preview, with the website loaded on demand in the existing read-only sandbox. The same view provides saved details, Done, and Open in new tab. Other browsers follow the original URL in a separate tab.
 

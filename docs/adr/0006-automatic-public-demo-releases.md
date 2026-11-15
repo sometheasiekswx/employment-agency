@@ -7,4 +7,4 @@ The public showcase updates automatically after all Checks succeed for the curre
 
 The private hosted pilot remains an explicit deployment and private installations remain explicit upgrades. Root Git deployment stays disabled: enabling it would run the private Flask project, while the public showcase must publish only fictional static files. A project-scoped deployment credential and explicit project selection preserve that boundary at the cost of maintaining a small Actions release job.
 
-[ADR 0013](0013-public-showcase-listings-and-tab-local-drafts.md) extends the public showcase with employer listings and tab-local draft preparation. The static release workflow continues to apply.
+[ADR 0013](0013-public-showcase-listings-and-tab-local-drafts.md) extends the public showcase with employer listings, the explicitly approved public résumé and tab-local draft preparation; it supersedes the fictional-only content restriction above. [ADR 0021](0021-reviewed-public-showcase-listings.md) requires reviewed, dated catalog updates. The static release workflow and separation from private deployments continue to apply.

@@ -1,15 +1,15 @@
 # Demo content and walkthroughs
 
-The public web showcase and the installed CLI demo use separate datasets. The showcase displays the owner’s approved redacted master résumé and uses it for the public profile and new drafts. Example documents and application decisions are fictional.
+The deployed web showcase uses the owner’s approved redacted master résumé for its public profile and new drafts. The default local static export uses a fictional résumé. The installed CLI demo and the README recordings each have their own fictional workspace. Example documents and application decisions are fictional throughout.
 
-|                     | Public web showcase                                    | Existing CLI demo                                            |
-| ------------------- | ------------------------------------------------------ | ------------------------------------------------------------ |
-| Interface           | Current light and dark interface         | The interface bundled with the version you install           |
-| Candidate           | Public profile and redacted master résumé              | Alex Morgan, fictional software engineer in New York       |
-| Jobs                | Employer postings and example roles in seven destinations | Fourteen real employer-board metadata snapshots           |
-| Application records | Seven sample packages and drafts prepared in the current tab | Twelve generated packages with sample decisions and comments |
-| Changes             | Browser-local To apply choices and removal, tab-only résumé and draft editing | Normal local demo-workspace operations        |
-| Runtime             | Static public site; no application backend or sign-in  | Isolated local Python server and workspace                   |
+|                     | Public web showcase                                                           | Existing CLI demo                                            |
+| ------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| Interface           | Light and dark interface                                                      | The interface bundled with the version you install           |
+| Candidate           | Public profile and redacted master résumé                                     | Alex Morgan, fictional software engineer in New York         |
+| Jobs                | 102 reviewed employer postings in seven destinations                          | Fourteen real employer-board metadata snapshots               |
+| Application records | 15 sample packages and drafts prepared in the current tab                     | Twelve generated packages with sample decisions and comments |
+| Changes             | Browser-local To apply choices and removals, tab-only résumé and draft editing | Normal local demo-workspace operations                        |
+| Runtime             | Static public site with browser-local state                                    | Isolated local Python server and workspace                   |
 
 ## Public web showcase
 
@@ -19,11 +19,19 @@ The showcase presents the company board and opportunity inspector on desktop, pl
 
 The public site releases automatically after all checks pass on `main`. The release marker records the deployed commit. [Release marker](https://employment-agency-demo.vercel.app/release.json) · [Deployment runbook](public-demo-deployment.md)
 
-The showcase contains reviewed snapshots of official employer postings in Singapore, Melbourne, New York, London, China, Berlin and Toronto. Each destination has five hiring employers; China retains the actual advertised cities. Listings display checked dates and link to the original advert and careers page. Availability, sponsorship and work rights can change; a snapshot is evidence from its checked date, not a live availability promise.
+The showcase contains reviewed snapshots from 39 hiring companies in Singapore, Melbourne, New York, London, China, Berlin and Toronto. The China profile retains the advertised cities. Open a role for checked dates and the original advert and employer links. Check those sources for current availability, sponsorship and work rights. [Bundled catalog](../employment_agency/demo_data/showcase_jobs.json)
 
-The browser keeps this reviewed catalog stable between releases. It does not fetch replacement jobs on page load. Companies with more than two retained suitable vacancies have exactly two highlights, with reasons tied to the approved public profile, and retain every other reviewed role. Official logos are stored as verified local PNG assets. Unsupported or blocked marks keep the initials fallback. [Decision and tradeoff](adr/0021-reviewed-public-showcase-listings.md)
+The browser loads the reviewed catalog bundled with the release. Companies with more than two suitable vacancies have two reviewed highlights, with fit reasons tied to the approved public profile. Every other reviewed role stays available. Verified logos appear in company headers and opened role details. An unavailable image falls back to initials. [Catalog decision](adr/0021-reviewed-public-showcase-listings.md)
 
-The six roles used in the walkthroughs are shown below. The showcase adds two sample roles to each of Saved, Active, Submitted and Removed.
+The initial board shows 72 roles in Jobs, 10 in To apply, 8 in Active, 7 in Submitted and 5 in Removed. All seven Submitted examples are fictional.
+
+The landing page links to the public résumé. Career profile shows the owner’s name and evidence drawn from the redacted master. For a new draft, the demo uses the selected résumé. Choose a PDF with selectable text, a DOCX or plain text, then review the extracted text before using it. Edit the new CV or cover letter under Active and download Word or PDF. Files and drafts stay in the current tab and clear on reload or close. The local app supplies lasting workspace storage, custom LaTeX templates and the complete application workflow.
+
+The shared Python `Service` generates the bundled state, requirement assessments and real document files before the static site is built. The browser displays those results. To apply choices, removal, restoration and optional reasons stay in the visitor's browser. Applications → Removed holds removed roles with their saved documents and activity. Restore returns a role to its previous lists. Persistent career-data edits, external source refreshes, paid providers and employer actions are unavailable in this public showcase. Use the local application for those supported workflows.
+
+## Current interface GIFs
+
+The README walkthroughs record the current local interface with motion enabled. Desktop shows the company board, the profile chooser in Filters, Overview evidence, in-place comparison and Apply later feedback. Mobile shows live search, the sheet opening, one upward body swipe that expands and starts reading, a second swipe to read, header collapse, footer expansion, dismissal and an ordinary disclosure tap. The document walkthrough opens the role's Documents panel, reveals supporting files and follows the version into History. The recordings use the application's fonts and artwork and the six-role Alex Morgan fixture.
 
 | Role                      | Fictional employer  | Location  | Work model |
 | ------------------------- | ------------------- | --------- | ---------- |
@@ -33,16 +41,6 @@ The six roles used in the walkthroughs are shown below. The showcase adds two sa
 | Full Stack Engineer       | Paperwell Studio    | Melbourne | Remote     |
 | DevOps Engineer           | Northglass Works    | Berlin    | Hybrid     |
 | Backend Software Engineer | Cedarlight Software | Toronto   | Hybrid     |
-
-The landing page links to the public résumé. Career profile shows the owner’s name and evidence drawn from the redacted master. For a new draft, the demo uses the selected résumé. Choose a PDF with selectable text, a DOCX or plain text, then review the extracted text before using it. Edit the new CV or cover letter under Active and download Word or PDF. Files and drafts stay in the current tab and clear on reload or close. The local app supplies lasting workspace storage, custom LaTeX templates and the complete application workflow.
-
-The shared Python `Service` generates the bundled state, requirement assessments and real document files before the static site is built. The browser displays those results. To apply choices, removal, restoration and optional reasons stay in the visitor's browser. Applications → Removed holds removed roles with their saved documents and activity. Restore returns a role to its previous lists. Persistent career-data edits, external source refreshes, paid providers and employer actions are unavailable in this public showcase. Use the local application for those supported workflows.
-
-The sample application records include a reviewed Emberlane package, a Fernbridge draft and a Cedarlight submission record. **The submission is fictional; no employer was contacted.** The documents contain sample content and must not be used as real application material.
-
-## Current interface GIFs
-
-The README walkthroughs are real browser captures of the current local application with the six-role fictional fixture. Desktop review includes the profile chooser inside Filters, inspector arrival, evidence, in-place role comparison and bookmark feedback. Mobile review includes live search and bottom-sheet arrival, then one uninterrupted body swipe that expands the partial sheet and advances the content before the finger lifts. Subsequent reading uses native scrolling. It also shows company-header collapse, footer-control expansion, a downward body drag to close, an ordinary evidence tap and outside-tap dismissal. The document walkthrough reviews sample files, source evidence and the selected document version from the combined Opportunities workspace, then follows its preserved History. They record motion enabled; keyboard review remains immediate and reduced-motion preferences suppress the transitions. They show the full local interface; the public static showcase has the read-only capabilities described above. Screens use the application's own fonts and assets. They contain no private résumé, browser session or employer account. Recording does not edit documents or send an application.
 
 | Walkthrough                                 | Animation                                                    | Reduced-motion still                                         |
 | ------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
@@ -54,7 +52,9 @@ The README leads with a full-width desktop GIF followed by a centered phone GIF,
 
 [Capture provenance, timing and asset metadata](media/showcase-provenance.json) · [Decoded asset and source-frame quality checks](media/quality-report.json).
 
-The shared fictional seed and static exporter live in [employment_agency/public_preview.py](../employment_agency/public_preview.py). To rebuild and preview the public site from the software checkout:
+### Build the public preview locally
+
+Run the exporter and static build from the software checkout. [Exporter source](../employment_agency/public_preview.py)
 
 ```sh
 .venv/bin/python -m employment_agency.public_preview --output frontend/public/demo
@@ -62,13 +62,15 @@ npm --prefix frontend run build:preview
 .venv/bin/python -m http.server 8789 --bind 127.0.0.1 --directory output/public-preview/site
 ```
 
-Open **http://127.0.0.1:8789**. The export writes fictional state and content-addressed document files under `frontend/public/demo/`; `build:preview` produces the standalone site in `output/public-preview/site` without replacing the Python package's normal web assets. It needs no application server or provider credentials.
+Open **http://127.0.0.1:8789**. The exporter writes reviewed listing snapshots, fictional profile and application state, and content-addressed files under `frontend/public/demo/`. `build:preview` produces the standalone site in `output/public-preview/site`, leaving `employment_agency/web/` available for the local app. Serve the static files directly with the Python command above.
 
 Run `.venv/bin/python tests/run_public_preview_checks.py` after building to verify the routes, sample decisions, reviewed listings and highlights, displayed logos, browser bookmark isolation, résumé import, draft downloads and desktop/mobile accessibility with the production content security policy. CI runs the same static build and browser check on Linux.
 
 To refresh the public catalog, follow the [shared research workflow](agents.md#research-five-companies), then use `scripts/import-showcase-research.py` with a new isolated workspace, the already-approved public profile bundle and reviewed research files. The installed shared build must support `company-research-complete`. The importer refuses incomplete destination coverage, stores logos through shared operations, saves comparison bases and requires successful research completion before writing `demo_data/showcase_jobs.json`. Keep the workspace and approved résumé inputs outside tracked source. Regenerate `frontend/public/demo`, build and verify the static site. Changing the approved résumé requires another comparison review. The older metadata-only refresh script refuses to overwrite this reviewed catalog.
 
-For media captured against an isolated local application, [tests/serve_concept_fixture.py](../tests/serve_concept_fixture.py) uses the same seed. Build the normal production frontend before starting its capture server:
+### Record the fictional walkthroughs
+
+Build the normal production frontend and start the six-role local fixture. [Fixture source](../tests/serve_concept_fixture.py)
 
 ```sh
 npm --prefix frontend run build
@@ -85,7 +87,9 @@ node scripts/capture-showcase.cjs
 .venv/bin/python scripts/check-showcase.py
 ```
 
-Capture requires Playwright with Chrome; encoding requires FFmpeg and Pillow. Mobile gestures use Chromium's native touch input and stay within the visible viewport. Assertions check that the first swipe scrolls before release, the next contact reads natively, footer dragging does not activate the document action, and an ordinary evidence tap still works. Lossless PNG frames and the capture manifest go under `output/readme-showcase/`. The encoder preserves their resolution and variable timing, then writes the GIFs, matching PNG posters and `docs/media/showcase-provenance.json`, retaining source timings and asset hashes. It rejects a GIF over 10 MB. The checker decodes every GIF frame, verifies source hashes and dimensions, validates the posters and README fallbacks, and writes `docs/media/quality-report.json` plus local action contact sheets. Its palette-error metric does not measure usability or physical-device motion quality. `SHOWCASE_URL` selects another loopback fixture port for both capture and checking; neither tool should target a private workspace.
+Capture requires Playwright with Chrome, and encoding requires FFmpeg and Pillow. Chromium touch input drives the mobile gestures. The capture asserts that a swipe expands and scrolls before release, a second swipe continues scrolling, a footer drag preserves the To apply choice, and a normal evidence tap still works. The script checks the fictional fixture before recording and verifies its To apply choices after restoration. `SHOWCASE_URL` selects the same loopback fixture for capture and checking.
+
+Lossless frames and the capture manifest go to `output/readme-showcase/`. The encoder writes the GIFs, PNG posters and `docs/media/showcase-provenance.json` with source timing and hashes. It enforces a 10 MB GIF limit. The checker verifies GIF decoding, source hashes and dimensions, poster pixels and README fallbacks. It saves `docs/media/quality-report.json` and local action contact sheets. Use the palette-error measure to assess GIF encoding. [Mobile interaction details](mobile-sheet-motion.md)
 
 ## Existing CLI demo
 

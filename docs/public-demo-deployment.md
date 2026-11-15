@@ -5,7 +5,7 @@ The public showcase at **https://employment-agency-demo.vercel.app/discover/** f
 ## Release path
 
 1. A push runs the existing `Checks` workflow on Linux, macOS and Windows. Pull requests run checks without deployment access.
-2. Linux builds and browser-tests the static site, then uploads that exact directory as a commit-named artifact. Production includes the public employer snapshots and the approved redacted master résumé. A failed check prevents the deployment job from running.
+2. Linux builds and browser-tests the static site under `output/public-preview/site/`, then uploads that directory as `public-demo-<commit>`. Production includes reviewed employer listings and logos, the approved public résumé and sample activity. A failed check prevents the deployment job from running.
 3. After the entire matrix succeeds, the release job downloads the artifact into an isolated runner directory. It checks the commit and demo markers, then stages a production deployment with domain assignment disabled.
 4. A dependency-free HTTP check verifies the exact source commit, public fixture, routes, sample CV checksum, every current company logo checksum and security headers on the staged URL. Only a verified candidate that still matches `main` is promoted.
 5. The same check runs on the public alias. It retries a stale release marker up to ten times at three-second intervals while promotion propagates. The Actions job summary records the source SHA and public URL. Inspect [/release.json](https://employment-agency-demo.vercel.app/release.json) to identify the live source commit and fixture revision.
@@ -14,7 +14,7 @@ Release jobs are serialized, and queued releases are preserved so that rerunning
 
 The generated static directory is deployed through Vercel's deployment API with its own empty build and install configuration. After validating the captured artifact, the stage command confirms the public project and team and checks for pending promotions. It uploads the exact captured bytes once per unique SHA-1 digest in batches of up to ten. The creation request references each path, size and digest. Domain assignment stays disabled until verification. Root `vercel.json` continues to disable native Git deployment and configure the private Flask application. [Vercel file upload API](https://vercel.com/docs/rest-api/deployments/upload-deployment-files) · [Vercel deployment API](https://vercel.com/docs/rest-api/deployments/create-a-new-deployment)
 
-Vercel CLI 65.2.0 requests `/v2/user`, which returns HTTP 404 for this project-scoped token even though project access succeeds. The release calls the API directly and retains the dedicated token. CLI 65.2.0 also limits inline files to ten regular HTML or Markdown files totaling at most 5 MiB before encoding. The public artifact contains hundreds of files in several formats and uses the CLI's digest-reference representation. The staging request preserves the static configuration and `autoAssignCustomDomains: false`. Promotion uses the documented project deployment endpoint.
+In the original integration, Vercel CLI 65.2.0 returned HTTP 404 from `/v2/user` with the project-scoped token despite successful project access. Its inline file representation also had size, count and file-type limits. The current workflow calls the API directly with digest references so it can retain the dedicated token and deploy the multi-format export. Staging uses `autoAssignCustomDomains: false`. Promotion uses the project deployment endpoint.
 
 Project status requests include `rollbackInfo=true`, as in the official CLI, because Vercel otherwise omits `lastAliasRequest`. Both the pending-operation guard and promotion polling require that metadata; the public release marker remains the final routing check.
 
@@ -34,19 +34,24 @@ Replace the secret when rotating the scoped token, then revoke the old token. An
 
 ## Public master résumé
 
-Render the approved master from a local checkout with LaTeX installed. Use a new output directory outside the software repository.
+Use the Python environment from [source setup](../README.md#set-up-once) and an installed LaTeX compiler. Set `EA_MASTER_TEX` to the approved source and `EA_PUBLIC_RESUME_OUT` to a new output directory outside the software repository. Render the public copy.
 
 ```sh
 .venv/bin/python scripts/prepare-showcase-resume.py --master "$EA_MASTER_TEX" --output "$EA_PUBLIC_RESUME_OUT"
+```
+
+Review `resume.pdf` and `resume.json` before using them in a public build. Build a local preview and prepare the release inputs from that reviewed copy.
+
+```sh
 EA_PUBLIC_DEMO_RESUME_DIR="$EA_PUBLIC_RESUME_OUT" EA_PUBLIC_DEMO_PYTHON="$PWD/.venv/bin/python" npm --prefix frontend run build:preview
 node scripts/showcase-resume.mjs "$EA_PUBLIC_RESUME_OUT"
 ```
 
-Review the rendered PDF and text in the output directory. For automatic releases, store the four files in its `release-inputs` directory as GitHub Actions secrets with their exact filenames. Supply all four for the same résumé. The Linux production build verifies the checksum and uses the approved input for the profile and all sample application packages. The original sample files are replaced in the build output. A production build with missing or invalid inputs fails before deployment. Local and pull-request builds can use the sample fixture. Keep the source LaTeX and the release input files outside Git.
+For automatic releases, store the four `release-inputs/PUBLIC_DEMO_RESUME_*` files as GitHub Actions secrets with their exact filenames. Use all four from the same generation. The workflow verifies the checksum and uses the approved input for the published profile and sample application packages. Missing or invalid input fails the production preview build. Local and pull-request preview builds can use the sample fixture. Keep the LaTeX source and release inputs outside Git.
 
 ## Verify and recover
 
-Run `node --test tests/check-public-demo.test.mjs tests/stage-public-demo.test.mjs tests/promote-public-demo.test.mjs` for release, staging and promotion success/failure cases. `npm --prefix frontend run build:preview` builds the candidate with its commit marker. The existing `python tests/run_public_preview_checks.py` exercises the static interface, fictional-data isolation and desktop/mobile behavior before release.
+Run `node --test tests/check-public-demo.test.mjs tests/stage-public-demo.test.mjs tests/promote-public-demo.test.mjs` for release, staging and promotion success and failure cases. `npm --prefix frontend run build:preview` writes the candidate and its exact commit marker. With the local Python dependencies and Chrome installed, `.venv/bin/python tests/run_public_preview_checks.py` exercises the static interface, sample application workflow, request isolation and desktop/mobile behavior before release.
 
 The Linux workflow checks that the runner’s Chrome launches through Playwright. It installs Chrome and its dependencies if that check fails. The browser suite uses Playwright’s FFmpeg binary for recording and a checksum-verified Noto Sans CJK font for its unembedded Chinese PDF text check. [Noto Sans CJK release](https://github.com/notofonts/noto-cjk/releases/tag/Sans2.004)
 

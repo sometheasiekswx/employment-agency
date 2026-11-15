@@ -1,5 +1,7 @@
 # Local startup verification — 31 October 2026
 
+Historical evidence for version 0.3.0. Use the [current local runbook](running-locally.md) for startup and recovery commands and [verification](verification.md) for current checks.
+
 ## Reported failure and correction
 
 The reported error was `cd: no such file or directory: employment-agency`. It occurs before Python, npm or the application starts. A relative `cd` requires the terminal to be in the checkout's parent directory; a failed clone also leaves nothing to enter. The existing software checkout was present and readable. The README now separates first-time cloning from entering an existing checkout, and the [local runbook](running-locally.md) explains full paths, environment recovery, explicit workspace selection and startup errors.
@@ -47,4 +49,4 @@ Reviewed the setup instructions against clean-clone and existing-checkout execut
 
 Verification includes actual rendered browser behavior and installed-wheel behavior. Hosted tests use an in-memory provider and synthetic session; they do not establish live Google OAuth, deployed Supabase policy correctness or production write/delete behavior. Native folder UI is substituted in automated acceptance; the real desktop dialog was not exercised during this run. Paid AI requests, employer submissions and sending email were not performed. This is not a claim of exhaustive coverage or a full security audit.
 
-Temporary test servers were stopped. The existing installed environment and private version pin were preserved. There was no deployment or automatic private-workspace upgrade. Current documentation/evidence changes remain local for review; this task did not publish them.
+The run stopped its temporary test servers and preserved the existing installed environment and private version pin. Its scope was local startup and packaging. The evidence was subsequently committed to this repository.

@@ -1,8 +1,10 @@
-# React / Next.js frontend rebuild
+# React / Next.js frontend architecture and parity
+
+The parity table describes the maintained interface. The ordered plan and 31 October 2026 completion evidence below preserve the original rebuild scope; its test counts and release status are historical. See [system design](system-design.md) and [Contributing](../CONTRIBUTING.md) for current runtime and validation instructions.
 
 ## Contract
 
-Replace all hand-built HTML string templates, document-wide event dispatch and post-render DOM rewriting with React components and TypeScript. Use Next.js App Router with a static export, served by the existing Python local server and hosted Flask service. Keep the current navy visual language, responsive layouts, Python services, workspace schema, document formats and private/public boundaries. No personal data is read at build time or bundled. No new paid services, deployment or installed-build upgrade is implied.
+Use React components and TypeScript with Next.js App Router and a static export served by the Python local server or hosted Flask service. Preserve the current [design system](../DESIGN.md), responsive layouts, Python service contracts, immutable document versions and private/public boundaries. Normal builds do not read a private workspace. The separate public-demo build uses approved public inputs and a browser-only adapter. Deployment and installed-build upgrades remain separate operations.
 
 ### Required parity
 
@@ -11,6 +13,7 @@ Replace all hand-built HTML string templates, document-wide event dispatch and p
 | Workspace | Setup, location, native Open Folder, cancellation, existing/empty-folder selection, Save, settings, stale-tab rejection, active-run protection |
 | Career | Identity, PDF/Word/TeX/text import and size limits, supplemental facts, edit/confirm/retire/conflict states, master diff/identity/facts/conflicts/confirmation |
 | Search | Multiple profiles, filters/expectations, manual jobs with all metadata and salary evidence, edit jobs, URL import, sources/status/refresh, ranking/evidence/gaps, explicit handoff selection in Search |
+| Company board | Company grouping with location filters; original logo in header/details, initials fallback, title-first previews, vertically stacked remove/save controls and status beside location. Ordinary save/remove/Undo and accepted refreshes preserve company columns and review order; intentional scope or column-count changes can reset layout. |
 | Opportunity details | The desktop pane reserves a separate column with a scrolling heading and body and a pinned action row. Mobile uses an expandable native dialog. Successful removal or restoration notices expire after eight seconds of unpaused time. Hover, keyboard focus and the reason editor hold the notice. Pending and failed actions keep their controls, and Removed retains restoration and reason editing after expiry. |
 | Jobs and To apply agent instructions | The local boards use the same instruction row and copy directly. Jobs uses the active search profile. To apply covers the whole pending queue across pages and filters. Clipboard denial exposes the prompt for manual copying. Existing connected runs remain accessible in To apply. |
 | Opportunity links | Listing and company links open their HTTPS destinations in a new tab on mobile and desktop. The selected role stays open in the workspace. Company links use the recorded careers page when available and fall back to the listing site's home page. |
@@ -44,7 +47,7 @@ Use synthetic workspaces and isolated machine configuration throughout. Preserve
 
 ## Release and recovery
 
-Push is authorized. Production deployment and upgrading the pinned private installation are separate. The previous commit and installed wheel remain recovery points. No state migration is needed; verify old workspace/export compatibility in disposable copies. Completion evidence and any justified changes to this plan are recorded below.
+For the original frontend rebuild, publication was authorized and no state migration was needed. That historical approval does not authorize future releases or upgrades. Current source uses SQLite schema 7; follow [current migration and recovery guidance](running-locally.md#existing-environments-and-upgrades) for an installation change.
 
 ## Completion evidence — 31 October 2026
 
