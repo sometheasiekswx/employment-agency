@@ -1,0 +1,13 @@
+# Reproduced card interaction problems
+
+All mutations and recordings use fictional fixtures. “Installed baseline” means the older application bundle retained for the private installation; no live career decisions were changed during reproduction.
+
+| Symptom | Baseline reproduction | Cause / delivery route |
+| --- | --- | --- |
+| Surviving company moves under the pointer | In the installed baseline, Apply later on the leading Harbour Cloud role left two roles, but its next card moved from X=300 to X=1052. Studio North occupied the old pointer position. Details stayed closed. | That installed bundle predates the committed stable-board hooks. The same fixture on shared `dc8d632` keeps X=300 and closes only the local vertical gap. Include the established stable-board implementation in the verified private UI update. |
+| Successful card disappears, returns, then disappears | On shared `dc8d632`, two quick saves overlap their workspace refreshes. The first role leaves at 41ms, returns at 457ms when its superseded refresh resolves, and leaves again at 941ms when the newer state is accepted. Its neighbor moves Y=430.09 → 290 → 430.09 → 290. A single save overlapping the eight-second background poll also reproduced the return. | Discover clears its optimistic saved flag when the operation wrapper completes even when the wrapper's refresh was superseded. A failed or superseded refresh keeps the confirmed choice visible. The first accepted read begun after the save receipt is authoritative, including a choice reversed in another tab. A rejected mutation rolls back. |
+| Whole mobile board shifts during a card action | At 390px on shared `dc8d632`, saving or removing a role changes the available destination count from five to four. The location control switches from a select to tabs. Board origin moves Y=369.875 → 339.594 with scrollY=0, in addition to local card gap closure. | Preserve the chosen mobile location-control presentation during the current review while updating its options. Deliberate view/filter/profile refreshes may reset it. |
+
+The ignored `output/playwright/card-interactions/` directory contains matched recordings in `videos/` and numerical comparisons in `comparison.json`. The original captures cover overlapping refreshes, company movement in the installed and shared baselines, and the mobile filter-height change.
+
+The shared stable-board implementation is an existing fix, not a newly introduced correction in this task. The deployment gap is why the installed baseline still exhibits its older behavior. Removal and Undo already have receipt handling; any further change there requires its own reproducible finding rather than assuming the save race applies unchanged.

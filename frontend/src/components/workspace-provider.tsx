@@ -16,10 +16,12 @@ import type { RequestData, WorkspaceState } from "@/lib/models";
 
 interface WorkspaceContextValue {
   state: WorkspaceState;
+  stateRead: number;
   client: ApiClient;
   refreshError: string;
   notify: ReturnType<typeof useNotifications>["notify"];
-  refresh: () => Promise<void>;
+  refresh: (onReadStarted?: (sequence: number) => void) => Promise<void>;
+  isCurrentWorkspace: (path: string) => boolean;
   run: <T = unknown>(
     action: string,
     data?: RequestData,
@@ -33,7 +35,8 @@ const WorkspaceContext = createContext<WorkspaceContextValue | null>(null);
 
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [client, setClient] = useState<ApiClient>();
-  const [state, setState] = useState<WorkspaceState>();
+  const [snapshot, setSnapshot] = useState<{ state: WorkspaceState; read: number }>();
+  const state = snapshot?.state;
   const [error, setError] = useState("");
   const { notify, clearNotifications } = useNotifications();
   const [refreshError, setRefreshError] = useState("");
@@ -42,6 +45,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [selectedProfile, selectProfile] = useState("");
   const refreshSequence = useRef(0);
   const workspace = useRef("");
+  const isCurrentWorkspace = useCallback((path: string) => workspace.current === path, []);
 
   useEffect(() => {
     let alive = true;
@@ -51,10 +55,11 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         setClient(client);
         setSignedIn(signedIn);
         if (signedIn) {
+          const read = refreshSequence.current;
           const result = await client.state();
           if (alive) {
             workspace.current = result.state._workspace.path;
-            setState(result.state);
+            setSnapshot({ state: result.state, read });
             setError("");
           }
         }
@@ -67,9 +72,10 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     };
   }, [attempt]);
 
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async (onReadStarted?: (sequence: number) => void) => {
     if (!client) return;
     const sequence = ++refreshSequence.current;
+    onReadStarted?.(sequence);
     const result = await client.state().catch((error) => {
       if (sequence === refreshSequence.current)
         setRefreshError(errorMessage(error));
@@ -83,7 +89,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       notify("Workspace changed.", "info");
       workspace.current = result.state._workspace.path;
     }
-    setState(result.state);
+    setSnapshot({ state: result.state, read: sequence });
   }, [client, clearNotifications, notify]);
 
   const running = state?.runs.some((run) => run.status === "running");
@@ -125,10 +131,11 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
   const clearSession = useCallback(() => {
     refreshSequence.current++;
+    workspace.current = "";
     client?.auth?.clear();
     setError("");
     setSignedIn(false);
-    setState(undefined);
+    setSnapshot(undefined);
     selectProfile("");
     clearNotifications();
     setRefreshError("");
@@ -169,7 +176,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         </button>
       </main>
     );
-  if (!state || !client)
+  if (!snapshot || !state || !client)
     return (
       <main className="workspace-boot" aria-busy="true">
         <div className="workspace-boot-rail" aria-hidden="true">
@@ -216,10 +223,12 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     <WorkspaceContext.Provider
       value={{
         state,
+        stateRead: snapshot.read,
         client,
         refreshError,
         notify,
         refresh,
+        isCurrentWorkspace,
         run,
         profileId,
         selectProfile,

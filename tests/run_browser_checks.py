@@ -82,6 +82,7 @@ if __name__ == '__main__':
         browser('discover-layout-browser.cjs', url)
     with fixture('serve_concept_fixture.py') as url:
         browser('board-stability-browser.cjs', url)
+        browser('card-mutations-browser.cjs', url)
     with fixture('serve_concept_fixture.py') as url:
         browser('desktop-role-details-browser.cjs', url)
     with fixture('serve_concept_fixture.py') as url:

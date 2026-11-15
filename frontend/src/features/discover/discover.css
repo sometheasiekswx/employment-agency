@@ -244,16 +244,26 @@
 }
 .discover-card-top {
   display: flex;
-  justify-content: space-between;
   align-items: start;
   gap: 10px;
+}
+.discover-card-summary {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.discover-card-metadata {
+  display: flex;
   flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  margin-block-start: 4px;
+  font-size: 13px;
 }
 .discover-card-tools {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  flex: none;
   gap: 4px;
-  margin-inline-start: auto;
 }
 .discover-removal-reason {
   display: -webkit-box;
@@ -280,13 +290,6 @@
 }
 .discover-removal-inline .removal-feedback {
   margin-block: 0 16px;
-}
-@media (max-width: 900px) {
-  .discover-screen .discover-card-tools .discover-icon-button {
-    width: 44px;
-    height: 44px;
-    min-height: 44px;
-  }
 }
 .discover-status {
   display: inline-flex;
@@ -359,6 +362,18 @@
   height: 25px;
   min-height: 25px;
 }
+@media (max-width: 1000px) {
+  .discover-card-tools {
+    /* The larger touch targets can extend into the card padding. */
+    margin-block-start: -9px;
+    margin-inline-end: -9px;
+  }
+  .discover-screen .discover-card-top .discover-icon-button {
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+  }
+}
 .discover-screen .discover-card-open {
   display: block;
   width: 100%;
@@ -406,7 +421,7 @@
   text-underline-offset: 2px;
 }
 .discover-card-open h3 {
-  margin: 10px 0 8px;
+  margin: 0;
   font-size: 16px;
   line-height: 1.35;
   font-weight: 600;
@@ -437,11 +452,9 @@
 }
 
 .discover-card-location {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  flex-wrap: wrap;
+  min-width: 0;
   color: var(--discover-muted);
+  overflow-wrap: anywhere;
 }
 .discover-stack-heading {
   display: flex;

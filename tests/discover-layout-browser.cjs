@@ -81,6 +81,48 @@ const fs = require("node:fs");
         name: "Assess Cloud Software Engineer at Emberlane Systems",
         exact: true,
       });
+    const checkActionLayout = async (width) => {
+      const open = page.getByRole("button", {
+        name: "Assess Backend Engineer at Bayform Labs",
+        exact: true,
+      });
+      const card = page.getByRole("article").filter({ has: open });
+      const remove = card.getByRole("button", {
+        name: "Remove Backend Engineer",
+        exact: true,
+      });
+      const bookmark = card.getByRole("button", {
+        name: "Apply later · Backend Engineer",
+        exact: true,
+      });
+      const [title, removeBox, removeIcon, bookmarkBox, location, status] = await Promise.all([
+        open.locator("h3").evaluate((heading) => {
+          const { top, bottom } = heading.getBoundingClientRect();
+          const lineHeight = parseFloat(getComputedStyle(heading).lineHeight);
+          return { bottom, center: top + lineHeight / 2 };
+        }),
+        remove.boundingBox(),
+        remove.locator("svg").boundingBox(),
+        bookmark.boundingBox(),
+        card.getByText("Singapore · On-site", { exact: true }).boundingBox(),
+        card.getByText("New", { exact: true }).boundingBox(),
+      ]);
+      assert.ok(removeBox && removeIcon && bookmarkBox && location && status);
+      assert.ok(Math.abs(title.center - removeIcon.y - removeIcon.height / 2) <= 3,
+        `${width}px: the title's first line aligns with Remove`);
+      assert.ok(Math.abs(removeBox.x - bookmarkBox.x) <= 1 &&
+        bookmarkBox.y >= removeBox.y + removeBox.height,
+        `${width}px: Remove sits above Apply later without overlapping it`);
+      if (width <= 1000)
+        assert.ok([removeBox, bookmarkBox].every((box) => box.width >= 44 && box.height >= 44),
+          `${width}px: both actions have 44px touch targets`);
+      assert.ok(location.y >= title.bottom && status.y >= title.bottom,
+        `${width}px: location and status sit below the title`);
+      if (width === 1440)
+        assert.ok(Math.abs(location.y + location.height / 2 - status.y - status.height / 2) <= 1 &&
+          status.x >= location.x + location.width,
+          "When they fit, the status badge sits beside the location");
+    };
     for (const width of [
       320, 390, 768, 900, 901, 930, 1000, 1001, 1024, 1150, 1151, 1280, 1440,
       1920,
@@ -89,6 +131,7 @@ const fs = require("node:fs");
       await page.goto(base + "/discover/?view=all");
       await cloud().waitFor();
       await bounds(`${width}px shortlist`);
+      if ([320, 390, 1440].includes(width)) await checkActionLayout(width);
       await cloud().click();
       const inspector = page.locator(".discover-inspector");
       await inspector
@@ -213,6 +256,16 @@ const fs = require("node:fs");
       false,
       "Enlarged text remains readable inside the card",
     );
+    await page.getByRole("combobox", { name: "Color theme", exact: true }).selectOption("light");
+    await page.waitForFunction(() => document.documentElement.dataset.theme === "light");
+    await page.setViewportSize({ width: 320, height: 1000 });
+    await bounds("320px Light with doubled card text and long content");
+    assert.equal(
+      await page.locator(".discover-card").evaluate((card) => card.scrollWidth > card.clientWidth + 1),
+      false,
+      "Long content and enlarged text fit the 320px Light card",
+    );
+    await page.screenshot({ path: `${output}/long-content-320-light.png` });
     await page.goto(
       base + "/discover/?view=all&q=NoMatchingFictionalOpportunity",
     );

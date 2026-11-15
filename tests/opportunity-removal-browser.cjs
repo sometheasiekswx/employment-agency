@@ -236,8 +236,8 @@ const label = (job) => `${job.title} · ${job.employer}`;
       );
     };
     const removeCard = (page, job) =>
-      card(page, job)
-        .locator("..")
+      page.getByRole("article")
+        .filter({ has: card(page, job) })
         .getByRole("button", { name: `Remove ${job.title}`, exact: true });
 
     for (const width of [1440, 390]) {

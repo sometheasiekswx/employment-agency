@@ -23,10 +23,15 @@ const fixture = vi.hoisted(() => ({
   query: "",
   mobile: false,
   profileId: "profile-a",
+  stateRead: 0,
+  nextRead: 0,
   state: {} as WorkspaceState,
   client: { action: vi.fn() },
+  saveJob: vi.fn(),
   run: vi.fn(),
   refresh: vi.fn(),
+  isCurrentWorkspace: vi.fn(),
+  notify: vi.fn(),
   replace: vi.fn(),
   back: vi.fn(),
   selectProfile: vi.fn(),
@@ -41,9 +46,12 @@ vi.mock("next/navigation", () => ({
 vi.mock("@/components/workspace-provider", () => ({
   useWorkspace: () => ({
     state: fixture.state,
+    stateRead: fixture.stateRead,
     client: fixture.client,
     run: fixture.run,
     refresh: fixture.refresh,
+    isCurrentWorkspace: fixture.isCurrentWorkspace,
+    notify: fixture.notify,
     profileId: fixture.profileId,
     selectProfile: fixture.selectProfile,
   }),
@@ -92,6 +100,8 @@ beforeEach(() => {
   fixture.query = "";
   fixture.mobile = false;
   fixture.profileId = "profile-a";
+  fixture.stateRead = 0;
+  fixture.nextRead = 0;
   fixture.state = {
     identity: {},
     facts: [
@@ -132,9 +142,18 @@ beforeEach(() => {
     },
     _master: { exists: false, changed: false, path: "master.txt" },
   };
-  fixture.client = { action: vi.fn().mockImplementation(async () => ranked()) };
+  fixture.saveJob.mockReset().mockImplementation(async (choice: RequestData) => choice);
+  fixture.client = {
+    action: vi.fn().mockImplementation(async (operation: string, data: RequestData) =>
+      operation === "save-job" ? fixture.saveJob(data) : ranked(),
+    ),
+  };
   fixture.run.mockReset().mockResolvedValue({});
-  fixture.refresh.mockReset().mockResolvedValue(undefined);
+  fixture.refresh.mockReset().mockImplementation(async (onReadStarted?: (read: number) => void) => {
+    onReadStarted?.(++fixture.nextRead);
+  });
+  fixture.isCurrentWorkspace.mockReset().mockReturnValue(true);
+  fixture.notify.mockReset();
   fixture.replace.mockReset().mockImplementation((href: string) => {
     fixture.query = new URL(href, "http://localhost").searchParams.toString();
   });
@@ -1035,11 +1054,6 @@ it.each(["recommended", "all"])(
   "keeps the last selected role open when Apply later moves it out of %s",
   async (view) => {
     fixture.query = `view=${view}&q=Cloud`;
-    fixture.run.mockImplementationOnce(async () => {
-      fixture.state.jobs = fixture.state.jobs.map((job) =>
-        job.id === "job-a" ? { ...job, saved: true } : job,
-      );
-    });
     render(<DiscoverPage />);
     const assess = { name: "Assess Cloud Engineer at Example Cloud" };
     fireEvent.click(await screen.findByRole("button", assess));
@@ -1119,7 +1133,7 @@ it("keeps a failed removal visible and restores the role to To apply", async () 
   fixture.query = "view=saved";
   fixture.state.jobs[0].saved = true;
   let reject: (reason: Error) => void = () => {};
-  fixture.run.mockImplementationOnce(
+  fixture.saveJob.mockImplementationOnce(
     () =>
       new Promise((_resolve, failure) => {
         reject = failure;
@@ -1159,6 +1173,45 @@ it("keeps a failed removal visible and restores the role to To apply", async () 
   ).toHaveAttribute("aria-pressed", "true");
 });
 
+it("keeps an accepted To apply choice across a failed refresh and a rejected reversal", async () => {
+  fixture.refresh.mockImplementationOnce(async (onReadStarted?: (read: number) => void) => {
+    onReadStarted?.(++fixture.nextRead);
+    throw new Error("State temporarily unavailable.");
+  });
+  const view = render(<DiscoverPage />);
+  const assess = { name: "Assess Cloud Engineer at Example Cloud" };
+  fireEvent.click(await screen.findByRole("button", { name: "Apply later · Cloud Engineer" }));
+  await waitFor(() => expect(fixture.notify).toHaveBeenCalledWith("Role added to To apply."));
+  fixture.state = { ...fixture.state, jobs: fixture.state.jobs.map((job) => ({ ...job })) };
+  view.rerender(<DiscoverPage />);
+  expect(screen.queryByRole("button", assess)).not.toBeInTheDocument();
+  expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+
+  fireEvent.click(screen.getByRole("button", { name: "To apply" }));
+  expect(await screen.findByRole("button", assess)).toBeVisible();
+  fixture.saveJob.mockRejectedValueOnce(new Error("The reversal was rejected."));
+  fireEvent.click(screen.getByRole("button", { name: "Remove from To apply · Cloud Engineer" }));
+  expect(await screen.findByRole("alert")).toHaveTextContent("The reversal was rejected.");
+  expect(screen.getByRole("button", assess)).toBeVisible();
+});
+
+it.each([
+  [true, "after leaving Opportunities"],
+  [false, "after changing workspaces"],
+])("handles a late save receipt %s %s", async (sameWorkspace) => {
+  let receive: (choice: RequestData) => void = () => {};
+  fixture.saveJob.mockImplementationOnce(
+    () => new Promise<RequestData>((resolve) => { receive = resolve; }),
+  );
+  const view = render(<DiscoverPage />);
+  fireEvent.click(await screen.findByRole("button", { name: "Apply later · Cloud Engineer" }));
+  view.unmount();
+  fixture.isCurrentWorkspace.mockReturnValue(sameWorkspace);
+  await act(async () => receive({ id: "job-a", saved: true }));
+  expect(fixture.refresh).toHaveBeenCalledTimes(sameWorkspace ? 1 : 0);
+  expect(fixture.notify).toHaveBeenCalledTimes(sameWorkspace ? 1 : 0);
+});
+
 it("guards an unfinished Activity comment before removing the selected role from To apply", async () => {
   fixture.query = "view=to-apply";
   fixture.state.jobs[0].saved = true;
@@ -1172,9 +1225,6 @@ it("guards an unfinished Activity comment before removing the selected role from
       comments: [],
     },
   ];
-  fixture.run.mockImplementation(async () => {
-    fixture.state.jobs[0].saved = false;
-  });
   const user = userEvent.setup();
   const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
   render(
@@ -1196,7 +1246,7 @@ it("guards an unfinished Activity comment before removing the selected role from
   });
   await user.click(remove);
   expect(confirm).toHaveBeenCalledExactlyOnceWith("Discard unsaved changes?");
-  expect(fixture.run).not.toHaveBeenCalled();
+  expect(fixture.saveJob).not.toHaveBeenCalled();
   expect(comment).toHaveValue("An unfinished note");
   confirm.mockClear().mockReturnValue(true);
   await user.click(remove);
@@ -1204,11 +1254,8 @@ it("guards an unfinished Activity comment before removing the selected role from
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
   );
   expect(confirm).toHaveBeenCalledExactlyOnceWith("Discard unsaved changes?");
-  expect(fixture.run).toHaveBeenCalledExactlyOnceWith(
-    "save-job",
-    { id: "job-a", saved: false },
-    "Role removed from To apply.",
-  );
+  expect(fixture.saveJob).toHaveBeenCalledExactlyOnceWith({ id: "job-a", saved: false });
+  expect(fixture.notify).toHaveBeenCalledWith("Role removed from To apply.");
   confirm.mockRestore();
 });
 
@@ -1241,7 +1288,7 @@ it("uses a native mobile dialog, supports expansion and restores focus after can
 
 it("announces and focuses mobile save failures inside the active modal", async () => {
   fixture.mobile = true;
-  fixture.run.mockRejectedValueOnce(new Error("Saving is unavailable."));
+  fixture.saveJob.mockRejectedValueOnce(new Error("Saving is unavailable."));
   render(<DiscoverPage />);
   fireEvent.click(
     await screen.findByRole("button", {
@@ -1568,6 +1615,30 @@ it("shows weak matches after stronger ones and flags the mismatch in Jobs", asyn
   ).toHaveLength(2);
 });
 
+it("keeps generic eligibility reminders in details and actionable cautions on cards", async () => {
+  const reminder = "Work rights / sponsorship need confirmation";
+  const salaryWarning = "Salary cannot be compared to private minimum";
+  const rows = ranked();
+  rows[0].match.unknowns = [reminder, salaryWarning];
+  rows[1].match.unknowns = [reminder];
+  fixture.client.action.mockResolvedValue(rows);
+  render(<DiscoverPage />);
+
+  const board = await screen.findByRole("region", {
+    name: "Opportunities by company",
+  });
+  expect(within(board).queryAllByText(reminder)).toHaveLength(0);
+  expect(within(board).getByText(salaryWarning)).toBeVisible();
+  expect(within(board).getByText("1 evidence gap")).toBeVisible();
+
+  await userEvent.click(
+    within(board).getByRole("button", {
+      name: "Assess Cloud Engineer at Example Cloud",
+    }),
+  );
+  expect(within(screen.getByRole("dialog")).getByText(reminder)).toBeVisible();
+});
+
 it("shows stored pending choices during a failed ranking, without local endpoints in hosted mode", async () => {
   fixture.client = { ...fixture.client, hosted: true } as typeof fixture.client;
   fixture.state._workspace.agent_queue = true;
@@ -1876,7 +1947,7 @@ it("keeps an open Activity draft when another role's stale bookmark needs employ
     comments: [],
   }];
   fixture.query = "view=jobs&opportunity=job-a&assessment_profile=profile-a&panel=activity";
-  fixture.run.mockRejectedValueOnce(new ApiResponseError(
+  fixture.saveJob.mockRejectedValueOnce(new ApiResponseError(
     "Confirm the actual hiring employer before applying",
     409,
     "employer_unresolved",

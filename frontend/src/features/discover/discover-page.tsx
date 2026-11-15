@@ -28,7 +28,7 @@ import {
   Star,
   X,
 } from "lucide-react";
-import { ApiResponseError } from "@/lib/api";
+import { ApiResponseError, WorkspaceChangedError } from "@/lib/api";
 import { useDraft } from "@/components/unsaved";
 import { OpportunityApplication } from "@/features/applications/opportunity-application";
 import { ApplicationVersions } from "@/features/applications/application-versions";
@@ -103,6 +103,10 @@ interface RankingState {
   error: string;
 }
 
+type SavedChoice =
+  | { saved: boolean; pending: true }
+  | { saved: boolean; pending: false; refreshRead: number };
+
 const pendingPageSize = 50;
 const shortlistHistoryKey = "employmentAgencyShortlistInspector";
 const applicationStages = [
@@ -151,8 +155,15 @@ export function DiscoverPage() {
   useLayoutEffect(() => {
     motionAllowed.current = animateInteractions;
   }, [animateInteractions]);
-  const { state, client, run, notify, refresh, profileId, selectProfile } =
+  const { state, stateRead, client, run, notify, refresh, isCurrentWorkspace, profileId, selectProfile } =
     useWorkspace();
+  const mounted = useRef(false);
+  useLayoutEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
   const [preparedVersion, setPreparedVersion] = useState<{
     workspace: string;
     application: Application;
@@ -182,14 +193,19 @@ export function DiscoverPage() {
     return [...roles.values()];
   }, [applications, state.jobs, state.unlisted_removals]);
   const removal = useJobRemoval({ jobs: roleRecords, client, refresh });
-  const [savedOverrides, setSavedOverrides] = useState<Record<string, boolean>>(
-    {},
+  const [storedChoices, setSavedChoices] = useState<Record<string, SavedChoice>>({});
+  // A read begun after the receipt is authoritative, including a newer
+  // choice in another tab. Earlier, failed and superseded reads cannot apply it.
+  const choices = Object.entries(storedChoices);
+  const unsyncedChoices = choices.filter(([, choice]) =>
+    choice.pending || choice.refreshRead > stateRead,
   );
-  const [savingIds, setSavingIds] = useState<string[]>([]);
+  const savedOverrides = unsyncedChoices.length === choices.length
+    ? storedChoices
+    : Object.fromEntries(unsyncedChoices);
+  if (savedOverrides !== storedChoices) setSavedChoices(savedOverrides);
   const legacyMarked = new Set(
-    state.agent_intents
-      ?.filter((intent) => intent.marked)
-      .map((intent) => intent.id),
+    state.agent_intents?.filter((intent) => intent.marked).map((intent) => intent.id),
   );
   const latestJobs = new Map(
     roleRecords.map((job) => [
@@ -197,8 +213,7 @@ export function DiscoverPage() {
       removal.jobWithRemoval({
         ...job,
         saved:
-          savedOverrides[job.id] ??
-          Boolean(job.saved || legacyMarked.has(job.id)),
+          savedOverrides[job.id]?.saved ?? Boolean(job.saved || legacyMarked.has(job.id)),
       }),
     ]),
   );
@@ -619,6 +634,14 @@ export function DiscoverPage() {
     requestedOffset,
     completedRefresh,
   ]);
+  const [locationPicker, setLocationPicker] = useState(() => ({
+    scope: reviewScope,
+    select: locations.length > 4,
+  }));
+  if (locationPicker.scope !== reviewScope) {
+    // When a card leaves, the options can change without moving the board.
+    setLocationPicker({ scope: reviewScope, select: locations.length > 4 });
+  }
   const rankedGroups = groupOpportunities(loading && !rows.length ? [] : visible).map((group) => {
     const rowsById = new Map(group.roles.map((row) => [row.job.id, row]));
     const picks = new Map<string, string>();
@@ -650,7 +673,7 @@ export function DiscoverPage() {
       (view === "jobs" && pendingRole(selectedJob) &&
         (selectedJob.saved || Boolean(selectedJob.pending_blocker || failedAdmission?.jobId === selectedId))) ||
       (toApplyView &&
-        (pending.has(selectedId) || Boolean(savingIds.includes(selectedId)))) ||
+        (pending.has(selectedId) || Boolean(savedOverrides[selectedId]?.pending))) ||
       (applicationView && !removedView && !currentRemoval(selectedJob)) ||
       recentSubmission?.binding.job_id === selectedId ||
       hasRecordedSubmission(applications.get(selectedId), selectedJob))
@@ -1148,14 +1171,29 @@ export function DiscoverPage() {
     }
     setSaveError("");
     setFailedAdmission((current) => current?.jobId === id ? undefined : current);
-    setSavedOverrides((previous) => ({ ...previous, [id]: saved }));
-    setSavingIds((previous) => [...previous, id]);
+    const previousChoice = savedOverrides[id];
+    setSavedChoices((previous) => ({
+      ...previous,
+      [id]: { saved, pending: true },
+    }));
     try {
-      await run(
-        "save-job",
-        { id, saved },
-        saved ? "Role added to To apply." : "Role removed from To apply.",
+      const receipt = await client.action<{ id: string; saved: boolean }>(
+        "save-job", { id, saved },
       );
+      if (!isCurrentWorkspace(workspacePath)) throw new WorkspaceChangedError();
+      if (receipt?.id !== id || receipt.saved !== saved)
+        throw new Error("The workspace could not confirm your To apply choice.");
+      void refresh((refreshRead) => {
+        if (mounted.current)
+          setSavedChoices((previous) => ({
+            ...previous,
+            [id]: { saved, pending: false, refreshRead },
+          }));
+      }).catch(() => {
+        // The provider reports refresh errors; the save receipt is still valid.
+      });
+      notify?.(saved ? "Role added to To apply." : "Role removed from To apply.");
+      if (!mounted.current) return;
       if (saved) {
         setRetryAdmissionId((current) => (current === id ? "" : current));
       }
@@ -1191,8 +1229,16 @@ export function DiscoverPage() {
           .finally(() => bookmarkAnimations.current.delete(animation));
       }
     } catch (error) {
+      if (mounted.current)
+        setSavedChoices((previous) => {
+          const next = { ...previous };
+          if (previousChoice) next[id] = previousChoice;
+          else delete next[id];
+          return next;
+        });
+      if (error instanceof WorkspaceChangedError || !isCurrentWorkspace(workspacePath)) return;
       const message = errorMessage(error);
-      if (saved && error instanceof ApiResponseError && error.code) {
+      if (mounted.current && saved && error instanceof ApiResponseError && error.code) {
         const blocker = { code: error.code, message };
         setFailedAdmission({ jobId: id, blocker });
         if (canResolveCompanyBlocker(blocker) && selectedId === id)
@@ -1205,16 +1251,10 @@ export function DiscoverPage() {
           })
           .catch(() => {});
       }
-      setSaveError(message);
+      if (mounted.current) setSaveError(message);
       notify?.(message, "error");
     } finally {
       saving.current.delete(id);
-      setSavedOverrides((previous) => {
-        const next = { ...previous };
-        delete next[id];
-        return next;
-      });
-      setSavingIds((previous) => previous.filter((value) => value !== id));
     }
   };
 
@@ -1542,7 +1582,7 @@ export function DiscoverPage() {
         {!inspectorOpen && removal.editor && (
           <div className="discover-removal-inline">{removalEditor}</div>
         )}
-        {locations.length > 4 ? (
+        {locationPicker.select ? (
           <div className="discover-location-select">
             <Select
               label="Filter by city"
@@ -1767,7 +1807,8 @@ export function DiscoverPage() {
                       : undefined;
                     const blockerText = capacityBlocker &&
                       companyBlockerMessage(capacityBlocker, job, state._workspace.timezone);
-                    const pendingCapacity = view === "jobs"
+                    const showPendingAction = pendingRole(job);
+                    const pendingCapacity = view === "jobs" && showPendingAction
                       ? pendingCapacityStatus(job, pendingBlocker)
                       : undefined;
                     const blockerId = blockerText ? `capacity-${job.id}` : undefined;
@@ -1793,7 +1834,9 @@ export function DiscoverPage() {
                     ).length;
                     const caution =
                       match.hard_conflicts[0] ||
-                      match.unknowns[0] ||
+                      match.unknowns.find(
+                        (warning) => warning !== "Work rights / sponsorship need confirmation",
+                      ) ||
                       (gaps
                         ? `${gaps} evidence ${gaps === 1 ? "gap" : "gaps"}`
                         : "");
@@ -1812,13 +1855,56 @@ export function DiscoverPage() {
                         ].filter(Boolean).join(" ")}
                         data-job-id={job.id}
                       >
-                        {!compact && (
-                          <div className="discover-card-top">
-                            {status && (
-                              <span className={`discover-status ${status.tone}`}>
-                                {status.label}
-                              </span>
+                        <div className="discover-card-top">
+                          <div className="discover-card-summary">
+                            <button
+                              ref={(element) => {
+                                if (element) {
+                                  cardButtons.current.set(job.id, element);
+                                  if (selectedId === job.id)
+                                    opener.current = element;
+                                } else {
+                                  cardButtons.current.delete(job.id);
+                                }
+                              }}
+                              type="button"
+                              className="discover-card-open"
+                              aria-label={`Assess ${job.title} at ${job.employer}`}
+                              aria-pressed={selectedId === job.id}
+                              onClick={(event) => {
+                                if (setSelectedId(job.id, false, !inspectorOpen)) {
+                                  opener.current = event.currentTarget;
+                                  setMotionRevision((value) => value + 1);
+                                }
+                              }}
+                            >
+                              <h3>{job.title}</h3>
+                              {compact && (
+                                <>
+                                  {metadata && <span className="discover-card-location">{metadata}</span>}
+                                  <ChevronRight size={16} aria-hidden="true" />
+                                </>
+                              )}
+                            </button>
+                            {!compact && (metadata || status || pendingCapacity) && (
+                              <div className="discover-card-metadata">
+                                {metadata && (
+                                  <span className="discover-card-location">{metadata}</span>
+                                )}
+                                {status && (
+                                  <span className={`discover-status ${status.tone}`}>
+                                    {status.label}
+                                  </span>
+                                )}
+                                {pendingCapacity && (
+                                  <span className="discover-capacity-status">
+                                    {pendingCapacity}<span className="visually-hidden"> for this company</span>
+                                  </span>
+                                )}
+                              </div>
                             )}
+                          </div>
+                          {!compact && (
                             <div className="discover-card-tools">
                               {currentRemoval(job) ? (
                                 <>
@@ -1856,17 +1942,13 @@ export function DiscoverPage() {
                                   <CircleMinus size={16} />
                                 </Action>
                               )}
-                              {pendingRole(job) && (pendingCapacity ? (
-                                <span className="discover-capacity-status">
-                                  {pendingCapacity}<span className="visually-hidden"> for this company</span>
-                                </span>
-                              ) : (
+                              {showPendingAction && !pendingCapacity && (
                                 <Action
                                   previewAllowed
                                   keepContentWhileBusy
                                   data-opportunity-id={job.id}
                                   className={`discover-icon-button ${job.saved ? "is-saved" : ""}`}
-                                  disabled={savingIds.includes(job.id) ||
+                                  disabled={savedOverrides[job.id]?.pending ||
                                     Boolean(pendingBlocker && !canResolveCompanyBlocker(pendingBlocker))}
                                   aria-describedby={blockerId}
                                   aria-label={`${pendingActionLabel(job.saved)} · ${job.title}`}
@@ -1881,39 +1963,10 @@ export function DiscoverPage() {
                                     fill={job.saved ? "currentColor" : "none"}
                                   />
                                 </Action>
-                              ))}
+                              )}
                             </div>
-                          </div>
-                        )}
-                        <button
-                          ref={(element) => {
-                            if (element) {
-                              cardButtons.current.set(job.id, element);
-                              if (selectedId === job.id)
-                                opener.current = element;
-                            } else {
-                              cardButtons.current.delete(job.id);
-                            }
-                          }}
-                          type="button"
-                          className="discover-card-open"
-                          aria-label={`Assess ${job.title} at ${job.employer}`}
-                          aria-pressed={selectedId === job.id}
-                          onClick={(event) => {
-                            if (setSelectedId(job.id, false, !inspectorOpen)) {
-                              opener.current = event.currentTarget;
-                              setMotionRevision((value) => value + 1);
-                            }
-                          }}
-                        >
-                          <h3>{job.title}</h3>
-                          {compact && (
-                            <>
-                              {metadata && <span className="discover-card-location">{metadata}</span>}
-                              <ChevronRight size={16} aria-hidden="true" />
-                            </>
                           )}
-                        </button>
+                        </div>
                         {recommendation && (
                           <p className="discover-match-reason">
                             <Star size={13} aria-hidden="true" />
@@ -1922,9 +1975,6 @@ export function DiscoverPage() {
                         )}
                         {!compact && (
                           <>
-                            {metadata && (
-                              <p className="discover-card-location">{metadata}</p>
-                            )}
                             {client.preview && (
                               <OpportunityListingLink
                                 url={job.url}
@@ -2175,7 +2225,7 @@ export function DiscoverPage() {
                 }
               : undefined
           }
-          saving={savingIds.includes(selected.job.id)}
+          saving={Boolean(savedOverrides[selected.job.id]?.pending)}
           saveError={saveError}
           preview={client.preview}
           onClose={closeInspector}
