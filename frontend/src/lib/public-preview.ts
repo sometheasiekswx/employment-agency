@@ -12,10 +12,10 @@ import { applicationRoleId } from "./format";
 import { DemoDraftSession, type DemoResume } from "./demo-drafts";
 import { reviewedResume } from "./demo-resume";
 import {
-  refreshPublicListings,
   rememberPublicListing,
   storedPublicListings,
   type PublicJobSource,
+  type ReviewedJobSource,
 } from "./public-listings";
 
 export const publicPreviewEnabled = () =>
@@ -32,6 +32,8 @@ interface PublicPreviewBundle {
   files: Record<string, string>;
   documents: Record<string, Record<string, { base: string; url: string }>>;
   job_sources?: PublicJobSource[];
+  legacy_job_sources?: PublicJobSource[];
+  reviewed_job_sources?: ReviewedJobSource[];
   demo_resume?: DemoResume;
 }
 
@@ -118,16 +120,7 @@ export class PublicPreviewTransport {
       )
     )
       throw new Error("Invalid preview document path.");
-    const sources = bundle.job_sources ?? [];
-    const examples = bundle.state.jobs.filter(
-      (job) => !job.source?.startsWith("smartrecruiters:"),
-    );
-    const fallback = bundle.state.jobs.filter((job) =>
-      job.source?.startsWith("smartrecruiters:"),
-    );
-    const listings = sources.length
-      ? await refreshPublicListings(sources, fallback)
-      : fallback;
+    const sources = bundle.legacy_job_sources ?? bundle.job_sources ?? [];
     const resume = bundle.demo_resume;
     if (resume) {
       if (
@@ -149,9 +142,16 @@ export class PublicPreviewTransport {
         ].join("\n\n"),
       };
     }
+    // Reviews, verified employers and logos belong to this dated catalog.
+    // Fetching replacement postings here would invalidate those comparisons.
+    this.jobs = new Map(bundle.state.jobs.map((job) => [job.id, job]));
+    const archived = await storedPublicListings(
+      sources,
+      bundle.reviewed_job_sources ?? [],
+      new Set(bundle.state.profiles.flatMap((profile) => profile.locations)),
+    );
     this.bundle = bundle;
-    this.jobs = new Map([...examples, ...listings].map((job) => [job.id, job]));
-    for (const stored of storedPublicListings(sources)) {
+    for (const stored of archived) {
       if (this.jobs.has(stored.id)) continue;
       this.jobs.set(stored.id, stored);
       if (
@@ -164,7 +164,7 @@ export class PublicPreviewTransport {
   }
 
   private employerListing(id: string) {
-    return this.jobs.get(id)?.source?.startsWith("smartrecruiters:") === true;
+    return /^(smartrecruiters|reviewed):/.test(this.jobs.get(id)?.source ?? "");
   }
   private storageKey(id: string) {
     if (this.employerListing(id)) return "employment-agency:employer-bookmarks";

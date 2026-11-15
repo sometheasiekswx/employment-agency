@@ -1,0 +1,1054 @@
+{
+  "checked_at": "2026-11-15T08:17:09.409304+00:00",
+  "companies": [
+    {
+      "name": "Xero",
+      "city": "Melbourne",
+      "careers_url": "https://jobs.ashbyhq.com/xero",
+      "source_url": "https://api.ashbyhq.com/posting-api/job-board/xero",
+      "evidence": "Xero-branded Ashby board and employer posting feed retain full requirements and office options.",
+      "logo": {
+        "status": "verified",
+        "sha256": "3314727013bafed03b50bced066db7aafa372332ffa77221ecbf696ff0d4ea79",
+        "url": "https://www.xero.com/content/dam/xero/pilot-images/explainer/media-downloads/xero-logo-downloads.1762731076660.png",
+        "page_url": "https://www.xero.com/au/media/downloads/",
+        "evidence": "Official Xero media downloads page labels and embeds this corporate logo PNG.",
+        "checked_at": "2026-11-15T08:35:46.282867+00:00",
+        "local_path": "employment_agency/demo_data/showcase_logos/3314727013bafed03b50bced066db7aafa372332ffa77221ecbf696ff0d4ea79.png",
+        "selection": true
+      },
+      "jobs": [
+        {
+          "id": "8aed0451f40a6397718b4b01",
+          "title": "Senior Engineer - AI Platform",
+          "employer": "Xero",
+          "location": "Melbourne or Sydney, Australia",
+          "city": "Melbourne",
+          "destination": "Melbourne",
+          "work_model": "Hybrid",
+          "requisition": "0c345d63-dcc1-4fa0-b521-a0fb6fff29ca",
+          "url": "https://jobs.ashbyhq.com/xero/0c345d63-dcc1-4fa0-b521-a0fb6fff29ca",
+          "careers_url": "https://jobs.ashbyhq.com/xero",
+          "source_url": "https://api.ashbyhq.com/posting-api/job-board/xero",
+          "description": "Build the internal orchestration platform and tools for engineers deploying AI agents at Xero.",
+          "requirements": [
+            "Production software delivery and a modern frontend framework such as React",
+            "Containerized APIs and services in Python or TypeScript",
+            "CI/CD, Git and automated tests",
+            "Practical agent orchestration and tool-calling experience such as LangGraph or Pydantic AI"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "retrieved_at": "2026-11-15T08:14:09.713346+00:00",
+          "checked_at": "2026-11-15T08:14:09.713346+00:00",
+          "evidence": "Listed with full description and direct application link on employer’s Ashby board.",
+          "posted_at": "2026-11-04"
+        },
+        {
+          "id": "d93f5d18222aa65f5174874a",
+          "title": "Senior Engineer - Platform",
+          "employer": "Xero",
+          "location": "Melbourne, Sydney or Brisbane, Australia",
+          "city": "Melbourne",
+          "destination": "Melbourne",
+          "work_model": "Hybrid",
+          "requisition": "65b39783-4a06-4bae-8dbe-48afb916886f",
+          "url": "https://jobs.ashbyhq.com/xero/65b39783-4a06-4bae-8dbe-48afb916886f",
+          "careers_url": "https://jobs.ashbyhq.com/xero",
+          "source_url": "https://api.ashbyhq.com/posting-api/job-board/xero",
+          "description": "Develop internal platform tooling for test environments and test data; support what the team builds through its on-call rotation.",
+          "requirements": [
+            "Platform or infrastructure development and production support",
+            "Go preferred; equivalent Java or .NET experience accepted",
+            "AWS, Terraform and Kubernetes experience is useful"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "retrieved_at": "2026-11-15T08:14:09.713346+00:00",
+          "checked_at": "2026-11-15T08:14:09.713346+00:00",
+          "evidence": "Listed with full description and direct application link on employer’s Ashby board.",
+          "posted_at": "2026-10-26"
+        },
+        {
+          "id": "070be8bc1ad01fcec56b0a30",
+          "title": "Search Engineer",
+          "employer": "Xero",
+          "location": "Melbourne, Sydney, Canberra or Brisbane, Australia",
+          "city": "Melbourne",
+          "destination": "Melbourne",
+          "work_model": "Hybrid",
+          "requisition": "9eef7111-d180-4e9e-a3df-f5f36f8b61f8",
+          "url": "https://jobs.ashbyhq.com/xero/9eef7111-d180-4e9e-a3df-f5f36f8b61f8",
+          "careers_url": "https://jobs.ashbyhq.com/xero",
+          "source_url": "https://api.ashbyhq.com/posting-api/job-board/xero",
+          "description": "Run and rebuild search cluster infrastructure and pipelines, with responsibility for platform reliability, automation and CI/CD.",
+          "requirements": [
+            "Production cloud infrastructure",
+            "Infrastructure as code with Terraform and pipelines with GitHub Actions",
+            "Search or information-retrieval experience is useful"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "retrieved_at": "2026-11-15T08:14:09.713346+00:00",
+          "checked_at": "2026-11-15T08:14:09.713346+00:00",
+          "evidence": "Listed with full description and direct application link on employer’s Ashby board.",
+          "posted_at": "2026-10-08"
+        }
+      ],
+      "picks": [
+        {
+          "job_id": "8aed0451f40a6397718b4b01",
+          "reason": "The role explicitly calls for Python or TypeScript APIs, containers and CI/CD; the posting also expects practical AI orchestration.",
+          "fact_ids": [
+            "ce3737d14c22431c2f3c0d19067d52a3",
+            "3b66e05b56c2d09ca02852719fc4b4bc",
+            "1a98d63000e1d37aa01f435cecfa89bd",
+            "1fbbf838939b2db64d80606aec6c15eb"
+          ]
+        },
+        {
+          "job_id": "070be8bc1ad01fcec56b0a30",
+          "reason": "CI/CD and infrastructure as code are direct matches for the search team’s automation work. Search-cluster operations are a separate requirement to confirm.",
+          "fact_ids": [
+            "1fbbf838939b2db64d80606aec6c15eb",
+            "f040cc07f927d5b8265da18fe0c818ed"
+          ]
+        }
+      ],
+      "initial_logo": {
+        "page_url": "https://www.xero.com/au/media/",
+        "url": "https://www.xero.com/content/dam/xero/pilot-images/admin/icons/favicon/apple-touch-icon.png",
+        "local_path": "tasks/demo-listing-refresh/research/apac/logos/xero.png",
+        "status": "downloaded",
+        "evidence": "Xero media page references its own branded touch icon.",
+        "sha256": "542aefce90f0aff2920c73f0cf16c7e0ac5a78dd9a9f64ff711542ffbb68abff"
+      }
+    },
+    {
+      "name": "Kraken",
+      "city": "Melbourne",
+      "careers_url": "https://jobs.ashbyhq.com/krakentech",
+      "source_url": "https://api.ashbyhq.com/posting-api/job-board/krakentech",
+      "evidence": "Kraken energy technology employer board and direct Ashby listings, with employer-owned links inside each posting.",
+      "logo": {
+        "page_url": "https://kraken.tech/",
+        "url": "https://kraken.tech/apple-touch-icon.png",
+        "local_path": "tasks/demo-listing-refresh/research/apac/logos/kraken.png",
+        "status": "downloaded",
+        "evidence": "Official Kraken site embeds its branded apple touch icon; the employer board’s theme asset exceeds the logo size limit.",
+        "sha256": "dff4b97848079849cb307f32c174f99813647bc9698260455cfe4dcf88962f22"
+      },
+      "jobs": [
+        {
+          "id": "583690b313fdd2e5ccb85bdb",
+          "title": "Software Engineer I and II - Client Engineering - Remote within Australia",
+          "employer": "Kraken",
+          "location": "Melbourne, Australia; Engineer II also remote within Australia",
+          "city": "Melbourne",
+          "destination": "Melbourne",
+          "work_model": "Hybrid / remote",
+          "requisition": "0cb355f4-cf92-4810-8794-979bbe5c9a68",
+          "url": "https://jobs.ashbyhq.com/krakentech/0cb355f4-cf92-4810-8794-979bbe5c9a68",
+          "careers_url": "https://jobs.ashbyhq.com/krakentech",
+          "source_url": "https://api.ashbyhq.com/posting-api/job-board/krakentech",
+          "description": "Build customer integrations and new features for Kraken’s utilities platform. Engineer I works hybrid from Melbourne; Engineer II can also work remotely in Australia.",
+          "requirements": [
+            "Python and Django or comparable web framework",
+            "Domain modelling and architectural design",
+            "GraphQL, PostgreSQL and asynchronous processing with Celery",
+            "AWS, Terraform or Kubernetes preferred"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "retrieved_at": "2026-11-15T08:16:02.630737+00:00",
+          "checked_at": "2026-11-15T08:16:02.630737+00:00",
+          "evidence": "Listed with full description and direct application link on employer’s Ashby board.",
+          "eligibility_evidence": "Existing Australian work authorization is required at application time; no sponsorship for this vacancy. Candidate eligibility is unverified.",
+          "posted_at": "2026-09-19"
+        },
+        {
+          "id": "920bd6d4994ef46778b66e2e",
+          "title": "Senior Analytics Engineer",
+          "employer": "Kraken",
+          "location": "Melbourne, Australia",
+          "city": "Melbourne",
+          "destination": "Melbourne",
+          "work_model": "Hybrid",
+          "requisition": "b441f0f2-3d86-4a65-bd1f-07d0aad2a1ff",
+          "url": "https://jobs.ashbyhq.com/krakentech/b441f0f2-3d86-4a65-bd1f-07d0aad2a1ff",
+          "careers_url": "https://jobs.ashbyhq.com/krakentech",
+          "source_url": "https://api.ashbyhq.com/posting-api/job-board/krakentech",
+          "description": "Set up analytics engineering for Kraken Distribution, including reusable data models, migration support and Python ingestion pipelines.",
+          "requirements": [
+            "Ownership of production analytics or data engineering work",
+            "Advanced SQL and dbt with data modelling and automated tests",
+            "Python data pipelines and cloud warehouse or lakehouse experience",
+            "Regulated sectors and migration work are useful"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "retrieved_at": "2026-11-15T08:16:02.630737+00:00",
+          "checked_at": "2026-11-15T08:16:02.630737+00:00",
+          "evidence": "Listed with full description and direct application link on employer’s Ashby board.",
+          "eligibility_evidence": "Existing Australian work authorization is required at application time; no sponsorship for this vacancy. Candidate eligibility is unverified.",
+          "posted_at": "2026-09-04"
+        }
+      ],
+      "picks": []
+    },
+    {
+      "name": "Maincode",
+      "city": "Melbourne",
+      "careers_url": "https://maincode.com/careers",
+      "source_url": "https://api.ashbyhq.com/posting-api/job-board/maincode",
+      "evidence": "Maincode’s careers page links its Ashby board and lists software engineering separately from its graduate track.",
+      "logo": {
+        "status": "verified",
+        "sha256": "8a93fe37304014cb3452fc5fcaf03319b96b47e91163008ac520f18bddea28c5",
+        "url": "https://maincode.com/assets/logo-512.png",
+        "page_url": "https://maincode.com/careers",
+        "evidence": "Official careers page identifies this corporation logo in structured data.",
+        "checked_at": "2026-11-15T08:28:54.224259+00:00",
+        "local_path": "employment_agency/demo_data/showcase_logos/8a93fe37304014cb3452fc5fcaf03319b96b47e91163008ac520f18bddea28c5.png",
+        "selection": true
+      },
+      "jobs": [
+        {
+          "id": "18f014057c186865e5d2c6ed",
+          "title": "Software Engineer",
+          "employer": "Maincode",
+          "location": "Melbourne, Australia",
+          "city": "Melbourne",
+          "destination": "Melbourne",
+          "work_model": "On-site",
+          "requisition": "8a48f6bf-9a50-48b9-8c7f-699024011d66",
+          "url": "https://jobs.ashbyhq.com/maincode/8a48f6bf-9a50-48b9-8c7f-699024011d66",
+          "careers_url": "https://maincode.com/careers",
+          "source_url": "https://api.ashbyhq.com/posting-api/job-board/maincode",
+          "description": "Contribute software engineering across Maincode’s Matilda AI product and its infrastructure. The listing is broad and does not specify a required language, framework or experience minimum.",
+          "requirements": [
+            "Software engineering capability",
+            "Explain how you would contribute to the Matilda product or infrastructure"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "retrieved_at": "2026-11-15T08:14:09.642851+00:00",
+          "checked_at": "2026-11-15T08:14:09.642851+00:00",
+          "evidence": "Listed with full description and direct application link on employer’s Ashby board.",
+          "posted_at": "2026-09-18"
+        }
+      ],
+      "picks": [],
+      "initial_logo": {
+        "page_url": "https://maincode.com/careers",
+        "url": "https://maincode.com/assets/logo-512.png",
+        "local_path": "tasks/demo-listing-refresh/research/apac/logos/maincode.png",
+        "status": "downloaded",
+        "evidence": "Official careers page identifies this corporation logo in structured data.",
+        "sha256": "0b4e4fa430512b0839cf6a384faceddcbae022d44246e1b50be7fda9441a9bdf"
+      }
+    },
+    {
+      "name": "Easygo",
+      "city": "Melbourne",
+      "careers_url": "https://www.easygo.io/careers",
+      "source_url": "https://boards-api.greenhouse.io/v1/boards/easygo/jobs?content=true",
+      "evidence": "Official Easygo careers page embeds and links its Greenhouse vacancies.",
+      "logo": {
+        "page_url": "https://www.easygo.io/careers",
+        "url": "https://cdn.sanity.io/images/voaav49k/production/8880cee09f748d643f56bf4a298a82a2fd0a7b40-115x22.svg?fm=png",
+        "local_path": "tasks/demo-listing-refresh/research/apac/logos/easygo.png",
+        "status": "downloaded",
+        "evidence": "Official careers page identifies this organization logo. Its asset host serves a PNG variant.",
+        "sha256": "3051a51813efd792e812911460621eddab44456c5630eb4cd39c3c4635132d3d"
+      },
+      "jobs": [
+        {
+          "id": "101eeb4585789ca4e95eb596",
+          "title": "Identity Engineer",
+          "employer": "Easygo",
+          "location": "Melbourne, Australia",
+          "city": "Melbourne",
+          "destination": "Melbourne",
+          "work_model": "On-site",
+          "requisition": "1163",
+          "url": "https://job-boards.greenhouse.io/easygo/jobs/5274710007",
+          "careers_url": "https://www.easygo.io/careers",
+          "source_url": "https://boards-api.greenhouse.io/v1/boards/easygo/jobs?content=true",
+          "description": "Build and operate a workforce identity platform, using automation and identity as code to connect apps, networks and AI services.",
+          "requirements": [
+            "Hands-on workforce identity platform engineering, including an identity migration",
+            "Identity standards including OAuth 2.0, OIDC, SAML and SCIM",
+            "Automation and practical experience integrating application authentication",
+            "PingOne and DaVinci are advantageous"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "retrieved_at": "2026-11-15T08:13:07.038233+00:00",
+          "checked_at": "2026-11-15T08:13:07.038233+00:00",
+          "evidence": "Listed with full description and direct application link on employer’s Greenhouse board."
+        }
+      ],
+      "picks": []
+    },
+    {
+      "name": "Culture Amp",
+      "city": "Melbourne",
+      "careers_url": "https://www.cultureamp.com/company/careers",
+      "source_url": "https://boards-api.greenhouse.io/v1/boards/cultureamp/jobs?content=true",
+      "evidence": "The employer careers site directs applicants to the Culture Amp Greenhouse board.",
+      "logo": {
+        "status": "verified",
+        "sha256": "02e9801cd606e901005c8dad04a6d6be7d34035947b46ccfabef41787f172571",
+        "url": "https://www.cultureamp.com/assets/slices/main/assets/public/media/logo-culture-amp-gsearch-a1c65ae55f3d8c5a4a0b.webp",
+        "page_url": "https://www.cultureamp.com/company/careers",
+        "evidence": "Its careers page identifies the employer and declares its WebP corporate logo in Organization structured data.",
+        "checked_at": "2026-11-15T08:35:44.040021+00:00",
+        "local_path": "employment_agency/demo_data/showcase_logos/02e9801cd606e901005c8dad04a6d6be7d34035947b46ccfabef41787f172571.png",
+        "selection": false
+      },
+      "jobs": [
+        {
+          "id": "15501bbe0ce0c67241f92060",
+          "title": "People and Systems Analyst",
+          "employer": "Culture Amp",
+          "location": "Melbourne, Australia",
+          "city": "Melbourne",
+          "destination": "Melbourne",
+          "work_model": "Hybrid",
+          "requisition": "3184",
+          "url": "https://job-boards.greenhouse.io/cultureamp/jobs/8326301",
+          "careers_url": "https://www.cultureamp.com/company/careers",
+          "source_url": "https://boards-api.greenhouse.io/v1/boards/cultureamp/jobs?content=true",
+          "description": "Support HR analytics and operate people systems, including workflow automation, reporting, data pipelines and system integrations.",
+          "requirements": [
+            "Experience in HR, people data or business analytics",
+            "Strong HRIS configuration and data modelling skills; BambooHR preferred",
+            "Practical agentic AI and workflow automation with scripts or low-code tools",
+            "Analytics and stakeholder communication skills"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "retrieved_at": "2026-11-15T08:13:06.987129+00:00",
+          "checked_at": "2026-11-15T08:13:06.987129+00:00",
+          "evidence": "Listed with full description and direct application link on employer’s Greenhouse board."
+        }
+      ],
+      "picks": [],
+      "initial_logo": {
+        "page_url": "https://job-boards.greenhouse.io/cultureamp",
+        "url": "https://recruiting.cdn.greenhouse.io/external_greenhouse_job_boards/logos/000/004/417/original/ca.png?1741312225",
+        "local_path": "tasks/demo-listing-refresh/research/apac/logos/culture-amp.png",
+        "status": "downloaded",
+        "evidence": "Official careers site links this Culture Amp employer board, which includes the logo image.",
+        "sha256": "df213f4246d7f39e9d9666324fd93b361f7c44d4efc65e60b6953ffd3e792a70"
+      }
+    },
+    {
+      "name": "SimplifyNext",
+      "city": "Singapore",
+      "careers_url": "https://www.simplifynext.com/career",
+      "source_url": "https://boards-api.greenhouse.io/v1/boards/simplifynext/jobs?content=true",
+      "evidence": "The employer careers page embeds individual links to the SimplifyNext Greenhouse board.",
+      "logo": {
+        "status": "verified",
+        "sha256": "8add9515754d4464e807f7c13949dd0029fab699fac2146ca0883f83a24ca7e6",
+        "url": "https://www.simplifynext.com/logo.png",
+        "page_url": "https://www.simplifynext.com/career",
+        "evidence": "Its official careers page declares its PNG corporate logo in Organization structured data.",
+        "checked_at": "2026-11-15T08:35:45.761643+00:00",
+        "local_path": "employment_agency/demo_data/showcase_logos/8add9515754d4464e807f7c13949dd0029fab699fac2146ca0883f83a24ca7e6.png",
+        "selection": false
+      },
+      "jobs": [
+        {
+          "id": "c6964c3a4322c38f5961e78a",
+          "title": "Full Stack Developer",
+          "employer": "SimplifyNext",
+          "location": "Singapore",
+          "city": "Singapore",
+          "destination": "Singapore",
+          "work_model": "Unknown",
+          "requisition": "61",
+          "url": "https://job-boards.greenhouse.io/simplifynext/jobs/5236654007",
+          "careers_url": "https://www.simplifynext.com/career",
+          "source_url": "https://boards-api.greenhouse.io/v1/boards/simplifynext/jobs?content=true",
+          "description": "Own full-stack features from implementation to production; deliver APIs, web interfaces and database-backed cloud applications.",
+          "requirements": [
+            "Two or more years in hands-on full-stack development",
+            "Modern frontend frameworks and TypeScript or JavaScript",
+            "Backend development in Node.js, Python, Java/Kotlin or similar",
+            "API design, SQL or NoSQL data, cloud platforms and CI/CD",
+            "Relevant degree or diploma; Docker or Kubernetes is advantageous"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "retrieved_at": "2026-11-15T08:16:03.627022+00:00",
+          "checked_at": "2026-11-15T08:16:03.627022+00:00",
+          "evidence": "Listed with full description and direct application link on employer’s Greenhouse board."
+        },
+        {
+          "id": "7068667307a2b8df8d0d0e57",
+          "title": "Data Engineer",
+          "employer": "SimplifyNext",
+          "location": "Singapore",
+          "city": "Singapore",
+          "destination": "Singapore",
+          "work_model": "Unknown",
+          "requisition": "99",
+          "url": "https://job-boards.greenhouse.io/simplifynext/jobs/5233120007",
+          "careers_url": "https://www.simplifynext.com/career",
+          "source_url": "https://boards-api.greenhouse.io/v1/boards/simplifynext/jobs?content=true",
+          "description": "Develop cloud data pipelines and lakehouse architecture, including data quality checks, operations and deployments.",
+          "requirements": [
+            "Four or more years in data engineering and production pipeline ownership",
+            "Strong SQL and Python, Scala or Java",
+            "AWS, Databricks, Spark or Microsoft Fabric and an open lakehouse format",
+            "Data modelling, automated quality checks, governance and stakeholder collaboration",
+            "Related degree; Singapore public-sector and cloud delivery are useful"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "retrieved_at": "2026-11-15T08:16:03.627022+00:00",
+          "checked_at": "2026-11-15T08:16:03.627022+00:00",
+          "evidence": "Listed with full description and direct application link on employer’s Greenhouse board."
+        }
+      ],
+      "picks": [],
+      "initial_logo": {
+        "page_url": "https://www.simplifynext.com/career",
+        "url": "https://www.simplifynext.com/logo.png",
+        "local_path": "tasks/demo-listing-refresh/research/apac/logos/simplifynext.png",
+        "status": "downloaded",
+        "evidence": "The company careers site declares this in the Organization logo field.",
+        "sha256": "671ffbd0389820f8e4c332770af1a555c319162f801ef87454b8c4a0c78e941c"
+      }
+    },
+    {
+      "name": "PALO IT",
+      "city": "Singapore",
+      "careers_url": "https://www.palo-it.com/en/careers",
+      "source_url": "https://api.ashbyhq.com/posting-api/job-board/palo-it",
+      "evidence": "PALO IT’s named Ashby board lists its Singapore practice’s current openings.",
+      "logo": {
+        "page_url": "https://www.palo-it.com/",
+        "url": "https://www.palo-it.com/hs-fs/hubfs/PaloIT-Assets/images/PALOLogo_color.png?width=411&height=96&name=PALOLogo_color.png",
+        "local_path": "tasks/demo-listing-refresh/research/apac/logos/palo-it.png",
+        "status": "downloaded",
+        "evidence": "The company homepage embeds the colour PALO IT wordmark in its header.",
+        "sha256": "4d62eef4b1f8d4c04f3273050cc4e6afb5e892ef7a4a55a8673f3a4243d6bf47"
+      },
+      "jobs": [
+        {
+          "id": "3ff311a2c722b197a2d6d271",
+          "title": "AI-Native Engineer (Software Engineering)",
+          "employer": "PALO IT",
+          "location": "Singapore",
+          "city": "Singapore",
+          "destination": "Singapore",
+          "work_model": "Hybrid",
+          "requisition": "7042c585-bfc3-427b-9bee-21d5dc4de6d5",
+          "url": "https://jobs.ashbyhq.com/palo-it/7042c585-bfc3-427b-9bee-21d5dc4de6d5",
+          "careers_url": "https://www.palo-it.com/en/careers",
+          "source_url": "https://api.ashbyhq.com/posting-api/job-board/palo-it",
+          "description": "Build and deploy full-stack software using AI-assisted engineering workflows and automated quality checks.",
+          "requirements": [
+            "Three or more years of hands-on software development",
+            "Testing, solution architecture and cloud experience such as AWS, Azure or GCP",
+            "AI coding assistant use and reviewing or validating generated output",
+            "React with Node.js or Java preferred; mobile development is useful"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "retrieved_at": "2026-11-15T08:16:02.602399+00:00",
+          "checked_at": "2026-11-15T08:16:02.602399+00:00",
+          "evidence": "Listed with full description and direct application link on employer’s Ashby board.",
+          "eligibility_evidence": "Employer gives priority to applicants with existing Singapore work authorization who do not need visa sponsorship. Candidate eligibility is unverified.",
+          "posted_at": "2024-11-20"
+        },
+        {
+          "id": "7bece750234d78f98ac7a231",
+          "title": "Senior AI-Native Engineer (Software Engineering)",
+          "employer": "PALO IT",
+          "location": "Singapore",
+          "city": "Singapore",
+          "destination": "Singapore",
+          "work_model": "Hybrid",
+          "requisition": "56707745-9c94-4d7f-885b-c41dbc90099e",
+          "url": "https://jobs.ashbyhq.com/palo-it/56707745-9c94-4d7f-885b-c41dbc90099e",
+          "careers_url": "https://www.palo-it.com/en/careers",
+          "source_url": "https://api.ashbyhq.com/posting-api/job-board/palo-it",
+          "description": "Lead delivery of production software with AI-assisted development and validate quality, reliability and security across the SDLC.",
+          "requirements": [
+            "Five or more years of hands-on software development",
+            "Team leadership, solution architecture and scalable application delivery",
+            "Cloud platforms, AI/ML tooling and validating generated output",
+            "Mobile development is useful"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "retrieved_at": "2026-11-15T08:16:02.602399+00:00",
+          "checked_at": "2026-11-15T08:16:02.602399+00:00",
+          "evidence": "Listed with full description and direct application link on employer’s Ashby board.",
+          "eligibility_evidence": "Employer gives priority to applicants with existing Singapore work authorization who do not need visa sponsorship. Candidate eligibility is unverified.",
+          "posted_at": "2025-04-29"
+        }
+      ],
+      "picks": []
+    },
+    {
+      "name": "OKX",
+      "city": "Singapore",
+      "careers_url": "https://www.okx.com/join-us",
+      "source_url": "https://boards-api.greenhouse.io/v1/boards/okx/jobs?content=true",
+      "evidence": "Official OKX careers site and OKX-branded Greenhouse board.",
+      "logo": {
+        "status": "verified",
+        "sha256": "87fea4e7b21486f471963306d1fef9ffa4eb707f19575b7c5349ed41c41e3808",
+        "url": "https://www.okx.com/cdn/announce/20220119/1642588276929a0193af5-6ac2-404a-babb-8be9ca215a07.png",
+        "page_url": "https://www.okx.com/en-us/learn/okex-rebrands-to-okx",
+        "evidence": "OKX official rebrand announcement embeds this raster of the current OKX mark.",
+        "checked_at": "2026-11-15T08:38:06.966722+00:00",
+        "local_path": "employment_agency/demo_data/showcase_logos/87fea4e7b21486f471963306d1fef9ffa4eb707f19575b7c5349ed41c41e3808.png",
+        "selection": true
+      },
+      "jobs": [
+        {
+          "id": "fed8708f51b9a7dbdcd47777",
+          "title": "DevOps / Site Reliability Engineer",
+          "employer": "OKX",
+          "location": "Singapore",
+          "city": "Singapore",
+          "destination": "Singapore",
+          "work_model": "Unknown",
+          "requisition": "5626",
+          "url": "https://job-boards.greenhouse.io/okx/jobs/7767872003",
+          "careers_url": "https://www.okx.com/join-us",
+          "source_url": "https://boards-api.greenhouse.io/v1/boards/okx/jobs?content=true",
+          "description": "Develop and maintain cloud monitoring, alerting and cost observability for an internal AIOps platform.",
+          "requirements": [
+            "At least three years in DevOps or site reliability",
+            "Python and familiarity with Go or Java",
+            "AWS or Alibaba Cloud, cloud monitoring and cost management",
+            "Experience with CI/CD, registries and logs or metrics stacks",
+            "Written and spoken English; full-stack and AI application experience are advantageous"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "retrieved_at": "2026-11-15T08:13:07.501800+00:00",
+          "checked_at": "2026-11-15T08:13:07.501800+00:00",
+          "evidence": "Listed with full description and direct application link on employer’s Greenhouse board.",
+          "eligibility_evidence": "Employer gives priority to applicants with existing Singapore work authorization who do not need visa sponsorship. Candidate eligibility is unverified."
+        }
+      ],
+      "picks": [],
+      "initial_logo": {
+        "page_url": "https://job-boards.greenhouse.io/okx",
+        "url": "https://s3-recruiting.cdn.greenhouse.io/external_greenhouse_job_boards/logos/400/153/100/original/OKX_Logo.png?1642497911",
+        "local_path": "tasks/demo-listing-refresh/research/apac/logos/okx.png",
+        "status": "downloaded",
+        "evidence": "The named OKX recruiting board embeds a logo image labelled OKX Logo.",
+        "sha256": "162cbb06a744e2d2f6ca0f641a337a3bb65b266b0c99edead2488ba96ea13279"
+      }
+    },
+    {
+      "name": "Encora",
+      "city": "Singapore",
+      "careers_url": "https://job-boards.greenhouse.io/encora10",
+      "source_url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs?content=true",
+      "evidence": "Current Encora-branded employer Greenhouse board; corporate site redirects to parent company Coforge.",
+      "logo": {
+        "page_url": "https://job-boards.greenhouse.io/encora10",
+        "url": null,
+        "local_path": null,
+        "status": "missing",
+        "evidence": "Named Greenhouse board has no employer mark; the former corporate domain redirects to parent Coforge. Distinct Encora logo not yet verified."
+      },
+      "jobs": [
+        {
+          "id": "a62d6ce518a231beeb6d3ebc",
+          "title": "DevOps Engineer",
+          "employer": "Encora",
+          "location": "Singapore",
+          "city": "Singapore",
+          "destination": "Singapore",
+          "work_model": "Unknown",
+          "requisition": "22372",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5187373007",
+          "careers_url": "https://job-boards.greenhouse.io/encora10",
+          "source_url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs?content=true",
+          "description": "Migrate developer delivery pipelines and make software deployment and developer workflows consistent across restricted Azure environments.",
+          "requirements": [
+            "Five or more years of application development using Python, Java, .NET or similar",
+            "CI/CD migrations, Git workflows and developer enablement",
+            "Azure, infrastructure as code, Docker and Kubernetes",
+            "Experience with restricted networks and internal registries",
+            "English fluency and cross-team Agile work"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "retrieved_at": "2026-11-15T08:16:03.923269+00:00",
+          "checked_at": "2026-11-15T08:16:03.923269+00:00",
+          "evidence": "Listed with full description and direct application link on employer’s Greenhouse board."
+        },
+        {
+          "id": "2099c89890892cafaeaaa6de",
+          "title": "React JS Developer",
+          "employer": "Encora",
+          "location": "Singapore",
+          "city": "Singapore",
+          "destination": "Singapore",
+          "work_model": "Unknown",
+          "requisition": "22751",
+          "url": "https://job-boards.greenhouse.io/encora10/jobs/5205356007",
+          "careers_url": "https://job-boards.greenhouse.io/encora10",
+          "source_url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs?content=true",
+          "description": "Build and tune React micro-frontends, shared UI modules and integrations with existing applications.",
+          "requirements": [
+            "Five or more years of experience and strong React and TypeScript",
+            "Micro-frontends using Webpack Module Federation and monorepos",
+            "REST integrations, caching and web-server tuning",
+            "Git, CI/CD and automated frontend tests"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "retrieved_at": "2026-11-15T08:16:03.923269+00:00",
+          "checked_at": "2026-11-15T08:16:03.923269+00:00",
+          "evidence": "Listed with full description and direct application link on employer’s Greenhouse board."
+        }
+      ],
+      "picks": []
+    },
+    {
+      "name": "Airwallex",
+      "city": "Singapore",
+      "careers_url": "https://careers.airwallex.com/",
+      "source_url": "https://api.ashbyhq.com/posting-api/job-board/airwallex?includeCompensation=true",
+      "evidence": "Airwallex-branded Ashby job board and current postings confirm the employer, requirements and Singapore office.",
+      "logo": {
+        "page_url": "https://jobs.ashbyhq.com/airwallex",
+        "url": "https://app.ashbyhq.com/api/images/org-theme-logo/6e23f7f7-cd7d-4ce0-9c98-a110a190ef11/189f2f03-7a70-4685-8fa1-542ff3f2df0e/cecd53dd-d00e-44c1-9674-b2d04fa3edc4.png",
+        "local_path": "tasks/demo-listing-refresh/research/apac/logos/airwallex.png",
+        "status": "downloaded",
+        "evidence": "Airwallex’s branded recruiting board embeds its custom organization-theme logo.",
+        "sha256": "efbbb4470a5d2a00410d28daa04648e2c28a2b8890ec5dea11d7e60a5b53b1af"
+      },
+      "jobs": [
+        {
+          "id": "bc58784a72af182f83987a17",
+          "title": "Software Engineer, Developer Experience",
+          "employer": "Airwallex",
+          "location": "Singapore",
+          "city": "Singapore",
+          "destination": "Singapore",
+          "work_model": "On-site",
+          "requisition": "3c5176fb-6eee-4bf4-8031-36f0528c71a3",
+          "url": "https://jobs.ashbyhq.com/airwallex/3c5176fb-6eee-4bf4-8031-36f0528c71a3",
+          "careers_url": "https://careers.airwallex.com/",
+          "source_url": "https://api.ashbyhq.com/posting-api/job-board/airwallex?includeCompensation=true",
+          "description": "Build developer-facing APIs, a documentation portal, engineering tooling and analytics for Airwallex integrations.",
+          "requirements": [
+            "Bachelor’s degree or higher in computer science, engineering or related discipline",
+            "Three or more years in software engineering with Java, Kotlin, Go or Python",
+            "Backend engineering, computer science fundamentals and API design",
+            "Cross-functional delivery and documentation"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "retrieved_at": "2026-11-15T08:13:07.165267+00:00",
+          "checked_at": "2026-11-15T08:13:07.165267+00:00",
+          "evidence": "Listed with full description and direct application link on employer’s Ashby board.",
+          "posted_at": "2026-10-23"
+        },
+        {
+          "id": "00273d0d9863a3d521692004",
+          "title": "Senior Software Engineer, Scale (Frontend)",
+          "employer": "Airwallex",
+          "location": "Singapore",
+          "city": "Singapore",
+          "destination": "Singapore",
+          "work_model": "On-site",
+          "requisition": "a9c09c5d-ab0c-4692-a6c0-d1cdc0107a7c",
+          "url": "https://jobs.ashbyhq.com/airwallex/a9c09c5d-ab0c-4692-a6c0-d1cdc0107a7c",
+          "careers_url": "https://careers.airwallex.com/",
+          "source_url": "https://api.ashbyhq.com/posting-api/job-board/airwallex?includeCompensation=true",
+          "description": "Build the React and TypeScript platform used by enterprises to embed financial products; design multi-tenant features and integrations.",
+          "requirements": [
+            "Five or more years in software engineering",
+            "React, TypeScript and complex frontend delivery",
+            "Multi-tenant web architecture, performance and maintainability",
+            "Collaborate with product, compliance and commercial teams"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "retrieved_at": "2026-11-15T08:13:07.165267+00:00",
+          "checked_at": "2026-11-15T08:13:07.165267+00:00",
+          "evidence": "Listed with full description and direct application link on employer’s Ashby board.",
+          "posted_at": "2026-10-21"
+        }
+      ],
+      "picks": []
+    },
+    {
+      "name": "Apple",
+      "city": "China",
+      "careers_url": "https://jobs.apple.com/en-us/search?location=china-CHNC",
+      "source_url": "https://jobs.apple.com/en-us/search?location=china-CHNC&team=cloud-and-infrastructure-SFTWR-CLD",
+      "evidence": "Apple careers search and corresponding official detail pages list openings in Shanghai with application controls.",
+      "logo": {
+        "status": "verified",
+        "sha256": "7c88d26079780226a21ea349faf8b3af0ae8b6407e6472354912e6534cba62c9",
+        "url": "https://www.apple.com/newsroom/images/apple-logo_black.jpg.archive.jpg",
+        "page_url": "https://www.apple.com/newsroom/archive/",
+        "evidence": "Apple Newsroom archive uses this official Apple logo image for Apple corporate news.",
+        "checked_at": "2026-11-15T08:35:46.998527+00:00",
+        "local_path": "employment_agency/demo_data/showcase_logos/7c88d26079780226a21ea349faf8b3af0ae8b6407e6472354912e6534cba62c9.png",
+        "selection": true
+      },
+      "jobs": [
+        {
+          "id": "24819eea5cf016a449b490b8",
+          "title": "Store Apps Engineering DevOPs Engineer",
+          "employer": "Apple",
+          "location": "Shanghai, China",
+          "city": "Shanghai",
+          "destination": "China",
+          "work_model": "Unknown",
+          "requisition": "200676247-3715",
+          "url": "https://jobs.apple.com/en-us/details/200676247-3715/store-apps-engineering-devops-engineer",
+          "careers_url": "https://jobs.apple.com/en-us/search?location=china-CHNC",
+          "source_url": "https://jobs.apple.com/en-us/details/200676247-3715/store-apps-engineering-devops-engineer",
+          "description": "Operate and automate the cloud infrastructure for Store Apps Engineering.",
+          "requirements": [
+            "Written and conversational English",
+            "Software development in Python, Rust or Java",
+            "Cloud compute such as AWS, OpenStack, AliCloud, GCP or Azure",
+            "Infrastructure as code, configuration management, CI/CD and automation",
+            "Troubleshooting skills and on-call rotation; telemetry and containers are advantageous"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "retrieved_at": "2026-11-15T08:17:09.409304+00:00",
+          "checked_at": "2026-11-15T08:17:09.409304+00:00",
+          "evidence": "Employer’s current posting includes full role requirements and an application path.",
+          "posted_at": "2026-08-17"
+        },
+        {
+          "id": "3a5273336ba48ae484933232",
+          "title": "Software Engineer - Cloud Services Engineering",
+          "employer": "Apple",
+          "location": "Shanghai, China",
+          "city": "Shanghai",
+          "destination": "China",
+          "work_model": "Unknown",
+          "requisition": "200685581-3715",
+          "url": "https://jobs.apple.com/en-us/details/200685581-3715/software-engineer-cloud-services-engineering",
+          "careers_url": "https://jobs.apple.com/en-us/search?location=china-CHNC",
+          "source_url": "https://jobs.apple.com/en-us/details/200685581-3715/software-engineer-cloud-services-engineering",
+          "description": "Build Kubernetes services and tools for Apple Services Engineering across private and public compute.",
+          "requirements": [
+            "Three or more years of strong Kubernetes knowledge",
+            "Three or more years in Go, Python or C++ and REST/gRPC API patterns",
+            "Containerization, development tooling and public-cloud infrastructure",
+            "Computer science degree or equivalent and cross-functional communication"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "retrieved_at": "2026-11-15T08:15:49.191886+00:00",
+          "checked_at": "2026-11-15T08:15:49.191886+00:00",
+          "evidence": "Employer’s current posting includes full role requirements and an application path.",
+          "posted_at": "2026-09-24"
+        },
+        {
+          "id": "80f3522e24334918b03e26f1",
+          "title": "Full-stack engineer - Apple Store Online, Rapid Application Development",
+          "employer": "Apple",
+          "location": "Shanghai, China",
+          "city": "Shanghai",
+          "destination": "China",
+          "work_model": "Unknown",
+          "requisition": "200679391-3715",
+          "url": "https://jobs.apple.com/en-us/details/200679391-3715/full-stack-engineer-apple-store-online-rapid-application-development",
+          "careers_url": "https://jobs.apple.com/en-us/search?location=china-CHNC",
+          "source_url": "https://jobs.apple.com/en-us/details/200679391-3715/full-stack-engineer-apple-store-online-rapid-application-development",
+          "description": "Create internal web tools for Apple Store Online with backend APIs and cloud deployment.",
+          "requirements": [
+            "Seven or more years in Angular or React, Node.js and a NestJS-like backend, and SQL",
+            "Cloud infrastructure, Docker or Kubernetes and CI/CD support",
+            "One to two years of generative AI work and REST API development",
+            "BA/BS or eight or more years of directly relevant professional experience"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "retrieved_at": "2026-11-15T08:16:14.382939+00:00",
+          "checked_at": "2026-11-15T08:16:14.382939+00:00",
+          "evidence": "Employer’s current posting includes full role requirements and an application path.",
+          "posted_at": "2026-08-21"
+        }
+      ],
+      "picks": [
+        {
+          "job_id": "24819eea5cf016a449b490b8",
+          "reason": "Python, AWS, IaC and CI/CD line up with the automation and cloud duties. On-call and observability experience are separate considerations.",
+          "fact_ids": [
+            "ce3737d14c22431c2f3c0d19067d52a3",
+            "a383674d908eade31aef1db6ada4e12a",
+            "f040cc07f927d5b8265da18fe0c818ed",
+            "1fbbf838939b2db64d80606aec6c15eb"
+          ]
+        },
+        {
+          "job_id": "3a5273336ba48ae484933232",
+          "reason": "Python and Docker map to the API and container work. The listing also expects substantial Kubernetes experience, which needs confirmation.",
+          "fact_ids": [
+            "ce3737d14c22431c2f3c0d19067d52a3",
+            "1a98d63000e1d37aa01f435cecfa89bd"
+          ]
+        }
+      ],
+      "initial_logo": {
+        "page_url": "https://www.apple.com/newsroom/",
+        "url": "https://www.apple.com/ac/structured-data/images/knowledge_graph_logo.png",
+        "local_path": "tasks/demo-listing-refresh/research/apac/logos/apple.png",
+        "status": "downloaded",
+        "evidence": "Apple Newsroom names the logo in its first-party Organization structured data.",
+        "sha256": "4ea439d373443bf940df4c21ddfbd479fcaf3ecbe61928fa16004c67c28834cd"
+      }
+    },
+    {
+      "name": "NVIDIA",
+      "city": "China",
+      "careers_url": "https://www.nvidia.com/en-us/about-nvidia/careers/",
+      "source_url": "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite",
+      "evidence": "NVIDIA’s official Workday endpoint returned full requirements, location, posting date and canApply=true.",
+      "logo": {
+        "page_url": "https://nvidianews.nvidia.com/multimedia/corporate/nvidia-logos",
+        "url": "https://iprsoftwaremedia.com/219/files/202512/692f50553d6332b453bbc5c2_nvidia-logo-vert-blk/nvidia-logo-vert-blk_thmb.png?v=6390c37f-960b-42bd-a176-b51cfa6d7ba4",
+        "local_path": "tasks/demo-listing-refresh/research/apac/logos/nvidia.png",
+        "status": "downloaded",
+        "evidence": "Official NVIDIA Newsroom’s logo library publishes this square version.",
+        "sha256": "f575aaf56aae512a6ff73207cc86daa7cee718574a378c3ca9cb1a4f4fd6c584"
+      },
+      "jobs": [
+        {
+          "id": "af8b14334dd6326e3dbf7bce",
+          "title": "Senior Software Development Engineer in Test, SDET - DGX Cloud",
+          "employer": "NVIDIA",
+          "location": "Shanghai, China",
+          "city": "Shanghai",
+          "destination": "China",
+          "work_model": "Unknown",
+          "requisition": "JR2029482",
+          "url": "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite/job/China-Shanghai/Senior-Software-Development-Engineer-in-Test--SDET----DGX-Cloud_JR2029482",
+          "careers_url": "https://www.nvidia.com/en-us/about-nvidia/careers/",
+          "source_url": "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite",
+          "description": "Build test tools and automated regression coverage for distributed DGX Cloud infrastructure.",
+          "requirements": [
+            "Three or more years developing or testing cloud services, infrastructure or distributed software",
+            "Master’s degree or equivalent experience",
+            "Python, shell, REST, Linux and networking",
+            "Containers, Kubernetes, CI/CD and hands-on AI-agent automation",
+            "Written and spoken English"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "retrieved_at": "2026-11-15T08:16:00.053897+00:00",
+          "checked_at": "2026-11-15T08:16:00.053897+00:00",
+          "evidence": "Official NVIDIA Workday posting returned canApply=true and full requirements.",
+          "posted_at": "2026-11-09"
+        },
+        {
+          "id": "21ff2806cf2e4994026f8ad5",
+          "title": "Senior AI Infra Test Development Engineer, SDET",
+          "employer": "NVIDIA",
+          "location": "Shanghai, China",
+          "city": "Shanghai",
+          "destination": "China",
+          "work_model": "Unknown",
+          "requisition": "JR2027720",
+          "url": "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite/job/China-Shanghai/Senior-AI-Infra-Test-Development-Engineer--SDET_JR2027720",
+          "careers_url": "https://www.nvidia.com/en-us/about-nvidia/careers/",
+          "source_url": "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite",
+          "description": "Build infrastructure software tests and end-to-end quality automation for NVIDIA’s AI infrastructure.",
+          "requirements": [
+            "Five or more years in infrastructure software or test development",
+            "Python, Linux, Docker and Kubernetes",
+            "Test frameworks and experience using AI tooling to improve automation",
+            "Bare-metal provisioning or networking fundamentals",
+            "Relevant MS or PhD preferred"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "retrieved_at": "2026-11-15T08:15:59.262337+00:00",
+          "checked_at": "2026-11-15T08:15:59.262337+00:00",
+          "evidence": "Official NVIDIA Workday posting returned canApply=true and full requirements.",
+          "posted_at": "2026-10-19"
+        }
+      ],
+      "picks": []
+    },
+    {
+      "name": "EPAM Systems",
+      "city": "China",
+      "careers_url": "https://careers.epam.com/en/jobs",
+      "source_url": "https://refer.epam.com/openvacancies/China",
+      "evidence": "Employer careers detail pages are authoritative for Shanghai office, English requirements, and application action; employer referral board identifies additional vacancies.",
+      "logo": {
+        "page_url": "https://careers.epam.com/en/vacancy/senior-front-end-developer-react-typescript-bltu5kc1ucsong60hgw_en",
+        "url": "https://careers.epam.com/static/assets/logo/EPAM_Systems.svg",
+        "local_path": null,
+        "status": "unsupported",
+        "evidence": "Official career page exposes its EPAM wordmark as SVG; alternate PNG asset is labelled favicon and is excluded by the shared logo importer."
+      },
+      "jobs": [
+        {
+          "id": "4464bdabb0c81745478a4b53",
+          "title": "Senior Front-end Developer (React, TypeScript)",
+          "employer": "EPAM Systems",
+          "location": "Shanghai, China",
+          "city": "Shanghai",
+          "destination": "China",
+          "work_model": "On-site",
+          "requisition": "bltu5kc1ucsong60hgw",
+          "url": "https://careers.epam.com/en/vacancy/senior-front-end-developer-react-typescript-bltu5kc1ucsong60hgw_en",
+          "careers_url": "https://careers.epam.com/en/jobs",
+          "source_url": "https://careers.epam.com/en/vacancy/senior-front-end-developer-react-typescript-bltu5kc1ucsong60hgw_en",
+          "description": "Build reusable UI and accessible enterprise web applications with React and TypeScript.",
+          "requirements": [
+            "React and TypeScript in production frontends",
+            "Modern JavaScript, HTML/CSS, responsive design and state management",
+            "Frontend architecture, tests and build tooling",
+            "English communication in Agile teams; Next.js or Express is helpful"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "retrieved_at": "2026-11-15T08:16:06.005111+00:00",
+          "checked_at": "2026-11-15T08:16:06.005111+00:00",
+          "evidence": "Employer’s current posting includes full role requirements and an application path.",
+          "posted_at": "2026-11-10"
+        }
+      ],
+      "picks": []
+    },
+    {
+      "name": "Amazon",
+      "city": "China",
+      "careers_url": "https://www.amazon.jobs/en/search?country%5B%5D=CHN",
+      "source_url": "https://www.amazon.jobs/en/jobs/10567071/api-support-engineer-developer-support-engineering",
+      "evidence": "Amazon Jobs publishes the applicable named company and Shanghai work location with full qualifications.",
+      "logo": {
+        "page_url": "https://press.aboutamazon.com/logos",
+        "url": "https://assets.aboutamazon.com/dims4/default/3039ed1/2147483647/strip/true/crop/2000x1000+0+63/resize/1200x600!/quality/90/?url=https%3A%2F%2Fassets.aboutamazon.com%2Fb3%2F79%2Fb0e61293471b9d35c5ff02e46f37%2Famazon-logo-hero-images-2024.jpg",
+        "local_path": "tasks/demo-listing-refresh/research/apac/logos/amazon.jpg",
+        "status": "downloaded",
+        "evidence": "The Amazon press center Logos page embeds this 1200x600 raster of its smile mark.",
+        "sha256": "4088d00cabdefc0ce6c4820db248156ff02386d8c3b802f823d6a1bccc1429b3"
+      },
+      "jobs": [
+        {
+          "id": "c55bdb5fd7bf86c269267270",
+          "title": "API Support Engineer, Developer Support Engineering",
+          "employer": "Amazon",
+          "location": "Shanghai, China",
+          "city": "Shanghai",
+          "destination": "China",
+          "work_model": "Unknown",
+          "requisition": "10567071",
+          "url": "https://www.amazon.jobs/en/jobs/10567071/api-support-engineer-developer-support-engineering",
+          "careers_url": "https://www.amazon.jobs/en/search?country%5B%5D=CHN",
+          "source_url": "https://www.amazon.jobs/en/jobs/10567071/api-support-engineer-developer-support-engineering",
+          "description": "Guide advertising API partners through integrations, troubleshoot failures and analyze implementation issues.",
+          "requirements": [
+            "Three or more years in software development or technical support",
+            "Technical debugging and REST API experience",
+            "Scripting such as Python and data analysis with SQL",
+            "AWS, web technologies or advertising-domain experience preferred"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "retrieved_at": "2026-11-15T08:16:03.299206+00:00",
+          "checked_at": "2026-11-15T08:16:03.299206+00:00",
+          "evidence": "Employer’s current posting includes full role requirements and an application path."
+        }
+      ],
+      "picks": []
+    },
+    {
+      "name": "AMD",
+      "city": "China",
+      "careers_url": "https://careers.amd.com/careers-home/jobs",
+      "source_url": "https://careers.amd.com/careers-home/jobs/97180",
+      "evidence": "AMD’s branded careers page provides JobPosting schema with Beijing location, requisition and direct application.",
+      "logo": {
+        "status": "verified",
+        "sha256": "23980265f8f262f68d919a8391ac8bdd470fa97a3c4bfa5a9a4737b1768fb7a8",
+        "url": "https://newsroom.amd.com/images/media-center/2026/07/9511f05b-cfe5-4470-aa57-6fa81b7ed81e.png",
+        "page_url": "https://newsroom.amd.com/media-center/",
+        "evidence": "AMD Newsroom Media Center labels and embeds this AMD logo.",
+        "checked_at": "2026-11-15T08:35:46.628269+00:00",
+        "local_path": "employment_agency/demo_data/showcase_logos/23980265f8f262f68d919a8391ac8bdd470fa97a3c4bfa5a9a4737b1768fb7a8.png",
+        "selection": true
+      },
+      "jobs": [
+        {
+          "id": "3932d66d3a4376d7f2efb3ed",
+          "title": "Senior Agentic AI Engineer",
+          "employer": "AMD",
+          "location": "Beijing, China",
+          "city": "Beijing",
+          "destination": "China",
+          "work_model": "Unknown",
+          "requisition": "97180",
+          "url": "https://careers.amd.com/careers-home/jobs/97180",
+          "careers_url": "https://careers.amd.com/careers-home/jobs",
+          "source_url": "https://careers.amd.com/careers-home/jobs/97180",
+          "description": "Prototype agentic AI systems and research workflows on AMD software and hardware; this is a stretch role in AI engineering.",
+          "requirements": [
+            "Degree in a relevant engineering, computing or AI discipline or equivalent experience",
+            "Preferred: Python and C/C++, deep-learning frameworks and AI model knowledge",
+            "Preferred: model profiling, GPU optimization and technical leadership"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "retrieved_at": "2026-11-15T08:15:03.332383+00:00",
+          "checked_at": "2026-11-15T08:15:03.332383+00:00",
+          "evidence": "Employer’s current posting includes full role requirements and an application path.",
+          "posted_at": "2026-11-10"
+        }
+      ],
+      "picks": [],
+      "initial_logo": {
+        "page_url": "https://careers.amd.com/careers-home/jobs/97180",
+        "url": "https://cms.jibecdn.com/prod/amd/assets/HEADER-NAV_LOGO-en-us-1666176510860.png",
+        "local_path": "tasks/demo-listing-refresh/research/apac/logos/amd.png",
+        "status": "downloaded",
+        "evidence": "Branded AMD recruiting page embeds the raster AMD header logo.",
+        "sha256": "42505208200e03fb911f0fc00984ab2cf06a26429de3df7e357d87ef4baa1dc6"
+      }
+    }
+  ],
+  "coverage": [
+    {
+      "destination": "Melbourne",
+      "employer_count": 5,
+      "note": "Reviewed current official sources; excluded end-of-date or removed postings, expressions of interest and listings outside Melbourne. Kraken roles state that existing Australian work authorization is required."
+    },
+    {
+      "destination": "Singapore",
+      "employer_count": 5,
+      "note": "Excluded internships, citizenship-only public-sector roles, wrong locations and currently unavailable direct postings. Some selected postings give priority to people with existing Singapore work authorization."
+    },
+    {
+      "destination": "China",
+      "employer_count": 5,
+      "note": "Retained advertised cities and excluded postings requiring Chinese or Mandarin; English-language listings do not establish work rights or sponsorship. EPAM’s separately indexed backend posting redirected to its main jobs page and was excluded."
+    }
+  ],
+  "duplicate_exclusions": [
+    {
+      "id": "a4ee8d71bbd3ac91342bf9bb",
+      "url": "https://job-boards.greenhouse.io/simplifynext/jobs/5026255007",
+      "reason": "Shares verified requisition 61 with Full Stack Developer; retain the closer-fit title once."
+    }
+  ]
+}

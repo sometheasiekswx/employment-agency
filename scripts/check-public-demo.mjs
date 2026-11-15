@@ -16,7 +16,7 @@ const requiredDirectives = {
   "default-src": ["'self'"],
   "style-src": ["'self'"],
   "font-src": ["'self'"],
-  "connect-src": ["'self'", "https://api.smartrecruiters.com"],
+  "connect-src": ["'self'"],
   "img-src": ["'self'", "blob:", "data:"],
   "frame-src": ["'self'", "blob:"],
   "object-src": ["'none'"],

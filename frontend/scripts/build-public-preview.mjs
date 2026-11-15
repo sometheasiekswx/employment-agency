@@ -102,6 +102,13 @@ for (const url of Object.values(exportedFixture.files)) {
   }
   await readFile(path.join(destination, url));
 }
+for (const [sha256, url] of Object.entries(exportedFixture.company_logos ?? {})) {
+  if (!/^[a-f0-9]{64}$/.test(sha256) || url !== `/demo/company-logos/${sha256}.png`)
+    throw new Error("Unexpected public company logo asset path.");
+  const body = await readFile(path.join(destination, url));
+  if (createHash("sha256").update(body).digest("hex") !== sha256)
+    throw new Error("A public company logo failed its checksum.");
+}
 
 async function filesIn(directory, prefix = "") {
   const files = [];
@@ -138,7 +145,7 @@ const csp = [
   `script-src 'self' ${[...hashes].sort().join(" ")}`,
   "style-src 'self'",
   "font-src 'self'",
-  "connect-src 'self' https://api.smartrecruiters.com",
+  "connect-src 'self'",
   "img-src 'self' blob: data:",
   "frame-src 'self' blob:",
   "object-src 'none'",

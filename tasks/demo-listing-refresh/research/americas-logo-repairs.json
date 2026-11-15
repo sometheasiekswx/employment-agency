@@ -1,0 +1,364 @@
+{
+  "checked_at": "2026-11-15T08:33:13.173882+00:00",
+  "companies": [
+    {
+      "name": "Plaid",
+      "logo": null,
+      "attempts": [
+        {
+          "page_url": "https://plaid.com/",
+          "status": "gap",
+          "detail": "No supported candidate from []"
+        },
+        {
+          "page_url": "https://plaid.com/careers/",
+          "status": "gap",
+          "detail": "The branding source exceeds its download size limit"
+        },
+        {
+          "page_url": "https://plaid.com/company/press/",
+          "status": "gap",
+          "detail": "Source returned HTTP 404"
+        },
+        {
+          "page_url": "https://plaid.com/company/press",
+          "status": "gap",
+          "detail": "Source returned HTTP 404"
+        },
+        {
+          "page_url": "https://plaid.com/legal/",
+          "status": "gap",
+          "detail": "The branding source exceeds its download size limit"
+        },
+        {
+          "page_url": "https://plaid.com/press/",
+          "status": "gap",
+          "detail": "No supported documented branding candidate"
+        }
+      ]
+    },
+    {
+      "name": "Ramp",
+      "logo": null,
+      "attempts": [
+        {
+          "page_url": "https://ramp.com/",
+          "status": "gap",
+          "detail": "The branding source exceeds its download size limit"
+        },
+        {
+          "page_url": "https://ramp.com/careers",
+          "status": "gap",
+          "detail": "The branding source exceeds its download size limit"
+        },
+        {
+          "page_url": "https://ramp.com/press",
+          "status": "gap",
+          "detail": "The branding source exceeds its download size limit"
+        },
+        {
+          "page_url": "https://ramp.com/brand",
+          "status": "gap",
+          "detail": "Source returned HTTP 404"
+        },
+        {
+          "page_url": "https://ramp.com/legal",
+          "status": "gap",
+          "detail": "No supported candidate from []"
+        }
+      ]
+    },
+    {
+      "name": "Figma",
+      "logo": null,
+      "attempts": [
+        {
+          "page_url": "https://www.figma.com/",
+          "status": "gap",
+          "detail": "The branding source exceeds its download size limit"
+        },
+        {
+          "page_url": "https://www.figma.com/careers/",
+          "status": "gap",
+          "detail": "The branding source exceeds its download size limit"
+        },
+        {
+          "page_url": "https://www.figma.com/press/",
+          "status": "gap",
+          "detail": "Source returned HTTP 404"
+        },
+        {
+          "page_url": "https://www.figma.com/brand/",
+          "status": "gap",
+          "detail": "Source returned HTTP 404"
+        },
+        {
+          "page_url": "https://help.figma.com/hc/en-us",
+          "status": "gap",
+          "detail": "No supported candidate from []"
+        },
+        {
+          "page_url": "https://www.figma.com/newsroom/",
+          "status": "gap",
+          "detail": "The branding source exceeds its download size limit"
+        }
+      ]
+    },
+    {
+      "name": "Datadog",
+      "logo": null,
+      "attempts": [
+        {
+          "page_url": "https://www.datadoghq.com/",
+          "status": "gap",
+          "detail": "No supported candidate from [('https://corp.dd-static.net/img/about/presskit/logo-v/dd_vertical_purple.png', 'automatic')]"
+        },
+        {
+          "page_url": "https://careers.datadoghq.com/",
+          "status": "gap",
+          "detail": "No supported candidate from []"
+        },
+        {
+          "page_url": "https://www.datadoghq.com/about/resources/",
+          "status": "gap",
+          "detail": "No supported candidate from []"
+        },
+        {
+          "page_url": "https://www.datadoghq.com/about/press/",
+          "status": "gap",
+          "detail": "No supported candidate from []"
+        },
+        {
+          "page_url": "https://docs.datadoghq.com/",
+          "status": "gap",
+          "detail": "No supported candidate from []"
+        }
+      ]
+    },
+    {
+      "name": "Anthropic",
+      "logo": null,
+      "attempts": [
+        {
+          "page_url": "https://www.anthropic.com/",
+          "status": "gap",
+          "detail": "No supported candidate from []"
+        },
+        {
+          "page_url": "https://www.anthropic.com/careers",
+          "status": "gap",
+          "detail": "No supported candidate from []"
+        },
+        {
+          "page_url": "https://www.anthropic.com/press",
+          "status": "gap",
+          "detail": "Source returned HTTP 404"
+        },
+        {
+          "page_url": "https://www.anthropic.com/company",
+          "status": "gap",
+          "detail": "No supported candidate from []"
+        },
+        {
+          "page_url": "https://www.anthropic.com/legal/aup",
+          "status": "gap",
+          "detail": "The branding source exceeds its download size limit"
+        }
+      ]
+    },
+    {
+      "name": "MongoDB",
+      "logo": {
+        "page_url": "https://www.mongodb.com/company/newsroom",
+        "url": "https://webassets.mongodb.com/_com_assets/cms/mongodb_logo1-76twgcu2dm.png",
+        "observed_page": "https://www.mongodb.com/company/newsroom",
+        "final_url": "https://webassets.mongodb.com/_com_assets/cms/mongodb_logo1-76twgcu2dm.png",
+        "mode": "automatic",
+        "status": "verified-candidate",
+        "sha256": "12e673e586be73061379689c81d1174aadbb86654e99850df0f63ee144409e7c",
+        "evidence": "Official MongoDB page declares the company mark; shared parser and asset normalization succeeded."
+      },
+      "attempts": [
+        {
+          "page_url": "https://github.com/mongodb",
+          "status": "gap",
+          "detail": "No supported candidate from []"
+        },
+        {
+          "page_url": "https://www.mongodb.com/company/careers",
+          "status": "gap",
+          "detail": "The branding source exceeds its download size limit"
+        },
+        {
+          "page_url": "https://www.mongodb.com/company/newsroom/brand-resources",
+          "status": "gap",
+          "detail": "No supported candidate from []"
+        },
+        {
+          "page_url": "https://www.mongodb.com/company/newsroom",
+          "url": "https://webassets.mongodb.com/_com_assets/cms/mongodb_logo1-76twgcu2dm.png",
+          "observed_page": "https://www.mongodb.com/company/newsroom",
+          "final_url": "https://webassets.mongodb.com/_com_assets/cms/mongodb_logo1-76twgcu2dm.png",
+          "mode": "automatic",
+          "status": "verified-candidate",
+          "sha256": "12e673e586be73061379689c81d1174aadbb86654e99850df0f63ee144409e7c",
+          "evidence": "Official MongoDB page declares the company mark; shared parser and asset normalization succeeded."
+        },
+        {
+          "page_url": "https://www.mongodb.com/docs/",
+          "status": "gap",
+          "detail": "No supported candidate from []"
+        }
+      ]
+    },
+    {
+      "name": "Okta",
+      "logo": null,
+      "attempts": [
+        {
+          "page_url": "https://www.okta.com/newsroom/",
+          "status": "gap",
+          "detail": "No supported candidate from [('https://www.okta.com/content/dam/okta---digital/en_us/images/header/logos/okta.svg', 'exact'), ('https://www.okta.com/content/dam/okta---digital/en_us/images/header/logos/auth0.svg', 'exact'), ('https://www.okta.com/content/dam/okta---digital/en_us/images/header/logos/okta.svg', 'exact'), ('https://www.okta.com/content/dam/okta---digital/en_us/images/header/logos/auth0.svg', 'exact')]"
+        },
+        {
+          "page_url": "https://www.okta.com/company/careers/",
+          "status": "gap",
+          "detail": "No supported candidate from [('https://www.okta.com/content/dam/okta---digital/en_us/images/header/logos/okta.svg', 'exact'), ('https://www.okta.com/content/dam/okta---digital/en_us/images/header/logos/auth0.svg', 'exact'), ('https://www.okta.com/content/dam/okta---digital/en_us/images/header/logos/okta.svg', 'exact'), ('https://www.okta.com/content/dam/okta---digital/en_us/images/header/logos/auth0.svg', 'exact')]"
+        },
+        {
+          "page_url": "https://www.okta.com/about/",
+          "status": "gap",
+          "detail": "No supported candidate from [('https://www.okta.com/content/dam/okta---digital/en_us/images/header/logos/okta.svg', 'exact'), ('https://www.okta.com/content/dam/okta---digital/en_us/images/header/logos/auth0.svg', 'exact'), ('https://www.okta.com/content/dam/okta---digital/en_us/images/header/logos/okta.svg', 'exact'), ('https://www.okta.com/content/dam/okta---digital/en_us/images/header/logos/auth0.svg', 'exact')]"
+        },
+        {
+          "page_url": "https://developer.okta.com/",
+          "status": "gap",
+          "detail": "No supported candidate from [('https://developer.okta.com/img/logotype.svg', 'exact'), ('https://developer.okta.com/img/logotype.svg', 'exact')]"
+        },
+        {
+          "page_url": "https://www.okta.com/newsroom/",
+          "status": "gap",
+          "detail": "The logo URL is not a supported public branding asset"
+        }
+      ]
+    },
+    {
+      "name": "Robinhood",
+      "logo": null,
+      "attempts": [
+        {
+          "page_url": "https://robinhood.com/us/en/",
+          "status": "gap",
+          "detail": "No supported candidate from []"
+        },
+        {
+          "page_url": "https://careers.robinhood.com/",
+          "status": "gap",
+          "detail": "No supported candidate from []"
+        },
+        {
+          "page_url": "https://newsroom.aboutrobinhood.com/press-kit/",
+          "status": "gap",
+          "detail": "Offsite redirect"
+        },
+        {
+          "page_url": "https://newsroom.aboutrobinhood.com/",
+          "status": "gap",
+          "detail": "Offsite redirect"
+        },
+        {
+          "page_url": "https://robinhood.com/us/en/support/",
+          "status": "gap",
+          "detail": "No supported candidate from []"
+        },
+        {
+          "page_url": "https://robinhood.com/newsroom/press-kit/",
+          "status": "gap",
+          "detail": "Source returned HTTP 404"
+        },
+        {
+          "page_url": "https://press.robinhood.com/",
+          "status": "gap",
+          "detail": "No supported documented branding candidate"
+        }
+      ]
+    },
+    {
+      "name": "Stripe",
+      "logo": null,
+      "attempts": [
+        {
+          "page_url": "https://stripe.com/au",
+          "status": "gap",
+          "detail": "The branding source exceeds its download size limit"
+        },
+        {
+          "page_url": "https://stripe.com/careers/search",
+          "status": "gap",
+          "detail": "No supported candidate from []"
+        },
+        {
+          "page_url": "https://stripe.com/newsroom/brand-assets",
+          "status": "gap",
+          "detail": "No supported candidate from []"
+        },
+        {
+          "page_url": "https://stripe.com/newsroom",
+          "status": "gap",
+          "detail": "The branding source exceeds its download size limit"
+        },
+        {
+          "page_url": "https://docs.stripe.com/",
+          "status": "gap",
+          "detail": "The branding source exceeds its download size limit"
+        },
+        {
+          "page_url": "https://press.stripe.com/",
+          "status": "gap",
+          "detail": "The branding source exceeds its download size limit"
+        },
+        {
+          "page_url": "https://stripe.com/au/newsroom",
+          "status": "gap",
+          "detail": "The branding source exceeds its download size limit"
+        }
+      ]
+    },
+    {
+      "name": "PagerDuty",
+      "logo": null,
+      "attempts": [
+        {
+          "page_url": "https://www.pagerduty.com/",
+          "status": "gap",
+          "detail": "No supported candidate from [('https://cdn.pagerduty.com/wp-content/uploads/2022/11/PagerDuty-Green-logo.svg', 'automatic'), ('https://www.pagerduty.com/logos/pagerduty-monochrome.svg', 'exact'), ('https://www.pagerduty.com/logos/pagerduty-monochrome-white.svg', 'exact'), ('https://www.pagerduty.com/logos/tui-iso.svg', 'exact'), ('https://www.pagerduty.com/logos/zoom-iso.svg', 'exact'), ('https://www.pagerduty.com/logos/spotify-iso.svg', 'exact'), ('https://www.pagerduty.com/logos/draftkings-iso.svg', 'exact'), ('https://www.pagerduty.com/logos/australian-bank-iso.svg', 'exact'), ('https://www.pagerduty.com/logos/vodafone-iso.svg', 'exact'), "
+        },
+        {
+          "page_url": "https://careers.pagerduty.com/",
+          "status": "gap",
+          "detail": "No supported candidate from []"
+        },
+        {
+          "page_url": "https://www.pagerduty.com/press/",
+          "status": "gap",
+          "detail": "Source returned HTTP 404"
+        },
+        {
+          "page_url": "https://www.pagerduty.com/press-kit/",
+          "status": "gap",
+          "detail": "Source returned HTTP 404"
+        },
+        {
+          "page_url": "https://www.pagerduty.com/company/",
+          "status": "gap",
+          "detail": "No supported candidate from [('https://cdn.pagerduty.com/wp-content/uploads/2022/11/PagerDuty-Green-logo.svg', 'automatic'), ('https://www.pagerduty.com/wp-content/themes/citizens-band/images/logos/pagerduty-monochrome.svg', 'exact'), ('https://www.pagerduty.com/wp-content/themes/citizens-band/images/logos/pagerduty-monochrome-white.svg', 'exact'), ('https://www.pagerduty.com/wp-content/themes/citizens-band/images/logos/tui-iso.svg', 'exact'), ('https://www.pagerduty.com/wp-content/themes/citizens-band/images/logos/zoom-iso.svg', 'exact'), ('https://www.pagerduty.com/wp-content/themes/citizens-band/images/logos/spotify-iso.svg', 'exact'), ('h"
+        },
+        {
+          "page_url": "https://www.pagerduty.com/newsroom/",
+          "status": "gap",
+          "detail": "The source did not return a supported raster format"
+        }
+      ]
+    }
+  ]
+}

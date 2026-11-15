@@ -1,0 +1,205 @@
+{
+  "job": {
+    "availability": "Illustrative example",
+    "checked_at": "2026-11-15T08:49:33.929098+00:00",
+    "closes": "",
+    "description": "Fictional example. Help an engineering team build and support services using PostgreSQL.",
+    "eligibility": "unknown",
+    "email": "",
+    "employer": "Juniper Bridge",
+    "expectation": {
+      "basis": "",
+      "confidence": "",
+      "source": "",
+      "target": ""
+    },
+    "id": "0c8f9f8c49404ec4977bbe95d6d6d73c",
+    "location": "Berlin",
+    "posted_at": "",
+    "prior_application": "none",
+    "reposted_at": "",
+    "requirements": [
+      "PostgreSQL"
+    ],
+    "salary": {
+      "basis": "",
+      "currency": "",
+      "max": 0.0,
+      "min": 0.0,
+      "period": ""
+    },
+    "saved": false,
+    "seniority": "",
+    "source": "manual",
+    "sponsorship": "",
+    "title": "Data Platform Engineer",
+    "url": "",
+    "work_arrangement": "",
+    "hiring_employer_verified": true,
+    "company": {
+      "id": "99460dd93cc24dcb83b3de8a11e5de2c",
+      "name": "Juniper Bridge",
+      "vacancy_id": "fc7d677660cf4b55b8d50f7f99c53720",
+      "submitted_vacancy": false,
+      "remaining": 2,
+      "cooling": false,
+      "cooldown_until": null,
+      "cooldown_time_assumed": false,
+      "overflow": false,
+      "review_needed": false,
+      "pending_only_count": 0
+    }
+  },
+  "facts": [
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "0be16139db5a47fe88df19501cff31c6",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T08:49:28.633400+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used Python to build and maintain software services.",
+      "updated_at": "2026-11-15T08:49:28.633393+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "75db8f0741194681bc40f3ea13840041",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T08:49:28.637469+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used AWS to build and maintain software services.",
+      "updated_at": "2026-11-15T08:49:28.637466+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "eedbeca5bda741c5b8332ab8a40d18e2",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T08:49:28.641499+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used Terraform to build and maintain software services.",
+      "updated_at": "2026-11-15T08:49:28.641496+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "47c4e21a75d14bc9ba3230e2dea55aa0",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T08:49:28.645891+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used PostgreSQL to build and maintain software services.",
+      "updated_at": "2026-11-15T08:49:28.645888+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "7ac5e60b882f436b9de0ba2ff130bfcf",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T08:49:28.650639+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used React to build and maintain software services.",
+      "updated_at": "2026-11-15T08:49:28.650637+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "4e17fb4fa2674bf2bdd627ed838e5c56",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T08:49:28.655620+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used TypeScript to build and maintain software services.",
+      "updated_at": "2026-11-15T08:49:28.655618+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "303d179f56674f95abaf4fbc51528cfc",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T08:49:28.660781+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used CI/CD to build and maintain software services.",
+      "updated_at": "2026-11-15T08:49:28.660779+00:00"
+    }
+  ],
+  "matching": {
+    "hard_conflicts": [],
+    "unknowns": [
+      "Work rights / sponsorship need confirmation",
+      "Availability not verified"
+    ],
+    "preferences": [],
+    "evidence": [
+      {
+        "requirement": "PostgreSQL",
+        "fact_ids": [
+          "47c4e21a75d14bc9ba3230e2dea55aa0"
+        ],
+        "assessment": "Related text; verify full requirement"
+      }
+    ],
+    "gaps": [],
+    "stretch": false,
+    "eligible_for_preparation": true,
+    "fact_ids": [
+      "0be16139db5a47fe88df19501cff31c6",
+      "75db8f0741194681bc40f3ea13840041",
+      "eedbeca5bda741c5b8332ab8a40d18e2",
+      "47c4e21a75d14bc9ba3230e2dea55aa0",
+      "7ac5e60b882f436b9de0ba2ff130bfcf",
+      "4e17fb4fa2674bf2bdd627ed838e5c56",
+      "303d179f56674f95abaf4fbc51528cfc"
+    ],
+    "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+    "salary_expectation": {
+      "target": "Unresolved — request the employer band or add comparable local salary evidence",
+      "basis": "No comparable gross-base band is available; no precise expectation invented.",
+      "source": "",
+      "confidence": "low"
+    }
+  },
+  "template": "plain",
+  "notice": "User review required. No ATS guarantee."
+}

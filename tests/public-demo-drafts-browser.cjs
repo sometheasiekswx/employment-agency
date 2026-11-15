@@ -12,8 +12,6 @@ const AxeBuilder =
 
 const base = process.env.TEST_URL;
 const visitor = "Demo Visitor Privacy Check 71294";
-const advertUrl = "https://jobs.smartrecruiters.com/BoschGroup/744000111111111";
-const careersUrl = "https://careers.smartrecruiters.com/BoschGroup";
 
 async function prepare(page, role) {
   await page
@@ -225,11 +223,24 @@ async function main() {
         ? { ...devices["iPhone 15"] }
         : { viewport: { width: 390, height: 844 }, hasTouch: true },
     );
-    let open = true;
-    let reads = 0;
+    const externalReads = [];
     const page = await context.newPage();
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));
+    const snapshot = await (
+      await page.request.get(base + "/demo/preview.json")
+    ).json();
+    const job = snapshot.state.jobs.find((candidate, _, jobs) =>
+      candidate.source?.startsWith("reviewed:") &&
+      candidate.hiring_employer_verified &&
+      candidate.url && candidate.careers_url &&
+      jobs.filter((other) =>
+        other.title === candidate.title && other.employer === candidate.employer
+      ).length === 1
+    );
+    assert.ok(job, "The dated catalog has a verified vacancy with employer links");
+    const advertUrl = job.url;
+    const careersUrl = job.careers_url;
     await context.route("**/*", async (route) => {
       const request = route.request();
       const url = new URL(request.url());
@@ -249,39 +260,9 @@ async function main() {
           body: `<h1>${url.href === advertUrl ? "Live job advert" : "Employer careers"}</h1>`,
         });
       }
-      assert.equal(url.origin, "https://api.smartrecruiters.com");
-      assert.match(url.pathname, /^\/v1\/companies\/[A-Za-z0-9_-]+\/postings$/);
-      assert.equal(request.headers().cookie, undefined);
-      reads++;
-      if (
-        url.pathname.endsWith("/BoschGroup/postings") &&
-        url.searchParams.get("country") === "sg"
-      )
-        return route.fulfill({
-          headers: { "access-control-allow-origin": "*" },
-          json: {
-            content: open
-              ? [
-                  {
-                    uuid: "21bff10a-e04f-4a13-892f-c89310e56144",
-                    id: "744000111111111",
-                    name: "Feed Test Engineer",
-                    location: {
-                      country: "sg",
-                      city: "Singapore",
-                      fullLocation: "Singapore",
-                    },
-                    releasedDate: "2026-11-12T00:00:00.000Z",
-                  },
-                ]
-              : [],
-          },
-        });
+      externalReads.push(url.href);
       return route.abort();
     });
-    const snapshot = await (
-      await page.request.get(base + "/demo/preview.json")
-    ).json();
     await page.goto(base + "/discover/?view=all");
     if (snapshot.demo_resume) {
       const header = page.getByRole("complementary", {
@@ -300,10 +281,12 @@ async function main() {
       );
     }
     const role = page.getByRole("button", {
-      name: "Assess Feed Test Engineer at Bosch Group",
+      name: `Assess ${job.title} at ${job.employer}`,
+      exact: true,
     });
     const listing = page.getByRole("link", {
-      name: "View listing for Feed Test Engineer at Bosch Group",
+      name: `View listing for ${job.title} at ${job.employer}`,
+      exact: true,
     });
     async function followSourceInNewTab(link, url, heading) {
       assert.equal(await link.getAttribute("href"), url);
@@ -326,11 +309,11 @@ async function main() {
     await role.click();
     await page.waitForURL((url) => url.searchParams.has("opportunity"));
     const inspector = page.locator(".discover-inspector");
-    const titleLink = inspector.getByRole("link", { name: "Feed Test Engineer" });
+    const titleLink = inspector.getByRole("link", { name: job.title, exact: true });
     await followSourceInNewTab(titleLink, advertUrl, "Live job advert");
     assert.equal(await inspector.getByRole("link", { name: "View job listing", exact: true }).count(), 0);
     await followSourceInNewTab(
-      inspector.getByRole("link", { name: "Bosch Group", exact: true }),
+      inspector.getByRole("link", { name: job.employer, exact: true }),
       careersUrl,
       "Employer careers",
     );
@@ -343,16 +326,24 @@ async function main() {
       .getByRole("button", { name: "Close opportunity details", exact: true })
       .click();
     await page.waitForURL((url) => !url.searchParams.has("opportunity"));
-    open = false;
     await page.reload();
     await page.getByRole("button", { name: "To apply", exact: true }).click();
     await role.click();
-    await page.getByText("Saved employer snapshot", { exact: true }).waitFor();
+    await inspector
+      .getByRole("button", { name: "Remove from To apply", exact: true })
+      .waitFor();
+    assert.equal(await titleLink.getAttribute("href"), advertUrl);
+    assert.equal(
+      await page.evaluate((id) => localStorage.getItem(
+        `employment-agency:employer-bookmarks:job:${id}`
+      ), job.id),
+      "true",
+    );
     await documents(page, snapshot);
-    assert.ok(reads >= snapshot.job_sources.length);
+    assert.deepEqual(externalReads, [], "Reviewed vacancies never fetch replacements");
     assert.deepEqual(errors, []);
     console.log(
-      "Static demo passed employer refresh, mobile employer links in new tabs, preserved closed bookmark, PDF/DOCX imports, editable draft exports and tab privacy.",
+      "Static demo passed dated listing isolation, mobile employer links in new tabs, persistent employer bookmark, PDF/DOCX imports, editable draft exports and tab privacy.",
     );
   } finally {
     await browser.close();

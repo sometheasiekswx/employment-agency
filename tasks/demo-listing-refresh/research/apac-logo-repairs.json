@@ -1,0 +1,110 @@
+{
+  "companies": [
+    {
+      "name": "Culture Amp",
+      "page_url": "https://www.cultureamp.com/company/careers",
+      "evidence": "Its careers page identifies the employer and declares its WebP corporate logo in Organization structured data.",
+      "status": "verified",
+      "logo_url": "https://www.cultureamp.com/assets/slices/main/assets/public/media/logo-culture-amp-gsearch-a1c65ae55f3d8c5a4a0b.webp",
+      "expected_sha256": "02e9801cd606e901005c8dad04a6d6be7d34035947b46ccfabef41787f172571",
+      "local_path": "tasks/demo-listing-refresh/research/apac/validated-logos/culture-amp.png",
+      "selection": false
+    },
+    {
+      "name": "SimplifyNext",
+      "page_url": "https://www.simplifynext.com/career",
+      "evidence": "Its official careers page declares its PNG corporate logo in Organization structured data.",
+      "status": "verified",
+      "logo_url": "https://www.simplifynext.com/logo.png",
+      "expected_sha256": "8add9515754d4464e807f7c13949dd0029fab699fac2146ca0883f83a24ca7e6",
+      "local_path": "tasks/demo-listing-refresh/research/apac/validated-logos/simplifynext.png",
+      "selection": false
+    },
+    {
+      "name": "PALO IT",
+      "page_url": "https://www.palo-it.com/",
+      "evidence": "Employer homepage visibly embeds its own color raster wordmark.",
+      "status": "unusable",
+      "reason": "UnsupportedLogo: The logo URL is not a supported public branding asset"
+    },
+    {
+      "name": "NVIDIA",
+      "page_url": "https://www.nvidia.com/en-sg/about-nvidia/legal-info/logo-brand-usage/",
+      "evidence": "Official NVIDIA trademark and visual identity guidelines.",
+      "status": "unusable",
+      "reason": "UnsupportedLogo: No matched image declaration"
+    },
+    {
+      "name": "Xero",
+      "page_url": "https://www.xero.com/au/media/",
+      "evidence": "Official Xero media center.",
+      "status": "unusable",
+      "reason": "UnsupportedLogo: No matched image declaration"
+    },
+    {
+      "name": "Xero",
+      "page_url": "https://www.xero.com/au/media/downloads/",
+      "evidence": "Official Xero media downloads page labels and embeds this corporate logo PNG.",
+      "status": "verified",
+      "logo_url": "https://www.xero.com/content/dam/xero/pilot-images/explainer/media-downloads/xero-logo-downloads.1762731076660.png",
+      "expected_sha256": "3314727013bafed03b50bced066db7aafa372332ffa77221ecbf696ff0d4ea79",
+      "local_path": "tasks/demo-listing-refresh/research/apac/validated-logos/xero.png",
+      "selection": true
+    },
+    {
+      "name": "AMD",
+      "page_url": "https://newsroom.amd.com/media-center/",
+      "evidence": "AMD Newsroom Media Center labels and embeds this AMD logo.",
+      "status": "verified",
+      "logo_url": "https://newsroom.amd.com/images/media-center/2026/07/9511f05b-cfe5-4470-aa57-6fa81b7ed81e.png",
+      "expected_sha256": "23980265f8f262f68d919a8391ac8bdd470fa97a3c4bfa5a9a4737b1768fb7a8",
+      "local_path": "tasks/demo-listing-refresh/research/apac/validated-logos/amd.png",
+      "selection": true
+    },
+    {
+      "name": "Apple",
+      "page_url": "https://www.apple.com/newsroom/archive/",
+      "evidence": "Apple Newsroom archive uses this official Apple logo image for Apple corporate news.",
+      "status": "verified",
+      "logo_url": "https://www.apple.com/newsroom/images/apple-logo_black.jpg.archive.jpg",
+      "expected_sha256": "7c88d26079780226a21ea349faf8b3af0ae8b6407e6472354912e6534cba62c9",
+      "local_path": "tasks/demo-listing-refresh/research/apac/validated-logos/apple.png",
+      "selection": true
+    },
+    {
+      "name": "Airwallex",
+      "page_url": "https://www.airwallex.com/global/operating-principles",
+      "evidence": "Official global Airwallex site identifies the employer and declares its PNG black corporate wordmark in Organization data.",
+      "status": "unusable",
+      "reason": "UnsupportedLogo: The logo exceeds its decoded size limit"
+    },
+    {
+      "name": "OKX",
+      "page_url": "https://www.okx.com/en-us/learn/okex-rebrands-to-okx",
+      "evidence": "OKX official rebrand announcement embeds this raster of the current OKX mark.",
+      "status": "verified",
+      "logo_url": "https://www.okx.com/cdn/announce/20220119/1642588276929a0193af5-6ac2-404a-babb-8be9ca215a07.png",
+      "expected_sha256": "87fea4e7b21486f471963306d1fef9ffa4eb707f19575b7c5349ed41c41e3808",
+      "local_path": "tasks/demo-listing-refresh/research/apac/validated-logos/okx.png",
+      "selection": true
+    },
+    {
+      "name": "Airwallex",
+      "page_url": "https://help.airwallex.com/hc/en-gb/articles/16987175509647-How-do-I-create-a-theme",
+      "evidence": "Airwallex’s official Help Centre embeds this company wordmark as its homepage link.",
+      "status": "unusable",
+      "reason": "UnsupportedLogo: The source did not return a supported raster format"
+    }
+  ],
+  "status_notes": {
+    "Maincode": "Already validated by the shared logo operation in the demo workspace.",
+    "Kraken": "First-party site links its icon as metadata and renders its navigation wordmark inline. The public recruiting board is ineligible as a branding page and its theme image exceeds the pixel cap.",
+    "Easygo": "First-party career page declares SVG with a Sanity CDN host. Its available raster rendition is absent from the exact image or Organization declarations.",
+    "PALO IT": "Official page declares SVG and its embedded raster URL uses an unsupported name query parameter.",
+    "Airwallex": "The global operating-principles page declares a raster exceeding the decoded size limit. The smaller Help Centre wordmark uses an unsupported media type.",
+    "NVIDIA": "The official brand guideline embeds SVG. Newsroom raster is on an external asset host outside supported exact image verification. The NVIDIA Developer page declares a raster under the developer portal name.",
+    "Amazon": "The official press logo artwork is provided on a separate asset host without matched Organization metadata or a named header image.",
+    "EPAM Systems": "Official mark is SVG. Its PNG app icon is labelled favicon.",
+    "Encora": "The branded Greenhouse board does not show an employer logo and the corporate domain redirects to Coforge."
+  }
+}

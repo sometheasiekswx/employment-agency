@@ -19,7 +19,9 @@ The showcase presents the company board and opportunity inspector on desktop, pl
 
 The public site releases automatically after all checks pass on `main`. The release marker records the deployed commit. [Release marker](https://employment-agency-demo.vercel.app/release.json) · [Deployment runbook](public-demo-deployment.md)
 
-The showcase checks public SmartRecruiters employer feeds when a tab loads. It adds five postings for Singapore, four for Melbourne and five each for New York, London and China. An unavailable feed falls back to the dated listings bundled with the build. The employer careers link can help visitors find other openings after an advert closes. [Posting API](https://developers.smartrecruiters.com/docs/endpoints)
+The showcase contains reviewed snapshots of official employer postings in Singapore, Melbourne, New York, London, China, Berlin and Toronto. Each destination has five hiring employers; China retains the actual advertised cities. Listings display checked dates and link to the original advert and careers page. Availability, sponsorship and work rights can change; a snapshot is evidence from its checked date, not a live availability promise.
+
+The browser keeps this reviewed catalog stable between releases. It does not fetch replacement jobs on page load. Companies with more than two retained suitable vacancies have exactly two highlights, with reasons tied to the approved public profile, and retain every other reviewed role. Official logos are stored as verified local PNG assets. Unsupported or blocked marks keep the initials fallback. [Decision and tradeoff](adr/0021-reviewed-public-showcase-listings.md)
 
 The six roles used in the walkthroughs are shown below. The showcase adds two sample roles to each of Saved, Active, Submitted and Removed.
 
@@ -34,7 +36,7 @@ The six roles used in the walkthroughs are shown below. The showcase adds two sa
 
 The landing page links to the public résumé. Career profile shows the owner’s name and evidence drawn from the redacted master. For a new draft, the demo uses the selected résumé. Choose a PDF with selectable text, a DOCX or plain text, then review the extracted text before using it. Edit the new CV or cover letter under Active and download Word or PDF. Files and drafts stay in the current tab and clear on reload or close. The local app supplies lasting workspace storage, custom LaTeX templates and the complete application workflow.
 
-The shared Python `Service` generates the bundled state, requirement assessments and real document files before the static site is built. The browser displays those results. To apply choices, removal, restoration and optional reasons stay in the visitor's browser. Applications → Removed holds removed roles with their saved documents and activity. Restore returns a role to its previous lists. Personal uploads, career-data edits, new document generation, external source refreshes, paid providers and employer actions are unavailable in this public showcase. Use the local application for those supported workflows.
+The shared Python `Service` generates the bundled state, requirement assessments and real document files before the static site is built. The browser displays those results. To apply choices, removal, restoration and optional reasons stay in the visitor's browser. Applications → Removed holds removed roles with their saved documents and activity. Restore returns a role to its previous lists. Persistent career-data edits, external source refreshes, paid providers and employer actions are unavailable in this public showcase. Use the local application for those supported workflows.
 
 The sample application records include a reviewed Emberlane package, a Fernbridge draft and a Cedarlight submission record. **The submission is fictional; no employer was contacted.** The documents contain sample content and must not be used as real application material.
 
@@ -62,7 +64,9 @@ npm --prefix frontend run build:preview
 
 Open **http://127.0.0.1:8789**. The export writes fictional state and content-addressed document files under `frontend/public/demo/`; `build:preview` produces the standalone site in `output/public-preview/site` without replacing the Python package's normal web assets. It needs no application server or provider credentials.
 
-Run `.venv/bin/python tests/run_public_preview_checks.py` after building to verify the routes, sample decisions, browser bookmark isolation, live feed fallback, résumé import, draft downloads and desktop/mobile accessibility with the production content security policy. CI runs the same static build and browser check on Linux.
+Run `.venv/bin/python tests/run_public_preview_checks.py` after building to verify the routes, sample decisions, reviewed listings and highlights, displayed logos, browser bookmark isolation, résumé import, draft downloads and desktop/mobile accessibility with the production content security policy. CI runs the same static build and browser check on Linux.
+
+To refresh the public catalog, follow the [shared research workflow](agents.md#research-five-companies), then use `scripts/import-showcase-research.py` with a new isolated workspace, the already-approved public profile bundle and reviewed research files. The installed shared build must support `company-research-complete`. The importer refuses incomplete destination coverage, stores logos through shared operations, saves comparison bases and requires successful research completion before writing `demo_data/showcase_jobs.json`. Keep the workspace and approved résumé inputs outside tracked source. Regenerate `frontend/public/demo`, build and verify the static site. Changing the approved résumé requires another comparison review. The older metadata-only refresh script refuses to overwrite this reviewed catalog.
 
 For media captured against an isolated local application, [tests/serve_concept_fixture.py](../tests/serve_concept_fixture.py) uses the same seed. Build the normal production frontend before starting its capture server:
 
@@ -71,7 +75,7 @@ npm --prefix frontend run build
 PYTHONPATH=.:tests .venv/bin/python tests/serve_concept_fixture.py --port 8788
 ```
 
-This fixture creates a temporary marked demo workspace, seeds it through validated service operations and removes it when the server stops. Keep capture tools on its loopback URL and verify the fictional identity and demo marker before recording. The public static deployment uses exported fictional data rather than this local fixture server.
+This fixture creates a temporary marked demo workspace, seeds it through validated service operations and removes it when the server stops. Keep capture tools on its loopback URL and verify the fictional identity and demo marker before recording. The public static deployment serves exported state and documents without this local fixture server.
 
 With that fixture running, record and encode the three walkthroughs in another terminal:
 

@@ -1,3 +1,4 @@
+import { createHash, webcrypto } from "node:crypto";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { ApiClient, connect } from "./api";
@@ -150,6 +151,86 @@ it("persists only known boolean bookmarks while keeping the Service ranking and 
     second.action("save-job", { id: "unlisted", saved: true }),
   ).rejects.toThrow();
   expect((await second.state()).state.applications[0].status).toBe("submitted");
+});
+
+it("preserves approved employer bookmarks across catalog replacement without fetching feeds", async () => {
+  const reviewedUrl = "https://careers.example.test/platform-engineer";
+  const reviewed = {
+    id: createHash("sha256").update(reviewedUrl).digest("hex").slice(0, 24),
+    title: "Reviewed Platform Engineer",
+    employer: "Example employer",
+    source: "reviewed:example",
+    url: reviewedUrl,
+    saved: false,
+  };
+  const legacy = {
+    id: "c".repeat(32),
+    title: "Legacy Platform Engineer",
+    location: "Singapore",
+    source: "smartrecruiters:Example:sg",
+    url: "https://jobs.smartrecruiters.com/Example/1234567",
+  };
+  const redirected = "https://careers.example.test/unreviewed";
+  const untrusted = {
+    ...reviewed,
+    id: createHash("sha256").update(redirected).digest("hex").slice(0, 24),
+    url: redirected,
+    location: "Singapore",
+  };
+  const forged = { ...untrusted, id: "b".repeat(24), url: reviewedUrl };
+  vi.stubGlobal("crypto", webcrypto);
+  for (const job of [legacy, untrusted, forged]) {
+    localStorage.setItem(`employment-agency:public-posting:${job.id}`, JSON.stringify(job));
+    localStorage.setItem(`employment-agency:employer-bookmarks:job:${job.id}`, "true");
+  }
+
+  let revision = "first-review";
+  const fetchSnapshot = vi.fn(async (url: string) => {
+    if (url !== "/demo/preview.json") throw new Error(`Unexpected request: ${url}`);
+    const snapshot = bundle();
+    if (revision === "first-review")
+      snapshot.state.jobs.push(Object.assign({ location: "Singapore" }, reviewed));
+    return Response.json({
+      ...snapshot,
+      revision,
+      job_sources: [],
+      legacy_job_sources: [{
+        board: "Example",
+        employer: reviewed.employer,
+        country: "sg",
+        city: "Singapore",
+        destination: "Singapore",
+        query: "engineer",
+        count: 1,
+      }],
+      reviewed_job_sources: [{
+        source: reviewed.source,
+        employer: reviewed.employer,
+        careers_url: "https://careers.example.test/",
+        posting_urls: [reviewedUrl],
+      }],
+    });
+  });
+  vi.stubGlobal("fetch", fetchSnapshot);
+  const first = new ApiClient(false, undefined, new PublicPreviewTransport());
+  expect((await first.state()).state.jobs.find(({ id }) => id === reviewed.id))
+    .toMatchObject(reviewed);
+  await first.action("save-job", { id: reviewed.id, saved: true });
+
+  revision = "next-review";
+  const second = new ApiClient(false, undefined, new PublicPreviewTransport());
+  const jobs = (await second.state()).state.jobs;
+  for (const job of [legacy, reviewed]) {
+    expect(jobs.find(({ id }) => id === job.id)).toMatchObject({
+      url: job.url, saved: true, availability: "Saved employer snapshot",
+    });
+  }
+  expect(jobs.map(({ id }) => id)).not.toContain(untrusted.id);
+  expect(jobs.map(({ id }) => id)).not.toContain(forged.id);
+  expect(fetchSnapshot.mock.calls.map(([url]) => url)).toEqual([
+    "/demo/preview.json",
+    "/demo/preview.json",
+  ]);
 });
 
 it("keeps independent role writes from already loaded tabs and reads their latest choices", async () => {

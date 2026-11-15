@@ -1,0 +1,781 @@
+{
+  "checked_at": "2026-11-15T08:18:28+00:00",
+  "companies": [
+    {
+      "name": "Monzo",
+      "city": "London",
+      "careers_url": "https://monzo.com/careers",
+      "logo": {
+        "page_url": "https://monzo.com/careers",
+        "url": "https://static-assets.monzo.com/monzo-com/4330a8a3520efa97321beb54cc45e1d046fa057f/_next/static/media/favicon.87a9df8c.png",
+        "evidence": "Official careers page declares its branded PNG application icon in the document head.",
+        "local_path": "tasks/demo-listing-refresh/research/europe/logos/monzo.png",
+        "status": "unsupported",
+        "dimensions": [
+          96,
+          96
+        ],
+        "final_url": "https://static-assets.monzo.com/monzo-com/4330a8a3520efa97321beb54cc45e1d046fa057f/_next/static/media/favicon.87a9df8c.png",
+        "note": "The careers-site PNG is a favicon. The employer-board wordmark is 2414×808 and exceeds the shared decoded dimension limit; the official download-page icon is SVG.",
+        "alternative": {
+          "page_url": "https://job-boards.greenhouse.io/monzo",
+          "url": "https://recruiting.cdn.greenhouse.io/external_greenhouse_job_boards/logos/000/005/589/original/Monzo_Wordmark_Hot_coral.png?1710417542",
+          "evidence": "The employer-controlled Monzo Greenhouse board publishes the hot coral Monzo wordmark in its own board metadata and masthead.",
+          "final_url": "https://recruiting.cdn.greenhouse.io/external_greenhouse_job_boards/logos/000/005/589/original/Monzo_Wordmark_Hot_coral.png?1710417542",
+          "dimensions": [
+            2414,
+            808
+          ],
+          "status": "unsupported",
+          "note": "The logo exceeds its decoded size limit"
+        }
+      },
+      "jobs": [
+        {
+          "id": "161253d2719318446c5412fa",
+          "title": "Backend Engineer III",
+          "employer": "Monzo",
+          "city": "London",
+          "location": "Cardiff, London or Remote (UK)",
+          "url": "https://job-boards.greenhouse.io/monzo/jobs/6635595",
+          "careers_url": "https://monzo.com/careers",
+          "source": "greenhouse:monzo",
+          "requisition": "1869",
+          "source_url": "https://job-boards.greenhouse.io/monzo/jobs/6635595",
+          "evidence": "Active employer Greenhouse board names Monzo and publishes posting 6635595, opening 1869, for Cardiff, London or Remote (UK).",
+          "description": "Build, run and improve backend systems used by Monzo’s banking products. The company hires across languages and lists Go, Cassandra, Kafka, Docker, Kubernetes and AWS in its existing stack.",
+          "requirements": [
+            "Backend product engineering",
+            "Strongly typed languages",
+            "Distributed systems",
+            "Docker",
+            "AWS"
+          ],
+          "checked_at": "2026-11-15T08:18:28+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "Visa sponsorship available",
+          "posted_at": "2025-02-17"
+        },
+        {
+          "id": "dd028c3513baef502829137f",
+          "title": "Senior Backend Engineer",
+          "employer": "Monzo",
+          "city": "London",
+          "location": "Cardiff, London or Remote (UK)",
+          "url": "https://job-boards.greenhouse.io/monzo/jobs/6635837",
+          "careers_url": "https://monzo.com/careers",
+          "source": "greenhouse:monzo",
+          "requisition": "1871",
+          "source_url": "https://job-boards.greenhouse.io/monzo/jobs/6635837",
+          "evidence": "Active employer Greenhouse board names Monzo and publishes posting 6635837, opening 1871, for Cardiff, London or Remote (UK).",
+          "description": "Own and improve systems behind Monzo banking products at the senior level. The advert describes technical collaboration and resilient backend services and supports learning Monzo’s specific tooling on the job.",
+          "requirements": [
+            "Senior backend engineering",
+            "Strongly typed languages",
+            "Distributed systems",
+            "Docker",
+            "AWS"
+          ],
+          "checked_at": "2026-11-15T08:18:28+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "Visa sponsorship available",
+          "posted_at": "2025-02-14"
+        }
+      ],
+      "picks": []
+    },
+    {
+      "name": "Deliveroo",
+      "city": "London",
+      "careers_url": "https://careers.deliveroo.co.uk/",
+      "logo": {
+        "page_url": "https://careers.deliveroo.co.uk/",
+        "url": "https://careers.deliveroo.co.uk/app/themes/deliveroo-careers/assets/favicon/apple-touch-icon.png",
+        "evidence": "Official careers page declares a same-site 180px touch icon with the Deliveroo mark.",
+        "local_path": "tasks/demo-listing-refresh/research/europe/logos/deliveroo.png",
+        "status": "retrieved",
+        "dimensions": [
+          180,
+          180
+        ],
+        "final_url": "https://careers.deliveroo.co.uk/app/themes/deliveroo-careers/assets/favicon/apple-touch-icon.png"
+      },
+      "jobs": [
+        {
+          "id": "938a586130d3a4e45c78d134",
+          "title": "Software Engineer, Backend (BI Platform)",
+          "employer": "Deliveroo",
+          "city": "London",
+          "location": "London, United Kingdom",
+          "url": "https://job-boards.greenhouse.io/deliveroo/jobs/8206463",
+          "careers_url": "https://careers.deliveroo.co.uk/",
+          "source": "greenhouse:deliveroo",
+          "requisition": "2026.08541",
+          "source_url": "https://job-boards.greenhouse.io/deliveroo/jobs/8206463",
+          "evidence": "Active employer Greenhouse board names Deliveroo and publishes posting 8206463, opening 2026.08541, for London, United Kingdom - Deliveroo.",
+          "description": "Build backend integrations between business intelligence tooling and data warehouses, identity providers and developer platforms. Own service design, release workflows and ongoing operation.",
+          "requirements": [
+            "Python",
+            "SQL",
+            "Data modelling",
+            "API integration",
+            "CI/CD",
+            "Docker or other containers",
+            "Kubernetes",
+            "Observability"
+          ],
+          "checked_at": "2026-11-15T08:18:28+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "Hybrid",
+          "posted_at": "2026-09-18"
+        },
+        {
+          "id": "dddd763b5ecf5d0a6cec122a",
+          "title": "Senior Software Engineer (Full-Stack) - Home Page and Merchandising Platform",
+          "employer": "Deliveroo",
+          "city": "London",
+          "location": "London, United Kingdom",
+          "url": "https://job-boards.greenhouse.io/deliveroo/jobs/8276280",
+          "careers_url": "https://careers.deliveroo.co.uk/",
+          "source": "greenhouse:deliveroo",
+          "requisition": "EV3015",
+          "source_url": "https://job-boards.greenhouse.io/deliveroo/jobs/8276280",
+          "evidence": "Active employer Greenhouse board names Deliveroo and publishes posting 8276280, opening EV3015, for London, United Kingdom - Deliveroo.",
+          "description": "Build and operate services and user-facing components for the home page and merchandising. Work with other disciplines on design, delivery and production health.",
+          "requirements": [
+            "Python or another modern backend language",
+            "Web architecture",
+            "SQL",
+            "NoSQL",
+            "Automated testing",
+            "Technical mentoring"
+          ],
+          "checked_at": "2026-11-15T08:18:28+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "Hybrid",
+          "posted_at": "2026-10-13"
+        },
+        {
+          "id": "6d61b1bee40560589e103166",
+          "title": "Software Engineer II (Backend) - Home Page & Merchandising Platform",
+          "employer": "Deliveroo",
+          "city": "London",
+          "location": "London, United Kingdom",
+          "url": "https://job-boards.greenhouse.io/deliveroo/jobs/8266845",
+          "careers_url": "https://careers.deliveroo.co.uk/",
+          "source": "greenhouse:deliveroo",
+          "requisition": "EV2938",
+          "source_url": "https://job-boards.greenhouse.io/deliveroo/jobs/8266845",
+          "evidence": "Active employer Greenhouse board names Deliveroo and publishes posting 8266845, opening EV2938, for London, United Kingdom - Deliveroo.",
+          "description": "Develop backend services for merchandising and the customer home page, collaborating across product and design and owning tests and operations.",
+          "requirements": [
+            "Python, Go, Ruby or another modern language",
+            "SQL",
+            "NoSQL and caching",
+            "Backend services",
+            "Automated testing",
+            "Service monitoring"
+          ],
+          "checked_at": "2026-11-15T08:18:28+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "Hybrid",
+          "posted_at": "2026-10-13"
+        },
+        {
+          "id": "4b7c3524b0b1e9632d6a5435",
+          "title": "Software Engineer",
+          "employer": "Deliveroo",
+          "city": "London",
+          "location": "London, United Kingdom",
+          "url": "https://job-boards.greenhouse.io/deliveroo/jobs/8206351",
+          "careers_url": "https://careers.deliveroo.co.uk/",
+          "source": "greenhouse:deliveroo",
+          "requisition": "2026.08616",
+          "source_url": "https://job-boards.greenhouse.io/deliveroo/jobs/8206351",
+          "evidence": "Active employer Greenhouse board names Deliveroo and publishes posting 8206351, opening 2026.08616, for London, United Kingdom - Deliveroo.",
+          "description": "Build and operate software in the assigned product area, working with product and engineering partners to deliver maintainable systems.",
+          "requirements": [
+            "Software engineering",
+            "SQL",
+            "NoSQL",
+            "Cassandra",
+            "Node.js or another backend language",
+            "Cloud and event-driven architecture"
+          ],
+          "checked_at": "2026-11-15T08:18:28+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "posted_at": "2026-09-18"
+        }
+      ],
+      "picks": [
+        {
+          "job_id": "938a586130d3a4e45c78d134",
+          "reason": "The BI integrations combine Python, SQL and CI/CD, all documented in the public profile. Confirm warehouse and Kubernetes depth.",
+          "fact_ids": [
+            "ce3737d14c22431c2f3c0d19067d52a3",
+            "d7629711b68661baaf1fbb1792c0fb8a",
+            "1fbbf838939b2db64d80606aec6c15eb"
+          ]
+        },
+        {
+          "job_id": "dddd763b5ecf5d0a6cec122a",
+          "reason": "The merchandising role uses Python among its backend languages and calls for relational and NoSQL data work. Verify its high-traffic scope and mentoring expectations.",
+          "fact_ids": [
+            "ce3737d14c22431c2f3c0d19067d52a3",
+            "d7629711b68661baaf1fbb1792c0fb8a"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Wise",
+      "city": "London",
+      "careers_url": "https://wise.jobs/",
+      "logo": {
+        "status": "verified",
+        "sha256": "ca538902d939a2428ad8ba29cacfe4377a77aefb7471cc78cc859b5390310cfe",
+        "url": "https://d21buns5ku92am.cloudfront.net/69646/logo/retina-1677657632.png",
+        "page_url": "https://newsroom.wise.com/en-NAM/assets/228784/",
+        "evidence": "Wise’s official newsroom media kit contains the Wise logo as a named masthead image in same-site header navigation.",
+        "checked_at": "2026-11-15T08:35:43.607672+00:00",
+        "local_path": "employment_agency/demo_data/showcase_logos/ca538902d939a2428ad8ba29cacfe4377a77aefb7471cc78cc859b5390310cfe.png",
+        "selection": false
+      },
+      "jobs": [
+        {
+          "id": "c648df9117236d0a1a5664fc",
+          "title": "Software Engineer - Risk Control & Governance",
+          "employer": "Wise",
+          "city": "London",
+          "location": "London, United Kingdom",
+          "url": "https://jobs.smartrecruiters.com/Wise/744000160549671-software-engineer-risk-control-governance",
+          "careers_url": "https://wise.jobs/",
+          "source": "smartrecruiters:Wise",
+          "requisition": "R10309",
+          "source_url": "https://jobs.smartrecruiters.com/Wise/744000160549671-software-engineer-risk-control-governance",
+          "evidence": "Employer SmartRecruiters posting 744000160549671 identifies Wise as the hiring employer, lists London and returns active=true.",
+          "description": "Develop backend systems that make Wise’s risk-control decisions auditable. Work on data contracts, evidence gathering, lineage and integrations with risk services.",
+          "requirements": [
+            "Backend engineering",
+            "Kafka",
+            "SQL",
+            "NoSQL",
+            "Distributed systems",
+            "Data quality or pipeline orchestration"
+          ],
+          "checked_at": "2026-11-15T08:18:28+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "Hybrid",
+          "posted_at": "2026-11-09"
+        },
+        {
+          "id": "087a12ce01b3bdf38e5419ac",
+          "title": "Senior Data Engineer I - Global KYC & Onboarding",
+          "employer": "Wise",
+          "city": "London",
+          "location": "London, United Kingdom",
+          "url": "https://jobs.smartrecruiters.com/Wise/744000161530989-senior-data-engineer-i-global-kyc-onboarding",
+          "careers_url": "https://wise.jobs/",
+          "source": "smartrecruiters:Wise",
+          "requisition": "R11117",
+          "source_url": "https://jobs.smartrecruiters.com/Wise/744000161530989-senior-data-engineer-i-global-kyc-onboarding",
+          "evidence": "Employer SmartRecruiters posting 744000161530989 identifies Wise as the hiring employer, lists London and returns active=true.",
+          "description": "Build KYC onboarding-data infrastructure and standardized verification pipelines, moving ad-hoc scripts into maintained Python and Airflow workflows.",
+          "requirements": [
+            "Python",
+            "SQL",
+            "Data modelling",
+            "Airflow or workflow orchestration",
+            "Analytical databases",
+            "Data pipelines"
+          ],
+          "checked_at": "2026-11-15T08:18:28+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "Hybrid",
+          "posted_at": "2026-11-13"
+        }
+      ],
+      "picks": [],
+      "initial_logo": {
+        "page_url": "https://wise.com/gb/press",
+        "url": "https://wise.com/public-resources/assets/icons/wise-personal/apple_touch_icon.png",
+        "evidence": "Wise’s official press page declares its same-site branded 180px Apple touch icon.",
+        "final_url": "https://wise.com/public-resources/assets/icons/wise-personal/apple_touch_icon.png",
+        "dimensions": [
+          180,
+          180
+        ],
+        "local_path": "tasks/demo-listing-refresh/research/europe/logos/wise-touch.png",
+        "status": "retrieved",
+        "original_candidate": {
+          "page_url": "https://wise.com/gb/press",
+          "url": "https://wise.com/public-resources/assets/icons/wise-personal/favicon.png",
+          "evidence": "Wise’s official press page declares the Wise personal brand PNG icon.",
+          "local_path": "tasks/demo-listing-refresh/research/europe/logos/wise.png",
+          "status": "retrieved",
+          "dimensions": [
+            32,
+            32
+          ],
+          "final_url": "https://wise.com/public-resources/assets/icons/wise-personal/favicon.png"
+        }
+      }
+    },
+    {
+      "name": "Contentful",
+      "city": "London",
+      "careers_url": "https://job-boards.greenhouse.io/contentful",
+      "logo": {
+        "page_url": "https://job-boards.greenhouse.io/contentful",
+        "url": "https://recruiting.cdn.greenhouse.io/external_greenhouse_job_boards/logos/000/007/259/original/Contentful-Color-Black.png?1789071791",
+        "evidence": "Contentful’s employer-controlled Greenhouse board explicitly displays its color logo from the recruiting CDN.",
+        "local_path": "tasks/demo-listing-refresh/research/europe/logos/contentful.png",
+        "status": "unsupported",
+        "dimensions": [
+          3000,
+          800
+        ],
+        "final_url": "https://recruiting.cdn.greenhouse.io/external_greenhouse_job_boards/logos/000/007/259/original/Contentful-Color-Black.png?1789071791",
+        "note": "The employer-board PNG is 3000×800, over the shared dimension and pixel limits; the official newsroom site returned HTTP 429 and exposed an SVG wordmark in a public indexed copy."
+      },
+      "jobs": [
+        {
+          "id": "7a456438389129cb6cb0f6e1",
+          "title": "Demo Software Engineer (f/m/d)",
+          "employer": "Contentful",
+          "city": "London",
+          "location": "London, England, United Kingdom",
+          "url": "https://job-boards.greenhouse.io/contentful/jobs/8356206",
+          "careers_url": "https://job-boards.greenhouse.io/contentful",
+          "source": "greenhouse:contentful",
+          "requisition": "477",
+          "source_url": "https://job-boards.greenhouse.io/contentful/jobs/8356206",
+          "evidence": "Active employer Greenhouse board names Contentful and publishes posting 8356206, opening 477, for London, England, United Kingdom.",
+          "description": "Build technical product demos and reusable examples. Work with frontend frameworks and APIs to demonstrate workflows and improve how stakeholders understand the platform.",
+          "requirements": [
+            "TypeScript",
+            "JavaScript",
+            "React",
+            "GraphQL",
+            "API development",
+            "CI/CD",
+            "Technical communication"
+          ],
+          "checked_at": "2026-11-15T08:18:28+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "posted_at": "2026-11-09"
+        },
+        {
+          "id": "724912ed1b0d213dc24501f4",
+          "title": "Senior Software Engineer - Personalization (f/m/d)",
+          "employer": "Contentful",
+          "city": "Berlin",
+          "location": "Berlin, Germany",
+          "url": "https://job-boards.greenhouse.io/contentful/jobs/8221365",
+          "careers_url": "https://job-boards.greenhouse.io/contentful",
+          "source": "greenhouse:contentful",
+          "requisition": "SSWE1",
+          "source_url": "https://job-boards.greenhouse.io/contentful/jobs/8221365",
+          "evidence": "Active employer Greenhouse board names Contentful and publishes posting 8221365, opening SSWE1, for Berlin, Germany.",
+          "description": "Build personalization software across server-side APIs, React experiences and developer-facing SDKs. Own test coverage and improve the developer experience for users of the personalization platform.",
+          "requirements": [
+            "TypeScript",
+            "API protocol design",
+            "React",
+            "Developer tooling and SDKs",
+            "CI/CD",
+            "Automated tests",
+            "English communication"
+          ],
+          "checked_at": "2026-11-15T08:18:28+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "posted_at": "2026-09-21"
+        }
+      ],
+      "picks": [],
+      "cities": [
+        "London",
+        "Berlin"
+      ]
+    },
+    {
+      "name": "Trainline",
+      "city": "London",
+      "careers_url": "https://www.trainlinegroup.com/careers/",
+      "logo": {
+        "page_url": "https://www.thetrainline.com/",
+        "url": "https://www.thetrainline.com/cms/media/3681/trainline-logo-uk.png",
+        "evidence": "The official Trainline home page includes this same-site PNG as the named Trainline organization logo in its schema.org structured data.",
+        "local_path": "tasks/demo-listing-refresh/research/europe/logos/trainline.png",
+        "status": "retrieved",
+        "dimensions": [
+          1000,
+          1000
+        ],
+        "final_url": "https://www.thetrainline.com/cms/media/3681/trainline-logo-uk.png"
+      },
+      "jobs": [
+        {
+          "id": "9f45e22639fb2cc573d0f456",
+          "title": "Platform Engineer",
+          "employer": "Trainline",
+          "city": "London",
+          "location": "London, United Kingdom",
+          "url": "https://jobs.ashbyhq.com/trainline/8536b13b-5ff7-4551-a77d-88d8b4dd43f5",
+          "careers_url": "https://www.trainlinegroup.com/careers/",
+          "source": "ashby:trainline",
+          "requisition": "8536b13b-5ff7-4551-a77d-88d8b4dd43f5",
+          "source_url": "https://jobs.ashbyhq.com/trainline/8536b13b-5ff7-4551-a77d-88d8b4dd43f5",
+          "evidence": "The active employer Ashby board publishes Platform Engineer as 8536b13b-5ff7-4551-a77d-88d8b4dd43f5 in London.",
+          "description": "Develop AWS infrastructure, shared automation and tooling for product engineering teams. Build infrastructure with IaC and test and release changes through CI/CD.",
+          "requirements": [
+            "Python, Node.js or C#",
+            "AWS",
+            "Terraform or other IaC",
+            "CI/CD",
+            "Secure cloud operations",
+            "Monitoring and troubleshooting"
+          ],
+          "checked_at": "2026-11-15T08:18:28+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "posted_at": "2026-10-29"
+        },
+        {
+          "id": "904e088050cdb947cbb2c42e",
+          "title": "Senior Platform Engineer",
+          "employer": "Trainline",
+          "city": "London",
+          "location": "London, United Kingdom",
+          "url": "https://jobs.ashbyhq.com/trainline/6e8ba16f-7cc4-41e7-9c63-0115509e07ae",
+          "careers_url": "https://www.trainlinegroup.com/careers/",
+          "source": "ashby:trainline",
+          "requisition": "6e8ba16f-7cc4-41e7-9c63-0115509e07ae",
+          "source_url": "https://jobs.ashbyhq.com/trainline/6e8ba16f-7cc4-41e7-9c63-0115509e07ae",
+          "evidence": "The active employer Ashby board publishes Senior Platform Engineer as 6e8ba16f-7cc4-41e7-9c63-0115509e07ae in London.",
+          "description": "Improve Trainline’s AWS platform and developer automation, guide technical delivery and operate infrastructure changes through testing and CI/CD.",
+          "requirements": [
+            "Python, Node.js or C#",
+            "AWS",
+            "Terraform or other IaC",
+            "CI/CD",
+            "Cloud security",
+            "Technical collaboration"
+          ],
+          "checked_at": "2026-11-15T08:18:28+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "posted_at": "2026-10-29"
+        }
+      ],
+      "picks": []
+    },
+    {
+      "name": "HelloFresh",
+      "city": "Berlin",
+      "careers_url": "https://careers.hellofresh.com/global/en",
+      "logo": {
+        "page_url": "https://careers.hellofresh.com/global/en",
+        "url": "https://cdn.phenompeople.com/CareerConnectResources/HELLGLOBAL/images/Untitleddesign3-1687854541011.png",
+        "evidence": "HelloFresh’s official careers page uses the same image in both desktop and mobile company mastheads.",
+        "local_path": "tasks/demo-listing-refresh/research/europe/logos/hellofresh.png",
+        "status": "retrieved",
+        "dimensions": [
+          300,
+          150
+        ],
+        "final_url": "https://cdn.phenompeople.com/CareerConnectResources/HELLGLOBAL/images/Untitleddesign3-1687854541011.png"
+      },
+      "jobs": [
+        {
+          "id": "49af77fd6f03590e505b9733",
+          "title": "Senior Backend Engineer - Marketing Automation (all genders)",
+          "employer": "HelloFresh",
+          "city": "Berlin",
+          "location": "Berlin, Berlin, Germany",
+          "url": "https://careers.hellofresh.com/global/en/job/8280899?gh_jid=8280899",
+          "careers_url": "https://careers.hellofresh.com/global/en",
+          "source": "greenhouse:hellofresh",
+          "requisition": "JR106821",
+          "source_url": "https://careers.hellofresh.com/global/en/job/8280899?gh_jid=8280899",
+          "evidence": "Active employer Greenhouse board names HelloFresh and publishes posting 8280899, opening JR106821, for Berlin, Berlin, Germany.",
+          "description": "Develop backend services for marketing automation, including integrations and reliable data handling. Build maintainable Python services and ship them through tested cloud release workflows.",
+          "requirements": [
+            "Python",
+            "SQL",
+            "Relational databases",
+            "Containers",
+            "AWS or cloud infrastructure",
+            "CI/CD",
+            "5+ years in software engineering"
+          ],
+          "checked_at": "2026-11-15T08:18:28+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "Hybrid",
+          "posted_at": "2026-10-22"
+        }
+      ],
+      "picks": []
+    },
+    {
+      "name": "N26",
+      "city": "Berlin",
+      "careers_url": "https://n26.com/en-eu/careers",
+      "logo": {
+        "page_url": "https://n26.com/en-eu/careers",
+        "url": "https://n26.com/logo-112x112.png",
+        "evidence": "The official N26 careers page identifies this same-site PNG in structured organization markup.",
+        "local_path": "tasks/demo-listing-refresh/research/europe/logos/n26.png",
+        "status": "retrieved",
+        "dimensions": [
+          112,
+          112
+        ],
+        "final_url": "https://n26.com/logo-112x112.png"
+      },
+      "jobs": [
+        {
+          "id": "bd5da8cded4340a5454bb41c",
+          "title": "Site Reliability Engineer - Data Platform",
+          "employer": "N26",
+          "city": "Berlin",
+          "location": "Barcelona, Berlin",
+          "url": "https://n26.com/en-eu/careers/positions/8378357?gh_jid=8378357",
+          "careers_url": "https://n26.com/en-eu/careers",
+          "source": "greenhouse:n26",
+          "requisition": "R6383",
+          "source_url": "https://n26.com/en-eu/careers/positions/8378357?gh_jid=8378357",
+          "evidence": "Active employer Greenhouse board names N26 and publishes posting 8378357, opening R6383, for Barcelona, Berlin.",
+          "description": "Operate the data platform’s storage and delivery infrastructure. Improve reliability, IaC, deployment pipelines and observability, and join incident-response rotations.",
+          "requirements": [
+            "AWS",
+            "PostgreSQL or equivalent operational storage",
+            "Docker",
+            "Kubernetes",
+            "Terraform or CloudFormation",
+            "Python",
+            "CI/CD",
+            "Observability"
+          ],
+          "checked_at": "2026-11-15T08:18:28+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "Relocation package includes visa support",
+          "posted_at": "2026-11-11"
+        },
+        {
+          "id": "86b2c9ad16b0a6a46b2b3083",
+          "title": "Senior Site Reliability Engineer - Connectivity",
+          "employer": "N26",
+          "city": "Berlin",
+          "location": "Berlin, Barcelona",
+          "url": "https://n26.com/en-eu/careers/positions/8219953?gh_jid=8219953",
+          "careers_url": "https://n26.com/en-eu/careers",
+          "source": "greenhouse:n26",
+          "requisition": "R6499",
+          "source_url": "https://n26.com/en-eu/careers/positions/8219953?gh_jid=8219953",
+          "evidence": "Active employer Greenhouse board names N26 and publishes posting 8219953, opening R6499, for Berlin, Barcelona.",
+          "description": "Maintain cloud connectivity and network services for N26’s platform, with on-call and ongoing reliability work. Improve automation for containers, cloud infrastructure and networking.",
+          "requirements": [
+            "AWS",
+            "Python or Go",
+            "Linux networking",
+            "Docker",
+            "Kubernetes",
+            "Istio",
+            "CI/CD",
+            "Terraform",
+            "Incident response"
+          ],
+          "checked_at": "2026-11-15T08:18:28+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "Relocation package includes visa support",
+          "posted_at": "2026-10-23"
+        }
+      ],
+      "picks": []
+    },
+    {
+      "name": "SumUp",
+      "city": "Berlin",
+      "careers_url": "https://www.sumup.com/careers/",
+      "logo": {
+        "page_url": "https://www.sumup.com/careers/",
+        "url": "https://static.sumup.com/favicons/apple-touch-icon.png",
+        "evidence": "The official SumUp careers page declares its touch icon on SumUp’s static subdomain.",
+        "local_path": "tasks/demo-listing-refresh/research/europe/logos/sumup.png",
+        "status": "retrieved",
+        "dimensions": [
+          180,
+          180
+        ],
+        "final_url": "https://static.sumup.com/favicons/apple-touch-icon.png"
+      },
+      "jobs": [
+        {
+          "id": "3200a4051e94d44304e22171",
+          "title": "Data Platform Engineer (Mid-Level)",
+          "employer": "SumUp",
+          "city": "Berlin",
+          "location": "Berlin, Germany",
+          "url": "https://sumup.com/careers/positions/8364212002?gh_jid=8364212002",
+          "careers_url": "https://www.sumup.com/careers/",
+          "source": "greenhouse:sumup",
+          "requisition": "R-010575",
+          "source_url": "https://sumup.com/careers/positions/8364212002?gh_jid=8364212002",
+          "evidence": "Active employer Greenhouse board names SumUp and publishes posting 8364212002, opening R-010575, for Berlin, Germany.",
+          "description": "Build internal infrastructure for analytics and data engineering. Improve data tools, monitoring, release workflows and the engineering practices used by internal platform customers.",
+          "requirements": [
+            "Python or Go",
+            "SQL",
+            "Terraform",
+            "Docker",
+            "Kubernetes",
+            "CI/CD",
+            "SDLC",
+            "Modern data stack",
+            "Observability"
+          ],
+          "checked_at": "2026-11-15T08:18:28+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "posted_at": "2026-07-23"
+        },
+        {
+          "id": "991d01bfe3a13da1dc2e2117",
+          "title": "Senior Fullstack Engineer - Localization",
+          "employer": "SumUp",
+          "city": "Berlin",
+          "location": "Berlin, Germany",
+          "url": "https://sumup.com/careers/positions/8773687002?gh_jid=8773687002",
+          "careers_url": "https://www.sumup.com/careers/",
+          "source": "greenhouse:sumup",
+          "requisition": "R-014394",
+          "source_url": "https://sumup.com/careers/positions/8773687002?gh_jid=8773687002",
+          "evidence": "Active employer Greenhouse board names SumUp and publishes posting 8773687002, opening R-014394, for Berlin, Germany.",
+          "description": "Build and maintain localized product capabilities across backend APIs, web and mobile teams. Develop services and data integrations that help different teams ship content for multiple markets.",
+          "requirements": [
+            "Python or Go, Rust or C++",
+            "REST APIs",
+            "PostgreSQL",
+            "Kafka",
+            "React",
+            "TypeScript",
+            "Localization tooling"
+          ],
+          "checked_at": "2026-11-15T08:18:28+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "posted_at": "2026-09-11"
+        }
+      ],
+      "picks": []
+    },
+    {
+      "name": "Delivery Hero",
+      "city": "Berlin",
+      "careers_url": "https://careers.deliveryhero.com/",
+      "logo": {
+        "page_url": "https://careers.deliveryhero.com/",
+        "url": "https://careers.deliveryhero.com/assets/file/e97b9a3a-bf03-4966-8394-08dc390d0e29/Delivery-Hero-Logo.png",
+        "evidence": "The official careers page declares this same-site Delivery Hero Logo PNG in its Open Graph and other social image metadata.",
+        "local_path": "tasks/demo-listing-refresh/research/europe/logos/delivery-hero.png",
+        "status": "unsupported",
+        "dimensions": [
+          6000,
+          3614
+        ],
+        "final_url": "https://careers.deliveryhero.com/assets/file/e97b9a3a-bf03-4966-8394-08dc390d0e29/Delivery-Hero-Logo.png",
+        "note": "The official careers-page PNG is 6000×3614, over the shared decoded limits; the official logo gallery’s published 900×474 WebP returned HTTP 403 to the local client.",
+        "alternative": {
+          "page_url": "https://www.deliveryhero.com/downloads/logos/",
+          "url": "https://www.deliveryhero.com/wp-content/uploads/2026/03/Red-Logo-900x474.webp",
+          "evidence": "Delivery Hero’s official logos page lists a Red Logo and embeds this 900×474 WebP preview.",
+          "status": "unsupported",
+          "note": "HTTP Error 403: Forbidden"
+        }
+      },
+      "jobs": [
+        {
+          "id": "b045a4c48abee04794f2f768",
+          "title": "Senior Software Engineer, Go - (Global Recommendations and Ranking, Consumer)",
+          "employer": "Delivery Hero",
+          "city": "Berlin",
+          "location": "Berlin, Germany",
+          "url": "https://jobs.smartrecruiters.com/DeliveryHero/744000159818991-senior-software-engineer-go-global-recommendations-and-ranking-consumer-",
+          "careers_url": "https://careers.deliveryhero.com/",
+          "source": "smartrecruiters:DeliveryHero",
+          "requisition": "JR0088211",
+          "source_url": "https://jobs.smartrecruiters.com/DeliveryHero/744000159818991-senior-software-engineer-go-global-recommendations-and-ranking-consumer-",
+          "evidence": "Employer SmartRecruiters posting 744000159818991 identifies Delivery Hero as the hiring employer, lists Berlin and returns active=true.",
+          "description": "Own recommendation and ranking features from design to production operation. Develop backend services and model-serving integrations and maintain performance and reliability.",
+          "requirements": [
+            "Python or Go",
+            "REST and gRPC APIs",
+            "AWS or GCP",
+            "Terraform or equivalent IaC",
+            "Kubernetes",
+            "Event streaming",
+            "English communication"
+          ],
+          "checked_at": "2026-11-15T08:18:28+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "Hybrid",
+          "posted_at": "2026-11-05"
+        }
+      ],
+      "picks": []
+    }
+  ],
+  "coverage": [
+    {
+      "city": "London",
+      "companies": [
+        "Contentful",
+        "Deliveroo",
+        "Monzo",
+        "Trainline",
+        "Wise"
+      ],
+      "jobs": 11
+    },
+    {
+      "city": "Berlin",
+      "companies": [
+        "Contentful",
+        "Delivery Hero",
+        "HelloFresh",
+        "N26",
+        "SumUp"
+      ],
+      "jobs": 7
+    }
+  ]
+}

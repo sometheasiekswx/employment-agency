@@ -1,0 +1,345 @@
+{
+  "checked_date": "2026-11-15",
+  "job_pages": [
+    {
+      "job_id": "8aed0451f40a6397718b4b01",
+      "employer": "Xero",
+      "requisition": "0c345d63-dcc1-4fa0-b521-a0fb6fff29ca",
+      "url": "https://jobs.ashbyhq.com/xero/0c345d63-dcc1-4fa0-b521-a0fb6fff29ca",
+      "source_url": "https://api.ashbyhq.com/posting-api/job-board/xero",
+      "location": "Melbourne or Sydney, Australia",
+      "checked_at": "2026-11-15T08:14:09.713346+00:00",
+      "response_status": 200,
+      "response_sha256": "766ddf494f7742d45a0ba82d50cf885bedbd7e02009e9ed17a762a4ead887be5",
+      "application_evidence": "Listed with full description and direct application link on employer’s Ashby board."
+    },
+    {
+      "job_id": "d93f5d18222aa65f5174874a",
+      "employer": "Xero",
+      "requisition": "65b39783-4a06-4bae-8dbe-48afb916886f",
+      "url": "https://jobs.ashbyhq.com/xero/65b39783-4a06-4bae-8dbe-48afb916886f",
+      "source_url": "https://api.ashbyhq.com/posting-api/job-board/xero",
+      "location": "Melbourne, Sydney or Brisbane, Australia",
+      "checked_at": "2026-11-15T08:14:09.713346+00:00",
+      "response_status": 200,
+      "response_sha256": "e1a63c5619b9071432d661a113f01508e91203e2f74d4e9002869160e5db81f9",
+      "application_evidence": "Listed with full description and direct application link on employer’s Ashby board."
+    },
+    {
+      "job_id": "070be8bc1ad01fcec56b0a30",
+      "employer": "Xero",
+      "requisition": "9eef7111-d180-4e9e-a3df-f5f36f8b61f8",
+      "url": "https://jobs.ashbyhq.com/xero/9eef7111-d180-4e9e-a3df-f5f36f8b61f8",
+      "source_url": "https://api.ashbyhq.com/posting-api/job-board/xero",
+      "location": "Melbourne, Sydney, Canberra or Brisbane, Australia",
+      "checked_at": "2026-11-15T08:14:09.713346+00:00",
+      "response_status": 200,
+      "response_sha256": "1104c71dd933c275d543ea3c81a2e4b558209ddb9bf88b0072a21a7e092b057c",
+      "application_evidence": "Listed with full description and direct application link on employer’s Ashby board."
+    },
+    {
+      "job_id": "583690b313fdd2e5ccb85bdb",
+      "employer": "Kraken",
+      "requisition": "0cb355f4-cf92-4810-8794-979bbe5c9a68",
+      "url": "https://jobs.ashbyhq.com/krakentech/0cb355f4-cf92-4810-8794-979bbe5c9a68",
+      "source_url": "https://api.ashbyhq.com/posting-api/job-board/krakentech",
+      "location": "Melbourne, Australia; Engineer II also remote within Australia",
+      "checked_at": "2026-11-15T08:16:02.630737+00:00",
+      "response_status": 200,
+      "response_sha256": "4457f1f6383817cec5895f93ca9214799f45b5e99e639560255dd7b28854d659",
+      "application_evidence": "Listed with full description and direct application link on employer’s Ashby board."
+    },
+    {
+      "job_id": "920bd6d4994ef46778b66e2e",
+      "employer": "Kraken",
+      "requisition": "b441f0f2-3d86-4a65-bd1f-07d0aad2a1ff",
+      "url": "https://jobs.ashbyhq.com/krakentech/b441f0f2-3d86-4a65-bd1f-07d0aad2a1ff",
+      "source_url": "https://api.ashbyhq.com/posting-api/job-board/krakentech",
+      "location": "Melbourne, Australia",
+      "checked_at": "2026-11-15T08:16:02.630737+00:00",
+      "response_status": 200,
+      "response_sha256": "6789d69818854ce382c7fe888e17bf46f79e126a98076363c7eb23e37c1a690b",
+      "application_evidence": "Listed with full description and direct application link on employer’s Ashby board."
+    },
+    {
+      "job_id": "18f014057c186865e5d2c6ed",
+      "employer": "Maincode",
+      "requisition": "8a48f6bf-9a50-48b9-8c7f-699024011d66",
+      "url": "https://jobs.ashbyhq.com/maincode/8a48f6bf-9a50-48b9-8c7f-699024011d66",
+      "source_url": "https://api.ashbyhq.com/posting-api/job-board/maincode",
+      "location": "Melbourne, Australia",
+      "checked_at": "2026-11-15T08:14:09.642851+00:00",
+      "response_status": 200,
+      "response_sha256": "6f0ff4088161f3d572a7d5392238710dd3ac9ee6e9fa68c727e7c51b17dfad9a",
+      "application_evidence": "Listed with full description and direct application link on employer’s Ashby board."
+    },
+    {
+      "job_id": "101eeb4585789ca4e95eb596",
+      "employer": "Easygo",
+      "requisition": "1163",
+      "url": "https://job-boards.greenhouse.io/easygo/jobs/5274710007",
+      "source_url": "https://boards-api.greenhouse.io/v1/boards/easygo/jobs?content=true",
+      "location": "Melbourne, Australia",
+      "checked_at": "2026-11-15T08:13:07.038233+00:00",
+      "response_status": 200,
+      "response_sha256": "32da1716341acbb0f25e5fb8c28c28d72839f7e542eac7fcd1a558898bac9e5e",
+      "application_evidence": "Listed with full description and direct application link on employer’s Greenhouse board."
+    },
+    {
+      "job_id": "15501bbe0ce0c67241f92060",
+      "employer": "Culture Amp",
+      "requisition": "3184",
+      "url": "https://job-boards.greenhouse.io/cultureamp/jobs/8326301",
+      "source_url": "https://boards-api.greenhouse.io/v1/boards/cultureamp/jobs?content=true",
+      "location": "Melbourne, Australia",
+      "checked_at": "2026-11-15T08:13:06.987129+00:00",
+      "response_status": 200,
+      "response_sha256": "1442ae0c7316e375acaddf104fcf8285f60bd5e99b2778b7d4508d75aa45fcfe",
+      "application_evidence": "Listed with full description and direct application link on employer’s Greenhouse board."
+    },
+    {
+      "job_id": "c6964c3a4322c38f5961e78a",
+      "employer": "SimplifyNext",
+      "requisition": "61",
+      "url": "https://job-boards.greenhouse.io/simplifynext/jobs/5236654007",
+      "source_url": "https://boards-api.greenhouse.io/v1/boards/simplifynext/jobs?content=true",
+      "location": "Singapore",
+      "checked_at": "2026-11-15T08:16:03.627022+00:00",
+      "response_status": 200,
+      "response_sha256": "b9b501151ea913c9b010a826f3fd7d1d94cc0eda549ea78ab29f88b8562aa961",
+      "application_evidence": "Listed with full description and direct application link on employer’s Greenhouse board."
+    },
+    {
+      "job_id": "a4ee8d71bbd3ac91342bf9bb",
+      "employer": "SimplifyNext",
+      "requisition": "61",
+      "url": "https://job-boards.greenhouse.io/simplifynext/jobs/5026255007",
+      "source_url": "https://boards-api.greenhouse.io/v1/boards/simplifynext/jobs?content=true",
+      "location": "Singapore",
+      "checked_at": "2026-11-15T08:16:03.627022+00:00",
+      "response_status": 200,
+      "response_sha256": "98f8d4e11558869f15d047a707a58e33359a37e2f1f43128e05312af200e9494",
+      "application_evidence": "Listed with full description and direct application link on employer’s Greenhouse board."
+    },
+    {
+      "job_id": "7068667307a2b8df8d0d0e57",
+      "employer": "SimplifyNext",
+      "requisition": "99",
+      "url": "https://job-boards.greenhouse.io/simplifynext/jobs/5233120007",
+      "source_url": "https://boards-api.greenhouse.io/v1/boards/simplifynext/jobs?content=true",
+      "location": "Singapore",
+      "checked_at": "2026-11-15T08:16:03.627022+00:00",
+      "response_status": 200,
+      "response_sha256": "8823e8c2a810d49dcf3b7ec92ee67771a87d115e06c72de3606ada1344559f57",
+      "application_evidence": "Listed with full description and direct application link on employer’s Greenhouse board."
+    },
+    {
+      "job_id": "3ff311a2c722b197a2d6d271",
+      "employer": "PALO IT",
+      "requisition": "7042c585-bfc3-427b-9bee-21d5dc4de6d5",
+      "url": "https://jobs.ashbyhq.com/palo-it/7042c585-bfc3-427b-9bee-21d5dc4de6d5",
+      "source_url": "https://api.ashbyhq.com/posting-api/job-board/palo-it",
+      "location": "Singapore",
+      "checked_at": "2026-11-15T08:16:02.602399+00:00",
+      "response_status": 200,
+      "response_sha256": "8eeda73fd9796a4d6f3025610d35c1f5e572f8d7615b7fa70773d69b8f269554",
+      "application_evidence": "Listed with full description and direct application link on employer’s Ashby board."
+    },
+    {
+      "job_id": "7bece750234d78f98ac7a231",
+      "employer": "PALO IT",
+      "requisition": "56707745-9c94-4d7f-885b-c41dbc90099e",
+      "url": "https://jobs.ashbyhq.com/palo-it/56707745-9c94-4d7f-885b-c41dbc90099e",
+      "source_url": "https://api.ashbyhq.com/posting-api/job-board/palo-it",
+      "location": "Singapore",
+      "checked_at": "2026-11-15T08:16:02.602399+00:00",
+      "response_status": 200,
+      "response_sha256": "38bd5ed4368adde65f970fafe072b0c2ea5e932f6ed1ad31bcf33673f7c037b1",
+      "application_evidence": "Listed with full description and direct application link on employer’s Ashby board."
+    },
+    {
+      "job_id": "fed8708f51b9a7dbdcd47777",
+      "employer": "OKX",
+      "requisition": "5626",
+      "url": "https://job-boards.greenhouse.io/okx/jobs/7767872003",
+      "source_url": "https://boards-api.greenhouse.io/v1/boards/okx/jobs?content=true",
+      "location": "Singapore",
+      "checked_at": "2026-11-15T08:13:07.501800+00:00",
+      "response_status": 200,
+      "response_sha256": "451b0b0a1624d3d5c412cd6ec76a359a941e6b3cfe9e1516600fa021227ecd41",
+      "application_evidence": "Listed with full description and direct application link on employer’s Greenhouse board."
+    },
+    {
+      "job_id": "a62d6ce518a231beeb6d3ebc",
+      "employer": "Encora",
+      "requisition": "22372",
+      "url": "https://job-boards.greenhouse.io/encora10/jobs/5187373007",
+      "source_url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs?content=true",
+      "location": "Singapore",
+      "checked_at": "2026-11-15T08:16:03.923269+00:00",
+      "response_status": 200,
+      "response_sha256": "748bb8fa12f54f8e93e64a38891bf09cf7b88f19500799dcd8854df8a258959a",
+      "application_evidence": "Listed with full description and direct application link on employer’s Greenhouse board."
+    },
+    {
+      "job_id": "2099c89890892cafaeaaa6de",
+      "employer": "Encora",
+      "requisition": "22751",
+      "url": "https://job-boards.greenhouse.io/encora10/jobs/5205356007",
+      "source_url": "https://boards-api.greenhouse.io/v1/boards/encora10/jobs?content=true",
+      "location": "Singapore",
+      "checked_at": "2026-11-15T08:16:03.923269+00:00",
+      "response_status": 200,
+      "response_sha256": "d5307e3746d368b6cbb28916643b8667d20b0f0dc643d43ea45ffa8adc6a8a4c",
+      "application_evidence": "Listed with full description and direct application link on employer’s Greenhouse board."
+    },
+    {
+      "job_id": "bc58784a72af182f83987a17",
+      "employer": "Airwallex",
+      "requisition": "3c5176fb-6eee-4bf4-8031-36f0528c71a3",
+      "url": "https://jobs.ashbyhq.com/airwallex/3c5176fb-6eee-4bf4-8031-36f0528c71a3",
+      "source_url": "https://api.ashbyhq.com/posting-api/job-board/airwallex?includeCompensation=true",
+      "location": "Singapore",
+      "checked_at": "2026-11-15T08:13:07.165267+00:00",
+      "response_status": 200,
+      "response_sha256": "d1e17bcdb0ad6beab29903e67ade702c18a30e4bbc672c60a31d28b4b3d12147",
+      "application_evidence": "Listed with full description and direct application link on employer’s Ashby board."
+    },
+    {
+      "job_id": "00273d0d9863a3d521692004",
+      "employer": "Airwallex",
+      "requisition": "a9c09c5d-ab0c-4692-a6c0-d1cdc0107a7c",
+      "url": "https://jobs.ashbyhq.com/airwallex/a9c09c5d-ab0c-4692-a6c0-d1cdc0107a7c",
+      "source_url": "https://api.ashbyhq.com/posting-api/job-board/airwallex?includeCompensation=true",
+      "location": "Singapore",
+      "checked_at": "2026-11-15T08:13:07.165267+00:00",
+      "response_status": 200,
+      "response_sha256": "aee8f43a9d9cbdb7bdff18797a1fe710f245956178b0337e966afb305c4d3bd5",
+      "application_evidence": "Listed with full description and direct application link on employer’s Ashby board."
+    },
+    {
+      "job_id": "24819eea5cf016a449b490b8",
+      "employer": "Apple",
+      "requisition": "200676247-3715",
+      "url": "https://jobs.apple.com/en-us/details/200676247-3715/store-apps-engineering-devops-engineer",
+      "source_url": "https://jobs.apple.com/en-us/details/200676247-3715/store-apps-engineering-devops-engineer",
+      "location": "Shanghai, China",
+      "checked_at": "2026-11-15T08:17:09.409304+00:00",
+      "response_status": 200,
+      "response_sha256": "d4c17cc3fff2d911e32ffb47fbbf39538304ef976f2fe6f979f063d13c4f5dc6",
+      "application_evidence": "Employer’s current posting includes full role requirements and an application path."
+    },
+    {
+      "job_id": "3a5273336ba48ae484933232",
+      "employer": "Apple",
+      "requisition": "200685581-3715",
+      "url": "https://jobs.apple.com/en-us/details/200685581-3715/software-engineer-cloud-services-engineering",
+      "source_url": "https://jobs.apple.com/en-us/details/200685581-3715/software-engineer-cloud-services-engineering",
+      "location": "Shanghai, China",
+      "checked_at": "2026-11-15T08:15:49.191886+00:00",
+      "response_status": 200,
+      "response_sha256": "8cd6a257c8789aad40b895cf257b829fb2de9b42ef4c91d36adb8310a088f7bd",
+      "application_evidence": "Employer’s current posting includes full role requirements and an application path."
+    },
+    {
+      "job_id": "80f3522e24334918b03e26f1",
+      "employer": "Apple",
+      "requisition": "200679391-3715",
+      "url": "https://jobs.apple.com/en-us/details/200679391-3715/full-stack-engineer-apple-store-online-rapid-application-development",
+      "source_url": "https://jobs.apple.com/en-us/details/200679391-3715/full-stack-engineer-apple-store-online-rapid-application-development",
+      "location": "Shanghai, China",
+      "checked_at": "2026-11-15T08:16:14.382939+00:00",
+      "response_status": 200,
+      "response_sha256": "a093bd64ef3dde616d3fca6d5a9a20bf8836cd8cf24cd8f8650ccded50036cb4",
+      "application_evidence": "Employer’s current posting includes full role requirements and an application path."
+    },
+    {
+      "job_id": "af8b14334dd6326e3dbf7bce",
+      "employer": "NVIDIA",
+      "requisition": "JR2029482",
+      "url": "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite/job/China-Shanghai/Senior-Software-Development-Engineer-in-Test--SDET----DGX-Cloud_JR2029482",
+      "source_url": "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite",
+      "location": "Shanghai, China",
+      "checked_at": "2026-11-15T08:16:00.053897+00:00",
+      "response_status": 200,
+      "response_sha256": "47b218613bc282048c6e634f6441795a270c033c628f918c988acd9805e0c89c",
+      "application_evidence": "Official NVIDIA Workday posting returned canApply=true and full requirements."
+    },
+    {
+      "job_id": "21ff2806cf2e4994026f8ad5",
+      "employer": "NVIDIA",
+      "requisition": "JR2027720",
+      "url": "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite/job/China-Shanghai/Senior-AI-Infra-Test-Development-Engineer--SDET_JR2027720",
+      "source_url": "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite",
+      "location": "Shanghai, China",
+      "checked_at": "2026-11-15T08:15:59.262337+00:00",
+      "response_status": 200,
+      "response_sha256": "b343944127cbba3b3a355d949cb7fe90937a54b483d683b91be674aa232268eb",
+      "application_evidence": "Official NVIDIA Workday posting returned canApply=true and full requirements."
+    },
+    {
+      "job_id": "4464bdabb0c81745478a4b53",
+      "employer": "EPAM Systems",
+      "requisition": "bltu5kc1ucsong60hgw",
+      "url": "https://careers.epam.com/en/vacancy/senior-front-end-developer-react-typescript-bltu5kc1ucsong60hgw_en",
+      "source_url": "https://careers.epam.com/en/vacancy/senior-front-end-developer-react-typescript-bltu5kc1ucsong60hgw_en",
+      "location": "Shanghai, China",
+      "checked_at": "2026-11-15T08:16:06.005111+00:00",
+      "response_status": 200,
+      "response_sha256": "eacc0e70d25e7c0a38bb7a143a0eb0ee69d74d8a9488676f92d13a077b307661",
+      "application_evidence": "Employer’s current posting includes full role requirements and an application path."
+    },
+    {
+      "job_id": "c55bdb5fd7bf86c269267270",
+      "employer": "Amazon",
+      "requisition": "10567071",
+      "url": "https://www.amazon.jobs/en/jobs/10567071/api-support-engineer-developer-support-engineering",
+      "source_url": "https://www.amazon.jobs/en/jobs/10567071/api-support-engineer-developer-support-engineering",
+      "location": "Shanghai, China",
+      "checked_at": "2026-11-15T08:16:03.299206+00:00",
+      "response_status": 200,
+      "response_sha256": "22f18bf516109c62b2f3cb43fdebfe03582aebb9d1d8d76e8f608023d6011097",
+      "application_evidence": "Employer’s current posting includes full role requirements and an application path."
+    },
+    {
+      "job_id": "3932d66d3a4376d7f2efb3ed",
+      "employer": "AMD",
+      "requisition": "97180",
+      "url": "https://careers.amd.com/careers-home/jobs/97180",
+      "source_url": "https://careers.amd.com/careers-home/jobs/97180",
+      "location": "Beijing, China",
+      "checked_at": "2026-11-15T08:15:03.332383+00:00",
+      "response_status": 200,
+      "response_sha256": "973ee4140da828b080f7a99262426598e4204a56d274b49ff6dffe3459b7b84e",
+      "application_evidence": "Employer’s current posting includes full role requirements and an application path."
+    }
+  ],
+  "exclusions": [
+    {
+      "employer": "EPAM Systems",
+      "requisition": "blt8d8f8ujf68ielyk0",
+      "reason": "Direct URL redirects to all jobs, so the backend opening was excluded."
+    },
+    {
+      "employer": "Apple",
+      "requisition": "200677849-3715",
+      "reason": "Requires Mandarin and English."
+    },
+    {
+      "employer": "NVIDIA",
+      "requisition": "JR2024853 / JR2024862",
+      "reason": "Requires both Chinese and English."
+    },
+    {
+      "employer": "Service Stream",
+      "requisition": "JR-119086-2",
+      "reason": "Australian citizenship stated and .NET is core requirement."
+    },
+    {
+      "employer": "Agoda",
+      "requisition": "8263843",
+      "reason": "Eight or more years of professional software engineering is an explicit minimum; sponsorship and relocation are unavailable."
+    }
+  ],
+  "method": "Current employer sources supplied the full posting requirements and application paths. Direct paths were checked separately; NVIDIA Workday also returned canApply=true. This audit preserves public URLs and HTTP fingerprints rather than copying complete advertisements."
+}

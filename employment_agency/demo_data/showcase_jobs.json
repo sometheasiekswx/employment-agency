@@ -1,5 +1,8 @@
 {
-  "sources": [
+  "schema": 2,
+  "mode": "reviewed",
+  "sources": [],
+  "legacy_job_sources": [
     {
       "board": "BoschGroup",
       "employer": "Bosch Group",
@@ -82,411 +85,2950 @@
       "count": 5
     }
   ],
+  "reviewed_job_sources": [
+    {
+      "source": "reviewed:plaid",
+      "employer": "Plaid",
+      "careers_url": "https://plaid.com/careers/",
+      "posting_urls": [
+        "https://jobs.ashbyhq.com/plaid/24f357ee-b2fc-4f86-bab9-d10ecfb99003",
+        "https://jobs.ashbyhq.com/plaid/7e10c0b5-a09a-4e07-aaa8-899a7f82a0c9",
+        "https://jobs.ashbyhq.com/plaid/a9dc0810-546b-4773-9545-2862409e24b4"
+      ]
+    },
+    {
+      "source": "reviewed:ramp",
+      "employer": "Ramp",
+      "careers_url": "https://ramp.com/careers",
+      "posting_urls": [
+        "https://jobs.ashbyhq.com/ramp/42527ca9-03b9-499e-a5c4-18e4245af138",
+        "https://jobs.ashbyhq.com/ramp/6511d68f-b65d-4499-962f-7e2f75eabe3f",
+        "https://jobs.ashbyhq.com/ramp/6e717b06-6613-42ad-a1ee-f852a305fa37",
+        "https://jobs.ashbyhq.com/ramp/be496b52-cfbf-494e-b862-61fb4a188b24"
+      ]
+    },
+    {
+      "source": "reviewed:figma",
+      "employer": "Figma",
+      "careers_url": "https://www.figma.com/careers/",
+      "posting_urls": [
+        "https://job-boards.greenhouse.io/figma/jobs/5552560004",
+        "https://job-boards.greenhouse.io/figma/jobs/5691911004",
+        "https://job-boards.greenhouse.io/figma/jobs/5790627004"
+      ]
+    },
+    {
+      "source": "reviewed:datadog",
+      "employer": "Datadog",
+      "careers_url": "https://careers.datadoghq.com/",
+      "posting_urls": [
+        "https://careers.datadoghq.com/detail/3851935/"
+      ]
+    },
+    {
+      "source": "reviewed:anthropic",
+      "employer": "Anthropic",
+      "careers_url": "https://www.anthropic.com/careers",
+      "posting_urls": [
+        "https://job-boards.greenhouse.io/anthropic/jobs/5386971008"
+      ]
+    },
+    {
+      "source": "reviewed:mongodb",
+      "employer": "MongoDB",
+      "careers_url": "https://www.mongodb.com/company/careers",
+      "posting_urls": [
+        "https://www.mongodb.com/careers/jobs/7727913",
+        "https://www.mongodb.com/careers/jobs/8234520"
+      ]
+    },
+    {
+      "source": "reviewed:okta",
+      "employer": "Okta",
+      "careers_url": "https://www.okta.com/company/careers/",
+      "posting_urls": [
+        "https://www.okta.com/company/careers/rd/senior-software-engineer-fullstack-8186804/",
+        "https://www.okta.com/company/careers/rd/senior-software-engineer-ui-platform-8021682/",
+        "https://www.okta.com/company/careers/rd/software-engineer-ii-platform-infrastructure-control-8333990/"
+      ]
+    },
+    {
+      "source": "reviewed:robinhood",
+      "employer": "Robinhood",
+      "careers_url": "https://careers.robinhood.com/",
+      "posting_urls": [
+        "https://job-boards.greenhouse.io/robinhood/jobs/5616144",
+        "https://job-boards.greenhouse.io/robinhood/jobs/8083818",
+        "https://job-boards.greenhouse.io/robinhood/jobs/8258307"
+      ]
+    },
+    {
+      "source": "reviewed:stripe",
+      "employer": "Stripe",
+      "careers_url": "https://stripe.com/careers/search",
+      "posting_urls": [
+        "https://stripe.com/careers/listing/backend-api-engineer-radar/8301379",
+        "https://stripe.com/careers/listing/full-stack-engineer-link/6447175",
+        "https://stripe.com/careers/listing/software-engineer-metronome-infrastructure/8231439"
+      ]
+    },
+    {
+      "source": "reviewed:pagerduty",
+      "employer": "PagerDuty",
+      "careers_url": "https://careers.pagerduty.com/",
+      "posting_urls": [
+        "https://job-boards.greenhouse.io/pagerduty/jobs/6211202004"
+      ]
+    },
+    {
+      "source": "reviewed:monzo",
+      "employer": "Monzo",
+      "careers_url": "https://monzo.com/careers",
+      "posting_urls": [
+        "https://job-boards.greenhouse.io/monzo/jobs/6635595",
+        "https://job-boards.greenhouse.io/monzo/jobs/6635837"
+      ]
+    },
+    {
+      "source": "reviewed:deliveroo",
+      "employer": "Deliveroo",
+      "careers_url": "https://careers.deliveroo.co.uk/",
+      "posting_urls": [
+        "https://job-boards.greenhouse.io/deliveroo/jobs/8206351",
+        "https://job-boards.greenhouse.io/deliveroo/jobs/8206463",
+        "https://job-boards.greenhouse.io/deliveroo/jobs/8266845",
+        "https://job-boards.greenhouse.io/deliveroo/jobs/8276280"
+      ]
+    },
+    {
+      "source": "reviewed:wise",
+      "employer": "Wise",
+      "careers_url": "https://wise.jobs/",
+      "posting_urls": [
+        "https://jobs.smartrecruiters.com/Wise/744000160549671-software-engineer-risk-control-governance",
+        "https://jobs.smartrecruiters.com/Wise/744000161530989-senior-data-engineer-i-global-kyc-onboarding"
+      ]
+    },
+    {
+      "source": "reviewed:contentful",
+      "employer": "Contentful",
+      "careers_url": "https://job-boards.greenhouse.io/contentful",
+      "posting_urls": [
+        "https://job-boards.greenhouse.io/contentful/jobs/8221365",
+        "https://job-boards.greenhouse.io/contentful/jobs/8356206"
+      ]
+    },
+    {
+      "source": "reviewed:trainline",
+      "employer": "Trainline",
+      "careers_url": "https://www.trainlinegroup.com/careers/",
+      "posting_urls": [
+        "https://jobs.ashbyhq.com/trainline/6e8ba16f-7cc4-41e7-9c63-0115509e07ae",
+        "https://jobs.ashbyhq.com/trainline/8536b13b-5ff7-4551-a77d-88d8b4dd43f5"
+      ]
+    },
+    {
+      "source": "reviewed:hellofresh",
+      "employer": "HelloFresh",
+      "careers_url": "https://careers.hellofresh.com/global/en",
+      "posting_urls": [
+        "https://careers.hellofresh.com/global/en/job/8280899?gh_jid=8280899"
+      ]
+    },
+    {
+      "source": "reviewed:n26",
+      "employer": "N26",
+      "careers_url": "https://n26.com/en-eu/careers",
+      "posting_urls": [
+        "https://n26.com/en-eu/careers/positions/8219953?gh_jid=8219953",
+        "https://n26.com/en-eu/careers/positions/8378357?gh_jid=8378357"
+      ]
+    },
+    {
+      "source": "reviewed:sumup",
+      "employer": "SumUp",
+      "careers_url": "https://www.sumup.com/careers/",
+      "posting_urls": [
+        "https://sumup.com/careers/positions/8364212002?gh_jid=8364212002",
+        "https://sumup.com/careers/positions/8773687002?gh_jid=8773687002"
+      ]
+    },
+    {
+      "source": "reviewed:delivery-hero",
+      "employer": "Delivery Hero",
+      "careers_url": "https://careers.deliveryhero.com/",
+      "posting_urls": [
+        "https://jobs.smartrecruiters.com/DeliveryHero/744000159818991-senior-software-engineer-go-global-recommendations-and-ranking-consumer-"
+      ]
+    },
+    {
+      "source": "reviewed:xero",
+      "employer": "Xero",
+      "careers_url": "https://jobs.ashbyhq.com/xero",
+      "posting_urls": [
+        "https://jobs.ashbyhq.com/xero/0c345d63-dcc1-4fa0-b521-a0fb6fff29ca",
+        "https://jobs.ashbyhq.com/xero/65b39783-4a06-4bae-8dbe-48afb916886f",
+        "https://jobs.ashbyhq.com/xero/9eef7111-d180-4e9e-a3df-f5f36f8b61f8"
+      ]
+    },
+    {
+      "source": "reviewed:kraken",
+      "employer": "Kraken",
+      "careers_url": "https://jobs.ashbyhq.com/krakentech",
+      "posting_urls": [
+        "https://jobs.ashbyhq.com/krakentech/0cb355f4-cf92-4810-8794-979bbe5c9a68",
+        "https://jobs.ashbyhq.com/krakentech/b441f0f2-3d86-4a65-bd1f-07d0aad2a1ff"
+      ]
+    },
+    {
+      "source": "reviewed:maincode",
+      "employer": "Maincode",
+      "careers_url": "https://maincode.com/careers",
+      "posting_urls": [
+        "https://jobs.ashbyhq.com/maincode/8a48f6bf-9a50-48b9-8c7f-699024011d66"
+      ]
+    },
+    {
+      "source": "reviewed:easygo",
+      "employer": "Easygo",
+      "careers_url": "https://www.easygo.io/careers",
+      "posting_urls": [
+        "https://job-boards.greenhouse.io/easygo/jobs/5274710007"
+      ]
+    },
+    {
+      "source": "reviewed:culture-amp",
+      "employer": "Culture Amp",
+      "careers_url": "https://www.cultureamp.com/company/careers",
+      "posting_urls": [
+        "https://job-boards.greenhouse.io/cultureamp/jobs/8326301"
+      ]
+    },
+    {
+      "source": "reviewed:simplifynext",
+      "employer": "SimplifyNext",
+      "careers_url": "https://www.simplifynext.com/career",
+      "posting_urls": [
+        "https://job-boards.greenhouse.io/simplifynext/jobs/5233120007",
+        "https://job-boards.greenhouse.io/simplifynext/jobs/5236654007"
+      ]
+    },
+    {
+      "source": "reviewed:palo-it",
+      "employer": "PALO IT",
+      "careers_url": "https://www.palo-it.com/en/careers",
+      "posting_urls": [
+        "https://jobs.ashbyhq.com/palo-it/56707745-9c94-4d7f-885b-c41dbc90099e",
+        "https://jobs.ashbyhq.com/palo-it/7042c585-bfc3-427b-9bee-21d5dc4de6d5"
+      ]
+    },
+    {
+      "source": "reviewed:okx",
+      "employer": "OKX",
+      "careers_url": "https://www.okx.com/join-us",
+      "posting_urls": [
+        "https://job-boards.greenhouse.io/okx/jobs/7767872003"
+      ]
+    },
+    {
+      "source": "reviewed:encora",
+      "employer": "Encora",
+      "careers_url": "https://job-boards.greenhouse.io/encora10",
+      "posting_urls": [
+        "https://job-boards.greenhouse.io/encora10/jobs/5187373007",
+        "https://job-boards.greenhouse.io/encora10/jobs/5205356007"
+      ]
+    },
+    {
+      "source": "reviewed:airwallex",
+      "employer": "Airwallex",
+      "careers_url": "https://careers.airwallex.com/",
+      "posting_urls": [
+        "https://jobs.ashbyhq.com/airwallex/3c5176fb-6eee-4bf4-8031-36f0528c71a3",
+        "https://jobs.ashbyhq.com/airwallex/a9c09c5d-ab0c-4692-a6c0-d1cdc0107a7c"
+      ]
+    },
+    {
+      "source": "reviewed:apple",
+      "employer": "Apple",
+      "careers_url": "https://jobs.apple.com/en-us/search?location=china-CHNC",
+      "posting_urls": [
+        "https://jobs.apple.com/en-us/details/200676247-3715/store-apps-engineering-devops-engineer",
+        "https://jobs.apple.com/en-us/details/200679391-3715/full-stack-engineer-apple-store-online-rapid-application-development",
+        "https://jobs.apple.com/en-us/details/200685581-3715/software-engineer-cloud-services-engineering"
+      ]
+    },
+    {
+      "source": "reviewed:nvidia",
+      "employer": "NVIDIA",
+      "careers_url": "https://www.nvidia.com/en-us/about-nvidia/careers/",
+      "posting_urls": [
+        "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite/job/China-Shanghai/Senior-AI-Infra-Test-Development-Engineer--SDET_JR2027720",
+        "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite/job/China-Shanghai/Senior-Software-Development-Engineer-in-Test--SDET----DGX-Cloud_JR2029482"
+      ]
+    },
+    {
+      "source": "reviewed:epam-systems",
+      "employer": "EPAM Systems",
+      "careers_url": "https://careers.epam.com/en/jobs",
+      "posting_urls": [
+        "https://careers.epam.com/en/vacancy/senior-front-end-developer-react-typescript-bltu5kc1ucsong60hgw_en"
+      ]
+    },
+    {
+      "source": "reviewed:amazon",
+      "employer": "Amazon",
+      "careers_url": "https://www.amazon.jobs/en/search?country%5B%5D=CHN",
+      "posting_urls": [
+        "https://www.amazon.jobs/en/jobs/10567071/api-support-engineer-developer-support-engineering"
+      ]
+    },
+    {
+      "source": "reviewed:amd",
+      "employer": "AMD",
+      "careers_url": "https://careers.amd.com/careers-home/jobs",
+      "posting_urls": [
+        "https://careers.amd.com/careers-home/jobs/97180"
+      ]
+    }
+  ],
+  "checked_at": "2026-11-15T08:28:34.560884+00:00",
+  "reviewed_resume_sha256": "377160dca04d95678f6cc5d1d990e205e1012d9f1e3ae174f7925d3bf7aaf56c",
+  "companies": [
+    {
+      "name": "Plaid",
+      "careers_url": "https://plaid.com/careers/",
+      "listings": [
+        {
+          "job_id": "d4a3e3e6ec786b5037b39f5c",
+          "source_url": "https://jobs.ashbyhq.com/plaid/a9dc0810-546b-4773-9545-2862409e24b4",
+          "requisition": "a9dc0810-546b-4773-9545-2862409e24b4",
+          "evidence": "{\"board_url\": \"https://api.ashbyhq.com/posting-api/job-board/plaid\", \"posting_id\": \"a9dc0810-546b-4773-9545-2862409e24b4\", \"location\": \"New York City Office\", \"confirmation\": \"Employer careers page and current Ashby publisher entry with full role description and current application listing.\", \"final_url\": \"https://jobs.ashbyhq.com/plaid/a9dc0810-546b-4773-9545-2862409e24b4\", \"posting_http_status\": 200, \"apply_url\": \"https://jobs.ashbyhq.com/plaid/a9dc0810-546b-4773-9545-2862409e24b4/application\", \"listing_status\": \"Publisher marked listed and supplied a direct application URL.\"}"
+        },
+        {
+          "job_id": "2fd16a7557ee8b5741632747",
+          "source_url": "https://jobs.ashbyhq.com/plaid/24f357ee-b2fc-4f86-bab9-d10ecfb99003",
+          "requisition": "24f357ee-b2fc-4f86-bab9-d10ecfb99003",
+          "evidence": "{\"board_url\": \"https://api.ashbyhq.com/posting-api/job-board/plaid\", \"posting_id\": \"24f357ee-b2fc-4f86-bab9-d10ecfb99003\", \"location\": \"New York City Office\", \"confirmation\": \"Employer careers page and current Ashby publisher entry with full role description and current application listing.\", \"final_url\": \"https://jobs.ashbyhq.com/plaid/24f357ee-b2fc-4f86-bab9-d10ecfb99003\", \"posting_http_status\": 200, \"apply_url\": \"https://jobs.ashbyhq.com/plaid/24f357ee-b2fc-4f86-bab9-d10ecfb99003/application\", \"listing_status\": \"Publisher marked listed and supplied a direct application URL.\"}"
+        },
+        {
+          "job_id": "95f42fede642e57f74636fbd",
+          "source_url": "https://jobs.ashbyhq.com/plaid/7e10c0b5-a09a-4e07-aaa8-899a7f82a0c9",
+          "requisition": "7e10c0b5-a09a-4e07-aaa8-899a7f82a0c9",
+          "evidence": "{\"board_url\": \"https://api.ashbyhq.com/posting-api/job-board/plaid\", \"posting_id\": \"7e10c0b5-a09a-4e07-aaa8-899a7f82a0c9\", \"location\": \"New York City Office\", \"confirmation\": \"Employer careers page and current Ashby publisher entry with full role description and current application listing.\", \"final_url\": \"https://jobs.ashbyhq.com/plaid/7e10c0b5-a09a-4e07-aaa8-899a7f82a0c9\", \"posting_http_status\": 200, \"apply_url\": \"https://jobs.ashbyhq.com/plaid/7e10c0b5-a09a-4e07-aaa8-899a7f82a0c9/application\", \"listing_status\": \"Publisher marked listed and supplied a direct application URL.\"}"
+        }
+      ],
+      "picks": [
+        {
+          "job_id": "d4a3e3e6ec786b5037b39f5c",
+          "reason": "The posting combines front-end frameworks, API development and relational databases. The public profile lists TypeScript, Python and SQL.",
+          "fact_terms": [
+            "TypeScript",
+            "T echnical:Python",
+            "SQL/NoSQL"
+          ]
+        },
+        {
+          "job_id": "2fd16a7557ee8b5741632747",
+          "reason": "Relational databases and modern web frameworks are explicit requirements. SQL and TypeScript are documented in the public profile.",
+          "fact_terms": [
+            "SQL/NoSQL",
+            "TypeScript"
+          ]
+        }
+      ],
+      "logo": {
+        "status": "unavailable",
+        "page_url": "https://plaid.com/",
+        "url": "https://plaid.com/assets/img/favicons/apple-touch-icon.png",
+        "evidence": "Published Apple touch icon on the official company homepage.",
+        "reason": "The selected logo URL was not declared on the official page"
+      }
+    },
+    {
+      "name": "Ramp",
+      "careers_url": "https://ramp.com/careers",
+      "listings": [
+        {
+          "job_id": "fb0ff9de9c14f0fdbd62bb26",
+          "source_url": "https://jobs.ashbyhq.com/ramp/6511d68f-b65d-4499-962f-7e2f75eabe3f",
+          "requisition": "6511d68f-b65d-4499-962f-7e2f75eabe3f",
+          "evidence": "{\"board_url\": \"https://api.ashbyhq.com/posting-api/job-board/ramp\", \"posting_id\": \"6511d68f-b65d-4499-962f-7e2f75eabe3f\", \"location\": \"New York, NY (HQ)\", \"confirmation\": \"Employer careers page and current Ashby publisher entry with full role description and current application listing.\", \"final_url\": \"https://jobs.ashbyhq.com/ramp/6511d68f-b65d-4499-962f-7e2f75eabe3f\", \"posting_http_status\": 200, \"apply_url\": \"https://jobs.ashbyhq.com/ramp/6511d68f-b65d-4499-962f-7e2f75eabe3f/application\", \"listing_status\": \"Publisher marked listed and supplied a direct application URL.\"}"
+        },
+        {
+          "job_id": "8db161113c2ada29fabac380",
+          "source_url": "https://jobs.ashbyhq.com/ramp/be496b52-cfbf-494e-b862-61fb4a188b24",
+          "requisition": "be496b52-cfbf-494e-b862-61fb4a188b24",
+          "evidence": "{\"board_url\": \"https://api.ashbyhq.com/posting-api/job-board/ramp\", \"posting_id\": \"be496b52-cfbf-494e-b862-61fb4a188b24\", \"location\": \"New York, NY (HQ)\", \"confirmation\": \"Employer careers page and current Ashby publisher entry with full role description and current application listing.\", \"final_url\": \"https://jobs.ashbyhq.com/ramp/be496b52-cfbf-494e-b862-61fb4a188b24\", \"posting_http_status\": 200, \"apply_url\": \"https://jobs.ashbyhq.com/ramp/be496b52-cfbf-494e-b862-61fb4a188b24/application\", \"listing_status\": \"Publisher marked listed and supplied a direct application URL.\"}"
+        },
+        {
+          "job_id": "f362e07d5cb0d830eeee0523",
+          "source_url": "https://jobs.ashbyhq.com/ramp/6e717b06-6613-42ad-a1ee-f852a305fa37",
+          "requisition": "6e717b06-6613-42ad-a1ee-f852a305fa37",
+          "evidence": "{\"board_url\": \"https://api.ashbyhq.com/posting-api/job-board/ramp\", \"posting_id\": \"6e717b06-6613-42ad-a1ee-f852a305fa37\", \"location\": \"New York, NY (HQ)\", \"confirmation\": \"Employer careers page and current Ashby publisher entry with full role description and current application listing.\", \"final_url\": \"https://jobs.ashbyhq.com/ramp/6e717b06-6613-42ad-a1ee-f852a305fa37\", \"posting_http_status\": 200, \"apply_url\": \"https://jobs.ashbyhq.com/ramp/6e717b06-6613-42ad-a1ee-f852a305fa37/application\", \"listing_status\": \"Publisher marked listed and supplied a direct application URL.\"}"
+        },
+        {
+          "job_id": "b13561946524603300cdbf7f",
+          "source_url": "https://jobs.ashbyhq.com/ramp/42527ca9-03b9-499e-a5c4-18e4245af138",
+          "requisition": "42527ca9-03b9-499e-a5c4-18e4245af138",
+          "evidence": "{\"board_url\": \"https://api.ashbyhq.com/posting-api/job-board/ramp\", \"posting_id\": \"42527ca9-03b9-499e-a5c4-18e4245af138\", \"location\": \"New York, NY (HQ)\", \"confirmation\": \"Employer careers page and current Ashby publisher entry with full role description and current application listing.\", \"final_url\": \"https://jobs.ashbyhq.com/ramp/42527ca9-03b9-499e-a5c4-18e4245af138\", \"posting_http_status\": 200, \"apply_url\": \"https://jobs.ashbyhq.com/ramp/42527ca9-03b9-499e-a5c4-18e4245af138/application\", \"listing_status\": \"Publisher marked listed and supplied a direct application URL.\"}"
+        }
+      ],
+      "picks": [
+        {
+          "job_id": "fb0ff9de9c14f0fdbd62bb26",
+          "reason": "Ramp explicitly lists TypeScript in its front-end stack. The public profile lists TypeScript and Next.js.",
+          "fact_terms": [
+            "TypeScript",
+            "Next.js"
+          ]
+        },
+        {
+          "job_id": "8db161113c2ada29fabac380",
+          "reason": "AWS is a preferred cloud platform for this reliability role. The public profile lists AWS and SDLC.",
+          "fact_terms": [
+            "AWS",
+            "SDLC"
+          ]
+        }
+      ],
+      "logo": {
+        "status": "unavailable",
+        "page_url": "https://ramp.com/",
+        "url": "https://ramp.com/apple-touch-icon.png",
+        "evidence": "Published Apple touch icon on the official company homepage.",
+        "reason": "The branding source exceeds its download size limit"
+      }
+    },
+    {
+      "name": "Figma",
+      "careers_url": "https://www.figma.com/careers/",
+      "listings": [
+        {
+          "job_id": "66851db453ef0e7b147b54aa",
+          "source_url": "https://job-boards.greenhouse.io/figma/jobs/5691911004",
+          "requisition": "1918",
+          "evidence": "{\"board_url\": \"https://boards-api.greenhouse.io/v1/boards/figma/jobs?content=true\", \"posting_id\": \"5691911004\", \"location\": \"San Francisco, CA • New York, NY • United States\", \"confirmation\": \"Employer careers page and current Greenhouse publisher entry with full role description and current application listing.\", \"final_url\": \"https://job-boards.greenhouse.io/figma/jobs/5691911004\", \"posting_http_status\": 200, \"detail_http_status\": 200, \"listing_status\": \"Publisher returned the live individual listing and qualifications.\"}"
+        },
+        {
+          "job_id": "d3c48a479cbc1e12371dc887",
+          "source_url": "https://job-boards.greenhouse.io/figma/jobs/5552560004",
+          "requisition": "1689",
+          "evidence": "{\"board_url\": \"https://boards-api.greenhouse.io/v1/boards/figma/jobs?content=true\", \"posting_id\": \"5552560004\", \"location\": \"San Francisco, CA • New York, NY • United States\", \"confirmation\": \"Employer careers page and current Greenhouse publisher entry with full role description and current application listing.\", \"final_url\": \"https://job-boards.greenhouse.io/figma/jobs/5552560004\", \"posting_http_status\": 200, \"detail_http_status\": 200, \"listing_status\": \"Publisher returned the live individual listing and qualifications.\"}"
+        },
+        {
+          "job_id": "80f544c9fc5779713d5b96cb",
+          "source_url": "https://job-boards.greenhouse.io/figma/jobs/5790627004",
+          "requisition": "2126",
+          "evidence": "{\"board_url\": \"https://boards-api.greenhouse.io/v1/boards/figma/jobs?content=true\", \"posting_id\": \"5790627004\", \"location\": \"San Francisco, CA • New York, NY • United States\", \"confirmation\": \"Employer careers page and current Greenhouse publisher entry with full role description and current application listing.\", \"final_url\": \"https://job-boards.greenhouse.io/figma/jobs/5790627004\", \"posting_http_status\": 200, \"detail_http_status\": 200, \"listing_status\": \"Publisher returned the live individual listing and qualifications.\"}"
+        }
+      ],
+      "picks": [
+        {
+          "job_id": "66851db453ef0e7b147b54aa",
+          "reason": "The full-stack posting directly names TypeScript and Python among suitable technologies, both listed in the public profile.",
+          "fact_terms": [
+            "TypeScript",
+            "T echnical:Python"
+          ]
+        },
+        {
+          "job_id": "d3c48a479cbc1e12371dc887",
+          "reason": "The growth team names TypeScript, Python and PostgreSQL for its full-stack work. The public profile lists TypeScript, Python and SQL.",
+          "fact_terms": [
+            "TypeScript",
+            "T echnical:Python",
+            "SQL/NoSQL"
+          ]
+        }
+      ],
+      "logo": {
+        "status": "unavailable",
+        "page_url": "https://www.figma.com/",
+        "url": "https://static.figma.com/app/icon/2/icon-256.png",
+        "evidence": "256 px company icon published as an icon link on Figma’s homepage.",
+        "reason": "The branding source exceeds its download size limit"
+      }
+    },
+    {
+      "name": "Datadog",
+      "careers_url": "https://careers.datadoghq.com/",
+      "listings": [
+        {
+          "job_id": "1d4fc1518cf5bbb2a947f110",
+          "source_url": "https://careers.datadoghq.com/detail/3851935/",
+          "requisition": "R5773",
+          "evidence": "{\"board_url\": \"https://boards-api.greenhouse.io/v1/boards/datadog/jobs?content=true\", \"posting_id\": \"3851935\", \"location\": \"Boston, Massachusetts, USA; New York, New York, USA\", \"confirmation\": \"Employer careers page and current Greenhouse publisher entry with full role description and current application listing.\", \"final_url\": \"https://careers.datadoghq.com/detail/3851935/?gh_jid=3851935\", \"posting_http_status\": 200, \"detail_http_status\": 200, \"listing_status\": \"Publisher returned the live individual listing and qualifications.\"}"
+        }
+      ],
+      "picks": [],
+      "logo": {
+        "status": "unavailable",
+        "page_url": "https://www.datadoghq.com/",
+        "url": "https://corp.dd-static.net/img/dd_logo_n_70x75.png?format=png",
+        "evidence": "Official homepage preloads this Datadog dog mark in PNG format.",
+        "reason": "The selected logo URL was not declared on the official page"
+      }
+    },
+    {
+      "name": "Anthropic",
+      "careers_url": "https://www.anthropic.com/careers",
+      "listings": [
+        {
+          "job_id": "be72094f74a1e7412bc8940c",
+          "source_url": "https://job-boards.greenhouse.io/anthropic/jobs/5386971008",
+          "requisition": "266550",
+          "evidence": "{\"board_url\": \"https://boards-api.greenhouse.io/v1/boards/anthropic/jobs?content=true\", \"posting_id\": \"5386971008\", \"location\": \"San Francisco, CA | New York City, NY\", \"confirmation\": \"Employer careers page and current Greenhouse publisher entry with full role description and current application listing.\", \"final_url\": \"https://job-boards.greenhouse.io/anthropic/jobs/5386971008\", \"posting_http_status\": 200, \"detail_http_status\": 200, \"listing_status\": \"Publisher returned the live individual listing and qualifications.\"}"
+        }
+      ],
+      "picks": [],
+      "logo": {
+        "status": "unavailable",
+        "page_url": "https://www.anthropic.com/",
+        "url": "https://www.anthropic.com/images/icons/apple-touch-icon.png",
+        "evidence": "Published 180 px Apple touch icon on the official company homepage.",
+        "reason": "The selected logo URL was not declared on the official page"
+      }
+    },
+    {
+      "name": "MongoDB",
+      "careers_url": "https://www.mongodb.com/company/careers",
+      "listings": [
+        {
+          "job_id": "c08080584b22ba79977c6505",
+          "source_url": "https://www.mongodb.com/careers/jobs/7727913",
+          "requisition": "426184",
+          "evidence": "{\"board_url\": \"https://boards-api.greenhouse.io/v1/boards/mongodb/jobs?content=true\", \"posting_id\": \"7727913\", \"location\": \"Toronto\", \"confirmation\": \"Employer careers page and current Greenhouse publisher entry with full role description and current application listing.\", \"final_url\": \"https://www.mongodb.com/careers/jobs/7727913\", \"posting_http_status\": 200, \"detail_http_status\": 200, \"listing_status\": \"Publisher returned the live individual listing and qualifications.\"}"
+        },
+        {
+          "job_id": "0e0c6a9b745810dcd2262fd0",
+          "source_url": "https://www.mongodb.com/careers/jobs/8234520",
+          "requisition": "3273563161",
+          "evidence": "{\"board_url\": \"https://boards-api.greenhouse.io/v1/boards/mongodb/jobs?content=true\", \"posting_id\": \"8234520\", \"location\": \"Toronto\", \"confirmation\": \"Employer careers page and current Greenhouse publisher entry with full role description and current application listing.\", \"final_url\": \"https://www.mongodb.com/careers/jobs/8234520\", \"posting_http_status\": 200, \"detail_http_status\": 200, \"listing_status\": \"Publisher returned the live individual listing and qualifications.\"}"
+        }
+      ],
+      "picks": [],
+      "logo": {
+        "status": "verified",
+        "sha256": "12e673e586be73061379689c81d1174aadbb86654e99850df0f63ee144409e7c",
+        "url": "https://webassets.mongodb.com/_com_assets/cms/mongodb_logo1-76twgcu2dm.png",
+        "page_url": "https://www.mongodb.com/company/newsroom",
+        "evidence": "Official MongoDB page declares the company mark; shared parser and asset normalization succeeded.",
+        "checked_at": "2026-11-15T08:35:41.827746+00:00"
+      }
+    },
+    {
+      "name": "Okta",
+      "careers_url": "https://www.okta.com/company/careers/",
+      "listings": [
+        {
+          "job_id": "9f786d21a7452b121cb21aaf",
+          "source_url": "https://www.okta.com/company/careers/rd/senior-software-engineer-fullstack-8186804/",
+          "requisition": "P22879_3542697",
+          "evidence": "{\"board_url\": \"https://boards-api.greenhouse.io/v1/boards/okta/jobs?content=true\", \"posting_id\": \"8186804\", \"location\": \"Toronto, Ontario, Canada\", \"confirmation\": \"Employer careers page and current Greenhouse publisher entry with full role description and current application listing.\", \"final_url\": \"https://www.okta.com/company/careers/rd/senior-software-engineer-fullstack-8186804/\", \"posting_http_status\": 200, \"detail_http_status\": 200, \"listing_status\": \"Publisher returned the live individual listing and qualifications.\"}"
+        },
+        {
+          "job_id": "813cb68dbc111c08ecdd8b5d",
+          "source_url": "https://www.okta.com/company/careers/rd/software-engineer-ii-platform-infrastructure-control-8333990/",
+          "requisition": "P-2370_3602374",
+          "evidence": "{\"board_url\": \"https://boards-api.greenhouse.io/v1/boards/okta/jobs?content=true\", \"posting_id\": \"8333990\", \"location\": \"Toronto, Ontario, Canada\", \"confirmation\": \"Employer careers page and current Greenhouse publisher entry with full role description and current application listing.\", \"final_url\": \"https://www.okta.com/company/careers/rd/software-engineer-ii-platform-infrastructure-control-8333990/\", \"posting_http_status\": 200, \"detail_http_status\": 200, \"listing_status\": \"Publisher returned the live individual listing and qualifications.\"}"
+        },
+        {
+          "job_id": "60e9bd0ec6f2871762dec69a",
+          "source_url": "https://www.okta.com/company/careers/rd/senior-software-engineer-ui-platform-8021682/",
+          "requisition": "P25183_3477628",
+          "evidence": "{\"board_url\": \"https://boards-api.greenhouse.io/v1/boards/okta/jobs?content=true\", \"posting_id\": \"8021682\", \"location\": \"Toronto, Ontario, Canada\", \"confirmation\": \"Employer careers page and current Greenhouse publisher entry with full role description and current application listing.\", \"final_url\": \"https://www.okta.com/company/careers/rd/senior-software-engineer-ui-platform-8021682/\", \"posting_http_status\": 200, \"detail_http_status\": 200, \"listing_status\": \"Publisher returned the live individual listing and qualifications.\"}"
+        }
+      ],
+      "picks": [
+        {
+          "job_id": "9f786d21a7452b121cb21aaf",
+          "reason": "The role calls for relational database work and cloud experience. The public profile lists SQL and AWS.",
+          "fact_terms": [
+            "SQL/NoSQL",
+            "AWS"
+          ]
+        },
+        {
+          "job_id": "813cb68dbc111c08ecdd8b5d",
+          "reason": "AWS provisioning, Infrastructure as Code and OAuth2 are explicit requirements and all three appear in the public profile.",
+          "fact_terms": [
+            "AWS",
+            "IaC",
+            "OAuth2"
+          ]
+        }
+      ],
+      "logo": {
+        "status": "unavailable",
+        "page_url": "https://www.okta.com/newsroom/",
+        "url": "https://www.okta.com/adobe/dynamicmedia/deliver/dm-aid--db6bc972-a250-4d7d-81aa-9256f66574c0/about-okta-logo-carbon-png.webp?preferwebp=true",
+        "evidence": "Company newsroom publishes this corporate logo as its official raster image.",
+        "reason": "No explicit matching logo was found on the official page"
+      }
+    },
+    {
+      "name": "Robinhood",
+      "careers_url": "https://careers.robinhood.com/",
+      "listings": [
+        {
+          "job_id": "68eed2d3b5fe067c41698972",
+          "source_url": "https://job-boards.greenhouse.io/robinhood/jobs/8083818",
+          "requisition": "JR109109",
+          "evidence": "{\"board_url\": \"https://boards-api.greenhouse.io/v1/boards/robinhood/jobs?content=true\", \"posting_id\": \"8083818\", \"location\": \"Toronto, Canada\", \"confirmation\": \"Employer careers page and current Greenhouse publisher entry with full role description and current application listing.\", \"final_url\": \"https://job-boards.greenhouse.io/robinhood/jobs/8083818\", \"posting_http_status\": 200, \"detail_http_status\": 200, \"listing_status\": \"Publisher returned the live individual listing and qualifications.\"}"
+        },
+        {
+          "job_id": "f97ca2b9af4848cd522fcb99",
+          "source_url": "https://job-boards.greenhouse.io/robinhood/jobs/5616144",
+          "requisition": "1473",
+          "evidence": "{\"board_url\": \"https://boards-api.greenhouse.io/v1/boards/robinhood/jobs?content=true\", \"posting_id\": \"5616144\", \"location\": \"Toronto, Canada\", \"confirmation\": \"Employer careers page and current Greenhouse publisher entry with full role description and current application listing.\", \"final_url\": \"https://job-boards.greenhouse.io/robinhood/jobs/5616144\", \"posting_http_status\": 200, \"detail_http_status\": 200, \"listing_status\": \"Publisher returned the live individual listing and qualifications.\"}"
+        },
+        {
+          "job_id": "48e1dff2be9c8cc728670a4f",
+          "source_url": "https://job-boards.greenhouse.io/robinhood/jobs/8258307",
+          "requisition": "1952",
+          "evidence": "{\"board_url\": \"https://boards-api.greenhouse.io/v1/boards/robinhood/jobs?content=true\", \"posting_id\": \"8258307\", \"location\": \"Toronto, Canada\", \"confirmation\": \"Employer careers page and current Greenhouse publisher entry with full role description and current application listing.\", \"final_url\": \"https://job-boards.greenhouse.io/robinhood/jobs/8258307\", \"posting_http_status\": 200, \"detail_http_status\": 200, \"listing_status\": \"Publisher returned the live individual listing and qualifications.\"}"
+        }
+      ],
+      "picks": [
+        {
+          "job_id": "68eed2d3b5fe067c41698972",
+          "reason": "The developer infrastructure posting directly asks for CI/CD and Python or Go. The public profile lists CI/CD and Python.",
+          "fact_terms": [
+            "CI/CD",
+            "T echnical:Python"
+          ]
+        },
+        {
+          "job_id": "f97ca2b9af4848cd522fcb99",
+          "reason": "The data engineering role explicitly calls for strong SQL and ideally Python. Both are documented in the public profile.",
+          "fact_terms": [
+            "SQL/NoSQL",
+            "T echnical:Python"
+          ]
+        }
+      ],
+      "logo": {
+        "status": "unavailable",
+        "page_url": "https://robinhood.com/us/en/",
+        "url": "https://robinhood.com/us/en/rh_favicon_152.png?v=2024",
+        "evidence": "The official homepage publishes this 152 px Apple touch icon.",
+        "reason": "No explicit matching logo was found on the official page"
+      }
+    },
+    {
+      "name": "Stripe",
+      "careers_url": "https://stripe.com/careers/search",
+      "listings": [
+        {
+          "job_id": "213cdbca0065254cc1bc9059",
+          "source_url": "https://stripe.com/careers/listing/full-stack-engineer-link/6447175",
+          "requisition": "6447175",
+          "evidence": "{\"board_url\": \"https://boards-api.greenhouse.io/v1/boards/stripe/jobs?content=true\", \"posting_id\": \"6447175\", \"location\": \"Toronto\", \"confirmation\": \"Employer careers page and current Greenhouse publisher entry with full role description and current application listing.\", \"final_url\": \"https://stripe.com/careers/listing/full-stack-engineer-link/6447175?gh_jid=6447175\", \"posting_http_status\": 200, \"detail_http_status\": 200, \"listing_status\": \"Publisher returned the live individual listing and qualifications.\"}"
+        },
+        {
+          "job_id": "4e0211f5688b43a5a0903765",
+          "source_url": "https://stripe.com/careers/listing/backend-api-engineer-radar/8301379",
+          "requisition": "8301379",
+          "evidence": "{\"board_url\": \"https://boards-api.greenhouse.io/v1/boards/stripe/jobs?content=true\", \"posting_id\": \"8301379\", \"location\": \"Toronto\", \"confirmation\": \"Employer careers page and current Greenhouse publisher entry with full role description and current application listing.\", \"final_url\": \"https://stripe.com/careers/listing/backend-api-engineer-radar/8301379?gh_jid=8301379\", \"posting_http_status\": 200, \"detail_http_status\": 200, \"listing_status\": \"Publisher returned the live individual listing and qualifications.\"}"
+        },
+        {
+          "job_id": "a1076fc91bb356d3f7a62f87",
+          "source_url": "https://stripe.com/careers/listing/software-engineer-metronome-infrastructure/8231439",
+          "requisition": "8231439",
+          "evidence": "{\"board_url\": \"https://boards-api.greenhouse.io/v1/boards/stripe/jobs?content=true\", \"posting_id\": \"8231439\", \"location\": \"Toronto, Vancouver, Canada-Remote\", \"confirmation\": \"Employer careers page and current Greenhouse publisher entry with full role description and current application listing.\", \"final_url\": \"https://stripe.com/careers/listing/software-engineer-metronome-infrastructure/8231439?gh_jid=8231439\", \"posting_http_status\": 200, \"detail_http_status\": 200, \"listing_status\": \"Publisher returned the live individual listing and qualifications.\"}"
+        }
+      ],
+      "picks": [
+        {
+          "job_id": "213cdbca0065254cc1bc9059",
+          "reason": "The Link role lists Docker and AWS among preferred technologies. Both are documented in the public profile.",
+          "fact_terms": [
+            "Docker",
+            "AWS"
+          ]
+        },
+        {
+          "job_id": "4e0211f5688b43a5a0903765",
+          "reason": "Building and maintaining APIs is central to Radar. The public profile lists FastAPI and SDLC, which align with the role’s API delivery work.",
+          "fact_terms": [
+            "FastAPI",
+            "SDLC"
+          ]
+        }
+      ],
+      "logo": {
+        "status": "unavailable",
+        "page_url": "https://stripe.com/au",
+        "url": "https://images.stripeassets.com/fzn2n1nzq965/4vVgZi0ZMoEzOhkcv7EVwK/8cce6fdcf2733b2ec8e99548908847ed/favicon.png?w=180&h=180",
+        "evidence": "Official Stripe careers and company pages publish this 180 px Apple touch icon.",
+        "reason": "The branding source exceeds its download size limit"
+      }
+    },
+    {
+      "name": "PagerDuty",
+      "careers_url": "https://careers.pagerduty.com/",
+      "listings": [
+        {
+          "job_id": "9ffdb7f7ea5f25ab66fcf764",
+          "source_url": "https://job-boards.greenhouse.io/pagerduty/jobs/6211202004",
+          "requisition": "EFY27602",
+          "evidence": "{\"board_url\": \"https://boards-api.greenhouse.io/v1/boards/pagerduty/jobs?content=true\", \"posting_id\": \"6211202004\", \"location\": \"Toronto\", \"confirmation\": \"Employer careers page and current Greenhouse publisher entry with full role description and current application listing.\", \"final_url\": \"https://job-boards.greenhouse.io/pagerduty/jobs/6211202004\", \"posting_http_status\": 200, \"detail_http_status\": 200, \"listing_status\": \"Publisher returned the live individual listing and qualifications.\"}"
+        }
+      ],
+      "picks": [],
+      "logo": {
+        "status": "unavailable",
+        "page_url": "https://www.pagerduty.com/",
+        "url": "https://www.pagerduty.com/favicon/prod/apple-touch-icon.png",
+        "evidence": "Official homepage publishes this Apple touch icon.",
+        "reason": "The selected logo URL was not declared on the official page"
+      }
+    },
+    {
+      "name": "Monzo",
+      "careers_url": "https://monzo.com/careers",
+      "listings": [
+        {
+          "job_id": "161253d2719318446c5412fa",
+          "source_url": "https://job-boards.greenhouse.io/monzo/jobs/6635595",
+          "requisition": "1869",
+          "evidence": "Active employer Greenhouse board names Monzo and publishes posting 6635595, opening 1869, for Cardiff, London or Remote (UK)."
+        },
+        {
+          "job_id": "dd028c3513baef502829137f",
+          "source_url": "https://job-boards.greenhouse.io/monzo/jobs/6635837",
+          "requisition": "1871",
+          "evidence": "Active employer Greenhouse board names Monzo and publishes posting 6635837, opening 1871, for Cardiff, London or Remote (UK)."
+        }
+      ],
+      "picks": [],
+      "logo": {
+        "status": "unavailable",
+        "page_url": "https://monzo.com/careers",
+        "url": "https://static-assets.monzo.com/monzo-com/4330a8a3520efa97321beb54cc45e1d046fa057f/_next/static/media/favicon.87a9df8c.png",
+        "evidence": "Official careers page declares its branded PNG application icon in the document head.",
+        "reason": "No explicit matching logo was found on the official page"
+      }
+    },
+    {
+      "name": "Deliveroo",
+      "careers_url": "https://careers.deliveroo.co.uk/",
+      "listings": [
+        {
+          "job_id": "938a586130d3a4e45c78d134",
+          "source_url": "https://job-boards.greenhouse.io/deliveroo/jobs/8206463",
+          "requisition": "2026.08541",
+          "evidence": "Active employer Greenhouse board names Deliveroo and publishes posting 8206463, opening 2026.08541, for London, United Kingdom - Deliveroo."
+        },
+        {
+          "job_id": "dddd763b5ecf5d0a6cec122a",
+          "source_url": "https://job-boards.greenhouse.io/deliveroo/jobs/8276280",
+          "requisition": "EV3015",
+          "evidence": "Active employer Greenhouse board names Deliveroo and publishes posting 8276280, opening EV3015, for London, United Kingdom - Deliveroo."
+        },
+        {
+          "job_id": "6d61b1bee40560589e103166",
+          "source_url": "https://job-boards.greenhouse.io/deliveroo/jobs/8266845",
+          "requisition": "EV2938",
+          "evidence": "Active employer Greenhouse board names Deliveroo and publishes posting 8266845, opening EV2938, for London, United Kingdom - Deliveroo."
+        },
+        {
+          "job_id": "4b7c3524b0b1e9632d6a5435",
+          "source_url": "https://job-boards.greenhouse.io/deliveroo/jobs/8206351",
+          "requisition": "2026.08616",
+          "evidence": "Active employer Greenhouse board names Deliveroo and publishes posting 8206351, opening 2026.08616, for London, United Kingdom - Deliveroo."
+        }
+      ],
+      "picks": [
+        {
+          "job_id": "938a586130d3a4e45c78d134",
+          "reason": "The BI integrations combine Python, SQL and CI/CD, all documented in the public profile. Confirm warehouse and Kubernetes depth.",
+          "fact_terms": [
+            "T echnical:Python",
+            "SQL/NoSQL",
+            "CI/CD"
+          ]
+        },
+        {
+          "job_id": "dddd763b5ecf5d0a6cec122a",
+          "reason": "The merchandising role uses Python among its backend languages and calls for relational and NoSQL data work. Verify its high-traffic scope and mentoring expectations.",
+          "fact_terms": [
+            "T echnical:Python",
+            "SQL/NoSQL"
+          ]
+        }
+      ],
+      "logo": {
+        "status": "unavailable",
+        "page_url": "https://careers.deliveroo.co.uk/",
+        "url": "https://careers.deliveroo.co.uk/app/themes/deliveroo-careers/assets/favicon/apple-touch-icon.png",
+        "evidence": "Official careers page declares a same-site 180px touch icon with the Deliveroo mark.",
+        "reason": "The selected logo URL was not declared on the official page"
+      }
+    },
+    {
+      "name": "Wise",
+      "careers_url": "https://wise.jobs/",
+      "listings": [
+        {
+          "job_id": "c648df9117236d0a1a5664fc",
+          "source_url": "https://jobs.smartrecruiters.com/Wise/744000160549671-software-engineer-risk-control-governance",
+          "requisition": "R10309",
+          "evidence": "Employer SmartRecruiters posting 744000160549671 identifies Wise as the hiring employer, lists London and returns active=true."
+        },
+        {
+          "job_id": "087a12ce01b3bdf38e5419ac",
+          "source_url": "https://jobs.smartrecruiters.com/Wise/744000161530989-senior-data-engineer-i-global-kyc-onboarding",
+          "requisition": "R11117",
+          "evidence": "Employer SmartRecruiters posting 744000161530989 identifies Wise as the hiring employer, lists London and returns active=true."
+        }
+      ],
+      "picks": [],
+      "logo": {
+        "status": "verified",
+        "sha256": "ca538902d939a2428ad8ba29cacfe4377a77aefb7471cc78cc859b5390310cfe",
+        "url": "https://d21buns5ku92am.cloudfront.net/69646/logo/retina-1677657632.png",
+        "page_url": "https://newsroom.wise.com/en-NAM/assets/228784/",
+        "evidence": "Wise’s official newsroom media kit contains the Wise logo as a named masthead image in same-site header navigation.",
+        "checked_at": "2026-11-15T08:35:43.607672+00:00"
+      }
+    },
+    {
+      "name": "Contentful",
+      "careers_url": "https://job-boards.greenhouse.io/contentful",
+      "listings": [
+        {
+          "job_id": "7a456438389129cb6cb0f6e1",
+          "source_url": "https://job-boards.greenhouse.io/contentful/jobs/8356206",
+          "requisition": "477",
+          "evidence": "Active employer Greenhouse board names Contentful and publishes posting 8356206, opening 477, for London, England, United Kingdom."
+        },
+        {
+          "job_id": "724912ed1b0d213dc24501f4",
+          "source_url": "https://job-boards.greenhouse.io/contentful/jobs/8221365",
+          "requisition": "SSWE1",
+          "evidence": "Active employer Greenhouse board names Contentful and publishes posting 8221365, opening SSWE1, for Berlin, Germany."
+        }
+      ],
+      "picks": [],
+      "logo": {
+        "status": "unavailable",
+        "page_url": "https://job-boards.greenhouse.io/contentful",
+        "url": "https://recruiting.cdn.greenhouse.io/external_greenhouse_job_boards/logos/000/007/259/original/Contentful-Color-Black.png?1789071791",
+        "evidence": "Contentful’s employer-controlled Greenhouse board explicitly displays its color logo from the recruiting CDN.",
+        "reason": "Choose an official employer site for company branding"
+      }
+    },
+    {
+      "name": "Trainline",
+      "careers_url": "https://www.trainlinegroup.com/careers/",
+      "listings": [
+        {
+          "job_id": "9f45e22639fb2cc573d0f456",
+          "source_url": "https://jobs.ashbyhq.com/trainline/8536b13b-5ff7-4551-a77d-88d8b4dd43f5",
+          "requisition": "8536b13b-5ff7-4551-a77d-88d8b4dd43f5",
+          "evidence": "The active employer Ashby board publishes Platform Engineer as 8536b13b-5ff7-4551-a77d-88d8b4dd43f5 in London."
+        },
+        {
+          "job_id": "904e088050cdb947cbb2c42e",
+          "source_url": "https://jobs.ashbyhq.com/trainline/6e8ba16f-7cc4-41e7-9c63-0115509e07ae",
+          "requisition": "6e8ba16f-7cc4-41e7-9c63-0115509e07ae",
+          "evidence": "The active employer Ashby board publishes Senior Platform Engineer as 6e8ba16f-7cc4-41e7-9c63-0115509e07ae in London."
+        }
+      ],
+      "picks": [],
+      "logo": {
+        "status": "unavailable",
+        "page_url": "https://www.thetrainline.com/",
+        "url": "https://www.thetrainline.com/cms/media/3681/trainline-logo-uk.png",
+        "evidence": "The official Trainline home page includes this same-site PNG as the named Trainline organization logo in its schema.org structured data.",
+        "reason": "The selected image is declared as another organization’s logo"
+      }
+    },
+    {
+      "name": "HelloFresh",
+      "careers_url": "https://careers.hellofresh.com/global/en",
+      "listings": [
+        {
+          "job_id": "49af77fd6f03590e505b9733",
+          "source_url": "https://careers.hellofresh.com/global/en/job/8280899?gh_jid=8280899",
+          "requisition": "JR106821",
+          "evidence": "Active employer Greenhouse board names HelloFresh and publishes posting 8280899, opening JR106821, for Berlin, Berlin, Germany."
+        }
+      ],
+      "picks": [],
+      "logo": {
+        "status": "unavailable",
+        "page_url": "https://careers.hellofresh.com/global/en",
+        "url": "https://cdn.phenompeople.com/CareerConnectResources/HELLGLOBAL/images/Untitleddesign3-1687854541011.png",
+        "evidence": "HelloFresh’s official careers page uses the same image in both desktop and mobile company mastheads.",
+        "reason": "The branding source exceeds its download size limit"
+      }
+    },
+    {
+      "name": "N26",
+      "careers_url": "https://n26.com/en-eu/careers",
+      "listings": [
+        {
+          "job_id": "bd5da8cded4340a5454bb41c",
+          "source_url": "https://n26.com/en-eu/careers/positions/8378357?gh_jid=8378357",
+          "requisition": "R6383",
+          "evidence": "Active employer Greenhouse board names N26 and publishes posting 8378357, opening R6383, for Barcelona, Berlin."
+        },
+        {
+          "job_id": "86b2c9ad16b0a6a46b2b3083",
+          "source_url": "https://n26.com/en-eu/careers/positions/8219953?gh_jid=8219953",
+          "requisition": "R6499",
+          "evidence": "Active employer Greenhouse board names N26 and publishes posting 8219953, opening R6499, for Berlin, Barcelona."
+        }
+      ],
+      "picks": [],
+      "logo": {
+        "status": "unavailable",
+        "page_url": "https://n26.com/en-eu/careers",
+        "url": "https://n26.com/logo-112x112.png",
+        "evidence": "The official N26 careers page identifies this same-site PNG in structured organization markup.",
+        "reason": "The selected logo URL was not declared on the official page"
+      }
+    },
+    {
+      "name": "SumUp",
+      "careers_url": "https://www.sumup.com/careers/",
+      "listings": [
+        {
+          "job_id": "3200a4051e94d44304e22171",
+          "source_url": "https://sumup.com/careers/positions/8364212002?gh_jid=8364212002",
+          "requisition": "R-010575",
+          "evidence": "Active employer Greenhouse board names SumUp and publishes posting 8364212002, opening R-010575, for Berlin, Germany."
+        },
+        {
+          "job_id": "991d01bfe3a13da1dc2e2117",
+          "source_url": "https://sumup.com/careers/positions/8773687002?gh_jid=8773687002",
+          "requisition": "R-014394",
+          "evidence": "Active employer Greenhouse board names SumUp and publishes posting 8773687002, opening R-014394, for Berlin, Germany."
+        }
+      ],
+      "picks": [],
+      "logo": {
+        "status": "unavailable",
+        "page_url": "https://www.sumup.com/careers/",
+        "url": "https://static.sumup.com/favicons/apple-touch-icon.png",
+        "evidence": "The official SumUp careers page declares its touch icon on SumUp’s static subdomain.",
+        "reason": "The selected logo URL was not declared on the official page"
+      }
+    },
+    {
+      "name": "Delivery Hero",
+      "careers_url": "https://careers.deliveryhero.com/",
+      "listings": [
+        {
+          "job_id": "b045a4c48abee04794f2f768",
+          "source_url": "https://jobs.smartrecruiters.com/DeliveryHero/744000159818991-senior-software-engineer-go-global-recommendations-and-ranking-consumer-",
+          "requisition": "JR0088211",
+          "evidence": "Employer SmartRecruiters posting 744000159818991 identifies Delivery Hero as the hiring employer, lists Berlin and returns active=true."
+        }
+      ],
+      "picks": [],
+      "logo": {
+        "status": "unavailable",
+        "page_url": "https://careers.deliveryhero.com/",
+        "url": "https://careers.deliveryhero.com/assets/file/e97b9a3a-bf03-4966-8394-08dc390d0e29/Delivery-Hero-Logo.png",
+        "evidence": "The official careers page declares this same-site Delivery Hero Logo PNG in its Open Graph and other social image metadata.",
+        "reason": "The source did not return a supported raster format"
+      }
+    },
+    {
+      "name": "Xero",
+      "careers_url": "https://jobs.ashbyhq.com/xero",
+      "listings": [
+        {
+          "job_id": "8aed0451f40a6397718b4b01",
+          "source_url": "https://jobs.ashbyhq.com/xero/0c345d63-dcc1-4fa0-b521-a0fb6fff29ca",
+          "requisition": "0c345d63-dcc1-4fa0-b521-a0fb6fff29ca",
+          "evidence": "Listed with full description and direct application link on employer’s Ashby board."
+        },
+        {
+          "job_id": "d93f5d18222aa65f5174874a",
+          "source_url": "https://jobs.ashbyhq.com/xero/65b39783-4a06-4bae-8dbe-48afb916886f",
+          "requisition": "65b39783-4a06-4bae-8dbe-48afb916886f",
+          "evidence": "Listed with full description and direct application link on employer’s Ashby board."
+        },
+        {
+          "job_id": "070be8bc1ad01fcec56b0a30",
+          "source_url": "https://jobs.ashbyhq.com/xero/9eef7111-d180-4e9e-a3df-f5f36f8b61f8",
+          "requisition": "9eef7111-d180-4e9e-a3df-f5f36f8b61f8",
+          "evidence": "Listed with full description and direct application link on employer’s Ashby board."
+        }
+      ],
+      "picks": [
+        {
+          "job_id": "8aed0451f40a6397718b4b01",
+          "reason": "The role explicitly calls for Python or TypeScript APIs, containers and CI/CD; the posting also expects practical AI orchestration.",
+          "fact_terms": [
+            "T echnical:Python",
+            "TypeScript",
+            "Docker",
+            "CI/CD"
+          ]
+        },
+        {
+          "job_id": "070be8bc1ad01fcec56b0a30",
+          "reason": "CI/CD and infrastructure as code are direct matches for the search team’s automation work. Search-cluster operations are a separate requirement to confirm.",
+          "fact_terms": [
+            "CI/CD",
+            "IaC"
+          ]
+        }
+      ],
+      "logo": {
+        "status": "verified",
+        "sha256": "3314727013bafed03b50bced066db7aafa372332ffa77221ecbf696ff0d4ea79",
+        "url": "https://www.xero.com/content/dam/xero/pilot-images/explainer/media-downloads/xero-logo-downloads.1762731076660.png",
+        "page_url": "https://www.xero.com/au/media/downloads/",
+        "evidence": "Official Xero media downloads page labels and embeds this corporate logo PNG.",
+        "checked_at": "2026-11-15T08:35:46.282867+00:00"
+      }
+    },
+    {
+      "name": "Kraken",
+      "careers_url": "https://jobs.ashbyhq.com/krakentech",
+      "listings": [
+        {
+          "job_id": "583690b313fdd2e5ccb85bdb",
+          "source_url": "https://jobs.ashbyhq.com/krakentech/0cb355f4-cf92-4810-8794-979bbe5c9a68",
+          "requisition": "0cb355f4-cf92-4810-8794-979bbe5c9a68",
+          "evidence": "Listed with full description and direct application link on employer’s Ashby board."
+        },
+        {
+          "job_id": "920bd6d4994ef46778b66e2e",
+          "source_url": "https://jobs.ashbyhq.com/krakentech/b441f0f2-3d86-4a65-bd1f-07d0aad2a1ff",
+          "requisition": "b441f0f2-3d86-4a65-bd1f-07d0aad2a1ff",
+          "evidence": "Listed with full description and direct application link on employer’s Ashby board."
+        }
+      ],
+      "picks": [],
+      "logo": {
+        "status": "unavailable",
+        "page_url": "https://kraken.tech/",
+        "url": "https://kraken.tech/apple-touch-icon.png",
+        "evidence": "Official Kraken site embeds its branded apple touch icon; the employer board’s theme asset exceeds the logo size limit.",
+        "reason": "The selected logo URL was not declared on the official page"
+      }
+    },
+    {
+      "name": "Maincode",
+      "careers_url": "https://maincode.com/careers",
+      "listings": [
+        {
+          "job_id": "18f014057c186865e5d2c6ed",
+          "source_url": "https://jobs.ashbyhq.com/maincode/8a48f6bf-9a50-48b9-8c7f-699024011d66",
+          "requisition": "8a48f6bf-9a50-48b9-8c7f-699024011d66",
+          "evidence": "Listed with full description and direct application link on employer’s Ashby board."
+        }
+      ],
+      "picks": [],
+      "logo": {
+        "status": "verified",
+        "sha256": "8a93fe37304014cb3452fc5fcaf03319b96b47e91163008ac520f18bddea28c5",
+        "url": "https://maincode.com/assets/logo-512.png",
+        "page_url": "https://maincode.com/careers",
+        "evidence": "Official careers page identifies this corporation logo in structured data.",
+        "checked_at": "2026-11-15T08:28:54.224259+00:00"
+      }
+    },
+    {
+      "name": "Easygo",
+      "careers_url": "https://www.easygo.io/careers",
+      "listings": [
+        {
+          "job_id": "101eeb4585789ca4e95eb596",
+          "source_url": "https://job-boards.greenhouse.io/easygo/jobs/5274710007",
+          "requisition": "1163",
+          "evidence": "Listed with full description and direct application link on employer’s Greenhouse board."
+        }
+      ],
+      "picks": [],
+      "logo": {
+        "status": "unavailable",
+        "page_url": "https://www.easygo.io/careers",
+        "url": "https://cdn.sanity.io/images/voaav49k/production/8880cee09f748d643f56bf4a298a82a2fd0a7b40-115x22.svg?fm=png",
+        "evidence": "Official careers page identifies this organization logo. Its asset host serves a PNG variant.",
+        "reason": "The selected logo URL was not declared on the official page"
+      }
+    },
+    {
+      "name": "Culture Amp",
+      "careers_url": "https://www.cultureamp.com/company/careers",
+      "listings": [
+        {
+          "job_id": "15501bbe0ce0c67241f92060",
+          "source_url": "https://job-boards.greenhouse.io/cultureamp/jobs/8326301",
+          "requisition": "3184",
+          "evidence": "Listed with full description and direct application link on employer’s Greenhouse board."
+        }
+      ],
+      "picks": [],
+      "logo": {
+        "status": "verified",
+        "sha256": "02e9801cd606e901005c8dad04a6d6be7d34035947b46ccfabef41787f172571",
+        "url": "https://www.cultureamp.com/assets/slices/main/assets/public/media/logo-culture-amp-gsearch-a1c65ae55f3d8c5a4a0b.webp",
+        "page_url": "https://www.cultureamp.com/company/careers",
+        "evidence": "Its careers page identifies the employer and declares its WebP corporate logo in Organization structured data.",
+        "checked_at": "2026-11-15T08:35:44.040021+00:00"
+      }
+    },
+    {
+      "name": "SimplifyNext",
+      "careers_url": "https://www.simplifynext.com/career",
+      "listings": [
+        {
+          "job_id": "c6964c3a4322c38f5961e78a",
+          "source_url": "https://job-boards.greenhouse.io/simplifynext/jobs/5236654007",
+          "requisition": "61",
+          "evidence": "Listed with full description and direct application link on employer’s Greenhouse board."
+        },
+        {
+          "job_id": "7068667307a2b8df8d0d0e57",
+          "source_url": "https://job-boards.greenhouse.io/simplifynext/jobs/5233120007",
+          "requisition": "99",
+          "evidence": "Listed with full description and direct application link on employer’s Greenhouse board."
+        }
+      ],
+      "picks": [],
+      "logo": {
+        "status": "verified",
+        "sha256": "8add9515754d4464e807f7c13949dd0029fab699fac2146ca0883f83a24ca7e6",
+        "url": "https://www.simplifynext.com/logo.png",
+        "page_url": "https://www.simplifynext.com/career",
+        "evidence": "Its official careers page declares its PNG corporate logo in Organization structured data.",
+        "checked_at": "2026-11-15T08:35:45.761643+00:00"
+      }
+    },
+    {
+      "name": "PALO IT",
+      "careers_url": "https://www.palo-it.com/en/careers",
+      "listings": [
+        {
+          "job_id": "3ff311a2c722b197a2d6d271",
+          "source_url": "https://jobs.ashbyhq.com/palo-it/7042c585-bfc3-427b-9bee-21d5dc4de6d5",
+          "requisition": "7042c585-bfc3-427b-9bee-21d5dc4de6d5",
+          "evidence": "Listed with full description and direct application link on employer’s Ashby board."
+        },
+        {
+          "job_id": "7bece750234d78f98ac7a231",
+          "source_url": "https://jobs.ashbyhq.com/palo-it/56707745-9c94-4d7f-885b-c41dbc90099e",
+          "requisition": "56707745-9c94-4d7f-885b-c41dbc90099e",
+          "evidence": "Listed with full description and direct application link on employer’s Ashby board."
+        }
+      ],
+      "picks": [],
+      "logo": {
+        "status": "unavailable",
+        "page_url": "https://www.palo-it.com/",
+        "url": "https://www.palo-it.com/hs-fs/hubfs/PaloIT-Assets/images/PALOLogo_color.png?width=411&height=96&name=PALOLogo_color.png",
+        "evidence": "The company homepage embeds the colour PALO IT wordmark in its header.",
+        "reason": "The source did not return a supported raster format"
+      }
+    },
+    {
+      "name": "OKX",
+      "careers_url": "https://www.okx.com/join-us",
+      "listings": [
+        {
+          "job_id": "fed8708f51b9a7dbdcd47777",
+          "source_url": "https://job-boards.greenhouse.io/okx/jobs/7767872003",
+          "requisition": "5626",
+          "evidence": "Listed with full description and direct application link on employer’s Greenhouse board."
+        }
+      ],
+      "picks": [],
+      "logo": {
+        "status": "verified",
+        "sha256": "87fea4e7b21486f471963306d1fef9ffa4eb707f19575b7c5349ed41c41e3808",
+        "url": "https://www.okx.com/cdn/announce/20220119/1642588276929a0193af5-6ac2-404a-babb-8be9ca215a07.png",
+        "page_url": "https://www.okx.com/en-us/learn/okex-rebrands-to-okx",
+        "evidence": "OKX official rebrand announcement embeds this raster of the current OKX mark.",
+        "checked_at": "2026-11-15T08:38:06.966722+00:00"
+      }
+    },
+    {
+      "name": "Encora",
+      "careers_url": "https://job-boards.greenhouse.io/encora10",
+      "listings": [
+        {
+          "job_id": "a62d6ce518a231beeb6d3ebc",
+          "source_url": "https://job-boards.greenhouse.io/encora10/jobs/5187373007",
+          "requisition": "22372",
+          "evidence": "Listed with full description and direct application link on employer’s Greenhouse board."
+        },
+        {
+          "job_id": "2099c89890892cafaeaaa6de",
+          "source_url": "https://job-boards.greenhouse.io/encora10/jobs/5205356007",
+          "requisition": "22751",
+          "evidence": "Listed with full description and direct application link on employer’s Greenhouse board."
+        }
+      ],
+      "picks": [],
+      "logo": {
+        "status": "unavailable",
+        "page_url": "https://job-boards.greenhouse.io/encora10",
+        "url": null,
+        "evidence": "Named Greenhouse board has no employer mark; the former corporate domain redirects to parent Coforge. Distinct Encora logo not yet verified.",
+        "reason": "Choose an official employer site for company branding"
+      }
+    },
+    {
+      "name": "Airwallex",
+      "careers_url": "https://careers.airwallex.com/",
+      "listings": [
+        {
+          "job_id": "bc58784a72af182f83987a17",
+          "source_url": "https://jobs.ashbyhq.com/airwallex/3c5176fb-6eee-4bf4-8031-36f0528c71a3",
+          "requisition": "3c5176fb-6eee-4bf4-8031-36f0528c71a3",
+          "evidence": "Listed with full description and direct application link on employer’s Ashby board."
+        },
+        {
+          "job_id": "00273d0d9863a3d521692004",
+          "source_url": "https://jobs.ashbyhq.com/airwallex/a9c09c5d-ab0c-4692-a6c0-d1cdc0107a7c",
+          "requisition": "a9c09c5d-ab0c-4692-a6c0-d1cdc0107a7c",
+          "evidence": "Listed with full description and direct application link on employer’s Ashby board."
+        }
+      ],
+      "picks": [],
+      "logo": {
+        "status": "unavailable",
+        "page_url": "https://jobs.ashbyhq.com/airwallex",
+        "url": "https://app.ashbyhq.com/api/images/org-theme-logo/6e23f7f7-cd7d-4ce0-9c98-a110a190ef11/189f2f03-7a70-4685-8fa1-542ff3f2df0e/cecd53dd-d00e-44c1-9674-b2d04fa3edc4.png",
+        "evidence": "Airwallex’s branded recruiting board embeds its custom organization-theme logo.",
+        "reason": "Choose an official employer site for company branding"
+      }
+    },
+    {
+      "name": "Apple",
+      "careers_url": "https://jobs.apple.com/en-us/search?location=china-CHNC",
+      "listings": [
+        {
+          "job_id": "24819eea5cf016a449b490b8",
+          "source_url": "https://jobs.apple.com/en-us/details/200676247-3715/store-apps-engineering-devops-engineer",
+          "requisition": "200676247-3715",
+          "evidence": "Employer’s current posting includes full role requirements and an application path."
+        },
+        {
+          "job_id": "3a5273336ba48ae484933232",
+          "source_url": "https://jobs.apple.com/en-us/details/200685581-3715/software-engineer-cloud-services-engineering",
+          "requisition": "200685581-3715",
+          "evidence": "Employer’s current posting includes full role requirements and an application path."
+        },
+        {
+          "job_id": "80f3522e24334918b03e26f1",
+          "source_url": "https://jobs.apple.com/en-us/details/200679391-3715/full-stack-engineer-apple-store-online-rapid-application-development",
+          "requisition": "200679391-3715",
+          "evidence": "Employer’s current posting includes full role requirements and an application path."
+        }
+      ],
+      "picks": [
+        {
+          "job_id": "24819eea5cf016a449b490b8",
+          "reason": "Python, AWS, IaC and CI/CD line up with the automation and cloud duties. On-call and observability experience are separate considerations.",
+          "fact_terms": [
+            "T echnical:Python",
+            "AWS",
+            "IaC",
+            "CI/CD"
+          ]
+        },
+        {
+          "job_id": "3a5273336ba48ae484933232",
+          "reason": "Python and Docker map to the API and container work. The listing also expects substantial Kubernetes experience, which needs confirmation.",
+          "fact_terms": [
+            "T echnical:Python",
+            "Docker"
+          ]
+        }
+      ],
+      "logo": {
+        "status": "verified",
+        "sha256": "7c88d26079780226a21ea349faf8b3af0ae8b6407e6472354912e6534cba62c9",
+        "url": "https://www.apple.com/newsroom/images/apple-logo_black.jpg.archive.jpg",
+        "page_url": "https://www.apple.com/newsroom/archive/",
+        "evidence": "Apple Newsroom archive uses this official Apple logo image for Apple corporate news.",
+        "checked_at": "2026-11-15T08:35:46.998527+00:00"
+      }
+    },
+    {
+      "name": "NVIDIA",
+      "careers_url": "https://www.nvidia.com/en-us/about-nvidia/careers/",
+      "listings": [
+        {
+          "job_id": "af8b14334dd6326e3dbf7bce",
+          "source_url": "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite/job/China-Shanghai/Senior-Software-Development-Engineer-in-Test--SDET----DGX-Cloud_JR2029482",
+          "requisition": "JR2029482",
+          "evidence": "Official NVIDIA Workday posting returned canApply=true and full requirements."
+        },
+        {
+          "job_id": "21ff2806cf2e4994026f8ad5",
+          "source_url": "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite/job/China-Shanghai/Senior-AI-Infra-Test-Development-Engineer--SDET_JR2027720",
+          "requisition": "JR2027720",
+          "evidence": "Official NVIDIA Workday posting returned canApply=true and full requirements."
+        }
+      ],
+      "picks": [],
+      "logo": {
+        "status": "unavailable",
+        "page_url": "https://nvidianews.nvidia.com/multimedia/corporate/nvidia-logos",
+        "url": "https://iprsoftwaremedia.com/219/files/202512/692f50553d6332b453bbc5c2_nvidia-logo-vert-blk/nvidia-logo-vert-blk_thmb.png?v=6390c37f-960b-42bd-a176-b51cfa6d7ba4",
+        "evidence": "Official NVIDIA Newsroom’s logo library publishes this square version.",
+        "reason": "The selected logo URL was not declared on the official page"
+      }
+    },
+    {
+      "name": "EPAM Systems",
+      "careers_url": "https://careers.epam.com/en/jobs",
+      "listings": [
+        {
+          "job_id": "4464bdabb0c81745478a4b53",
+          "source_url": "https://careers.epam.com/en/vacancy/senior-front-end-developer-react-typescript-bltu5kc1ucsong60hgw_en",
+          "requisition": "bltu5kc1ucsong60hgw",
+          "evidence": "Employer’s current posting includes full role requirements and an application path."
+        }
+      ],
+      "picks": [],
+      "logo": {
+        "status": "unavailable",
+        "page_url": "https://careers.epam.com/en/vacancy/senior-front-end-developer-react-typescript-bltu5kc1ucsong60hgw_en",
+        "url": "https://careers.epam.com/static/assets/logo/EPAM_Systems.svg",
+        "evidence": "Official career page exposes its EPAM wordmark as SVG; alternate PNG asset is labelled favicon and is excluded by the shared logo importer.",
+        "reason": "The source did not return a supported raster format"
+      }
+    },
+    {
+      "name": "Amazon",
+      "careers_url": "https://www.amazon.jobs/en/search?country%5B%5D=CHN",
+      "listings": [
+        {
+          "job_id": "c55bdb5fd7bf86c269267270",
+          "source_url": "https://www.amazon.jobs/en/jobs/10567071/api-support-engineer-developer-support-engineering",
+          "requisition": "10567071",
+          "evidence": "Employer’s current posting includes full role requirements and an application path."
+        }
+      ],
+      "picks": [],
+      "logo": {
+        "status": "unavailable",
+        "page_url": "https://press.aboutamazon.com/logos",
+        "url": "https://assets.aboutamazon.com/dims4/default/3039ed1/2147483647/strip/true/crop/2000x1000+0+63/resize/1200x600!/quality/90/?url=https%3A%2F%2Fassets.aboutamazon.com%2Fb3%2F79%2Fb0e61293471b9d35c5ff02e46f37%2Famazon-logo-hero-images-2024.jpg",
+        "evidence": "The Amazon press center Logos page embeds this 1200x600 raster of its smile mark.",
+        "reason": "No explicit matching logo was found on the official page"
+      }
+    },
+    {
+      "name": "AMD",
+      "careers_url": "https://careers.amd.com/careers-home/jobs",
+      "listings": [
+        {
+          "job_id": "3932d66d3a4376d7f2efb3ed",
+          "source_url": "https://careers.amd.com/careers-home/jobs/97180",
+          "requisition": "97180",
+          "evidence": "Employer’s current posting includes full role requirements and an application path."
+        }
+      ],
+      "picks": [],
+      "logo": {
+        "status": "verified",
+        "sha256": "23980265f8f262f68d919a8391ac8bdd470fa97a3c4bfa5a9a4737b1768fb7a8",
+        "url": "https://newsroom.amd.com/images/media-center/2026/07/9511f05b-cfe5-4470-aa57-6fa81b7ed81e.png",
+        "page_url": "https://newsroom.amd.com/media-center/",
+        "evidence": "AMD Newsroom Media Center labels and embeds this AMD logo.",
+        "checked_at": "2026-11-15T08:35:46.628269+00:00"
+      }
+    }
+  ],
   "jobs": [
     {
-      "id": "0e991284d2dc46d5b799a54a1026bed0",
-      "source": "smartrecruiters:BoschGroup:sg",
-      "title": "Key User Sales and Support Manager",
-      "employer": "Bosch Group",
-      "location": "Singapore, , Singapore",
-      "url": "https://jobs.smartrecruiters.com/BoschGroup/744000160126689",
-      "careers_url": "https://careers.smartrecruiters.com/BoschGroup",
-      "description": "Key User Sales and Support Manager at Bosch Group in Singapore, , Singapore. See the original advert for the full role and current requirements.",
-      "requirements": [],
-      "checked_at": "2026-11-11T13:12:59.866939+00:00",
-      "posted_at": "2026-11-06",
-      "availability": "Employer snapshot",
-      "work_arrangement": ""
-    },
-    {
-      "id": "91093541a8e44ba89179bf317d123abb",
-      "source": "smartrecruiters:BoschGroup:sg",
-      "title": "Intern, AIot Software Developer",
-      "employer": "Bosch Group",
-      "location": "Singapore, , Singapore",
-      "url": "https://jobs.smartrecruiters.com/BoschGroup/744000159821219",
-      "careers_url": "https://careers.smartrecruiters.com/BoschGroup",
-      "description": "Intern, AIot Software Developer at Bosch Group in Singapore, , Singapore. See the original advert for the full role and current requirements.",
+      "id": "d4a3e3e6ec786b5037b39f5c",
+      "title": "Software Engineer, Full Stack",
+      "employer": "Plaid",
+      "city": "New York",
+      "location": "New York City Office",
+      "url": "https://jobs.ashbyhq.com/plaid/a9dc0810-546b-4773-9545-2862409e24b4",
+      "careers_url": "https://plaid.com/careers/",
+      "description": "Develop investment product interfaces and APIs with automated tests.",
       "requirements": [
         "Python",
-        "Java",
-        "JavaScript",
-        "React",
-        "API"
+        "2–4 years full-stack development",
+        "Modern JavaScript frameworks, HTML and CSS",
+        "Python, Java, Go or Node.js",
+        "Relational databases such as MySQL",
+        "Microservices and API design",
+        "Coding and testing"
       ],
-      "checked_at": "2026-11-11T13:12:59.866939+00:00",
-      "posted_at": "2026-11-05",
-      "availability": "Employer snapshot",
-      "work_arrangement": ""
+      "availability": "retrieved",
+      "checked_at": "2026-11-15T08:17:13+00:00",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "posted_at": "2026-05-04",
+      "work_arrangement": "Hybrid",
+      "source": "reviewed:plaid"
     },
     {
-      "id": "e84ffc921a8f4ae7ab2e63e6134f10e9",
-      "source": "smartrecruiters:AECOM2:sg",
-      "title": "Quantity Surveyor, M&E",
-      "employer": "AECOM",
-      "location": "Singapore, , Singapore",
-      "url": "https://jobs.smartrecruiters.com/AECOM2/744000161019169",
-      "careers_url": "https://careers.smartrecruiters.com/AECOM2",
-      "description": "Quantity Surveyor, M&E at AECOM in Singapore, , Singapore. See the original advert for the full role and current requirements.",
+      "id": "2fd16a7557ee8b5741632747",
+      "title": "Senior Software Engineer, Full Stack",
+      "employer": "Plaid",
+      "city": "New York",
+      "location": "New York City Office",
+      "url": "https://jobs.ashbyhq.com/plaid/24f357ee-b2fc-4f86-bab9-d10ecfb99003",
+      "careers_url": "https://plaid.com/careers/",
+      "description": "Design scalable backend APIs and user-facing applications, including automated tests and design review.",
       "requirements": [
-        "project management"
+        "5+ years software engineering and shipping production features",
+        "Relational databases and service-oriented architecture",
+        "Modern JavaScript UI development",
+        "System design, testing and mentoring"
       ],
-      "checked_at": "2026-11-11T13:12:59.866939+00:00",
-      "posted_at": "2026-11-11",
-      "availability": "Employer snapshot",
-      "work_arrangement": ""
+      "availability": "retrieved",
+      "checked_at": "2026-11-15T08:17:13+00:00",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "posted_at": "2026-05-04",
+      "work_arrangement": "Hybrid",
+      "source": "reviewed:plaid"
     },
     {
-      "id": "901501d4c9b242d8872d4cbde620bf11",
-      "source": "smartrecruiters:AECOM2:sg",
-      "title": "Executive Quantity Surveyor, M&E",
-      "employer": "AECOM",
-      "location": "Singapore, , Singapore",
-      "url": "https://jobs.smartrecruiters.com/AECOM2/744000161019049",
-      "careers_url": "https://careers.smartrecruiters.com/AECOM2",
-      "description": "Executive Quantity Surveyor, M&E at AECOM in Singapore, , Singapore. See the original advert for the full role and current requirements.",
+      "id": "95f42fede642e57f74636fbd",
+      "title": "Software Engineer, Backend",
+      "employer": "Plaid",
+      "city": "New York",
+      "location": "New York City Office",
+      "url": "https://jobs.ashbyhq.com/plaid/7e10c0b5-a09a-4e07-aaa8-899a7f82a0c9",
+      "careers_url": "https://plaid.com/careers/",
+      "description": "Build scalable backend systems and APIs for connecting financial accounts and monitor production performance.",
       "requirements": [
-        "project management"
+        "2–4 years software engineering after internships",
+        "Shipping reliable systems at scale",
+        "Technical problem-solving",
+        "Cross-functional collaboration",
+        "Automated testing and production debugging"
       ],
-      "checked_at": "2026-11-11T13:12:59.866939+00:00",
-      "posted_at": "2026-11-11",
-      "availability": "Employer snapshot",
-      "work_arrangement": ""
+      "availability": "retrieved",
+      "checked_at": "2026-11-15T08:17:13+00:00",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "posted_at": "2026-05-04",
+      "work_arrangement": "Hybrid",
+      "source": "reviewed:plaid"
     },
     {
-      "id": "4ba8aa0283054ecf8b923d48bc7d501d",
-      "source": "smartrecruiters:AECOM2:sg",
-      "title": "Senior Quantity Surveyor, M&E",
-      "employer": "AECOM",
-      "location": "Singapore, , Singapore",
-      "url": "https://jobs.smartrecruiters.com/AECOM2/744000161019009",
-      "careers_url": "https://careers.smartrecruiters.com/AECOM2",
-      "description": "Senior Quantity Surveyor, M&E at AECOM in Singapore, , Singapore. See the original advert for the full role and current requirements.",
+      "id": "fb0ff9de9c14f0fdbd62bb26",
+      "title": "Software Engineer, Frontend",
+      "employer": "Ramp",
+      "city": "New York",
+      "location": "New York, NY (HQ)",
+      "url": "https://jobs.ashbyhq.com/ramp/6511d68f-b65d-4499-962f-7e2f75eabe3f",
+      "careers_url": "https://ramp.com/careers",
+      "description": "Build performant front-end interfaces in Ramp’s TypeScript and React stack.",
       "requirements": [
-        "project management"
-      ],
-      "checked_at": "2026-11-11T13:12:59.866939+00:00",
-      "posted_at": "2026-11-11",
-      "availability": "Employer snapshot",
-      "work_arrangement": "Hybrid"
-    },
-    {
-      "id": "1dd00ad22f5c4b4680ac25f56b64066f",
-      "source": "smartrecruiters:AECOM2:au",
-      "title": "Principal Civil Engineer – Water Infrastructure",
-      "employer": "AECOM",
-      "location": "Melbourne, VIC, Australia",
-      "url": "https://jobs.smartrecruiters.com/AECOM2/744000158217819",
-      "careers_url": "https://careers.smartrecruiters.com/AECOM2",
-      "description": "Principal Civil Engineer – Water Infrastructure at AECOM in Melbourne, VIC, Australia. See the original advert for the full role and current requirements.",
-      "requirements": [],
-      "checked_at": "2026-11-11T13:12:59.866939+00:00",
-      "posted_at": "2026-10-28",
-      "availability": "Employer snapshot",
-      "work_arrangement": ""
-    },
-    {
-      "id": "9689829137fc47bf9ff354342669272d",
-      "source": "smartrecruiters:AECOM2:au",
-      "title": "Senior Civil Engineer - Water Infrastructure",
-      "employer": "AECOM",
-      "location": "Melbourne, VIC, Australia",
-      "url": "https://jobs.smartrecruiters.com/AECOM2/744000158215764",
-      "careers_url": "https://careers.smartrecruiters.com/AECOM2",
-      "description": "Senior Civil Engineer - Water Infrastructure at AECOM in Melbourne, VIC, Australia. See the original advert for the full role and current requirements.",
-      "requirements": [],
-      "checked_at": "2026-11-11T13:12:59.866939+00:00",
-      "posted_at": "2026-10-28",
-      "availability": "Employer snapshot",
-      "work_arrangement": ""
-    },
-    {
-      "id": "e64e4b67850548bc96af09904c00da6f",
-      "source": "smartrecruiters:TurnerTownsend:au",
-      "title": "Cost Manager - MEP - Data Centre",
-      "employer": "Turner & Townsend",
-      "location": "Melbourne, Australia & New Zealand, Australia",
-      "url": "https://jobs.smartrecruiters.com/TurnerTownsend/744000161024509",
-      "careers_url": "https://careers.smartrecruiters.com/TurnerTownsend",
-      "description": "Cost Manager - MEP - Data Centre at Turner & Townsend in Melbourne, Australia & New Zealand, Australia. See the original advert for the full role and current requirements.",
-      "requirements": [
-        "data centre"
-      ],
-      "checked_at": "2026-11-11T13:12:59.866939+00:00",
-      "posted_at": "2026-11-11",
-      "availability": "Employer snapshot",
-      "work_arrangement": ""
-    },
-    {
-      "id": "4609c5e52fa74550afb9878e26410fdc",
-      "source": "smartrecruiters:TurnerTownsend:au",
-      "title": "Planner / Scheduler - MEP - Data Centre",
-      "employer": "Turner & Townsend",
-      "location": "Melbourne, Australia & New Zealand, Australia",
-      "url": "https://jobs.smartrecruiters.com/TurnerTownsend/744000160988520",
-      "careers_url": "https://careers.smartrecruiters.com/TurnerTownsend",
-      "description": "Planner / Scheduler - MEP - Data Centre at Turner & Townsend in Melbourne, Australia & New Zealand, Australia. See the original advert for the full role and current requirements.",
-      "requirements": [],
-      "checked_at": "2026-11-11T13:12:59.866939+00:00",
-      "posted_at": "2026-11-11",
-      "availability": "Employer snapshot",
-      "work_arrangement": "Hybrid"
-    },
-    {
-      "id": "66bd15dc08ea4c3db4c57e5e22b75779",
-      "source": "smartrecruiters:NBCUniversal3:us",
-      "title": "Associate Counsel, Business & Legal Affairs",
-      "employer": "NBCUniversal",
-      "location": "New York, NEW YORK, United States",
-      "url": "https://jobs.smartrecruiters.com/NBCUniversal3/744000160961279",
-      "careers_url": "https://careers.smartrecruiters.com/NBCUniversal3",
-      "description": "Associate Counsel, Business & Legal Affairs at NBCUniversal in New York, NEW YORK, United States. See the original advert for the full role and current requirements.",
-      "requirements": [],
-      "checked_at": "2026-11-11T13:12:59.866939+00:00",
-      "posted_at": "2026-11-10",
-      "availability": "Employer snapshot",
-      "work_arrangement": "Hybrid"
-    },
-    {
-      "id": "8008e26e45f646ed9e73b3e791cb914d",
-      "source": "smartrecruiters:NBCUniversal3:us",
-      "title": "Associate Design Engineer",
-      "employer": "NBCUniversal",
-      "location": "New York, NEW YORK, United States",
-      "url": "https://jobs.smartrecruiters.com/NBCUniversal3/744000160955954",
-      "careers_url": "https://careers.smartrecruiters.com/NBCUniversal3",
-      "description": "Associate Design Engineer at NBCUniversal in New York, NEW YORK, United States. See the original advert for the full role and current requirements.",
-      "requirements": [
-        "JavaScript",
         "TypeScript",
-        "React",
-        "AWS",
-        "Azure",
-        "API"
+        "JavaScript and React proficiency",
+        "Shipping products at scale",
+        "Translating product requirements into software",
+        "Five years of front-end engineering preferred"
       ],
-      "checked_at": "2026-11-11T13:12:59.866939+00:00",
-      "posted_at": "2026-11-10",
-      "availability": "Employer snapshot",
-      "work_arrangement": "Hybrid"
-    },
-    {
-      "id": "53de9d56ba284e7aa0f926b3d70bed27",
-      "source": "smartrecruiters:NBCUniversal3:us",
-      "title": "Engineering Manager, VOD Media",
-      "employer": "NBCUniversal",
-      "location": "New York, NEW YORK, United States",
-      "url": "https://jobs.smartrecruiters.com/NBCUniversal3/744000160942119",
-      "careers_url": "https://careers.smartrecruiters.com/NBCUniversal3",
-      "description": "Engineering Manager, VOD Media at NBCUniversal in New York, NEW YORK, United States. See the original advert for the full role and current requirements.",
-      "requirements": [
-        "Python",
-        "Java",
-        "AWS",
-        "Kubernetes"
-      ],
-      "checked_at": "2026-11-11T13:12:59.866939+00:00",
-      "posted_at": "2026-11-10",
-      "availability": "Employer snapshot",
-      "work_arrangement": "Hybrid"
-    },
-    {
-      "id": "13ec47b521b6467a8f10a4c8ccf015ed",
-      "source": "smartrecruiters:AECOM2:us",
-      "title": "Structural Engineer I",
-      "employer": "AECOM",
-      "location": "New York, NY, United States",
-      "url": "https://jobs.smartrecruiters.com/AECOM2/744000160939959",
-      "careers_url": "https://careers.smartrecruiters.com/AECOM2",
-      "description": "Structural Engineer I at AECOM in New York, NY, United States. See the original advert for the full role and current requirements.",
-      "requirements": [],
-      "checked_at": "2026-11-11T13:12:59.866939+00:00",
-      "posted_at": "2026-11-10",
-      "availability": "Employer snapshot",
-      "work_arrangement": "Hybrid"
-    },
-    {
-      "id": "c8183386586e406fb9d9e3ea7c237041",
-      "source": "smartrecruiters:AECOM2:us",
-      "title": "Civil Inspector",
-      "employer": "AECOM",
-      "location": "New York, NY, United States",
-      "url": "https://jobs.smartrecruiters.com/AECOM2/744000160640501",
-      "careers_url": "https://careers.smartrecruiters.com/AECOM2",
-      "description": "Civil Inspector at AECOM in New York, NY, United States. See the original advert for the full role and current requirements.",
-      "requirements": [],
-      "checked_at": "2026-11-11T13:12:59.866939+00:00",
-      "posted_at": "2026-11-09",
-      "availability": "Employer snapshot",
-      "work_arrangement": ""
-    },
-    {
-      "id": "c2df5083939b45e1892bea5f5674faaa",
-      "source": "smartrecruiters:AECOM2:gb",
-      "title": "Principal Electrical Engineer (Solar/Renewables)",
-      "employer": "AECOM",
-      "location": "London, , United Kingdom",
-      "url": "https://jobs.smartrecruiters.com/AECOM2/744000161051849",
-      "careers_url": "https://careers.smartrecruiters.com/AECOM2",
-      "description": "Principal Electrical Engineer (Solar/Renewables) at AECOM in London, , United Kingdom. See the original advert for the full role and current requirements.",
-      "requirements": [],
-      "checked_at": "2026-11-11T13:12:59.866939+00:00",
-      "posted_at": "2026-11-11",
-      "availability": "Employer snapshot",
-      "work_arrangement": "Hybrid"
-    },
-    {
-      "id": "1cca5e1bb5a04c6e8a702e77676f785c",
-      "source": "smartrecruiters:AECOM2:gb",
-      "title": "Technical Director and Electrical Team Lead (Data Centre)",
-      "employer": "AECOM",
-      "location": "London, , United Kingdom",
-      "url": "https://jobs.smartrecruiters.com/AECOM2/744000160913429",
-      "careers_url": "https://careers.smartrecruiters.com/AECOM2",
-      "description": "Technical Director and Electrical Team Lead (Data Centre) at AECOM in London, , United Kingdom. See the original advert for the full role and current requirements.",
-      "requirements": [
-        "data centre"
-      ],
-      "checked_at": "2026-11-11T13:12:59.866939+00:00",
-      "posted_at": "2026-11-10",
-      "availability": "Employer snapshot",
-      "work_arrangement": "Hybrid"
-    },
-    {
-      "id": "9459b19dc6af4e2f9991ec8be35af7a5",
-      "source": "smartrecruiters:AECOM2:gb",
-      "title": "Digital Optimisation Lead, England & Wales",
-      "employer": "AECOM",
-      "location": "London, England, United Kingdom",
-      "url": "https://jobs.smartrecruiters.com/AECOM2/744000160819609",
-      "careers_url": "https://careers.smartrecruiters.com/AECOM2",
-      "description": "Digital Optimisation Lead, England & Wales at AECOM in London, England, United Kingdom. See the original advert for the full role and current requirements.",
-      "requirements": [
-        "Python",
-        "Azure"
-      ],
-      "checked_at": "2026-11-11T13:12:59.866939+00:00",
-      "posted_at": "2026-11-10",
-      "availability": "Employer snapshot",
-      "work_arrangement": "Hybrid"
-    },
-    {
-      "id": "a81b2d9aa5f8441e8b068dc939b02d62",
-      "source": "smartrecruiters:Experian:gb",
-      "title": "Director of Foundation",
-      "employer": "Experian",
-      "location": "London, , United Kingdom",
-      "url": "https://jobs.smartrecruiters.com/Experian/744000161066654",
-      "careers_url": "https://careers.smartrecruiters.com/Experian",
-      "description": "Director of Foundation at Experian in London, , United Kingdom. See the original advert for the full role and current requirements.",
-      "requirements": [],
-      "checked_at": "2026-11-11T13:12:59.866939+00:00",
-      "posted_at": "2026-11-11",
-      "availability": "Employer snapshot",
-      "work_arrangement": ""
-    },
-    {
-      "id": "076711510db94e2ba4c4351cb76dd4cb",
-      "source": "smartrecruiters:Experian:gb",
-      "title": "Junior Information Security Officer",
-      "employer": "Experian",
-      "location": "London, , United Kingdom",
-      "url": "https://jobs.smartrecruiters.com/Experian/744000160836896",
-      "careers_url": "https://careers.smartrecruiters.com/Experian",
-      "description": "Junior Information Security Officer at Experian in London, , United Kingdom. See the original advert for the full role and current requirements.",
-      "requirements": [],
-      "checked_at": "2026-11-11T13:12:59.866939+00:00",
-      "posted_at": "2026-11-10",
-      "availability": "Employer snapshot",
-      "work_arrangement": "Hybrid"
-    },
-    {
-      "id": "6022dd11990c43938b70cd310af70453",
-      "source": "smartrecruiters:BoschGroup:cn",
-      "title": "软件项目管理/SW PCM_VM",
-      "employer": "Bosch Group",
-      "location": "Suzhou, Jiangsu, China",
-      "url": "https://jobs.smartrecruiters.com/BoschGroup/744000160749639",
-      "careers_url": "https://careers.smartrecruiters.com/BoschGroup",
-      "description": "软件项目管理/SW PCM_VM at Bosch Group in Suzhou, Jiangsu, China. See the original advert for the full role and current requirements.",
-      "requirements": [
-        "project management"
-      ],
-      "checked_at": "2026-11-11T13:12:59.866939+00:00",
-      "posted_at": "2026-11-10",
-      "availability": "Employer snapshot",
-      "work_arrangement": ""
-    },
-    {
-      "id": "d410e7da42ef467e8d844f8a7e4bf707",
-      "source": "smartrecruiters:BoschGroup:cn",
-      "title": "软件项目经理PCM_XC",
-      "employer": "Bosch Group",
-      "location": "shanghai, , China",
-      "url": "https://jobs.smartrecruiters.com/BoschGroup/744000159585069",
-      "careers_url": "https://careers.smartrecruiters.com/BoschGroup",
-      "description": "软件项目经理PCM_XC at Bosch Group in shanghai, , China. See the original advert for the full role and current requirements.",
-      "requirements": [],
-      "checked_at": "2026-11-11T13:12:59.866939+00:00",
+      "availability": "retrieved",
+      "checked_at": "2026-11-15T08:17:13+00:00",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
       "posted_at": "2026-11-04",
-      "availability": "Employer snapshot",
-      "work_arrangement": ""
+      "work_arrangement": "Hybrid",
+      "source": "reviewed:ramp"
     },
     {
-      "id": "766696cf44d741bf866f7882a2ae6a1d",
-      "source": "smartrecruiters:BoschGroup:cn",
-      "title": "Project Manager（Onboard Charger and DCDC Converter）_EM",
-      "employer": "Bosch Group",
-      "location": "Shanghai, Shanghai, China",
-      "url": "https://jobs.smartrecruiters.com/BoschGroup/744000158208459",
-      "careers_url": "https://careers.smartrecruiters.com/BoschGroup",
-      "description": "Project Manager（Onboard Charger and DCDC Converter）_EM at Bosch Group in Shanghai, Shanghai, China. See the original advert for the full role and current requirements.",
+      "id": "8db161113c2ada29fabac380",
+      "title": "Software Engineer, Production Engineering",
+      "employer": "Ramp",
+      "city": "New York",
+      "location": "New York, NY (HQ)",
+      "url": "https://jobs.ashbyhq.com/ramp/be496b52-cfbf-494e-b862-61fb4a188b24",
+      "careers_url": "https://ramp.com/careers",
+      "description": "Improve production platform reliability while partnering with product engineering teams.",
       "requirements": [
-        "cybersecurity"
+        "AWS",
+        "2+ years software engineering on critical systems",
+        "Production distributed systems",
+        "Major cloud platform experience; AWS preferred",
+        "Observability and end-to-end delivery",
+        "Comfort with AI coding agents"
       ],
-      "checked_at": "2026-11-11T13:12:59.866939+00:00",
-      "posted_at": "2026-10-28",
-      "availability": "Employer snapshot",
-      "work_arrangement": ""
+      "availability": "retrieved",
+      "checked_at": "2026-11-15T08:17:13+00:00",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "posted_at": "2026-04-27",
+      "work_arrangement": "Hybrid",
+      "source": "reviewed:ramp"
     },
     {
-      "id": "325f157c4e5242948e006c099198e733",
-      "source": "smartrecruiters:BoschGroup:cn",
-      "title": "ME/ECO-CN Group Manager_ME",
-      "employer": "Bosch Group",
-      "location": "Suzhou, Jiangsu, China",
-      "url": "https://jobs.smartrecruiters.com/BoschGroup/744000158198869",
-      "careers_url": "https://careers.smartrecruiters.com/BoschGroup",
-      "description": "ME/ECO-CN Group Manager_ME at Bosch Group in Suzhou, Jiangsu, China. See the original advert for the full role and current requirements.",
+      "id": "f362e07d5cb0d830eeee0523",
+      "title": "Software Engineer, Fullstack, Spend Controls",
+      "employer": "Ramp",
+      "city": "New York",
+      "location": "New York, NY (HQ)",
+      "url": "https://jobs.ashbyhq.com/ramp/6e717b06-6613-42ad-a1ee-f852a305fa37",
+      "careers_url": "https://ramp.com/careers",
+      "description": "Build full-stack spend controls, including administrative interfaces and business rules for cards and budgets.",
       "requirements": [
+        "Production front-end and backend features",
+        "End-to-end technical ownership",
+        "Data correctness and reliability",
+        "Testing and production debugging",
+        "Cross-functional collaboration"
+      ],
+      "availability": "retrieved",
+      "checked_at": "2026-11-15T08:17:13+00:00",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "posted_at": "2026-11-13",
+      "work_arrangement": "Hybrid",
+      "source": "reviewed:ramp"
+    },
+    {
+      "id": "b13561946524603300cdbf7f",
+      "title": "Software Engineer, Backend, Developer API",
+      "employer": "Ramp",
+      "city": "New York",
+      "location": "New York, NY (HQ)",
+      "url": "https://jobs.ashbyhq.com/ramp/42527ca9-03b9-499e-a5c4-18e4245af138",
+      "careers_url": "https://ramp.com/careers",
+      "description": "Build and operate a developer-facing API platform using Python, Temporal and Postgres.",
+      "requirements": [
+        "Python",
+        "5+ years backend engineering",
+        "Building APIs or developer platforms",
+        "Daily hands-on use of AI coding agents",
+        "Agentic tooling and workflow orchestration"
+      ],
+      "availability": "retrieved",
+      "checked_at": "2026-11-15T08:17:13+00:00",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "posted_at": "2026-06-29",
+      "work_arrangement": "Hybrid",
+      "source": "reviewed:ramp"
+    },
+    {
+      "id": "66851db453ef0e7b147b54aa",
+      "title": "Software Engineer - Full Stack",
+      "employer": "Figma",
+      "city": "New York",
+      "location": "San Francisco, CA • New York, NY • United States",
+      "url": "https://job-boards.greenhouse.io/figma/jobs/5691911004",
+      "careers_url": "https://www.figma.com/careers/",
+      "description": "Build full-stack collaborative product features across Figma’s web UI and backend.",
+      "requirements": [
+        "TypeScript",
+        "Python",
+        "Production full-stack applications",
+        "React and TypeScript or similar frontend frameworks",
+        "Backend technologies such as Python, Go or PostgreSQL",
+        "Cross-functional collaboration",
+        "AI-assisted development tools"
+      ],
+      "availability": "retrieved",
+      "checked_at": "2026-11-15T08:17:13+00:00",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "source": "reviewed:figma"
+    },
+    {
+      "id": "d3c48a479cbc1e12371dc887",
+      "title": "Software Engineer - Growth & Monetization",
+      "employer": "Figma",
+      "city": "New York",
+      "location": "San Francisco, CA • New York, NY • United States",
+      "url": "https://job-boards.greenhouse.io/figma/jobs/5552560004",
+      "careers_url": "https://www.figma.com/careers/",
+      "description": "Build full-stack growth and monetization features spanning web interfaces, experiments and backend services.",
+      "requirements": [
+        "TypeScript",
+        "Python",
+        "4+ years software engineering shipping complex production systems",
+        "Modern front-end and backend technologies including React, TypeScript, Python or PostgreSQL",
+        "Cross-functional collaboration"
+      ],
+      "availability": "retrieved",
+      "checked_at": "2026-11-15T08:17:13+00:00",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "source": "reviewed:figma"
+    },
+    {
+      "id": "80f544c9fc5779713d5b96cb",
+      "title": "Software Engineer - Developer Experience",
+      "employer": "Figma",
+      "city": "New York",
+      "location": "San Francisco, CA • New York, NY • United States",
+      "url": "https://job-boards.greenhouse.io/figma/jobs/5790627004",
+      "careers_url": "https://www.figma.com/careers/",
+      "description": "Improve Figma’s build systems, CI performance and internal developer tooling.",
+      "requirements": [
+        "CI/CD",
+        "AWS",
+        "IaC",
+        "TypeScript",
+        "Python",
+        "5+ years engineering, including 4+ on infrastructure, platform or developer experience",
+        "Large monorepos and build systems",
+        "CI/CD and distributed systems",
+        "AWS, Infrastructure as Code and one of Go, TypeScript, Python or Ruby",
+        "Cross-team technical leadership"
+      ],
+      "availability": "retrieved",
+      "checked_at": "2026-11-15T08:17:13+00:00",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "source": "reviewed:figma"
+    },
+    {
+      "id": "1d4fc1518cf5bbb2a947f110",
+      "title": "Senior Software Engineer",
+      "employer": "Datadog",
+      "city": "New York",
+      "location": "Boston, Massachusetts, USA; New York, New York, USA",
+      "url": "https://careers.datadoghq.com/detail/3851935/",
+      "careers_url": "https://careers.datadoghq.com/",
+      "description": "Build large-scale commercial observability software, including reliable backend designs and AI-assisted workflows. Employer says some departments may require U.S. government export-control authorization.",
+      "requirements": [
+        "Python",
+        "6+ years experience",
+        "Fluency in one or more languages",
+        "Architecture at scale",
+        "Scientific degree or equivalent experience",
+        "AI-assisted development and AI backend design",
+        "Python, Go or C preferred"
+      ],
+      "availability": "retrieved",
+      "checked_at": "2026-11-15T08:17:13+00:00",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "source": "reviewed:datadog"
+    },
+    {
+      "id": "be72094f74a1e7412bc8940c",
+      "title": "Front End Engineer, Marketing",
+      "employer": "Anthropic",
+      "city": "New York",
+      "location": "San Francisco, CA | New York City, NY",
+      "url": "https://job-boards.greenhouse.io/anthropic/jobs/5386971008",
+      "careers_url": "https://www.anthropic.com/careers",
+      "description": "Build marketing web pages and internal workflows alongside designers and engineers. Posting says Anthropic sponsors visas where possible, but sponsorship is not guaranteed for every role or candidate.",
+      "requirements": [
+        "Next.js",
+        "Next.js or similar React tooling",
+        "Design systems and advanced CSS",
+        "Hands-on headless CMS work",
+        "Internal tooling and prototyping",
+        "Shipping production web work at mid-level scope"
+      ],
+      "availability": "retrieved",
+      "checked_at": "2026-11-15T08:17:13+00:00",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "work_arrangement": "Hybrid",
+      "source": "reviewed:anthropic"
+    },
+    {
+      "id": "c08080584b22ba79977c6505",
+      "title": "Senior Software Engineer, Deployments",
+      "employer": "MongoDB",
+      "city": "Toronto",
+      "location": "Toronto",
+      "url": "https://www.mongodb.com/careers/jobs/7727913",
+      "careers_url": "https://www.mongodb.com/company/careers",
+      "description": "Build deployment automation and reliability for MongoDB products and supporting services.",
+      "requirements": [
+        "Python",
+        "CI/CD",
+        "AWS",
+        "6+ years software development and distributed systems operations",
+        "Python, Go or similar",
+        "Large-scale CI/CD",
         "Kubernetes",
-        "Docker",
-        "CI/CD"
+        "AWS, GCP or Azure",
+        "Linux internals and network fundamentals"
       ],
-      "checked_at": "2026-11-11T13:12:59.866939+00:00",
-      "posted_at": "2026-10-28",
-      "availability": "Employer snapshot",
-      "work_arrangement": ""
+      "availability": "retrieved",
+      "checked_at": "2026-11-15T08:17:13+00:00",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "source": "reviewed:mongodb"
     },
     {
-      "id": "47c4907a19b44d3d9089e1efda804673",
-      "source": "smartrecruiters:BoschGroup:cn",
-      "title": "Information Security Expert_C",
-      "employer": "Bosch Group",
-      "location": "Suzhou, Jiangsu, China",
-      "url": "https://jobs.smartrecruiters.com/BoschGroup/744000157670819",
-      "careers_url": "https://careers.smartrecruiters.com/BoschGroup",
-      "description": "Information Security Expert_C at Bosch Group in Suzhou, Jiangsu, China. See the original advert for the full role and current requirements.",
+      "id": "0e0c6a9b745810dcd2262fd0",
+      "title": "Associate Technical Services Engineer",
+      "employer": "MongoDB",
+      "city": "Toronto",
+      "location": "Toronto",
+      "url": "https://www.mongodb.com/careers/jobs/8234520",
+      "careers_url": "https://www.mongodb.com/company/careers",
+      "description": "Troubleshoot customer application, database and infrastructure problems and improve diagnostic tooling.",
       "requirements": [
         "Python",
         "AWS",
-        "Azure",
-        "cybersecurity",
-        "networking"
+        "Technical experience in systems, networking, databases, applications, distributed systems or performance",
+        "Verbal and written communication",
+        "Python, JavaScript or other languages preferred",
+        "AWS, Azure or Google Cloud preferred for operations candidates"
       ],
-      "checked_at": "2026-11-11T13:12:59.866939+00:00",
-      "posted_at": "2026-10-25",
-      "availability": "Employer snapshot",
-      "work_arrangement": ""
+      "availability": "retrieved",
+      "checked_at": "2026-11-15T08:17:13+00:00",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "source": "reviewed:mongodb"
+    },
+    {
+      "id": "9f786d21a7452b121cb21aaf",
+      "title": "Senior Software Engineer, Fullstack",
+      "employer": "Okta",
+      "city": "Toronto",
+      "location": "Toronto, Ontario, Canada",
+      "url": "https://www.okta.com/company/careers/rd/senior-software-engineer-fullstack-8186804/",
+      "careers_url": "https://www.okta.com/company/careers/",
+      "description": "Deliver identity platform features across data models, backend APIs and front-end components.",
+      "requirements": [
+        "AWS",
+        "3–5 years software development",
+        "Go or similar",
+        "React or similar",
+        "PostgreSQL or similar relational database",
+        "AWS, GCP or Azure",
+        "End-to-end delivery and distributed system design"
+      ],
+      "availability": "retrieved",
+      "checked_at": "2026-11-15T08:17:13+00:00",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "source": "reviewed:okta"
+    },
+    {
+      "id": "813cb68dbc111c08ecdd8b5d",
+      "title": "Software Engineer II, Platform Infrastructure - Control",
+      "employer": "Okta",
+      "city": "Toronto",
+      "location": "Toronto, Ontario, Canada",
+      "url": "https://www.okta.com/company/careers/rd/software-engineer-ii-platform-infrastructure-control-8333990/",
+      "careers_url": "https://www.okta.com/company/careers/",
+      "description": "Develop APIs and tooling for Auth0 environment provisioning, deployment recovery and automated lifecycle controls.",
+      "requirements": [
+        "AWS",
+        "IaC",
+        "OAuth2",
+        "3+ years building APIs, CLIs or backend services",
+        "Distributed systems and REST",
+        "Go, Rust, C++ or Java",
+        "AWS or Azure provisioning via Infrastructure as Code",
+        "IAM, OAuth2 and OIDC fundamentals"
+      ],
+      "availability": "retrieved",
+      "checked_at": "2026-11-15T08:17:13+00:00",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "source": "reviewed:okta"
+    },
+    {
+      "id": "60e9bd0ec6f2871762dec69a",
+      "title": "Senior Software Engineer - UI Platform",
+      "employer": "Okta",
+      "city": "Toronto",
+      "location": "Toronto, Ontario, Canada",
+      "url": "https://www.okta.com/company/careers/rd/senior-software-engineer-ui-platform-8021682/",
+      "careers_url": "https://www.okta.com/company/careers/",
+      "description": "Build shared UI and localization platform infrastructure and set technical direction for reusable components.",
+      "requirements": [
+        "Python",
+        "5+ years software development",
+        "Software architecture and scalable systems",
+        "Java, Python or C++",
+        "Spring, React or Node.js",
+        "Technical communication",
+        "Platform localization preferred"
+      ],
+      "availability": "retrieved",
+      "checked_at": "2026-11-15T08:17:13+00:00",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "work_arrangement": "Hybrid",
+      "source": "reviewed:okta"
+    },
+    {
+      "id": "68eed2d3b5fe067c41698972",
+      "title": "Senior Software Developer, Developer Experience (DevX)",
+      "employer": "Robinhood",
+      "city": "Toronto",
+      "location": "Toronto, Canada",
+      "url": "https://job-boards.greenhouse.io/robinhood/jobs/8083818",
+      "careers_url": "https://careers.robinhood.com/",
+      "description": "Scale build infrastructure, continuous integration and developer environments. Toronto office attendance at least three days a week.",
+      "requirements": [
+        "Python",
+        "CI/CD",
+        "Developer infrastructure or CI/CD and large build systems",
+        "Go or Python",
+        "Distributed builds",
+        "Containerization and Kubernetes",
+        "Developer tooling and process improvement"
+      ],
+      "availability": "retrieved",
+      "checked_at": "2026-11-15T08:17:13+00:00",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "work_arrangement": "Hybrid",
+      "source": "reviewed:robinhood"
+    },
+    {
+      "id": "f97ca2b9af4848cd522fcb99",
+      "title": "Software Developer, Data Engineering",
+      "employer": "Robinhood",
+      "city": "Toronto",
+      "location": "Toronto, Canada",
+      "url": "https://job-boards.greenhouse.io/robinhood/jobs/5616144",
+      "careers_url": "https://careers.robinhood.com/",
+      "description": "Build data pipelines and foundational datasets with Python, Spark and Airflow.",
+      "requirements": [
+        "Python",
+        "4+ years with bachelors or 2+ years with masters",
+        "Relevant computer science background",
+        "Open-source pipeline frameworks",
+        "Strong SQL",
+        "Programming, ideally Python",
+        "Data visualization and communication"
+      ],
+      "availability": "retrieved",
+      "checked_at": "2026-11-15T08:17:13+00:00",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "source": "reviewed:robinhood"
+    },
+    {
+      "id": "48e1dff2be9c8cc728670a4f",
+      "title": "Software Engineer, Web3 Backend",
+      "employer": "Robinhood",
+      "city": "Toronto",
+      "location": "Toronto, Canada",
+      "url": "https://job-boards.greenhouse.io/robinhood/jobs/8258307",
+      "careers_url": "https://careers.robinhood.com/",
+      "description": "Build cloud-native backend and data infrastructure for wallet and tokenization products. Toronto office at least three days weekly.",
+      "requirements": [
+        "Python",
+        "2+ years software development",
+        "Go, Python or Java",
+        "Cloud-native design",
+        "System design and data modeling",
+        "Correctness and ownership",
+        "Interest in blockchain fundamentals"
+      ],
+      "availability": "retrieved",
+      "checked_at": "2026-11-15T08:17:13+00:00",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "work_arrangement": "Hybrid",
+      "source": "reviewed:robinhood"
+    },
+    {
+      "id": "213cdbca0065254cc1bc9059",
+      "title": "Full Stack Engineer, Link",
+      "employer": "Stripe",
+      "city": "Toronto",
+      "location": "Toronto",
+      "url": "https://stripe.com/careers/listing/full-stack-engineer-link/6447175",
+      "careers_url": "https://stripe.com/careers/search",
+      "description": "Build consumer payments experiences across the Link front end and backend.",
+      "requirements": [
+        "Docker",
+        "AWS",
+        "2–10+ years software engineering excluding internships and co-ops",
+        "Strong coding ability in any language",
+        "Cross-team collaboration",
+        "Cloud and Docker/Kubernetes knowledge preferred"
+      ],
+      "availability": "retrieved",
+      "checked_at": "2026-11-15T08:17:13+00:00",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "work_arrangement": "Hybrid",
+      "source": "reviewed:stripe"
+    },
+    {
+      "id": "4e0211f5688b43a5a0903765",
+      "title": "Backend / API Engineer, Radar",
+      "employer": "Stripe",
+      "city": "Toronto",
+      "location": "Toronto",
+      "url": "https://stripe.com/careers/listing/backend-api-engineer-radar/8301379",
+      "careers_url": "https://stripe.com/careers/search",
+      "description": "Build reliable backend services and APIs for payments fraud detection.",
+      "requirements": [
+        "2+ years of industry software engineering",
+        "Production software in any language",
+        "Working across unfamiliar systems",
+        "Data-driven problem solving",
+        "Collaboration and ownership"
+      ],
+      "availability": "retrieved",
+      "checked_at": "2026-11-15T08:17:13+00:00",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "work_arrangement": "Hybrid",
+      "source": "reviewed:stripe"
+    },
+    {
+      "id": "a1076fc91bb356d3f7a62f87",
+      "title": "Software Engineer, Metronome Infrastructure",
+      "employer": "Stripe",
+      "city": "Toronto",
+      "location": "Toronto, Vancouver, Canada-Remote",
+      "url": "https://stripe.com/careers/listing/software-engineer-metronome-infrastructure/8231439",
+      "careers_url": "https://stripe.com/careers/search",
+      "description": "Develop billing infrastructure for usage tracking and resilient distributed systems.",
+      "requirements": [
+        "2+ years backend development",
+        "Strong coding, with Go, Java or C/C++ given as examples",
+        "Large-scale distributed systems",
+        "Collaboration and autonomy",
+        "Event-driven architecture preferred"
+      ],
+      "availability": "retrieved",
+      "checked_at": "2026-11-15T08:17:13+00:00",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "source": "reviewed:stripe"
+    },
+    {
+      "id": "9ffdb7f7ea5f25ab66fcf764",
+      "title": "Senior Security Engineer - Cloud Security",
+      "employer": "PagerDuty",
+      "city": "Toronto",
+      "location": "Toronto",
+      "url": "https://job-boards.greenhouse.io/pagerduty/jobs/6211202004",
+      "careers_url": "https://careers.pagerduty.com/",
+      "description": "Build preventative security tooling for a multi-account AWS and Kubernetes platform. Toronto office attendance two days per week.",
+      "requirements": [
+        "Python",
+        "AWS",
+        "IaC",
+        "Software engineering in production at scale",
+        "Python or Go",
+        "Infrastructure as Code",
+        "AWS and Kubernetes security",
+        "Identity controls and on-call incident handling"
+      ],
+      "availability": "retrieved",
+      "checked_at": "2026-11-15T08:17:13+00:00",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "work_arrangement": "Hybrid",
+      "source": "reviewed:pagerduty"
+    },
+    {
+      "id": "161253d2719318446c5412fa",
+      "title": "Backend Engineer III",
+      "employer": "Monzo",
+      "city": "London",
+      "location": "Cardiff, London or Remote (UK)",
+      "url": "https://job-boards.greenhouse.io/monzo/jobs/6635595",
+      "careers_url": "https://monzo.com/careers",
+      "description": "Build, run and improve backend systems used by Monzo’s banking products. The company hires across languages and lists Go, Cassandra, Kafka, Docker, Kubernetes and AWS in its existing stack.",
+      "requirements": [
+        "Backend product engineering",
+        "Strongly typed languages",
+        "Distributed systems",
+        "Docker",
+        "AWS"
+      ],
+      "checked_at": "2026-11-15T08:18:28+00:00",
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "sponsorship": "Visa sponsorship available",
+      "posted_at": "2025-02-17",
+      "source": "reviewed:monzo"
+    },
+    {
+      "id": "dd028c3513baef502829137f",
+      "title": "Senior Backend Engineer",
+      "employer": "Monzo",
+      "city": "London",
+      "location": "Cardiff, London or Remote (UK)",
+      "url": "https://job-boards.greenhouse.io/monzo/jobs/6635837",
+      "careers_url": "https://monzo.com/careers",
+      "description": "Own and improve systems behind Monzo banking products at the senior level. The advert describes technical collaboration and resilient backend services and supports learning Monzo’s specific tooling on the job.",
+      "requirements": [
+        "Senior backend engineering",
+        "Strongly typed languages",
+        "Distributed systems",
+        "Docker",
+        "AWS"
+      ],
+      "checked_at": "2026-11-15T08:18:28+00:00",
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "sponsorship": "Visa sponsorship available",
+      "posted_at": "2025-02-14",
+      "source": "reviewed:monzo"
+    },
+    {
+      "id": "938a586130d3a4e45c78d134",
+      "title": "Software Engineer, Backend (BI Platform)",
+      "employer": "Deliveroo",
+      "city": "London",
+      "location": "London, United Kingdom",
+      "url": "https://job-boards.greenhouse.io/deliveroo/jobs/8206463",
+      "careers_url": "https://careers.deliveroo.co.uk/",
+      "description": "Build backend integrations between business intelligence tooling and data warehouses, identity providers and developer platforms. Own service design, release workflows and ongoing operation.",
+      "requirements": [
+        "Python",
+        "SQL",
+        "Data modelling",
+        "API integration",
+        "CI/CD",
+        "Docker or other containers",
+        "Kubernetes",
+        "Observability"
+      ],
+      "checked_at": "2026-11-15T08:18:28+00:00",
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "work_arrangement": "Hybrid",
+      "posted_at": "2026-09-18",
+      "source": "reviewed:deliveroo"
+    },
+    {
+      "id": "dddd763b5ecf5d0a6cec122a",
+      "title": "Senior Software Engineer (Full-Stack) - Home Page and Merchandising Platform",
+      "employer": "Deliveroo",
+      "city": "London",
+      "location": "London, United Kingdom",
+      "url": "https://job-boards.greenhouse.io/deliveroo/jobs/8276280",
+      "careers_url": "https://careers.deliveroo.co.uk/",
+      "description": "Build and operate services and user-facing components for the home page and merchandising. Work with other disciplines on design, delivery and production health.",
+      "requirements": [
+        "Python or another modern backend language",
+        "Web architecture",
+        "SQL",
+        "NoSQL",
+        "Automated testing",
+        "Technical mentoring"
+      ],
+      "checked_at": "2026-11-15T08:18:28+00:00",
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "work_arrangement": "Hybrid",
+      "posted_at": "2026-10-13",
+      "source": "reviewed:deliveroo"
+    },
+    {
+      "id": "6d61b1bee40560589e103166",
+      "title": "Software Engineer II (Backend) - Home Page & Merchandising Platform",
+      "employer": "Deliveroo",
+      "city": "London",
+      "location": "London, United Kingdom",
+      "url": "https://job-boards.greenhouse.io/deliveroo/jobs/8266845",
+      "careers_url": "https://careers.deliveroo.co.uk/",
+      "description": "Develop backend services for merchandising and the customer home page, collaborating across product and design and owning tests and operations.",
+      "requirements": [
+        "Python, Go, Ruby or another modern language",
+        "SQL",
+        "NoSQL and caching",
+        "Backend services",
+        "Automated testing",
+        "Service monitoring"
+      ],
+      "checked_at": "2026-11-15T08:18:28+00:00",
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "work_arrangement": "Hybrid",
+      "posted_at": "2026-10-13",
+      "source": "reviewed:deliveroo"
+    },
+    {
+      "id": "4b7c3524b0b1e9632d6a5435",
+      "title": "Software Engineer",
+      "employer": "Deliveroo",
+      "city": "London",
+      "location": "London, United Kingdom",
+      "url": "https://job-boards.greenhouse.io/deliveroo/jobs/8206351",
+      "careers_url": "https://careers.deliveroo.co.uk/",
+      "description": "Build and operate software in the assigned product area, working with product and engineering partners to deliver maintainable systems.",
+      "requirements": [
+        "Software engineering",
+        "SQL",
+        "NoSQL",
+        "Cassandra",
+        "Node.js or another backend language",
+        "Cloud and event-driven architecture"
+      ],
+      "checked_at": "2026-11-15T08:18:28+00:00",
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "posted_at": "2026-09-18",
+      "source": "reviewed:deliveroo"
+    },
+    {
+      "id": "c648df9117236d0a1a5664fc",
+      "title": "Software Engineer - Risk Control & Governance",
+      "employer": "Wise",
+      "city": "London",
+      "location": "London, United Kingdom",
+      "url": "https://jobs.smartrecruiters.com/Wise/744000160549671-software-engineer-risk-control-governance",
+      "careers_url": "https://wise.jobs/",
+      "description": "Develop backend systems that make Wise’s risk-control decisions auditable. Work on data contracts, evidence gathering, lineage and integrations with risk services.",
+      "requirements": [
+        "Backend engineering",
+        "Kafka",
+        "SQL",
+        "NoSQL",
+        "Distributed systems",
+        "Data quality or pipeline orchestration"
+      ],
+      "checked_at": "2026-11-15T08:18:28+00:00",
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "work_arrangement": "Hybrid",
+      "posted_at": "2026-11-09",
+      "source": "reviewed:wise"
+    },
+    {
+      "id": "087a12ce01b3bdf38e5419ac",
+      "title": "Senior Data Engineer I - Global KYC & Onboarding",
+      "employer": "Wise",
+      "city": "London",
+      "location": "London, United Kingdom",
+      "url": "https://jobs.smartrecruiters.com/Wise/744000161530989-senior-data-engineer-i-global-kyc-onboarding",
+      "careers_url": "https://wise.jobs/",
+      "description": "Build KYC onboarding-data infrastructure and standardized verification pipelines, moving ad-hoc scripts into maintained Python and Airflow workflows.",
+      "requirements": [
+        "Python",
+        "SQL",
+        "Data modelling",
+        "Airflow or workflow orchestration",
+        "Analytical databases",
+        "Data pipelines"
+      ],
+      "checked_at": "2026-11-15T08:18:28+00:00",
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "work_arrangement": "Hybrid",
+      "posted_at": "2026-11-13",
+      "source": "reviewed:wise"
+    },
+    {
+      "id": "7a456438389129cb6cb0f6e1",
+      "title": "Demo Software Engineer (f/m/d)",
+      "employer": "Contentful",
+      "city": "London",
+      "location": "London, England, United Kingdom",
+      "url": "https://job-boards.greenhouse.io/contentful/jobs/8356206",
+      "careers_url": "https://job-boards.greenhouse.io/contentful",
+      "description": "Build technical product demos and reusable examples. Work with frontend frameworks and APIs to demonstrate workflows and improve how stakeholders understand the platform.",
+      "requirements": [
+        "TypeScript",
+        "JavaScript",
+        "React",
+        "GraphQL",
+        "API development",
+        "CI/CD",
+        "Technical communication"
+      ],
+      "checked_at": "2026-11-15T08:18:28+00:00",
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "posted_at": "2026-11-09",
+      "source": "reviewed:contentful"
+    },
+    {
+      "id": "724912ed1b0d213dc24501f4",
+      "title": "Senior Software Engineer - Personalization (f/m/d)",
+      "employer": "Contentful",
+      "city": "Berlin",
+      "location": "Berlin, Germany",
+      "url": "https://job-boards.greenhouse.io/contentful/jobs/8221365",
+      "careers_url": "https://job-boards.greenhouse.io/contentful",
+      "description": "Build personalization software across server-side APIs, React experiences and developer-facing SDKs. Own test coverage and improve the developer experience for users of the personalization platform.",
+      "requirements": [
+        "TypeScript",
+        "API protocol design",
+        "React",
+        "Developer tooling and SDKs",
+        "CI/CD",
+        "Automated tests",
+        "English communication"
+      ],
+      "checked_at": "2026-11-15T08:18:28+00:00",
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "posted_at": "2026-09-21",
+      "source": "reviewed:contentful"
+    },
+    {
+      "id": "9f45e22639fb2cc573d0f456",
+      "title": "Platform Engineer",
+      "employer": "Trainline",
+      "city": "London",
+      "location": "London, United Kingdom",
+      "url": "https://jobs.ashbyhq.com/trainline/8536b13b-5ff7-4551-a77d-88d8b4dd43f5",
+      "careers_url": "https://www.trainlinegroup.com/careers/",
+      "description": "Develop AWS infrastructure, shared automation and tooling for product engineering teams. Build infrastructure with IaC and test and release changes through CI/CD.",
+      "requirements": [
+        "Python, Node.js or C#",
+        "AWS",
+        "Terraform or other IaC",
+        "CI/CD",
+        "Secure cloud operations",
+        "Monitoring and troubleshooting"
+      ],
+      "checked_at": "2026-11-15T08:18:28+00:00",
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "posted_at": "2026-10-29",
+      "source": "reviewed:trainline"
+    },
+    {
+      "id": "904e088050cdb947cbb2c42e",
+      "title": "Senior Platform Engineer",
+      "employer": "Trainline",
+      "city": "London",
+      "location": "London, United Kingdom",
+      "url": "https://jobs.ashbyhq.com/trainline/6e8ba16f-7cc4-41e7-9c63-0115509e07ae",
+      "careers_url": "https://www.trainlinegroup.com/careers/",
+      "description": "Improve Trainline’s AWS platform and developer automation, guide technical delivery and operate infrastructure changes through testing and CI/CD.",
+      "requirements": [
+        "Python, Node.js or C#",
+        "AWS",
+        "Terraform or other IaC",
+        "CI/CD",
+        "Cloud security",
+        "Technical collaboration"
+      ],
+      "checked_at": "2026-11-15T08:18:28+00:00",
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "posted_at": "2026-10-29",
+      "source": "reviewed:trainline"
+    },
+    {
+      "id": "49af77fd6f03590e505b9733",
+      "title": "Senior Backend Engineer - Marketing Automation (all genders)",
+      "employer": "HelloFresh",
+      "city": "Berlin",
+      "location": "Berlin, Berlin, Germany",
+      "url": "https://careers.hellofresh.com/global/en/job/8280899?gh_jid=8280899",
+      "careers_url": "https://careers.hellofresh.com/global/en",
+      "description": "Develop backend services for marketing automation, including integrations and reliable data handling. Build maintainable Python services and ship them through tested cloud release workflows.",
+      "requirements": [
+        "Python",
+        "SQL",
+        "Relational databases",
+        "Containers",
+        "AWS or cloud infrastructure",
+        "CI/CD",
+        "5+ years in software engineering"
+      ],
+      "checked_at": "2026-11-15T08:18:28+00:00",
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "work_arrangement": "Hybrid",
+      "posted_at": "2026-10-22",
+      "source": "reviewed:hellofresh"
+    },
+    {
+      "id": "bd5da8cded4340a5454bb41c",
+      "title": "Site Reliability Engineer - Data Platform",
+      "employer": "N26",
+      "city": "Berlin",
+      "location": "Barcelona, Berlin",
+      "url": "https://n26.com/en-eu/careers/positions/8378357?gh_jid=8378357",
+      "careers_url": "https://n26.com/en-eu/careers",
+      "description": "Operate the data platform’s storage and delivery infrastructure. Improve reliability, IaC, deployment pipelines and observability, and join incident-response rotations.",
+      "requirements": [
+        "AWS",
+        "PostgreSQL or equivalent operational storage",
+        "Docker",
+        "Kubernetes",
+        "Terraform or CloudFormation",
+        "Python",
+        "CI/CD",
+        "Observability"
+      ],
+      "checked_at": "2026-11-15T08:18:28+00:00",
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "sponsorship": "Relocation package includes visa support",
+      "posted_at": "2026-11-11",
+      "source": "reviewed:n26"
+    },
+    {
+      "id": "86b2c9ad16b0a6a46b2b3083",
+      "title": "Senior Site Reliability Engineer - Connectivity",
+      "employer": "N26",
+      "city": "Berlin",
+      "location": "Berlin, Barcelona",
+      "url": "https://n26.com/en-eu/careers/positions/8219953?gh_jid=8219953",
+      "careers_url": "https://n26.com/en-eu/careers",
+      "description": "Maintain cloud connectivity and network services for N26’s platform, with on-call and ongoing reliability work. Improve automation for containers, cloud infrastructure and networking.",
+      "requirements": [
+        "AWS",
+        "Python or Go",
+        "Linux networking",
+        "Docker",
+        "Kubernetes",
+        "Istio",
+        "CI/CD",
+        "Terraform",
+        "Incident response"
+      ],
+      "checked_at": "2026-11-15T08:18:28+00:00",
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "sponsorship": "Relocation package includes visa support",
+      "posted_at": "2026-10-23",
+      "source": "reviewed:n26"
+    },
+    {
+      "id": "3200a4051e94d44304e22171",
+      "title": "Data Platform Engineer (Mid-Level)",
+      "employer": "SumUp",
+      "city": "Berlin",
+      "location": "Berlin, Germany",
+      "url": "https://sumup.com/careers/positions/8364212002?gh_jid=8364212002",
+      "careers_url": "https://www.sumup.com/careers/",
+      "description": "Build internal infrastructure for analytics and data engineering. Improve data tools, monitoring, release workflows and the engineering practices used by internal platform customers.",
+      "requirements": [
+        "Python or Go",
+        "SQL",
+        "Terraform",
+        "Docker",
+        "Kubernetes",
+        "CI/CD",
+        "SDLC",
+        "Modern data stack",
+        "Observability"
+      ],
+      "checked_at": "2026-11-15T08:18:28+00:00",
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "posted_at": "2026-07-23",
+      "source": "reviewed:sumup"
+    },
+    {
+      "id": "991d01bfe3a13da1dc2e2117",
+      "title": "Senior Fullstack Engineer - Localization",
+      "employer": "SumUp",
+      "city": "Berlin",
+      "location": "Berlin, Germany",
+      "url": "https://sumup.com/careers/positions/8773687002?gh_jid=8773687002",
+      "careers_url": "https://www.sumup.com/careers/",
+      "description": "Build and maintain localized product capabilities across backend APIs, web and mobile teams. Develop services and data integrations that help different teams ship content for multiple markets.",
+      "requirements": [
+        "Python or Go, Rust or C++",
+        "REST APIs",
+        "PostgreSQL",
+        "Kafka",
+        "React",
+        "TypeScript",
+        "Localization tooling"
+      ],
+      "checked_at": "2026-11-15T08:18:28+00:00",
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "posted_at": "2026-09-11",
+      "source": "reviewed:sumup"
+    },
+    {
+      "id": "b045a4c48abee04794f2f768",
+      "title": "Senior Software Engineer, Go - (Global Recommendations and Ranking, Consumer)",
+      "employer": "Delivery Hero",
+      "city": "Berlin",
+      "location": "Berlin, Germany",
+      "url": "https://jobs.smartrecruiters.com/DeliveryHero/744000159818991-senior-software-engineer-go-global-recommendations-and-ranking-consumer-",
+      "careers_url": "https://careers.deliveryhero.com/",
+      "description": "Own recommendation and ranking features from design to production operation. Develop backend services and model-serving integrations and maintain performance and reliability.",
+      "requirements": [
+        "Python or Go",
+        "REST and gRPC APIs",
+        "AWS or GCP",
+        "Terraform or equivalent IaC",
+        "Kubernetes",
+        "Event streaming",
+        "English communication"
+      ],
+      "checked_at": "2026-11-15T08:18:28+00:00",
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "sponsorship": "unknown",
+      "work_arrangement": "Hybrid",
+      "posted_at": "2026-11-05",
+      "source": "reviewed:delivery-hero"
+    },
+    {
+      "id": "8aed0451f40a6397718b4b01",
+      "title": "Senior Engineer - AI Platform",
+      "employer": "Xero",
+      "location": "Melbourne or Sydney, Australia",
+      "city": "Melbourne",
+      "url": "https://jobs.ashbyhq.com/xero/0c345d63-dcc1-4fa0-b521-a0fb6fff29ca",
+      "careers_url": "https://jobs.ashbyhq.com/xero",
+      "description": "Build the internal orchestration platform and tools for engineers deploying AI agents at Xero.",
+      "requirements": [
+        "Production software delivery and a modern frontend framework such as React",
+        "Containerized APIs and services in Python or TypeScript",
+        "CI/CD, Git and automated tests",
+        "Practical agent orchestration and tool-calling experience such as LangGraph or Pydantic AI"
+      ],
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "checked_at": "2026-11-15T08:14:09.713346+00:00",
+      "posted_at": "2026-11-04",
+      "work_arrangement": "Hybrid",
+      "source": "reviewed:xero"
+    },
+    {
+      "id": "d93f5d18222aa65f5174874a",
+      "title": "Senior Engineer - Platform",
+      "employer": "Xero",
+      "location": "Melbourne, Sydney or Brisbane, Australia",
+      "city": "Melbourne",
+      "url": "https://jobs.ashbyhq.com/xero/65b39783-4a06-4bae-8dbe-48afb916886f",
+      "careers_url": "https://jobs.ashbyhq.com/xero",
+      "description": "Develop internal platform tooling for test environments and test data; support what the team builds through its on-call rotation.",
+      "requirements": [
+        "Platform or infrastructure development and production support",
+        "Go preferred; equivalent Java or .NET experience accepted",
+        "AWS, Terraform and Kubernetes experience is useful"
+      ],
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "checked_at": "2026-11-15T08:14:09.713346+00:00",
+      "posted_at": "2026-10-26",
+      "work_arrangement": "Hybrid",
+      "source": "reviewed:xero"
+    },
+    {
+      "id": "070be8bc1ad01fcec56b0a30",
+      "title": "Search Engineer",
+      "employer": "Xero",
+      "location": "Melbourne, Sydney, Canberra or Brisbane, Australia",
+      "city": "Melbourne",
+      "url": "https://jobs.ashbyhq.com/xero/9eef7111-d180-4e9e-a3df-f5f36f8b61f8",
+      "careers_url": "https://jobs.ashbyhq.com/xero",
+      "description": "Run and rebuild search cluster infrastructure and pipelines, with responsibility for platform reliability, automation and CI/CD.",
+      "requirements": [
+        "Production cloud infrastructure",
+        "Infrastructure as code with Terraform and pipelines with GitHub Actions",
+        "Search or information-retrieval experience is useful"
+      ],
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "checked_at": "2026-11-15T08:14:09.713346+00:00",
+      "posted_at": "2026-10-08",
+      "work_arrangement": "Hybrid",
+      "source": "reviewed:xero"
+    },
+    {
+      "id": "583690b313fdd2e5ccb85bdb",
+      "title": "Software Engineer I and II - Client Engineering - Remote within Australia",
+      "employer": "Kraken",
+      "location": "Melbourne, Australia; Engineer II also remote within Australia",
+      "city": "Melbourne",
+      "url": "https://jobs.ashbyhq.com/krakentech/0cb355f4-cf92-4810-8794-979bbe5c9a68",
+      "careers_url": "https://jobs.ashbyhq.com/krakentech",
+      "description": "Build customer integrations and new features for Kraken’s utilities platform. Engineer I works hybrid from Melbourne; Engineer II can also work remotely in Australia. Existing Australian work authorization is required at application time; no sponsorship for this vacancy. Candidate eligibility is unverified.",
+      "requirements": [
+        "Python and Django or comparable web framework",
+        "Domain modelling and architectural design",
+        "GraphQL, PostgreSQL and asynchronous processing with Celery",
+        "AWS, Terraform or Kubernetes preferred"
+      ],
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "checked_at": "2026-11-15T08:16:02.630737+00:00",
+      "posted_at": "2026-09-19",
+      "work_arrangement": "Hybrid / remote",
+      "source": "reviewed:kraken"
+    },
+    {
+      "id": "920bd6d4994ef46778b66e2e",
+      "title": "Senior Analytics Engineer",
+      "employer": "Kraken",
+      "location": "Melbourne, Australia",
+      "city": "Melbourne",
+      "url": "https://jobs.ashbyhq.com/krakentech/b441f0f2-3d86-4a65-bd1f-07d0aad2a1ff",
+      "careers_url": "https://jobs.ashbyhq.com/krakentech",
+      "description": "Set up analytics engineering for Kraken Distribution, including reusable data models, migration support and Python ingestion pipelines. Existing Australian work authorization is required at application time; no sponsorship for this vacancy. Candidate eligibility is unverified.",
+      "requirements": [
+        "Ownership of production analytics or data engineering work",
+        "Advanced SQL and dbt with data modelling and automated tests",
+        "Python data pipelines and cloud warehouse or lakehouse experience",
+        "Regulated sectors and migration work are useful"
+      ],
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "checked_at": "2026-11-15T08:16:02.630737+00:00",
+      "posted_at": "2026-09-04",
+      "work_arrangement": "Hybrid",
+      "source": "reviewed:kraken"
+    },
+    {
+      "id": "18f014057c186865e5d2c6ed",
+      "title": "Software Engineer",
+      "employer": "Maincode",
+      "location": "Melbourne, Australia",
+      "city": "Melbourne",
+      "url": "https://jobs.ashbyhq.com/maincode/8a48f6bf-9a50-48b9-8c7f-699024011d66",
+      "careers_url": "https://maincode.com/careers",
+      "description": "Contribute software engineering across Maincode’s Matilda AI product and its infrastructure. The listing is broad and does not specify a required language, framework or experience minimum.",
+      "requirements": [
+        "Software engineering capability",
+        "Explain how you would contribute to the Matilda product or infrastructure"
+      ],
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "checked_at": "2026-11-15T08:14:09.642851+00:00",
+      "posted_at": "2026-09-18",
+      "work_arrangement": "On-site",
+      "source": "reviewed:maincode"
+    },
+    {
+      "id": "101eeb4585789ca4e95eb596",
+      "title": "Identity Engineer",
+      "employer": "Easygo",
+      "location": "Melbourne, Australia",
+      "city": "Melbourne",
+      "url": "https://job-boards.greenhouse.io/easygo/jobs/5274710007",
+      "careers_url": "https://www.easygo.io/careers",
+      "description": "Build and operate a workforce identity platform, using automation and identity as code to connect apps, networks and AI services.",
+      "requirements": [
+        "Hands-on workforce identity platform engineering, including an identity migration",
+        "Identity standards including OAuth 2.0, OIDC, SAML and SCIM",
+        "Automation and practical experience integrating application authentication",
+        "PingOne and DaVinci are advantageous"
+      ],
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "checked_at": "2026-11-15T08:13:07.038233+00:00",
+      "work_arrangement": "On-site",
+      "source": "reviewed:easygo"
+    },
+    {
+      "id": "15501bbe0ce0c67241f92060",
+      "title": "People and Systems Analyst",
+      "employer": "Culture Amp",
+      "location": "Melbourne, Australia",
+      "city": "Melbourne",
+      "url": "https://job-boards.greenhouse.io/cultureamp/jobs/8326301",
+      "careers_url": "https://www.cultureamp.com/company/careers",
+      "description": "Support HR analytics and operate people systems, including workflow automation, reporting, data pipelines and system integrations.",
+      "requirements": [
+        "Experience in HR, people data or business analytics",
+        "Strong HRIS configuration and data modelling skills; BambooHR preferred",
+        "Practical agentic AI and workflow automation with scripts or low-code tools",
+        "Analytics and stakeholder communication skills"
+      ],
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "checked_at": "2026-11-15T08:13:06.987129+00:00",
+      "work_arrangement": "Hybrid",
+      "source": "reviewed:culture-amp"
+    },
+    {
+      "id": "c6964c3a4322c38f5961e78a",
+      "title": "Full Stack Developer",
+      "employer": "SimplifyNext",
+      "location": "Singapore",
+      "city": "Singapore",
+      "url": "https://job-boards.greenhouse.io/simplifynext/jobs/5236654007",
+      "careers_url": "https://www.simplifynext.com/career",
+      "description": "Own full-stack features from implementation to production; deliver APIs, web interfaces and database-backed cloud applications.",
+      "requirements": [
+        "Two or more years in hands-on full-stack development",
+        "Modern frontend frameworks and TypeScript or JavaScript",
+        "Backend development in Node.js, Python, Java/Kotlin or similar",
+        "API design, SQL or NoSQL data, cloud platforms and CI/CD",
+        "Relevant degree or diploma; Docker or Kubernetes is advantageous"
+      ],
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "checked_at": "2026-11-15T08:16:03.627022+00:00",
+      "work_arrangement": "Unknown",
+      "source": "reviewed:simplifynext"
+    },
+    {
+      "id": "7068667307a2b8df8d0d0e57",
+      "title": "Data Engineer",
+      "employer": "SimplifyNext",
+      "location": "Singapore",
+      "city": "Singapore",
+      "url": "https://job-boards.greenhouse.io/simplifynext/jobs/5233120007",
+      "careers_url": "https://www.simplifynext.com/career",
+      "description": "Develop cloud data pipelines and lakehouse architecture, including data quality checks, operations and deployments.",
+      "requirements": [
+        "Four or more years in data engineering and production pipeline ownership",
+        "Strong SQL and Python, Scala or Java",
+        "AWS, Databricks, Spark or Microsoft Fabric and an open lakehouse format",
+        "Data modelling, automated quality checks, governance and stakeholder collaboration",
+        "Related degree; Singapore public-sector and cloud delivery are useful"
+      ],
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "checked_at": "2026-11-15T08:16:03.627022+00:00",
+      "work_arrangement": "Unknown",
+      "source": "reviewed:simplifynext"
+    },
+    {
+      "id": "3ff311a2c722b197a2d6d271",
+      "title": "AI-Native Engineer (Software Engineering)",
+      "employer": "PALO IT",
+      "location": "Singapore",
+      "city": "Singapore",
+      "url": "https://jobs.ashbyhq.com/palo-it/7042c585-bfc3-427b-9bee-21d5dc4de6d5",
+      "careers_url": "https://www.palo-it.com/en/careers",
+      "description": "Build and deploy full-stack software using AI-assisted engineering workflows and automated quality checks. Employer gives priority to applicants with existing Singapore work authorization who do not need visa sponsorship. Candidate eligibility is unverified.",
+      "requirements": [
+        "Three or more years of hands-on software development",
+        "Testing, solution architecture and cloud experience such as AWS, Azure or GCP",
+        "AI coding assistant use and reviewing or validating generated output",
+        "React with Node.js or Java preferred; mobile development is useful"
+      ],
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "checked_at": "2026-11-15T08:16:02.602399+00:00",
+      "posted_at": "2024-11-20",
+      "work_arrangement": "Hybrid",
+      "source": "reviewed:palo-it"
+    },
+    {
+      "id": "7bece750234d78f98ac7a231",
+      "title": "Senior AI-Native Engineer (Software Engineering)",
+      "employer": "PALO IT",
+      "location": "Singapore",
+      "city": "Singapore",
+      "url": "https://jobs.ashbyhq.com/palo-it/56707745-9c94-4d7f-885b-c41dbc90099e",
+      "careers_url": "https://www.palo-it.com/en/careers",
+      "description": "Lead delivery of production software with AI-assisted development and validate quality, reliability and security across the SDLC. Employer gives priority to applicants with existing Singapore work authorization who do not need visa sponsorship. Candidate eligibility is unverified.",
+      "requirements": [
+        "Five or more years of hands-on software development",
+        "Team leadership, solution architecture and scalable application delivery",
+        "Cloud platforms, AI/ML tooling and validating generated output",
+        "Mobile development is useful"
+      ],
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "checked_at": "2026-11-15T08:16:02.602399+00:00",
+      "posted_at": "2025-04-29",
+      "work_arrangement": "Hybrid",
+      "source": "reviewed:palo-it"
+    },
+    {
+      "id": "fed8708f51b9a7dbdcd47777",
+      "title": "DevOps / Site Reliability Engineer",
+      "employer": "OKX",
+      "location": "Singapore",
+      "city": "Singapore",
+      "url": "https://job-boards.greenhouse.io/okx/jobs/7767872003",
+      "careers_url": "https://www.okx.com/join-us",
+      "description": "Develop and maintain cloud monitoring, alerting and cost observability for an internal AIOps platform. Employer gives priority to applicants with existing Singapore work authorization who do not need visa sponsorship. Candidate eligibility is unverified.",
+      "requirements": [
+        "At least three years in DevOps or site reliability",
+        "Python and familiarity with Go or Java",
+        "AWS or Alibaba Cloud, cloud monitoring and cost management",
+        "Experience with CI/CD, registries and logs or metrics stacks",
+        "Written and spoken English; full-stack and AI application experience are advantageous"
+      ],
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "checked_at": "2026-11-15T08:13:07.501800+00:00",
+      "work_arrangement": "Unknown",
+      "source": "reviewed:okx"
+    },
+    {
+      "id": "a62d6ce518a231beeb6d3ebc",
+      "title": "DevOps Engineer",
+      "employer": "Encora",
+      "location": "Singapore",
+      "city": "Singapore",
+      "url": "https://job-boards.greenhouse.io/encora10/jobs/5187373007",
+      "careers_url": "https://job-boards.greenhouse.io/encora10",
+      "description": "Migrate developer delivery pipelines and make software deployment and developer workflows consistent across restricted Azure environments.",
+      "requirements": [
+        "Five or more years of application development using Python, Java, .NET or similar",
+        "CI/CD migrations, Git workflows and developer enablement",
+        "Azure, infrastructure as code, Docker and Kubernetes",
+        "Experience with restricted networks and internal registries",
+        "English fluency and cross-team Agile work"
+      ],
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "checked_at": "2026-11-15T08:16:03.923269+00:00",
+      "work_arrangement": "Unknown",
+      "source": "reviewed:encora"
+    },
+    {
+      "id": "2099c89890892cafaeaaa6de",
+      "title": "React JS Developer",
+      "employer": "Encora",
+      "location": "Singapore",
+      "city": "Singapore",
+      "url": "https://job-boards.greenhouse.io/encora10/jobs/5205356007",
+      "careers_url": "https://job-boards.greenhouse.io/encora10",
+      "description": "Build and tune React micro-frontends, shared UI modules and integrations with existing applications.",
+      "requirements": [
+        "Five or more years of experience and strong React and TypeScript",
+        "Micro-frontends using Webpack Module Federation and monorepos",
+        "REST integrations, caching and web-server tuning",
+        "Git, CI/CD and automated frontend tests"
+      ],
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "checked_at": "2026-11-15T08:16:03.923269+00:00",
+      "work_arrangement": "Unknown",
+      "source": "reviewed:encora"
+    },
+    {
+      "id": "bc58784a72af182f83987a17",
+      "title": "Software Engineer, Developer Experience",
+      "employer": "Airwallex",
+      "location": "Singapore",
+      "city": "Singapore",
+      "url": "https://jobs.ashbyhq.com/airwallex/3c5176fb-6eee-4bf4-8031-36f0528c71a3",
+      "careers_url": "https://careers.airwallex.com/",
+      "description": "Build developer-facing APIs, a documentation portal, engineering tooling and analytics for Airwallex integrations.",
+      "requirements": [
+        "Bachelor’s degree or higher in computer science, engineering or related discipline",
+        "Three or more years in software engineering with Java, Kotlin, Go or Python",
+        "Backend engineering, computer science fundamentals and API design",
+        "Cross-functional delivery and documentation"
+      ],
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "checked_at": "2026-11-15T08:13:07.165267+00:00",
+      "posted_at": "2026-10-23",
+      "work_arrangement": "On-site",
+      "source": "reviewed:airwallex"
+    },
+    {
+      "id": "00273d0d9863a3d521692004",
+      "title": "Senior Software Engineer, Scale (Frontend)",
+      "employer": "Airwallex",
+      "location": "Singapore",
+      "city": "Singapore",
+      "url": "https://jobs.ashbyhq.com/airwallex/a9c09c5d-ab0c-4692-a6c0-d1cdc0107a7c",
+      "careers_url": "https://careers.airwallex.com/",
+      "description": "Build the React and TypeScript platform used by enterprises to embed financial products; design multi-tenant features and integrations.",
+      "requirements": [
+        "Five or more years in software engineering",
+        "React, TypeScript and complex frontend delivery",
+        "Multi-tenant web architecture, performance and maintainability",
+        "Collaborate with product, compliance and commercial teams"
+      ],
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "checked_at": "2026-11-15T08:13:07.165267+00:00",
+      "posted_at": "2026-10-21",
+      "work_arrangement": "On-site",
+      "source": "reviewed:airwallex"
+    },
+    {
+      "id": "24819eea5cf016a449b490b8",
+      "title": "Store Apps Engineering DevOPs Engineer",
+      "employer": "Apple",
+      "location": "Shanghai, China",
+      "city": "China",
+      "url": "https://jobs.apple.com/en-us/details/200676247-3715/store-apps-engineering-devops-engineer",
+      "careers_url": "https://jobs.apple.com/en-us/search?location=china-CHNC",
+      "description": "Operate and automate the cloud infrastructure for Store Apps Engineering.",
+      "requirements": [
+        "Written and conversational English",
+        "Software development in Python, Rust or Java",
+        "Cloud compute such as AWS, OpenStack, AliCloud, GCP or Azure",
+        "Infrastructure as code, configuration management, CI/CD and automation",
+        "Troubleshooting skills and on-call rotation; telemetry and containers are advantageous"
+      ],
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "checked_at": "2026-11-15T08:17:09.409304+00:00",
+      "posted_at": "2026-08-17",
+      "work_arrangement": "Unknown",
+      "source": "reviewed:apple"
+    },
+    {
+      "id": "3a5273336ba48ae484933232",
+      "title": "Software Engineer - Cloud Services Engineering",
+      "employer": "Apple",
+      "location": "Shanghai, China",
+      "city": "China",
+      "url": "https://jobs.apple.com/en-us/details/200685581-3715/software-engineer-cloud-services-engineering",
+      "careers_url": "https://jobs.apple.com/en-us/search?location=china-CHNC",
+      "description": "Build Kubernetes services and tools for Apple Services Engineering across private and public compute.",
+      "requirements": [
+        "Three or more years of strong Kubernetes knowledge",
+        "Three or more years in Go, Python or C++ and REST/gRPC API patterns",
+        "Containerization, development tooling and public-cloud infrastructure",
+        "Computer science degree or equivalent and cross-functional communication"
+      ],
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "checked_at": "2026-11-15T08:15:49.191886+00:00",
+      "posted_at": "2026-09-24",
+      "work_arrangement": "Unknown",
+      "source": "reviewed:apple"
+    },
+    {
+      "id": "80f3522e24334918b03e26f1",
+      "title": "Full-stack engineer - Apple Store Online, Rapid Application Development",
+      "employer": "Apple",
+      "location": "Shanghai, China",
+      "city": "China",
+      "url": "https://jobs.apple.com/en-us/details/200679391-3715/full-stack-engineer-apple-store-online-rapid-application-development",
+      "careers_url": "https://jobs.apple.com/en-us/search?location=china-CHNC",
+      "description": "Create internal web tools for Apple Store Online with backend APIs and cloud deployment.",
+      "requirements": [
+        "Seven or more years in Angular or React, Node.js and a NestJS-like backend, and SQL",
+        "Cloud infrastructure, Docker or Kubernetes and CI/CD support",
+        "One to two years of generative AI work and REST API development",
+        "BA/BS or eight or more years of directly relevant professional experience"
+      ],
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "checked_at": "2026-11-15T08:16:14.382939+00:00",
+      "posted_at": "2026-08-21",
+      "work_arrangement": "Unknown",
+      "source": "reviewed:apple"
+    },
+    {
+      "id": "af8b14334dd6326e3dbf7bce",
+      "title": "Senior Software Development Engineer in Test, SDET - DGX Cloud",
+      "employer": "NVIDIA",
+      "location": "Shanghai, China",
+      "city": "China",
+      "url": "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite/job/China-Shanghai/Senior-Software-Development-Engineer-in-Test--SDET----DGX-Cloud_JR2029482",
+      "careers_url": "https://www.nvidia.com/en-us/about-nvidia/careers/",
+      "description": "Build test tools and automated regression coverage for distributed DGX Cloud infrastructure.",
+      "requirements": [
+        "Three or more years developing or testing cloud services, infrastructure or distributed software",
+        "Master’s degree or equivalent experience",
+        "Python, shell, REST, Linux and networking",
+        "Containers, Kubernetes, CI/CD and hands-on AI-agent automation",
+        "Written and spoken English"
+      ],
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "checked_at": "2026-11-15T08:16:00.053897+00:00",
+      "posted_at": "2026-11-09",
+      "work_arrangement": "Unknown",
+      "source": "reviewed:nvidia"
+    },
+    {
+      "id": "21ff2806cf2e4994026f8ad5",
+      "title": "Senior AI Infra Test Development Engineer, SDET",
+      "employer": "NVIDIA",
+      "location": "Shanghai, China",
+      "city": "China",
+      "url": "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite/job/China-Shanghai/Senior-AI-Infra-Test-Development-Engineer--SDET_JR2027720",
+      "careers_url": "https://www.nvidia.com/en-us/about-nvidia/careers/",
+      "description": "Build infrastructure software tests and end-to-end quality automation for NVIDIA’s AI infrastructure.",
+      "requirements": [
+        "Five or more years in infrastructure software or test development",
+        "Python, Linux, Docker and Kubernetes",
+        "Test frameworks and experience using AI tooling to improve automation",
+        "Bare-metal provisioning or networking fundamentals",
+        "Relevant MS or PhD preferred"
+      ],
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "checked_at": "2026-11-15T08:15:59.262337+00:00",
+      "posted_at": "2026-10-19",
+      "work_arrangement": "Unknown",
+      "source": "reviewed:nvidia"
+    },
+    {
+      "id": "4464bdabb0c81745478a4b53",
+      "title": "Senior Front-end Developer (React, TypeScript)",
+      "employer": "EPAM Systems",
+      "location": "Shanghai, China",
+      "city": "China",
+      "url": "https://careers.epam.com/en/vacancy/senior-front-end-developer-react-typescript-bltu5kc1ucsong60hgw_en",
+      "careers_url": "https://careers.epam.com/en/jobs",
+      "description": "Build reusable UI and accessible enterprise web applications with React and TypeScript.",
+      "requirements": [
+        "React and TypeScript in production frontends",
+        "Modern JavaScript, HTML/CSS, responsive design and state management",
+        "Frontend architecture, tests and build tooling",
+        "English communication in Agile teams; Next.js or Express is helpful"
+      ],
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "checked_at": "2026-11-15T08:16:06.005111+00:00",
+      "posted_at": "2026-11-10",
+      "work_arrangement": "On-site",
+      "source": "reviewed:epam-systems"
+    },
+    {
+      "id": "c55bdb5fd7bf86c269267270",
+      "title": "API Support Engineer, Developer Support Engineering",
+      "employer": "Amazon",
+      "location": "Shanghai, China",
+      "city": "China",
+      "url": "https://www.amazon.jobs/en/jobs/10567071/api-support-engineer-developer-support-engineering",
+      "careers_url": "https://www.amazon.jobs/en/search?country%5B%5D=CHN",
+      "description": "Guide advertising API partners through integrations, troubleshoot failures and analyze implementation issues.",
+      "requirements": [
+        "Three or more years in software development or technical support",
+        "Technical debugging and REST API experience",
+        "Scripting such as Python and data analysis with SQL",
+        "AWS, web technologies or advertising-domain experience preferred"
+      ],
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "checked_at": "2026-11-15T08:16:03.299206+00:00",
+      "work_arrangement": "Unknown",
+      "source": "reviewed:amazon"
+    },
+    {
+      "id": "3932d66d3a4376d7f2efb3ed",
+      "title": "Senior Agentic AI Engineer",
+      "employer": "AMD",
+      "location": "Beijing, China",
+      "city": "China",
+      "url": "https://careers.amd.com/careers-home/jobs/97180",
+      "careers_url": "https://careers.amd.com/careers-home/jobs",
+      "description": "Prototype agentic AI systems and research workflows on AMD software and hardware; this is a stretch role in AI engineering.",
+      "requirements": [
+        "Degree in a relevant engineering, computing or AI discipline or equivalent experience",
+        "Preferred: Python and C/C++, deep-learning frameworks and AI model knowledge",
+        "Preferred: model profiling, GPU optimization and technical leadership"
+      ],
+      "availability": "retrieved",
+      "eligibility": "unknown",
+      "checked_at": "2026-11-15T08:15:03.332383+00:00",
+      "posted_at": "2026-11-10",
+      "work_arrangement": "Unknown",
+      "source": "reviewed:amd"
     }
-  ]
+  ],
+  "completion": {
+    "ready": true,
+    "checked_at": "2026-11-15T08:28:34.560884+00:00",
+    "jobs": 67,
+    "companies": 34
+  }
 }

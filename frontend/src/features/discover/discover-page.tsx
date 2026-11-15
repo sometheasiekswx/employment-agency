@@ -595,7 +595,7 @@ export function DiscoverPage() {
     ? filteredRows.slice(pendingOffset, pendingOffset + pendingPageSize)
     : filteredRows;
   const reviews = new Map<string, CompanyBestMatches["picks"]>(
-    view === "jobs" && !removedView && !client.preview
+    view === "jobs" && !removedView
       ? state.company_best_matches?.filter((review) => review.profile_id === profileId)
         .map((review) => [`employer:${review.employer_id}`, review.picks])
       : [],

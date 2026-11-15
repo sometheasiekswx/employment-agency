@@ -1,0 +1,178 @@
+{
+  "161253d2719318446c5412fa": {
+    "source_endpoint": "https://boards-api.greenhouse.io/v1/boards/monzo/jobs?content=true",
+    "board_location": {
+      "name": "Cardiff, London or Remote (UK)"
+    },
+    "source_posting_id": "6635595",
+    "verified_at": "2026-11-15T08:18:28+00:00",
+    "screening_note": "TypeScript is documented and the advert says it does not require prior knowledge of its Go/Cassandra stack. London is one of the listed locations."
+  },
+  "dd028c3513baef502829137f": {
+    "source_endpoint": "https://boards-api.greenhouse.io/v1/boards/monzo/jobs?content=true",
+    "board_location": {
+      "name": "Cardiff, London or Remote (UK)"
+    },
+    "source_posting_id": "6635837",
+    "verified_at": "2026-11-15T08:18:28+00:00",
+    "screening_note": "Separate posting and requisition from Backend Engineer III. Architecture and scope expectations are higher."
+  },
+  "938a586130d3a4e45c78d134": {
+    "source_endpoint": "https://boards-api.greenhouse.io/v1/boards/deliveroo/jobs?content=true",
+    "board_location": {
+      "name": "London, United Kingdom - Deliveroo"
+    },
+    "source_posting_id": "8206463",
+    "verified_at": "2026-11-15T08:18:28+00:00",
+    "screening_note": "Asks for 3+ years of engineering on production backend/platform systems. Warehousing, Kubernetes and BI-specific integration depth remain to verify."
+  },
+  "dddd763b5ecf5d0a6cec122a": {
+    "source_endpoint": "https://boards-api.greenhouse.io/v1/boards/deliveroo/jobs?content=true",
+    "board_location": {
+      "name": "London, United Kingdom - Deliveroo"
+    },
+    "source_posting_id": "8276280",
+    "verified_at": "2026-11-15T08:18:28+00:00",
+    "screening_note": "Deduplicated shared Greenhouse requisition EV3015 variants. Significant request-volume experience and mentoring are additional checks."
+  },
+  "6d61b1bee40560589e103166": {
+    "source_endpoint": "https://boards-api.greenhouse.io/v1/boards/deliveroo/jobs?content=true",
+    "board_location": {
+      "name": "London, United Kingdom - Deliveroo"
+    },
+    "source_posting_id": "8266845",
+    "verified_at": "2026-11-15T08:18:28+00:00",
+    "screening_note": "Deduplicated shared Greenhouse requisition EV2938 variants."
+  },
+  "4b7c3524b0b1e9632d6a5435": {
+    "source_endpoint": "https://boards-api.greenhouse.io/v1/boards/deliveroo/jobs?content=true",
+    "board_location": {
+      "name": "London, United Kingdom - Deliveroo"
+    },
+    "source_posting_id": "8206351",
+    "verified_at": "2026-11-15T08:18:28+00:00",
+    "screening_note": "Separate internal opening from EV2938. The Cassandra requirement is a gap to verify; Node.js/cloud are familiar-technologies preferences."
+  },
+  "c648df9117236d0a1a5664fc": {
+    "source_endpoint": "https://api.smartrecruiters.com/v1/companies/Wise/postings/744000160549671",
+    "board_location": {
+      "city": "London",
+      "country": "gb",
+      "address": "Worship Square, 65 Clifton Street",
+      "postalCode": "EC2A 4JE",
+      "remote": false,
+      "hybrid": true,
+      "hybridDescription": "2/3 days",
+      "fullLocation": "London, , United Kingdom"
+    },
+    "source_posting_id": "744000160549671",
+    "verified_at": "2026-11-15T08:18:28+00:00",
+    "screening_note": "Near-identical higher-level advert omitted to avoid padding. Kafka and lineage experience remain unverified."
+  },
+  "087a12ce01b3bdf38e5419ac": {
+    "source_endpoint": "https://api.smartrecruiters.com/v1/companies/Wise/postings/744000161530989",
+    "board_location": {
+      "city": "London",
+      "country": "gb",
+      "address": "Worship Square, 65 Clifton Street",
+      "postalCode": "EC2A 4JE",
+      "remote": false,
+      "hybrid": true,
+      "hybridDescription": "2 days a week in the office",
+      "fullLocation": "London, , United Kingdom"
+    },
+    "source_posting_id": "744000161530989",
+    "verified_at": "2026-11-15T08:18:28+00:00",
+    "screening_note": "Technical stretch: the advert asks for production orchestration and advanced modelling; Python and SQL overlap is documented."
+  },
+  "7a456438389129cb6cb0f6e1": {
+    "source_endpoint": "https://boards-api.greenhouse.io/v1/boards/contentful/jobs?content=true",
+    "board_location": {
+      "name": "London, England, United Kingdom"
+    },
+    "source_posting_id": "8356206",
+    "verified_at": "2026-11-15T08:18:28+00:00",
+    "screening_note": "GraphQL depth and six years in development or systems engineering should be verified; advert reports merger into Salesforce and uses Contentful as the employer label."
+  },
+  "724912ed1b0d213dc24501f4": {
+    "source_endpoint": "https://boards-api.greenhouse.io/v1/boards/contentful/jobs?content=true",
+    "board_location": {
+      "name": "Berlin, Germany"
+    },
+    "source_posting_id": "8221365",
+    "verified_at": "2026-11-15T08:18:28+00:00",
+    "screening_note": "The same employer has a different London opening. The Berlin advert asks for English and does not state mandatory German."
+  },
+  "9f45e22639fb2cc573d0f456": {
+    "source_endpoint": "https://api.ashbyhq.com/posting-api/job-board/trainline",
+    "board_location": "London",
+    "source_posting_id": "8536b13b-5ff7-4551-a77d-88d8b4dd43f5",
+    "verified_at": "2026-11-15T08:18:28+00:00",
+    "screening_note": "Separate mid-level opening from Senior Platform Engineer; documented AWS/IaC/Python/CI-CD overlap, service-specific depth unverified."
+  },
+  "904e088050cdb947cbb2c42e": {
+    "source_endpoint": "https://api.ashbyhq.com/posting-api/job-board/trainline",
+    "board_location": "London",
+    "source_posting_id": "6e8ba16f-7cc4-41e7-9c63-0115509e07ae",
+    "verified_at": "2026-11-15T08:18:28+00:00",
+    "screening_note": "Separate senior posting and responsibilities. Hands-on depth in individual AWS services and platform ownership remain to verify."
+  },
+  "49af77fd6f03590e505b9733": {
+    "source_endpoint": "https://boards-api.greenhouse.io/v1/boards/hellofresh/jobs?content=true",
+    "board_location": {
+      "name": "Berlin, Berlin, Germany"
+    },
+    "source_posting_id": "8280899",
+    "verified_at": "2026-11-15T08:18:28+00:00",
+    "screening_note": "Advert offers Berlin relocation support and language learning but does not explicitly confirm visa sponsorship or a German requirement."
+  },
+  "bd5da8cded4340a5454bb41c": {
+    "source_endpoint": "https://boards-api.greenhouse.io/v1/boards/n26/jobs?content=true",
+    "board_location": {
+      "name": "Barcelona, Berlin"
+    },
+    "source_posting_id": "8378357",
+    "verified_at": "2026-11-15T08:18:28+00:00",
+    "screening_note": "Berlin and Barcelona are advertised. Practical production Kubernetes and on-call depth remain to verify."
+  },
+  "86b2c9ad16b0a6a46b2b3083": {
+    "source_endpoint": "https://boards-api.greenhouse.io/v1/boards/n26/jobs?content=true",
+    "board_location": {
+      "name": "Berlin, Barcelona"
+    },
+    "source_posting_id": "8219953",
+    "verified_at": "2026-11-15T08:18:28+00:00",
+    "screening_note": "Berlin and Barcelona are advertised. Requires production AWS, network and service-mesh experience beyond skills overlap."
+  },
+  "3200a4051e94d44304e22171": {
+    "source_endpoint": "https://boards-api.greenhouse.io/v1/boards/sumup/jobs?content=true",
+    "board_location": {
+      "name": "Berlin, Germany"
+    },
+    "source_posting_id": "8364212002",
+    "verified_at": "2026-11-15T08:18:28+00:00",
+    "screening_note": "The advert expressly encourages candidates with partial skills coverage. Helm, Airflow/dbt and internal platform depth remain to verify."
+  },
+  "991d01bfe3a13da1dc2e2117": {
+    "source_endpoint": "https://boards-api.greenhouse.io/v1/boards/sumup/jobs?content=true",
+    "board_location": {
+      "name": "Berlin, Germany"
+    },
+    "source_posting_id": "8773687002",
+    "verified_at": "2026-11-15T08:18:28+00:00",
+    "screening_note": "Python is an expressly accepted alternative to Go. Kafka and prior localization tooling remain to verify; no mandatory German found."
+  },
+  "b045a4c48abee04794f2f768": {
+    "source_endpoint": "https://api.smartrecruiters.com/v1/companies/DeliveryHero/postings/744000159818991",
+    "board_location": {
+      "city": "Berlin",
+      "country": "de",
+      "remote": false,
+      "hybrid": true,
+      "fullLocation": "Berlin, , Germany"
+    },
+    "source_posting_id": "744000159818991",
+    "verified_at": "2026-11-15T08:18:28+00:00",
+    "screening_note": "Python is an expressly accepted alternative to Go. Event streaming, Kubernetes, model-serving integrations and production scale remain to verify."
+  }
+}

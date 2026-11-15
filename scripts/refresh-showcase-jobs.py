@@ -74,6 +74,8 @@ def select_jobs(source, checked_at):
 
 def main():
     data = json.loads(SNAPSHOT.read_text(encoding='utf-8'))
+    if data.get('mode') == 'reviewed':
+        raise SystemExit('This catalog has reviewed company highlights. Follow docs/agents.md to research, review and replace the catalog; automatic metadata replacement would discard those reviews.')
     checked_at = datetime.now(timezone.utc).isoformat()
     with ThreadPoolExecutor(max_workers=6) as pool:
         groups = list(pool.map(lambda source: select_jobs(source, checked_at), data['sources']))

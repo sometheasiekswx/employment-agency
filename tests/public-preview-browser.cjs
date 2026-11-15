@@ -36,15 +36,6 @@ const { showPanel } = require("./browser-applications.cjs");
         apiRequests.push(url.href);
       if (!["GET", "HEAD"].includes(request.method()))
         mutations.push(request.method() + " " + url.href);
-      if (url.origin === "https://api.smartrecruiters.com") {
-        assert.match(
-          url.pathname,
-          /^\/v1\/companies\/[A-Za-z0-9_-]+\/postings$/,
-        );
-        assert.equal(request.method(), "GET");
-        assert.equal(request.postData(), null);
-        return route.abort();
-      }
       if (
         ["http:", "https:"].includes(url.protocol) &&
         url.origin !== new URL(base).origin
@@ -63,6 +54,96 @@ const { showPanel } = require("./browser-applications.cjs");
       snapshot.state.identity.name,
       snapshot.demo_resume?.name ?? "Alex Morgan",
     );
+    const profile = snapshot.state.profiles[0];
+    const reviews = new Map(
+      (snapshot.state.company_best_matches ?? [])
+        .filter((review) => review.profile_id === profile.id)
+        .map((review) => [review.employer_id, review.picks]),
+    );
+    assert.ok(reviews.size > 0, "The public catalog includes reviewed highlights");
+    const jobsByCompany = new Map();
+    for (const job of snapshot.state.jobs.filter((job) => job.source?.startsWith("reviewed:"))) {
+      assert.equal(job.hiring_employer_verified, true);
+      assert.ok(job.company?.id, "A reviewed job has a verified employer");
+      const companyJobs = jobsByCompany.get(job.company.id) ?? [];
+      companyJobs.push(job);
+      jobsByCompany.set(job.company.id, companyJobs);
+    }
+    assert.equal(profile.locations.length, 7);
+    for (const destination of profile.locations) {
+      const companyCount = [...jobsByCompany.values()]
+        .filter((jobs) => jobs.some((job) => job.city === destination)).length;
+      assert.ok(companyCount >= 5 && companyCount <= 10, `${destination} employer coverage`);
+    }
+    await page.goto(base + "/discover/?view=all");
+    const board = page.getByRole("region", { name: "Opportunities by company" });
+    await board.waitFor();
+    const catalog = require("../employment_agency/demo_data/showcase_jobs.json");
+    const logoOutcomes = new Map(catalog.companies.flatMap((company) =>
+      company.listings.map(({ job_id }) => [job_id, company.logo]),
+    ));
+    const verifiedLogoUrls = new Set(Object.values(snapshot.company_logos));
+    assert.ok(verifiedLogoUrls.size > 0, "The catalog bundles verified logo assets");
+    const decodedLogoUrls = new Set();
+    let decodedCompanies = 0;
+    const expectedLogoCompanies = catalog.companies.filter(
+      ({ logo }) => logo.status === "verified",
+    ).length;
+    for (const [companyId, jobs] of jobsByCompany) {
+      const column = board.locator(`[data-company-id="employer:${companyId}"]`);
+      const company = jobs[0].company;
+      await column.waitFor();
+      assert.ok(jobs.length >= 1 && jobs.length <= 7, `${company.name} vacancy count`);
+      const outcome = logoOutcomes.get(jobs[0].id);
+      assert.ok(outcome, `Recorded logo retrieval outcome for ${company.name}`);
+      const mark = column.locator("header .discover-employer-mark");
+      const logo = mark.locator("img");
+      if (outcome.status === "verified") {
+        const logoUrl = `/demo/company-logos/${outcome.sha256}.png`;
+        assert.match(logoUrl, /^\/demo\/company-logos\/[a-f0-9]{64}\.png$/);
+        assert.ok(verifiedLogoUrls.has(logoUrl));
+        assert.ok(jobs.every((job) => job.company.logo_url === logoUrl));
+        assert.equal(new URL(await logo.getAttribute("src"), base).href, new URL(logoUrl, base).href);
+        await logo.scrollIntoViewIfNeeded();
+        assert.ok(await logo.evaluate(async (image) => {
+          await image.decode();
+          return image.naturalWidth > 0 && image.naturalHeight > 0;
+        }), `${company.name} official logo decodes in the browser`);
+        decodedLogoUrls.add(logoUrl);
+        decodedCompanies += 1;
+      } else {
+        assert.equal(outcome.status, "unavailable");
+        assert.ok(outcome.reason, `Recorded logo gap for ${company.name}`);
+        assert.ok(jobs.every((job) => !job.company.logo_url));
+        assert.equal(await logo.count(), 0);
+        const initials = company.name.trim().split(/\s+/).slice(0, 2)
+          .map((part) => Array.from(part)[0]).join("").toLocaleUpperCase();
+        const label = mark.locator("span");
+        assert.equal(await label.innerText(), initials);
+        assert.ok(await label.isVisible(), `${company.name} fallback is visible`);
+      }
+      const cards = column.locator("article[data-job-id]");
+      const displayedIds = await cards.evaluateAll((articles) =>
+        articles.map((article) => article.dataset.jobId),
+      );
+      assert.deepEqual(new Set(displayedIds), new Set(jobs.map((job) => job.id)));
+      const picks = reviews.get(companyId) ?? [];
+      assert.equal(picks.length, jobs.length > 2 ? 2 : 0, company.name);
+      assert.deepEqual(displayedIds.slice(0, picks.length), picks.map(({ job_id }) => job_id));
+      assert.equal(await column.locator(".discover-match-reason").count(), picks.length);
+      for (const { job_id, reason } of picks) {
+        const card = column.locator(`article[data-job-id="${job_id}"]`);
+        assert.equal(await card.locator(".discover-match-reason").innerText(), reason);
+      }
+      for (const text of ["Best matches for you", "More roles"]) {
+        assert.equal(
+          await column.getByRole("heading", { name: text, exact: true }).count(),
+          picks.length ? 1 : 0,
+        );
+      }
+    }
+    assert.equal(decodedCompanies, expectedLogoCompanies);
+    assert.deepEqual(decodedLogoUrls, verifiedLogoUrls);
     const assessCloud = () =>
       page.getByRole("button", {
         name: "Assess Cloud Software Engineer at Emberlane Systems",
@@ -227,9 +308,6 @@ const { showPanel } = require("./browser-applications.cjs");
     const independent = await browser.newContext({
       viewport: { width: 1440, height: 1000 },
     });
-    await independent.route("https://api.smartrecruiters.com/**", (route) =>
-      route.abort(),
-    );
     const second = await independent.newPage();
     await second.goto(base + "/discover/?view=all");
     await second
@@ -245,9 +323,6 @@ const { showPanel } = require("./browser-applications.cjs");
     const shared = await browser.newContext({
       viewport: { width: 1440, height: 1000 },
     });
-    await shared.route("https://api.smartrecruiters.com/**", (route) =>
-      route.abort(),
-    );
     const firstTab = await shared.newPage();
     const secondTab = await shared.newPage();
     await Promise.all([

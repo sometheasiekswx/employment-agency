@@ -14,7 +14,7 @@ const policy = [
   `script-src 'self' ${scriptHash}`,
   "style-src 'self'",
   "font-src 'self'",
-  "connect-src 'self' https://api.smartrecruiters.com",
+  "connect-src 'self'",
   "img-src 'self' blob: data:",
   "frame-src 'self' blob:",
   "object-src 'none'",
@@ -310,7 +310,7 @@ test("rejects unsafe or widened CSP sources and duplicate directives", async (t)
     policy.replace(scriptHash, "'unsafe-eval'"),
     policy.replace(scriptHash, "https://cdn.example"),
     policy.replace(
-      "connect-src 'self' https://api.smartrecruiters.com",
+      "connect-src 'self'",
       "connect-src *",
     ),
     `${policy}; script-src 'unsafe-inline'`,

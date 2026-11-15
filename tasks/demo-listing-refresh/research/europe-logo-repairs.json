@@ -1,0 +1,318 @@
+{
+  "checked_at": "2026-11-15T08:33:49.225473+00:00",
+  "companies": [
+    {
+      "name": "Monzo",
+      "attempts": [
+        {
+          "page_url": "https://monzo.com/download",
+          "selection": null,
+          "status": "missing",
+          "reason": "No declaration accepted by the shared branding parser."
+        },
+        {
+          "page_url": "https://monzo.com/press",
+          "selection": null,
+          "status": "missing",
+          "reason": "No declaration accepted by the shared branding parser."
+        },
+        {
+          "page_url": "https://monzo.com/about",
+          "selection": null,
+          "status": "missing",
+          "reason": "No declaration accepted by the shared branding parser."
+        },
+        {
+          "page_url": "https://monzo.com/",
+          "selection": null,
+          "status": "missing",
+          "reason": "No declaration accepted by the shared branding parser."
+        }
+      ],
+      "logo": null
+    },
+    {
+      "name": "Deliveroo",
+      "attempts": [
+        {
+          "page_url": "https://careers.deliveroo.co.uk/",
+          "selection": null,
+          "status": "missing",
+          "reason": "No declaration accepted by the shared branding parser."
+        },
+        {
+          "page_url": "https://corporate.deliveroo.co.uk/",
+          "selection": null,
+          "status": "failed",
+          "reason": "[Errno 8] nodename nor servname provided, or not known"
+        },
+        {
+          "page_url": "https://deliveroo.co.uk/about-us",
+          "selection": null,
+          "status": "missing",
+          "reason": "No declaration accepted by the shared branding parser."
+        },
+        {
+          "page_url": "https://deliveroo.co.uk/",
+          "selection": null,
+          "status": "missing",
+          "reason": "No declaration accepted by the shared branding parser."
+        },
+        {
+          "page_url": "https://deliveroo.co.uk/more/news-articles/media-assets/",
+          "selection": null,
+          "status": "missing",
+          "reason": "No declaration accepted by the shared branding parser."
+        }
+      ],
+      "logo": null
+    },
+    {
+      "name": "Wise",
+      "attempts": [
+        {
+          "page_url": "https://newsroom.wise.com/en-NAM/assets/228784/",
+          "selection": null,
+          "url": "https://d21buns5ku92am.cloudfront.net/69646/logo/retina-1677657632.png",
+          "observed_page": "https://newsroom.wise.com/en-NAM/assets/228784/",
+          "status": "candidate",
+          "sha256": "ca538902d939a2428ad8ba29cacfe4377a77aefb7471cc78cc859b5390310cfe",
+          "final_url": "https://d21buns5ku92am.cloudfront.net/69646/logo/retina-1677657632.png",
+          "local_path": "tasks/demo-listing-refresh/research/europe/repairs/ca538902d939a2428ad8ba29cacfe4377a77aefb7471cc78cc859b5390310cfe.png",
+          "evidence": "The shared parser found the mark for Wise on the first-party branding page; the shared asset downloader accepted and normalized it."
+        }
+      ],
+      "logo": {
+        "page_url": "https://newsroom.wise.com/en-NAM/assets/228784/",
+        "selection": null,
+        "url": "https://d21buns5ku92am.cloudfront.net/69646/logo/retina-1677657632.png",
+        "observed_page": "https://newsroom.wise.com/en-NAM/assets/228784/",
+        "status": "candidate",
+        "sha256": "ca538902d939a2428ad8ba29cacfe4377a77aefb7471cc78cc859b5390310cfe",
+        "final_url": "https://d21buns5ku92am.cloudfront.net/69646/logo/retina-1677657632.png",
+        "local_path": "tasks/demo-listing-refresh/research/europe/repairs/ca538902d939a2428ad8ba29cacfe4377a77aefb7471cc78cc859b5390310cfe.png",
+        "evidence": "Wise’s official newsroom media kit contains the Wise logo as a named masthead image in same-site header navigation."
+      }
+    },
+    {
+      "name": "Contentful",
+      "attempts": [
+        {
+          "page_url": "https://www.contentful.com/newsroom/",
+          "selection": null,
+          "status": "failed",
+          "reason": "Source returned HTTP 429"
+        },
+        {
+          "page_url": "https://www.contentful.com/about-us/",
+          "selection": null,
+          "status": "failed",
+          "reason": "Source returned HTTP 429"
+        },
+        {
+          "page_url": "https://trust.contentful.com/",
+          "selection": null,
+          "status": "missing",
+          "reason": "No declaration accepted by the shared branding parser."
+        },
+        {
+          "page_url": "https://www.contentful.com/partners/technology/commercetools/",
+          "selection": null,
+          "status": "failed",
+          "reason": "Source returned HTTP 429"
+        }
+      ],
+      "logo": null
+    },
+    {
+      "name": "Trainline",
+      "attempts": [
+        {
+          "page_url": "https://www.trainlinegroup.com/careers/",
+          "selection": null,
+          "status": "missing",
+          "reason": "No declaration accepted by the shared branding parser."
+        },
+        {
+          "page_url": "https://www.trainlinegroup.com/media/",
+          "selection": null,
+          "status": "missing",
+          "reason": "No declaration accepted by the shared branding parser."
+        },
+        {
+          "page_url": "https://www.trainlinegroup.com/",
+          "selection": null,
+          "status": "missing",
+          "reason": "No declaration accepted by the shared branding parser."
+        },
+        {
+          "page_url": "https://www.thetrainline.com/about-us",
+          "selection": null,
+          "status": "missing",
+          "reason": "No declaration accepted by the shared branding parser."
+        }
+      ],
+      "logo": null,
+      "scope_note": "The earlier exact homepage selection was rejected as declared for another organization. No override attempted."
+    },
+    {
+      "name": "HelloFresh",
+      "attempts": [
+        {
+          "page_url": "https://www.hellofreshgroup.com/",
+          "selection": null,
+          "status": "missing",
+          "reason": "No declaration accepted by the shared branding parser."
+        },
+        {
+          "page_url": "https://www.hellofreshgroup.com/en/",
+          "selection": null,
+          "status": "missing",
+          "reason": "No declaration accepted by the shared branding parser."
+        },
+        {
+          "page_url": "https://www.hellofresh.com/about-us",
+          "selection": null,
+          "status": "failed",
+          "reason": "Source returned HTTP 404"
+        },
+        {
+          "page_url": "https://careers.hellofresh.com/global/en",
+          "selection": null,
+          "status": "failed",
+          "reason": "The branding source exceeds its download size limit"
+        },
+        {
+          "page_url": "https://www.hellofreshgroup.com/en/newsroom/press-material/brand/",
+          "selection": null,
+          "status": "missing",
+          "reason": "No declaration accepted by the shared branding parser."
+        },
+        {
+          "page_url": "https://www.hellofreshgroup.com/en/newsroom/press-material/brand/",
+          "selection": "https://images.ctfassets.net/irplh84t0tdt/6MAHO2Pxughi487mMJ3xh3/1c8b57038b1a6815e42285170b6f3616/HelloFresh_Logo.png?w=800&q=50",
+          "status": "missing",
+          "reason": "No declaration accepted by the shared branding parser."
+        }
+      ],
+      "logo": null
+    },
+    {
+      "name": "N26",
+      "attempts": [
+        {
+          "page_url": "https://n26.com/en-eu",
+          "selection": null,
+          "status": "missing",
+          "reason": "No declaration accepted by the shared branding parser."
+        },
+        {
+          "page_url": "https://n26.com/en-eu/about-n26",
+          "selection": null,
+          "status": "missing",
+          "reason": "No declaration accepted by the shared branding parser."
+        },
+        {
+          "page_url": "https://n26.com/en-eu/press",
+          "selection": null,
+          "status": "missing",
+          "reason": "No declaration accepted by the shared branding parser."
+        },
+        {
+          "page_url": "https://n26.com/en-eu/careers",
+          "selection": null,
+          "status": "missing",
+          "reason": "No declaration accepted by the shared branding parser."
+        },
+        {
+          "page_url": "https://n26.com/en-eu/logo-assets",
+          "selection": null,
+          "status": "missing",
+          "reason": "No declaration accepted by the shared branding parser."
+        },
+        {
+          "page_url": "https://n26.com/en-eu/logo-assets",
+          "selection": "https://images.ctfassets.net/q33z48p65a6w/4wLQJbPhbGw4W8IeUKEiCg/5f6a3bbbf6a74de7e73882ec45531d89/1901_N26_App_Icon.png?fm=png&q=80&w=750",
+          "status": "missing",
+          "reason": "No declaration accepted by the shared branding parser."
+        }
+      ],
+      "logo": null
+    },
+    {
+      "name": "SumUp",
+      "attempts": [
+        {
+          "page_url": "https://www.sumup.com/about/",
+          "selection": null,
+          "status": "missing",
+          "reason": "No declaration accepted by the shared branding parser."
+        },
+        {
+          "page_url": "https://www.sumup.com/en-gb/about/",
+          "selection": null,
+          "status": "failed",
+          "reason": "The branding source exceeds its download size limit"
+        },
+        {
+          "page_url": "https://www.sumup.com/en-gb/press/",
+          "selection": null,
+          "status": "failed",
+          "reason": "The branding source exceeds its download size limit"
+        },
+        {
+          "page_url": "https://www.sumup.com/careers/",
+          "selection": null,
+          "status": "missing",
+          "reason": "No declaration accepted by the shared branding parser."
+        },
+        {
+          "page_url": "https://www.sumup.com/en-ie/press/",
+          "selection": null,
+          "status": "missing",
+          "reason": "No declaration accepted by the shared branding parser."
+        }
+      ],
+      "logo": null,
+      "scope_note": "The official press page presents media-kit downloads as editorial-use assets; no separate download or import was attempted."
+    },
+    {
+      "name": "Delivery Hero",
+      "attempts": [
+        {
+          "page_url": "https://www.deliveryhero.com/downloads/logos/",
+          "selection": null,
+          "status": "failed",
+          "reason": "Source returned HTTP 403"
+        },
+        {
+          "page_url": "https://www.deliveryhero.com/downloads/logos/",
+          "selection": "https://www.deliveryhero.com/wp-content/uploads/2026/03/Red-Logo-900x474.webp",
+          "status": "failed",
+          "reason": "Source returned HTTP 403"
+        },
+        {
+          "page_url": "https://deliveryhero.com/downloads/logos/",
+          "selection": null,
+          "status": "failed",
+          "reason": "Source returned HTTP 403"
+        },
+        {
+          "page_url": "https://careers.deliveryhero.com/",
+          "selection": null,
+          "url": "https://attraxcdnprod1-freshed3dgayb7c3.z01.azurefd.net/1481174/09419435-21e9-4b7c-b001-e4d0e06d8f6f/2026.10.22.15671/Blob/images/logos/dh-logo-main.svg",
+          "observed_page": "https://careers.deliveryhero.com/",
+          "status": "failed",
+          "reason": "The source did not return a supported raster format"
+        },
+        {
+          "page_url": "https://ir.deliveryhero.com/en/",
+          "selection": null,
+          "status": "missing",
+          "reason": "No declaration accepted by the shared branding parser."
+        }
+      ],
+      "logo": null
+    }
+  ]
+}

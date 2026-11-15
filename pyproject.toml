@@ -24,4 +24,4 @@ package = false
 [tool.setuptools.packages.find]
 include = ["employment_agency*"]
 [tool.setuptools.package-data]
-employment_agency = ["web/**/*", "web/*", "demo_data/*"]
+employment_agency = ["web/**/*", "web/*", "demo_data/*", "demo_data/showcase_logos/*.png"]

@@ -20,6 +20,7 @@ from .service import Service
 from . import documents, history, matching, packages, summaries
 from .store import digest, encode, uid
 from .workspaces import configure
+from . import public_catalog
 
 
 SAMPLE_LOCATIONS = ('Singapore', 'Melbourne', 'Berlin', 'Toronto')
@@ -41,7 +42,7 @@ def publish_resume_profile(state, resume):
 
     summary = section('Profile', 'Professional Experience')
     skills = section('Key Skills', 'Education and Recognition')
-    skills = re.sub(r'\b(?:Technical|Management):\s*', ',', skills)
+    skills = re.sub(r'\b(?:T\s*echnical|Management):\s*', ',', skills)
     entries = [('summary', summary)]
     entries.extend(('skill', item.strip()) for item in skills.split(','))
     facts = []
@@ -94,6 +95,8 @@ def seed(service, locations=SAMPLE_LOCATIONS):
             'url': f'https://example.test/concept/role-{index + 1}',
             'salary': {'currency': currency, 'period': 'year', 'basis': 'gross_base', 'min': low, 'max': high}})
         jobs.append(job)
+        if service.w.database:
+            service.action('company-map', {'job_id': job['id'], 'name': company, 'confirmed': True})
     for index in (0, 2, 5):
         app = service.action('local-package', {'profile_id': profile['id'], 'job_id': jobs[index]['id']})
         if index == 0:
@@ -106,8 +109,18 @@ def seed(service, locations=SAMPLE_LOCATIONS):
 
 def seed_showcase(service, listing_data):
     profile = seed(service, SHOWCASE_LOCATIONS)
+    if listing_data.get('mode') == 'reviewed':
+        # These are explicitly fictional sample skills. The release replaces
+        # them with the approved public résumé before revalidating reviews.
+        terms = sorted({term for company in listing_data['companies']
+                        for pick in company.get('picks', []) for term in pick['fact_terms']})
+        for term in terms:
+            fact = service.action('fact', {'text': term, 'category': 'skill'})
+            service.action('confirm', {'id': fact['id']})
     for job in listing_data['jobs']:
         service.action('job', job)
+    public_catalog.restore_companies(service, listing_data)
+    public_catalog.save_reviews(service, listing_data, profile['id'])
     examples = (
         ('Site Reliability Engineer', 'Dovetail Cloud', 'Berlin', 'saved', 'AWS'),
         ('Software Test Engineer', 'Pineframe Tools', 'Toronto', 'saved', 'Python'),
@@ -124,6 +137,8 @@ def seed_showcase(service, listing_data):
             'description': f'Fictional example. Help an engineering team build and support services using {skill}.',
             'availability': 'Illustrative example', 'requirements': [skill],
         })
+        if service.w.database:
+            service.action('company-map', {'job_id': job['id'], 'name': employer, 'confirmed': True})
         if status == 'saved':
             service.action('save-job', {'id': job['id'], 'saved': True})
         elif status == 'removed':
@@ -191,6 +206,12 @@ def _check_owned_export(destination):
         if not isinstance(url, str) or not url.startswith('/demo/files/'):
             raise ValueError('Invalid previous public-preview asset')
         allowed.add(url.removeprefix('/demo/'))
+    for sha256, url in old.get('company_logos', {}).items():
+        if not re.fullmatch(r'[a-f0-9]{64}', sha256) or url != f'/demo/company-logos/{sha256}.png':
+            raise ValueError('Invalid previous company logo asset')
+        allowed.add(url.removeprefix('/demo/'))
+    if old.get('demo_resume', {}).get('pdf') == '/' + PUBLIC_MASTER_PATH:
+        allowed.add(Path(PUBLIC_MASTER_PATH).name)
     actual = {path.relative_to(destination).as_posix() for path in destination.rglob('*') if path.is_file()}
     if actual - allowed:
         raise ValueError('The export directory contains unrelated files; no data changed')
@@ -205,6 +226,10 @@ def publish_resume_bundle(destination, resume, pdf):
         raise ValueError('The approved résumé PDF does not match its checksum')
     state = bundle['state']
     bundle.update(publish_resume_profile(state, resume))
+    catalog = public_catalog.load_catalog()
+    if bundle.get('catalog_revision') and bundle['catalog_revision'] != digest(encode(catalog)):
+        raise ValueError('The public catalog changed; regenerate the fixture before publishing')
+    public_catalog.republish_reviews(state, catalog, resume['sha256'])
     identity = state['identity']
     name = identity['name']
     facts = state['facts']
@@ -224,6 +249,13 @@ def publish_resume_bundle(destination, resume, pdf):
         workspace = root / 'workspace'
         for path in (package, stage, workspace):
             path.mkdir()
+        for sha256, url in bundle.get('company_logos', {}).items():
+            relative = url.removeprefix('/demo/')
+            body = (destination / relative).read_bytes()
+            if digest(body) != sha256 or not public_catalog.company_logo_assets.normalized_png(body):
+                raise ValueError('A public company logo failed verification')
+            (stage / relative).parent.mkdir(exist_ok=True)
+            (stage / relative).write_bytes(body)
         config = configure(workspace, {
             key: workspace_settings[key]
             for key in ('timezone', 'preferred_locations', 'resume_pages', 'cover_letter_pages')
@@ -277,7 +309,7 @@ def publish_resume_bundle(destination, resume, pdf):
 
 def export_preview(destination):
     """Generate the checked fallback listings and fictional application records."""
-    listing_data = json.loads(Path(__file__).with_name('demo_data').joinpath('showcase_jobs.json').read_text(encoding='utf-8'))
+    listing_data = public_catalog.load_catalog()
     destination = Path(destination).expanduser().absolute()
     _check_owned_export(destination)
     destination.parent.mkdir(parents=True, exist_ok=True)
@@ -285,7 +317,7 @@ def export_preview(destination):
     with tempfile.TemporaryDirectory(prefix='ea-public-preview-') as temporary:
         root = Path(temporary)
         os.environ['EA_CONFIG_HOME'] = str(root / 'config')
-        workspace = DemoWorkspace(root / 'workspace')
+        workspace = DemoWorkspace(root / 'workspace', sqlite=True)
         try:
             configure(workspace.path, {
                 'label': 'Public preview · Alex Morgan', 'demo': True,
@@ -297,25 +329,39 @@ def export_preview(destination):
             seed_showcase(service, listing_data)
             state = service.state()
             rankings = {profile['id']: service.action('rank', {'profile_id': profile['id']}) for profile in state['profiles']}
+            # The shared import retains the advertised location. This explicit
+            # catalog grouping also preserves country-wide showcase tabs.
+            destinations = {job['id']: job['city'] for job in listing_data['jobs'] if job.get('city')}
+            for job in [*state['jobs'], *(row['job'] for rows in rankings.values() for row in rows)]:
+                if job['id'] in destinations:
+                    job['city'] = destinations[job['id']]
             stage = root / 'export'
             stage.mkdir()
             # Absolute build paths, machine permissions and provider consent do
             # not belong in this public snapshot, even in a fictional workspace.
             state['_workspace']['path'] = 'public-fictional-preview'
+            # The demo derives its application stages from mutable tab-local
+            # drafts, not the private agent queue captured during this export.
+            state['_workspace'].pop('agent_queue', None)
+            state.pop('application_queue', None)
             state['_master']['path'] = 'master/fictional-resume'
             state['consents'] = {}
             state['runs'] = []
             for job in state['jobs']:
-                if not job.get('source', '').startswith('smartrecruiters:'):
+                if not job.get('source', '').startswith(('smartrecruiters:', 'reviewed:')):
                     job['url'] = ''
             for rows in rankings.values():
                 for row in rows:
-                    if not row['job'].get('source', '').startswith('smartrecruiters:'):
+                    if not row['job'].get('source', '').startswith(('smartrecruiters:', 'reviewed:')):
                         row['job']['url'] = ''
             payload = {
                 'public_preview': True, 'schema': 1,
                 'notice': 'Public demo with employer listings and sample application records. No applications are sent.',
-                'state': state, 'rankings': rankings, 'job_sources': listing_data['sources'],
+                'state': state, 'rankings': rankings, 'job_sources': [],
+                'legacy_job_sources': listing_data.get('legacy_job_sources', []),
+                'reviewed_job_sources': listing_data.get('reviewed_job_sources', []),
+                'listing_mode': 'reviewed', 'catalog_revision': digest(encode(listing_data)),
+                'company_logos': public_catalog.export_logos(stage, workspace.path, state, rankings),
                 **_export_documents(stage, workspace.path, state['applications']),
             }
             serialized = json.dumps(payload, ensure_ascii=False, sort_keys=True)

@@ -1,0 +1,1165 @@
+{
+  "checked_at": "2026-11-15T08:17:13+00:00",
+  "companies": [
+    {
+      "name": "Plaid",
+      "city": "New York",
+      "careers_url": "https://plaid.com/careers/",
+      "logo": {
+        "page_url": "https://plaid.com/",
+        "url": "https://plaid.com/assets/img/favicons/apple-touch-icon.png",
+        "local_path": "tasks/demo-listing-refresh/research/americas/logos/plaid.png",
+        "status": "retrieved",
+        "evidence": "Published Apple touch icon on the official company homepage.",
+        "sha256": "f9a98e98c41212eb89e1d92e9f2318349570001e497e1fb1cc32bc39eb2f1016"
+      },
+      "picks": [
+        {
+          "job_id": "d4a3e3e6ec786b5037b39f5c",
+          "reason": "The posting combines front-end frameworks, API development and relational databases. The public profile lists TypeScript, Python and SQL.",
+          "fact_ids": [
+            "3b66e05b56c2d09ca02852719fc4b4bc",
+            "ce3737d14c22431c2f3c0d19067d52a3",
+            "d7629711b68661baaf1fbb1792c0fb8a"
+          ]
+        },
+        {
+          "job_id": "2fd16a7557ee8b5741632747",
+          "reason": "Relational databases and modern web frameworks are explicit requirements. SQL and TypeScript are documented in the public profile.",
+          "fact_ids": [
+            "d7629711b68661baaf1fbb1792c0fb8a",
+            "3b66e05b56c2d09ca02852719fc4b4bc"
+          ]
+        }
+      ],
+      "jobs": [
+        {
+          "id": "d4a3e3e6ec786b5037b39f5c",
+          "title": "Software Engineer, Full Stack",
+          "employer": "Plaid",
+          "city": "New York",
+          "location": "New York City Office",
+          "url": "https://jobs.ashbyhq.com/plaid/a9dc0810-546b-4773-9545-2862409e24b4",
+          "careers_url": "https://plaid.com/careers/",
+          "source": "ashby:plaid",
+          "source_url": "https://api.ashbyhq.com/posting-api/job-board/plaid",
+          "requisition": "a9dc0810-546b-4773-9545-2862409e24b4",
+          "description": "Develop investment product interfaces and APIs with automated tests.",
+          "requirements": [
+            "Python",
+            "2–4 years full-stack development",
+            "Modern JavaScript frameworks, HTML and CSS",
+            "Python, Java, Go or Node.js",
+            "Relational databases such as MySQL",
+            "Microservices and API design",
+            "Coding and testing"
+          ],
+          "availability": "retrieved",
+          "checked_at": "2026-11-15T08:17:13+00:00",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "evidence": {
+            "board_url": "https://api.ashbyhq.com/posting-api/job-board/plaid",
+            "posting_id": "a9dc0810-546b-4773-9545-2862409e24b4",
+            "location": "New York City Office",
+            "confirmation": "Employer careers page and current Ashby publisher entry with full role description and current application listing.",
+            "final_url": "https://jobs.ashbyhq.com/plaid/a9dc0810-546b-4773-9545-2862409e24b4",
+            "posting_http_status": 200,
+            "apply_url": "https://jobs.ashbyhq.com/plaid/a9dc0810-546b-4773-9545-2862409e24b4/application",
+            "listing_status": "Publisher marked listed and supplied a direct application URL."
+          },
+          "posted_at": "2026-05-04",
+          "work_arrangement": "Hybrid"
+        },
+        {
+          "id": "2fd16a7557ee8b5741632747",
+          "title": "Senior Software Engineer, Full Stack",
+          "employer": "Plaid",
+          "city": "New York",
+          "location": "New York City Office",
+          "url": "https://jobs.ashbyhq.com/plaid/24f357ee-b2fc-4f86-bab9-d10ecfb99003",
+          "careers_url": "https://plaid.com/careers/",
+          "source": "ashby:plaid",
+          "source_url": "https://api.ashbyhq.com/posting-api/job-board/plaid",
+          "requisition": "24f357ee-b2fc-4f86-bab9-d10ecfb99003",
+          "description": "Design scalable backend APIs and user-facing applications, including automated tests and design review.",
+          "requirements": [
+            "5+ years software engineering and shipping production features",
+            "Relational databases and service-oriented architecture",
+            "Modern JavaScript UI development",
+            "System design, testing and mentoring"
+          ],
+          "availability": "retrieved",
+          "checked_at": "2026-11-15T08:17:13+00:00",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "evidence": {
+            "board_url": "https://api.ashbyhq.com/posting-api/job-board/plaid",
+            "posting_id": "24f357ee-b2fc-4f86-bab9-d10ecfb99003",
+            "location": "New York City Office",
+            "confirmation": "Employer careers page and current Ashby publisher entry with full role description and current application listing.",
+            "final_url": "https://jobs.ashbyhq.com/plaid/24f357ee-b2fc-4f86-bab9-d10ecfb99003",
+            "posting_http_status": 200,
+            "apply_url": "https://jobs.ashbyhq.com/plaid/24f357ee-b2fc-4f86-bab9-d10ecfb99003/application",
+            "listing_status": "Publisher marked listed and supplied a direct application URL."
+          },
+          "posted_at": "2026-05-04",
+          "work_arrangement": "Hybrid"
+        },
+        {
+          "id": "95f42fede642e57f74636fbd",
+          "title": "Software Engineer, Backend",
+          "employer": "Plaid",
+          "city": "New York",
+          "location": "New York City Office",
+          "url": "https://jobs.ashbyhq.com/plaid/7e10c0b5-a09a-4e07-aaa8-899a7f82a0c9",
+          "careers_url": "https://plaid.com/careers/",
+          "source": "ashby:plaid",
+          "source_url": "https://api.ashbyhq.com/posting-api/job-board/plaid",
+          "requisition": "7e10c0b5-a09a-4e07-aaa8-899a7f82a0c9",
+          "description": "Build scalable backend systems and APIs for connecting financial accounts and monitor production performance.",
+          "requirements": [
+            "2–4 years software engineering after internships",
+            "Shipping reliable systems at scale",
+            "Technical problem-solving",
+            "Cross-functional collaboration",
+            "Automated testing and production debugging"
+          ],
+          "availability": "retrieved",
+          "checked_at": "2026-11-15T08:17:13+00:00",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "evidence": {
+            "board_url": "https://api.ashbyhq.com/posting-api/job-board/plaid",
+            "posting_id": "7e10c0b5-a09a-4e07-aaa8-899a7f82a0c9",
+            "location": "New York City Office",
+            "confirmation": "Employer careers page and current Ashby publisher entry with full role description and current application listing.",
+            "final_url": "https://jobs.ashbyhq.com/plaid/7e10c0b5-a09a-4e07-aaa8-899a7f82a0c9",
+            "posting_http_status": 200,
+            "apply_url": "https://jobs.ashbyhq.com/plaid/7e10c0b5-a09a-4e07-aaa8-899a7f82a0c9/application",
+            "listing_status": "Publisher marked listed and supplied a direct application URL."
+          },
+          "posted_at": "2026-05-04",
+          "work_arrangement": "Hybrid"
+        }
+      ]
+    },
+    {
+      "name": "Ramp",
+      "city": "New York",
+      "careers_url": "https://ramp.com/careers",
+      "logo": {
+        "page_url": "https://ramp.com/",
+        "url": "https://ramp.com/apple-touch-icon.png",
+        "local_path": "tasks/demo-listing-refresh/research/americas/logos/ramp.png",
+        "status": "retrieved",
+        "evidence": "Published Apple touch icon on the official company homepage.",
+        "sha256": "61f4fbf3c7965cdae9a271f05308db61b507eb0cd9316e39f95356c0fc2309a5"
+      },
+      "picks": [
+        {
+          "job_id": "fb0ff9de9c14f0fdbd62bb26",
+          "reason": "Ramp explicitly lists TypeScript in its front-end stack. The public profile lists TypeScript and Next.js.",
+          "fact_ids": [
+            "3b66e05b56c2d09ca02852719fc4b4bc",
+            "60e7c079348914b505360dc1f0dedf7a"
+          ]
+        },
+        {
+          "job_id": "8db161113c2ada29fabac380",
+          "reason": "AWS is a preferred cloud platform for this reliability role. The public profile lists AWS and SDLC.",
+          "fact_ids": [
+            "a383674d908eade31aef1db6ada4e12a",
+            "79ed41d4d9f7d874acbed0e6cb157cdf"
+          ]
+        }
+      ],
+      "jobs": [
+        {
+          "id": "fb0ff9de9c14f0fdbd62bb26",
+          "title": "Software Engineer, Frontend",
+          "employer": "Ramp",
+          "city": "New York",
+          "location": "New York, NY (HQ)",
+          "url": "https://jobs.ashbyhq.com/ramp/6511d68f-b65d-4499-962f-7e2f75eabe3f",
+          "careers_url": "https://ramp.com/careers",
+          "source": "ashby:ramp",
+          "source_url": "https://api.ashbyhq.com/posting-api/job-board/ramp",
+          "requisition": "6511d68f-b65d-4499-962f-7e2f75eabe3f",
+          "description": "Build performant front-end interfaces in Ramp’s TypeScript and React stack.",
+          "requirements": [
+            "TypeScript",
+            "JavaScript and React proficiency",
+            "Shipping products at scale",
+            "Translating product requirements into software",
+            "Five years of front-end engineering preferred"
+          ],
+          "availability": "retrieved",
+          "checked_at": "2026-11-15T08:17:13+00:00",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "evidence": {
+            "board_url": "https://api.ashbyhq.com/posting-api/job-board/ramp",
+            "posting_id": "6511d68f-b65d-4499-962f-7e2f75eabe3f",
+            "location": "New York, NY (HQ)",
+            "confirmation": "Employer careers page and current Ashby publisher entry with full role description and current application listing.",
+            "final_url": "https://jobs.ashbyhq.com/ramp/6511d68f-b65d-4499-962f-7e2f75eabe3f",
+            "posting_http_status": 200,
+            "apply_url": "https://jobs.ashbyhq.com/ramp/6511d68f-b65d-4499-962f-7e2f75eabe3f/application",
+            "listing_status": "Publisher marked listed and supplied a direct application URL."
+          },
+          "posted_at": "2026-11-04",
+          "work_arrangement": "Hybrid"
+        },
+        {
+          "id": "8db161113c2ada29fabac380",
+          "title": "Software Engineer, Production Engineering",
+          "employer": "Ramp",
+          "city": "New York",
+          "location": "New York, NY (HQ)",
+          "url": "https://jobs.ashbyhq.com/ramp/be496b52-cfbf-494e-b862-61fb4a188b24",
+          "careers_url": "https://ramp.com/careers",
+          "source": "ashby:ramp",
+          "source_url": "https://api.ashbyhq.com/posting-api/job-board/ramp",
+          "requisition": "be496b52-cfbf-494e-b862-61fb4a188b24",
+          "description": "Improve production platform reliability while partnering with product engineering teams.",
+          "requirements": [
+            "AWS",
+            "2+ years software engineering on critical systems",
+            "Production distributed systems",
+            "Major cloud platform experience; AWS preferred",
+            "Observability and end-to-end delivery",
+            "Comfort with AI coding agents"
+          ],
+          "availability": "retrieved",
+          "checked_at": "2026-11-15T08:17:13+00:00",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "evidence": {
+            "board_url": "https://api.ashbyhq.com/posting-api/job-board/ramp",
+            "posting_id": "be496b52-cfbf-494e-b862-61fb4a188b24",
+            "location": "New York, NY (HQ)",
+            "confirmation": "Employer careers page and current Ashby publisher entry with full role description and current application listing.",
+            "final_url": "https://jobs.ashbyhq.com/ramp/be496b52-cfbf-494e-b862-61fb4a188b24",
+            "posting_http_status": 200,
+            "apply_url": "https://jobs.ashbyhq.com/ramp/be496b52-cfbf-494e-b862-61fb4a188b24/application",
+            "listing_status": "Publisher marked listed and supplied a direct application URL."
+          },
+          "posted_at": "2026-04-27",
+          "work_arrangement": "Hybrid"
+        },
+        {
+          "id": "f362e07d5cb0d830eeee0523",
+          "title": "Software Engineer, Fullstack, Spend Controls",
+          "employer": "Ramp",
+          "city": "New York",
+          "location": "New York, NY (HQ)",
+          "url": "https://jobs.ashbyhq.com/ramp/6e717b06-6613-42ad-a1ee-f852a305fa37",
+          "careers_url": "https://ramp.com/careers",
+          "source": "ashby:ramp",
+          "source_url": "https://api.ashbyhq.com/posting-api/job-board/ramp",
+          "requisition": "6e717b06-6613-42ad-a1ee-f852a305fa37",
+          "description": "Build full-stack spend controls, including administrative interfaces and business rules for cards and budgets.",
+          "requirements": [
+            "Production front-end and backend features",
+            "End-to-end technical ownership",
+            "Data correctness and reliability",
+            "Testing and production debugging",
+            "Cross-functional collaboration"
+          ],
+          "availability": "retrieved",
+          "checked_at": "2026-11-15T08:17:13+00:00",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "evidence": {
+            "board_url": "https://api.ashbyhq.com/posting-api/job-board/ramp",
+            "posting_id": "6e717b06-6613-42ad-a1ee-f852a305fa37",
+            "location": "New York, NY (HQ)",
+            "confirmation": "Employer careers page and current Ashby publisher entry with full role description and current application listing.",
+            "final_url": "https://jobs.ashbyhq.com/ramp/6e717b06-6613-42ad-a1ee-f852a305fa37",
+            "posting_http_status": 200,
+            "apply_url": "https://jobs.ashbyhq.com/ramp/6e717b06-6613-42ad-a1ee-f852a305fa37/application",
+            "listing_status": "Publisher marked listed and supplied a direct application URL."
+          },
+          "posted_at": "2026-11-13",
+          "work_arrangement": "Hybrid"
+        },
+        {
+          "id": "b13561946524603300cdbf7f",
+          "title": "Software Engineer, Backend, Developer API",
+          "employer": "Ramp",
+          "city": "New York",
+          "location": "New York, NY (HQ)",
+          "url": "https://jobs.ashbyhq.com/ramp/42527ca9-03b9-499e-a5c4-18e4245af138",
+          "careers_url": "https://ramp.com/careers",
+          "source": "ashby:ramp",
+          "source_url": "https://api.ashbyhq.com/posting-api/job-board/ramp",
+          "requisition": "42527ca9-03b9-499e-a5c4-18e4245af138",
+          "description": "Build and operate a developer-facing API platform using Python, Temporal and Postgres.",
+          "requirements": [
+            "Python",
+            "5+ years backend engineering",
+            "Building APIs or developer platforms",
+            "Daily hands-on use of AI coding agents",
+            "Agentic tooling and workflow orchestration"
+          ],
+          "availability": "retrieved",
+          "checked_at": "2026-11-15T08:17:13+00:00",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "evidence": {
+            "board_url": "https://api.ashbyhq.com/posting-api/job-board/ramp",
+            "posting_id": "42527ca9-03b9-499e-a5c4-18e4245af138",
+            "location": "New York, NY (HQ)",
+            "confirmation": "Employer careers page and current Ashby publisher entry with full role description and current application listing.",
+            "final_url": "https://jobs.ashbyhq.com/ramp/42527ca9-03b9-499e-a5c4-18e4245af138",
+            "posting_http_status": 200,
+            "apply_url": "https://jobs.ashbyhq.com/ramp/42527ca9-03b9-499e-a5c4-18e4245af138/application",
+            "listing_status": "Publisher marked listed and supplied a direct application URL."
+          },
+          "posted_at": "2026-06-29",
+          "work_arrangement": "Hybrid"
+        }
+      ]
+    },
+    {
+      "name": "Figma",
+      "city": "New York",
+      "careers_url": "https://www.figma.com/careers/",
+      "logo": {
+        "page_url": "https://www.figma.com/",
+        "url": "https://static.figma.com/app/icon/2/icon-256.png",
+        "local_path": "tasks/demo-listing-refresh/research/americas/logos/figma.png",
+        "status": "retrieved",
+        "evidence": "256 px company icon published as an icon link on Figma’s homepage.",
+        "sha256": "b418ebb4a1d9d27cbeca7276b178f980bdaaeb8cffd998098136e21d8425ec69"
+      },
+      "picks": [
+        {
+          "job_id": "66851db453ef0e7b147b54aa",
+          "reason": "The full-stack posting directly names TypeScript and Python among suitable technologies, both listed in the public profile.",
+          "fact_ids": [
+            "3b66e05b56c2d09ca02852719fc4b4bc",
+            "ce3737d14c22431c2f3c0d19067d52a3"
+          ]
+        },
+        {
+          "job_id": "d3c48a479cbc1e12371dc887",
+          "reason": "The growth team names TypeScript, Python and PostgreSQL for its full-stack work. The public profile lists TypeScript, Python and SQL.",
+          "fact_ids": [
+            "3b66e05b56c2d09ca02852719fc4b4bc",
+            "ce3737d14c22431c2f3c0d19067d52a3",
+            "d7629711b68661baaf1fbb1792c0fb8a"
+          ]
+        }
+      ],
+      "jobs": [
+        {
+          "id": "66851db453ef0e7b147b54aa",
+          "title": "Software Engineer - Full Stack",
+          "employer": "Figma",
+          "city": "New York",
+          "location": "San Francisco, CA • New York, NY • United States",
+          "url": "https://job-boards.greenhouse.io/figma/jobs/5691911004",
+          "careers_url": "https://www.figma.com/careers/",
+          "source": "greenhouse:figma",
+          "source_url": "https://boards-api.greenhouse.io/v1/boards/figma/jobs/5691911004",
+          "requisition": "1918",
+          "description": "Build full-stack collaborative product features across Figma’s web UI and backend.",
+          "requirements": [
+            "TypeScript",
+            "Python",
+            "Production full-stack applications",
+            "React and TypeScript or similar frontend frameworks",
+            "Backend technologies such as Python, Go or PostgreSQL",
+            "Cross-functional collaboration",
+            "AI-assisted development tools"
+          ],
+          "availability": "retrieved",
+          "checked_at": "2026-11-15T08:17:13+00:00",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "evidence": {
+            "board_url": "https://boards-api.greenhouse.io/v1/boards/figma/jobs?content=true",
+            "posting_id": "5691911004",
+            "location": "San Francisco, CA • New York, NY • United States",
+            "confirmation": "Employer careers page and current Greenhouse publisher entry with full role description and current application listing.",
+            "final_url": "https://job-boards.greenhouse.io/figma/jobs/5691911004",
+            "posting_http_status": 200,
+            "detail_http_status": 200,
+            "listing_status": "Publisher returned the live individual listing and qualifications."
+          }
+        },
+        {
+          "id": "d3c48a479cbc1e12371dc887",
+          "title": "Software Engineer - Growth & Monetization",
+          "employer": "Figma",
+          "city": "New York",
+          "location": "San Francisco, CA • New York, NY • United States",
+          "url": "https://job-boards.greenhouse.io/figma/jobs/5552560004",
+          "careers_url": "https://www.figma.com/careers/",
+          "source": "greenhouse:figma",
+          "source_url": "https://boards-api.greenhouse.io/v1/boards/figma/jobs/5552560004",
+          "requisition": "1689",
+          "description": "Build full-stack growth and monetization features spanning web interfaces, experiments and backend services.",
+          "requirements": [
+            "TypeScript",
+            "Python",
+            "4+ years software engineering shipping complex production systems",
+            "Modern front-end and backend technologies including React, TypeScript, Python or PostgreSQL",
+            "Cross-functional collaboration"
+          ],
+          "availability": "retrieved",
+          "checked_at": "2026-11-15T08:17:13+00:00",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "evidence": {
+            "board_url": "https://boards-api.greenhouse.io/v1/boards/figma/jobs?content=true",
+            "posting_id": "5552560004",
+            "location": "San Francisco, CA • New York, NY • United States",
+            "confirmation": "Employer careers page and current Greenhouse publisher entry with full role description and current application listing.",
+            "final_url": "https://job-boards.greenhouse.io/figma/jobs/5552560004",
+            "posting_http_status": 200,
+            "detail_http_status": 200,
+            "listing_status": "Publisher returned the live individual listing and qualifications."
+          }
+        },
+        {
+          "id": "80f544c9fc5779713d5b96cb",
+          "title": "Software Engineer - Developer Experience",
+          "employer": "Figma",
+          "city": "New York",
+          "location": "San Francisco, CA • New York, NY • United States",
+          "url": "https://job-boards.greenhouse.io/figma/jobs/5790627004",
+          "careers_url": "https://www.figma.com/careers/",
+          "source": "greenhouse:figma",
+          "source_url": "https://boards-api.greenhouse.io/v1/boards/figma/jobs/5790627004",
+          "requisition": "2126",
+          "description": "Improve Figma’s build systems, CI performance and internal developer tooling.",
+          "requirements": [
+            "CI/CD",
+            "AWS",
+            "IaC",
+            "TypeScript",
+            "Python",
+            "5+ years engineering, including 4+ on infrastructure, platform or developer experience",
+            "Large monorepos and build systems",
+            "CI/CD and distributed systems",
+            "AWS, Infrastructure as Code and one of Go, TypeScript, Python or Ruby",
+            "Cross-team technical leadership"
+          ],
+          "availability": "retrieved",
+          "checked_at": "2026-11-15T08:17:13+00:00",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "evidence": {
+            "board_url": "https://boards-api.greenhouse.io/v1/boards/figma/jobs?content=true",
+            "posting_id": "5790627004",
+            "location": "San Francisco, CA • New York, NY • United States",
+            "confirmation": "Employer careers page and current Greenhouse publisher entry with full role description and current application listing.",
+            "final_url": "https://job-boards.greenhouse.io/figma/jobs/5790627004",
+            "posting_http_status": 200,
+            "detail_http_status": 200,
+            "listing_status": "Publisher returned the live individual listing and qualifications."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Datadog",
+      "city": "New York",
+      "careers_url": "https://careers.datadoghq.com/",
+      "logo": {
+        "page_url": "https://www.datadoghq.com/",
+        "url": "https://corp.dd-static.net/img/dd_logo_n_70x75.png?format=png",
+        "local_path": "tasks/demo-listing-refresh/research/americas/logos/datadog.png",
+        "status": "retrieved",
+        "evidence": "Official homepage preloads this Datadog dog mark in PNG format.",
+        "sha256": "97f212283d1fab1afbe1028ef435f9aebff575ce79909df705793e1ab5e77194"
+      },
+      "picks": [],
+      "jobs": [
+        {
+          "id": "1d4fc1518cf5bbb2a947f110",
+          "title": "Senior Software Engineer",
+          "employer": "Datadog",
+          "city": "New York",
+          "location": "Boston, Massachusetts, USA; New York, New York, USA",
+          "url": "https://careers.datadoghq.com/detail/3851935/",
+          "careers_url": "https://careers.datadoghq.com/",
+          "source": "greenhouse:datadog",
+          "source_url": "https://boards-api.greenhouse.io/v1/boards/datadog/jobs/3851935",
+          "requisition": "R5773",
+          "description": "Build large-scale commercial observability software, including reliable backend designs and AI-assisted workflows.",
+          "requirements": [
+            "Python",
+            "6+ years experience",
+            "Fluency in one or more languages",
+            "Architecture at scale",
+            "Scientific degree or equivalent experience",
+            "AI-assisted development and AI backend design",
+            "Python, Go or C preferred"
+          ],
+          "availability": "retrieved",
+          "checked_at": "2026-11-15T08:17:13+00:00",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "evidence": {
+            "board_url": "https://boards-api.greenhouse.io/v1/boards/datadog/jobs?content=true",
+            "posting_id": "3851935",
+            "location": "Boston, Massachusetts, USA; New York, New York, USA",
+            "confirmation": "Employer careers page and current Greenhouse publisher entry with full role description and current application listing.",
+            "final_url": "https://careers.datadoghq.com/detail/3851935/?gh_jid=3851935",
+            "posting_http_status": 200,
+            "detail_http_status": 200,
+            "listing_status": "Publisher returned the live individual listing and qualifications."
+          },
+          "eligibility_note": "Employer says some departments may require U.S. government export-control authorization."
+        }
+      ]
+    },
+    {
+      "name": "Anthropic",
+      "city": "New York",
+      "careers_url": "https://www.anthropic.com/careers",
+      "logo": {
+        "page_url": "https://www.anthropic.com/",
+        "url": "https://www.anthropic.com/images/icons/apple-touch-icon.png",
+        "local_path": "tasks/demo-listing-refresh/research/americas/logos/anthropic.png",
+        "status": "retrieved",
+        "evidence": "Published 180 px Apple touch icon on the official company homepage.",
+        "sha256": "40e3900fcb3ad237af6869dbd40e77efc8eb23549c478125b40e563ac74423cb"
+      },
+      "picks": [],
+      "jobs": [
+        {
+          "id": "be72094f74a1e7412bc8940c",
+          "title": "Front End Engineer, Marketing",
+          "employer": "Anthropic",
+          "city": "New York",
+          "location": "San Francisco, CA | New York City, NY",
+          "url": "https://job-boards.greenhouse.io/anthropic/jobs/5386971008",
+          "careers_url": "https://www.anthropic.com/careers",
+          "source": "greenhouse:anthropic",
+          "source_url": "https://boards-api.greenhouse.io/v1/boards/anthropic/jobs/5386971008",
+          "requisition": "266550",
+          "description": "Build marketing web pages and internal workflows alongside designers and engineers.",
+          "requirements": [
+            "Next.js",
+            "Next.js or similar React tooling",
+            "Design systems and advanced CSS",
+            "Hands-on headless CMS work",
+            "Internal tooling and prototyping",
+            "Shipping production web work at mid-level scope"
+          ],
+          "availability": "retrieved",
+          "checked_at": "2026-11-15T08:17:13+00:00",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "evidence": {
+            "board_url": "https://boards-api.greenhouse.io/v1/boards/anthropic/jobs?content=true",
+            "posting_id": "5386971008",
+            "location": "San Francisco, CA | New York City, NY",
+            "confirmation": "Employer careers page and current Greenhouse publisher entry with full role description and current application listing.",
+            "final_url": "https://job-boards.greenhouse.io/anthropic/jobs/5386971008",
+            "posting_http_status": 200,
+            "detail_http_status": 200,
+            "listing_status": "Publisher returned the live individual listing and qualifications."
+          },
+          "eligibility_note": "Posting says Anthropic sponsors visas where possible, but sponsorship is not guaranteed for every role or candidate.",
+          "work_arrangement": "Hybrid"
+        }
+      ]
+    },
+    {
+      "name": "MongoDB",
+      "city": "Toronto",
+      "careers_url": "https://www.mongodb.com/company/careers",
+      "logo": {
+        "status": "verified",
+        "sha256": "12e673e586be73061379689c81d1174aadbb86654e99850df0f63ee144409e7c",
+        "url": "https://webassets.mongodb.com/_com_assets/cms/mongodb_logo1-76twgcu2dm.png",
+        "page_url": "https://www.mongodb.com/company/newsroom",
+        "evidence": "Official MongoDB page declares the company mark; shared parser and asset normalization succeeded.",
+        "checked_at": "2026-11-15T08:35:41.827746+00:00",
+        "local_path": "employment_agency/demo_data/showcase_logos/12e673e586be73061379689c81d1174aadbb86654e99850df0f63ee144409e7c.png",
+        "selection": false
+      },
+      "picks": [],
+      "jobs": [
+        {
+          "id": "c08080584b22ba79977c6505",
+          "title": "Senior Software Engineer, Deployments",
+          "employer": "MongoDB",
+          "city": "Toronto",
+          "location": "Toronto",
+          "url": "https://www.mongodb.com/careers/jobs/7727913",
+          "careers_url": "https://www.mongodb.com/company/careers",
+          "source": "greenhouse:mongodb",
+          "source_url": "https://boards-api.greenhouse.io/v1/boards/mongodb/jobs/7727913",
+          "requisition": "426184",
+          "description": "Build deployment automation and reliability for MongoDB products and supporting services.",
+          "requirements": [
+            "Python",
+            "CI/CD",
+            "AWS",
+            "6+ years software development and distributed systems operations",
+            "Python, Go or similar",
+            "Large-scale CI/CD",
+            "Kubernetes",
+            "AWS, GCP or Azure",
+            "Linux internals and network fundamentals"
+          ],
+          "availability": "retrieved",
+          "checked_at": "2026-11-15T08:17:13+00:00",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "evidence": {
+            "board_url": "https://boards-api.greenhouse.io/v1/boards/mongodb/jobs?content=true",
+            "posting_id": "7727913",
+            "location": "Toronto",
+            "confirmation": "Employer careers page and current Greenhouse publisher entry with full role description and current application listing.",
+            "final_url": "https://www.mongodb.com/careers/jobs/7727913",
+            "posting_http_status": 200,
+            "detail_http_status": 200,
+            "listing_status": "Publisher returned the live individual listing and qualifications."
+          }
+        },
+        {
+          "id": "0e0c6a9b745810dcd2262fd0",
+          "title": "Associate Technical Services Engineer",
+          "employer": "MongoDB",
+          "city": "Toronto",
+          "location": "Toronto",
+          "url": "https://www.mongodb.com/careers/jobs/8234520",
+          "careers_url": "https://www.mongodb.com/company/careers",
+          "source": "greenhouse:mongodb",
+          "source_url": "https://boards-api.greenhouse.io/v1/boards/mongodb/jobs/8234520",
+          "requisition": "3273563161",
+          "description": "Troubleshoot customer application, database and infrastructure problems and improve diagnostic tooling.",
+          "requirements": [
+            "Python",
+            "AWS",
+            "Technical experience in systems, networking, databases, applications, distributed systems or performance",
+            "Verbal and written communication",
+            "Python, JavaScript or other languages preferred",
+            "AWS, Azure or Google Cloud preferred for operations candidates"
+          ],
+          "availability": "retrieved",
+          "checked_at": "2026-11-15T08:17:13+00:00",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "evidence": {
+            "board_url": "https://boards-api.greenhouse.io/v1/boards/mongodb/jobs?content=true",
+            "posting_id": "8234520",
+            "location": "Toronto",
+            "confirmation": "Employer careers page and current Greenhouse publisher entry with full role description and current application listing.",
+            "final_url": "https://www.mongodb.com/careers/jobs/8234520",
+            "posting_http_status": 200,
+            "detail_http_status": 200,
+            "listing_status": "Publisher returned the live individual listing and qualifications."
+          }
+        }
+      ],
+      "initial_logo": {
+        "page_url": "https://github.com/mongodb",
+        "url": "https://avatars.githubusercontent.com/u/45120?v=4",
+        "local_path": "tasks/demo-listing-refresh/research/americas/logos/mongodb.jpg",
+        "status": "retrieved",
+        "evidence": "Official mongodb.com homepage links this company-managed GitHub organization. Its organization record identifies mongodb.com and supplies the observed green leaf logo in JPEG.",
+        "sha256": "2ecac7c6b77bef447452808ea7c3cc16f2966d7e6f405e199a3c85e3bae6d053"
+      }
+    },
+    {
+      "name": "Okta",
+      "city": "Toronto",
+      "careers_url": "https://www.okta.com/company/careers/",
+      "logo": {
+        "page_url": "https://www.okta.com/newsroom/",
+        "url": "https://www.okta.com/adobe/dynamicmedia/deliver/dm-aid--db6bc972-a250-4d7d-81aa-9256f66574c0/about-okta-logo-carbon-png.webp?preferwebp=true",
+        "local_path": "tasks/demo-listing-refresh/research/americas/logos/okta.webp",
+        "status": "retrieved",
+        "evidence": "Company newsroom publishes this corporate logo as its official raster image.",
+        "sha256": "887f8a50978fae6af1f74764bd219c336e9cb4f728b8cf0f39acee61ea330213"
+      },
+      "picks": [
+        {
+          "job_id": "9f786d21a7452b121cb21aaf",
+          "reason": "The role calls for relational database work and cloud experience. The public profile lists SQL and AWS.",
+          "fact_ids": [
+            "d7629711b68661baaf1fbb1792c0fb8a",
+            "a383674d908eade31aef1db6ada4e12a"
+          ]
+        },
+        {
+          "job_id": "813cb68dbc111c08ecdd8b5d",
+          "reason": "AWS provisioning, Infrastructure as Code and OAuth2 are explicit requirements and all three appear in the public profile.",
+          "fact_ids": [
+            "a383674d908eade31aef1db6ada4e12a",
+            "f040cc07f927d5b8265da18fe0c818ed",
+            "3048a991068b640797597ac317697949"
+          ]
+        }
+      ],
+      "jobs": [
+        {
+          "id": "9f786d21a7452b121cb21aaf",
+          "title": "Senior Software Engineer, Fullstack",
+          "employer": "Okta",
+          "city": "Toronto",
+          "location": "Toronto, Ontario, Canada",
+          "url": "https://www.okta.com/company/careers/rd/senior-software-engineer-fullstack-8186804/",
+          "careers_url": "https://www.okta.com/company/careers/",
+          "source": "greenhouse:okta",
+          "source_url": "https://boards-api.greenhouse.io/v1/boards/okta/jobs/8186804",
+          "requisition": "P22879_3542697",
+          "description": "Deliver identity platform features across data models, backend APIs and front-end components.",
+          "requirements": [
+            "AWS",
+            "3–5 years software development",
+            "Go or similar",
+            "React or similar",
+            "PostgreSQL or similar relational database",
+            "AWS, GCP or Azure",
+            "End-to-end delivery and distributed system design"
+          ],
+          "availability": "retrieved",
+          "checked_at": "2026-11-15T08:17:13+00:00",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "evidence": {
+            "board_url": "https://boards-api.greenhouse.io/v1/boards/okta/jobs?content=true",
+            "posting_id": "8186804",
+            "location": "Toronto, Ontario, Canada",
+            "confirmation": "Employer careers page and current Greenhouse publisher entry with full role description and current application listing.",
+            "final_url": "https://www.okta.com/company/careers/rd/senior-software-engineer-fullstack-8186804/",
+            "posting_http_status": 200,
+            "detail_http_status": 200,
+            "listing_status": "Publisher returned the live individual listing and qualifications."
+          }
+        },
+        {
+          "id": "813cb68dbc111c08ecdd8b5d",
+          "title": "Software Engineer II, Platform Infrastructure - Control",
+          "employer": "Okta",
+          "city": "Toronto",
+          "location": "Toronto, Ontario, Canada",
+          "url": "https://www.okta.com/company/careers/rd/software-engineer-ii-platform-infrastructure-control-8333990/",
+          "careers_url": "https://www.okta.com/company/careers/",
+          "source": "greenhouse:okta",
+          "source_url": "https://boards-api.greenhouse.io/v1/boards/okta/jobs/8333990",
+          "requisition": "P-2370_3602374",
+          "description": "Develop APIs and tooling for Auth0 environment provisioning, deployment recovery and automated lifecycle controls.",
+          "requirements": [
+            "AWS",
+            "IaC",
+            "OAuth2",
+            "3+ years building APIs, CLIs or backend services",
+            "Distributed systems and REST",
+            "Go, Rust, C++ or Java",
+            "AWS or Azure provisioning via Infrastructure as Code",
+            "IAM, OAuth2 and OIDC fundamentals"
+          ],
+          "availability": "retrieved",
+          "checked_at": "2026-11-15T08:17:13+00:00",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "evidence": {
+            "board_url": "https://boards-api.greenhouse.io/v1/boards/okta/jobs?content=true",
+            "posting_id": "8333990",
+            "location": "Toronto, Ontario, Canada",
+            "confirmation": "Employer careers page and current Greenhouse publisher entry with full role description and current application listing.",
+            "final_url": "https://www.okta.com/company/careers/rd/software-engineer-ii-platform-infrastructure-control-8333990/",
+            "posting_http_status": 200,
+            "detail_http_status": 200,
+            "listing_status": "Publisher returned the live individual listing and qualifications."
+          }
+        },
+        {
+          "id": "60e9bd0ec6f2871762dec69a",
+          "title": "Senior Software Engineer - UI Platform",
+          "employer": "Okta",
+          "city": "Toronto",
+          "location": "Toronto, Ontario, Canada",
+          "url": "https://www.okta.com/company/careers/rd/senior-software-engineer-ui-platform-8021682/",
+          "careers_url": "https://www.okta.com/company/careers/",
+          "source": "greenhouse:okta",
+          "source_url": "https://boards-api.greenhouse.io/v1/boards/okta/jobs/8021682",
+          "requisition": "P25183_3477628",
+          "description": "Build shared UI and localization platform infrastructure and set technical direction for reusable components.",
+          "requirements": [
+            "Python",
+            "5+ years software development",
+            "Software architecture and scalable systems",
+            "Java, Python or C++",
+            "Spring, React or Node.js",
+            "Technical communication",
+            "Platform localization preferred"
+          ],
+          "availability": "retrieved",
+          "checked_at": "2026-11-15T08:17:13+00:00",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "evidence": {
+            "board_url": "https://boards-api.greenhouse.io/v1/boards/okta/jobs?content=true",
+            "posting_id": "8021682",
+            "location": "Toronto, Ontario, Canada",
+            "confirmation": "Employer careers page and current Greenhouse publisher entry with full role description and current application listing.",
+            "final_url": "https://www.okta.com/company/careers/rd/senior-software-engineer-ui-platform-8021682/",
+            "posting_http_status": 200,
+            "detail_http_status": 200,
+            "listing_status": "Publisher returned the live individual listing and qualifications."
+          },
+          "work_arrangement": "Hybrid"
+        }
+      ]
+    },
+    {
+      "name": "Robinhood",
+      "city": "Toronto",
+      "careers_url": "https://careers.robinhood.com/",
+      "logo": {
+        "page_url": "https://robinhood.com/us/en/",
+        "url": "https://robinhood.com/us/en/rh_favicon_152.png?v=2024",
+        "local_path": "tasks/demo-listing-refresh/research/americas/logos/robinhood.png",
+        "status": "retrieved",
+        "evidence": "The official homepage publishes this 152 px Apple touch icon.",
+        "sha256": "274ddce8e6fcec2a48dc88b290b91f79e178cb34b1b3d0360b33db882399fd69"
+      },
+      "picks": [
+        {
+          "job_id": "68eed2d3b5fe067c41698972",
+          "reason": "The developer infrastructure posting directly asks for CI/CD and Python or Go. The public profile lists CI/CD and Python.",
+          "fact_ids": [
+            "1fbbf838939b2db64d80606aec6c15eb",
+            "ce3737d14c22431c2f3c0d19067d52a3"
+          ]
+        },
+        {
+          "job_id": "f97ca2b9af4848cd522fcb99",
+          "reason": "The data engineering role explicitly calls for strong SQL and ideally Python. Both are documented in the public profile.",
+          "fact_ids": [
+            "d7629711b68661baaf1fbb1792c0fb8a",
+            "ce3737d14c22431c2f3c0d19067d52a3"
+          ]
+        }
+      ],
+      "jobs": [
+        {
+          "id": "68eed2d3b5fe067c41698972",
+          "title": "Senior Software Developer, Developer Experience (DevX)",
+          "employer": "Robinhood",
+          "city": "Toronto",
+          "location": "Toronto, Canada",
+          "url": "https://job-boards.greenhouse.io/robinhood/jobs/8083818",
+          "careers_url": "https://careers.robinhood.com/",
+          "source": "greenhouse:robinhood",
+          "source_url": "https://boards-api.greenhouse.io/v1/boards/robinhood/jobs/8083818",
+          "requisition": "JR109109",
+          "description": "Scale build infrastructure, continuous integration and developer environments. Toronto office attendance at least three days a week.",
+          "requirements": [
+            "Python",
+            "CI/CD",
+            "Developer infrastructure or CI/CD and large build systems",
+            "Go or Python",
+            "Distributed builds",
+            "Containerization and Kubernetes",
+            "Developer tooling and process improvement"
+          ],
+          "availability": "retrieved",
+          "checked_at": "2026-11-15T08:17:13+00:00",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "evidence": {
+            "board_url": "https://boards-api.greenhouse.io/v1/boards/robinhood/jobs?content=true",
+            "posting_id": "8083818",
+            "location": "Toronto, Canada",
+            "confirmation": "Employer careers page and current Greenhouse publisher entry with full role description and current application listing.",
+            "final_url": "https://job-boards.greenhouse.io/robinhood/jobs/8083818",
+            "posting_http_status": 200,
+            "detail_http_status": 200,
+            "listing_status": "Publisher returned the live individual listing and qualifications."
+          },
+          "work_arrangement": "Hybrid"
+        },
+        {
+          "id": "f97ca2b9af4848cd522fcb99",
+          "title": "Software Developer, Data Engineering",
+          "employer": "Robinhood",
+          "city": "Toronto",
+          "location": "Toronto, Canada",
+          "url": "https://job-boards.greenhouse.io/robinhood/jobs/5616144",
+          "careers_url": "https://careers.robinhood.com/",
+          "source": "greenhouse:robinhood",
+          "source_url": "https://boards-api.greenhouse.io/v1/boards/robinhood/jobs/5616144",
+          "requisition": "1473",
+          "description": "Build data pipelines and foundational datasets with Python, Spark and Airflow.",
+          "requirements": [
+            "Python",
+            "4+ years with bachelors or 2+ years with masters",
+            "Relevant computer science background",
+            "Open-source pipeline frameworks",
+            "Strong SQL",
+            "Programming, ideally Python",
+            "Data visualization and communication"
+          ],
+          "availability": "retrieved",
+          "checked_at": "2026-11-15T08:17:13+00:00",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "evidence": {
+            "board_url": "https://boards-api.greenhouse.io/v1/boards/robinhood/jobs?content=true",
+            "posting_id": "5616144",
+            "location": "Toronto, Canada",
+            "confirmation": "Employer careers page and current Greenhouse publisher entry with full role description and current application listing.",
+            "final_url": "https://job-boards.greenhouse.io/robinhood/jobs/5616144",
+            "posting_http_status": 200,
+            "detail_http_status": 200,
+            "listing_status": "Publisher returned the live individual listing and qualifications."
+          }
+        },
+        {
+          "id": "48e1dff2be9c8cc728670a4f",
+          "title": "Software Engineer, Web3 Backend",
+          "employer": "Robinhood",
+          "city": "Toronto",
+          "location": "Toronto, Canada",
+          "url": "https://job-boards.greenhouse.io/robinhood/jobs/8258307",
+          "careers_url": "https://careers.robinhood.com/",
+          "source": "greenhouse:robinhood",
+          "source_url": "https://boards-api.greenhouse.io/v1/boards/robinhood/jobs/8258307",
+          "requisition": "1952",
+          "description": "Build cloud-native backend and data infrastructure for wallet and tokenization products. Toronto office at least three days weekly.",
+          "requirements": [
+            "Python",
+            "2+ years software development",
+            "Go, Python or Java",
+            "Cloud-native design",
+            "System design and data modeling",
+            "Correctness and ownership",
+            "Interest in blockchain fundamentals"
+          ],
+          "availability": "retrieved",
+          "checked_at": "2026-11-15T08:17:13+00:00",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "evidence": {
+            "board_url": "https://boards-api.greenhouse.io/v1/boards/robinhood/jobs?content=true",
+            "posting_id": "8258307",
+            "location": "Toronto, Canada",
+            "confirmation": "Employer careers page and current Greenhouse publisher entry with full role description and current application listing.",
+            "final_url": "https://job-boards.greenhouse.io/robinhood/jobs/8258307",
+            "posting_http_status": 200,
+            "detail_http_status": 200,
+            "listing_status": "Publisher returned the live individual listing and qualifications."
+          },
+          "work_arrangement": "Hybrid"
+        }
+      ]
+    },
+    {
+      "name": "Stripe",
+      "city": "Toronto",
+      "careers_url": "https://stripe.com/careers/search",
+      "logo": {
+        "page_url": "https://stripe.com/au",
+        "url": "https://images.stripeassets.com/fzn2n1nzq965/4vVgZi0ZMoEzOhkcv7EVwK/8cce6fdcf2733b2ec8e99548908847ed/favicon.png?w=180&h=180",
+        "local_path": "tasks/demo-listing-refresh/research/americas/logos/stripe.png",
+        "status": "retrieved",
+        "evidence": "Official Stripe careers and company pages publish this 180 px Apple touch icon.",
+        "sha256": "cb86ad335799c963a12003be1ef5ca21afe578fb4fa0592dd344294b42a5aba2"
+      },
+      "picks": [
+        {
+          "job_id": "213cdbca0065254cc1bc9059",
+          "reason": "The Link role lists Docker and AWS among preferred technologies. Both are documented in the public profile.",
+          "fact_ids": [
+            "1a98d63000e1d37aa01f435cecfa89bd",
+            "a383674d908eade31aef1db6ada4e12a"
+          ]
+        },
+        {
+          "job_id": "4e0211f5688b43a5a0903765",
+          "reason": "Building and maintaining APIs is central to Radar. The public profile lists FastAPI and SDLC, which align with the role’s API delivery work.",
+          "fact_ids": [
+            "baf67c1cab10e840eb14b6082c1b04ee",
+            "79ed41d4d9f7d874acbed0e6cb157cdf"
+          ]
+        }
+      ],
+      "jobs": [
+        {
+          "id": "213cdbca0065254cc1bc9059",
+          "title": "Full Stack Engineer, Link",
+          "employer": "Stripe",
+          "city": "Toronto",
+          "location": "Toronto",
+          "url": "https://stripe.com/careers/listing/full-stack-engineer-link/6447175",
+          "careers_url": "https://stripe.com/careers/search",
+          "source": "greenhouse:stripe",
+          "source_url": "https://boards-api.greenhouse.io/v1/boards/stripe/jobs/6447175",
+          "requisition": "6447175",
+          "description": "Build consumer payments experiences across the Link front end and backend.",
+          "requirements": [
+            "Docker",
+            "AWS",
+            "2–10+ years software engineering excluding internships and co-ops",
+            "Strong coding ability in any language",
+            "Cross-team collaboration",
+            "Cloud and Docker/Kubernetes knowledge preferred"
+          ],
+          "availability": "retrieved",
+          "checked_at": "2026-11-15T08:17:13+00:00",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "evidence": {
+            "board_url": "https://boards-api.greenhouse.io/v1/boards/stripe/jobs?content=true",
+            "posting_id": "6447175",
+            "location": "Toronto",
+            "confirmation": "Employer careers page and current Greenhouse publisher entry with full role description and current application listing.",
+            "final_url": "https://stripe.com/careers/listing/full-stack-engineer-link/6447175?gh_jid=6447175",
+            "posting_http_status": 200,
+            "detail_http_status": 200,
+            "listing_status": "Publisher returned the live individual listing and qualifications."
+          },
+          "work_arrangement": "Hybrid"
+        },
+        {
+          "id": "4e0211f5688b43a5a0903765",
+          "title": "Backend / API Engineer, Radar",
+          "employer": "Stripe",
+          "city": "Toronto",
+          "location": "Toronto",
+          "url": "https://stripe.com/careers/listing/backend-api-engineer-radar/8301379",
+          "careers_url": "https://stripe.com/careers/search",
+          "source": "greenhouse:stripe",
+          "source_url": "https://boards-api.greenhouse.io/v1/boards/stripe/jobs/8301379",
+          "requisition": "8301379",
+          "description": "Build reliable backend services and APIs for payments fraud detection.",
+          "requirements": [
+            "2+ years of industry software engineering",
+            "Production software in any language",
+            "Working across unfamiliar systems",
+            "Data-driven problem solving",
+            "Collaboration and ownership"
+          ],
+          "availability": "retrieved",
+          "checked_at": "2026-11-15T08:17:13+00:00",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "evidence": {
+            "board_url": "https://boards-api.greenhouse.io/v1/boards/stripe/jobs?content=true",
+            "posting_id": "8301379",
+            "location": "Toronto",
+            "confirmation": "Employer careers page and current Greenhouse publisher entry with full role description and current application listing.",
+            "final_url": "https://stripe.com/careers/listing/backend-api-engineer-radar/8301379?gh_jid=8301379",
+            "posting_http_status": 200,
+            "detail_http_status": 200,
+            "listing_status": "Publisher returned the live individual listing and qualifications."
+          },
+          "work_arrangement": "Hybrid"
+        },
+        {
+          "id": "a1076fc91bb356d3f7a62f87",
+          "title": "Software Engineer, Metronome Infrastructure",
+          "employer": "Stripe",
+          "city": "Toronto",
+          "location": "Toronto, Vancouver, Canada-Remote",
+          "url": "https://stripe.com/careers/listing/software-engineer-metronome-infrastructure/8231439",
+          "careers_url": "https://stripe.com/careers/search",
+          "source": "greenhouse:stripe",
+          "source_url": "https://boards-api.greenhouse.io/v1/boards/stripe/jobs/8231439",
+          "requisition": "8231439",
+          "description": "Develop billing infrastructure for usage tracking and resilient distributed systems.",
+          "requirements": [
+            "2+ years backend development",
+            "Strong coding, with Go, Java or C/C++ given as examples",
+            "Large-scale distributed systems",
+            "Collaboration and autonomy",
+            "Event-driven architecture preferred"
+          ],
+          "availability": "retrieved",
+          "checked_at": "2026-11-15T08:17:13+00:00",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "evidence": {
+            "board_url": "https://boards-api.greenhouse.io/v1/boards/stripe/jobs?content=true",
+            "posting_id": "8231439",
+            "location": "Toronto, Vancouver, Canada-Remote",
+            "confirmation": "Employer careers page and current Greenhouse publisher entry with full role description and current application listing.",
+            "final_url": "https://stripe.com/careers/listing/software-engineer-metronome-infrastructure/8231439?gh_jid=8231439",
+            "posting_http_status": 200,
+            "detail_http_status": 200,
+            "listing_status": "Publisher returned the live individual listing and qualifications."
+          }
+        }
+      ]
+    },
+    {
+      "name": "PagerDuty",
+      "city": "Toronto",
+      "careers_url": "https://careers.pagerduty.com/",
+      "logo": {
+        "page_url": "https://www.pagerduty.com/",
+        "url": "https://www.pagerduty.com/favicon/prod/apple-touch-icon.png",
+        "local_path": "tasks/demo-listing-refresh/research/americas/logos/pagerduty.png",
+        "status": "retrieved",
+        "evidence": "Official homepage publishes this Apple touch icon.",
+        "sha256": "aff0c390029c4f5d9b6d560ab9b5944c7f2f48afb35679ed9c86c20165e6607b"
+      },
+      "picks": [],
+      "jobs": [
+        {
+          "id": "9ffdb7f7ea5f25ab66fcf764",
+          "title": "Senior Security Engineer - Cloud Security",
+          "employer": "PagerDuty",
+          "city": "Toronto",
+          "location": "Toronto",
+          "url": "https://job-boards.greenhouse.io/pagerduty/jobs/6211202004",
+          "careers_url": "https://careers.pagerduty.com/",
+          "source": "greenhouse:pagerduty",
+          "source_url": "https://boards-api.greenhouse.io/v1/boards/pagerduty/jobs/6211202004",
+          "requisition": "EFY27602",
+          "description": "Build preventative security tooling for a multi-account AWS and Kubernetes platform. Toronto office attendance two days per week.",
+          "requirements": [
+            "Python",
+            "AWS",
+            "IaC",
+            "Software engineering in production at scale",
+            "Python or Go",
+            "Infrastructure as Code",
+            "AWS and Kubernetes security",
+            "Identity controls and on-call incident handling"
+          ],
+          "availability": "retrieved",
+          "checked_at": "2026-11-15T08:17:13+00:00",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "evidence": {
+            "board_url": "https://boards-api.greenhouse.io/v1/boards/pagerduty/jobs?content=true",
+            "posting_id": "6211202004",
+            "location": "Toronto",
+            "confirmation": "Employer careers page and current Greenhouse publisher entry with full role description and current application listing.",
+            "final_url": "https://job-boards.greenhouse.io/pagerduty/jobs/6211202004",
+            "posting_http_status": 200,
+            "detail_http_status": 200,
+            "listing_status": "Publisher returned the live individual listing and qualifications."
+          },
+          "work_arrangement": "Hybrid"
+        }
+      ]
+    }
+  ],
+  "coverage": [
+    {
+      "destination": "New York",
+      "companies": 5,
+      "notes": "Affirm opening specifically targets a graduate cohort, so Anthropic is included instead."
+    },
+    {
+      "destination": "Toronto",
+      "companies": 5,
+      "notes": "Wealthsimple’s reviewed roles use Remote (Canada) with no Toronto appointment. MongoDB’s company-linked GitHub account publishes the raster leaf mark; its homepage header SVG and ICO favicon are unsupported."
+    }
+  ]
+}

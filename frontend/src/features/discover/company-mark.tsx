@@ -22,7 +22,7 @@ export function CompanyMark({
       .toLocaleUpperCase() || "?";
   // Only verified, same-origin workspace assets may load in this mark.
   const source =
-    logoUrl && /^\/api\/company-logo\/[0-9a-f]{64}\.png$/.test(logoUrl)
+    logoUrl && /^\/(?:api\/company-logo|demo\/company-logos)\/[0-9a-f]{64}\.png$/.test(logoUrl)
       ? logoUrl
       : undefined;
 
