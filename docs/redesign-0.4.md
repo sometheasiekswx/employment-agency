@@ -6,7 +6,7 @@
 
 React Bits Dock supplies the proximity/spring mechanism, adapted to labelled Next links with fixed hit targets and the existing draft guard. Keyboard users keep ordinary link behavior; touch and reduced-motion users get static navigation. The desktop navigation becomes a viewport-bottom dock on narrow screens. Native inputs and the established application controls remain; no new control framework or state library was introduced.
 
-The shared CSS now uses system typography, a cool near-white canvas, blue selection/action color, explicit semantic states and consistent spacing. Application cards group original documents/evidence and review/comments into two work areas, collapsing into one column. Empty queues explain the next step. Editor focus, cancellation, version publication and all Python business rules remain in the existing path. `DESIGN.md` and `.impeccable/design.json` document the finished system; development-only strategy stays outside browser artifacts.
+The shared CSS now uses system typography, a cool near-white canvas, blue selection/action color, explicit semantic states and consistent spacing. Application cards group original documents/evidence and review/comments into two work areas, collapsing into one column. Empty queues explain the next step. Editor focus, cancellation, version publication and all Python business rules remain in the existing path. `DESIGN.md` documented the finished system; generated design-tool snapshots and working briefs remain local.
 
 No workspace schema or data migration is required. Version 0.4.0 retains schema 2. The private installed build and version pin were not upgraded during testing.
 

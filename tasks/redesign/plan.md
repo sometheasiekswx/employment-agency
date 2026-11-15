@@ -1,6 +1,6 @@
 # Apple-inspired React Bits redesign
 
-Contract: preserve all local/hosted workflows, Python authority, private data and submitted version integrity. User confirmed calm Apple-inspired hierarchy, compact navigation, restrained motion, GitHub push and existing Vercel deployment. Surface strategy: `.impeccable/surfaces/frontend-src-app-page-tsx.md`.
+Contract: preserve all local/hosted workflows, Python authority, private data and submitted version integrity. User confirmed calm Apple-inspired hierarchy, compact navigation, restrained motion, GitHub push and existing Vercel deployment. Shared design guidance is retained in `DESIGN.md` and this task's records; design-tool working briefs remain local.
 
 1. Build the shared shell and responsive type/surface/control system. Adapt React Bits Dock with source attribution, real links, draft guards, reduced motion and fixed hit targets. Check five routes and 320/768/1024/1440 layouts.
 2. Group application documents, evidence and review controls; retain all operations/warnings. Improve loading/empty states. Preserve server contracts and acceptance assertions.

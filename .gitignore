@@ -29,9 +29,8 @@ frontend/*.tsbuildinfo
 employment_agency/web/
 workspace-dev/
 .dev-config/
-.impeccable/review/
-.impeccable/questions/
-.impeccable/mocks/
+# Local design-tool state, drafts and review output.
+/.impeccable/
 
 .taste-skill/
 demo-workspace/
