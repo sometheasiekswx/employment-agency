@@ -338,28 +338,101 @@ const { chromium, webkit } = require(
     await card("board-0-0").waitFor();
     await card("board-0-2").scrollIntoViewIfNeeded();
     const rapidBefore = await positions();
+    // Compare the old visible position with the replacement's first frame.
+    // Hold that single sample while React commits; browser/protocol clocks can
+    // otherwise advance enough to confuse valid travel with a discontinuity.
+    await page.evaluate(() => {
+      window.__boardInterruption = new Promise((resolve, reject) => {
+        const find = (id) =>
+          document.querySelector(
+            `.discover-board .discover-card[data-job-id="${id}"]`,
+          );
+        const first = find("board-0-2");
+        const second = find("board-0-1");
+        const remaining = find("board-0-0");
+        let observer;
+        let frame;
+        const timeout = setTimeout(() => {
+          cancelAnimationFrame(frame);
+          observer?.disconnect();
+          reject(new Error("Could not interrupt an active board movement"));
+        }, 5000);
+        const sample = () => {
+          const running = remaining
+            .getAnimations()
+            .find(
+              (animation) =>
+                animation.playState === "running" &&
+                animation.effect
+                  .getKeyframes()
+                  .some((keyframe) => keyframe.transform),
+            );
+          const progress = running?.effect.getComputedTiming().progress;
+          if (
+            first.isConnected ||
+            !running ||
+            !(progress > 0 && progress < 1)
+          ) {
+            frame = requestAnimationFrame(sample);
+            return;
+          }
+          const sampleTime = running.currentTime;
+          running.pause();
+          running.currentTime = sampleTime;
+          const before = remaining.getBoundingClientRect();
+          observer = new MutationObserver(() => {
+            if (second.isConnected) return;
+            const replacement = remaining
+              .getAnimations()
+              .find(
+                (animation) =>
+                  animation !== running &&
+                  animation.playState === "running" &&
+                  animation.effect
+                    .getKeyframes()
+                    .some((keyframe) => keyframe.transform),
+              );
+            // Safari can advance its animation clock during DOM reads. Seek
+            // the replacement's initial frame, then let it play normally.
+            if (replacement) {
+              replacement.pause();
+              replacement.currentTime = 0;
+            }
+            const after = remaining.getBoundingClientRect();
+            replacement?.play();
+            observer.disconnect();
+            clearTimeout(timeout);
+            resolve({
+              before: { x: before.x, y: before.y },
+              after: { x: after.x, y: after.y },
+              interruptedProgress: progress,
+              replacementStarted: Boolean(replacement),
+              previousCancelled: running.playState === "idle",
+            });
+          });
+          observer.observe(document.querySelector(".discover-board"), {
+            childList: true,
+            subtree: true,
+          });
+          second.querySelector('button[title="Remove role"]').click();
+        };
+        frame = requestAnimationFrame(sample);
+      });
+    });
     await card("board-0-2").getByTitle("Remove role", { exact: true }).click();
-    await card("board-0-2").waitFor({ state: "detached" });
-    await page.waitForFunction(() =>
-      document
-        .getAnimations()
-        .some(
-          (a) =>
-            a.playState === "running" &&
-            a.effect?.target?.matches?.(
-              '.discover-card[data-job-id="board-0-0"]',
-            ),
-        ),
+    const interruption = await page.evaluate(() => window.__boardInterruption);
+    fs.writeFileSync(
+      `${output}/interruption.json`,
+      JSON.stringify(interruption, null, 2),
     );
-    const during = await card("board-0-0").boundingBox();
-    await card("board-0-1")
-      .getByTitle("Remove role", { exact: true })
-      .evaluate((button) => button.click());
-    await card("board-0-1").waitFor({ state: "detached" });
-    const interrupted = await card("board-0-0").boundingBox();
     assert.ok(
-      Math.abs(interrupted.y - during.y) < during.height,
-      "Interrupted motion continues from its visible position without a full-card snap",
+      interruption.replacementStarted && interruption.previousCancelled,
+      `The second removal retargets an active movement: ${JSON.stringify(interruption)}`,
+    );
+    same(
+      interruption.before,
+      interruption.after,
+      "Interrupted motion preserves its visible position at the update boundary",
     );
     const rapidAfter = await positions();
     Object.keys(rapidAfter).forEach((id) => {
