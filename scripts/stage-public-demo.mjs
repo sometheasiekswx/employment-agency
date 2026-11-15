@@ -7,6 +7,12 @@ import { verifyPublicDemo } from "./check-public-demo.mjs";
 const publicProject = "prj_jW5ss3iNVEOEBwi0fxJL7ymAFeG0";
 const publicTeam = "team_QmjRFzULoHfOTipsjFByfxON";
 const api = "https://api.vercel.com";
+const artifactMediaTypes = {
+  ".html": "text/html",
+  ".json": "application/json",
+  ".pdf": "application/pdf",
+  ".png": "image/png",
+};
 
 function requireValue(condition, message) {
   if (!condition) throw new Error(message);
@@ -135,11 +141,8 @@ async function validateArtifact(files, expectedCommit) {
       const headers = Object.fromEntries(
         config.headers[0].headers.map(({ key, value }) => [key, value]),
       );
-      headers["Content-Type"] = pathname.endsWith(".json")
-        ? "application/json"
-        : pathname.endsWith(".pdf")
-          ? "application/pdf"
-          : "text/html";
+      headers["Content-Type"] =
+        artifactMediaTypes[path.extname(filename)] ?? "application/octet-stream";
       return new Response(bytes ?? null, {
         status: bytes ? 200 : 404,
         headers,

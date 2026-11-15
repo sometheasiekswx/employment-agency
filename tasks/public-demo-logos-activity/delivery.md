@@ -34,10 +34,12 @@ The approved static export contains 39 local normalized PNGs and 15 application 
 | Hosted install | `.venv/bin/python tests/check_hosted_install.py` | Passed dependency bootstrap before the frontend build. |
 | Frontend | `npm --prefix frontend run typecheck`, `npm --prefix frontend run lint`, `npm --prefix frontend test`, `npm --prefix frontend run build` | Typecheck and lint passed, 391 tests passed, and normal packaging built. |
 | Public demo label | `npm --prefix frontend test -- src/components/shell.test.tsx src/lib/public-preview.test.tsx`, approved static rebuild and `.venv/bin/python tests/run_public_preview_checks.py` | All 37 focused tests and both production-CSP browser scripts passed after the label update. The actual approved build displays “Public demo” in both desktop and mobile navigation. |
-| Static release checks | `node --test tests/check-public-demo.test.mjs tests/stage-public-demo.test.mjs tests/promote-public-demo.test.mjs` | 109 passed. The strict live verifier also checks each dated catalog logo checksum on the deployment origin. |
+| Static release checks | `node --test tests/check-public-demo.test.mjs tests/stage-public-demo.test.mjs tests/promote-public-demo.test.mjs` | 110 passed. The strict live verifier checks each logo checksum on the deployment origin. The staging regression covers valid, changed and missing PNG files. |
 
 The branch-local product logs and completion receipt are under `output/public-demo-logos-activity/product/`. The browser contact sheet shows each official mark at the 23px card size and at a larger scale on the app’s logo background. Screenshots of Jobs and the sample queues are under `output/playwright/public-preview/`.
 
 ## Publication
+
+The first deployment attempt at `bdc5718` stopped in local artifact validation before contacting Vercel. The staging adapter labeled PNGs as HTML. The corrected adapter passed offline preflight on the approved 102-role artifact, including all 39 logo checks. The offline test intercepted the first provider GET and made no deployment request.
 
 The exact checked revision and live alias verification will be recorded after repository checks and promotion complete.

@@ -214,6 +214,48 @@ test("stages exact captured bytes and generated CSP once without assigning domai
   assert.ok(body.files.some(({ file }) => file === "vercel.json"));
 });
 
+test("stages a strict catalog's verified PNG and rejects missing or changed logos before provider access", async (t) => {
+  const local = await artifact(t);
+  const png = Buffer.from(
+    "iVBORw0KGgoAAAANSUhEUgAAAAIAAAABCAYAAAD0In+KAAAAEUlEQVR4nGNkYGj4z8DAwAAACA0BgfJ3gSYAAAAASUVORK5CYII=",
+    "base64",
+  );
+  const digest = createHash("sha256").update(png).digest("hex");
+  const logo = `demo/company-logos/${digest}.png`;
+  Object.assign(local.fixture, {
+    current_catalog_only: true,
+    company_logos: { [digest]: `/${logo}` },
+  });
+  local.fixture.state.jobs = [{ company: { logo_url: `/${logo}` } }];
+  await local.save("demo/preview.json", local.fixture);
+  await local.save(logo, png);
+
+  const mock = server();
+  await stagePublicDemo(local.site, commit, mock.options);
+  assert.equal(creates(mock).length, 1);
+  const uploaded = JSON.parse(creates(mock)[0].options.body).files.find(
+    ({ file }) => file === logo,
+  );
+  assert.equal(uploaded.encoding, "base64");
+  assert.deepEqual(Buffer.from(uploaded.data, uploaded.encoding), png);
+
+  await local.save(logo, Buffer.concat([png, Buffer.from("changed")]));
+  const rejected = server();
+  await assert.rejects(
+    stagePublicDemo(local.site, commit, rejected.options),
+    /invalid public logo bytes/,
+  );
+  assert.equal(rejected.calls.length, 0);
+
+  await rm(path.join(local.site, logo));
+  const missing = server();
+  await assert.rejects(
+    stagePublicDemo(local.site, commit, missing.options),
+    /expected HTTP 200, received 404/,
+  );
+  assert.equal(missing.calls.length, 0);
+});
+
 test("rejects invalid input before making requests", async (t) => {
   const local = await artifact(t);
   for (const change of [
