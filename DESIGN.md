@@ -73,7 +73,15 @@ spacing:
 
 The user selected the second revision of Concept A, an Orax-inspired workspace with a docked inspector on desktop and an expandable sheet on phones. The app keeps role review and document history together, with the user controlling submission.
 
-The visual language uses a contextual rail, raised cards, restrained lavender selection and a lilac primary action. Dark uses charcoal surfaces. Light uses a cool paper canvas with white working surfaces and deeper violet text and actions. The mark is a rounded employment briefcase containing a person. The visible wordmark is **Agency**, while metadata retains **Employment Agency**. Keep the supplied SVG proportions and colours.
+The visual language uses a contextual rail, raised cards, restrained lavender selection and a lilac primary action. Dark uses charcoal surfaces. Light uses a cool paper canvas with white working surfaces and deeper violet text and actions.
+
+## Brand
+
+**Employment Agency** is the product name. The Industrial Precision **Agency.** wordmark identifies the desktop rail, mobile header and README. The compact **A.** identifies browser tabs, pinned tabs, installed websites and the native apps. Both marks use the kit's outlined letterforms and square punctuation.
+
+Use [the light-surface wordmark](frontend/public/agency-header-on-light.svg) on light surfaces and [the dark-surface wordmark](frontend/public/agency-header-on-dark.svg) on dark surfaces. The app uses the resolved theme and the README follows the viewer's color scheme. Keep the full wordmark at about 160 CSS px or wider, with the clear space, colors and proportions supplied in the SVG.
+
+The [web manifest](frontend/public/agency.webmanifest) selects the installed-site icons. [Root layout metadata](frontend/src/app/layout.tsx) selects the favicon, Safari mask and iOS touch icon. The [native asset catalogs](mobile/README.md) own the iOS default, dark and tinted icons and the Android adaptive and monochrome launcher artwork. Platform renderers apply their own icon masks.
 
 ## Appearance
 
@@ -81,7 +89,7 @@ Dark is the default. **Light** and **System** are available in **Settings → Ap
 
 ## Colour and type
 
-The frontmatter describes the default palette. The shared CSS variables define both palettes, including text, fields, borders, focus, selection and feedback. Lavender identifies selected navigation, tabs and cards. The gradient is confined to the employment mark and primary actions. Green identifies confirmed evidence and reviewed badges. Amber highlights requirements to check and red identifies rejection or errors. Recording a confirmed submission uses a green action, while its saved Submitted badge stays neutral and explicitly labelled. A numeric score or progress bar must represent real, explained data.
+The frontmatter describes the default palette. The shared CSS variables define both palettes, including text, fields, borders, focus, selection and feedback. Lavender identifies selected navigation, tabs and cards. The gradient is confined to primary actions. Green identifies confirmed evidence and reviewed badges. Amber highlights requirements to check and red identifies rejection or errors. Recording a confirmed submission uses a green action, while its saved Submitted badge stays neutral and explicitly labelled. A numeric score or progress bar must represent real, explained data.
 
 Inter is self-hosted at weights 400, 500, 600 and 700, with its SIL Open Font License included in `frontend/public/licenses/Inter-OFL.txt`. Body text is 14px, labels 13px and decision-relevant metadata at least 12px where space permits. Board card titles use weight 600, and role details use a larger heading at weight 500. Heading tracking stops at -0.035em. Counts and record metadata use tabular numerals.
 
@@ -123,7 +131,7 @@ Verify text contrast on actual surfaces, visible focus, keyboard navigation, mod
 
 ## Source authority
 
-The approved [Concept A revision](https://www.figma.com/design/4Y26Y8OlPdYFi0ooL7ORjl?node-id=11-2), its authored source, local PNGs and employment SVG supplied during design are the authority for this implementation. Figma context, screenshot, variables and library requests were quota-blocked when implementation began. Native component and Code Connect mappings could not be verified. That fallback does not authorize changes to the private installed workspace or replace browser verification of the implemented application.
+The approved [Concept A revision](https://www.figma.com/design/4Y26Y8OlPdYFi0ooL7ORjl?node-id=11-2) and its authored source define the workspace layout. The Industrial Precision logo kit approved on 16 November 2026 defines the current identity. [Asset provenance and rollout verification](tasks/agency-logo-rollout/verification.md)
 
 ## Behaviour beyond the concept
 

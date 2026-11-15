@@ -13,7 +13,17 @@ export const metadata: Metadata = {
   description:
     "Your private career workspace. Review opportunities, documents and career evidence.",
   robots: { index: false, follow: false },
-  icons: { icon: "/icon.svg" },
+  manifest: "/agency.webmanifest",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "16x16 32x32 48x48" },
+      { url: "/agency-favicon.svg", type: "image/svg+xml", sizes: "any" },
+    ],
+    apple: [{ url: "/apple-touch-icon-180.png", sizes: "180x180" }],
+    other: [
+      { rel: "mask-icon", url: "/safari-pinned-tab.svg", color: "#C994F3" },
+    ],
+  },
 };
 
 export default function RootLayout({

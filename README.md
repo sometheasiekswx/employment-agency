@@ -1,6 +1,9 @@
 <div align="center">
 
-<img src="frontend/public/employment-mark.svg" alt="Employment Agency briefcase and person mark" width="48" height="51">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="frontend/public/agency-header-on-dark.svg">
+  <img src="frontend/public/agency-header-on-light.svg" alt="Agency." width="180">
+</picture>
 
 # Employment Agency
 

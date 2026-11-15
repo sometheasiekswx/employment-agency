@@ -682,26 +682,21 @@ details details {
   flex-shrink: 0;
 }
 .brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  align-self: flex-start;
-  color: var(--ink);
-  text-decoration: none;
-  font-size: 27px;
-  font-weight: 500;
-  letter-spacing: -0.035em;
-  line-height: 1.25;
-  white-space: nowrap;
-}
-.brand:hover {
-  color: var(--ink);
-}
-.brand-mark {
   display: block;
-  width: 32px;
-  height: 34px;
-  flex-shrink: 0;
+  align-self: flex-start;
+  width: 168px;
+}
+.brand-wordmark {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.brand-wordmark-light,
+:root[data-theme="light"] .brand-wordmark-dark {
+  display: none;
+}
+:root[data-theme="light"] .brand-wordmark-light {
+  display: block;
 }
 .rail-context {
   padding-top: 32px;
@@ -1458,7 +1453,6 @@ details details {
     min-height: 74px;
     padding: 14px 20px;
     flex-direction: row;
-    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     overflow: visible;
@@ -1467,12 +1461,7 @@ details details {
   }
   .brand {
     align-self: center;
-    font-size: 24px;
-    gap: 9px;
-  }
-  .brand-mark {
-    width: 27px;
-    height: 29px;
+    width: 160px;
   }
   .rail-context,
   .rail-bottom,
@@ -1568,6 +1557,7 @@ details details {
   }
   .mobile-demo-label {
     display: block;
+    flex-shrink: 1;
     width: auto;
     margin-inline: 0.625rem auto;
     padding: 3px 7px;
@@ -1669,6 +1659,12 @@ details details {
   }
 }
 @media (max-width: 360px) {
+  .workspace-header {
+    padding-inline: 12px;
+  }
+  .mobile-demo-label {
+    margin-inline-start: 6px;
+  }
   .dock-short-label {
     font-size: 0.625rem;
   }

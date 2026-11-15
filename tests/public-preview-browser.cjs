@@ -612,6 +612,26 @@ async function assertCompanyLogo(mark, expectedUrl, base) {
     for (const width of [1440, 390, 320]) {
       await page.setViewportSize({ width, height: 844 });
       await page.goto(base + "/discover/?view=all");
+      if (width === 320) {
+        await mobileLabel.waitFor();
+        const brand = page.getByRole("link", {
+          name: "Employment Agency — Opportunities",
+          exact: true,
+        });
+        const [wordmark, badge, menu] = await Promise.all([
+          brand.boundingBox(),
+          mobileLabel.boundingBox(),
+          page.locator(".mobile-header-actions").boundingBox(),
+        ]);
+        assert.ok(
+          wordmark.width >= 160 &&
+            wordmark.x + wordmark.width <= badge.x &&
+            badge.x + badge.width <= menu.x &&
+            menu.x + menu.width <= width &&
+            Math.abs(wordmark.y - menu.y) < 4,
+          "The narrow public header fits the wordmark, demo label and controls on one row",
+        );
+      }
       await assessPrimary().click();
       const inspector = page.locator(".discover-inspector");
       await inspector

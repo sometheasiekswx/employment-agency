@@ -176,14 +176,21 @@ export function Shell({ children }: { children: ReactNode }) {
           onNavigate={guardedNavigation}
         >
           <Image
-            src="/employment-mark.svg"
+            src="/agency-header-on-dark.svg"
             alt=""
-            width={32}
-            height={34}
-            className="brand-mark"
-            priority
+            width={1236}
+            height={330}
+            className="brand-wordmark brand-wordmark-dark"
+            loading="eager"
           />
-          <span>Agency</span>
+          <Image
+            src="/agency-header-on-light.svg"
+            alt=""
+            width={1236}
+            height={330}
+            className="brand-wordmark brand-wordmark-light"
+            loading="eager"
+          />
         </Link>
         {state._workspace.demo === true && (
           <span className="demo-label mobile-demo-label">

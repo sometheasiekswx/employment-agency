@@ -215,10 +215,6 @@ const fs = require("node:fs");
       /Inter/,
     );
     assert.equal(
-      await page.locator(".brand-mark").getAttribute("src"),
-      "/employment-mark.svg",
-    );
-    assert.equal(
       await page.locator(".review-pane button[value=reviewed]").count(),
       0,
       "Reviewed action moved into the status tag",

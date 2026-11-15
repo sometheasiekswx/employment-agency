@@ -11,8 +11,16 @@ import zipfile
 
 
 PUBLIC_ASSETS = (
-    'employment-mark.svg',
-    'icon.svg',
+    'agency-header-on-dark.svg',
+    'agency-header-on-light.svg',
+    'agency-favicon.svg',
+    'favicon.ico',
+    'apple-touch-icon-180.png',
+    'safari-pinned-tab.svg',
+    'agency.webmanifest',
+    'pwa-192.png',
+    'pwa-512.png',
+    'pwa-maskable-512.png',
     'fonts/inter-400.ttf',
     'fonts/inter-500.ttf',
     'fonts/inter-600.ttf',

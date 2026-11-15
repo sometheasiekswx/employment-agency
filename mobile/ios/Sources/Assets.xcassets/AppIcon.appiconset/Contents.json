@@ -1,6 +1,38 @@
 {
   "images": [
-    { "filename": "EmploymentAgency.png", "idiom": "universal", "platform": "ios", "size": "1024x1024" }
+    {
+      "filename": "agency-default.png",
+      "idiom": "universal",
+      "platform": "ios",
+      "size": "1024x1024"
+    },
+    {
+      "filename": "agency-dark.png",
+      "idiom": "universal",
+      "platform": "ios",
+      "size": "1024x1024",
+      "appearances": [
+        {
+          "appearance": "luminosity",
+          "value": "dark"
+        }
+      ]
+    },
+    {
+      "filename": "agency-tinted.png",
+      "idiom": "universal",
+      "platform": "ios",
+      "size": "1024x1024",
+      "appearances": [
+        {
+          "appearance": "luminosity",
+          "value": "tinted"
+        }
+      ]
+    }
   ],
-  "info": { "author": "xcode", "version": 1 }
+  "info": {
+    "author": "xcode",
+    "version": 1
+  }
 }

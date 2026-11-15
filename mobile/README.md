@@ -2,6 +2,8 @@
 
 The iOS and Android shells load one Employment Agency origin at `/discover/`. Listing and company links open in Safari View Controller or Android Custom Tabs. Close the browser to return to the role. The server needs a web build with native browser handoff support. [ADR 0012](../docs/adr/0012-native-browser-for-mobile-source-links.md)
 
+The compact **A.** launcher icon lives in the [iOS app icon catalog](ios/Sources/Assets.xcassets/AppIcon.appiconset) and the [Android resources](android/app/src/main/res). The system selects the iOS default, dark or tinted artwork and applies the Android adaptive shape and optional themed color.
+
 Build with the HTTPS origin that serves the workspace. Use the origin alone, with no route, credentials, query or fragment. For a private Mac workspace, connect the phone through Tailscale using the allowed account and keep the Mac server running. Build again to change the server origin. [Private Tailscale setup](../docs/tailscale.md)
 
 ## iPhone
