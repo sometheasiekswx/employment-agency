@@ -1,0 +1,10 @@
+# Implementation plan
+
+Specification: [spec.md](spec.md). Decision: [ADR 0020](../../docs/adr/0020-preserve-columns-during-opportunity-review.md). Progress: [todo.md](todo.md).
+
+1. **Preserve the review arrangement.** Introduce a small Discover-local ordering and placement boundary. Track company and role identity for the current view/filter/profile/refresh scope, retaining slots for Undo and appending arrivals. Give company groups explicit column placement and stack them only within their assigned column. Reset only at the accepted boundaries. Verify identity/order and browser coordinates, including empty columns and rollback.
+2. **Explain local movement.** Add short, interruptible position transitions using existing Motion or the browser animation API as appropriate to measured layout. Coordinate card and group displacement without scaling text or multiplying parent/child transforms. Preserve focus, scrolling and reduced-motion/keyboard behavior. Inspect a representative desktop/mobile flow and rapid interruption in the browser.
+3. **Verify and review.** Add meaningful regression coverage for the confirmed jump and accepted invariants. Run affected existing component/browser checks and frontend validation/build. Review the actual diff, including boundaries with company highlights and capacity compaction; fix in-scope findings and recheck affected evidence.
+4. **Prepare delivery.** Record exact checks, review findings, preview artifacts and any remaining limitations. Prepare a concrete local candidate and recovery/update guidance if packaging is warranted. Leave publishing and the private installed build for separately authorized actions.
+
+The principal tradeoff is intentional spare space while reviewing. Avoid a timer or background rebalance that would undo the accepted stability. Responsive column changes still need a readable layout. Keep the visual and keyboard reading order coherent, and account for scroll containers and images/fonts changing measured heights.

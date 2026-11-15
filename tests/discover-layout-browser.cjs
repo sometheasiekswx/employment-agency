@@ -82,7 +82,8 @@ const fs = require("node:fs");
         exact: true,
       });
     for (const width of [
-      320, 390, 768, 900, 901, 930, 1000, 1001, 1024, 1150, 1151, 1280, 1440, 1920,
+      320, 390, 768, 900, 901, 930, 1000, 1001, 1024, 1150, 1151, 1280, 1440,
+      1920,
     ]) {
       await page.setViewportSize({ width, height: 1000 });
       await page.goto(base + "/discover/?view=all");
@@ -297,7 +298,7 @@ const fs = require("node:fs");
         json: { result: layoutRows },
       }),
     );
-    const packedGroups = async (label) => {
+    const packedGroups = async (label, stableFrom) => {
       await page.waitForFunction(
         () =>
           document.querySelector(".discover-board")?.dataset.compact === "true",
@@ -311,7 +312,9 @@ const fs = require("node:fs");
           columns.map((column) => {
             const rect = column.getBoundingClientRect();
             return {
-              city: column.querySelector(".discover-company-name").textContent.trim(),
+              city: column
+                .querySelector(".discover-company-name")
+                .textContent.trim(),
               top: rect.top,
               bottom: rect.bottom,
               left: rect.left,
@@ -331,11 +334,24 @@ const fs = require("node:fs");
         `${label}: every company keeps its complete card group`,
       );
       for (let index = 0; index < groups.length; index++) {
-        if (index > 0)
+        if (index > 0 && !stableFrom)
           assert.ok(
             groups[index].top >= groups[index - 1].top - 1,
             `${label}: later companies never backfill ahead of earlier priorities`,
           );
+        if (stableFrom) {
+          assert.equal(
+            groups[index].left,
+            stableFrom[index].left,
+            `${label}: content growth retains each company's column`,
+          );
+          if (stableFrom[index].left !== stableFrom[1].left)
+            assert.deepEqual(
+              groups[index],
+              stableFrom[index],
+              `${label}: a different column does not move or resize`,
+            );
+        }
         for (const other of groups.slice(index + 1)) {
           const group = groups[index];
           assert.ok(
@@ -411,11 +427,12 @@ const fs = require("node:fs");
       });
     const afterGrowth = await packedGroups(
       "Uneven cities after live text growth",
+      beforeGrowth,
     );
     assert.ok(
       afterGrowth[1].bottom - afterGrowth[1].top >
         beforeGrowth[1].bottom - beforeGrowth[1].top + 100,
-      "Live content growth changes the city height and repacks subsequent cities",
+      "Live content growth changes the company height within its existing column",
     );
 
     // Reload the intercepted fixture to restore the original short title.
@@ -480,10 +497,18 @@ const fs = require("node:fs");
         exact: true,
       })
       .click();
-    const specificWarning = mobileInspector.getByText("Missing evidence: Kubernetes", { exact: true });
+    const specificWarning = mobileInspector.getByText(
+      "Missing evidence: Kubernetes",
+      { exact: true },
+    );
     await specificWarning.scrollIntoViewIfNeeded();
     assert.ok(await specificWarning.isVisible());
-    assert.equal(await mobileInspector.getByText("Check before applying", { exact: true }).count(), 0);
+    assert.equal(
+      await mobileInspector
+        .getByText("Check before applying", { exact: true })
+        .count(),
+      0,
+    );
     assert.deepEqual(errors, []);
     console.log(
       "Discover layout passed: compact uneven cities, complete readable groups, responsive inspector, focus restoration, single/empty locations and long content.",

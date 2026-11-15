@@ -143,6 +143,11 @@
   align-items: start;
   align-content: start;
   padding: 4px 4px 12px;
+  overflow-anchor: none;
+  /* Old tracks can survive until the next resize frame. Keep their transient
+     extent from creating a page-wide horizontal scrollbar. */
+  overflow-x: clip;
+  overflow-clip-margin: 4px;
 }
 .discover-board[data-compact="true"] {
   grid-auto-rows: var(--discover-row-size);
@@ -1223,7 +1228,7 @@ p.discover-capacity-note {
   }
   .discover-board {
     --discover-group-gap: 22px;
-    overflow: visible;
+    overflow-y: visible;
     padding: 2px;
   }
   .discover-column > header {

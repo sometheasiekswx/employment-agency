@@ -1091,7 +1091,13 @@ async function reducedMotion(page, label, mobile) {
     }
     await session.detach();
   }
-  await navigation(page, "Next").click();
+  // Returning from To apply can append this company to the current review.
+  // Exercise an actual adjacent role without assuming it is ranked first.
+  const direction = await navigation(page, "Next").isEnabled()
+    ? "Next"
+    : "Previous";
+  await navigation(page, direction).click();
+  await heading(page, "Cloud Software Engineer").waitFor({ state: "detached" });
   await settled(page);
   assert.equal(
     (await stopProbe(page)).animatedFrames,

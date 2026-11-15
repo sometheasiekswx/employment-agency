@@ -84,6 +84,8 @@ import {
 import { OpportunityInspector, type RolePanel } from "./opportunity-inspector";
 import { OpportunityListingLink } from "./opportunity-listing-link";
 import { useInteractionMotion } from "./interaction-motion";
+import { useReviewOrder } from "./use-review-order";
+import { useBoardLayout } from "./use-board-layout";
 import { cachedRanking, loadRanking } from "./rankings";
 import { CompanyMark, employerLogo } from "./company-mark";
 import {
@@ -388,7 +390,6 @@ export function DiscoverPage() {
     disappearingCard: Element | null;
     fallbackToRemoved: boolean;
   } | null>(null);
-  const board = useRef<HTMLDivElement>(null);
   const discoverScreen = useRef<HTMLDivElement>(null);
   const mobile = useMobileInspector();
   const profile = state.profiles.find((item) => item.id === profileId);
@@ -599,7 +600,24 @@ export function DiscoverPage() {
         .map((review) => [`employer:${review.employer_id}`, review.picks])
       : [],
   );
-  const groups = groupOpportunities(visible).map((group) => {
+  const [completedRefresh, setCompletedRefresh] = useState(0);
+  if (currentRanking.key === requestKey && completedRefresh !== attempt)
+    setCompletedRefresh(attempt);
+  const reviewScope = JSON.stringify([
+    workspacePath,
+    profileId,
+    view,
+    section,
+    removedView,
+    query,
+    location,
+    statusFilter,
+    employerScope,
+    includeHistorical,
+    requestedOffset,
+    completedRefresh,
+  ]);
+  const rankedGroups = groupOpportunities(loading && !rows.length ? [] : visible).map((group) => {
     const rowsById = new Map(group.roles.map((row) => [row.job.id, row]));
     const picks = new Map<string, string>();
     const recommended = (reviews.get(group.id) ?? []).flatMap(({ job_id, reason }) => {
@@ -617,6 +635,7 @@ export function DiscoverPage() {
         : undefined,
     };
   });
+  const groups = useReviewOrder(rankedGroups, reviewScope);
   const navigationRows = groups.flatMap(({ roles }) => roles);
   const selectedRow = visible.find((row) => row.job.id === selectedId);
   const assessedRow = assessedById.get(selectedId);
@@ -803,42 +822,7 @@ export function DiscoverPage() {
     removal.feedback?.removalId,
   ]);
 
-  useLayoutEffect(() => {
-    const element = board.current;
-    if (!element || typeof ResizeObserver === "undefined") return;
-    const sections = [
-      ...element.querySelectorAll<HTMLElement>(".discover-column"),
-    ];
-    let frame = 0;
-    const pack = () => {
-      const style = getComputedStyle(element);
-      const rowSize = parseFloat(style.getPropertyValue("--discover-row-size"));
-      const gap = parseFloat(style.getPropertyValue("--discover-group-gap"));
-      // Read every natural section height before writing placement. Sections
-      // stay in source order so shorter groups leave room for later companies.
-      const spans = sections.map((section) =>
-        Math.ceil((section.getBoundingClientRect().height + gap) / rowSize),
-      );
-      sections.forEach((section, index) => {
-        const span = `span ${spans[index]}`;
-        if (section.style.gridRowEnd !== span) section.style.gridRowEnd = span;
-      });
-      element.dataset.compact = "true";
-    };
-    const schedule = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(pack);
-    };
-    // Pack synchronously before the selected card's scroll/focus restoration.
-    pack();
-    const observer = new ResizeObserver(schedule);
-    observer.observe(element);
-    sections.forEach((section) => observer.observe(section));
-    return () => {
-      observer.disconnect();
-      cancelAnimationFrame(frame);
-    };
-  }, [boardGroups, inspectorOpen, mobile]);
+  const board = useBoardLayout(reviewScope, animateInteractions);
 
   useEffect(() => {
     const animations = bookmarkAnimations.current;
@@ -1736,6 +1720,7 @@ export function DiscoverPage() {
                 <section
                   className="discover-column"
                   key={id}
+                  data-company-id={id}
                   aria-label={`${name} opportunities`}
                 >
                   <header>
@@ -1760,9 +1745,6 @@ export function DiscoverPage() {
                         Change selections
                       </Link>
                     </div>
-                  )}
-                  {picks.size > 0 && (
-                    <h3 className="discover-match-heading">Best matches for you</h3>
                   )}
                   {opportunities.map((row, index) => {
                     const { job, match } = row;
@@ -1994,7 +1976,10 @@ export function DiscoverPage() {
                     );
                     return (
                       <Fragment key={job.id}>
-                        {picks.size > 0 && index === picks.size && (
+                        {recommendation && (!previousJob || !picks.has(previousJob.id)) && (
+                          <h3 className="discover-match-heading">Best matches for you</h3>
+                        )}
+                        {!recommendation && previousJob && picks.has(previousJob.id) && (
                           <h3 className="discover-match-heading discover-more-roles">More roles</h3>
                         )}
                         {card}
