@@ -128,6 +128,7 @@ function server() {
     project,
     created: { ...deployment, readyState: "QUEUED" },
     polls: [deployment],
+    upload: () => new Response(null, { status: 200 }),
   };
   const fetchImpl = async (url, options) => {
     calls.push({ url, options });
@@ -142,12 +143,22 @@ function server() {
       assert.equal(parsed.searchParams.get("rollbackInfo"), "true");
       assert.equal(options.method, "GET");
       body = state.project;
+    } else if (parsed.pathname === "/v2/files") {
+      assert.equal(options.method, "POST");
+      assert.deepEqual([...parsed.searchParams.keys()], ["teamId"]);
+      assert.equal(options.headers["Content-Type"], "application/octet-stream");
+      assert.ok(Buffer.isBuffer(options.body));
+      assert.equal(options.headers["Content-Length"], String(options.body.length));
+      assert.equal(options.headers["x-vercel-digest"],
+        createHash("sha1").update(options.body).digest("hex"));
+      return state.upload(options);
     } else if (parsed.pathname === "/v13/deployments") {
       assert.equal(options.method, "POST");
       assert.equal(
         parsed.searchParams.get("skipAutoDetectionConfirmation"),
         "1",
       );
+      if (state.createTransportError) throw new Error(token);
       body = state.created;
     } else {
       assert.equal(parsed.pathname, `/v13/deployments/${deployment.id}`);
@@ -165,19 +176,26 @@ function server() {
 }
 
 function creates(mock) {
-  return mock.calls.filter(({ options }) => options.method === "POST");
+  return mock.calls.filter(({ url }) => new URL(url).pathname === "/v13/deployments");
+}
+
+function uploads(mock) {
+  return mock.calls.filter(({ url }) => new URL(url).pathname === "/v2/files");
 }
 
 test("stages exact captured bytes and generated CSP once without assigning domains", async (t) => {
   const local = await artifact(t);
   await local.save("readme.txt", "Sample résumé\r\nExample documents\r\n");
+  await local.save("readme-copy.txt", "Sample résumé\r\nExample documents\r\n");
   const mock = server();
   const result = await stagePublicDemo(local.site, commit, mock.options);
   assert.deepEqual(result, {
     id: "dpl_Test123",
     url: "https://employment-agency-demo-test.vercel.app",
   });
-  assert.equal(mock.calls.length, 3);
+  assert.equal(mock.calls.length, 3 + uploads(mock).length);
+  assert.equal(mock.calls[0].options.method, "GET");
+  assert.ok(uploads(mock).every((upload) => mock.calls.indexOf(upload) < mock.calls.indexOf(creates(mock)[0])));
   assert.equal(creates(mock).length, 1);
   const body = JSON.parse(creates(mock)[0].options.body);
   assert.equal(body.name, "employment-agency-demo");
@@ -199,16 +217,20 @@ test("stages exact captured bytes and generated CSP once without assigning domai
     githubCommitSha: commit,
     githubCommitRef: "main",
   });
-  assert.equal(body.files.length, 11);
-  assert.equal(
-    body.files.find(({ file }) => file === "readme.txt").encoding,
-    "utf-8",
-  );
-  assert.equal(body.files.find(({ file }) => file === pdf).encoding, "base64");
-  for (const file of body.files) {
+  assert.equal(body.files.length, 12);
+  const byDigest = new Map(uploads(mock).map(({ options }) => [
+    options.headers["x-vercel-digest"], options.body,
+  ]));
+  assert.equal(uploads(mock).length, byDigest.size);
+  assert.ok(byDigest.size < body.files.length);
+  for (const { file, sha, size, ...extra } of body.files) {
+    const source = await readFile(path.join(local.site, file));
+    assert.deepEqual(extra, {});
+    assert.equal(size, source.length);
+    assert.equal(sha, createHash("sha1").update(source).digest("hex"));
     assert.deepEqual(
-      Buffer.from(file.data, file.encoding),
-      await readFile(path.join(local.site, file.file)),
+      byDigest.get(sha),
+      source,
     );
   }
   assert.ok(body.files.some(({ file }) => file === "vercel.json"));
@@ -236,8 +258,9 @@ test("stages a strict catalog's verified PNG and rejects missing or changed logo
   const uploaded = JSON.parse(creates(mock)[0].options.body).files.find(
     ({ file }) => file === logo,
   );
-  assert.equal(uploaded.encoding, "base64");
-  assert.deepEqual(Buffer.from(uploaded.data, uploaded.encoding), png);
+  assert.equal(uploaded.size, png.length);
+  assert.deepEqual(uploads(mock).find(({ options }) =>
+    options.headers["x-vercel-digest"] === uploaded.sha).options.body, png);
 
   await local.save(logo, Buffer.concat([png, Buffer.from("changed")]));
   const rejected = server();
@@ -405,6 +428,23 @@ test("rejects provider project mismatches and pending promotions before creating
       /project or team|promotion is still pending/,
     );
     assert.equal(creates(mock).length, 0);
+    assert.equal(uploads(mock).length, 0);
+  }
+});
+
+test("a rejected upload blocks create and exposes only an allowlisted provider code", async (t) => {
+  const local = await artifact(t);
+  for (const code of ["forbidden", token]) {
+    const mock = server();
+    mock.state.upload = () => Response.json({ error: { code, message: token } }, { status: 403 });
+    await assert.rejects(stagePublicDemo(local.site, commit, mock.options), (error) => {
+      assert.match(error.message, /file upload failed with HTTP 403/);
+      assert.equal(error.message.includes("[forbidden]"), code === "forbidden");
+      assert.equal(error.message.includes(token), false);
+      return true;
+    });
+    assert.ok(uploads(mock).length > 0);
+    assert.equal(creates(mock).length, 0);
   }
 });
 
@@ -425,7 +465,11 @@ test("never retries a failed create and never exposes raw provider errors", asyn
     },
   );
   assert.equal(creates(mock).length, 1);
-  assert.equal(mock.calls.length, 2);
+  assert.equal(mock.calls.length, 2 + uploads(mock).length);
+  const ambiguous = server();
+  ambiguous.state.createTransportError = true;
+  await assert.rejects(stagePublicDemo(local.site, commit, ambiguous.options), /^Error: Vercel POST request failed$/);
+  assert.equal(creates(ambiguous).length, 1);
   const network = server();
   await assert.rejects(
     stagePublicDemo(local.site, commit, {

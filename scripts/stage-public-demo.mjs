@@ -1,4 +1,5 @@
 import { constants } from "node:fs";
+import { createHash } from "node:crypto";
 import { lstat, open, readdir, realpath } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -7,6 +8,11 @@ import { verifyPublicDemo } from "./check-public-demo.mjs";
 const publicProject = "prj_jW5ss3iNVEOEBwi0fxJL7ymAFeG0";
 const publicTeam = "team_QmjRFzULoHfOTipsjFByfxON";
 const api = "https://api.vercel.com";
+const uploadConcurrency = 10;
+const safeProviderCodes = new Set([
+  "bad_request", "forbidden", "invalid_digest", "invalid_file_size", "missing_files",
+  "not_found", "payload_too_large", "rate_limited", "too_many_files", "unauthorized",
+]);
 const artifactMediaTypes = {
   ".html": "text/html",
   ".json": "application/json",
@@ -176,15 +182,13 @@ function deploymentIdentity(deployment, projectId, expectedCommit) {
   };
 }
 
-function inlineFile(file, bytes) {
-  const text = bytes.toString("utf8");
-  const base64 = bytes.toString("base64");
-  if (
-    Buffer.from(text, "utf8").equals(bytes) &&
-    Buffer.byteLength(JSON.stringify(text)) < base64.length + 2
-  )
-    return { file, data: text, encoding: "utf-8" };
-  return { file, data: base64, encoding: "base64" };
+async function providerErrorCode(response) {
+  try {
+    const code = (await response.json())?.error?.code;
+    return safeProviderCodes.has(code) ? ` [${code}]` : "";
+  } catch {
+    return "";
+  }
 }
 
 /** Stage the checked public demo artifact with domain assignment disabled. */
@@ -230,10 +234,11 @@ export async function stagePublicDemo(
     requireValue(milliseconds > 0, "Vercel staging timed out");
     return milliseconds;
   }
-  async function request(endpoint, method = "GET", body) {
+  async function request(endpoint, method = "GET", body, digest) {
     const url = new URL(endpoint, api);
     url.searchParams.set("teamId", teamId);
-    const payload = body && JSON.stringify(body);
+    const payload = digest ? body : body && JSON.stringify(body);
+    const operation = digest ? "file upload" : `${method} request`;
     let response;
     try {
       response = await fetchImpl(url.href, {
@@ -242,20 +247,29 @@ export async function stagePublicDemo(
         cache: "no-store",
         headers: {
           Authorization: `Bearer ${token}`,
-          ...(body ? { "Content-Type": "application/json" } : {}),
+          ...(digest
+            ? {
+                "Content-Type": "application/octet-stream",
+                "Content-Length": String(body.byteLength),
+                "x-vercel-digest": digest,
+              }
+            : body ? { "Content-Type": "application/json" } : {}),
         },
         signal: AbortSignal.timeout(Math.max(1, Math.min(20_000, remaining()))),
         ...(payload ? { body: payload } : {}),
       });
     } catch {
       remaining();
-      throw new Error(`Vercel ${method} request failed`);
+      throw new Error(`Vercel ${operation} failed`);
     }
-    requireValue(
-      response.ok,
-      `Vercel ${method} request failed with HTTP ${response.status}` +
-        (payload ? ` (${Buffer.byteLength(payload)} request bytes)` : ""),
-    );
+    if (!response.ok) {
+      const code = await providerErrorCode(response);
+      throw new Error(
+        `Vercel ${operation} failed with HTTP ${response.status}${code}` +
+          (payload ? ` (${Buffer.byteLength(payload)} request bytes)` : ""),
+      );
+    }
+    if (digest) return;
     try {
       return await response.json();
     } catch {
@@ -273,8 +287,27 @@ export async function stagePublicDemo(
     !["pending", "in-progress"].includes(project.lastAliasRequest?.jobStatus),
     "A previous Vercel promotion is still pending",
   );
-  // Match the official CLI's deployment payload without its owner lookup or
-  // unscoped file-upload calls. A create request is never automatically retried.
+  // Upload captured bytes into the same team before the single create request.
+  // Vercel requires SHA-1 content identifiers for its upload protocol.
+  const uploads = new Map();
+  const references = [...files].map(([file, bytes]) => {
+    const sha = createHash("sha1").update(bytes).digest("hex");
+    const existing = uploads.get(sha);
+    requireValue(!existing || existing.equals(bytes), "Conflicting public file digests");
+    if (!existing) uploads.set(sha, bytes);
+    return { file, size: bytes.byteLength, sha };
+  });
+  const entries = [...uploads];
+  for (let index = 0; index < entries.length; index += uploadConcurrency) {
+    const results = await Promise.allSettled(
+      entries.slice(index, index + uploadConcurrency).map(
+        ([sha, bytes]) => request("/v2/files", "POST", bytes, sha),
+      ),
+    );
+    const failure = results.find((result) => result.status === "rejected");
+    if (failure) throw failure.reason;
+  }
+  // A create request is never automatically retried.
   const created = await request(
     "/v13/deployments?skipAutoDetectionConfirmation=1",
     "POST",
@@ -294,7 +327,7 @@ export async function stagePublicDemo(
       headers: config.headers,
       trailingSlash: config.trailingSlash,
       meta: { githubCommitSha: expectedCommit, githubCommitRef: "main" },
-      files: [...files].map(([file, bytes]) => inlineFile(file, bytes)),
+      files: references,
     },
   );
   const identity = deploymentIdentity(created, projectId, expectedCommit);
