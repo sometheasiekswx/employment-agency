@@ -29,6 +29,8 @@ function requireValue(condition, message) {
   if (!condition) throw new Error(message);
 }
 
+class ReleasePropagationError extends Error {}
+
 function isRecord(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
@@ -197,6 +199,21 @@ export async function verifyPublicDemo(
     "Expected commit must be a full 40-character Git SHA",
   );
 
+  const attempts = waitForAlias ? 11 : 1;
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      return await verifyRelease(origin, expectedCommit.toLowerCase(), fetchImpl);
+    } catch (error) {
+      if (!(error instanceof ReleasePropagationError) || attempt === attempts)
+        throw error;
+      await sleep(3_000);
+    }
+  }
+}
+
+async function verifyRelease(origin, expectedCommit, fetchImpl) {
+  // Every attempt rereads the marker and validates the whole release against
+  // its policy; no state from a partially propagated attempt can be accepted.
   let releasePolicy;
   async function request(pathname, contentType) {
     const response = await fetchImpl(new URL(pathname, origin).href, {
@@ -222,34 +239,22 @@ export async function verifyPublicDemo(
       `${pathname}: expected Content-Type ${contentType}`,
     );
     const security = readPolicy(response, pathname);
-    requireValue(
-      releasePolicy === undefined || security.policy === releasePolicy,
-      `${pathname}: inconsistent release CSP`,
-    );
+    if (releasePolicy !== undefined && security.policy !== releasePolicy)
+      throw new ReleasePropagationError(`${pathname}: inconsistent release CSP`);
     return { response, policy: security.policy, hashes: security.scripts };
   }
 
-  const attempts = waitForAlias ? 11 : 1;
-  const expected = expectedCommit.toLowerCase();
-  let release;
-  for (let attempt = 1; attempt <= attempts; attempt++) {
-    const { response, policy } = await request(
-      "/release.json",
-      "application/json",
-    );
-    release = await response.json();
-    if (release?.commit === expected) {
-      releasePolicy = policy;
-      break;
-    }
-    requireValue(
-      attempt < attempts &&
-        typeof release?.commit === "string" &&
-        /^[a-f0-9]{40}$/.test(release.commit),
+  const { response, policy } = await request("/release.json", "application/json");
+  const release = await response.json();
+  requireValue(
+    typeof release?.commit === "string" && /^[a-f0-9]{40}$/.test(release.commit),
+    "The deployed commit does not match the expected commit",
+  );
+  if (release.commit !== expectedCommit)
+    throw new ReleasePropagationError(
       "The deployed commit does not match the expected commit",
     );
-    await sleep(3_000);
-  }
+  releasePolicy = policy;
   requireValue(
     typeof release.fixtureRevision === "string" &&
       /^[a-f0-9]{20}$/.test(release.fixtureRevision),
@@ -276,15 +281,26 @@ export async function verifyPublicDemo(
       "Every public listing must use a current verified local company logo",
     );
     for (let index = 0; index < entries.length; index += 8) {
-      await Promise.all(entries.slice(index, index + 8).map(async ([sha256, url]) => {
-        const { response } = await request(url, "image/png");
-        const body = Buffer.from(await response.arrayBuffer());
-        requireValue(
-          body.subarray(0, 8).toString("hex") === "89504e470d0a1a0a" &&
-            createHash("sha256").update(body).digest("hex") === sha256,
-          `${url}: invalid public logo bytes`,
+      const results = await Promise.allSettled(
+        entries.slice(index, index + 8).map(async ([sha256, url]) => {
+          const { response } = await request(url, "image/png");
+          const body = Buffer.from(await response.arrayBuffer());
+          requireValue(
+            body.subarray(0, 8).toString("hex") === "89504e470d0a1a0a" &&
+              createHash("sha256").update(body).digest("hex") === sha256,
+            `${url}: invalid public logo bytes`,
+          );
+        }),
+      );
+      // Drain concurrent reads and prefer real validation failures so a fast
+      // propagation mismatch cannot hide an unsafe policy or corrupted logo.
+      const failures = results.filter((result) => result.status === "rejected");
+      if (failures.length) {
+        const fatal = failures.find(
+          ({ reason }) => !(reason instanceof ReleasePropagationError),
         );
-      }));
+        throw (fatal ?? failures[0]).reason;
+      }
     }
     logos = entries.length;
   }

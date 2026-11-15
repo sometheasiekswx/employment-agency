@@ -22,6 +22,8 @@ const policy = [
   "base-uri 'self'",
   "form-action 'self'",
 ].join("; ");
+const previousHash = `'sha256-${createHash("sha256").update("previous release").digest("base64")}'`;
+const previousPolicy = policy.replace(scriptHash, previousHash);
 
 function releaseServer() {
   const fixture = {
@@ -87,6 +89,31 @@ function releaseServer() {
   return { fixture, records, calls, fetchImpl };
 }
 
+function addLogo(
+  server,
+  png = Buffer.from(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=",
+    "base64",
+  ),
+) {
+  const sha256 = createHash("sha256").update(png).digest("hex");
+  const url = `/demo/company-logos/${sha256}.png`;
+  server.fixture.current_catalog_only = true;
+  server.fixture.company_logos ??= {};
+  server.fixture.company_logos[sha256] = url;
+  server.fixture.state.jobs ??= [];
+  server.fixture.state.jobs.push({ company: { logo_url: url } });
+  server.records.set(url, {
+    body: png,
+    status: 200,
+    headers: {
+      ...server.records.get(pdf).headers,
+      "content-type": "image/png",
+    },
+  });
+  return { png, url };
+}
+
 test("verifies release provenance, all routes and a fictional PDF with only bounded GETs", async () => {
   const server = releaseServer();
   const result = await verifyPublicDemo(base, commit, server);
@@ -127,19 +154,7 @@ test("rejects an unexpected deployed commit before reading fixture links", async
 
 test("verifies every current logo asset and rejects missing or edited marks", async () => {
   const server = releaseServer();
-  const png = Buffer.from(
-    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=",
-    "base64",
-  );
-  const sha256 = createHash("sha256").update(png).digest("hex");
-  const url = `/demo/company-logos/${sha256}.png`;
-  server.fixture.current_catalog_only = true;
-  server.fixture.company_logos = { [sha256]: url };
-  server.fixture.state.jobs = [{ company: { logo_url: url } }];
-  server.records.set(url, {
-    body: png, status: 200,
-    headers: { ...server.records.get(pdf).headers, "content-type": "image/png" },
-  });
+  const { png, url } = addLogo(server);
   assert.equal((await verifyPublicDemo(base, commit, server)).logos, 1);
   server.records.get(url).body = Buffer.concat([png, Buffer.from("edited")]);
   await assert.rejects(verifyPublicDemo(base, commit, server), /invalid public logo bytes/);
@@ -151,10 +166,7 @@ test("waits for the public alias to serve the expected commit and its CSP", asyn
   const server = releaseServer();
   const marker = server.records.get("/release.json");
   marker.body.commit = "c".repeat(40);
-  marker.headers["content-security-policy"] = policy.replace(
-    scriptHash,
-    `'sha256-${createHash("sha256").update("previous release").digest("base64")}'`,
-  );
+  marker.headers["content-security-policy"] = previousPolicy;
   const result = await verifyPublicDemo(base, commit, {
     fetchImpl: server.fetchImpl,
     waitForAlias: true,
@@ -187,6 +199,351 @@ test("bounds alias polling and keeps stale releases from passing", async () => {
     server.calls.map(({ url }) => new URL(url).pathname),
     Array(11).fill("/release.json"),
   );
+});
+
+test("retries a temporary logo CSP mismatch after the new commit is already live", async () => {
+  const server = releaseServer();
+  const { url } = addLogo(server);
+  server.records.get(url).headers["content-security-policy"] = previousPolicy;
+  const waits = [];
+  const result = await verifyPublicDemo(base, commit, {
+    fetchImpl: server.fetchImpl,
+    waitForAlias: true,
+    sleep: async (milliseconds) => {
+      waits.push(milliseconds);
+      // A fresh marker policy must be used for the entire next attempt.
+      for (const record of server.records.values()) {
+        record.headers["content-security-policy"] = policy.replace(
+          scriptHash,
+          `${scriptHash} ${previousHash}`,
+        );
+      }
+    },
+  });
+  assert.equal(result.commit, commit);
+  assert.equal(result.logos, 1);
+  assert.deepEqual(waits, [3_000]);
+  assert.deepEqual(
+    server.calls.slice(0, 6).map(({ url }) => new URL(url).pathname),
+    [
+      "/release.json",
+      "/demo/preview.json",
+      url,
+      "/release.json",
+      "/demo/preview.json",
+      url,
+    ],
+  );
+  assert.deepEqual(
+    server.calls.slice(6).map(({ url }) => new URL(url).pathname),
+    [...result.routes, pdf],
+  );
+});
+
+test("restarts full alias verification after a temporary fixture, route or PDF CSP mismatch", async (t) => {
+  for (const pathname of ["/demo/preview.json", "/career/", pdf]) {
+    await t.test(pathname, async () => {
+      const server = releaseServer();
+      const record = server.records.get(pathname);
+      record.headers["content-security-policy"] = previousPolicy;
+      const waits = [];
+      const result = await verifyPublicDemo(base, commit, {
+        fetchImpl: server.fetchImpl,
+        waitForAlias: true,
+        sleep: async (milliseconds) => {
+          waits.push(milliseconds);
+          record.headers["content-security-policy"] = policy;
+        },
+      });
+      const complete = [
+        "/release.json",
+        "/demo/preview.json",
+        ...result.routes,
+        pdf,
+      ];
+      assert.deepEqual(waits, [3_000]);
+      assert.deepEqual(
+        server.calls.map(({ url }) => new URL(url).pathname),
+        [...complete.slice(0, complete.indexOf(pathname) + 1), ...complete],
+      );
+    });
+  }
+});
+
+test("shares the alias retry limit between stale commits and persistent CSP mismatches", async (t) => {
+  for (const staleAttempts of [0, 2]) {
+    await t.test(`${staleAttempts} initial stale commits`, async () => {
+      const server = releaseServer();
+      const marker = server.records.get("/release.json");
+      marker.body.commit = staleAttempts ? "c".repeat(40) : commit;
+      server.records.get("/demo/preview.json").headers[
+        "content-security-policy"
+      ] = previousPolicy;
+      const waits = [];
+      await assert.rejects(
+        verifyPublicDemo(base, commit, {
+          fetchImpl: server.fetchImpl,
+          waitForAlias: true,
+          sleep: async (milliseconds) => {
+            waits.push(milliseconds);
+            if (waits.length >= staleAttempts) marker.body.commit = commit;
+          },
+        }),
+        /\/demo\/preview.json: inconsistent release CSP/,
+      );
+      assert.deepEqual(waits, Array(10).fill(3_000));
+      const paths = server.calls.map(({ url }) => new URL(url).pathname);
+      assert.equal(
+        paths.filter((pathname) => pathname === "/release.json").length,
+        11,
+      );
+      assert.equal(
+        paths.filter((pathname) => pathname === "/demo/preview.json").length,
+        11 - staleAttempts,
+      );
+    });
+  }
+});
+
+test("keeps staging strict instead of retrying an inconsistent CSP", async () => {
+  const server = releaseServer();
+  server.records.get("/demo/preview.json").headers["content-security-policy"] =
+    previousPolicy;
+  await assert.rejects(
+    verifyPublicDemo(base, commit, {
+      fetchImpl: server.fetchImpl,
+      sleep: async () => assert.fail("staged releases must not retry"),
+    }),
+    /inconsistent release CSP/,
+  );
+  assert.equal(server.calls.length, 2);
+});
+
+test("does not accept a different commit after a CSP retry", async () => {
+  const server = releaseServer();
+  server.records.get("/demo/preview.json").headers["content-security-policy"] =
+    previousPolicy;
+  let waits = 0;
+  await assert.rejects(
+    verifyPublicDemo(base, commit, {
+      fetchImpl: server.fetchImpl,
+      waitForAlias: true,
+      sleep: async () => {
+        waits++;
+        server.records.get("/demo/preview.json").headers[
+          "content-security-policy"
+        ] = policy;
+        server.records.get("/release.json").body.commit = "c".repeat(40);
+      },
+    }),
+    /deployed commit/,
+  );
+  assert.equal(waits, 10);
+  assert.equal(server.calls.length, 12);
+});
+
+test("alias retries do not mask validation or transport failures", async (t) => {
+  const cases = [
+    [
+      "unsafe inline",
+      "/demo/preview.json",
+      (record) => {
+        record.headers["content-security-policy"] = policy.replace(
+          scriptHash,
+          "'unsafe-inline'",
+        );
+      },
+      /script-src/,
+    ],
+    [
+      "unsafe eval",
+      "/career/",
+      (record) => {
+        record.headers["content-security-policy"] = policy.replace(
+          scriptHash,
+          "'unsafe-eval'",
+        );
+      },
+      /script-src/,
+    ],
+    [
+      "widened sources",
+      pdf,
+      (record) => {
+        record.headers["content-security-policy"] = policy.replace(
+          "connect-src 'self'",
+          "connect-src *",
+        );
+      },
+      /CSP connect-src/,
+    ],
+    [
+      "duplicate directive",
+      "/release.json",
+      (record) => {
+        record.headers["content-security-policy"] +=
+          "; script-src 'unsafe-inline'";
+      },
+      /duplicate CSP/,
+    ],
+    [
+      "missing CSP",
+      "/demo/preview.json",
+      (record) => {
+        delete record.headers["content-security-policy"];
+      },
+      /missing Content-Security-Policy/,
+    ],
+    [
+      "missing nosniff",
+      pdf,
+      (record) => {
+        delete record.headers["x-content-type-options"];
+      },
+      /missing X-Content-Type-Options/,
+    ],
+    [
+      "invalid commit",
+      "/release.json",
+      (record) => {
+        record.body.commit = "main";
+      },
+      /deployed commit/,
+    ],
+    [
+      "malformed JSON",
+      "/release.json",
+      (record) => {
+        record.body = "{";
+      },
+      SyntaxError,
+    ],
+    [
+      "wrong revision",
+      "/demo/preview.json",
+      (record) => {
+        record.body.revision = "c".repeat(20);
+      },
+      /fixture revision/,
+    ],
+    [
+      "missing route",
+      "/career/",
+      (record) => {
+        record.status = 404;
+      },
+      /expected HTTP 200/,
+    ],
+    [
+      "wrong type",
+      pdf,
+      (record) => {
+        record.headers["content-type"] = "text/html";
+      },
+      /expected Content-Type/,
+    ],
+    [
+      "unhashed script",
+      "/career/",
+      (record) => {
+        record.body =
+          "<html><body><script>alert('changed')</script></body></html>";
+      },
+      /exact CSP hash/,
+    ],
+    [
+      "corrupt PDF",
+      pdf,
+      (record) => {
+        record.body = "not a PDF";
+      },
+      /invalid PDF signature/,
+    ],
+  ];
+  for (const [name, pathname, change, expectedError] of cases) {
+    await t.test(name, async () => {
+      const server = releaseServer();
+      change(server.records.get(pathname));
+      await assert.rejects(
+        verifyPublicDemo(base, commit, {
+          fetchImpl: server.fetchImpl,
+          waitForAlias: true,
+          sleep: async () => assert.fail("validation failures must not retry"),
+        }),
+        expectedError,
+      );
+      assert.equal(
+        server.calls.filter(
+          ({ url }) => new URL(url).pathname === "/release.json",
+        ).length,
+        1,
+      );
+    });
+  }
+  await t.test("transport error with propagation-like text", async () => {
+    const failure = new Error("/demo/preview.json: inconsistent release CSP");
+    await assert.rejects(
+      verifyPublicDemo(base, commit, {
+        fetchImpl: async () => {
+          throw failure;
+        },
+        waitForAlias: true,
+        sleep: async () => assert.fail("transport failures must not retry"),
+      }),
+      (error) => error === failure,
+    );
+  });
+});
+
+test("drains concurrent logo reads and preserves fatal failures over CSP mismatches", async () => {
+  const server = releaseServer();
+  const first = addLogo(server);
+  const second = addLogo(
+    server,
+    Buffer.concat([first.png, Buffer.from("second")]),
+  );
+  server.records.get(first.url).headers["content-security-policy"] =
+    previousPolicy;
+  server.records.get(second.url).body = Buffer.from("corrupt");
+  let secondCompleted = false;
+  await assert.rejects(
+    verifyPublicDemo(base, commit, {
+      fetchImpl: async (url, options) => {
+        if (new URL(url).pathname === second.url) {
+          await new Promise((resolve) => setImmediate(resolve));
+          secondCompleted = true;
+        }
+        return server.fetchImpl(url, options);
+      },
+      waitForAlias: true,
+      sleep: async () =>
+        assert.fail("a concurrent validation failure must not retry"),
+    }),
+    /invalid public logo bytes/,
+  );
+  assert.equal(secondCompleted, true);
+  assert.equal(server.calls.length, 4);
+});
+
+test("still checks logo integrity after a CSP mismatch recovers", async () => {
+  const server = releaseServer();
+  const { url } = addLogo(server);
+  const logo = server.records.get(url);
+  logo.headers["content-security-policy"] = previousPolicy;
+  let waits = 0;
+  await assert.rejects(
+    verifyPublicDemo(base, commit, {
+      fetchImpl: server.fetchImpl,
+      waitForAlias: true,
+      sleep: async () => {
+        waits++;
+        logo.headers["content-security-policy"] = policy;
+        logo.body = Buffer.from("corrupt");
+      },
+    }),
+    /invalid public logo bytes/,
+  );
+  assert.equal(waits, 1);
 });
 
 test("rejects a missing or mismatched fixture revision", async (t) => {
