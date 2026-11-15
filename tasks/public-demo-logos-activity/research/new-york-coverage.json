@@ -1,0 +1,98 @@
+{
+  "checked_at": "2026-11-15T10:48:50.844181+00:00",
+  "scope": "Three new employers with directly advertised New York roles. Other consulted employers did not meet the local role/fit/logo threshold; no complete labour-market coverage is claimed.",
+  "admitted": [
+    {
+      "name": "Bloomberg",
+      "roles": 3
+    },
+    {
+      "name": "Oscar Health",
+      "roles": 3
+    },
+    {
+      "name": "The New York Times",
+      "roles": 3
+    }
+  ],
+  "primary_checks": [
+    {
+      "name": "Bloomberg",
+      "url": "https://bloomberg.avature.net/careers/JobDetail/Senior-Software-Engineer-Data-and-Platform-Tools-Bloomberg-Connects/45014",
+      "final_url": "https://bloomberg.avature.net/careers/JobDetail/Senior-Software-Engineer-Data-and-Platform-Tools-Bloomberg-Connects/45014",
+      "status": 200,
+      "bytes": 61033,
+      "file": "verified-primary-6aeeed168caddb141f6acd05.txt"
+    },
+    {
+      "name": "Bloomberg",
+      "url": "https://bloomberg.avature.net/careers/JobDetail/Senior-Software-Engineer-Media-API-Platform/45685",
+      "final_url": "https://bloomberg.avature.net/careers/JobDetail/Senior-Software-Engineer-Media-API-Platform/45685",
+      "status": 200,
+      "bytes": 59990,
+      "file": "verified-primary-33606f2a57b28d0c7ff7afe6.txt"
+    },
+    {
+      "name": "Bloomberg",
+      "url": "https://bloomberg.avature.net/careers/JobDetail/Senior-Software-Engineer-Analytics-Platform/21026",
+      "final_url": "https://bloomberg.avature.net/careers/JobDetail/Senior-Software-Engineer-Analytics-Platform/21026",
+      "status": 200,
+      "bytes": 65175,
+      "file": "verified-primary-a7c158aff67945de7b843e03.txt"
+    },
+    {
+      "name": "Oscar Health",
+      "url": "https://oscarhealth.com/careers/jobs?gh_jid=6836361",
+      "final_url": "https://oscarhealth.com/careers/jobs/6836361-senior-software-engineer-fullstack?gh_jid=6836361",
+      "status": 200,
+      "bytes": 214556,
+      "file": "verified-primary-0041a5fcde5badccdb75a36e.txt"
+    },
+    {
+      "name": "Oscar Health",
+      "url": "https://oscarhealth.com/careers/jobs?gh_jid=6546196",
+      "final_url": "https://oscarhealth.com/careers/jobs/6546196-senior-software-engineer-backend?gh_jid=6546196",
+      "status": 200,
+      "bytes": 213120,
+      "file": "verified-primary-a082f162fcc7655e67b073e8.txt"
+    },
+    {
+      "name": "Oscar Health",
+      "url": "https://oscarhealth.com/careers/jobs?gh_jid=8301410",
+      "final_url": "https://oscarhealth.com/careers/jobs/8301410-operations-engineer-i?gh_jid=8301410",
+      "status": 200,
+      "bytes": 209218,
+      "file": "verified-primary-2ee1b476d00c40cb9fdf8fc2.txt"
+    },
+    {
+      "name": "The New York Times",
+      "url": "https://job-boards.greenhouse.io/thenewyorktimes/jobs/4744538005",
+      "final_url": "https://job-boards.greenhouse.io/thenewyorktimes/jobs/4744538005",
+      "status": 200,
+      "bytes": 106945,
+      "file": "verified-primary-72bf0b367a569baf72f33ef0.txt"
+    },
+    {
+      "name": "The New York Times",
+      "url": "https://job-boards.greenhouse.io/thenewyorktimes/jobs/4696589005",
+      "final_url": "https://job-boards.greenhouse.io/thenewyorktimes/jobs/4696589005",
+      "status": 200,
+      "bytes": 106817,
+      "file": "verified-primary-a2b0696d97814b7683d7c961.txt"
+    },
+    {
+      "name": "The New York Times",
+      "url": "https://job-boards.greenhouse.io/thenewyorktimes/jobs/4706625005",
+      "final_url": "https://job-boards.greenhouse.io/thenewyorktimes/jobs/4706625005",
+      "status": 200,
+      "bytes": 107641,
+      "file": "verified-primary-71b347f3ffdb6d0d3e6ab499.txt"
+    }
+  ],
+  "screening": {
+    "Bloomberg": "Three broad software/platform openings retained. Specialist Kubernetes production, hardware fleet operations, staff data governance and PowerShell-heavy roles excluded.",
+    "Oscar Health": "Senior backend, senior fullstack and Operations Engineer I retained. Operations Engineer II requires three Python years not established by dated evidence; specialist SRE and leadership tenure not counted.",
+    "The New York Times": "Frontend, developer platform and elections data-development openings retained. Games web platform excluded as stretch because five years of high-traffic operations is not established. Interns, specialised people-data, production LLM specialism and staff/management roles excluded. Election data advert accepts Python; future R library work and flexible coverage schedule remain visible.",
+    "Other New York prospects": "Brex, CLEAR, Databricks, Squarespace, Gusto, Current and Duolingo had fewer than three direct local credible matches after specialist/years requirements. DoorDash had several credible roles but no supported declared brand asset from inspected sources. Block had two strong local matches; six-year role and eight-year analytics role were not counted. Reddit and Coinbase boards were predominantly US remote rather than directly New York placements."
+  }
+}

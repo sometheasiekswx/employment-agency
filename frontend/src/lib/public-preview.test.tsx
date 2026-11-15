@@ -233,6 +233,56 @@ it("preserves approved employer bookmarks across catalog replacement without fet
   ]);
 });
 
+it("migrates earlier storage without restoring excluded companies or discarding admitted choices", async () => {
+  const prefix = "employment-agency:";
+  const bookmark = prefix + "employer-bookmarks";
+  const posting = prefix + "public-posting:";
+  const removals = prefix + "employer-removals:job:";
+  const retained = "retained";
+  const retainedBookmark = "retained-bookmark";
+  const excludedUrl = "https://careers.example.test/old-role";
+  const excluded = createHash("sha256").update(excludedUrl).digest("hex").slice(0, 24);
+  localStorage.setItem(bookmark, JSON.stringify({ [retained]: true, [excluded]: true }));
+  localStorage.setItem(bookmark + ":job:" + excluded, "true");
+  localStorage.setItem(bookmark + ":job:" + retained, "false");
+  localStorage.setItem(bookmark + ":job:" + retainedBookmark, "true");
+  localStorage.setItem(posting + excluded, JSON.stringify({
+    id: excluded, title: "Old Software Engineer", location: "New York",
+    source: "reviewed:removed", url: excludedUrl,
+  }));
+  localStorage.setItem(removals + excluded, JSON.stringify([removal()]));
+  localStorage.setItem(removals + retained, JSON.stringify([removal()]));
+  localStorage.setItem(removalKey("old-fictional-role", "obsolete"), JSON.stringify([removal()]));
+  localStorage.setItem("unrelated-app", "untouched");
+  vi.stubGlobal("crypto", webcrypto);
+  vi.stubGlobal("fetch", vi.fn(async () => {
+    const snapshot = bundle();
+    const job = { id: retained, title: "Admitted Engineer", employer: "Current employer",
+      source: "reviewed:current", saved: true };
+    snapshot.state.jobs = [job, { ...job, id: retainedBookmark, saved: false }];
+    return Response.json({
+      ...snapshot, current_catalog_only: true,
+      reviewed_job_sources: [{ source: "reviewed:removed", employer: "Removed employer",
+        careers_url: "https://careers.example.test/", posting_urls: [excludedUrl] }],
+    });
+  }));
+  const client = new ApiClient(false, undefined, new PublicPreviewTransport());
+  const state = await client.state();
+  expect(state.state.jobs).toMatchObject([
+    { id: retained, saved: false, removals: [removal()] },
+    { id: retainedBookmark, saved: true, removals: [] },
+  ]);
+  for (const key of [bookmark + ":job:" + excluded, posting + excluded, removals + excluded,
+    removalKey("old-fictional-role", "obsolete")])
+    expect(localStorage.getItem(key)).toBeNull();
+  expect(JSON.parse(localStorage.getItem(bookmark)!)).toEqual({ [retained]: true });
+  expect(localStorage.getItem("unrelated-app")).toBe("untouched");
+  await expect(client.action("restore-job", { id: excluded, removal_id: removalA })).rejects.toThrow();
+  await client.action("restore-job", { id: retained, removal_id: removalA });
+  const refreshed = new ApiClient(false, undefined, new PublicPreviewTransport());
+  expect((await refreshed.state()).state.jobs[0].removals?.[0].restored_at).toBeTruthy();
+});
+
 it("keeps independent role writes from already loaded tabs and reads their latest choices", async () => {
   const first = new ApiClient(false, undefined, new PublicPreviewTransport());
   const second = new ApiClient(false, undefined, new PublicPreviewTransport());
@@ -677,7 +727,7 @@ it("returns actual static PDFs in view mode and maps downloads under demo only",
   }>("document-editor", { id: "application-a", document: "resume" });
   expect(document.mode).toBe("view");
   expect(atob(document.pdf)).toContain("%PDF-1.4");
-  expect(document.notice).toContain("fictional");
+  expect(document.notice).toContain("sample document");
   expect(client.previewFileUrl("application-a", "resume.pdf")).toBe(
     "/demo/files/aa.pdf",
   );

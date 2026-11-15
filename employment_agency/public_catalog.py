@@ -17,10 +17,29 @@ from .workspaces import configure
 
 
 DATA = Path(__file__).with_name('demo_data')
+CATALOG_SCHEMA = 3
 
 
 def load_catalog():
     return json.loads((DATA / 'showcase_jobs.json').read_text(encoding='utf-8'))
+
+
+def admitted_catalog(catalog):
+    """Enforce logo and listing membership before public records are seeded."""
+    if catalog.get('mode') != 'reviewed':
+        raise ValueError('The public showcase requires a reviewed company catalog')
+    companies = [company for company in catalog['companies']
+                 if (company.get('logo') or {}).get('status') == 'verified']
+    if catalog.get('schema') == CATALOG_SCHEMA and len(companies) != len(catalog['companies']):
+        raise ValueError('Every public company requires a verified official logo')
+    job_ids = [row['job_id'] for company in companies for row in company['listings']]
+    admitted = set(job_ids)
+    jobs = [job for job in catalog['jobs'] if job['id'] in admitted]
+    if len(admitted) != len(job_ids) or len(jobs) != len(job_ids):
+        raise ValueError('The public catalog has inconsistent listing membership')
+    if catalog.get('schema') == CATALOG_SCHEMA and len(jobs) != len(catalog['jobs']):
+        raise ValueError('Every public listing requires an admitted hiring employer')
+    return {**catalog, 'companies': companies, 'jobs': jobs}
 
 
 def skill_key(text):
@@ -42,9 +61,7 @@ def restore_companies(service, catalog):
             if employer_id and employer_id != link['employer_id']:
                 raise ValueError('The public catalog contains inconsistent employer identities')
             employer_id = link['employer_id']
-        logo = company.get('logo') or {}
-        if logo.get('status') != 'verified':
-            continue
+        logo = company['logo']
         sha256 = logo['sha256']
         if not re.fullmatch(r'[a-f0-9]{64}', sha256):
             raise ValueError('Invalid reviewed company logo hash')
@@ -54,7 +71,9 @@ def restore_companies(service, catalog):
         employer = next(row for row in service.w.read()['employers'] if row['id'] == employer_id)
         company_logos.store_logo(service.w, employer, {
             'source': 'operator-verified-branding', 'page_url': logo['page_url'],
-            'requested_page': logo['page_url'], 'reviewed_url': logo['url'],
+            'requested_page': logo.get('requested_page', logo['page_url']),
+            'url': logo.get('declared_url', logo['url']),
+            'reviewed_url': logo.get('reviewed_url'),
             'evidence': logo['evidence'],
         }, body, logo['url'])
 
@@ -66,15 +85,15 @@ def save_reviews(service, catalog, profile_id):
     state = service.w.read()
     facts = {skill_key(fact['text']): fact['id'] for fact in state['facts'] if fact.get('confirmed')}
     links = {link['id']: link['employer_id'] for link in state['employer_links']}
+    profile = next(row for row in state['profiles'] if row['id'] == profile_id)
+    comparison_links, unavailable, _ = company_best_matches.comparison_context(state)
+    employers = {row['id']: row for row in state['employers']}
     for company in catalog['companies']:
         ids = [item['job_id'] for item in company['listings']]
         if len(ids) <= 2:
             if company.get('picks'):
                 raise ValueError('Public highlights require more than two distinct roles')
             continue
-        target = {'workspace_id': service.w.workspace_id, 'profile_id': profile_id,
-                  'employer_id': links[ids[0]]}
-        context = service.action('company-best-matches-basis', target)
         picks = []
         for pick in company['picks']:
             try:
@@ -82,8 +101,16 @@ def save_reviews(service, catalog, profile_id):
             except KeyError as error:
                 raise ValueError('The public profile changed; review the company highlights again') from error
             picks.append({'job_id': pick['job_id'], 'reason': pick['reason'], 'fact_ids': fact_ids})
+        employer = employers[links[ids[0]]]
+        eligible = company_best_matches.eligible_inventory(state, employer, profile, comparison_links, unavailable)
+        if len({item['vacancy_id'] for item in eligible.values()}) < 3:
+            continue
+        current = [job_id for job_id in ids if job_id in eligible]
+        target = {'workspace_id': service.w.workspace_id, 'profile_id': profile_id,
+                  'employer_id': employer['id']}
+        context = service.action('company-best-matches-basis', target)
         service.action('company-best-matches', {
-            **target, 'basis': context['basis'], 'compared_job_ids': ids, 'picks': picks,
+            **target, 'basis': context['basis'], 'compared_job_ids': current, 'picks': picks,
         })
 
 
@@ -98,7 +125,7 @@ def republish_reviews(state, catalog, resume_sha256):
         try:
             configure(workspace.path, {'demo': True, 'setup_complete': True})
             with workspace.edit() as restored:
-                for key in ('identity', 'facts', 'profiles', 'jobs', 'employers', 'employer_links'):
+                for key in ('identity', 'facts', 'profiles', 'jobs', 'employers', 'employer_links', 'applications'):
                     restored[key] = state[key]
             service = Service(workspace)
             for profile in state['profiles']:
@@ -114,7 +141,7 @@ def export_logos(stage, workspace, state, rankings):
         sha256 = company_logos.logo_hash(employer)
         body = company_logo_assets.read(workspace, sha256)
         if body is None:
-            continue
+            raise ValueError('A public employer is missing its verified logo bytes')
         relative = f'company-logos/{sha256}.png'
         path = stage / relative
         path.parent.mkdir(exist_ok=True)
@@ -124,6 +151,7 @@ def export_logos(stage, workspace, state, rankings):
         company = job.get('company') or {}
         current = company.get('logo_url', '')
         sha256 = current.rsplit('/', 1)[-1].removesuffix('.png')
-        if sha256 in assets:
-            company['logo_url'] = assets[sha256]
+        if sha256 not in assets:
+            raise ValueError('A public listing is missing its verified company logo')
+        company['logo_url'] = assets[sha256]
     return assets

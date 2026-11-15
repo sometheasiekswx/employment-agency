@@ -1,0 +1,444 @@
+{
+  "checked_at": "2026-11-15T10:47:10+00:00",
+  "companies": [
+    {
+      "name": "Cohere",
+      "city": "Toronto",
+      "careers_url": "https://cohere.com/careers",
+      "logo": {
+        "status": "verified",
+        "page_url": "https://cohere.com/contact-sales",
+        "url": "https://cdn.sanity.io/images/rjtqmwfu/web3-prod/5b7ba1e2dedf61f5bc9285a0cce50b8e8cda9a72-118x20.svg",
+        "final_url": "https://cdn.sanity.io/images/rjtqmwfu/web3-prod/5b7ba1e2dedf61f5bc9285a0cce50b8e8cda9a72-118x20.svg",
+        "evidence": "Cohere’s official website publishes its company mark on this page.",
+        "sha256": "5ac09b58357ad6a2888055999fc86c9af39edc3a08c950d30485931fddc23935",
+        "expected_sha256": "5ac09b58357ad6a2888055999fc86c9af39edc3a08c950d30485931fddc23935",
+        "checked_at": "2026-11-15T10:43:13.237876+00:00",
+        "local_path": "tasks/public-demo-logos-activity/research/toronto/logos/cohere.png",
+        "dimensions": [
+          118,
+          20
+        ],
+        "selection": null
+      },
+      "picks": [
+        {
+          "job_id": "c014188e81a97eb9a8edc4bd",
+          "reason": "Confirmed Next.js, TypeScript, Python and SQL match the stack. The résumé documents building internal tools, developing data pipelines and gathering requirements across technical and non-technical groups.",
+          "fact_ids": [
+            "60e7c079348914b505360dc1f0dedf7a",
+            "3b66e05b56c2d09ca02852719fc4b4bc",
+            "ce3737d14c22431c2f3c0d19067d52a3",
+            "d7629711b68661baaf1fbb1792c0fb8a"
+          ]
+        },
+        {
+          "job_id": "1f4ab1e5b328cea9be79c463",
+          "reason": "Confirmed full-stack skills and the résumé’s APIs, authentication, database work and customer-visible cloud platforms map to the dashboard and account-management responsibilities.",
+          "fact_ids": [
+            "60e7c079348914b505360dc1f0dedf7a",
+            "3b66e05b56c2d09ca02852719fc4b4bc",
+            "ce3737d14c22431c2f3c0d19067d52a3",
+            "3048a991068b640797597ac317697949"
+          ]
+        }
+      ],
+      "jobs": [
+        {
+          "id": "c014188e81a97eb9a8edc4bd",
+          "title": "Senior Full-Stack Engineer, Annotation Platform",
+          "employer": "Cohere",
+          "city": "Toronto",
+          "location": "Toronto; Canada; United States; New York; Vancouver; Ottawa; Montreal",
+          "url": "https://jobs.ashbyhq.com/cohere/7133d205-5421-4336-a8e2-6037b5f55073",
+          "careers_url": "https://cohere.com/careers",
+          "source": "ashby:cohere",
+          "requisition": "7133d205-5421-4336-a8e2-6037b5f55073",
+          "source_url": "https://jobs.ashbyhq.com/cohere/7133d205-5421-4336-a8e2-6037b5f55073",
+          "evidence": "Cohere publishes listing 7133d205-5421-4336-a8e2-6037b5f55073 on its careers channel and names the advertised location as Toronto; Canada; United States; New York; Vancouver; Ottawa; Montreal.",
+          "description": "Build internal annotation tooling and collaborate with users such as annotators, researchers and product teams.",
+          "requirements": [
+            "Next.js, TypeScript, React and Python",
+            "Hands-on complex SQL queries",
+            "Products delivered across multiple stakeholder groups",
+            "Technical documentation and communication"
+          ],
+          "fit_rationale": "Confirmed Next.js, TypeScript, Python and SQL match the stack. The résumé documents building internal tools, developing data pipelines and gathering requirements across technical and non-technical groups.",
+          "checked_at": "2026-11-15T10:47:10+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "Remote",
+          "posted_at": "2026-09-15"
+        },
+        {
+          "id": "1f4ab1e5b328cea9be79c463",
+          "title": "Senior Full-Stack Engineer, Cohere Dashboard",
+          "employer": "Cohere",
+          "city": "Toronto",
+          "location": "Toronto; Ottawa; Montreal",
+          "url": "https://jobs.ashbyhq.com/cohere/7e0e08ed-4b12-4aaa-8dda-ad6292992061",
+          "careers_url": "https://cohere.com/careers",
+          "source": "ashby:cohere",
+          "requisition": "7e0e08ed-4b12-4aaa-8dda-ad6292992061",
+          "source_url": "https://jobs.ashbyhq.com/cohere/7e0e08ed-4b12-4aaa-8dda-ad6292992061",
+          "evidence": "Cohere publishes listing 7e0e08ed-4b12-4aaa-8dda-ad6292992061 on its careers channel and names the advertised location as Toronto; Ottawa; Montreal.",
+          "description": "Develop Cohere’s customer dashboard for model access, API keys, teams, billing and documentation.",
+          "requirements": [
+            "Next.js, TypeScript, React and Python",
+            "Hands-on complex SQL queries",
+            "Multi-stakeholder product delivery",
+            "Communication and clear technical documentation"
+          ],
+          "fit_rationale": "Confirmed full-stack skills and the résumé’s APIs, authentication, database work and customer-visible cloud platforms map to the dashboard and account-management responsibilities.",
+          "checked_at": "2026-11-15T10:47:10+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "Remote",
+          "posted_at": "2026-10-13"
+        },
+        {
+          "id": "9fc5dcbf9a36b49fc61f3411",
+          "title": "Web Developer",
+          "employer": "Cohere",
+          "city": "Toronto",
+          "location": "Toronto; San Francisco; Canada; New York; Vancouver; Ottawa; Montreal",
+          "url": "https://jobs.ashbyhq.com/cohere/4232d337-fbc7-4e8c-81d5-2903ab0eb6e8",
+          "careers_url": "https://cohere.com/careers",
+          "source": "ashby:cohere",
+          "requisition": "4232d337-fbc7-4e8c-81d5-2903ab0eb6e8",
+          "source_url": "https://jobs.ashbyhq.com/cohere/4232d337-fbc7-4e8c-81d5-2903ab0eb6e8",
+          "evidence": "Cohere publishes listing 4232d337-fbc7-4e8c-81d5-2903ab0eb6e8 on its careers channel and names the advertised location as Toronto; San Francisco; Canada; New York; Vancouver; Ottawa; Montreal.",
+          "description": "Develop Cohere’s public web presence, including marketing pages, reusable UI and the content platform.",
+          "requirements": [
+            "2+ years shipping React and TypeScript applications",
+            "Next.js and a headless CMS or capacity to learn quickly",
+            "Collaboration with design and marketing",
+            "Attention to web performance and quality"
+          ],
+          "fit_rationale": "Confirmed Next.js and TypeScript plus React product and company-site development align with the frontend scope. Public UX prototypes and website optimisation give relevant design and performance evidence.",
+          "checked_at": "2026-11-15T10:47:10+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "Remote",
+          "posted_at": "2026-10-27"
+        }
+      ]
+    },
+    {
+      "name": "Feathery",
+      "city": "Toronto",
+      "careers_url": "https://www.feathery.io/careers",
+      "logo": {
+        "status": "verified",
+        "page_url": "https://www.feathery.io/",
+        "url": "https://feathery.s3.us-west-1.amazonaws.com/full-logo-1.png",
+        "final_url": "https://feathery.s3.us-west-1.amazonaws.com/full-logo-1.png",
+        "evidence": "Feathery’s official website publishes its company mark on this page.",
+        "sha256": "a806afd41cca4fca0cb4103ea04730652e8e330495e2596946bc1ef3942acf7b",
+        "expected_sha256": "a806afd41cca4fca0cb4103ea04730652e8e330495e2596946bc1ef3942acf7b",
+        "checked_at": "2026-11-15T10:43:09.745076+00:00",
+        "local_path": "tasks/public-demo-logos-activity/research/toronto/logos/feathery.png",
+        "dimensions": [
+          192,
+          39
+        ],
+        "selection": null
+      },
+      "picks": [
+        {
+          "job_id": "b61da41f5ca82cf8bfd6af5f",
+          "reason": "Confirmed TypeScript, Express.js and AWS plus React SaaS, API design and microservice migration support the end-to-end scope. The public résumé documents delivery from requirements through testing and deployment.",
+          "fact_ids": [
+            "3b66e05b56c2d09ca02852719fc4b4bc",
+            "f8cb45f384063f6670a007b30b1d95a5",
+            "a383674d908eade31aef1db6ada4e12a"
+          ]
+        },
+        {
+          "job_id": "af10d77be61eeee6f74d997f",
+          "reason": "Confirmed Python and TypeScript support client implementations. The résumé documents custom cloud systems, APIs and integrations, plus stakeholder demonstrations and acceptance testing.",
+          "fact_ids": [
+            "ce3737d14c22431c2f3c0d19067d52a3",
+            "3b66e05b56c2d09ca02852719fc4b4bc",
+            "79ed41d4d9f7d874acbed0e6cb157cdf"
+          ]
+        }
+      ],
+      "jobs": [
+        {
+          "id": "b61da41f5ca82cf8bfd6af5f",
+          "title": "Full Stack Engineer",
+          "employer": "Feathery",
+          "city": "Toronto",
+          "location": "Toronto",
+          "url": "https://jobs.ashbyhq.com/feathery/d783ea74-34f5-4cb6-aedb-c6b87c617131",
+          "careers_url": "https://www.feathery.io/careers",
+          "source": "ashby:feathery",
+          "requisition": "d783ea74-34f5-4cb6-aedb-c6b87c617131",
+          "source_url": "https://jobs.ashbyhq.com/feathery/d783ea74-34f5-4cb6-aedb-c6b87c617131",
+          "evidence": "Feathery publishes listing d783ea74-34f5-4cb6-aedb-c6b87c617131 on its careers channel and names the advertised location as Toronto.",
+          "description": "Build core product features across the UI, services, integrations and cloud infrastructure.",
+          "requirements": [
+            "3–6+ years full-stack delivery",
+            "JavaScript or TypeScript and modern frontend frameworks such as React",
+            "Node.js, Django or a similar backend framework",
+            "API design and distributed or asynchronous software",
+            "AWS familiarity and end-to-end feature ownership"
+          ],
+          "fit_rationale": "Confirmed TypeScript, Express.js and AWS plus React SaaS, API design and microservice migration support the end-to-end scope. The public résumé documents delivery from requirements through testing and deployment.",
+          "checked_at": "2026-11-15T10:47:10+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "Hybrid",
+          "posted_at": "2026-03-31"
+        },
+        {
+          "id": "336b94c9098c1da34fdefdfa",
+          "title": "Senior Backend Engineer",
+          "employer": "Feathery",
+          "city": "Toronto",
+          "location": "Toronto",
+          "url": "https://jobs.ashbyhq.com/feathery/0edfe489-b0ad-4e5a-a948-063cd447e4a0",
+          "careers_url": "https://www.feathery.io/careers",
+          "source": "ashby:feathery",
+          "requisition": "0edfe489-b0ad-4e5a-a948-063cd447e4a0",
+          "source_url": "https://jobs.ashbyhq.com/feathery/0edfe489-b0ad-4e5a-a948-063cd447e4a0",
+          "evidence": "Feathery publishes listing 0edfe489-b0ad-4e5a-a948-063cd447e4a0 on its careers channel and names the advertised location as Toronto.",
+          "description": "Build production workflow services, API integrations and document-processing systems.",
+          "requirements": [
+            "4–7+ years building and scaling backend systems",
+            "Node.js, Django or a similar framework",
+            "Distributed systems and asynchronous processing pipelines",
+            "AWS and cloud infrastructure",
+            "Production API design and service reliability"
+          ],
+          "fit_rationale": "Backend responsibilities across the public career include SaaS APIs, a monolith-to-microservices migration, Python ingestion pipelines and operational cloud products. Confirmed Express.js, AWS and CI/CD apply directly. Feathery’s workflow scale and specialised asynchronous tooling remain learning areas.",
+          "checked_at": "2026-11-15T10:47:10+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "Hybrid",
+          "posted_at": "2026-07-27"
+        },
+        {
+          "id": "af10d77be61eeee6f74d997f",
+          "title": "Forward Deployed Engineer",
+          "employer": "Feathery",
+          "city": "Toronto",
+          "location": "Toronto",
+          "url": "https://jobs.ashbyhq.com/feathery/0705cc73-88ac-4cfd-ba64-d80b1359e345",
+          "careers_url": "https://www.feathery.io/careers",
+          "source": "ashby:feathery",
+          "requisition": "0705cc73-88ac-4cfd-ba64-d80b1359e345",
+          "source_url": "https://jobs.ashbyhq.com/feathery/0705cc73-88ac-4cfd-ba64-d80b1359e345",
+          "evidence": "Feathery publishes listing 0705cc73-88ac-4cfd-ba64-d80b1359e345 on its careers channel and names the advertised location as Toronto.",
+          "description": "Design and deploy customer workflows, write integration logic, and turn implementation findings into product improvements.",
+          "requirements": [
+            "Customer-facing technical delivery or similar experience",
+            "JavaScript for scripting and implementation logic",
+            "Python API development and troubleshooting",
+            "Workflow automation and data-intensive problem solving",
+            "Own implementations from discovery to deployment"
+          ],
+          "fit_rationale": "The résumé documents solving operational problems through custom cloud software, developing APIs and integrations, and working with stakeholders through demonstrations and acceptance testing. Confirmed Python and TypeScript support implementation work.",
+          "checked_at": "2026-11-15T10:47:10+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "Hybrid",
+          "posted_at": "2026-08-07"
+        }
+      ]
+    },
+    {
+      "name": "Braze",
+      "city": "Toronto",
+      "careers_url": "https://www.braze.com/company/careers",
+      "logo": {
+        "status": "verified",
+        "page_url": "https://www.braze.com/docs",
+        "url": "https://www.braze.com/docs/assets/img/logos/braze-logo-monogram-purple.svg",
+        "final_url": "https://www.braze.com/docs/assets/img/logos/braze-logo-monogram-purple.svg",
+        "evidence": "Braze’s own documentation explicitly displays the purple Braze monogram as its masthead symbol.",
+        "sha256": "319f863644b6d1dbe407870aea4d00808a9241fe26431f017742a6ebed2771de",
+        "expected_sha256": "319f863644b6d1dbe407870aea4d00808a9241fe26431f017742a6ebed2771de",
+        "checked_at": "2026-11-15T10:46:43.479566+00:00",
+        "local_path": "tasks/public-demo-logos-activity/research/toronto/logos/braze.png",
+        "dimensions": [
+          36,
+          35
+        ],
+        "selection": "https://www.braze.com/docs/assets/img/logos/braze-logo-monogram-purple.svg"
+      },
+      "picks": [
+        {
+          "job_id": "791428416afc3a90ae1229b6",
+          "reason": "Confirmed TypeScript, SQL/NoSQL and full-stack delivery plus public experience with React, database models and user requirements align closely. Ruby and Rails are listed under bonus technologies.",
+          "fact_ids": [
+            "3b66e05b56c2d09ca02852719fc4b4bc",
+            "d7629711b68661baaf1fbb1792c0fb8a",
+            "79ed41d4d9f7d874acbed0e6cb157cdf"
+          ]
+        },
+        {
+          "job_id": "88e538666e344d82372b5155",
+          "reason": "Public SaaS and cloud product work supports the full-stack role. Technical direction across 10+ Deakin products supports leadership, and SQL/NoSQL and TypeScript match the preferred background.",
+          "fact_ids": [
+            "3b66e05b56c2d09ca02852719fc4b4bc",
+            "d7629711b68661baaf1fbb1792c0fb8a",
+            "79ed41d4d9f7d874acbed0e6cb157cdf"
+          ]
+        }
+      ],
+      "jobs": [
+        {
+          "id": "88e538666e344d82372b5155",
+          "title": "Senior Software Engineer I, Core Objects",
+          "employer": "Braze",
+          "city": "Toronto",
+          "location": "Toronto",
+          "url": "https://job-boards.greenhouse.io/braze/jobs/8249765",
+          "careers_url": "https://www.braze.com/company/careers",
+          "source": "greenhouse:braze",
+          "requisition": "R1875",
+          "source_url": "https://job-boards.greenhouse.io/braze/jobs/8249765",
+          "evidence": "Braze publishes listing 8249765 on its careers channel and names the advertised location as Toronto.",
+          "description": "Design and build shared application objects that other Braze engineering teams use in customer-engagement workflows.",
+          "requirements": [
+            "5+ years of full-stack development",
+            "Technical leadership",
+            "Software design, data structures and algorithms",
+            "Collaboration and strong communication"
+          ],
+          "fit_rationale": "Public full-stack experience crosses SaaS and cloud operations products, and the résumé documents technical direction and code review across more than ten Deakin products. React, SQL/NoSQL and API experience match advertised preferred backgrounds.",
+          "checked_at": "2026-11-15T10:47:10+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "posted_at": "2026-10-02",
+          "source_updated_at": "2026-11-13T17:03:15-05:00",
+          "salary": {
+            "min": 153815,
+            "max": 277431,
+            "currency": "CAD",
+            "period": "annual",
+            "basis": "base"
+          },
+          "work_arrangement": "Hybrid"
+        },
+        {
+          "id": "7f97cdc8e12c854dac685c53",
+          "title": "Senior Software Engineer I, Email",
+          "employer": "Braze",
+          "city": "Toronto",
+          "location": "Toronto",
+          "url": "https://job-boards.greenhouse.io/braze/jobs/8226558",
+          "careers_url": "https://www.braze.com/company/careers",
+          "source": "greenhouse:braze",
+          "requisition": "R1835",
+          "source_url": "https://job-boards.greenhouse.io/braze/jobs/8226558",
+          "evidence": "Braze publishes listing 8226558 on its careers channel and names the advertised location as Toronto.",
+          "description": "Build and improve full-stack tooling for Braze’s email product and guide technical delivery.",
+          "requirements": [
+            "5+ years of full-stack development",
+            "Technical leadership",
+            "Software design, data structures and algorithms",
+            "Self-directed execution and teamwork"
+          ],
+          "fit_rationale": "The résumé documents substantial full-stack delivery, technical direction and mentoring. Confirmed TypeScript and relational/non-relational data skills support the role, and React and MongoDB are listed among optional technologies.",
+          "checked_at": "2026-11-15T10:47:10+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "posted_at": "2026-09-23",
+          "source_updated_at": "2026-11-13T17:03:07-05:00",
+          "salary": {
+            "min": 153815,
+            "max": 277431,
+            "currency": "CAD",
+            "period": "annual",
+            "basis": "base"
+          },
+          "work_arrangement": "Hybrid"
+        },
+        {
+          "id": "ec21d2fcd08b4327f56ae02f",
+          "title": "Software Engineer II, Data Lakehouse",
+          "employer": "Braze",
+          "city": "Toronto",
+          "location": "Toronto",
+          "url": "https://job-boards.greenhouse.io/braze/jobs/8222294",
+          "careers_url": "https://www.braze.com/company/careers",
+          "source": "greenhouse:braze",
+          "requisition": "R1841",
+          "source_url": "https://job-boards.greenhouse.io/braze/jobs/8222294",
+          "evidence": "Braze publishes listing 8222294 on its careers channel and names the advertised location as Toronto.",
+          "description": "Build data platform features and deliver the product experience around querying and using customer data.",
+          "requirements": [
+            "At least 2 years of full-stack development, ideally about 2–4",
+            "Strong software design, data structures and algorithms",
+            "Computer science degree or equivalent",
+            "Teamwork and willingness to learn technologies as needed"
+          ],
+          "fit_rationale": "The public degree, Python data ingestion and data visualisation, and testing and end-to-end application delivery align with the data platform scope. The 2–4 year range is stated as a preference above a two-year minimum. Snowflake and ClickHouse are optional.",
+          "checked_at": "2026-11-15T10:47:10+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "posted_at": "2026-09-25",
+          "source_updated_at": "2026-11-13T17:03:10-05:00",
+          "salary": {
+            "min": 125280,
+            "max": 235736,
+            "currency": "CAD",
+            "period": "annual",
+            "basis": "base"
+          },
+          "work_arrangement": "Hybrid"
+        },
+        {
+          "id": "791428416afc3a90ae1229b6",
+          "title": "Software Engineer II, User Targeting",
+          "employer": "Braze",
+          "city": "Toronto",
+          "location": "Toronto",
+          "url": "https://job-boards.greenhouse.io/braze/jobs/8262966",
+          "careers_url": "https://www.braze.com/company/careers",
+          "source": "greenhouse:braze",
+          "requisition": "R1885",
+          "source_url": "https://job-boards.greenhouse.io/braze/jobs/8262966",
+          "evidence": "Braze publishes listing 8262966 on its careers channel and names the advertised location as Toronto.",
+          "description": "Ship backend and frontend user segmentation features, write tests and collaborate with product teams.",
+          "requirements": [
+            "2+ years shipping web software in full-stack or backend roles",
+            "Software design, data structures and algorithms",
+            "SQL and at least one production database",
+            "Ability to scope and deliver ambiguous requests independently"
+          ],
+          "fit_rationale": "Confirmed TypeScript, SQL/NoSQL and full-stack delivery plus public experience with React, database models and user requirements align closely. Ruby and Rails are listed under bonus technologies.",
+          "checked_at": "2026-11-15T10:47:10+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "posted_at": "2026-10-16",
+          "source_updated_at": "2026-11-13T17:03:18-05:00",
+          "salary": {
+            "min": 125280,
+            "max": 210600,
+            "currency": "CAD",
+            "period": "annual",
+            "basis": "base"
+          },
+          "work_arrangement": "Hybrid"
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "Toronto": 3
+  }
+}

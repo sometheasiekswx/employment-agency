@@ -501,6 +501,7 @@ export function DiscoverPage() {
   const pendingRole = (job: Job) =>
     listingIds.has(job.id) &&
     !currentRemoval(job) &&
+    !(client.preview && job.demo_active) &&
     !hasRecordedSubmission(applications.get(job.id), job) &&
     !job.company?.submitted_vacancy;
   const pending = new Map(
@@ -578,7 +579,8 @@ export function DiscoverPage() {
     const app = applications.get(job.id);
     if (statusFilter === "submitted") return hasRecordedSubmission(app, job);
     if (statusFilter === "new")
-      return !app && job.prior_application !== "rejected";
+      return !app && job.prior_application !== "rejected" &&
+        (!client.preview || job.demo_new !== false);
     return app?.status === statusFilter;
   });
   const pendingOffset = agentTools
@@ -1814,9 +1816,11 @@ export function DiscoverPage() {
                           <div className="discover-card-top">
                             <div className="discover-card-identity">
                               <CompanyMark name={job.company?.name || job.employer} logoUrl={employerLogo(job)} />
-                              <span className={`discover-status ${status.tone}`}>
-                                {status.label}
-                              </span>
+                              {status && (
+                                <span className={`discover-status ${status.tone}`}>
+                                  {status.label}
+                                </span>
+                              )}
                             </div>
                             <div className="discover-card-tools">
                               {currentRemoval(job) ? (

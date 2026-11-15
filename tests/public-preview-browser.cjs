@@ -11,7 +11,7 @@ const { showPanel } = require("./browser-applications.cjs");
 
 (async () => {
   const base = process.env.TEST_URL;
-  assert.ok(base, "Set TEST_URL to the static fictional preview");
+  assert.ok(base, "Set TEST_URL to the static public preview");
   const browser = await chromium.launch({
     channel: process.env.BROWSER_CHANNEL || "chrome",
     headless: true,
@@ -61,95 +61,149 @@ const { showPanel } = require("./browser-applications.cjs");
         .map((review) => [review.employer_id, review.picks]),
     );
     assert.ok(reviews.size > 0, "The public catalog includes reviewed highlights");
+    const allRoles = snapshot.state.jobs;
+    const applications = new Map(snapshot.state.applications.map((app) => [app.job_id, app]));
+    const removed = allRoles.filter((job) => job.removals?.length && !job.removals.at(-1).restored_at);
+    const submitted = allRoles.filter((job) => applications.get(job.id)?.status === "submitted");
+    const active = allRoles.filter((job) => job.demo_active);
+    const saved = allRoles.filter((job) => job.saved);
+    const assigned = new Set([...removed, ...submitted, ...active, ...saved].map(({ id }) => id));
+    const incoming = allRoles.filter((job) => !assigned.has(job.id));
+    const unseen = incoming.filter((job) => job.demo_new !== false);
+    assert.equal(assigned.size, removed.length + submitted.length + active.length + saved.length);
+    assert.equal(Math.abs(incoming.length - 2 * unseen.length) <= 1, true);
+    const catalog = require("../employment_agency/demo_data/showcase_jobs.json");
+    assert.equal(snapshot.current_catalog_only, true);
+    assert.equal(profile.locations.length, 7);
+    if (catalog.schema === 3) {
+      for (const destination of profile.locations)
+        assert.equal(catalog.new_employers_by_destination[destination].length, 3);
+      for (const [roles, share] of [[incoming, .70], [saved, .10], [active, .08], [submitted, .07], [removed, .05]])
+        assert.ok(Math.abs(roles.length - share * allRoles.length) <= 2);
+    }
     const jobsByCompany = new Map();
-    for (const job of snapshot.state.jobs.filter((job) => job.source?.startsWith("reviewed:"))) {
+    for (const job of allRoles) {
+      assert.ok(job.source?.startsWith("reviewed:"));
       assert.equal(job.hiring_employer_verified, true);
       assert.ok(job.company?.id, "A reviewed job has a verified employer");
       const companyJobs = jobsByCompany.get(job.company.id) ?? [];
       companyJobs.push(job);
       jobsByCompany.set(job.company.id, companyJobs);
     }
-    assert.equal(profile.locations.length, 7);
-    for (const destination of profile.locations) {
-      const companyCount = [...jobsByCompany.values()]
-        .filter((jobs) => jobs.some((job) => job.city === destination)).length;
-      assert.ok(companyCount >= 5 && companyCount <= 10, `${destination} employer coverage`);
+    // Published by the prior revision; each is realistic browser data with a
+    // recognized reviewed source, a bookmark and a recoverable removal.
+    const archived = [
+      { id: "d4a3e3e6ec786b5037b39f5c", source: "reviewed:plaid",
+        url: "https://jobs.ashbyhq.com/plaid/a9dc0810-546b-4773-9545-2862409e24b4" },
+      { id: "fb0ff9de9c14f0fdbd62bb26", source: "reviewed:ramp",
+        url: "https://jobs.ashbyhq.com/ramp/6511d68f-b65d-4499-962f-7e2f75eabe3f" },
+      { id: "66851db453ef0e7b147b54aa", source: "reviewed:figma",
+        url: "https://job-boards.greenhouse.io/figma/jobs/5691911004" },
+    ].find(({ id }) => !allRoles.some((job) => job.id === id));
+    if (archived) {
+      await page.addInitScript((job) => {
+        if (sessionStorage.getItem("demo-migration-fixture")) return;
+        sessionStorage.setItem("demo-migration-fixture", "true");
+        localStorage.setItem(`employment-agency:public-posting:${job.id}`, JSON.stringify({
+          ...job, title: "Previous catalog engineer", location: "New York", city: "New York",
+        }));
+        localStorage.setItem(`employment-agency:employer-bookmarks:job:${job.id}`, "true");
+        localStorage.setItem(`employment-agency:employer-removals:job:${job.id}`, JSON.stringify([{
+          id: "1".repeat(32), at: "2026-11-15T00:00:00Z", reason: "Earlier role removal",
+        }]));
+      }, archived);
     }
     await page.goto(base + "/discover/?view=all");
     const board = page.getByRole("region", { name: "Opportunities by company" });
     await board.waitFor();
-    const catalog = require("../employment_agency/demo_data/showcase_jobs.json");
+    const desktopLabel = page.locator(".workspace-topbar .demo-label");
+    assert.equal(await desktopLabel.innerText(), "Public demo");
+    assert.ok(await desktopLabel.isVisible());
+    if (archived)
+      assert.equal(await page.evaluate((id) =>
+        Object.keys(localStorage).some((key) => key.endsWith(id)), archived.id), false);
     const logoOutcomes = new Map(catalog.companies.flatMap((company) =>
       company.listings.map(({ job_id }) => [job_id, company.logo]),
     ));
     const verifiedLogoUrls = new Set(Object.values(snapshot.company_logos));
     assert.ok(verifiedLogoUrls.size > 0, "The catalog bundles verified logo assets");
-    const decodedLogoUrls = new Set();
-    let decodedCompanies = 0;
-    const expectedLogoCompanies = catalog.companies.filter(
-      ({ logo }) => logo.status === "verified",
-    ).length;
-    for (const [companyId, jobs] of jobsByCompany) {
-      const column = board.locator(`[data-company-id="employer:${companyId}"]`);
-      const company = jobs[0].company;
-      await column.waitFor();
-      assert.ok(jobs.length >= 1 && jobs.length <= 7, `${company.name} vacancy count`);
-      const outcome = logoOutcomes.get(jobs[0].id);
-      assert.ok(outcome, `Recorded logo retrieval outcome for ${company.name}`);
-      const mark = column.locator("header .discover-employer-mark");
-      const logo = mark.locator("img");
-      if (outcome.status === "verified") {
+    const evidenceDir = "output/playwright/public-preview";
+    fs.mkdirSync(evidenceDir, { recursive: true });
+    for (const colorScheme of ["light", "dark"]) {
+      await page.goto(base + "/settings/");
+      await page.getByRole("region", { name: "Appearance", exact: true })
+        .getByRole("combobox", { name: "Color theme", exact: true })
+        .selectOption(colorScheme);
+      await page.waitForFunction((theme) => document.documentElement.dataset.theme === theme, colorScheme);
+      await page.goto(base + "/discover/?view=all");
+      await board.waitFor();
+      await page.waitForFunction((theme) => document.documentElement.dataset.theme === theme, colorScheme);
+      await page.screenshot({ path: `${evidenceDir}/catalog-${colorScheme}.png` });
+      const decoded = new Set();
+      for (const [companyId, jobs] of jobsByCompany) {
+        const column = board.locator(`[data-company-id="employer:${companyId}"]`);
+        const company = jobs[0].company;
+        await column.waitFor();
+        const outcome = logoOutcomes.get(jobs[0].id);
+        assert.equal(outcome?.status, "verified", company.name);
         const logoUrl = `/demo/company-logos/${outcome.sha256}.png`;
-        assert.match(logoUrl, /^\/demo\/company-logos\/[a-f0-9]{64}\.png$/);
+        const logo = column.locator("header .discover-employer-mark img");
         assert.ok(verifiedLogoUrls.has(logoUrl));
         assert.ok(jobs.every((job) => job.company.logo_url === logoUrl));
         assert.equal(new URL(await logo.getAttribute("src"), base).href, new URL(logoUrl, base).href);
         await logo.scrollIntoViewIfNeeded();
+        assert.ok(await logo.isVisible());
         assert.ok(await logo.evaluate(async (image) => {
           await image.decode();
           return image.naturalWidth > 0 && image.naturalHeight > 0;
-        }), `${company.name} official logo decodes in the browser`);
-        decodedLogoUrls.add(logoUrl);
-        decodedCompanies += 1;
-      } else {
-        assert.equal(outcome.status, "unavailable");
-        assert.ok(outcome.reason, `Recorded logo gap for ${company.name}`);
-        assert.ok(jobs.every((job) => !job.company.logo_url));
-        assert.equal(await logo.count(), 0);
-        const initials = company.name.trim().split(/\s+/).slice(0, 2)
-          .map((part) => Array.from(part)[0]).join("").toLocaleUpperCase();
-        const label = mark.locator("span");
-        assert.equal(await label.innerText(), initials);
-        assert.ok(await label.isVisible(), `${company.name} fallback is visible`);
-      }
-      const cards = column.locator("article[data-job-id]");
-      const displayedIds = await cards.evaluateAll((articles) =>
-        articles.map((article) => article.dataset.jobId),
-      );
-      assert.deepEqual(new Set(displayedIds), new Set(jobs.map((job) => job.id)));
-      const picks = reviews.get(companyId) ?? [];
-      assert.equal(picks.length, jobs.length > 2 ? 2 : 0, company.name);
-      assert.deepEqual(displayedIds.slice(0, picks.length), picks.map(({ job_id }) => job_id));
-      assert.equal(await column.locator(".discover-match-reason").count(), picks.length);
-      for (const { job_id, reason } of picks) {
-        const card = column.locator(`article[data-job-id="${job_id}"]`);
-        assert.equal(await card.locator(".discover-match-reason").innerText(), reason);
-      }
-      for (const text of ["Best matches for you", "More roles"]) {
-        assert.equal(
-          await column.getByRole("heading", { name: text, exact: true }).count(),
-          picks.length ? 1 : 0,
+        }), `${company.name} official logo decodes in ${colorScheme} mode`);
+        decoded.add(logoUrl);
+        const displayedIds = await column.locator("article[data-job-id]").evaluateAll((cards) =>
+          cards.map((card) => card.dataset.jobId),
         );
+        assert.deepEqual(new Set(displayedIds), new Set(jobs.filter(({ id }) => !assigned.has(id)).map(({ id }) => id)));
+        const picks = reviews.get(companyId) ?? [];
+        const compared = jobs.filter((job) => !removed.includes(job) && !submitted.includes(job));
+        assert.equal(picks.length, compared.length > 2 ? 2 : 0, company.name);
+        assert.deepEqual(displayedIds.slice(0, picks.length), picks.map(({ job_id }) => job_id));
+        assert.equal(await column.locator(".discover-match-reason").count(), picks.length);
+        for (const { job_id, reason } of picks)
+          assert.equal(await column.locator(`[data-job-id="${job_id}"] .discover-match-reason`).innerText(), reason);
       }
+      assert.deepEqual(decoded, verifiedLogoUrls);
     }
-    assert.equal(decodedCompanies, expectedLogoCompanies);
-    assert.deepEqual(decodedLogoUrls, verifiedLogoUrls);
-    const assessCloud = () =>
-      page.getByRole("button", {
-        name: "Assess Cloud Software Engineer at Emberlane Systems",
-        exact: true,
-      });
-    fs.mkdirSync("output/playwright/public-preview", { recursive: true });
+    for (const [query, roles, stage] of [
+      ["?status=new", unseen, "new"], ["?view=to-apply", saved, "to-apply"],
+      ["?view=applications&section=active", active, "active"],
+      ["?view=applications&section=submitted", submitted, "submitted"],
+    ]) {
+      await page.goto(base + "/discover/" + query);
+      await page.locator("article[data-job-id]").first().waitFor();
+      const ids = await page.locator("article[data-job-id]").evaluateAll((cards) =>
+        cards.map((card) => card.dataset.jobId),
+      );
+      assert.deepEqual(new Set(ids), new Set(roles.map(({ id }) => id)), query);
+      if (roles === active)
+        assert.equal(await page.locator("article").getByText("Sample draft", { exact: true }).count(), active.length);
+      await page.screenshot({ path: `${evidenceDir}/catalog-${stage}.png` });
+    }
+    await page.goto(base + "/discover/?view=all");
+    await board.locator("article[data-job-id]").first().waitFor();
+    const layoutOrder = await board.locator("article[data-job-id]").evaluateAll((cards) =>
+      cards.map((card) => card.dataset.jobId),
+    );
+    const primary = layoutOrder
+      .map((id) => incoming.find((job) => job.id === id))
+      .find((job) => job?.requirements?.length && !job.pending_blocker);
+    const secondary = incoming.find((job) =>
+      job.company.id !== primary?.company.id && !job.pending_blocker);
+    const sampleJob = active[0];
+    assert.ok(primary && secondary && sampleJob, "The fixture has independent opportunities and a sample draft");
+    const assess = (job, tab = page) => tab.locator(`[data-job-id="${job.id}"]`)
+      .getByRole("button", { name: `Assess ${job.title} at ${job.employer}`, exact: true });
+    const choice = (job, tab = page, existing = false) => tab.locator(`[data-job-id="${job.id}"]`)
+      .getByRole("button", { name: `${existing ? "Remove from To apply" : "Apply later"} · ${job.title}`, exact: true });
+    const assessPrimary = () => assess(primary);
     for (const viewport of [
       { width: 1440, height: 1000 },
       { width: 1440, height: 768 },
@@ -159,9 +213,18 @@ const { showPanel } = require("./browser-applications.cjs");
       await page.setViewportSize(viewport);
       for (const view of ["recommended", "all"]) {
         await page.goto(`${base}/discover/?view=${view}`);
-        await assessCloud().waitFor();
+        await assessPrimary().waitFor();
+        await assessPrimary().evaluate((element) => {
+          const { top, bottom } = element.getBoundingClientRect();
+          if (top < 0 || bottom > window.innerHeight)
+            element.scrollIntoView({ block: "center" });
+        });
+        await page.evaluate(() => new Promise((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(resolve))));
+        const opener = await assessPrimary().boundingBox();
+        assert.ok(opener);
         const scrollBefore = await page.evaluate(() => window.scrollY);
-        await assessCloud().click();
+        await page.mouse.click(opener.x + opener.width / 2, opener.y + opener.height / 2);
         await page.waitForFunction(() => {
           const footer = document.querySelector(".discover-inspector-footer");
           return (
@@ -214,7 +277,7 @@ const { showPanel } = require("./browser-applications.cjs");
     }
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto(base + "/discover/?view=all");
-    await assessCloud().waitFor();
+    await assessPrimary().waitFor();
     await page
       .getByRole("complementary", { name: "Public preview information" })
       .waitFor();
@@ -225,18 +288,15 @@ const { showPanel } = require("./browser-applications.cjs");
     await page.screenshot({
       path: "output/playwright/public-preview/discover-desktop.png",
     });
-    await assessCloud().click();
+    await assessPrimary().click();
     const inspector = page.locator(".discover-inspector");
-    const applicationId = snapshot.state.applications.find(
-      (application) => application.title === "Cloud Software Engineer",
-    )?.id;
+    const applicationId = applications.get(sampleJob.id)?.id;
     assert.ok(applicationId, "the sample role has a versioned CV");
     await inspector
-      .getByRole("heading", { name: "Cloud Software Engineer", exact: true })
+      .getByRole("heading", { name: primary.title, exact: true })
       .waitFor();
-    await showPanel(page, "overview");
     const evidence = inspector.getByRole("region", { name: "Career evidence" });
-    await evidence.getByText("Kubernetes", { exact: true }).waitFor();
+    await evidence.getByText(primary.requirements[0], { exact: true }).first().waitFor();
     assert.equal(
       await evidence
         .getByRole("button", { name: /I have this skill|Add evidence/ })
@@ -246,10 +306,10 @@ const { showPanel } = require("./browser-applications.cjs");
     );
     assert.equal(
       await inspector
-        .getByRole("link", { name: "Cloud Software Engineer", exact: true })
+        .getByRole("link", { name: primary.title, exact: true })
         .count(),
-      0,
-      "Fictional roles with no original listing URL show a plain title",
+      1,
+      "Reviewed roles link to the original listing",
     );
     await inspector
       .getByRole("button", {
@@ -264,7 +324,7 @@ const { showPanel } = require("./browser-applications.cjs");
       })
       .waitFor();
     await page.locator(".notification-card:not([inert])").filter({ hasText: "Role added to To apply." }).last().waitFor();
-    assert.equal(await assessCloud().count(), 0);
+    assert.equal(await assessPrimary().count(), 0);
     await page.waitForFunction(
       () =>
         document
@@ -282,7 +342,7 @@ const { showPanel } = require("./browser-applications.cjs");
     const overlay = await page.evaluate(() =>
       Object.fromEntries(
         Object.entries(localStorage).filter(([key]) =>
-          key.startsWith("employment-agency:fictional-bookmarks:"),
+          key.startsWith("employment-agency:employer-bookmarks:job:"),
         ),
       ),
     );
@@ -292,7 +352,7 @@ const { showPanel } = require("./browser-applications.cjs");
       Object.values(overlay).map((value) => JSON.parse(value)),
       [true],
     );
-    assert.equal(await assessCloud().count(), 0);
+    assert.equal(await assessPrimary().count(), 0);
     await inspector
       .getByRole("button", {
         name: "Remove from To apply",
@@ -303,19 +363,14 @@ const { showPanel } = require("./browser-applications.cjs");
       .locator(".notification-card:not([inert])")
       .filter({ hasText: "Role removed from To apply." })
       .last().waitFor();
-    await assessCloud().waitFor();
+    await assessPrimary().waitFor();
 
     const independent = await browser.newContext({
       viewport: { width: 1440, height: 1000 },
     });
     const second = await independent.newPage();
     await second.goto(base + "/discover/?view=all");
-    await second
-      .getByRole("button", {
-        name: "Apply later · Cloud Software Engineer",
-        exact: true,
-      })
-      .waitFor();
+    await choice(primary, second).waitFor();
     await independent.close();
 
     // Both tabs load before either writes. Independent role keys must preserve
@@ -329,67 +384,21 @@ const { showPanel } = require("./browser-applications.cjs");
       firstTab.goto(base + "/discover/?view=all"),
       secondTab.goto(base + "/discover/?view=all"),
     ]);
-    await Promise.all([
-      firstTab
-        .getByRole("button", {
-          name: "Apply later · Cloud Software Engineer",
-          exact: true,
-        })
-        .waitFor(),
-      secondTab
-        .getByRole("button", { name: "Apply later · Backend Engineer", exact: true })
-        .waitFor(),
-    ]).catch(async (error) => {
-      for (const [index, tab] of [firstTab, secondTab].entries()) {
-        await tab.screenshot({
-          path: `output/playwright/public-preview/concurrent-tab-${index}.png`,
-          fullPage: true,
-        });
-        fs.writeFileSync(
-          `output/playwright/public-preview/concurrent-tab-${index}.txt`,
-          await tab.locator("body").innerText(),
-        );
-      }
-      throw error;
-    });
-    await firstTab
-      .getByRole("button", {
-        name: "Apply later · Cloud Software Engineer",
-        exact: true,
-      })
-      .click();
-    await firstTab
-      .locator(".notification-card:not([inert])")
-      .filter({ hasText: "Role added to To apply." })
-      .last().waitFor();
-    await secondTab
-      .getByRole("button", { name: "Apply later · Backend Engineer", exact: true })
-      .click();
-    await secondTab
-      .locator(".notification-card:not([inert])")
-      .filter({ hasText: "Role added to To apply." })
-      .last().waitFor();
+    await Promise.all([choice(primary, firstTab).waitFor(), choice(secondary, secondTab).waitFor()]);
+    for (const [job, tab] of [[primary, firstTab], [secondary, secondTab]]) {
+      await choice(job, tab).click();
+      await tab.locator(".notification-card:not([inert])")
+        .filter({ hasText: "Role added to To apply." }).last().waitFor();
+    }
     for (const tab of [firstTab, secondTab]) {
       await tab.reload();
       await tab.getByRole("button", { name: "To apply", exact: true }).click();
-      await tab
-        .getByRole("button", {
-          name: "Remove from To apply · Cloud Software Engineer",
-          exact: true,
-        })
-        .waitFor();
-      await tab
-        .getByRole("button", { name: "Remove from To apply · Backend Engineer", exact: true })
-        .waitFor();
+      await choice(primary, tab, true).waitFor();
+      await choice(secondary, tab, true).waitFor();
     }
     await shared.close();
 
-    await page
-      .getByRole("button", {
-        name: "Assess Backend Engineer at Bayform Labs",
-        exact: true,
-      })
-      .click();
+    await assess(secondary).click();
     assert.equal(
       await inspector
         .getByRole("button", { name: "Prepare application", exact: true })
@@ -399,7 +408,8 @@ const { showPanel } = require("./browser-applications.cjs");
     await page
       .getByRole("button", { name: "Close opportunity details", exact: true })
       .click();
-    await assessCloud().click();
+    await page.goto(base + "/discover/?view=applications&section=active");
+    await assess(sampleJob).click();
     await showPanel(page, "documents");
     const application = page.locator(
       `[data-application-id="${applicationId}"]`,
@@ -447,7 +457,7 @@ const { showPanel } = require("./browser-applications.cjs");
       0,
     );
     await page.screenshot({
-      path: "output/playwright/public-preview/fictional-document.png",
+      path: "output/playwright/public-preview/sample-document.png",
     });
     await showPanel(page, "files");
     await application
@@ -547,7 +557,7 @@ const { showPanel } = require("./browser-applications.cjs");
       assert.equal(await control.isDisabled(), true);
 
     await page.goto(base + "/discover/?view=all");
-    await assessCloud().waitFor();
+    await assessPrimary().waitFor();
     const desktopAxe = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
       .analyze();
@@ -556,9 +566,12 @@ const { showPanel } = require("./browser-applications.cjs");
       [],
     );
     await page.setViewportSize({ width: 390, height: 844 });
-    await assessCloud().click();
+    const mobileLabel = page.locator(".mobile-demo-label");
+    assert.equal(await mobileLabel.innerText(), "Public demo");
+    assert.ok(await mobileLabel.isVisible());
+    await assessPrimary().click();
     const modal = page.getByRole("dialog", {
-      name: "Cloud Software Engineer",
+      name: primary.title,
       exact: true,
     });
     await modal.waitFor();
@@ -579,17 +592,14 @@ const { showPanel } = require("./browser-applications.cjs");
     for (const width of [1440, 390, 320]) {
       await page.setViewportSize({ width, height: 844 });
       await page.goto(base + "/discover/?view=all");
-      await assessCloud().click();
+      await assessPrimary().click();
       const inspector = page.locator(".discover-inspector");
       await inspector
         .getByRole("button", {
-          name: "Remove Cloud Software Engineer",
+          name: `Remove ${primary.title}`,
           exact: true,
         })
         .click();
-      await inspector
-        .getByRole("heading", { name: "Backend Engineer", exact: true })
-        .waitFor();
       await page
         .getByRole("region", { name: "Opportunity removal", exact: true })
         .getByRole("button", { name: "Add reason", exact: true })
@@ -621,20 +631,20 @@ const { showPanel } = require("./browser-applications.cjs");
       await page.keyboard.press("Escape");
       await page.goto(base + "/discover/?view=all");
       await page
-        .getByRole("button", { name: /^Removed \(3\)$/, exact: true })
+        .getByRole("button", { name: `Removed (${removed.length + 1})`, exact: true })
         .waitFor();
       assert.equal(
-        await assessCloud().count(),
+        await assessPrimary().count(),
         0,
         "browser-local removal survives reload",
       );
       await page
-        .getByRole("button", { name: /^Removed \(3\)$/, exact: true })
+        .getByRole("button", { name: `Removed (${removed.length + 1})`, exact: true })
         .click();
-      await assessCloud().waitFor();
+      await assessPrimary().waitFor();
       await page
         .getByRole("button", {
-          name: "Add removal reason for Cloud Software Engineer",
+          name: `Add removal reason for ${primary.title}`,
           exact: true,
         })
         .click();
@@ -652,21 +662,21 @@ const { showPanel } = require("./browser-applications.cjs");
       });
       await page
         .getByRole("button", {
-          name: "Restore Cloud Software Engineer",
+          name: `Restore ${primary.title}`,
           exact: true,
         })
         .click();
       await page
         .getByRole("button", { name: "Show available roles", exact: true })
         .click();
-      await assessCloud().waitFor();
+      await assessPrimary().waitFor();
     }
     assert.deepEqual(apiRequests, []);
     assert.deepEqual(externalRequests, []);
     assert.deepEqual(mutations, []);
     assert.deepEqual(errors, []);
     console.log(
-      "Public static preview passed: six routes, fictional PDF/Word views, browser-local bookmarks/removal/reasons/restore, limited private operations, isolated employer feeds and accessible desktop/mobile layouts.",
+      "Public static preview passed: verified company logos, five sample queues, sample PDF/Word views, current catalog migration, browser-local choices and accessible desktop/mobile layouts.",
     );
   } finally {
     await browser.close();

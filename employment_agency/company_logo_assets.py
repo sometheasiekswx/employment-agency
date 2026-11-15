@@ -1,4 +1,4 @@
-"""Bounded raster normalization for public company logo evidence."""
+"""Bounded image normalization for public company logo evidence."""
 
 from http.client import HTTPException
 from io import BytesIO
@@ -9,14 +9,16 @@ from urllib.parse import unquote
 
 from PIL import Image
 
-from . import sources
+from . import company_logo_svg, sources
 from .store import atomic, digest
 from .workspaces import inside
 
 
 ASSET_FOLDER = 'records/company-logos'
 SHA256 = re.compile(r'[a-f0-9]{64}')
-FORMATS = {'image/png': 'PNG', 'image/jpeg': 'JPEG', 'image/webp': 'WEBP'}
+FORMATS = {'image/png': 'PNG', 'image/jpeg': 'JPEG', 'image/webp': 'WEBP', 'image/gif': 'GIF'}
+SVG_TYPE = 'image/svg+xml'
+ACCEPT_TYPES = ', '.join((*FORMATS, SVG_TYPE))
 INPUT_LIMIT = 256 * 1024
 ASSET_LIMIT = 160 * 1024
 MAX_SIDE = 2048
@@ -76,12 +78,21 @@ def persist(root, data):
     return sha256
 
 
-def normalize(body, media_type):
-    kind = FORMATS.get(media_type)
-    if not kind:
-        raise UnsupportedLogo('The source did not return a supported raster format')
+def normalize(body, media_type, *, deadline=None):
     if not 0 < len(body) <= INPUT_LIMIT:
         raise UnsupportedLogo('The logo exceeds its download size limit')
+    from_svg = media_type == SVG_TYPE
+    if from_svg:
+        try:
+            body = company_logo_svg.rasterize(
+                body, THUMBNAIL_SIDE, MAX_SIDE, MAX_PIXELS, deadline=deadline,
+            )
+        except ValueError as exc:
+            raise UnsupportedLogo(str(exc)) from exc
+        media_type = 'image/png'
+    kind = FORMATS.get(media_type)
+    if not kind:
+        raise UnsupportedLogo('The source did not return a supported logo format')
     try:
         with Image.open(BytesIO(body), formats=[kind]) as image:
             width, height = image.size
@@ -93,6 +104,8 @@ def normalize(body, media_type):
         with Image.open(BytesIO(body), formats=[kind]) as image:
             thumbnail = image.convert('RGBA')
             thumbnail.thumbnail((THUMBNAIL_SIDE, THUMBNAIL_SIDE), Image.Resampling.LANCZOS)
+            if from_svg and thumbnail.getbbox() is None:
+                raise UnsupportedLogo('The logo has no visible pixels')
             clean = Image.new('RGBA', thumbnail.size)
             clean.paste(thumbnail)
             output = BytesIO()
@@ -166,13 +179,13 @@ def retrieve(url, deadline):
         if not same_host(public_logo(target).hostname, host):
             raise UnsupportedLogo('The logo redirected outside its published asset host')
 
-    response = request(url, deadline, max_bytes=INPUT_LIMIT, accept=', '.join(FORMATS), redirect=redirect)
+    response = request(url, deadline, max_bytes=INPUT_LIMIT, accept=ACCEPT_TYPES, redirect=redirect)
     redirect(response.url)
     if response.headers.get('Content-Encoding', 'identity').casefold() != 'identity':
         raise UnsupportedLogo('The logo uses an unsupported HTTP content encoding')
     if len(response.headers.get_all('Content-Type', [])) != 1:
-        raise UnsupportedLogo('The source did not identify a single raster media type')
-    body = normalize(response.body, response.headers.get_content_type())
+        raise UnsupportedLogo('The source did not identify a single logo media type')
+    body = normalize(response.body, response.headers.get_content_type(), deadline=deadline)
     return body, response.url
 
 

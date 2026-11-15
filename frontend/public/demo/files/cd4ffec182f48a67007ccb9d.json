@@ -1,0 +1,153 @@
+{
+  "job": {
+    "availability": "retrieved",
+    "careers_url": "https://apply.careers.hsbc.com/",
+    "checked_at": "2026-11-15T11:01:34.172657+00:00",
+    "closes": "",
+    "description": "Develop responsive banking interfaces in React and TypeScript, integrate enterprise and payment services, and guide automated testing and delivery.",
+    "eligibility": "unknown",
+    "email": "",
+    "employer": "HSBC",
+    "expectation": {
+      "basis": "",
+      "confidence": "",
+      "source": "",
+      "target": ""
+    },
+    "id": "b8e61e95c910802135075cee",
+    "location": "Guangzhou, China",
+    "posted_at": "",
+    "prior_application": "none",
+    "reposted_at": "",
+    "requirements": [
+      "Production React and JavaScript or TypeScript, HTML and CSS, reusable frontend components and REST or distributed-service integration",
+      "Understanding of frontend testing at unit, component and end-to-end levels and experience with CI/CD",
+      "Experience improving frontend security, accessibility, performance and maintainability; able to work with multiple stakeholders"
+    ],
+    "salary": {
+      "basis": "",
+      "currency": "",
+      "max": 0.0,
+      "min": 0.0,
+      "period": ""
+    },
+    "saved": false,
+    "seniority": "",
+    "source": "reviewed:hsbc",
+    "sponsorship": "unknown",
+    "title": "Senior Consultant Specialist, IWPB Technology",
+    "url": "https://apply.careers.hsbc.com/job/Guangzhou-Senior-Consultant-Specialist-GD-510620/1377461057/",
+    "work_arrangement": "",
+    "hiring_employer_verified": true,
+    "company": {
+      "id": "83a819a6579b4fde9c13accc28c74567",
+      "name": "HSBC",
+      "vacancy_id": "7cb93ab2c61042c18d6c3fd35326467e",
+      "submitted_vacancy": false,
+      "remaining": 2,
+      "cooling": false,
+      "cooldown_until": null,
+      "cooldown_time_assumed": false,
+      "overflow": false,
+      "review_needed": false,
+      "pending_only_count": 0
+    }
+  },
+  "facts": [
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "4c8072fd7b1442db8852db31a6d0cdf5",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.378470+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used React to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.378468+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "3bb8369ff3ed4fe99799acc322c82480",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.384200+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used TypeScript to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.384198+00:00"
+    },
+    {
+      "association": "",
+      "category": "skill",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "",
+      "id": "cc3330f0748943f8a48ff6a083aac403",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.507965+00:00",
+        "name": "User supplied note"
+      },
+      "text": "TypeScript",
+      "updated_at": "2026-11-15T11:12:24.507963+00:00"
+    }
+  ],
+  "matching": {
+    "hard_conflicts": [],
+    "unknowns": [
+      "Work rights / sponsorship need confirmation"
+    ],
+    "preferences": [
+      "roles outside preferences"
+    ],
+    "evidence": [
+      {
+        "requirement": "Production React and JavaScript or TypeScript, HTML and CSS, reusable frontend components and REST or distributed-service integration",
+        "fact_ids": [],
+        "assessment": "No confirmed evidence"
+      },
+      {
+        "requirement": "Understanding of frontend testing at unit, component and end-to-end levels and experience with CI/CD",
+        "fact_ids": [],
+        "assessment": "No confirmed evidence"
+      },
+      {
+        "requirement": "Experience improving frontend security, accessibility, performance and maintainability; able to work with multiple stakeholders",
+        "fact_ids": [],
+        "assessment": "No confirmed evidence"
+      }
+    ],
+    "gaps": [
+      "Production React and JavaScript or TypeScript, HTML and CSS, reusable frontend components and REST or distributed-service integration",
+      "Understanding of frontend testing at unit, component and end-to-end levels and experience with CI/CD",
+      "Experience improving frontend security, accessibility, performance and maintainability; able to work with multiple stakeholders"
+    ],
+    "stretch": true,
+    "eligible_for_preparation": true,
+    "fact_ids": [
+      "4c8072fd7b1442db8852db31a6d0cdf5",
+      "3bb8369ff3ed4fe99799acc322c82480",
+      "cc3330f0748943f8a48ff6a083aac403"
+    ],
+    "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+    "salary_expectation": {
+      "target": "Unresolved — request the employer band or add comparable local salary evidence",
+      "basis": "No comparable gross-base band is available; no precise expectation invented.",
+      "source": "https://apply.careers.hsbc.com/job/Guangzhou-Senior-Consultant-Specialist-GD-510620/1377461057/",
+      "confidence": "low"
+    }
+  },
+  "template": "plain",
+  "notice": "User review required. No ATS guarantee."
+}

@@ -1,0 +1,944 @@
+{
+  "checked_at": "2026-11-15T11:01:34.236126+00:00",
+  "companies": [
+    {
+      "name": "Tencent",
+      "city": "China",
+      "careers_url": "https://careers.tencent.com/en-us/jobopportunity.html",
+      "source_url": "https://careers.tencent.com/tencentcareer/api/post/ByPostId",
+      "evidence": "Official employer careers source and open vacancy evidence were checked directly.",
+      "logo": {
+        "name": "Tencent",
+        "page_url": "https://www.tencent.com/who-we-are/",
+        "evidence": "Tencent’s official company profile labels its English corporate mark in the linked site header.",
+        "checked_at": "2026-11-15T10:30:23.239328+00:00",
+        "status": "verified",
+        "url": "https://www.tencent.com/wp-content/uploads/2024/05/logo@2x-en.png",
+        "logo_url": "https://www.tencent.com/wp-content/uploads/2024/05/logo@2x-en.png",
+        "sha256": "4c1ee60c69c80b4bfb74daec5b105937422df4a6802077bc58b34b1efaeeb6d6",
+        "expected_sha256": "4c1ee60c69c80b4bfb74daec5b105937422df4a6802077bc58b34b1efaeeb6d6",
+        "selection": false,
+        "local_path": "tasks/public-demo-logos-activity/research/apac/logos/4c1ee60c69c80b4bfb74daec5b105937422df4a6802077bc58b34b1efaeeb6d6.png"
+      },
+      "jobs": [
+        {
+          "id": "2166670440650d05745ca63c",
+          "title": "Full Stack Engineer, Weixin Shops transaction infrastructure",
+          "employer": "Tencent",
+          "location": "Guangzhou, China",
+          "city": "Guangzhou",
+          "destination": "China",
+          "requisition": "2077293041282105344",
+          "url": "https://careers.tencent.com/jobdesc.html?postId=2077293041282105344",
+          "careers_url": "https://careers.tencent.com/en-us/jobopportunity.html",
+          "source_url": "https://careers.tencent.com/tencentcareer/api/post/ByPostId",
+          "description": "Build internal transaction systems and web tooling with React or Vue and server-side Node.js.",
+          "requirements": [
+            "At least one year of full-stack development",
+            "Practical React or Vue and a Node.js framework such as Express, Koa or NestJS",
+            "Understanding of frontend delivery, deployment and monitoring; awareness of AI agent principles with experience preferred"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "fit_rationale": "React and Express delivery, CI/CD and deployment support map directly to the transaction tooling stack. The posting describes agent development experience as preferred.",
+          "retrieved_at": "2026-11-15T11:01:34.172657+00:00",
+          "checked_at": "2026-11-15T11:01:34.172657+00:00",
+          "evidence": {
+            "description": "Official posting provides the requisition, advertised location, work and qualifications.",
+            "official_record": "https://careers.tencent.com/jobdesc.html?postId=2077293041282105344",
+            "raw_evidence": "output/public-demo-logos-activity/apac/raw/tencent-role-2077293041282105344",
+            "original_title": "微信小店-全栈开发工程师-交易基建方向",
+            "last_updated": "2026-11-13"
+          },
+          "eligibility_note": "This posting is published in Simplified Chinese. The posting does not state an explicit language or sponsorship condition. Language proficiency and work authorization remain unknown."
+        },
+        {
+          "id": "a3f80c4255643899cfbd9730",
+          "title": "Full Stack Engineer, Weixin Pay developer tools",
+          "employer": "Tencent",
+          "location": "Shenzhen, China",
+          "city": "Shenzhen",
+          "destination": "China",
+          "requisition": "2098669037675528192",
+          "url": "https://careers.tencent.com/jobdesc.html?postId=2098669037675528192",
+          "careers_url": "https://careers.tencent.com/en-us/jobopportunity.html",
+          "source_url": "https://careers.tencent.com/tencentcareer/api/post/ByPostId",
+          "description": "Build rich developer-tool interfaces and their API and database integrations.",
+          "requirements": [
+            "Related computing degree",
+            "At least one year of frontend development; TypeScript or JavaScript and React or Vue",
+            "Modular frontend, one mainstream relational database, API tuning and frontend performance"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "fit_rationale": "The résumé documents React and TypeScript development, interactive UI delivery, and integrations and relational databases. Editor and IDE experience is preferred.",
+          "retrieved_at": "2026-11-15T11:01:34.172657+00:00",
+          "checked_at": "2026-11-15T11:01:34.172657+00:00",
+          "evidence": {
+            "description": "Official posting provides the requisition, advertised location, work and qualifications.",
+            "official_record": "https://careers.tencent.com/jobdesc.html?postId=2098669037675528192",
+            "raw_evidence": "output/public-demo-logos-activity/apac/raw/tencent-role-2098669037675528192",
+            "original_title": "微信支付-全栈开发工程师",
+            "last_updated": "2026-11-13"
+          },
+          "eligibility_note": "This posting is published in Simplified Chinese. The posting does not state an explicit language or sponsorship condition. Language proficiency and work authorization remain unknown."
+        },
+        {
+          "id": "1fb1ebef0d9e513d0df10a1a",
+          "title": "Full Stack Engineer, Weixin Pay engineering quality tools",
+          "employer": "Tencent",
+          "location": "Shenzhen, China",
+          "city": "Shenzhen",
+          "destination": "China",
+          "requisition": "2102665620272361472",
+          "url": "https://careers.tencent.com/jobdesc.html?postId=2102665620272361472",
+          "careers_url": "https://careers.tencent.com/en-us/jobopportunity.html",
+          "source_url": "https://careers.tencent.com/tencentcareer/api/post/ByPostId",
+          "description": "Build web services and tooling for automated testing and improving software delivery.",
+          "requirements": [
+            "Computing degree; at least one year of engineering in the internet or fintech sector",
+            "Backend proficiency with Go, Python or Node.js",
+            "Awareness of LLM tools and hands-on experience or strong interest; automated test systems or developer tools preferred"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "fit_rationale": "The candidate has more than one year building SaaS products and Python and Node.js tools. The public résumé includes automation, automated testing and delivery pipelines.",
+          "retrieved_at": "2026-11-15T11:01:34.172657+00:00",
+          "checked_at": "2026-11-15T11:01:34.172657+00:00",
+          "evidence": {
+            "description": "Official posting provides the requisition, advertised location, work and qualifications.",
+            "official_record": "https://careers.tencent.com/jobdesc.html?postId=2102665620272361472",
+            "raw_evidence": "output/public-demo-logos-activity/apac/raw/tencent-role-2102665620272361472",
+            "original_title": "微信支付-全栈开发工程师",
+            "last_updated": "2026-10-13"
+          },
+          "eligibility_note": "This posting is published in Simplified Chinese. The posting does not state an explicit language or sponsorship condition. Language proficiency and work authorization remain unknown."
+        }
+      ],
+      "picks": [
+        {
+          "job_id": "2166670440650d05745ca63c",
+          "reason": "The position names Express and accepts React, which both align with the candidate’s full-stack delivery.",
+          "fact_ids": [
+            "f8cb45f384063f6670a007b30b1d95a5",
+            "3b66e05b56c2d09ca02852719fc4b4bc",
+            "1fbbf838939b2db64d80606aec6c15eb"
+          ]
+        },
+        {
+          "job_id": "a3f80c4255643899cfbd9730",
+          "reason": "TypeScript interfaces, APIs and relational data requirements match the documented product engineering background.",
+          "fact_ids": [
+            "3b66e05b56c2d09ca02852719fc4b4bc",
+            "f8cb45f384063f6670a007b30b1d95a5",
+            "d7629711b68661baaf1fbb1792c0fb8a"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Flexport",
+      "city": "China",
+      "careers_url": "https://www.flexport.com/careers/",
+      "source_url": "https://boards-api.greenhouse.io/v1/boards/flexport/jobs?content=true",
+      "evidence": "Official employer careers source and open vacancy evidence were checked directly.",
+      "logo": {
+        "name": "Flexport",
+        "page_url": "https://www.flexport.com/company/newsroom/",
+        "evidence": "Flexport’s official newsroom explicitly names the corporate logo in Organization structured data.",
+        "checked_at": "2026-11-15T10:34:21.281000+00:00",
+        "status": "verified",
+        "url": "https://cdn.sanity.io/images/ynj1yl20/development/9f37e70ef11a76f16b732f365d3f3d3cbf3fed43-481x112.svg",
+        "logo_url": "https://cdn.sanity.io/images/ynj1yl20/development/9f37e70ef11a76f16b732f365d3f3d3cbf3fed43-481x112.svg",
+        "sha256": "e7a5650ff919b21fcc5a24fa4bf822f1c478d1535567680fdcd79ab713d70d59",
+        "expected_sha256": "e7a5650ff919b21fcc5a24fa4bf822f1c478d1535567680fdcd79ab713d70d59",
+        "selection": false,
+        "local_path": "tasks/public-demo-logos-activity/research/apac/logos/e7a5650ff919b21fcc5a24fa4bf822f1c478d1535567680fdcd79ab713d70d59.png"
+      },
+      "jobs": [
+        {
+          "id": "61958f1e50290a83cdda6571",
+          "title": "Software Engineer II",
+          "employer": "Flexport",
+          "location": "Shenzhen, China",
+          "city": "Shenzhen",
+          "destination": "China",
+          "requisition": "7906161",
+          "url": "https://job-boards.greenhouse.io/flexport/jobs/7906161",
+          "careers_url": "https://www.flexport.com/careers/",
+          "source_url": "https://boards-api.greenhouse.io/v1/boards/flexport/jobs?content=true",
+          "description": "Build infrastructure and developer tooling for global freight systems, with work on cloud automation and application delivery.",
+          "requirements": [
+            "3+ years software development and 2+ years design and architecture knowledge",
+            "One programming language such as TypeScript, Ruby, C, C++, Java or Kotlin; related degree or equivalent",
+            "AWS infrastructure as code and CI/CD experience preferred"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "fit_rationale": "TypeScript, CI/CD, IaC and AWS directly match. The public résumé also documents software architecture work and warehouse and operational applications.",
+          "retrieved_at": "2026-11-15T11:01:34.172657+00:00",
+          "checked_at": "2026-11-15T11:01:34.172657+00:00",
+          "evidence": {
+            "description": "Official posting provides the requisition, advertised location, work and qualifications.",
+            "official_record": "https://job-boards.greenhouse.io/flexport/jobs/7906161",
+            "raw_evidence": "output/public-demo-logos-activity/apac/raw/flexport-jobs"
+          }
+        },
+        {
+          "id": "80d108cfd5a641748c675bce",
+          "title": "Software Engineer I",
+          "employer": "Flexport",
+          "location": "Shenzhen, China",
+          "city": "Shenzhen",
+          "destination": "China",
+          "requisition": "7978696",
+          "url": "https://job-boards.greenhouse.io/flexport/jobs/7978696",
+          "careers_url": "https://www.flexport.com/careers/",
+          "source_url": "https://boards-api.greenhouse.io/v1/boards/flexport/jobs?content=true",
+          "description": "Implement and maintain parts of the Shenzhen team’s software for forwarding, warehouse and shipment workflows.",
+          "requirements": [
+            "At least one year of software engineering and a computing degree or equivalent",
+            "Knowledge of a programming language, with Ruby, C, C++, Java and Kotlin listed as examples",
+            "Fast learning; software lifecycle, tests and delivery practices preferred"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "fit_rationale": "The computing degree, object-oriented .NET SaaS work, microservice transition and current warehouse system delivery match the broad software remit. No listed example language is claimed.",
+          "retrieved_at": "2026-11-15T11:01:34.172657+00:00",
+          "checked_at": "2026-11-15T11:01:34.172657+00:00",
+          "evidence": {
+            "description": "Official posting provides the requisition, advertised location, work and qualifications.",
+            "official_record": "https://job-boards.greenhouse.io/flexport/jobs/7978696",
+            "raw_evidence": "output/public-demo-logos-activity/apac/raw/flexport-jobs"
+          }
+        },
+        {
+          "id": "2f825f9b03c85370acd41290",
+          "title": "Software Engineer II",
+          "employer": "Flexport",
+          "location": "Shanghai, China",
+          "city": "Shanghai",
+          "destination": "China",
+          "requisition": "5745289",
+          "url": "https://job-boards.greenhouse.io/flexport/jobs/5745289",
+          "careers_url": "https://www.flexport.com/careers/",
+          "source_url": "https://boards-api.greenhouse.io/v1/boards/flexport/jobs?content=true",
+          "description": "Design, test and maintain software for forwarding operations and supply-chain entities in the Shanghai team.",
+          "requirements": [
+            "3+ years writing software; 2+ years of software design and architecture and object-oriented fundamentals",
+            "Knowledge of a programming language, with Ruby, C, C++, Java and Kotlin listed as examples",
+            "Relevant degree or equivalent; distributed-system experience and full-lifecycle delivery preferred"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "fit_rationale": "The résumé documents more than three years of software development, .NET SaaS work and two years directing product architecture and delivery. The candidate’s warehouse work is directly relevant to the application domain. No listed example language is claimed.",
+          "retrieved_at": "2026-11-15T11:01:34.172657+00:00",
+          "checked_at": "2026-11-15T11:01:34.172657+00:00",
+          "evidence": {
+            "description": "Official posting provides the requisition, advertised location, work and qualifications.",
+            "official_record": "https://job-boards.greenhouse.io/flexport/jobs/5745289",
+            "raw_evidence": "output/public-demo-logos-activity/apac/raw/flexport-jobs"
+          }
+        }
+      ],
+      "picks": [
+        {
+          "job_id": "61958f1e50290a83cdda6571",
+          "reason": "TypeScript, AWS and the delivery automation work are all explicitly aligned with this posting.",
+          "fact_ids": [
+            "3b66e05b56c2d09ca02852719fc4b4bc",
+            "a383674d908eade31aef1db6ada4e12a",
+            "1fbbf838939b2db64d80606aec6c15eb"
+          ]
+        },
+        {
+          "job_id": "80d108cfd5a641748c675bce",
+          "reason": "The forwarding software role values broad programming and automated delivery, both reflected in the documented product work.",
+          "fact_ids": [
+            "79ed41d4d9f7d874acbed0e6cb157cdf",
+            "1fbbf838939b2db64d80606aec6c15eb",
+            "d7629711b68661baaf1fbb1792c0fb8a"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Zenika",
+      "city": "Singapore",
+      "careers_url": "https://jobs.zenika.sg/jobs",
+      "source_url": "https://jobs.zenika.sg/jobs",
+      "evidence": "Official employer careers source and open vacancy evidence were checked directly.",
+      "logo": {
+        "name": "Zenika",
+        "page_url": "https://apps.zenika.com/",
+        "evidence": "Zenika’s first-party, publicly served application portal repeatedly embeds the Zenika symbol within links to its own applications.",
+        "checked_at": "2026-11-15T10:37:23.600285+00:00",
+        "status": "verified",
+        "url": "https://apps.zenika.com/img/zenika_logo_64.png",
+        "logo_url": "https://apps.zenika.com/img/zenika_logo_64.png",
+        "sha256": "4e9094902cdecd77b0cfbaa15ddbd99007171258d6e6b595a5615c9313f2d30a",
+        "expected_sha256": "4e9094902cdecd77b0cfbaa15ddbd99007171258d6e6b595a5615c9313f2d30a",
+        "selection": true,
+        "local_path": "tasks/public-demo-logos-activity/research/apac/logos/4e9094902cdecd77b0cfbaa15ddbd99007171258d6e6b595a5615c9313f2d30a.png"
+      },
+      "jobs": [
+        {
+          "id": "85d709ff0fed04d63ce2b51f",
+          "title": "Full Stack Engineer",
+          "employer": "Zenika",
+          "location": "Singapore",
+          "city": "Singapore",
+          "destination": "Singapore",
+          "requisition": "5678602",
+          "url": "https://jobs.zenika.sg/jobs/5678602-full-stack-engineer",
+          "careers_url": "https://jobs.zenika.sg/jobs",
+          "source_url": "https://jobs.zenika.sg/jobs",
+          "description": "Build end-to-end web products as a consultant, designing APIs, web interfaces and automated delivery.",
+          "requirements": [
+            "3+ years of professional full-stack software development",
+            "At least two backend ecosystems such as Python or Node.js, and production React/TypeScript",
+            "Microservices, Docker, databases and CI/CD; ability to collaborate with clients and mentor engineers"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "fit_rationale": "The candidate’s React, Node.js, Python, TypeScript and SQL/NoSQL experience directly supports this consulting role, including production SaaS and API delivery.",
+          "retrieved_at": "2026-11-15T11:01:34.172657+00:00",
+          "checked_at": "2026-11-15T11:01:34.172657+00:00",
+          "evidence": {
+            "description": "Official posting provides the requisition, advertised location, work and qualifications.",
+            "official_record": "https://jobs.zenika.sg/jobs/5678602-full-stack-engineer",
+            "raw_evidence": "output/public-demo-logos-activity/apac/raw/zenika-jobs-5678602"
+          },
+          "work_model": "Hybrid"
+        },
+        {
+          "id": "ff2ac0934d6c7a6f96b9a982",
+          "title": "Senior Full Stack Developer",
+          "employer": "Zenika",
+          "location": "Singapore",
+          "city": "Singapore",
+          "destination": "Singapore",
+          "requisition": "5679717",
+          "url": "https://jobs.zenika.sg/jobs/5679717-senior-full-stack-developer",
+          "careers_url": "https://jobs.zenika.sg/jobs",
+          "source_url": "https://jobs.zenika.sg/jobs",
+          "description": "Deliver full-stack client software and contribute to architectural decisions and mentoring.",
+          "requirements": [
+            "5+ years of professional full-stack software development",
+            "At least two backend ecosystems and hands-on React/TypeScript",
+            "Microservices, event-driven concepts, Docker, CI/CD, and client communication"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "fit_rationale": "The résumé supports 5+ years building web software, React and Python/Node.js product work, a monolith-to-microservices migration, Azure DevOps pipelines and technical mentoring.",
+          "retrieved_at": "2026-11-15T11:01:34.172657+00:00",
+          "checked_at": "2026-11-15T11:01:34.172657+00:00",
+          "evidence": {
+            "description": "Official posting provides the requisition, advertised location, work and qualifications.",
+            "official_record": "https://jobs.zenika.sg/jobs/5679717-senior-full-stack-developer",
+            "raw_evidence": "output/public-demo-logos-activity/apac/raw/zenika-jobs-5679717"
+          },
+          "work_model": "Hybrid"
+        },
+        {
+          "id": "5f590f31b5612429d323dee3",
+          "title": "Front End Engineer",
+          "employer": "Zenika",
+          "location": "Singapore",
+          "city": "Singapore",
+          "destination": "Singapore",
+          "requisition": "5679749",
+          "url": "https://jobs.zenika.sg/jobs/5679749-front-end-engineer",
+          "careers_url": "https://jobs.zenika.sg/jobs",
+          "source_url": "https://jobs.zenika.sg/jobs",
+          "description": "Build responsive client-facing applications, test user interfaces and integrate backend APIs.",
+          "requirements": [
+            "Experience with frontend frameworks such as React, Angular or Vue",
+            "Modern JavaScript, responsive UI, component reuse, state management, API integration and frontend testing",
+            "Ability to work with designers, product managers and backend developers"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "fit_rationale": "React and Next.js projects in the public résumé include responsive UI, API integration, automated tests, design collaboration and stakeholder demonstrations.",
+          "retrieved_at": "2026-11-15T11:01:34.172657+00:00",
+          "checked_at": "2026-11-15T11:01:34.172657+00:00",
+          "evidence": {
+            "description": "Official posting provides the requisition, advertised location, work and qualifications.",
+            "official_record": "https://jobs.zenika.sg/jobs/5679749-front-end-engineer",
+            "raw_evidence": "output/public-demo-logos-activity/apac/raw/zenika-jobs-5679749"
+          },
+          "work_model": "Hybrid"
+        }
+      ],
+      "picks": [
+        {
+          "job_id": "85d709ff0fed04d63ce2b51f",
+          "reason": "TypeScript, Python, Express.js and SQL/NoSQL are all confirmed skills and align closely with the two backend ecosystems and full-stack delivery.",
+          "fact_ids": [
+            "3b66e05b56c2d09ca02852719fc4b4bc",
+            "ce3737d14c22431c2f3c0d19067d52a3",
+            "f8cb45f384063f6670a007b30b1d95a5",
+            "d7629711b68661baaf1fbb1792c0fb8a"
+          ]
+        },
+        {
+          "job_id": "5f590f31b5612429d323dee3",
+          "reason": "The candidate’s TypeScript and Next.js work shows direct alignment with modern component-driven front-end engineering.",
+          "fact_ids": [
+            "3b66e05b56c2d09ca02852719fc4b4bc",
+            "60e7c079348914b505360dc1f0dedf7a",
+            "79ed41d4d9f7d874acbed0e6cb157cdf"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Open Government Products",
+      "city": "Singapore",
+      "careers_url": "https://careers.open.gov.sg/",
+      "source_url": "https://careers.open.gov.sg/",
+      "evidence": "Official employer careers source and open vacancy evidence were checked directly.",
+      "logo": {
+        "name": "Open Government Products",
+        "page_url": "https://careers.open.gov.sg/o/senior-software-engineer-sgc",
+        "evidence": "The first-party Open Government Products hiring site names the employer logo in the official vacancy’s JobPosting hiringOrganization record.",
+        "checked_at": "2026-11-15T10:39:28.718005+00:00",
+        "status": "verified",
+        "url": "https://careers.recruiteecdn.com/image/upload/production/images/AnLY/qLpDRGWydnuY.png",
+        "logo_url": "https://careers.recruiteecdn.com/image/upload/production/images/AnLY/qLpDRGWydnuY.png",
+        "sha256": "fe07a79215d5d34936d8a60a393342b4c2cc2c185999eb05151bb2f5e5ffc06c",
+        "expected_sha256": "fe07a79215d5d34936d8a60a393342b4c2cc2c185999eb05151bb2f5e5ffc06c",
+        "selection": false,
+        "local_path": "tasks/public-demo-logos-activity/research/apac/logos/fe07a79215d5d34936d8a60a393342b4c2cc2c185999eb05151bb2f5e5ffc06c.png"
+      },
+      "jobs": [
+        {
+          "id": "87802de04df27bf29f0546fb",
+          "title": "Senior Software Engineer, Traffic Enforcement (TEALS)",
+          "employer": "Open Government Products",
+          "location": "Singapore",
+          "city": "Singapore",
+          "destination": "Singapore",
+          "requisition": "senior-software-engineer-traffic-enforcement-teals",
+          "url": "https://careers.open.gov.sg/o/senior-software-engineer-traffic-enforcement-teals",
+          "careers_url": "https://careers.open.gov.sg/",
+          "source_url": "https://careers.open.gov.sg/",
+          "description": "Build and operate traffic-enforcement software and integrations for frontline officers.",
+          "requirements": [
+            "Deep hands-on web/cloud engineering with TypeScript, React, AWS and API-led design",
+            "Secure delivery, CI/CD, version control, IaC and cloud deployment",
+            "End-to-end ownership in an Agile or fast-moving environment; mentoring beneficial"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "fit_rationale": "The candidate has deployed and supported TypeScript/React and Node.js software, developed APIs and automated delivery, and owned tools for operational users.",
+          "retrieved_at": "2026-11-15T11:01:34.172657+00:00",
+          "checked_at": "2026-11-15T11:01:34.172657+00:00",
+          "evidence": {
+            "description": "Official posting provides the requisition, advertised location, work and qualifications.",
+            "official_record": "https://careers.open.gov.sg/o/senior-software-engineer-traffic-enforcement-teals",
+            "raw_evidence": "output/public-demo-logos-activity/apac/raw/ogp-teals"
+          }
+        },
+        {
+          "id": "28f51e19e4566bc0cded486d",
+          "title": "Senior / Lead Software Engineer, Anti-Scam Products",
+          "employer": "Open Government Products",
+          "location": "Singapore",
+          "city": "Singapore",
+          "destination": "Singapore",
+          "requisition": "senior-software-engineer-sgc",
+          "url": "https://careers.open.gov.sg/o/senior-software-engineer-sgc",
+          "careers_url": "https://careers.open.gov.sg/",
+          "source_url": "https://careers.open.gov.sg/",
+          "description": "Build and maintain secure software components that support public anti-scam services.",
+          "requirements": [
+            "Production software experience and strong engineering fundamentals",
+            "Modern technologies such as TypeScript, React, Node.js and AWS; API-first design, CI/CD and IaC",
+            "Troubleshooting production reliability, technical leadership and mentoring for senior scope"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "fit_rationale": "The candidate has built and deployed React/Node.js systems, developed application authentication, dealt with deployment issues and mentored engineering teams.",
+          "retrieved_at": "2026-11-15T11:01:34.172657+00:00",
+          "checked_at": "2026-11-15T11:01:34.172657+00:00",
+          "evidence": {
+            "description": "Official posting provides the requisition, advertised location, work and qualifications.",
+            "official_record": "https://careers.open.gov.sg/o/senior-software-engineer-sgc",
+            "raw_evidence": "output/public-demo-logos-activity/apac/raw/ogp-scams"
+          }
+        },
+        {
+          "id": "41c81966a2162e1b40707372",
+          "title": "Lead Software Engineer, attendPA",
+          "employer": "Open Government Products",
+          "location": "Singapore",
+          "city": "Singapore",
+          "destination": "Singapore",
+          "requisition": "lead-software-engineer-attendpa",
+          "url": "https://careers.open.gov.sg/o/lead-software-engineer-attendpa",
+          "careers_url": "https://careers.open.gov.sg/",
+          "source_url": "https://careers.open.gov.sg/",
+          "description": "Own technical design and implementation for systems that help teams run community programmes and events.",
+          "requirements": [
+            "Depth in frontend, backend or cloud and ability to design across the stack",
+            "Technology stack includes TypeScript, React, Next.js, Node.js, AWS and Postgres; CI/CD, IaC and secure development expected",
+            "Experience owning production software, direct stakeholder work and mentoring"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "fit_rationale": "The candidate designed and reviewed multiple university software products, shipped operational web tools, and has confirmed TypeScript, Next.js, AWS, CI/CD and IaC skills.",
+          "retrieved_at": "2026-11-15T11:01:34.172657+00:00",
+          "checked_at": "2026-11-15T11:01:34.172657+00:00",
+          "evidence": {
+            "description": "Official posting provides the requisition, advertised location, work and qualifications.",
+            "official_record": "https://careers.open.gov.sg/o/lead-software-engineer-attendpa",
+            "raw_evidence": "output/public-demo-logos-activity/apac/raw/ogp-attend"
+          }
+        }
+      ],
+      "picks": [
+        {
+          "job_id": "87802de04df27bf29f0546fb",
+          "reason": "The role names TypeScript, AWS, secure deployment and delivery automation, all of which match recorded skills.",
+          "fact_ids": [
+            "3b66e05b56c2d09ca02852719fc4b4bc",
+            "a383674d908eade31aef1db6ada4e12a",
+            "1fbbf838939b2db64d80606aec6c15eb"
+          ]
+        },
+        {
+          "job_id": "28f51e19e4566bc0cded486d",
+          "reason": "The candidate has TypeScript, Express.js and OAuth2 skills suitable for building and securing service APIs.",
+          "fact_ids": [
+            "3b66e05b56c2d09ca02852719fc4b4bc",
+            "f8cb45f384063f6670a007b30b1d95a5",
+            "3048a991068b640797597ac317697949"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Ippon Technologies",
+      "city": "Melbourne",
+      "careers_url": "https://jobs.lever.co/ippon/",
+      "source_url": "https://api.lever.co/v0/postings/ippon?mode=json",
+      "evidence": "Official employer careers source and open vacancy evidence were checked directly.",
+      "logo": {
+        "name": "Ippon Technologies",
+        "page_url": "https://ipponusa.com/privacy-policy/",
+        "evidence": "Ippon’s corporate website header displays the Ippon wordmark and publishes a smaller rendition in the same image’s srcset.",
+        "checked_at": "2026-11-15T10:59:30.317669+00:00",
+        "status": "verified",
+        "url": "https://ipponusa.com/wp-content/uploads/2024/02/EXE_LOGO_IPPON-400x117.png",
+        "logo_url": "https://ipponusa.com/wp-content/uploads/2024/02/EXE_LOGO_IPPON-400x117.png",
+        "sha256": "979f220dd10115dba064f60f0f77526a5152656b2d6ca7f49df765de9589b9f7",
+        "expected_sha256": "979f220dd10115dba064f60f0f77526a5152656b2d6ca7f49df765de9589b9f7",
+        "selection": true,
+        "local_path": "tasks/public-demo-logos-activity/research/apac/logos/979f220dd10115dba064f60f0f77526a5152656b2d6ca7f49df765de9589b9f7.png"
+      },
+      "jobs": [
+        {
+          "id": "ffa90c61d70faf889ec35241",
+          "title": "Lead Front End Engineer",
+          "employer": "Ippon Technologies",
+          "location": "Melbourne",
+          "city": "Melbourne",
+          "destination": "Melbourne",
+          "requisition": "6d96c3f9-281f-426b-b42e-66cedad57d0e",
+          "url": "https://jobs.lever.co/ippon/6d96c3f9-281f-426b-b42e-66cedad57d0e",
+          "careers_url": "https://jobs.lever.co/ippon/",
+          "source_url": "https://api.lever.co/v0/postings/ippon?mode=json",
+          "description": "Guide and deliver consulting projects across discovery, design, system integration and ongoing support.",
+          "requirements": [
+            "Computing degree or equivalent; full-lifecycle software delivery",
+            "React, Node.js, .NET and/or Java; microservices, CI and build automation",
+            "AWS exposure, Agile or Lean, mentoring and code review"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "fit_rationale": "The public résumé documents React and Node.js delivery, a .NET SaaS background, microservice migration, CI pipelines and technical direction and coaching across multiple products.",
+          "retrieved_at": "2026-11-15T11:01:34.172657+00:00",
+          "checked_at": "2026-11-15T11:01:34.172657+00:00",
+          "evidence": {
+            "description": "Official posting provides the requisition, advertised location, work and qualifications.",
+            "official_record": "https://jobs.lever.co/ippon/6d96c3f9-281f-426b-b42e-66cedad57d0e",
+            "raw_evidence": "output/public-demo-logos-activity/apac/raw/ippon-jobs"
+          }
+        },
+        {
+          "id": "fe393b80e7ec753fbe22faca",
+          "title": "Senior Software Engineer (.NET Developer)",
+          "employer": "Ippon Technologies",
+          "location": "Melbourne",
+          "city": "Melbourne",
+          "destination": "Melbourne",
+          "requisition": "5df10dd9-b4ab-4548-b258-2445d1fe2d1e",
+          "url": "https://jobs.lever.co/ippon/5df10dd9-b4ab-4548-b258-2445d1fe2d1e",
+          "careers_url": "https://jobs.lever.co/ippon/",
+          "source_url": "https://api.lever.co/v0/postings/ippon?mode=json",
+          "description": "Design and deliver client-facing software across the frontend, APIs and cloud deployment.",
+          "requirements": [
+            "End-to-end experience in a modern frontend and backend stack, such as React and Node.js",
+            "Microservices, serverless concepts, CI and test/build automation; experience with a modern web bundler or equivalent",
+            "Cloud-native frontend delivery, ideally on AWS or Azure; .NET, databases, OAuth and monitoring are beneficial"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "fit_rationale": "The candidate built React and Next.js applications and Express APIs, transitioned monoliths to microservices, built Azure DevOps pipelines and supported deployment. .NET and OAuth are confirmed.",
+          "retrieved_at": "2026-11-15T11:01:34.172657+00:00",
+          "checked_at": "2026-11-15T11:01:34.172657+00:00",
+          "evidence": {
+            "description": "Official posting provides the requisition, advertised location, work and qualifications.",
+            "official_record": "https://jobs.lever.co/ippon/5df10dd9-b4ab-4548-b258-2445d1fe2d1e",
+            "raw_evidence": "output/public-demo-logos-activity/apac/raw/ippon-jobs"
+          }
+        },
+        {
+          "id": "6cb9b4a9337cd266a10e77a9",
+          "title": "Tech Business Analyst",
+          "employer": "Ippon Technologies",
+          "location": "Melbourne",
+          "city": "Melbourne",
+          "destination": "Melbourne",
+          "requisition": "0002fd3f-df7f-41a7-9333-589a016bb33c",
+          "url": "https://jobs.lever.co/ippon/0002fd3f-df7f-41a7-9333-589a016bb33c",
+          "careers_url": "https://jobs.lever.co/ippon/",
+          "source_url": "https://api.lever.co/v0/postings/ippon?mode=json",
+          "description": "Translate client needs into software requirements and work with delivery teams to bring integrated systems into production.",
+          "requirements": [
+            "Related qualification, relevant experience, Agile requirements elicitation and documentation",
+            "SQL, data analysis and systems integration; testing and quality assurance",
+            "Work directly with client stakeholders and facilitate design and delivery decisions"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "fit_rationale": "The candidate currently works as a business systems analyst and team leader, previously gathered requirements, demonstrated solutions and supported UAT, and has delivered integrations and database work. This is a technical analyst role within software delivery.",
+          "retrieved_at": "2026-11-15T11:01:34.172657+00:00",
+          "checked_at": "2026-11-15T11:01:34.172657+00:00",
+          "evidence": {
+            "description": "Official posting provides the requisition, advertised location, work and qualifications.",
+            "official_record": "https://jobs.lever.co/ippon/0002fd3f-df7f-41a7-9333-589a016bb33c",
+            "raw_evidence": "output/public-demo-logos-activity/apac/raw/ippon-jobs"
+          }
+        }
+      ],
+      "picks": [
+        {
+          "job_id": "ffa90c61d70faf889ec35241",
+          "reason": "End-to-end delivery, Express.js, AWS and CI/CD align with the technical direction and implementation scope.",
+          "fact_ids": [
+            "f8cb45f384063f6670a007b30b1d95a5",
+            "a383674d908eade31aef1db6ada4e12a",
+            "1fbbf838939b2db64d80606aec6c15eb",
+            "79ed41d4d9f7d874acbed0e6cb157cdf"
+          ]
+        },
+        {
+          "job_id": "fe393b80e7ec753fbe22faca",
+          "reason": "Modern TypeScript and Next.js delivery with automated releases and OAuth2 supports the full-stack consulting work.",
+          "fact_ids": [
+            "3b66e05b56c2d09ca02852719fc4b4bc",
+            "60e7c079348914b505360dc1f0dedf7a",
+            "1fbbf838939b2db64d80606aec6c15eb",
+            "3048a991068b640797597ac317697949"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "HSBC",
+      "city": "China",
+      "careers_url": "https://apply.careers.hsbc.com/",
+      "source_url": "https://apply.careers.hsbc.com/search/?q=software&locationsearch=Guangzhou",
+      "evidence": "Official employer careers source and open vacancy evidence were checked directly.",
+      "logo": {
+        "name": "HSBC",
+        "page_url": "https://www.about.hsbc.com.cn/",
+        "evidence": "HSBC’s official China company site embeds the bank’s corporate logo and labels it HSBC.",
+        "checked_at": "2026-11-15T10:55:18.478015+00:00",
+        "status": "verified",
+        "url": "https://www.about.hsbc.com.cn/-/media/pws171/Logos/HSBC-logo.svg",
+        "logo_url": "https://www.about.hsbc.com.cn/-/media/pws171/Logos/HSBC-logo.svg",
+        "sha256": "165e4b4dc6adf921c031746a180278a669859cd0e9aee89afe4fa6c5cd75d43b",
+        "expected_sha256": "165e4b4dc6adf921c031746a180278a669859cd0e9aee89afe4fa6c5cd75d43b",
+        "selection": true,
+        "local_path": "tasks/public-demo-logos-activity/research/apac/logos/165e4b4dc6adf921c031746a180278a669859cd0e9aee89afe4fa6c5cd75d43b.png"
+      },
+      "jobs": [
+        {
+          "id": "da135101cf6aa7368733e119",
+          "title": "Senior Software Engineer, Asia & Middle East Technology",
+          "employer": "HSBC",
+          "location": "Guangzhou, China",
+          "city": "Guangzhou",
+          "destination": "China",
+          "requisition": "1374406557",
+          "url": "https://apply.careers.hsbc.com/job/Guangzhou-Senior-Software-Engineer-GD-510620/1374406557/",
+          "careers_url": "https://apply.careers.hsbc.com/",
+          "source_url": "https://apply.careers.hsbc.com/search/?q=software&locationsearch=Guangzhou",
+          "description": "Design and maintain business web applications, automated tests and delivery pipelines in the bank’s Asia and Middle East Technology team.",
+          "requirements": [
+            "Professional web application delivery and hands-on use of some of Java, Spring Boot, Node.js, React or PostgreSQL",
+            "Automated test tools such as Selenium, JUnit or Cucumber; Agile, CI/CD and release support",
+            "Strong written English; confident spoken English advantageous"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "fit_rationale": "The public résumé documents delivering React and Node.js software, writing automated tests including Selenium work, building CI/CD pipelines and operating across the delivery lifecycle. The role lists Java and Spring as examples alongside its documented stack.",
+          "retrieved_at": "2026-11-15T11:01:34.172657+00:00",
+          "checked_at": "2026-11-15T11:01:34.172657+00:00",
+          "evidence": {
+            "description": "Official posting provides the requisition, advertised location, work and qualifications.",
+            "official_record": "https://apply.careers.hsbc.com/job/Guangzhou-Senior-Software-Engineer-GD-510620/1374406557/",
+            "raw_evidence": "output/public-demo-logos-activity/apac/raw/hsbc-cn-sw-detail-4",
+            "published_hiring_entity": "HSBC Software Development (GuangDong) Limited"
+          },
+          "eligibility_note": "The posting requires working English. Work authorization and sponsorship are unspecified."
+        },
+        {
+          "id": "12e7c492bd39b37eede96075",
+          "title": "Consultant Specialist, Group Functions Technology",
+          "employer": "HSBC",
+          "location": "Guangzhou, China",
+          "city": "Guangzhou",
+          "destination": "China",
+          "requisition": "1377440057",
+          "url": "https://apply.careers.hsbc.com/job/Guangzhou-Consultant-Specialist-GD-510620/1377440057/",
+          "careers_url": "https://apply.careers.hsbc.com/",
+          "source_url": "https://apply.careers.hsbc.com/search/?q=software&locationsearch=Guangzhou",
+          "description": "Develop Python or Java application components, microservices and data integrations and follow individual features through release and operations.",
+          "requirements": [
+            "Computing degree or relevant experience; production software using Java/Spring or Python with a relevant framework",
+            "Cloud development or deployment, container fundamentals, secure delivery and relational SQL",
+            "Automated tests and CI/CD, independent problem-solving and effective written and spoken English"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "fit_rationale": "Python, FastAPI, relational data, testing and automated delivery are supported. The résumé also documents designing APIs, integration, user acceptance testing and mentoring.",
+          "retrieved_at": "2026-11-15T11:01:34.172657+00:00",
+          "checked_at": "2026-11-15T11:01:34.172657+00:00",
+          "evidence": {
+            "description": "Official posting provides the requisition, advertised location, work and qualifications.",
+            "official_record": "https://apply.careers.hsbc.com/job/Guangzhou-Consultant-Specialist-GD-510620/1377440057/",
+            "raw_evidence": "output/public-demo-logos-activity/apac/raw/hsbc-cn-sw-detail-14",
+            "published_hiring_entity": "HSBC Software Development (GuangDong) Limited"
+          },
+          "eligibility_note": "The posting requires working English. Work authorization and sponsorship are unspecified."
+        },
+        {
+          "id": "b8e61e95c910802135075cee",
+          "title": "Senior Consultant Specialist, IWPB Technology",
+          "employer": "HSBC",
+          "location": "Guangzhou, China",
+          "city": "Guangzhou",
+          "destination": "China",
+          "requisition": "1377461057",
+          "url": "https://apply.careers.hsbc.com/job/Guangzhou-Senior-Consultant-Specialist-GD-510620/1377461057/",
+          "careers_url": "https://apply.careers.hsbc.com/",
+          "source_url": "https://apply.careers.hsbc.com/search/?q=software&locationsearch=Guangzhou",
+          "description": "Develop responsive banking interfaces in React and TypeScript, integrate enterprise and payment services, and guide automated testing and delivery.",
+          "requirements": [
+            "Production React and JavaScript or TypeScript, HTML and CSS, reusable frontend components and REST or distributed-service integration",
+            "Understanding of frontend testing at unit, component and end-to-end levels and experience with CI/CD",
+            "Experience improving frontend security, accessibility, performance and maintainability; able to work with multiple stakeholders"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "fit_rationale": "The résumé documents production React SaaS work, web and UX development, secure API integrations, automated tests, CI/CD and delivery with multiple stakeholders. The position uses approved AI-assisted tools as a duty, with no prior AI tool tenure stated.",
+          "retrieved_at": "2026-11-15T11:01:34.172657+00:00",
+          "checked_at": "2026-11-15T11:01:34.172657+00:00",
+          "evidence": {
+            "description": "Official posting provides the requisition, advertised location, work and qualifications.",
+            "official_record": "https://apply.careers.hsbc.com/job/Guangzhou-Senior-Consultant-Specialist-GD-510620/1377461057/",
+            "raw_evidence": "output/public-demo-logos-activity/apac/raw/hsbc-gz-role-1377461057",
+            "published_hiring_entity": "HSBC Software Development (GuangDong) Limited"
+          }
+        }
+      ],
+      "picks": [
+        {
+          "job_id": "da135101cf6aa7368733e119",
+          "reason": "This is the closest match for the candidate’s TypeScript, Express.js, CI/CD and web-application delivery work.",
+          "fact_ids": [
+            "3b66e05b56c2d09ca02852719fc4b4bc",
+            "f8cb45f384063f6670a007b30b1d95a5",
+            "1fbbf838939b2db64d80606aec6c15eb"
+          ]
+        },
+        {
+          "job_id": "12e7c492bd39b37eede96075",
+          "reason": "The role accepts Python framework experience and combines API development with SQL and automated delivery.",
+          "fact_ids": [
+            "ce3737d14c22431c2f3c0d19067d52a3",
+            "baf67c1cab10e840eb14b6082c1b04ee",
+            "d7629711b68661baaf1fbb1792c0fb8a",
+            "1fbbf838939b2db64d80606aec6c15eb"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "NCS",
+      "city": "Singapore",
+      "careers_url": "https://www.ncs.co/en-sg/careers/",
+      "source_url": "https://groupcareers.singtel.com/",
+      "evidence": "Official employer careers source and open vacancy evidence were checked directly.",
+      "logo": {
+        "name": "NCS",
+        "page_url": "https://prod.public.ncssg-prod.magnolia-platform.io/en-sg/",
+        "evidence": "The NCS Singapore corporate homepage names NCS in its Organization metadata and displays the NCS Singapore logo in the header.",
+        "checked_at": "2026-11-15T10:57:00.673852+00:00",
+        "status": "verified",
+        "url": "https://prod.public.ncssg-prod.magnolia-platform.io/dam/jcr:68e48c73-c3bf-443b-bf66-cb5f4e8bc7fe/ncs_logo.2024-09-16-16-43-35.png",
+        "logo_url": "https://prod.public.ncssg-prod.magnolia-platform.io/dam/jcr:68e48c73-c3bf-443b-bf66-cb5f4e8bc7fe/ncs_logo.2024-09-16-16-43-35.png",
+        "sha256": "10f944800cb5c576211e7ec900b18f948a6f4de2b40b14b270bb3cda6bdf2b2a",
+        "expected_sha256": "10f944800cb5c576211e7ec900b18f948a6f4de2b40b14b270bb3cda6bdf2b2a",
+        "selection": true,
+        "local_path": "tasks/public-demo-logos-activity/research/apac/logos/10f944800cb5c576211e7ec900b18f948a6f4de2b40b14b270bb3cda6bdf2b2a.png",
+        "provenance_urls": [
+          "https://www.ncs.co/en-sg/partners/magnolia/",
+          "https://www.magnolia-cms.com/customers/case-study/ncs.html",
+          "https://www.ncs.co/en-sg/",
+          "https://www.ncs.co/dam/jcr:68e48c73-c3bf-443b-bf66-cb5f4e8bc7fe/ncs_logo.2024-09-16-16-43-35.png"
+        ]
+      },
+      "jobs": [
+        {
+          "id": "e073dac6ce09b98ebb1ff4c7",
+          "title": "Business System Analyst (Technical)",
+          "employer": "NCS",
+          "location": "Singapore",
+          "city": "Singapore",
+          "destination": "Singapore",
+          "requisition": "1214327366",
+          "url": "https://groupcareers.singtel.com/job/Business-System-Analyst-%28Technical%29-Sing/1214327366/",
+          "careers_url": "https://www.ncs.co/en-sg/careers/",
+          "source_url": "https://groupcareers.singtel.com/",
+          "description": "Maintain and improve applications through requirements, testing, delivery and post-production support.",
+          "requirements": [
+            "Computing or engineering degree; 3–5 years developing, implementing and maintaining IT systems",
+            "SQL/Oracle database proficiency, Windows and enterprise application support, test strategies and UAT",
+            "Healthcare experience is advantageous"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "fit_rationale": "The applicant has a computing degree, 5+ years of software development, and confirmed SQL, requirements and system implementation experience. Oracle-specific use is unspecified. Holyoake provides a currently relevant business systems role.",
+          "retrieved_at": "2026-11-15T11:01:34.172657+00:00",
+          "checked_at": "2026-11-15T11:01:34.172657+00:00",
+          "evidence": {
+            "description": "Official posting provides the requisition, advertised location, work and qualifications.",
+            "official_record": "https://groupcareers.singtel.com/job/Business-System-Analyst-%28Technical%29-Sing/1214327366/",
+            "raw_evidence": "output/public-demo-logos-activity/apac/raw/ncs-role1"
+          },
+          "posted_at": "2026-11-03"
+        },
+        {
+          "id": "a18f0542e2b051d00dd7a9d4",
+          "title": "Business Analyst, Digital Experience",
+          "employer": "NCS",
+          "location": "Singapore",
+          "city": "Singapore",
+          "destination": "Singapore",
+          "requisition": "1213529166",
+          "url": "https://groupcareers.singtel.com/job/Business-Analyst%2C-Digital-Experience-Sing/1213529166/",
+          "careers_url": "https://www.ncs.co/en-sg/careers/",
+          "source_url": "https://groupcareers.singtel.com/",
+          "description": "Translate stakeholder needs into technical requirements and support testing and software delivery.",
+          "requirements": [
+            "Typically 3–5 years in IT and at least 2 years working in Agile projects",
+            "Relevant systems development or maintenance and IT business analysis",
+            "Written and spoken English and able to travel as required; AI projects desirable"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "fit_rationale": "Confirmed Agile product delivery, practical web systems development and the current Holyoake business systems role align with requirements, validation and ongoing support.",
+          "retrieved_at": "2026-11-15T11:01:34.172657+00:00",
+          "checked_at": "2026-11-15T11:01:34.172657+00:00",
+          "evidence": {
+            "description": "Official posting provides the requisition, advertised location, work and qualifications.",
+            "official_record": "https://groupcareers.singtel.com/job/Business-Analyst%2C-Digital-Experience-Sing/1213529166/",
+            "raw_evidence": "output/public-demo-logos-activity/apac/raw/ncs-role2"
+          },
+          "posted_at": "2026-10-17",
+          "eligibility_note": "The posting asks for written and spoken English. Work authorization and sponsorship remain unspecified."
+        },
+        {
+          "id": "28f254e6e8cb48ab155c98f0",
+          "title": "Application Test Engineer",
+          "employer": "NCS",
+          "location": "Singapore",
+          "city": "Singapore",
+          "destination": "Singapore",
+          "requisition": "1056623766",
+          "url": "https://groupcareers.singtel.com/job/Application-Test-Engineer-Sing/1056623766/",
+          "careers_url": "https://www.ncs.co/en-sg/careers/",
+          "source_url": "https://groupcareers.singtel.com/",
+          "description": "Plan, execute and document application testing and report defects and results.",
+          "requirements": [
+            "Typically at least 2 years of IT or testing experience",
+            "Working knowledge of testing methodologies and tools, with execution and reporting responsibilities",
+            "Written and spoken English"
+          ],
+          "availability": "open",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "fit_rationale": "The candidate’s software delivery includes Selenium automation and test and release pipelines, as well as IT experience beyond the minimum.",
+          "retrieved_at": "2026-11-15T11:01:34.172657+00:00",
+          "checked_at": "2026-11-15T11:01:34.172657+00:00",
+          "evidence": {
+            "description": "Official posting provides the requisition, advertised location, work and qualifications.",
+            "official_record": "https://groupcareers.singtel.com/job/Application-Test-Engineer-Sing/1056623766/",
+            "raw_evidence": "output/public-demo-logos-activity/apac/raw/ncs-test"
+          },
+          "posted_at": "2026-11-06",
+          "eligibility_note": "The posting asks for written and spoken English. Work authorization and sponsorship remain unspecified."
+        }
+      ],
+      "picks": [
+        {
+          "job_id": "e073dac6ce09b98ebb1ff4c7",
+          "reason": "SQL and the full software lifecycle support the application requirements, test and maintenance scope.",
+          "fact_ids": [
+            "d7629711b68661baaf1fbb1792c0fb8a",
+            "79ed41d4d9f7d874acbed0e6cb157cdf"
+          ]
+        },
+        {
+          "job_id": "a18f0542e2b051d00dd7a9d4",
+          "reason": "Agile delivery and lifecycle experience support the transition from user needs to implemented and maintained systems.",
+          "fact_ids": [
+            "73b169f9b3e1f60db8f8accb1ebba241",
+            "79ed41d4d9f7d874acbed0e6cb157cdf"
+          ]
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "Singapore": 3,
+    "Melbourne": 1,
+    "China": 3
+  },
+  "duplicate_exclusions": []
+}

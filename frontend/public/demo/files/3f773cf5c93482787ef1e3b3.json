@@ -1,0 +1,219 @@
+{
+  "job": {
+    "availability": "retrieved",
+    "careers_url": "https://careers.open.gov.sg/",
+    "checked_at": "2026-11-15T11:01:34.172657+00:00",
+    "closes": "",
+    "description": "Own technical design and implementation for systems that help teams run community programmes and events.",
+    "eligibility": "unknown",
+    "email": "",
+    "employer": "Open Government Products",
+    "expectation": {
+      "basis": "",
+      "confidence": "",
+      "source": "",
+      "target": ""
+    },
+    "id": "41c81966a2162e1b40707372",
+    "location": "Singapore",
+    "posted_at": "",
+    "prior_application": "none",
+    "reposted_at": "",
+    "requirements": [
+      "Depth in frontend, backend or cloud and ability to design across the stack",
+      "Technology stack includes TypeScript, React, Next.js, Node.js, AWS and Postgres; CI/CD, IaC and secure development expected",
+      "Experience owning production software, direct stakeholder work and mentoring"
+    ],
+    "salary": {
+      "basis": "",
+      "currency": "",
+      "max": 0.0,
+      "min": 0.0,
+      "period": ""
+    },
+    "saved": false,
+    "seniority": "",
+    "source": "reviewed:open-government-products",
+    "sponsorship": "unknown",
+    "title": "Lead Software Engineer, attendPA",
+    "url": "https://careers.open.gov.sg/o/lead-software-engineer-attendpa",
+    "work_arrangement": "",
+    "hiring_employer_verified": true,
+    "company": {
+      "id": "ec3bd10c76694fa9b6b358368a0966ac",
+      "name": "Open Government Products",
+      "vacancy_id": "9519b7436a494ceda8a825681b8221a9",
+      "submitted_vacancy": false,
+      "remaining": 2,
+      "cooling": false,
+      "cooldown_until": null,
+      "cooldown_time_assumed": false,
+      "overflow": false,
+      "review_needed": false,
+      "pending_only_count": 0
+    }
+  },
+  "facts": [
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "6e30d600d3e246e48f25df95f8658d11",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.360374+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used Python to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.360368+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "00fef0a3dd09482bbbf9c43d353ed29f",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.364636+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used AWS to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.364633+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "6796d665b1be4c88b7d668da2d390b57",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.368961+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used Terraform to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.368958+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "f5997418df9b4226ab97f13139c2ac3f",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.373576+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used PostgreSQL to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.373574+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "4c8072fd7b1442db8852db31a6d0cdf5",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.378470+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used React to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.378468+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "3bb8369ff3ed4fe99799acc322c82480",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.384200+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used TypeScript to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.384198+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "f9d1c553b77e44e3bf21573cade4e938",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.390109+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used CI/CD to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.390106+00:00"
+    }
+  ],
+  "matching": {
+    "hard_conflicts": [],
+    "unknowns": [
+      "Work rights / sponsorship need confirmation"
+    ],
+    "preferences": [],
+    "evidence": [
+      {
+        "requirement": "Depth in frontend, backend or cloud and ability to design across the stack",
+        "fact_ids": [],
+        "assessment": "No confirmed evidence"
+      },
+      {
+        "requirement": "Technology stack includes TypeScript, React, Next.js, Node.js, AWS and Postgres; CI/CD, IaC and secure development expected",
+        "fact_ids": [],
+        "assessment": "No confirmed evidence"
+      },
+      {
+        "requirement": "Experience owning production software, direct stakeholder work and mentoring",
+        "fact_ids": [],
+        "assessment": "No confirmed evidence"
+      }
+    ],
+    "gaps": [
+      "Depth in frontend, backend or cloud and ability to design across the stack",
+      "Technology stack includes TypeScript, React, Next.js, Node.js, AWS and Postgres; CI/CD, IaC and secure development expected",
+      "Experience owning production software, direct stakeholder work and mentoring"
+    ],
+    "stretch": true,
+    "eligible_for_preparation": true,
+    "fact_ids": [
+      "6e30d600d3e246e48f25df95f8658d11",
+      "00fef0a3dd09482bbbf9c43d353ed29f",
+      "6796d665b1be4c88b7d668da2d390b57",
+      "f5997418df9b4226ab97f13139c2ac3f",
+      "4c8072fd7b1442db8852db31a6d0cdf5",
+      "3bb8369ff3ed4fe99799acc322c82480",
+      "f9d1c553b77e44e3bf21573cade4e938"
+    ],
+    "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+    "salary_expectation": {
+      "target": "Unresolved — request the employer band or add comparable local salary evidence",
+      "basis": "No comparable gross-base band is available; no precise expectation invented.",
+      "source": "https://careers.open.gov.sg/o/lead-software-engineer-attendpa",
+      "confidence": "low"
+    }
+  },
+  "template": "plain",
+  "notice": "User review required. No ATS guarantee."
+}

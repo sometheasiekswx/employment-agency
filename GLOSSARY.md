@@ -113,5 +113,11 @@ The publicly accessible static demo with the owner’s redacted résumé and pro
 **Demo draft**:
 An application draft prepared from the selected résumé in the public showcase. The draft lives in the current tab and the visitor can download a copy.
 
+**Sample activity**:
+The public showcase's simulated choices, document preparation and submission records on reviewed vacancies. It demonstrates the workflow and does not represent an employer contact or an actual application by the owner.
+
+**Public catalog exclusion**:
+Omission of a company and its roles from the public showcase when its required official logo cannot be verified. Unlike a visitor's Removed opportunity, an excluded role is absent from the public dataset and cannot be restored there.
+
 **Submission approval**:
 The user's authorization to prepare and submit the role or selected roles named when starting **Apply for me**. An **Apply later** choice, draft preparation or review decision does not grant this authority; actions outside the authorized scope require a new decision. See [ADR 0016](docs/adr/0016-authorize-role-submission-when-starting-agent.md). Earlier delivery attempts retain their original final-approval contract.

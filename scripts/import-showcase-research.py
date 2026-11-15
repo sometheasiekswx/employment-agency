@@ -14,7 +14,10 @@ import re
 
 from employment_agency.demo import DemoWorkspace
 from employment_agency.service import Service
-from employment_agency import company_logo_assets as assets
+from employment_agency import companies as employer_records
+from employment_agency import company_best_matches
+from employment_agency import company_logo_assets as assets, company_logos, public_catalog
+from employment_agency.sources import public_url
 from employment_agency.store import digest, atomic
 from employment_agency.workspaces import configure
 
@@ -26,7 +29,9 @@ def catalog_logo(service, employer_id, company, root):
                 'evidence': logo.get('evidence') or 'Official company careers and branding page.'}
     if logo.get('local_path') and logo.get('url'):
         try:
-            path = root / logo['local_path']
+            path = (root / logo['local_path']).resolve()
+            if not path.is_relative_to(root.resolve()):
+                raise ValueError('Keep reviewed logo bytes inside the public checkout')
             normalized = assets.normalize(path.read_bytes(), mimetypes.guess_type(str(path))[0])
             assets.public_logo(logo['url'])
             supplied['expected_sha256'] = digest(normalized)
@@ -64,7 +69,98 @@ def catalog_logo(service, employer_id, company, root):
     (logo_dir / f'{sha256}.png').write_bytes(normalized)
     return result, {'status': 'verified', 'sha256': sha256,
                     'url': stored['final_url'], 'page_url': stored['page_url'],
+                    'declared_url': stored['url'],
+                    'requested_page': stored['requested_page'],
+                    'reviewed_url': stored.get('reviewed_url'),
                     'evidence': stored['evidence'], 'checked_at': stored['retrieved_at']}
+
+
+def validate_research(companies, excluded, previous, destinations):
+    labels = {employer_records.name_key(company['name']): company for company in companies}
+    if len(labels) != len(companies) or '' in labels:
+        raise ValueError('Combine employer aliases and cross-region research before importing')
+    baseline = previous.get('baseline_employers') or [row['name'] for row in previous['companies']]
+    baseline_names = {employer_records.name_key(name) for name in baseline}
+    exclusions = {employer_records.name_key(row['name']): row for row in excluded}
+    if len(exclusions) != len(excluded) or exclusions.keys() != baseline_names - labels.keys():
+        raise ValueError('Provide official logo coverage for exactly the excluded baseline employers')
+    previously_verified = set(previous.get('baseline_verified_employers') or [
+        row['name'] for row in previous['companies'] if (row.get('logo') or {}).get('status') == 'verified'
+    ])
+    if exclusions.keys() & {employer_records.name_key(name) for name in previously_verified}:
+        raise ValueError('Retain every baseline employer with a verified logo')
+    for row in excluded:
+        attempts = row.get('attempts')
+        if (not attempts
+                or not all(attempt.get('status') and attempt.get('detail') for attempt in attempts)
+                or any(attempt['status'] in ('verified', 'success', 'already_present') for attempt in attempts)):
+            raise ValueError(f"Document the unsuccessful official logo attempts for {row['name']}")
+        for attempt in attempts:
+            public_url(attempt['page_url'])
+
+    new_coverage = defaultdict(list)
+    all_job_ids, all_urls = set(), set()
+    for name, company in labels.items():
+        jobs = company['jobs']
+        localities = {job.get('destination', job['city']) for job in jobs}
+        if not localities or not localities <= destinations:
+            raise ValueError(f"Provide reviewed destination coverage for {company['name']}")
+        requisitions = set()
+        for job in jobs:
+            requisition = job.get('requisition')
+            if (not isinstance(requisition, str) or not requisition.strip() or requisition in requisitions
+                    or job['id'] in all_job_ids
+                    or job['url'] in all_urls or employer_records.name_key(job['employer']) != name):
+                raise ValueError(f"Resolve duplicate or unverified role identity for {company['name']}")
+            requisitions.add(requisition)
+            all_job_ids.add(job['id'])
+            all_urls.add(job['url'])
+        if name not in baseline_names:
+            if len(localities) != 1 or len(jobs) < 3:
+                raise ValueError(f"Expected at least three credible local roles at {company['name']}")
+            for job in jobs:
+                fit = job.get('fit_rationale')
+                if not isinstance(fit, str) or not fit.strip() or job.get('stretch'):
+                    raise ValueError(f"Supply evidence of fit for every included role at {company['name']}")
+                if (not job.get('location') or not job.get('requirements') or not job.get('evidence')
+                        or not job.get('checked_at') or not job.get('eligibility')
+                        or job.get('availability') not in ('retrieved', 'open')):
+                    raise ValueError(f"Supply current source and advertised role evidence at {company['name']}")
+            new_coverage[next(iter(localities))].append(company['name'])
+        expected_picks = 2 if len(jobs) > 2 else 0
+        picks = company.get('picks', [])
+        if len(picks) != expected_picks:
+            raise ValueError(f"Expected {expected_picks} reviewed picks at {company['name']}")
+        if picks:
+            try:
+                company_best_matches.normalize_picks(picks)
+            except ValueError as error:
+                raise ValueError(f"Invalid picks at {company['name']}: {error}") from error
+            if not {pick['job_id'] for pick in picks} <= {job['id'] for job in jobs}:
+                raise ValueError(f"Compare only included vacancies at {company['name']}")
+    if new_coverage.keys() != destinations or any(len(names) != 3 for names in new_coverage.values()):
+        raise ValueError(f'Each destination needs exactly three globally distinct new employers: {dict(new_coverage)}')
+    return baseline, sorted(previously_verified), dict(new_coverage)
+
+
+def retain_verified_logo(service, employer_id, previous, root):
+    logo = previous['logo']
+    # The baseline release already verified this source. Recheck the exact
+    # normalized bytes and restore the accepted provenance in the new workspace.
+    sha256 = logo['sha256']
+    if not assets.SHA256.fullmatch(sha256):
+        raise ValueError('The baseline company has an invalid logo identifier')
+    body = (root / 'employment_agency/demo_data/showcase_logos' / f'{sha256}.png').read_bytes()
+    if digest(body) != sha256 or not assets.normalized_png(body):
+        raise ValueError('The baseline company logo changed')
+    employer = next(row for row in service.w.read()['employers'] if row['id'] == employer_id)
+    outcome = company_logos.store_logo(service.w, employer, {
+        'source': 'operator-verified-branding', 'page_url': logo['page_url'],
+        'requested_page': logo.get('requested_page', logo['page_url']),
+        'url': logo.get('declared_url', logo['url']), 'reviewed_url': logo.get('reviewed_url'),
+        'evidence': logo['evidence'],
+    }, body, logo['url'])
+    return {'baseline_verification': True, 'companies': [outcome]}, logo
 
 
 def main():
@@ -72,6 +168,8 @@ def main():
     parser.add_argument('--root', type=Path, required=True)
     parser.add_argument('--workspace', type=Path, required=True)
     parser.add_argument('--profile', type=Path, required=True)
+    parser.add_argument('--exclusions', type=Path, required=True,
+                        help='Official source attempts for excluded baseline employers')
     parser.add_argument('--resume', action='store_true', help='Resume this isolated public research workspace')
     parser.add_argument('research', type=Path, nargs='+')
     args = parser.parse_args()
@@ -84,17 +182,19 @@ def main():
     previous = json.loads((args.root / 'employment_agency/demo_data/showcase_jobs.json').read_text())
     for path in args.research:
         companies.extend(json.loads(path.read_text())['companies'])
-    if len({company['name'].casefold() for company in companies}) != len(companies):
-        raise SystemExit('Combine cross-region employer research before importing')
-    coverage = defaultdict(set)
-    for company in companies:
-        if not 1 <= len(company['jobs']) <= 7:
-            raise SystemExit(f"Expected 1–7 distinct jobs at {company['name']}")
-        for job in company['jobs']:
-            coverage[job.get('destination', job['city'])].add(company['name'])
+    excluded = json.loads(args.exclusions.read_text())['companies']
     destinations = set(published['state']['profiles'][0]['locations'])
-    if set(coverage) != destinations or any(not 5 <= len(names) <= 10 for names in coverage.values()):
-        raise SystemExit(f'Incomplete destination coverage: {dict((city, len(names)) for city, names in coverage.items())}')
+    baseline, verified, new_coverage = validate_research(companies, excluded, previous, destinations)
+    skill_facts = {fact['id']: fact['text'] for fact in published['state']['facts']
+                   if fact.get('confirmed') and fact['category'] == 'skill'}
+    verified_baseline = {row['name']: row for row in previous['companies'] if row['name'] in verified}
+    for company in companies:
+        if any(fact_id not in skill_facts for pick in company.get('picks', []) for fact_id in pick['fact_ids']):
+            raise ValueError(f"Public recipes at {company['name']} must cite confirmed skill facts")
+        if company['name'] not in verified_baseline:
+            logo = company.get('logo') or {}
+            if any(not logo.get(key) for key in ('page_url', 'url', 'local_path', 'evidence')):
+                raise ValueError(f"Supply official logo evidence and reviewed bytes for {company['name']}")
     workspace = DemoWorkspace(args.workspace, sqlite=True)
     if args.resume:
         from employment_agency.workspaces import settings
@@ -108,9 +208,9 @@ def main():
             raise SystemExit('Resume requires the same isolated public research workspace and profile')
     service = Service(workspace)
     receipts = {'companies': [], 'logos': [], 'reviews': []}
-    catalog = {'schema': 2, 'mode': 'reviewed', 'sources': [],
-               'legacy_job_sources': previous.get('legacy_job_sources', previous.get('sources', [])),
-               'reviewed_job_sources': previous.get('reviewed_job_sources', []),
+    catalog = {'schema': public_catalog.CATALOG_SCHEMA, 'mode': 'reviewed', 'sources': [],
+               'baseline_employers': baseline, 'baseline_verified_employers': verified,
+               'excluded_employers': excluded, 'new_employers_by_destination': new_coverage,
                'checked_at': datetime.now(timezone.utc).isoformat(),
                'reviewed_resume_sha256': published['demo_resume']['sha256'],
                'companies': [], 'jobs': []}
@@ -123,7 +223,6 @@ def main():
             state['facts'] = published['state']['facts']
             state['profiles'] = published['state']['profiles']
         profile_id = workspace.read()['profiles'][0]['id']
-        facts = {fact['id']: fact for fact in workspace.read()['facts'] if fact.get('confirmed')}
         fields = {'id', 'title', 'employer', 'city', 'location', 'url', 'careers_url', 'description',
                   'requirements', 'availability', 'checked_at', 'posted_at', 'closes',
                   'eligibility', 'sponsorship', 'salary', 'work_arrangement', 'seniority'}
@@ -151,10 +250,20 @@ def main():
                            'requisition': source.get('requisition') or job['id'], 'evidence': evidence}
                 link = service.action('company-resolve', {**binding, 'name': name, 'verified': True})
                 employer_id = link['employer_id']
+                if 'fit_rationale' in source:
+                    binding['fit_rationale'] = source['fit_rationale']
                 record['listings'].append(binding)
                 catalog['jobs'].append(job)
-            result, record['logo'] = catalog_logo(service, employer_id, company, args.root)
+            if name in verified_baseline:
+                result, record['logo'] = retain_verified_logo(
+                    service, employer_id, verified_baseline[name], args.root,
+                )
+            else:
+                result, record['logo'] = catalog_logo(service, employer_id, company, args.root)
             receipts['logos'].append({'name': name, 'result': result})
+            (args.workspace.parent / 'import-receipts.json').write_text(json.dumps(receipts, indent=2) + '\n')
+            if record['logo']['status'] != 'verified':
+                raise ValueError(f"Official logo verification failed at {name}: {record['logo']['reason']}")
             ids = [job['id'] for job in company['jobs']]
             if len(ids) > 2:
                 target = {'workspace_id': workspace.workspace_id, 'profile_id': profile_id,
@@ -166,9 +275,7 @@ def main():
                 })
                 receipts['reviews'].append(result)
                 for pick in picks:
-                    terms = [facts[fact_id]['text'] for fact_id in pick['fact_ids']]
-                    if any(facts[fact_id]['category'] != 'skill' for fact_id in pick['fact_ids']):
-                        raise ValueError('Public recipes must cite skill facts without personal details')
+                    terms = [skill_facts[fact_id] for fact_id in pick['fact_ids']]
                     record['picks'].append({'job_id': pick['job_id'], 'reason': pick['reason'], 'fact_terms': terms})
             catalog['companies'].append(record)
             (args.workspace.parent / 'import-receipts.json').write_text(json.dumps(receipts, indent=2) + '\n')
@@ -180,23 +287,11 @@ def main():
             raise ValueError('Research completion did not pass')
         catalog['completion'] = {'ready': True, 'checked_at': catalog['checked_at'],
                                  'jobs': len(catalog['jobs']), 'companies': len(catalog['companies'])}
-        archive = {source['source']: source for source in catalog['reviewed_job_sources']}
-        for company in catalog['companies']:
-            ids = {item['job_id'] for item in company['listings']}
-            jobs = [job for job in catalog['jobs'] if job['id'] in ids]
-            key = jobs[0]['source']
-            prior = archive.get(key, {})
-            if prior and prior['employer'] != company['name']:
-                raise ValueError('Reviewed source ownership changed; review the stored-choice migration')
-            archive[key] = {'source': key, 'employer': company['name'],
-                            'careers_url': company['careers_url'],
-                            'posting_urls': sorted(set(prior.get('posting_urls', [])) | {job['url'] for job in jobs})}
-        catalog['reviewed_job_sources'] = list(archive.values())
         atomic(args.root / 'employment_agency/demo_data/showcase_jobs.json',
                (json.dumps(catalog, ensure_ascii=False, indent=2) + '\n').encode())
         (args.workspace.parent / 'research-completion.json').write_text(json.dumps(final, indent=2) + '\n')
         print(json.dumps({'jobs': len(catalog['jobs']), 'companies': len(companies),
-                          'coverage': {city: len(names) for city, names in coverage.items()},
+                          'new_coverage': new_coverage,
                           'logos': sum(c['logo']['status'] == 'verified' for c in catalog['companies']),
                           'completion': True}), flush=True)
     finally:

@@ -2,6 +2,7 @@
 
 import json
 from itertools import islice
+import re
 from urllib.parse import urljoin
 
 from lxml import etree, html
@@ -10,6 +11,9 @@ from . import companies, company_logo_assets as assets, sources
 
 
 PAGE_LIMIT = 512 * 1024
+SRCSET_LIMIT = 8192
+SRCSET_CANDIDATES = 16
+WIDTH_CANDIDATE = re.compile(r'([^\s,]+)[ \t\r\n\f]+([1-9][0-9]{0,4})w', re.ASCII)
 ORGANIZATION_TYPES = frozenset({
     'Organization', 'Corporation', 'LocalBusiness', 'BankOrCreditUnion',
     'ProfessionalService', 'FinancialService', 'NGO', 'EducationalOrganization',
@@ -76,6 +80,26 @@ def declared_url(value, page):
         return None
 
 
+def responsive_images(value, page):
+    """Accept a bounded list of ordinary width-based srcset declarations."""
+    if not value or len(value) > SRCSET_LIMIT:
+        return ()
+    entries = value.split(',')
+    if len(entries) > SRCSET_CANDIDATES:
+        return ()
+    candidates, widths = [], set()
+    for entry in entries:
+        match = WIDTH_CANDIDATE.fullmatch(entry.strip(' \t\r\n\f'))
+        if not match or match[2] in widths:
+            return ()
+        logo = declared_url(match[1], page)
+        if not logo:
+            return ()
+        candidates.append(logo)
+        widths.add(match[2])
+    return candidates
+
+
 def selected_logo(tree, page, names, selection):
     candidate = assets.public_logo(selection)
     declared = candidate.geturl()
@@ -85,8 +109,10 @@ def selected_logo(tree, page, names, selection):
     if labels:
         return declared
     if assets.same_host(candidate.hostname, page_address(page).hostname):
+        allow_srcset = not tree.xpath('//base[@href]')
         for image in islice(tree.iter('img'), 250):
-            if declared_url(image.get('src'), page) == declared:
+            if (declared_url(image.get('src'), page) == declared
+                    or allow_srcset and declared in responsive_images(image.get('srcset'), page)):
                 return declared
     return None
 

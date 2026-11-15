@@ -40,7 +40,10 @@ async function accessible(page, selector) {
   );
 }
 
-async function documents(page, snapshot) {
+const roleName = (job) => `Assess ${job.title} at ${job.employer}`;
+
+async function documents(page, snapshot, [baseline, imported]) {
+  const importedRole = roleName(imported);
   await page.goto(base + "/career/");
   const input = page.getByLabel("Your résumé file");
   if (snapshot.demo_resume) {
@@ -51,7 +54,7 @@ async function documents(page, snapshot) {
     assert.equal(await master.getAttribute("href"), snapshot.demo_resume.pdf);
     const editor = await prepare(
       page,
-      "Assess Full Stack Engineer at Paperwell Studio",
+      roleName(baseline),
     );
     assert.equal(
       await editor.getByRole("textbox", { name: "CV draft" }).inputValue(),
@@ -112,7 +115,7 @@ async function documents(page, snapshot) {
   await page
     .getByRole("button", { name: "Use this résumé", exact: true })
     .click();
-  const editor = await prepare(page, "Assess Backend Engineer at Bayform Labs");
+  const editor = await prepare(page, importedRole);
   const cv = editor.getByRole("textbox", { name: "CV draft" });
   assert.match(await cv.inputValue(), new RegExp(visitor + ".*", "s"));
   await cv.fill((await cv.inputValue()) + "\nEdited in the current tab.");
@@ -151,12 +154,8 @@ async function documents(page, snapshot) {
   await editor
     .getByRole("button", { name: "Cover letter", exact: true })
     .click();
-  assert.match(
-    await editor
-      .getByRole("textbox", { name: "Cover letter draft" })
-      .inputValue(),
-    /Backend Engineer role/,
-  );
+  const cover = await editor.getByRole("textbox", { name: "Cover letter draft" }).inputValue();
+  assert.ok(cover.includes(`${imported.title} role`));
   for (const [format, ext] of [
     ["Word", "docx"],
     ["PDF", "pdf"],
@@ -194,7 +193,7 @@ async function documents(page, snapshot) {
     .getByRole("button", { name: `Active ${active}`, exact: true })
     .click();
   await page
-    .getByRole("button", { name: "Assess Backend Engineer at Bayform Labs" })
+    .getByRole("button", { name: importedRole, exact: true })
     .waitFor();
   await page.goto(base + "/discover/?view=applications&section=active");
   await page
@@ -206,7 +205,7 @@ async function documents(page, snapshot) {
   );
   assert.equal(
     await page
-      .getByRole("button", { name: "Assess Backend Engineer at Bayform Labs" })
+      .getByRole("button", { name: importedRole, exact: true })
       .count(),
     0,
   );
@@ -230,15 +229,19 @@ async function main() {
     const snapshot = await (
       await page.request.get(base + "/demo/preview.json")
     ).json();
-    const job = snapshot.state.jobs.find((candidate, _, jobs) =>
+    const drafts = new Set(snapshot.state.applications.map((app) => app.job_id));
+    const [job, ...draftTargets] = snapshot.state.jobs.filter((candidate, _, jobs) =>
       candidate.source?.startsWith("reviewed:") &&
       candidate.hiring_employer_verified &&
       candidate.url && candidate.careers_url &&
+      !candidate.saved && !candidate.pending_blocker && !candidate.removals?.length &&
+      !drafts.has(candidate.id) &&
       jobs.filter((other) =>
         other.title === candidate.title && other.employer === candidate.employer
       ).length === 1
     );
     assert.ok(job, "The dated catalog has a verified vacancy with employer links");
+    assert.ok(draftTargets.length >= 2, "The demo has separate roles for tab-local draft testing");
     const advertUrl = job.url;
     const careersUrl = job.careers_url;
     await context.route("**/*", async (route) => {
@@ -339,7 +342,7 @@ async function main() {
       ), job.id),
       "true",
     );
-    await documents(page, snapshot);
+    await documents(page, snapshot, draftTargets);
     assert.deepEqual(externalReads, [], "Reviewed vacancies never fetch replacements");
     assert.deepEqual(errors, []);
     console.log(

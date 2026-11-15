@@ -7,6 +7,7 @@ redacted résumé. Neither build opens a private workspace.
 from pathlib import Path
 import argparse
 import base64
+from collections import Counter
 import hashlib
 import json
 import os
@@ -18,7 +19,7 @@ import tempfile
 from .demo import DemoWorkspace
 from .service import Service
 from . import documents, history, matching, packages, summaries
-from .store import digest, encode, uid
+from .store import digest, encode
 from .workspaces import configure
 from . import public_catalog
 
@@ -27,6 +28,7 @@ SAMPLE_LOCATIONS = ('Singapore', 'Melbourne', 'Berlin', 'Toronto')
 SHOWCASE_LOCATIONS = ('Singapore', 'Melbourne', 'New York', 'London', 'China', 'Berlin', 'Toronto')
 PUBLIC_MASTER_PATH = 'demo/master-resume.pdf'
 SAMPLE_NOTICE = 'No application was sent.'
+ACTIVITY_MIX = {'jobs': 70, 'saved': 10, 'active': 8, 'submitted': 7, 'removed': 5}
 
 
 def publish_resume_profile(state, resume):
@@ -66,7 +68,7 @@ def publish_resume_profile(state, resume):
     return {'state': state, 'rankings': rankings}
 
 
-def seed(service, locations=SAMPLE_LOCATIONS):
+def seed_profile(service, locations):
     service.action('identity', {'name': 'Alex Morgan', 'email': 'alex@example.test',
                                'location': 'Melbourne, Australia · Fictional sample profile', 'languages': 'English'})
     for skill in ('Python', 'AWS', 'Terraform', 'PostgreSQL', 'React', 'TypeScript', 'CI/CD'):
@@ -74,9 +76,13 @@ def seed(service, locations=SAMPLE_LOCATIONS):
                                       'category': 'experience', 'association': 'Example Labs (fictional)',
                                       'dates': '2022–2026'})
         service.action('confirm', {'id': fact['id']})
-    profile = service.action('profile', {'name': 'Cloud & software', 'roles': ['Engineer'],
+    return service.action('profile', {'name': 'Cloud & software', 'roles': ['Engineer'],
         'locations': list(locations), 'hard': ['locations'],
         'include_unknown': True, 'include_stretch': True, 'template': 'plain'})
+
+
+def seed(service, locations=SAMPLE_LOCATIONS):
+    profile = seed_profile(service, locations)
     rows = [
         ('Cloud Software Engineer', 'Emberlane Systems', 'Singapore', 'Hybrid', 'SGD', 100000, 130000, ['Python', 'AWS', 'Terraform', 'Kubernetes']),
         ('Backend Engineer', 'Bayform Labs', 'Singapore', 'On-site', 'SGD', 90000, 120000, ['Python', 'PostgreSQL', 'APIs']),
@@ -107,51 +113,90 @@ def seed(service, locations=SAMPLE_LOCATIONS):
     return profile
 
 
+def sample_activity(catalog, preparable):
+    """Spread repeatable sample choices across companies while keeping reviewed picks."""
+    total = len(catalog['jobs'])
+    exact = {stage: total * weight for stage, weight in ACTIVITY_MIX.items()}
+    targets = {stage: value // 100 for stage, value in exact.items()}
+    remainders = sorted(targets, key=lambda stage: -(exact[stage] % 100))
+    for stage in remainders[:total - sum(targets.values())]:
+        targets[stage] += 1
+    roles = {item['job_id']: company['name'] for company in catalog['companies']
+             for item in company['listings']}
+    additions = catalog.get('new_employers_by_destination')
+    sample_employers = {company for names in additions.values() for company in names} if additions else set(roles.values())
+    picks = {pick['job_id'] for company in catalog['companies'] for pick in company.get('picks', [])}
+    company_sizes = Counter(roles.values())
+    ordered = sorted(roles, key=lambda job_id: digest(f'public-activity:{job_id}'.encode()))
+    choices = {}
+    slot_usage = Counter()
+    consumed = Counter()
+    assigned = Counter()
+    for stage in ('submitted', 'removed', 'active', 'saved'):
+        count = 0
+        changes_inventory = stage in ('removed', 'submitted')
+        candidates = sorted(ordered, key=lambda job_id: (
+            changes_inventory and company_sizes[roles[job_id]] - consumed[roles[job_id]] == 3,
+            slot_usage[roles[job_id]],
+        ))
+        for job_id in candidates:
+            if count == targets[stage]:
+                break
+            company = roles[job_id]
+            if job_id in picks or job_id in choices or (stage != 'removed' and slot_usage[company] >= 2):
+                continue
+            # Existing browser choices at retained employers take precedence over
+            # sample decisions that would hide a role from the visitor's queue.
+            if stage != 'saved' and company not in sample_employers:
+                continue
+            if assigned[company] >= company_sizes[company] - 1:
+                continue
+            if stage in ('submitted', 'active') and job_id not in preparable:
+                continue
+            if stage == 'submitted' and consumed[company]:
+                continue
+            choices[job_id] = stage
+            assigned[company] += 1
+            count += 1
+            if stage != 'removed':
+                slot_usage[company] += 1
+            if changes_inventory:
+                consumed[company] += 1
+    jobs = [job_id for job_id in ordered if job_id not in choices]
+    return choices, set(jobs[:len(jobs) // 2])
+
+
 def seed_showcase(service, listing_data):
-    profile = seed(service, SHOWCASE_LOCATIONS)
-    if listing_data.get('mode') == 'reviewed':
-        # These are explicitly fictional sample skills. The release replaces
-        # them with the approved public résumé before revalidating reviews.
-        terms = sorted({term for company in listing_data['companies']
-                        for pick in company.get('picks', []) for term in pick['fact_terms']})
-        for term in terms:
-            fact = service.action('fact', {'text': term, 'category': 'skill'})
-            service.action('confirm', {'id': fact['id']})
+    profile = seed_profile(service, SHOWCASE_LOCATIONS)
+    # Publication revalidates the comparisons against the approved public résumé.
+    terms = sorted({term for company in listing_data['companies']
+                    for pick in company.get('picks', []) for term in pick['fact_terms']})
+    for term in terms:
+        fact = service.action('fact', {'text': term, 'category': 'skill'})
+        service.action('confirm', {'id': fact['id']})
     for job in listing_data['jobs']:
         service.action('job', job)
     public_catalog.restore_companies(service, listing_data)
-    public_catalog.save_reviews(service, listing_data, profile['id'])
-    examples = (
-        ('Site Reliability Engineer', 'Dovetail Cloud', 'Berlin', 'saved', 'AWS'),
-        ('Software Test Engineer', 'Pineframe Tools', 'Toronto', 'saved', 'Python'),
-        ('Data Platform Engineer', 'Juniper Bridge', 'Berlin', 'active', 'PostgreSQL'),
-        ('Frontend Engineer', 'Lumen Field Software', 'Toronto', 'active', 'React'),
-        ('Cloud Operations Engineer', 'Kestrel Stack', 'Berlin', 'submitted', 'Terraform'),
-        ('Application Engineer', 'Blue Finch Labs', 'Toronto', 'submitted', 'TypeScript'),
-        ('Integration Engineer', 'Arborline Systems', 'Berlin', 'removed', 'Python'),
-        ('Release Engineer', 'Brookstone Digital', 'Toronto', 'removed', 'CI/CD'),
-    )
-    for title, employer, city, status, skill in examples:
-        job = service.action('job', {
-            'title': title, 'employer': employer, 'location': city,
-            'description': f'Fictional example. Help an engineering team build and support services using {skill}.',
-            'availability': 'Illustrative example', 'requirements': [skill],
-        })
-        if service.w.database:
-            service.action('company-map', {'job_id': job['id'], 'name': employer, 'confirmed': True})
+    state = service.w.read()
+    preparable = {job['id'] for job in state['jobs']
+                  if matching.match(job, profile, state['facts'])['eligible_for_preparation']}
+    choices, previously_seen = sample_activity(listing_data, preparable)
+    for job_id, status in choices.items():
         if status == 'saved':
-            service.action('save-job', {'id': job['id'], 'saved': True})
+            service.action('save-job', {'id': job_id, 'saved': True})
         elif status == 'removed':
-            removal = {'id': job['id'], 'removal_id': uid()}
+            removal = {'id': job_id, 'removal_id': digest(f'public-removal:{job_id}'.encode())[:32]}
             service.action('remove-job', removal)
             service.action('job-removal-reason', {**removal, 'comment': 'Sample decision. Focus on other roles.'})
         else:
-            app = service.action('local-package', {'profile_id': profile['id'], 'job_id': job['id']})
+            app = service.action('local-package', {'profile_id': profile['id'], 'job_id': job_id})
             if status == 'submitted':
                 service.action('review', {
                     'id': app['id'], 'status': 'submitted',
-                    'comment': 'Fictional submission record. No employer was contacted.',
+                    'comment': f'Sample submission. {SAMPLE_NOTICE}',
                 })
+    public_catalog.save_reviews(service, listing_data, profile['id'])
+    return choices, previously_seen
 
 
 def _write_asset(stage, files, key, path):
@@ -222,6 +267,8 @@ def publish_resume_bundle(destination, resume, pdf):
     destination = Path(destination)
     _check_owned_export(destination)
     bundle = json.loads((destination / 'preview.json').read_text(encoding='utf-8'))
+    if bundle.get('current_catalog_only') is not True:
+        raise ValueError('Regenerate the public fixture from the current reviewed catalog')
     if digest(pdf) != resume['sha256']:
         raise ValueError('The approved résumé PDF does not match its checksum')
     state = bundle['state']
@@ -229,7 +276,10 @@ def publish_resume_bundle(destination, resume, pdf):
     catalog = public_catalog.load_catalog()
     if bundle.get('catalog_revision') and bundle['catalog_revision'] != digest(encode(catalog)):
         raise ValueError('The public catalog changed; regenerate the fixture before publishing')
-    public_catalog.republish_reviews(state, catalog, resume['sha256'])
+    admitted = public_catalog.admitted_catalog(catalog)
+    if {job['id'] for job in admitted['jobs']} != {job['id'] for job in state['jobs']}:
+        raise ValueError('The public fixture listing membership changed; regenerate before publishing')
+    public_catalog.republish_reviews(state, admitted, resume['sha256'])
     identity = state['identity']
     name = identity['name']
     facts = state['facts']
@@ -309,7 +359,8 @@ def publish_resume_bundle(destination, resume, pdf):
 
 def export_preview(destination):
     """Generate the checked fallback listings and fictional application records."""
-    listing_data = public_catalog.load_catalog()
+    catalog = public_catalog.load_catalog()
+    listing_data = public_catalog.admitted_catalog(catalog)
     destination = Path(destination).expanduser().absolute()
     _check_owned_export(destination)
     destination.parent.mkdir(parents=True, exist_ok=True)
@@ -326,7 +377,7 @@ def export_preview(destination):
                 'preferred_locations': list(SHOWCASE_LOCATIONS),
             })
             service = Service(workspace)
-            seed_showcase(service, listing_data)
+            choices, previously_seen = seed_showcase(service, listing_data)
             state = service.state()
             rankings = {profile['id']: service.action('rank', {'profile_id': profile['id']}) for profile in state['profiles']}
             # The shared import retains the advertised location. This explicit
@@ -335,6 +386,10 @@ def export_preview(destination):
             for job in [*state['jobs'], *(row['job'] for rows in rankings.values() for row in rows)]:
                 if job['id'] in destinations:
                     job['city'] = destinations[job['id']]
+                if job['id'] in previously_seen:
+                    job['demo_new'] = False
+                if choices.get(job['id']) == 'active':
+                    job['demo_active'] = True
             stage = root / 'export'
             stage.mkdir()
             # Absolute build paths, machine permissions and provider consent do
@@ -347,20 +402,12 @@ def export_preview(destination):
             state['_master']['path'] = 'master/fictional-resume'
             state['consents'] = {}
             state['runs'] = []
-            for job in state['jobs']:
-                if not job.get('source', '').startswith(('smartrecruiters:', 'reviewed:')):
-                    job['url'] = ''
-            for rows in rankings.values():
-                for row in rows:
-                    if not row['job'].get('source', '').startswith(('smartrecruiters:', 'reviewed:')):
-                        row['job']['url'] = ''
             payload = {
                 'public_preview': True, 'schema': 1,
                 'notice': 'Public demo with employer listings and sample application records. No applications are sent.',
                 'state': state, 'rankings': rankings, 'job_sources': [],
-                'legacy_job_sources': listing_data.get('legacy_job_sources', []),
-                'reviewed_job_sources': listing_data.get('reviewed_job_sources', []),
-                'listing_mode': 'reviewed', 'catalog_revision': digest(encode(listing_data)),
+                'current_catalog_only': True,
+                'listing_mode': 'reviewed', 'catalog_revision': digest(encode(catalog)),
                 'company_logos': public_catalog.export_logos(stage, workspace.path, state, rankings),
                 **_export_documents(stage, workspace.path, state['applications']),
             }

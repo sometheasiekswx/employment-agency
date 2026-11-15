@@ -24,12 +24,13 @@ const fixture = JSON.parse(
 );
 if (
   fixture.public_preview !== true ||
+  fixture.current_catalog_only !== true ||
   fixture.state?._workspace?.demo !== true ||
   fixture.state?.identity?.name !== "Alex Morgan" ||
   !fixture.state?.identity?.email?.endsWith("@example.test")
 ) {
   throw new Error(
-    "Refusing a public build without the marked fictional fixture.",
+    "Regenerate the public fixture from the current reviewed catalog.",
   );
 }
 

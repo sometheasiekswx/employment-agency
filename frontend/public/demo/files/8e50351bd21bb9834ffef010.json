@@ -1,0 +1,226 @@
+{
+  "job": {
+    "availability": "retrieved",
+    "careers_url": "https://www.braze.com/company/careers",
+    "checked_at": "2026-11-15T10:47:10+00:00",
+    "closes": "",
+    "description": "Build data platform features and deliver the product experience around querying and using customer data.",
+    "eligibility": "unknown",
+    "email": "",
+    "employer": "Braze",
+    "expectation": {
+      "basis": "",
+      "confidence": "",
+      "source": "",
+      "target": ""
+    },
+    "id": "ec21d2fcd08b4327f56ae02f",
+    "location": "Toronto",
+    "posted_at": "2026-09-25",
+    "prior_application": "none",
+    "reposted_at": "",
+    "requirements": [
+      "At least 2 years of full-stack development, ideally about 2–4",
+      "Strong software design, data structures and algorithms",
+      "Computer science degree or equivalent",
+      "Teamwork and willingness to learn technologies as needed"
+    ],
+    "salary": {
+      "basis": "base",
+      "currency": "CAD",
+      "max": 235736.0,
+      "min": 125280.0,
+      "period": "annual"
+    },
+    "saved": false,
+    "seniority": "",
+    "source": "reviewed:braze",
+    "sponsorship": "unknown",
+    "title": "Software Engineer II, Data Lakehouse",
+    "url": "https://job-boards.greenhouse.io/braze/jobs/8222294",
+    "work_arrangement": "Hybrid",
+    "hiring_employer_verified": true,
+    "company": {
+      "id": "546a2a9079364d7c89684ab7061a25ee",
+      "name": "Braze",
+      "vacancy_id": "e062a04e925e45a59826e87a9de4a9aa",
+      "submitted_vacancy": false,
+      "remaining": 2,
+      "cooling": false,
+      "cooldown_until": null,
+      "cooldown_time_assumed": false,
+      "overflow": false,
+      "review_needed": false,
+      "pending_only_count": 0
+    }
+  },
+  "facts": [
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "6e30d600d3e246e48f25df95f8658d11",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.360374+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used Python to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.360368+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "00fef0a3dd09482bbbf9c43d353ed29f",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.364636+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used AWS to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.364633+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "6796d665b1be4c88b7d668da2d390b57",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.368961+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used Terraform to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.368958+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "f5997418df9b4226ab97f13139c2ac3f",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.373576+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used PostgreSQL to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.373574+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "4c8072fd7b1442db8852db31a6d0cdf5",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.378470+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used React to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.378468+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "3bb8369ff3ed4fe99799acc322c82480",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.384200+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used TypeScript to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.384198+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "f9d1c553b77e44e3bf21573cade4e938",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.390109+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used CI/CD to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.390106+00:00"
+    }
+  ],
+  "matching": {
+    "hard_conflicts": [],
+    "unknowns": [
+      "Work rights / sponsorship need confirmation"
+    ],
+    "preferences": [],
+    "evidence": [
+      {
+        "requirement": "At least 2 years of full-stack development, ideally about 2–4",
+        "fact_ids": [],
+        "assessment": "No confirmed evidence"
+      },
+      {
+        "requirement": "Strong software design, data structures and algorithms",
+        "fact_ids": [],
+        "assessment": "No confirmed evidence"
+      },
+      {
+        "requirement": "Computer science degree or equivalent",
+        "fact_ids": [],
+        "assessment": "No confirmed evidence"
+      },
+      {
+        "requirement": "Teamwork and willingness to learn technologies as needed",
+        "fact_ids": [],
+        "assessment": "No confirmed evidence"
+      }
+    ],
+    "gaps": [
+      "At least 2 years of full-stack development, ideally about 2–4",
+      "Strong software design, data structures and algorithms",
+      "Computer science degree or equivalent",
+      "Teamwork and willingness to learn technologies as needed"
+    ],
+    "stretch": true,
+    "eligible_for_preparation": true,
+    "fact_ids": [
+      "6e30d600d3e246e48f25df95f8658d11",
+      "00fef0a3dd09482bbbf9c43d353ed29f",
+      "6796d665b1be4c88b7d668da2d390b57",
+      "f5997418df9b4226ab97f13139c2ac3f",
+      "4c8072fd7b1442db8852db31a6d0cdf5",
+      "3bb8369ff3ed4fe99799acc322c82480",
+      "f9d1c553b77e44e3bf21573cade4e938"
+    ],
+    "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+    "salary_expectation": {
+      "target": "Unresolved — request the employer band or add comparable local salary evidence",
+      "basis": "No comparable gross-base band is available; no precise expectation invented.",
+      "source": "https://job-boards.greenhouse.io/braze/jobs/8222294",
+      "confidence": "low"
+    }
+  },
+  "template": "plain",
+  "notice": "User review required. No ATS guarantee."
+}

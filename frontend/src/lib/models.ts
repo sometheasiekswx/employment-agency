@@ -83,6 +83,8 @@ export interface Job {
   submission_time?: SubmissionTime | null;
   id: string;
   saved?: boolean;
+  demo_new?: false;
+  demo_active?: true;
   removals?: JobRemoval[];
   title: string;
   employer: string;

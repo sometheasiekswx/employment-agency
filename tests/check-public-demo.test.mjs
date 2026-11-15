@@ -76,7 +76,7 @@ function releaseServer() {
     const record = records.get(parsed.pathname);
     assert.ok(record, `unexpected request to ${url}`);
     const body =
-      typeof record.body === "string"
+      typeof record.body === "string" || Buffer.isBuffer(record.body)
         ? record.body
         : JSON.stringify(record.body);
     return new Response(body, {
@@ -123,6 +123,28 @@ test("rejects an unexpected deployed commit before reading fixture links", async
     /deployed commit/,
   );
   assert.equal(server.calls.length, 1);
+});
+
+test("verifies every current logo asset and rejects missing or edited marks", async () => {
+  const server = releaseServer();
+  const png = Buffer.from(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=",
+    "base64",
+  );
+  const sha256 = createHash("sha256").update(png).digest("hex");
+  const url = `/demo/company-logos/${sha256}.png`;
+  server.fixture.current_catalog_only = true;
+  server.fixture.company_logos = { [sha256]: url };
+  server.fixture.state.jobs = [{ company: { logo_url: url } }];
+  server.records.set(url, {
+    body: png, status: 200,
+    headers: { ...server.records.get(pdf).headers, "content-type": "image/png" },
+  });
+  assert.equal((await verifyPublicDemo(base, commit, server)).logos, 1);
+  server.records.get(url).body = Buffer.concat([png, Buffer.from("edited")]);
+  await assert.rejects(verifyPublicDemo(base, commit, server), /invalid public logo bytes/);
+  delete server.fixture.state.jobs[0].company.logo_url;
+  await assert.rejects(verifyPublicDemo(base, commit, server), /verified local company logo/);
 });
 
 test("waits for the public alias to serve the expected commit and its CSP", async () => {

@@ -16,11 +16,13 @@ from reportlab.pdfgen import canvas
 
 from employment_agency import public_catalog
 from employment_agency.company_logo_assets import normalized_png
-from employment_agency.public_preview import export_preview, publish_resume_bundle, publish_resume_profile
+from employment_agency.public_preview import (
+    ACTIVITY_MIX, SHOWCASE_LOCATIONS, export_preview, publish_resume_bundle, publish_resume_profile,
+)
 
 
 @contextmanager
-def reviewed_publication_fixture(root):
+def reviewed_publication_fixture(root, *, company_count=6):
     name = 'Demo Profile Owner'
     text = (f'{name}\nProfile\nBuilt software tools.\nProfessional Experience\n'
             'Key Skills\nTechnical: Python, SQL\nEducation and Recognition')
@@ -40,42 +42,124 @@ def reviewed_publication_fixture(root):
     logo = logo_path.read_bytes()
     sha256 = hashlib.sha256(logo).hexdigest()
     (logos / f'{sha256}.png').write_bytes(logo)
-    company = {
-        'name': 'Example Engineering',
-        'listings': [],
-        'picks': [],
-        'logo': {
-            'status': 'verified', 'sha256': sha256, 'url': 'https://example.org/mark.png',
-            'page_url': 'https://example.org/about', 'evidence': 'Reviewed fixture branding.',
-        },
-    }
-    jobs = []
-    for title, skill in (('Backend Engineer', 'Python'), ('Data Engineer', 'SQL'), ('Platform Engineer', 'AWS')):
-        url = 'https://example.org/jobs/' + title.lower().replace(' ', '-')
-        job_id = hashlib.sha256(url.encode()).hexdigest()[:24]
-        jobs.append({
-            'id': job_id, 'title': title, 'employer': company['name'], 'location': 'London',
-            'description': f'Build and maintain engineering services using {skill}.',
-            'requirements': [skill], 'source': 'reviewed:fixture', 'availability': 'retrieved',
-            'url': url, 'careers_url': 'https://example.org/jobs',
-        })
-        company['listings'].append({
-            'job_id': job_id, 'source_url': url, 'evidence': 'Reviewed fixture listing.',
-            'requisition': title.split()[0].upper(),
-        })
-        if skill != 'AWS':
-            company['picks'].append({
-                'job_id': job_id, 'reason': f'{skill} matches the listing requirements.', 'fact_terms': [skill],
+    companies, jobs = [], []
+    for index in range(company_count):
+        city = SHOWCASE_LOCATIONS[index % len(SHOWCASE_LOCATIONS)]
+        company = {
+            'name': f'Example Engineering {index}',
+            'listings': [],
+            'picks': [],
+            'logo': {
+                'status': 'verified', 'sha256': sha256, 'url': 'https://example.org/mark.png',
+                'page_url': 'https://example.org/about', 'evidence': 'Reviewed fixture branding.',
+            },
+        }
+        companies.append(company)
+        for position, title in enumerate((
+            'Backend Engineer', 'Data Engineer', 'Platform Engineer', 'Full Stack Engineer',
+        )):
+            skill = 'SQL' if position == 1 else 'Python'
+            url = f"https://example.org/jobs/{index}/{title.lower().replace(' ', '-')}"
+            job_id = hashlib.sha256(url.encode()).hexdigest()[:24]
+            jobs.append({
+                'id': job_id, 'title': title, 'employer': company['name'], 'location': city,
+                'city': city, 'description': f'Build and maintain engineering services using {skill}.',
+                'requirements': [skill], 'source': f'reviewed:fixture-{index}', 'availability': 'retrieved',
+                'url': url, 'careers_url': 'https://example.org/jobs',
             })
-    (data / 'showcase_jobs.json').write_text(json.dumps({
-        'mode': 'reviewed', 'reviewed_resume_sha256': resume['sha256'],
-        'jobs': jobs, 'companies': [company], 'sources': [],
-    }), encoding='utf-8')
+            company['listings'].append({
+                'job_id': job_id, 'source_url': url, 'evidence': 'Reviewed fixture listing.',
+                'requisition': title.split()[0].upper(),
+            })
+            if position < 2:
+                company['picks'].append({
+                    'job_id': job_id, 'reason': f'{skill} matches the listing requirements.', 'fact_terms': [skill],
+                })
+    catalog = {
+        'schema': public_catalog.CATALOG_SCHEMA, 'mode': 'reviewed',
+        'reviewed_resume_sha256': resume['sha256'],
+        'jobs': jobs, 'companies': companies, 'sources': [],
+    }
+    if company_count == 24:
+        catalog['new_employers_by_destination'] = {
+            city: [company['name'] for index, company in enumerate(companies)
+                   if index >= 3 and SHOWCASE_LOCATIONS[index % len(SHOWCASE_LOCATIONS)] == city]
+            for city in SHOWCASE_LOCATIONS
+        }
+    (data / 'showcase_jobs.json').write_text(json.dumps(catalog), encoding='utf-8')
     with patch.object(public_catalog, 'DATA', data):
         yield resume, pdf, sha256
 
 
 class PublicPreviewExport(unittest.TestCase):
+    def test_full_size_sample_activity_is_repeatable_disjoint_and_covers_every_destination(self):
+        def activity(bundle):
+            state = bundle['state']
+            apps = {app['job_id']: app for app in state['applications']}
+            result = {stage: set() for stage in ACTIVITY_MIX}
+            companies = {}
+            for job in state['jobs']:
+                job_id = job['id']
+                if job.get('removals'):
+                    stage = 'removed'
+                elif job['saved']:
+                    stage = 'saved'
+                elif job_id in apps and apps[job_id]['status'] == 'submitted':
+                    stage = 'submitted'
+                    self.assertIn('No application was sent.', apps[job_id]['comments'][-1]['text'])
+                elif job_id in apps:
+                    stage = 'active'
+                    self.assertTrue(job['demo_active'])
+                else:
+                    stage = 'jobs'
+                result[stage].add(job_id)
+                companies.setdefault(job['employer'], set()).add(stage)
+            self.assertTrue(all('jobs' in stages for stages in companies.values()))
+            for employer in companies:
+                self.assertLessEqual(sum(
+                    job['employer'] == employer and (
+                        job['saved'] or job['id'] in apps
+                    ) for job in state['jobs']
+                ), 2)
+            return result
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            first, second = root / 'first', root / 'second'
+            with reviewed_publication_fixture(root, company_count=24) as (resume, pdf, _):
+                export_preview(first)
+                export_preview(second)
+                publish_resume_bundle(second, resume, pdf)
+            original, approved = [
+                json.loads((path / 'preview.json').read_text(encoding='utf-8')) for path in (first, second)
+            ]
+            original_activity, approved_activity = activity(original), activity(approved)
+            self.assertEqual(original_activity, approved_activity)
+            roles = approved['state']['jobs']
+            self.assertEqual(len(roles), 96)
+            self.assertEqual({job['city'] for job in roles}, set(SHOWCASE_LOCATIONS))
+            for stage, percentage in ACTIVITY_MIX.items():
+                self.assertLessEqual(abs(len(approved_activity[stage]) - len(roles) * percentage / 100), 1)
+            retained = {job['id'] for job in roles
+                        if job['employer'] in {f'Example Engineering {index}' for index in range(3)}}
+            for stage in ('active', 'submitted', 'removed'):
+                self.assertTrue(approved_activity[stage].isdisjoint(retained))
+            seen = {job['id'] for job in roles if job.get('demo_new') is False}
+            self.assertLessEqual(abs(2 * len(seen) - len(approved_activity['jobs'])), 1)
+            self.assertLessEqual(seen, approved_activity['jobs'])
+            apps = approved['state']['applications']
+            self.assertEqual({app['id'] for app in apps}, set(approved['documents']))
+            self.assertEqual(
+                {hashlib.sha256(app['folder'].encode()).hexdigest()[:24] for app in apps},
+                {row['id'] for row in approved['history']},
+            )
+            self.assertEqual({path.name for path in (second / 'files').iterdir()},
+                             {Path(url).name for url in approved['files'].values()})
+            reviews = lambda bundle: sorted(
+                pick['job_id'] for review in bundle['state']['company_best_matches'] for pick in review['picks']
+            )
+            self.assertEqual(reviews(original), reviews(approved))
+
     def test_release_replaces_all_sample_assets_using_the_approved_resume(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -210,7 +294,7 @@ class PublicPreviewExport(unittest.TestCase):
             with patch('urllib.request.urlopen', side_effect=AssertionError('No external request allowed')), patch.dict('os.environ', {'OPENAI_API_KEY': 'never-export-this-key', 'SUPABASE_SERVICE_ROLE_KEY': 'never-export-this-secret'}):
                 summary = export_preview(destination)
             bundle = json.loads((destination / 'preview.json').read_text(encoding='utf-8'))
-            self.assertEqual(summary['applications'], 7)
+            self.assertGreater(summary['applications'], 0)
             self.assertTrue(bundle['public_preview'])
             self.assertTrue(bundle['state']['_workspace']['demo'])
             self.assertEqual(bundle['state']['identity']['email'], 'alex@example.test')
@@ -232,13 +316,14 @@ class PublicPreviewExport(unittest.TestCase):
                 if path.suffix == '.docx':
                     body = ' '.join(paragraph.text for paragraph in Document(path).paragraphs)
                     self.assertIn('Fictional sample profile', body)
-            self.assertEqual(len(bundle['documents']), 7)
+            self.assertEqual(len(bundle['documents']), summary['applications'])
             jobs = bundle['state']['jobs']
             self.assertEqual(summary['jobs'], len(jobs))
             self.assertEqual(bundle['listing_mode'], 'reviewed')
             self.assertEqual(bundle['job_sources'], [])
             reviewed = [job for job in jobs if job['url']]
-            self.assertEqual(len(jobs) - len(reviewed), 14)
+            self.assertEqual(len(jobs), len(reviewed))
+            self.assertTrue(bundle['current_catalog_only'])
             self.assertEqual(len({job['url'] for job in reviewed}), len(reviewed))
             profile = bundle['state']['profiles'][0]
             original_jobs = {job['id']: job for job in public_catalog.load_catalog()['jobs']}
@@ -246,23 +331,20 @@ class PublicPreviewExport(unittest.TestCase):
             employers = {}
             for job in reviewed:
                 self.assertEqual(job['city'], original_jobs[job['id']]['city'])
-                self.assertEqual(ranked_jobs[job['id']]['city'], job['city'])
+                if job['id'] in ranked_jobs:
+                    self.assertEqual(ranked_jobs[job['id']]['city'], job['city'])
                 self.assertRegex(job['url'], r'^https://[^/]+/')
                 self.assertRegex(job['careers_url'], r'^https://[^/]+(?:/|$)')
                 self.assertEqual(job['availability'], 'retrieved')
                 self.assertTrue(job['hiring_employer_verified'])
                 employers.setdefault(job['company']['id'], []).append(job)
-            for city in ('Singapore', 'Melbourne', 'New York', 'London', 'China', 'Berlin', 'Toronto'):
-                with self.subTest(city=city):
-                    company_ids = {job['company']['id'] for job in reviewed if job['city'] == city}
-                    self.assertIn(len(company_ids), range(5, 11))
             reviews = {
                 review['employer_id']: review['picks'] for review in bundle['state']['company_best_matches']
                 if review['profile_id'] == profile['id']
             }
-            self.assertEqual(set(reviews), {employer_id for employer_id, rows in employers.items() if len(rows) > 2})
+            self.assertEqual(set(reviews), {employer_id for employer_id, rows in employers.items() if sum(not row.get('removals') and row.get('prior_application') != 'submitted' for row in rows) > 2})
             for employer_id, rows in employers.items():
-                self.assertIn(len(rows), range(1, 8))
+                self.assertTrue(all(row['company'].get('logo_url') for row in rows))
                 if employer_id in reviews:
                     picks = reviews[employer_id]
                     self.assertEqual(len(picks), 2)
@@ -278,12 +360,8 @@ class PublicPreviewExport(unittest.TestCase):
                 body = (destination / url.removeprefix('/demo/')).read_bytes()
                 self.assertEqual(hashlib.sha256(body).hexdigest(), sha256)
                 self.assertTrue(normalized_png(body))
-            self.assertEqual(sum(job['saved'] for job in jobs), 3)
-            self.assertEqual(sum(bool(job.get('removals')) for job in jobs), 2)
-            statuses = [app['status'] for app in bundle['state']['applications']]
-            self.assertEqual(statuses.count('submitted'), 3)
-            self.assertEqual(statuses.count('draft') + statuses.count('reviewed'), 4)
-            self.assertEqual(len(bundle['rankings'][profile['id']]), len(jobs))
+            self.assertTrue(all(app['job_id'] in original_jobs for app in bundle['state']['applications']))
+            self.assertTrue(all(row['job']['id'] in original_jobs for row in bundle['rankings'][profile['id']]))
 
     def test_export_refuses_unrelated_or_extra_files(self):
         with tempfile.TemporaryDirectory() as temporary:

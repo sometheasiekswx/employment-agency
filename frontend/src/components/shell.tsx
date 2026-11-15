@@ -187,7 +187,9 @@ export function Shell({ children }: { children: ReactNode }) {
         </Link>
         {state._workspace.demo === true && (
           <span className="demo-label mobile-demo-label">
-            Demo<span className="visually-hidden"> · fictional profile</span>
+            {client.preview ? "Public demo" : (
+              <>Demo<span className="visually-hidden"> · fictional profile</span></>
+            )}
           </span>
         )}
 
@@ -307,7 +309,7 @@ export function Shell({ children }: { children: ReactNode }) {
             <h1>{current.label}</h1>
           </div>
           {state._workspace.demo === true && (
-            <span className="demo-label">Demo · fictional profile</span>
+            <span className="demo-label">{client.preview ? "Public demo" : "Demo · fictional profile"}</span>
           )}
           {!isDiscover && (
             <form

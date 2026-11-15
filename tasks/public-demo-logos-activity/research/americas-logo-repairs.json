@@ -1,0 +1,476 @@
+{
+  "checked_at": "2026-11-15T10:48:50.844181+00:00",
+  "companies": [
+    {
+      "name": "Plaid",
+      "attempts": [
+        {
+          "page_url": "https://plaid.com/resources/",
+          "status": "gap",
+          "detail": "No supported declared official company logo was found on the retrieved page.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://plaid.com/blog/",
+          "status": "gap",
+          "detail": "No supported declared official company logo was found on the retrieved page.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://plaid.com/docs/",
+          "status": "verified",
+          "detail": "Plaid publishes this official company mark on its own website.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://support.plaid.com/hc/en-us",
+          "status": "gap",
+          "detail": "No supported declared official company logo was found on the retrieved page.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://status.plaid.com/",
+          "status": "gap",
+          "detail": "No supported declared official company logo was found on the retrieved page.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://plaid.com/",
+          "status": "gap",
+          "detail": "No supported declared official company logo was found on the retrieved page.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://plaid.com/press/",
+          "status": "gap",
+          "detail": "No supported declared official company logo was found on the retrieved page.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        }
+      ],
+      "logo": {
+        "status": "verified",
+        "page_url": "https://plaid.com/docs/",
+        "url": "https://plaid.com/assets/img/navbar/logo.svg",
+        "final_url": "https://plaid.com/assets/img/navbar/logo.svg",
+        "selection": true,
+        "sha256": "fd5be288f18f981cbbf80148c4e707aba0822e56f0518ad0cf8909fd5b399134",
+        "expected_sha256": "fd5be288f18f981cbbf80148c4e707aba0822e56f0518ad0cf8909fd5b399134",
+        "evidence": "Plaid publishes this official company mark on its own website.",
+        "checked_at": "2026-11-15T10:47:16.443779+00:00",
+        "local_path": "tasks/public-demo-logos-activity/research/americas/logos/plaid.png",
+        "dimensions": [
+          126,
+          48
+        ]
+      }
+    },
+    {
+      "name": "Ramp",
+      "attempts": [
+        {
+          "page_url": "https://ramp.com/blog",
+          "status": "gap",
+          "detail": "The branding source exceeds its download size limit",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://ramp.com/brand-assets",
+          "status": "gap",
+          "detail": "Source returned HTTP 404",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://ramp.com/partners",
+          "status": "gap",
+          "detail": "Source returned HTTP 404",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://ramp.com/developers",
+          "status": "gap",
+          "detail": "Source returned HTTP 404",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://support.ramp.com/hc/en-us",
+          "status": "gap",
+          "detail": "No supported declared official company logo was found on the retrieved page.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://status.ramp.com/",
+          "status": "gap",
+          "detail": "[Errno 8] nodename nor servname provided, or not known",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://ramp.com/",
+          "status": "gap",
+          "detail": "The branding source exceeds its download size limit",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://ramp.com/press",
+          "status": "gap",
+          "detail": "The branding source exceeds its download size limit",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://ramp.com/legal",
+          "status": "gap",
+          "detail": "No supported declared official company logo was found on the retrieved page.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        }
+      ]
+    },
+    {
+      "name": "Figma",
+      "attempts": [
+        {
+          "page_url": "https://www.figma.com/using-the-figma-brand/",
+          "status": "gap",
+          "detail": "The branding source exceeds its download size limit",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://www.figma.com/blog/",
+          "status": "gap",
+          "detail": "The branding source exceeds its download size limit",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://figmastatus.com/",
+          "status": "gap",
+          "detail": "[Errno 8] nodename nor servname provided, or not known",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://static.figma.com/",
+          "status": "gap",
+          "detail": "Source returned HTTP 403",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://forum.figma.com/",
+          "status": "gap",
+          "detail": "No supported declared official company logo was found on the retrieved page.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://www.figma.com/",
+          "status": "gap",
+          "detail": "The branding source exceeds its download size limit",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://www.figma.com/newsroom/",
+          "status": "gap",
+          "detail": "The branding source exceeds its download size limit",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://help.figma.com/hc/en-us",
+          "status": "gap",
+          "detail": "No supported declared official company logo was found on the retrieved page.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        }
+      ]
+    },
+    {
+      "name": "Datadog",
+      "attempts": [
+        {
+          "page_url": "https://www.datadoghq.com/about/latest-news/press-kit/",
+          "status": "gap",
+          "detail": "Source returned HTTP 404",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://www.datadoghq.com/about/leadership/",
+          "status": "gap",
+          "detail": "No supported declared official company logo was found on the retrieved page.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://investors.datadoghq.com/",
+          "status": "gap",
+          "detail": "Source returned HTTP 403",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://status.datadoghq.com/",
+          "status": "gap",
+          "detail": "No supported declared official company logo was found on the retrieved page.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://www.datadoghq.com/",
+          "status": "gap",
+          "detail": "The logo exceeds its decoded size limit",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://www.datadoghq.com/about/resources/",
+          "status": "gap",
+          "detail": "No supported declared official company logo was found on the retrieved page.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://www.datadoghq.com/about/press/",
+          "status": "gap",
+          "detail": "No supported declared official company logo was found on the retrieved page.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        }
+      ]
+    },
+    {
+      "name": "Anthropic",
+      "attempts": [
+        {
+          "page_url": "https://www.anthropic.com/brand",
+          "status": "gap",
+          "detail": "Source returned HTTP 404",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://www.anthropic.com/news",
+          "status": "gap",
+          "detail": "No supported declared official company logo was found on the retrieved page.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://www.anthropic.com/partners",
+          "status": "gap",
+          "detail": "Offsite redirect",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://status.anthropic.com/",
+          "status": "gap",
+          "detail": "Offsite redirect",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://docs.anthropic.com/en/home",
+          "status": "gap",
+          "detail": "Offsite redirect",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://www.anthropic.com/",
+          "status": "gap",
+          "detail": "No supported declared official company logo was found on the retrieved page.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://www.anthropic.com/careers",
+          "status": "gap",
+          "detail": "No supported declared official company logo was found on the retrieved page.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        }
+      ]
+    },
+    {
+      "name": "Okta",
+      "attempts": [
+        {
+          "page_url": "https://www.okta.com/brand/",
+          "status": "gap",
+          "detail": "Source returned HTTP 404",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://news.okta.com/",
+          "status": "gap",
+          "detail": "Source returned HTTP 404",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://investor.okta.com/",
+          "status": "gap",
+          "detail": "The logo redirected outside its published asset host",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://status.okta.com/",
+          "status": "gap",
+          "detail": "No supported declared official company logo was found on the retrieved page.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://support.okta.com/",
+          "status": "gap",
+          "detail": "The branding source exceeds its download size limit",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://www.okta.com/newsroom/",
+          "status": "verified",
+          "detail": "Okta publishes this official company mark on its own website.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://developer.okta.com/",
+          "status": "gap",
+          "detail": "Supported candidate awaiting exact brand and operation verification",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        }
+      ],
+      "logo": {
+        "status": "verified",
+        "page_url": "https://www.okta.com/newsroom/",
+        "url": "https://www.okta.com/content/dam/okta---digital/en_us/images/header/logos/okta.svg",
+        "final_url": "https://www.okta.com/content/dam/okta---digital/en_us/images/header/logos/okta.svg",
+        "selection": true,
+        "sha256": "f5409711acb57b23f431e1037d299a64e1055798e27e5aba0196a41489daae33",
+        "expected_sha256": "f5409711acb57b23f431e1037d299a64e1055798e27e5aba0196a41489daae33",
+        "evidence": "Okta publishes this official company mark on its own website.",
+        "checked_at": "2026-11-15T10:47:18.139604+00:00",
+        "local_path": "tasks/public-demo-logos-activity/research/americas/logos/okta.png",
+        "dimensions": [
+          100,
+          33
+        ]
+      }
+    },
+    {
+      "name": "Robinhood",
+      "attempts": [
+        {
+          "page_url": "https://robinhood.com/us/en/newsroom/",
+          "status": "gap",
+          "detail": "No supported declared official company logo was found on the retrieved page.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://robinhood.com/gb/en/",
+          "status": "gap",
+          "detail": "No supported declared official company logo was found on the retrieved page.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://robinhood.com/eu/en/",
+          "status": "gap",
+          "detail": "No supported declared official company logo was found on the retrieved page.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://investors.robinhood.com/",
+          "status": "gap",
+          "detail": "Source returned HTTP 403",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://status.robinhood.com/",
+          "status": "gap",
+          "detail": "No supported declared official company logo was found on the retrieved page.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://press.robinhood.com/",
+          "status": "gap",
+          "detail": "No supported declared official company logo was found on the retrieved page.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://robinhood.com/us/en/",
+          "status": "gap",
+          "detail": "No supported declared official company logo was found on the retrieved page.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://careers.robinhood.com/",
+          "status": "gap",
+          "detail": "No supported declared official company logo was found on the retrieved page.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        }
+      ]
+    },
+    {
+      "name": "Stripe",
+      "attempts": [
+        {
+          "page_url": "https://stripe.com/brand",
+          "status": "gap",
+          "detail": "Source returned HTTP 404",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://stripe.com/blog",
+          "status": "gap",
+          "detail": "The branding source exceeds its download size limit",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://stripe.com/docs",
+          "status": "gap",
+          "detail": "Offsite redirect",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://stripe.com/payments",
+          "status": "gap",
+          "detail": "The branding source exceeds its download size limit",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://status.stripe.com/",
+          "status": "gap",
+          "detail": "No supported declared official company logo was found on the retrieved page.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://support.stripe.com/",
+          "status": "gap",
+          "detail": "No supported declared official company logo was found on the retrieved page.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://stripe.com/newsroom/brand-assets",
+          "status": "gap",
+          "detail": "No supported declared official company logo was found on the retrieved page.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://stripe.com/careers/search",
+          "status": "gap",
+          "detail": "No supported declared official company logo was found on the retrieved page.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        },
+        {
+          "page_url": "https://press.stripe.com/",
+          "status": "gap",
+          "detail": "The branding source exceeds its download size limit",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        }
+      ]
+    },
+    {
+      "name": "PagerDuty",
+      "attempts": [
+        {
+          "page_url": "https://www.pagerduty.com/newsroom/",
+          "status": "verified",
+          "detail": "PagerDuty publishes this official company mark on its own website.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00"
+        }
+      ],
+      "logo": {
+        "status": "verified",
+        "page_url": "https://www.pagerduty.com/newsroom/",
+        "url": "https://www.pagerduty.com/wp-content/themes/citizens-band/images/logos/pagerduty-monochrome.svg",
+        "final_url": "https://www.pagerduty.com/wp-content/themes/citizens-band/images/logos/pagerduty-monochrome.svg",
+        "selection": true,
+        "sha256": "5c2c0385f19930413bd4d5a3890c27180160490ed84bb5049aa20fd9fdeb7c8b",
+        "expected_sha256": "5c2c0385f19930413bd4d5a3890c27180160490ed84bb5049aa20fd9fdeb7c8b",
+        "evidence": "PagerDuty publishes this official company mark on its own website.",
+        "checked_at": "2026-11-15T10:47:18.798804+00:00",
+        "local_path": "tasks/public-demo-logos-activity/research/americas/logos/pagerduty.png",
+        "dimensions": [
+          192,
+          40
+        ]
+      }
+    }
+  ]
+}

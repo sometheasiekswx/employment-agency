@@ -150,8 +150,9 @@ export function roleStatus(job: Job, app?: Application, preview = false) {
   if (job.prior_application === "rejected")
     return { label: "Earlier rejection", tone: "warning" };
   if (app?.status === "reviewed") return { label: "Reviewed", tone: "green" };
-  if (app) return { label: "Draft", tone: "purple" };
+  if (app) return { label: preview && job.demo_active ? "Sample draft" : "Draft", tone: "purple" };
   if (job.saved) return { label: "To apply", tone: "amber" };
+  if (preview && job.demo_new === false) return;
   return { label: "New", tone: "blue" };
 }
 

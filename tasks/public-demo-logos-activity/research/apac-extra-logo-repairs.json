@@ -1,0 +1,31 @@
+{
+  "companies": [
+    {
+      "name": "NVIDIA",
+      "logo": {
+        "status": "verified",
+        "page_url": "https://nvidianews.nvidia.com/",
+        "url": "https://nvidianews.nvidia.com/media/themes/64d081263d633229694ae3db/images/nvidia-logo-BL-square.jpg",
+        "final_url": "https://nvidianews.nvidia.com/media/themes/64d081263d633229694ae3db/images/nvidia-logo-BL-square.jpg",
+        "selection": true,
+        "sha256": "601bb7c62f59aaf8cb671d8a2211fa6d7055443807ba8d5dde878ded9ccc7968",
+        "expected_sha256": "601bb7c62f59aaf8cb671d8a2211fa6d7055443807ba8d5dde878ded9ccc7968",
+        "evidence": "NVIDIA publishes this official company mark on its own website.",
+        "checked_at": "2026-11-15T10:54:05.626883+00:00",
+        "local_path": "tasks/public-demo-logos-activity/research/americas/logos/nvidia.png",
+        "dimensions": [
+          192,
+          192
+        ]
+      },
+      "attempts": [
+        {
+          "page_url": "https://nvidianews.nvidia.com/",
+          "status": "verified",
+          "detail": "NVIDIA publishes this official company mark on its own website.",
+          "checked_at": "2026-11-15T10:54:05.626883+00:00"
+        }
+      ]
+    }
+  ]
+}

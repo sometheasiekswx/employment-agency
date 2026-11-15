@@ -20,7 +20,7 @@ from PIL import Image
 from PIL.PngImagePlugin import PngInfo
 
 from employment_agency import application_context, company_logo_assets as assets
-from employment_agency import companies, company_logo_pages, company_logos, packages, public_pages, sources, store
+from employment_agency import companies, company_logo_pages, company_logo_svg, company_logos, packages, public_pages, sources, store
 from employment_agency.hosted import app
 from employment_agency.service import Service
 import test_tailscale
@@ -29,6 +29,12 @@ import test_workflow
 
 HOME = 'https://employer.example.test/'
 LOGO = 'https://cdn.example.test/marks/company.png'
+SVG_MARK = b'''<svg xmlns="http://www.w3.org/2000/svg" width="240" height="120" viewBox="0 0 240 120">
+  <defs><linearGradient id="ink"><stop offset="0%" stop-color="#2465af"/>
+    <stop offset="100%" stop-color="#247aaf"/></linearGradient>
+    <clipPath id="crop"><rect width="120" height="120"/></clipPath></defs>
+  <path clip-path="url(#crop)" fill="url(#ink)" d="M0 0H240V120H0Z"/>
+</svg>'''
 
 
 def image_bytes(size=(240, 120), kind='PNG'):
@@ -64,8 +70,104 @@ def job_posting(name, logo=None, title='Software Engineer'):
 
 
 class LogoAssetTests(unittest.TestCase):
+    def test_exact_responsive_asset_is_verified_without_expanding_automatic_discovery(self):
+        mark = HOME + 'marks/small.png'
+        markup = b'''<header><a href="/"><img alt="Example Engineering logo" src="/marks/large.png"
+            srcset="/marks/large.png 2400w, /marks/small.png 400w"></a></header>'''
+        names = {'example engineering'}
+        self.assertEqual(company_logo_pages.logo_from_html(markup, HOME, names, selection=mark), mark)
+        self.assertEqual(company_logo_pages.logo_from_html(markup, HOME, names), HOME + 'marks/large.png')
+        self.assertIsNone(company_logo_pages.logo_from_html(markup, HOME, names, selection=LOGO))
+        for case, selected in [
+            (b'<img srcset="https://cdn.example.test/marks/company.png 400w">', LOGO),
+            (b'<img srcset="/marks/small.png 0w">', mark),
+            (b'<img srcset="/marks/small.png 2x">', mark),
+            (b'<img srcset="/marks/large.png 400w, /marks/small.png 400w">', mark),
+            (b'<img srcset="data:image/png;base64, /marks/small.png 400w">', mark),
+            (rb'<img srcset="\marks/small.png 400w">', mark),
+            (b'<img srcset="/marks/small.png\xc2\xa0400w">', mark),
+            (b'<base href="https://external.example.test/"><img srcset="/marks/small.png 400w">', mark),
+        ]:
+            with self.subTest(case=case):
+                self.assertIsNone(company_logo_pages.logo_from_html(
+                    case, HOME, names, charset='utf-8', selection=selected,
+                ))
+
+    def test_svg_is_normalized_and_only_png_bytes_are_retained(self):
+        actual = assets.normalize(SVG_MARK, 'image/svg+xml')
+        self.assertTrue(assets.normalized_png(actual))
+        self.assertEqual(actual, assets.normalize(SVG_MARK, 'image/svg+xml'))
+        self.assertEqual(actual, assets.normalize(actual, 'image/png'))
+        with Image.open(BytesIO(actual)) as image:
+            self.assertEqual(image.size, (192, 96))
+            self.assertEqual(image.getpixel((4, 4))[3], 255)
+            self.assertEqual(image.getpixel((180, 4))[3], 0)
+
+    def test_svg_class_presentation_and_local_symbol_reuse(self):
+        mark = b'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 20" data-name="Mark"
+              id="Decorative / Mark" style="enable-background:new 0 0 30 20;" xml:space="preserve">
+          <defs><style type="text/css">.word, .mark { stroke-width: 0px; } .mark { fill: #2465af; }</style>
+            <symbol id="icon" viewBox="0 0 10 10"><path id="Decorative" class="mark" d="M0 0H10V10H0Z"/></symbol>
+          </defs><use id="Decorative" href="#icon" x="5" y="5" width="10" height="10"/>
+        </svg>'''
+        with Image.open(BytesIO(assets.normalize(mark, 'image/svg+xml'))) as image:
+            self.assertEqual(image.getpixel((9, 9)), (36, 101, 175, 255))
+            self.assertEqual(image.getpixel((25, 9))[3], 0)
+
+    def test_unsafe_svg_features_are_rejected_before_rendering(self):
+        markup = b'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">%s</svg>'
+        candidates = [
+            b'<!DOCTYPE svg SYSTEM "file:///private/fixture.dtd">' + markup % b'',
+            b'<!DOCTYPE svg [<!ENTITY x SYSTEM "https://asset.example.test/entity">]>'
+            + markup % b'<title>&x;</title>',
+            markup % b'<script href="https://asset.example.test/script.js"/>',
+            markup % b'<foreignObject width="20" height="20"/>',
+            markup % b'<path onload="alert(1)" d="M0 0H20V20Z"/>',
+            markup % b'<image href="file:///private/fixture.png"/>',
+            markup % b'<image href="https://asset.example.test/fixture.png"/>',
+            markup % b'<image href="data:image/png;base64,abcd"/>',
+            markup % b'<linearGradient href="https://asset.example.test/logo.svg#ink"/>',
+            markup % b'<path fill="url(https://asset.example.test/logo.svg#ink)" d="M0 0H20V20Z"/>',
+            markup % b'<path fill="url(&#x23;missing)" d="M0 0H20V20Z"/>',
+            markup % rb'<path fill="u\72l(https://asset.example.test/mark)" d="M0 0H20V20Z"/>',
+            markup % b'<style>@import "file:///private/fixture.css";</style>',
+            markup % b'<style>.mark { fill:url(https://asset.example.test/mark.svg); }</style>',
+            markup % rb'<style>.mark { fill:u\72l(https://asset.example.test/mark.svg); }</style>',
+            markup % b'<style>.mark { background-image: #fff; }</style>',
+            markup % b'<style>.mark:hover { fill: #fff; }</style>',
+            markup % b'<style type="other/unknown">.mark { fill: #fff; }</style>',
+            markup % b'<path style="fill:url(file:///private/fixture.svg)" d="M0 0H20V20Z"/>',
+            markup.replace(b'viewBox=', b'style="enable-background:new 0 0 20 20; fill:url(file:///x)" viewBox=') % b'',
+            markup % b'<use href="https://asset.example.test/mark.svg#icon"/>',
+            markup % b'<use href="file:///private/fixture.svg#icon"/>',
+            markup % (b'<symbol id="icon"><use href="#icon"/></symbol><use href="#icon"/>'),
+            markup % (b'<path id="icon" d="M0 0H20V20Z"/><use href="#icon"/>'),
+            markup % (b'<symbol id="icon"/><symbol id="icon"/><use href="#icon"/>'),
+            markup % b'<animate attributeName="opacity" from="0" to="1" dur="1s"/>',
+            markup % b'<text>Unspecified font</text>',
+            markup % (b'<g>' * 40 + b'</g>' * 40),
+            markup.replace(b'0 0 20 20', b'0 0 9000 9000') % b'',
+        ]
+        with patch.object(company_logo_svg.subprocess, 'run') as render:
+            for index, body in enumerate(candidates):
+                with self.subTest(index=index), self.assertRaises(assets.UnsupportedLogo):
+                    assets.normalize(body, 'image/svg+xml')
+            render.assert_not_called()
+
+    def test_svg_rendering_is_killable_and_checks_svg_dimensions(self):
+        with patch.object(company_logo_svg.subprocess, 'run',
+                          side_effect=subprocess.TimeoutExpired('renderer', 1)) as render:
+            with self.assertRaisesRegex(assets.UnsupportedLogo, 'rendered safely'):
+                assets.normalize(SVG_MARK, 'image/svg+xml', deadline=monotonic() + 1)
+        self.assertLessEqual(render.call_args.kwargs['timeout'], 1)
+        with self.assertRaisesRegex(assets.UnsupportedLogo, 'no visible pixels'):
+            assets.normalize(b'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"/>',
+                             'image/svg+xml')
+
     def test_normalizes_formats_and_removes_non_image_metadata(self):
-        for kind, media in [('PNG', 'image/png'), ('JPEG', 'image/jpeg'), ('WEBP', 'image/webp')]:
+        for kind, media in [
+            ('PNG', 'image/png'), ('JPEG', 'image/jpeg'), ('WEBP', 'image/webp'), ('GIF', 'image/gif'),
+        ]:
             with self.subTest(kind=kind):
                 result = assets.normalize(image_bytes(kind=kind), media)
                 self.assertLessEqual(len(result), assets.ASSET_LIMIT)
@@ -78,25 +180,30 @@ class LogoAssetTests(unittest.TestCase):
         Image.new('RGB', (12, 12), 'red').save(
             animated, format='PNG', save_all=True, append_images=[Image.new('RGB', (12, 12), 'blue')],
         )
+        animated_gif = BytesIO()
+        Image.new('RGB', (12, 12), 'red').save(
+            animated_gif, format='GIF', save_all=True, append_images=[Image.new('RGB', (12, 12), 'blue')],
+        )
         candidates = [
             (b'<svg/>', 'image/svg+xml'), (b'not an image', 'image/png'),
             (image_bytes(kind='JPEG'), 'image/png'), (image_bytes()[:-20], 'image/png'),
             (b'x' * (assets.INPUT_LIMIT + 1), 'image/png'),
             (image_bytes((assets.MAX_SIDE + 1, 1)), 'image/png'),
             (image_bytes((1400, 1500)), 'image/png'), (animated.getvalue(), 'image/png'),
+            (animated_gif.getvalue(), 'image/gif'),
         ]
         for index, (body, media) in enumerate(candidates):
             with self.subTest(index=index), self.assertRaises(assets.UnsupportedLogo):
                 assets.normalize(body, media)
 
-    def test_logo_response_requires_one_unambiguous_raster_media_type(self):
+    def test_logo_response_requires_one_unambiguous_media_type(self):
         with patch.object(sources, 'request') as fetch:
             body = image_bytes()
             for headers in (Message(), response(LOGO, body, 'image/png').headers):
                 if 'Content-Type' in headers:
                     headers['Content-Type'] = 'text/html'
                 fetch.return_value = sources.PublicResponse(body, LOGO, headers, 200)
-                with self.assertRaisesRegex(assets.UnsupportedLogo, 'single raster media type'):
+                with self.assertRaisesRegex(assets.UnsupportedLogo, 'single logo media type'):
                     assets.retrieve(LOGO, monotonic() + 2)
 
     def test_https_validation_rechecks_redirects_before_a_tls_connection(self):
@@ -419,6 +526,25 @@ class CompanyLogoWorkspaceTests(unittest.TestCase):
                 self.s.action('company-logo-backfill', {'workspace_id': 'different-workspace',
                                                         'company_ids': [employer_id]})
             fetch.assert_not_called()
+
+    def test_backfill_rasterizes_a_declared_svg_and_preserves_its_provenance(self):
+        employer_id = self.s.action('company-map', {'job_id': self.first['id'], 'confirmed': True})['employer_id']
+        official = HOME + 'about'
+        logo = LOGO.removesuffix('.png') + '.svg'
+        markup = structured_page({'@type': 'Organization', 'name': self.first['employer'], 'logo': logo})
+        proof = {employer_id: {'url': official, 'evidence': 'Verified fictional employer SVG declaration'}}
+        with patch.object(sources, 'request', side_effect=[
+            response(official, markup, 'text/html'), response(logo, SVG_MARK, 'image/svg+xml'),
+        ]) as fetch:
+            result = self.backfill([employer_id], proof)
+        self.assertEqual(result['counts'], {'success': 1})
+        self.assertIn('image/svg+xml', fetch.call_args.kwargs['headers']['Accept'])
+        entry = result['companies'][0]
+        self.assertEqual(entry['page_url'], official)
+        provenance = companies.by_id(self.w.read()['employers'], employer_id)['logo']
+        self.assertEqual(provenance['url'], logo)
+        self.assertEqual(provenance['final_url'], logo)
+        self.assertTrue(assets.normalized_png(company_logos.logo_bytes(self.w, entry['sha256'])))
 
     def test_explicit_branding_source_failure_never_tries_the_saved_publisher(self):
         name = self.first['employer']

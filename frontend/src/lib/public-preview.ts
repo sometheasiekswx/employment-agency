@@ -12,6 +12,7 @@ import { applicationRoleId } from "./format";
 import { DemoDraftSession, type DemoResume } from "./demo-drafts";
 import { reviewedResume } from "./demo-resume";
 import {
+  prunePublicListingStorage,
   rememberPublicListing,
   storedPublicListings,
   type PublicJobSource,
@@ -34,6 +35,7 @@ interface PublicPreviewBundle {
   job_sources?: PublicJobSource[];
   legacy_job_sources?: PublicJobSource[];
   reviewed_job_sources?: ReviewedJobSource[];
+  current_catalog_only?: true;
   demo_resume?: DemoResume;
 }
 
@@ -145,6 +147,11 @@ export class PublicPreviewTransport {
     // Reviews, verified employers and logos belong to this dated catalog.
     // Fetching replacement postings here would invalidate those comparisons.
     this.jobs = new Map(bundle.state.jobs.map((job) => [job.id, job]));
+    if (bundle.current_catalog_only) {
+      prunePublicListingStorage(new Set(this.jobs.keys()));
+      this.bundle = bundle;
+      return bundle;
+    }
     const archived = await storedPublicListings(
       sources,
       bundle.reviewed_job_sources ?? [],
@@ -469,7 +476,7 @@ export class PublicPreviewTransport {
           mode: "view",
           pdf: btoa(binary),
           notice:
-            "This is a fictional example document. Prepare a new draft to try editing and downloads.",
+            "This is a sample document. Prepare a new draft to try editing and downloads.",
         },
       });
     }

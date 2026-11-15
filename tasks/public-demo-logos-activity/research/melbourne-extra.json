@@ -1,0 +1,261 @@
+{
+  "companies": [
+    {
+      "name": "Linktree",
+      "city": "Melbourne",
+      "careers_url": "https://linktr.ee/about/careers",
+      "logo": {
+        "status": "verified",
+        "page_url": "https://linktr.ee/newsroom",
+        "url": "https://linktr.ee/_marketing/images/misc/linktree.png",
+        "final_url": "https://linktr.ee/_marketing/images/misc/linktree.png",
+        "evidence": "Linktree’s official newsroom declares the wordmark at this PNG URL in its Organization structured data.",
+        "sha256": "23214ce6b351cba70d31ef687029c8bc283687ad23b1275e2a63fde0dcd1db75",
+        "expected_sha256": "23214ce6b351cba70d31ef687029c8bc283687ad23b1275e2a63fde0dcd1db75",
+        "checked_at": "2026-11-15T11:00:43.632175+00:00",
+        "local_path": "tasks/public-demo-logos-activity/research/melbourne-extra/logos/linktree.png",
+        "dimensions": [
+          192,
+          39
+        ],
+        "selection": null
+      },
+      "picks": [
+        {
+          "job_id": "02e59d61ec0d26c68b2c8ac7",
+          "reason": "The confirmed 5+ years of web development, TypeScript, Express, SQL and AWS align with Linkapps’ full-stack API integration and cloud delivery work.",
+          "fact_ids": [
+            "3b66e05b56c2d09ca02852719fc4b4bc",
+            "f8cb45f384063f6670a007b30b1d95a5",
+            "d7629711b68661baaf1fbb1792c0fb8a",
+            "a383674d908eade31aef1db6ada4e12a"
+          ]
+        },
+        {
+          "job_id": "f181c4aac31904d8e667528c",
+          "reason": "The résumé documents cloud warehouse and production tooling, measured workflow improvements, staff training and software-team mentoring. AWS and SDLC skills support the internal platform remit.",
+          "fact_ids": [
+            "a383674d908eade31aef1db6ada4e12a",
+            "79ed41d4d9f7d874acbed0e6cb157cdf"
+          ]
+        }
+      ],
+      "jobs": [
+        {
+          "id": "02e59d61ec0d26c68b2c8ac7",
+          "title": "Senior Full Stack Engineer",
+          "employer": "Linktree",
+          "city": "Melbourne",
+          "location": "Melbourne, VIC; Sydney, NSW",
+          "url": "https://linktr.ee/about/careers/am9icG9zdDpfkEmllkWT7jqS82w_026A",
+          "careers_url": "https://linktr.ee/about/careers",
+          "source": "reviewed:linktree",
+          "requisition": "am9icG9zdDpfkEmllkWT7jqS82w_026A",
+          "source_url": "https://linktr.ee/about/careers/am9icG9zdDpfkEmllkWT7jqS82w_026A",
+          "evidence": "Linktree’s careers page names Melbourne and Sydney and embeds an active Gem application. Its structured remote-applicant country says United States, while the visible advert gives Australian office locations. Applicant eligibility is unresolved.",
+          "description": "Build integrations for the creator platform through partner APIs, cloud services and user-facing features. Own production reliability, instrumentation and trade-offs with product, design and partnerships.",
+          "requirements": [
+            "5+ years of production full-stack development",
+            "Full-stack TypeScript, Node.js, React, GraphQL, PostgreSQL or MySQL, and AWS",
+            "Ownership of third-party API or SDK integrations in production, including authentication, rate limits and failure handling",
+            "Cloud service and API design in established codebases",
+            "Fluent use and validation of AI development assistants",
+            "Work across ambiguous opportunities with distributed teams",
+            "Australia-based preferred, including Melbourne, Sydney or remote"
+          ],
+          "fit_rationale": "The confirmed 5+ years in web development and React, Node.js, TypeScript, SQL and AWS align with the senior full-stack scope. The public résumé documents end-to-end cloud software, APIs and authentication. GraphQL and partner-specific SDKs remain to verify.",
+          "checked_at": "2026-11-15T10:56:42+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "Hybrid or remote",
+          "posted_at": "2026-09-14"
+        },
+        {
+          "id": "a41c52d6cecf3d30140aa0e5",
+          "title": "Senior Full Stack Engineer - Grow",
+          "employer": "Linktree",
+          "city": "Melbourne",
+          "location": "Melbourne, VIC; Sydney, NSW",
+          "url": "https://linktr.ee/about/careers/am9icG9zdDqG97W_jZjP6DoHssSq2te2",
+          "careers_url": "https://linktr.ee/about/careers",
+          "source": "reviewed:linktree",
+          "requisition": "am9icG9zdDqG97W_jZjP6DoHssSq2te2",
+          "source_url": "https://linktr.ee/about/careers/am9icG9zdDqG97W_jZjP6DoHssSq2te2",
+          "evidence": "Linktree’s careers page names Melbourne and Sydney and embeds an active Gem application. Its structured remote-applicant country says United States, while the visible advert gives Australian office locations. Applicant eligibility is unresolved.",
+          "description": "Build creator analytics from client instrumentation and event ingestion through aggregation, a GraphQL API and the insights interface. Extend social platform integrations and improve data quality and observability.",
+          "requirements": [
+            "4+ years of software engineering, ideally in product or analytics",
+            "Full-stack TypeScript, Node.js, React, GraphQL, PostgreSQL or MySQL, and AWS",
+            "Comfort with SQL, data models, event schemas and warehouses such as Snowflake or BigQuery",
+            "API and third-party service integration experience; social APIs preferred",
+            "Fluent use and validation of AI development assistants",
+            "Product measurement and collaboration with design and data teams"
+          ],
+          "fit_rationale": "The candidate exceeds the experience threshold and has confirmed React, TypeScript, SQL, AWS and API development. Experience building Python data-ingestion pipelines supports the data and instrumentation work. GraphQL and specific warehouse platforms remain to verify.",
+          "checked_at": "2026-11-15T10:56:42+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "Hybrid or remote",
+          "posted_at": "2026-10-16"
+        },
+        {
+          "id": "f181c4aac31904d8e667528c",
+          "title": "Operations Engineering Lead",
+          "employer": "Linktree",
+          "city": "Melbourne",
+          "location": "Melbourne, VIC; Sydney, NSW",
+          "url": "https://linktr.ee/about/careers/am9icG9zdDpkHGN-ZEqdXBDSe7cJQwyV",
+          "careers_url": "https://linktr.ee/about/careers",
+          "source": "reviewed:linktree",
+          "requisition": "am9icG9zdDpkHGN-ZEqdXBDSe7cJQwyV",
+          "source_url": "https://linktr.ee/about/careers/am9icG9zdDpkHGN-ZEqdXBDSe7cJQwyV",
+          "evidence": "Linktree’s careers page names Melbourne and Sydney and embeds an active Gem application. Its structured remote-applicant country says United States, while the visible advert gives Australian office locations. Applicant eligibility is unresolved.",
+          "description": "Lead a small engineering team building internal tools and automation. Redesign workflows, prioritise and measure improvements, roll out changes and train teams.",
+          "requirements": [
+            "Measurable operational gains and business process redesign",
+            "Cross-functional leadership, stakeholder engagement and change management",
+            "End-to-end delivery from discovery and business case through deployment and measurement",
+            "Internal tooling, integrations and automation judgement",
+            "Hands-on engineering team leadership and coaching"
+          ],
+          "fit_rationale": "The candidate delivered cloud warehouse and production-tracking software, improved manufacturing workflows with measured savings, and trained staff through process changes. The résumé also documents technical direction and mentoring on 10+ software products. This directly supports an internal systems and operations engineering leadership role.",
+          "checked_at": "2026-11-15T11:06:32+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "Remote",
+          "posted_at": "2026-11-13"
+        }
+      ]
+    },
+    {
+      "name": "Civica",
+      "city": "Melbourne",
+      "careers_url": "https://www.civica.com/en-au/careers/",
+      "logo": {
+        "status": "verified",
+        "page_url": "https://www.civica.com/en-au/",
+        "url": "https://www.civica.com/globalassets/6.images/brand-evolution/logo/civica_logo_2026_rebrand.svg",
+        "final_url": "https://www.civica.com/globalassets/6.images/brand-evolution/logo/civica_logo_2026_rebrand.svg",
+        "evidence": "Civica Australia’s own website declares its 2026 company wordmark in the linked masthead.",
+        "sha256": "bd1245149c3d27368ca09e54718c1f6a7513980a9c29238bfa74d9c02b2ac560",
+        "expected_sha256": "bd1245149c3d27368ca09e54718c1f6a7513980a9c29238bfa74d9c02b2ac560",
+        "checked_at": "2026-11-15T11:03:36.614771+00:00",
+        "local_path": "tasks/public-demo-logos-activity/research/melbourne-extra/logos/civica.png",
+        "dimensions": [
+          157,
+          57
+        ],
+        "selection": "https://www.civica.com/globalassets/6.images/brand-evolution/logo/civica_logo_2026_rebrand.svg"
+      },
+      "picks": [
+        {
+          "job_id": "3f850304ca9179d4c1c06400",
+          "reason": "The candidate’s commercial .NET and React products, CI/CD and cloud systems align with Civica’s full-stack feature ownership and delivery responsibilities.",
+          "fact_ids": [
+            "1fbbf838939b2db64d80606aec6c15eb",
+            "a383674d908eade31aef1db6ada4e12a",
+            "79ed41d4d9f7d874acbed0e6cb157cdf"
+          ]
+        },
+        {
+          "job_id": "82472c847c789ae51e51df4e",
+          "reason": "Confirmed TypeScript, SQL and SDLC support technical implementations. The résumé records requirements discovery, UAT, cloud systems delivery and SaaS work in healthcare and aged care.",
+          "fact_ids": [
+            "3b66e05b56c2d09ca02852719fc4b4bc",
+            "d7629711b68661baaf1fbb1792c0fb8a",
+            "79ed41d4d9f7d874acbed0e6cb157cdf"
+          ]
+        }
+      ],
+      "jobs": [
+        {
+          "id": "3f850304ca9179d4c1c06400",
+          "title": "Senior Software Engineer - Technology",
+          "employer": "Civica",
+          "city": "Melbourne",
+          "location": "Melbourne, Victoria, Australia",
+          "url": "https://apply.workable.com/civica-uk-ltd-1/j/EC985CD2D9",
+          "careers_url": "https://www.civica.com/en-au/careers/",
+          "source": "workable:civica-uk-ltd-1",
+          "requisition": "EC985CD2D9",
+          "source_url": "https://apply.workable.com/civica-uk-ltd-1/j/EC985CD2D9",
+          "evidence": "Civica Australia links its official Workable board from its careers page. Workable marks requisition EC985CD2D9 as published and lists Melbourne, Victoria, Australia.",
+          "description": "Build and operate local-government software across C#, .NET and React. Own complex features from solution design and testing through production deployment and support.",
+          "requirements": [
+            "C#, modern .NET and React full-stack engineering",
+            "End-to-end feature ownership, architecture and risk identification",
+            "CI/CD, observability, automated testing, code review and cloud-native delivery",
+            "Ability to validate AI-assisted code for quality and security",
+            "Relational databases, DevOps, Docker, Kubernetes, Playwright and production support valued"
+          ],
+          "fit_rationale": "Prior commercial products used .NET, React, CI/CD and microservices. The résumé also documents architecture and code reviews across 10+ products, delivery of cloud business systems, and deployment troubleshooting. The role aligns with that feature-ownership scope.",
+          "checked_at": "2026-11-15T11:04:16+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "Hybrid",
+          "posted_at": "2026-10-26"
+        },
+        {
+          "id": "82472c847c789ae51e51df4e",
+          "title": "Implementation Consultant - Health & Care",
+          "employer": "Civica",
+          "city": "Melbourne",
+          "location": "Melbourne, Victoria, Australia; Sydney, New South Wales, Australia",
+          "url": "https://apply.workable.com/civica-uk-ltd-1/j/78B4A15688",
+          "careers_url": "https://www.civica.com/en-au/careers/",
+          "source": "workable:civica-uk-ltd-1",
+          "requisition": "78B4A15688",
+          "source_url": "https://apply.workable.com/civica-uk-ltd-1/j/78B4A15688",
+          "evidence": "Civica Australia links its official Workable board from its careers page. Workable marks requisition 78B4A15688 as published and lists Melbourne, Victoria, Australia; Sydney, New South Wales, Australia.",
+          "description": "Implement healthcare software for customers by leading discovery, configuring workflows, investigating data issues and supporting delivery from requirements through rollout.",
+          "requirements": [
+            "End-to-end software or SaaS implementation ownership; healthcare or private health insurance experience valued",
+            "A scripting language such as JavaScript and working SQL",
+            "Customer workshops, requirements and implementation planning",
+            "Professional services delivery, troubleshooting and escalation",
+            "Communication, prioritisation and stakeholder engagement"
+          ],
+          "fit_rationale": "A strong systems-analysis match: the résumé documents building and implementing cloud operations software, gathering requirements and supporting UAT. Confirmed SQL and TypeScript support scripting and data work, and prior commercial SaaS included healthcare and aged care.",
+          "checked_at": "2026-11-15T11:04:16+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "Hybrid",
+          "posted_at": "2026-11-13"
+        },
+        {
+          "id": "fc3eaac1cdbeb94dda2a8405",
+          "title": "Engineering Manager - Technology",
+          "employer": "Civica",
+          "city": "Melbourne",
+          "location": "Melbourne, Victoria, Australia; Sydney, New South Wales, Australia",
+          "url": "https://apply.workable.com/civica-uk-ltd-1/j/E3D1D150F5",
+          "careers_url": "https://www.civica.com/en-au/careers/",
+          "source": "workable:civica-uk-ltd-1",
+          "requisition": "E3D1D150F5",
+          "source_url": "https://apply.workable.com/civica-uk-ltd-1/j/E3D1D150F5",
+          "evidence": "Civica Australia links its official Workable board from its careers page. Workable marks requisition E3D1D150F5 as published and lists Melbourne, Victoria, Australia; Sydney, New South Wales, Australia.",
+          "description": "Lead a team of four to six engineers while contributing hands-on to customer-facing software. Guide Agile delivery, systems design, quality, team development and roadmap decisions.",
+          "requirements": [
+            "Five to eight years in software engineering, including at least about two years leading engineers",
+            "Hands-on back-end and front-end work, system design, automated testing and Agile/Scrum",
+            "Cloud SaaS experience on AWS, Azure or comparable platforms",
+            "Web and API development and working knowledge of DevOps, reliability and delivery lifecycle",
+            "Coaching, prioritisation and stakeholder management"
+          ],
+          "fit_rationale": "The candidate has 5+ years of web development. As Deakin IT Manager for 25 months they architected and managed 10+ software products, directed design and code review, and mentored development teams through delivery. This supports technical team leadership alongside commercial full-stack, cloud SaaS and CI/CD experience. Formal employee line-management scope is unconfirmed.",
+          "checked_at": "2026-11-15T11:04:16+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "Hybrid",
+          "posted_at": "2026-10-27"
+        }
+      ]
+    }
+  ]
+}

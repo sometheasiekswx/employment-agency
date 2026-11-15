@@ -18,6 +18,44 @@ export interface ReviewedJobSource {
 }
 
 const storedPrefix = "employment-agency:public-posting:";
+const bookmarkMap = "employment-agency:employer-bookmarks";
+const choicePrefixes = [
+  storedPrefix,
+  bookmarkMap + ":job:",
+  "employment-agency:employer-removals:job:",
+];
+
+/** Drop browser records outside the current, logo-verified public catalog. */
+export function prunePublicListingStorage(admitted: ReadonlySet<string>) {
+  try {
+    const keys = Array.from({ length: localStorage.length }, (_, index) =>
+      localStorage.key(index),
+    );
+    for (const key of keys) {
+      const prefix = choicePrefixes.find((candidate) => key?.startsWith(candidate));
+      if (key && prefix && !admitted.has(key.slice(prefix.length)))
+        localStorage.removeItem(key);
+      if (key && /^employment-agency:fictional-(bookmarks|removals):/.test(key))
+        localStorage.removeItem(key);
+    }
+    const raw = localStorage.getItem(bookmarkMap);
+    if (raw === null) return;
+    try {
+      const previous: unknown = JSON.parse(raw);
+      if (!previous || typeof previous !== "object" || Array.isArray(previous))
+        return;
+      const entries = Object.entries(previous);
+      const retained = entries.filter(([id, saved]) => admitted.has(id) && typeof saved === "boolean");
+      if (retained.length && retained.length !== entries.length)
+        localStorage.setItem(bookmarkMap, JSON.stringify(Object.fromEntries(retained)));
+      if (!retained.length) localStorage.removeItem(bookmarkMap);
+    } catch {
+      localStorage.removeItem(bookmarkMap);
+    }
+  } catch {
+    // The current catalog still controls membership when storage is blocked.
+  }
+}
 const isId = (value: unknown): value is string =>
   typeof value === "string" && /^[a-f0-9]{32}$/.test(value);
 const text = (value: unknown, limit = 300) =>

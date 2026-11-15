@@ -1,0 +1,233 @@
+{
+  "job": {
+    "availability": "retrieved",
+    "careers_url": "https://www.hioscar.com/careers",
+    "checked_at": "2026-11-15T10:48:50.844181+00:00",
+    "closes": "",
+    "description": "Build and maintain technical solutions, workflows and data-quality automation for eligibility and billing operations.",
+    "eligibility": "unknown",
+    "email": "",
+    "employer": "Oscar Health",
+    "expectation": {
+      "basis": "",
+      "confidence": "",
+      "source": "",
+      "target": ""
+    },
+    "id": "2ee1b476d00c40cb9fdf8fc2",
+    "location": "New York, New York, United States",
+    "posted_at": "",
+    "prior_application": "none",
+    "reposted_at": "",
+    "requirements": [
+      "Technical bachelor’s degree or four years equivalent experience",
+      "3+ years in a technical role",
+      "1+ years of SQL",
+      "1+ years of Python or a similar language such as C#",
+      "Hybrid New York office attendance and on-call support"
+    ],
+    "salary": {
+      "basis": "",
+      "currency": "",
+      "max": 0.0,
+      "min": 0.0,
+      "period": ""
+    },
+    "saved": false,
+    "seniority": "",
+    "source": "reviewed:oscar-health",
+    "sponsorship": "unknown",
+    "title": "Operations Engineer I",
+    "url": "https://oscarhealth.com/careers/jobs?gh_jid=8301410",
+    "work_arrangement": "",
+    "hiring_employer_verified": true,
+    "company": {
+      "id": "7f330721e8c746b4af750459991ab677",
+      "name": "Oscar Health",
+      "vacancy_id": "35235e3b54094e338ac5d3b1ebc3eb21",
+      "submitted_vacancy": false,
+      "remaining": 2,
+      "cooling": false,
+      "cooldown_until": null,
+      "cooldown_time_assumed": false,
+      "overflow": false,
+      "review_needed": false,
+      "pending_only_count": 0
+    }
+  },
+  "facts": [
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "6e30d600d3e246e48f25df95f8658d11",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.360374+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used Python to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.360368+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "00fef0a3dd09482bbbf9c43d353ed29f",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.364636+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used AWS to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.364633+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "6796d665b1be4c88b7d668da2d390b57",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.368961+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used Terraform to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.368958+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "f5997418df9b4226ab97f13139c2ac3f",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.373576+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used PostgreSQL to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.373574+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "4c8072fd7b1442db8852db31a6d0cdf5",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.378470+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used React to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.378468+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "3bb8369ff3ed4fe99799acc322c82480",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.384200+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used TypeScript to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.384198+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "f9d1c553b77e44e3bf21573cade4e938",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.390109+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used CI/CD to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.390106+00:00"
+    }
+  ],
+  "matching": {
+    "hard_conflicts": [],
+    "unknowns": [
+      "Work rights / sponsorship need confirmation"
+    ],
+    "preferences": [],
+    "evidence": [
+      {
+        "requirement": "Technical bachelor’s degree or four years equivalent experience",
+        "fact_ids": [],
+        "assessment": "No confirmed evidence"
+      },
+      {
+        "requirement": "3+ years in a technical role",
+        "fact_ids": [],
+        "assessment": "No confirmed evidence"
+      },
+      {
+        "requirement": "1+ years of SQL",
+        "fact_ids": [],
+        "assessment": "No confirmed evidence"
+      },
+      {
+        "requirement": "1+ years of Python or a similar language such as C#",
+        "fact_ids": [],
+        "assessment": "No confirmed evidence"
+      },
+      {
+        "requirement": "Hybrid New York office attendance and on-call support",
+        "fact_ids": [],
+        "assessment": "No confirmed evidence"
+      }
+    ],
+    "gaps": [
+      "Technical bachelor’s degree or four years equivalent experience",
+      "3+ years in a technical role",
+      "1+ years of SQL",
+      "1+ years of Python or a similar language such as C#",
+      "Hybrid New York office attendance and on-call support"
+    ],
+    "stretch": true,
+    "eligible_for_preparation": true,
+    "fact_ids": [
+      "6e30d600d3e246e48f25df95f8658d11",
+      "00fef0a3dd09482bbbf9c43d353ed29f",
+      "6796d665b1be4c88b7d668da2d390b57",
+      "f5997418df9b4226ab97f13139c2ac3f",
+      "4c8072fd7b1442db8852db31a6d0cdf5",
+      "3bb8369ff3ed4fe99799acc322c82480",
+      "f9d1c553b77e44e3bf21573cade4e938"
+    ],
+    "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+    "salary_expectation": {
+      "target": "Unresolved — request the employer band or add comparable local salary evidence",
+      "basis": "No comparable gross-base band is available; no precise expectation invented.",
+      "source": "https://oscarhealth.com/careers/jobs?gh_jid=8301410",
+      "confidence": "low"
+    }
+  },
+  "template": "plain",
+  "notice": "User review required. No ATS guarantee."
+}

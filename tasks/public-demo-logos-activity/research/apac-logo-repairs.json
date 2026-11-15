@@ -1,0 +1,270 @@
+{
+  "checked_at": "2026-11-15T11:07:01.951395+00:00",
+  "companies": [
+    {
+      "name": "Kraken",
+      "attempts": [
+        {
+          "page_url": "https://www.kraken.tech/",
+          "checked_at": "2026-11-15T10:46:25.729323+00:00",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page"
+        },
+        {
+          "page_url": "https://www.kraken.tech/press-releases",
+          "checked_at": "2026-11-15T10:46:26.670061+00:00",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page"
+        },
+        {
+          "page_url": "https://announcements.kraken.tech/login/",
+          "checked_at": "2026-11-15T10:46:27.215584+00:00",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page"
+        },
+        {
+          "page_url": "https://announcements.kraken.tech/login/",
+          "checked_at": "2026-11-15T10:47:06.347062+00:00",
+          "status": "verified",
+          "detail": "The official Kraken Technologies announcements sign-in page labels and embeds this matching energy technology corporate logo."
+        }
+      ],
+      "logo": {
+        "name": "Kraken",
+        "page_url": "https://announcements.kraken.tech/login/",
+        "evidence": "The official Kraken Technologies announcements sign-in page labels and embeds this matching energy technology corporate logo.",
+        "checked_at": "2026-11-15T10:47:06.347062+00:00",
+        "status": "verified",
+        "url": "https://announcements.kraken.tech/static/assets/logos/kraken-login-logo.bb75aff16649.svg",
+        "logo_url": "https://announcements.kraken.tech/static/assets/logos/kraken-login-logo.bb75aff16649.svg",
+        "sha256": "ec5e7ecb767b612188f403e00d89de7be09da32bc3c1beb1bc8d7b44091a5d27",
+        "expected_sha256": "ec5e7ecb767b612188f403e00d89de7be09da32bc3c1beb1bc8d7b44091a5d27",
+        "selection": true,
+        "local_path": "tasks/public-demo-logos-activity/research/apac/logos/ec5e7ecb767b612188f403e00d89de7be09da32bc3c1beb1bc8d7b44091a5d27.png"
+      }
+    },
+    {
+      "name": "Easygo",
+      "attempts": [
+        {
+          "page_url": "https://easygo.io/",
+          "checked_at": "2026-11-15T10:26:56.015031+00:00",
+          "status": "verified",
+          "detail": "The official Easygo homepage declares its wordmark in its named Organization logo."
+        },
+        {
+          "page_url": "https://easygo.io/",
+          "checked_at": "2026-11-15T10:22:21.282504+00:00",
+          "status": "unsupported",
+          "detail": "The source did not return a supported raster format"
+        },
+        {
+          "page_url": "https://easygo.io/",
+          "checked_at": "2026-11-15T10:26:37.949516+00:00",
+          "status": "unsupported",
+          "detail": "The source did not return a supported raster format"
+        }
+      ],
+      "logo": {
+        "name": "Easygo",
+        "page_url": "https://easygo.io/",
+        "evidence": "The official Easygo homepage declares its wordmark in its named Organization logo.",
+        "checked_at": "2026-11-15T10:26:56.015031+00:00",
+        "status": "verified",
+        "url": "https://cdn.sanity.io/images/voaav49k/production/8880cee09f748d643f56bf4a298a82a2fd0a7b40-115x22.svg",
+        "logo_url": "https://cdn.sanity.io/images/voaav49k/production/8880cee09f748d643f56bf4a298a82a2fd0a7b40-115x22.svg",
+        "sha256": "62378975b8205055d1be097736fa01877700ecff02ff36b38d216755ea348140",
+        "expected_sha256": "62378975b8205055d1be097736fa01877700ecff02ff36b38d216755ea348140",
+        "selection": false,
+        "local_path": "tasks/public-demo-logos-activity/research/apac/logos/62378975b8205055d1be097736fa01877700ecff02ff36b38d216755ea348140.png"
+      }
+    },
+    {
+      "name": "PALO IT",
+      "attempts": [
+        {
+          "page_url": "https://www.palo-it.com/en/",
+          "checked_at": "2026-11-15T10:26:56.335520+00:00",
+          "status": "verified",
+          "detail": "The official PALO IT homepage declares its PALO IT wordmark in its named Organization logo."
+        },
+        {
+          "page_url": "https://www.palo-it.com/en/about",
+          "checked_at": "2026-11-15T10:22:22.174839+00:00",
+          "status": "failure",
+          "detail": "The official branding page could not be safely retrieved"
+        },
+        {
+          "page_url": "https://www.palo-it.com/en/",
+          "checked_at": "2026-11-15T10:26:38.400774+00:00",
+          "status": "unsupported",
+          "detail": "The source did not return a supported raster format"
+        }
+      ],
+      "logo": {
+        "name": "PALO IT",
+        "page_url": "https://www.palo-it.com/en/",
+        "evidence": "The official PALO IT homepage declares its PALO IT wordmark in its named Organization logo.",
+        "checked_at": "2026-11-15T10:26:56.335520+00:00",
+        "status": "verified",
+        "url": "https://www.palo-it.com/hubfs/PaloIT-Assets/images/PALOLogo.svg",
+        "logo_url": "https://www.palo-it.com/hubfs/PaloIT-Assets/images/PALOLogo.svg",
+        "sha256": "f085b6dcc9d9495177bab9b3fc8aca02dd5bedb2dc953faab4e6db60760423f8",
+        "expected_sha256": "f085b6dcc9d9495177bab9b3fc8aca02dd5bedb2dc953faab4e6db60760423f8",
+        "selection": false,
+        "local_path": "tasks/public-demo-logos-activity/research/apac/logos/f085b6dcc9d9495177bab9b3fc8aca02dd5bedb2dc953faab4e6db60760423f8.png"
+      }
+    },
+    {
+      "name": "Encora",
+      "attempts": [
+        {
+          "page_url": "https://www.encora.com/",
+          "checked_at": "2026-11-15T10:22:24.375365+00:00",
+          "status": "unsupported",
+          "detail": "The branding page redirected outside the verified site"
+        }
+      ]
+    },
+    {
+      "name": "Airwallex",
+      "attempts": [
+        {
+          "page_url": "https://www.airwallex.com/docs/",
+          "checked_at": "2026-11-15T10:46:24.939276+00:00",
+          "status": "unsupported",
+          "detail": "Exact logo operation accepted the source image, but visual review found the word DOCS beside the emblem. This is a documentation product mark, so it was excluded."
+        },
+        {
+          "page_url": "https://help.airwallex.com/hc/en-gb/articles/16987175509647-How-do-I-create-a-theme",
+          "checked_at": "2026-11-15T10:26:58.050101+00:00",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page"
+        },
+        {
+          "page_url": "https://www.airwallex.com/global/newsroom",
+          "checked_at": "2026-11-15T10:22:25.282058+00:00",
+          "status": "unsupported",
+          "detail": "The branding source exceeds its download size limit"
+        },
+        {
+          "page_url": "https://help.airwallex.com/hc/en-gb/articles/16987175509647-How-do-I-create-a-theme",
+          "checked_at": "2026-11-15T10:26:40.611213+00:00",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page"
+        },
+        {
+          "page_url": "https://www.airwallex.com/global/who-we-are",
+          "checked_at": "2026-11-15T11:07:01.476141+00:00",
+          "status": "unsupported",
+          "detail": "The branding source exceeds its download size limit. The official Who We Are page declares the Airwallex corporate mark under its Organization. Its published PNG is 2435×334."
+        },
+        {
+          "page_url": "https://www.airwallex.com/global/sitemap",
+          "checked_at": "2026-11-15T11:07:01.701770+00:00",
+          "status": "unsupported",
+          "detail": "The branding source exceeds its download size limit. The official sitemap declares the Airwallex corporate mark under its Organization."
+        },
+        {
+          "page_url": "https://status.airwallex.com/",
+          "checked_at": "2026-11-15T11:07:01.951395+00:00",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page. Official Airwallex status portal reviewed for the standalone corporate logo."
+        }
+      ]
+    },
+    {
+      "name": "NVIDIA",
+      "attempts": [
+        {
+          "page_url": "https://www.nvidia.com/en-us/about-nvidia/legal-info/logo-brand-usage/",
+          "checked_at": "2026-11-15T10:26:56.826417+00:00",
+          "status": "unsupported",
+          "detail": "The verified page did not declare the selected image"
+        },
+        {
+          "page_url": "https://www.nvidia.com/en-sg/about-nvidia/",
+          "checked_at": "2026-11-15T10:26:57.084734+00:00",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page"
+        },
+        {
+          "page_url": "https://www.nvidia.com/en-us/about-nvidia/press-room/",
+          "checked_at": "2026-11-15T10:22:25.607411+00:00",
+          "status": "failure",
+          "detail": "The official branding page could not be safely retrieved"
+        },
+        {
+          "page_url": "https://www.nvidia.com/en-us/about-nvidia/legal-info/logo-brand-usage/",
+          "checked_at": "2026-11-15T10:22:27.491184+00:00",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page"
+        },
+        {
+          "page_url": "https://www.nvidia.com/en-us/about-nvidia/legal-info/logo-brand-usage/",
+          "checked_at": "2026-11-15T10:26:39.230166+00:00",
+          "status": "unsupported",
+          "detail": "The verified page did not declare the selected image"
+        },
+        {
+          "page_url": "https://www.nvidia.com/en-sg/about-nvidia/",
+          "checked_at": "2026-11-15T10:26:39.833345+00:00",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page"
+        }
+      ]
+    },
+    {
+      "name": "EPAM Systems",
+      "attempts": [
+        {
+          "page_url": "https://careers.epam.com/en/jobs",
+          "checked_at": "2026-11-15T10:26:57.358532+00:00",
+          "status": "unsupported",
+          "detail": "The branding source exceeds its download size limit"
+        },
+        {
+          "page_url": "https://www.epam.com/about/newsroom",
+          "checked_at": "2026-11-15T10:22:27.730052+00:00",
+          "status": "failure",
+          "detail": "The official branding page could not be safely retrieved"
+        },
+        {
+          "page_url": "https://careers.epam.com/en/jobs",
+          "checked_at": "2026-11-15T10:26:40.052691+00:00",
+          "status": "unsupported",
+          "detail": "The branding source exceeds its download size limit"
+        }
+      ]
+    },
+    {
+      "name": "Amazon",
+      "attempts": [
+        {
+          "page_url": "https://www.aboutamazon.eu/",
+          "checked_at": "2026-11-15T10:26:58.193140+00:00",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page"
+        },
+        {
+          "page_url": "https://www.aboutamazon.com/news",
+          "checked_at": "2026-11-15T10:22:27.885346+00:00",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page"
+        },
+        {
+          "page_url": "https://press.aboutamazon.com/",
+          "checked_at": "2026-11-15T10:22:28.090117+00:00",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page"
+        },
+        {
+          "page_url": "https://www.aboutamazon.eu/",
+          "checked_at": "2026-11-15T10:26:40.879470+00:00",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page"
+        }
+      ]
+    }
+  ]
+}

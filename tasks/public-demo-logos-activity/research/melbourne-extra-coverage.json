@@ -1,0 +1,199 @@
+{
+  "completed_at": "2026-11-15T11:08:28+00:00",
+  "direct_source_probe_count": 322,
+  "screened_employer_count": 101,
+  "screened_employers": [
+    "AGL",
+    "Accenture",
+    "Airtasker",
+    "Allens",
+    "Artificial Analysis",
+    "Atlassian",
+    "Aussie Broadband",
+    "Australia Post",
+    "Australian Energy Market Operator",
+    "AustralianSuper",
+    "Balance Internet",
+    "Bayside Health",
+    "Bellroy",
+    "Brennan",
+    "Bupa",
+    "Bureau of Meteorology",
+    "Capgemini",
+    "Catapult Sports",
+    "Cenitex",
+    "Cevo",
+    "Civica",
+    "Cognizant",
+    "Coles Group",
+    "Commonwealth Bank",
+    "Compass Education",
+    "Culture Kings",
+    "Datacom",
+    "Deloitte",
+    "Department of Government Services",
+    "Deputy",
+    "Domain",
+    "Easygo",
+    "Employment Hero",
+    "Endava",
+    "EnergyAustralia",
+    "Envato",
+    "Equifax",
+    "Eurofins",
+    "Experian",
+    "FinXL",
+    "Globant",
+    "HCLTech",
+    "HUB24",
+    "HotDoc",
+    "IDP Education",
+    "Insignia Financial",
+    "John Holland",
+    "Judo Bank",
+    "Kanopi",
+    "Kmart Group",
+    "Leidos",
+    "Linfox",
+    "Linktree",
+    "Mantel Group",
+    "Marsh McLennan",
+    "Medibank",
+    "Metro Trains Melbourne",
+    "Monash University",
+    "Montu",
+    "Murdoch Children's Research Institute",
+    "NCS Australia",
+    "Nexigen Digital",
+    "Okendo",
+    "Origin Energy",
+    "PEXA",
+    "Pepperstone",
+    "Publicis Sapient",
+    "RACV",
+    "REA Group",
+    "RMIT University",
+    "ROLLER",
+    "Redcat",
+    "SEEK",
+    "Schoolbox",
+    "Service Victoria",
+    "Sportsbet",
+    "Spotlight Group",
+    "Square",
+    "Tabcorp",
+    "Target Australia",
+    "TechnologyOne",
+    "Thoughtworks",
+    "Toll Group",
+    "Transurban",
+    "University of Melbourne",
+    "UpGuard",
+    "Vanguard",
+    "Versent",
+    "Victoria Legal Aid",
+    "Victorian Department of Education",
+    "Victorian Department of Transport and Planning",
+    "WEX",
+    "Whitehorse City Council",
+    "WiseTech Global",
+    "Woolworths Group",
+    "Xplor",
+    "Zeller",
+    "Zendesk",
+    "carsales",
+    "nbn",
+    "x15ventures"
+  ],
+  "retained_roles": 6,
+  "verified_logos": [
+    {
+      "company": "Linktree",
+      "source": "https://linktr.ee/newsroom",
+      "normalized_sha256": "23214ce6b351cba70d31ef687029c8bc283687ad23b1275e2a63fde0dcd1db75"
+    },
+    {
+      "company": "Civica",
+      "source": "https://www.civica.com/en-au/",
+      "normalized_sha256": "bd1245149c3d27368ca09e54718c1f6a7513980a9c29238bfa74d9c02b2ac560"
+    }
+  ],
+  "companies": [
+    {
+      "name": "Linktree",
+      "board_url": "https://linktr.ee/about/careers",
+      "retained_roles": 3,
+      "excluded_details": [
+        {
+          "title": "Senior Full Stack Engineer, Authentication",
+          "status": "specialist requirements",
+          "detail": "Requires experience rolling out changes on a high-traffic critical path and working knowledge of OIDC and MFA. The public résumé confirms OAuth2 and JWT but does not establish that scope.",
+          "url": "https://linktr.ee/about/careers/am9icG9zdDrHNEU-xrM1hD3HlWR5_xbj"
+        },
+        {
+          "title": "Head of Operations Engineering",
+          "status": "overlapping advertisement",
+          "detail": "The August and November ads share the same location, responsibilities and qualifications, with the newer title substituted. Kept Operations Engineering Lead as the current distinct role.",
+          "url": "https://linktr.ee/about/careers/am9icG9zdDphCrx_Wn2589VbbbWRsSvk"
+        },
+        {
+          "title": "Senior Software Engineer, Growth (Payments)",
+          "status": "location",
+          "detail": "San Francisco and Los Angeles hybrid.",
+          "url": "https://linktr.ee/about/careers/am9icG9zdDoOmR6-NZtROqp0gj1iW4DG"
+        },
+        {
+          "title": "Senior Software Engineer, Security",
+          "status": "location",
+          "detail": "San Francisco and Los Angeles hybrid.",
+          "url": "https://linktr.ee/about/careers/am9icG9zdDoxOQ1ybl8keJ0rn1njKKCG"
+        },
+        {
+          "title": "Engineering Manager, Activation",
+          "status": "location",
+          "detail": "San Francisco and Los Angeles hybrid.",
+          "url": "https://linktr.ee/about/careers/am9icG9zdDr0dQQEt_mKBPU8MQ-KBz0N"
+        },
+        {
+          "title": "Staff AI Engineer",
+          "status": "location",
+          "detail": "London hybrid.",
+          "url": "https://linktr.ee/about/careers/am9icG9zdDq71wDn34WxnXb0aI_AEQ_5"
+        }
+      ]
+    },
+    {
+      "name": "Civica",
+      "board_url": "https://apply.workable.com/civica-uk-ltd-1/",
+      "board_vacancy_count": 43,
+      "melbourne_vacancy_count": 10,
+      "retained_roles": 3,
+      "excluded_details": [
+        {
+          "title": "Implementation Consultant - Local Government",
+          "status": "specialist requirements",
+          "detail": "Experience in councils, rate-setting, local government enterprise processes and legislation.",
+          "url": "https://apply.workable.com/civica-uk-ltd-1/j/1978E5BBEB"
+        },
+        {
+          "title": "Project Manager - Local Government",
+          "status": "specialist requirements",
+          "detail": "Vendor-facing implementation project governance, budgeting and forecasting experience required.",
+          "url": "https://apply.workable.com/civica-uk-ltd-1/j/350287627D"
+        },
+        {
+          "title": "Program Manager - Health & Care",
+          "status": "specialist requirements",
+          "detail": "Complex multi-workstream customer programs, commercial budgets and forecasting.",
+          "url": "https://apply.workable.com/civica-uk-ltd-1/j/3D8B927A0D"
+        },
+        {
+          "title": "Head of SRE Engineering",
+          "status": "specialist requirements",
+          "detail": "Leadership of SRE and CloudOps transformation and deep operational knowledge of high-availability production services.",
+          "url": "https://apply.workable.com/civica-uk-ltd-1/j/A407FEAC03"
+        }
+      ]
+    }
+  ]
+}

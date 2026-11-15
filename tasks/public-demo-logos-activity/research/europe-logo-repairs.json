@@ -1,0 +1,404 @@
+{
+  "checked_at": "2026-11-15T10:36:52+00:00",
+  "companies": [
+    {
+      "name": "Monzo",
+      "attempts": [
+        {
+          "page_url": "https://monzo.com/press",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page",
+          "source_http": 200
+        },
+        {
+          "page_url": "https://monzo.com/downloads",
+          "status": "failure",
+          "detail": "The official branding page could not be safely retrieved",
+          "source_http": "HTTP Error 404: Not Found"
+        },
+        {
+          "page_url": "https://monzo.com/",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page",
+          "source_http": 200
+        },
+        {
+          "page_url": "https://monzo.com/about",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page",
+          "source_http": 200
+        },
+        {
+          "page_url": "https://monzo.com/press",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page",
+          "source_http": 200
+        },
+        {
+          "page_url": "https://community.monzo.com/",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page",
+          "source_http": 200
+        },
+        {
+          "page_url": "https://community.monzo.com/t/we-ve-given-our-visual-brand-a-refresh-q-a-w-jesse-senior-brand-designer/139681",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page",
+          "source_http": 200
+        },
+        {
+          "page_url": "https://developers.monzo.com/",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page",
+          "source_http": 200
+        }
+      ],
+      "logo": null
+    },
+    {
+      "name": "Deliveroo",
+      "attempts": [
+        {
+          "page_url": "https://deliveroo.co.uk/more/news-articles",
+          "status": "failure",
+          "detail": "The official branding page could not be safely retrieved",
+          "source_http": "HTTP Error 404: Not Found"
+        },
+        {
+          "page_url": "https://corporate.deliveroo.co.uk/media/press-releases/",
+          "status": "failure",
+          "detail": "The official branding page could not be safely retrieved",
+          "source_http": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
+        },
+        {
+          "page_url": "https://merchants.deliveroo.com/en-GB",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page",
+          "source_http": 200
+        },
+        {
+          "page_url": "https://deliveroo.co.uk/",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page",
+          "source_http": 200
+        },
+        {
+          "page_url": "https://deliveroo.co.uk/about-us",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page",
+          "source_http": 200
+        },
+        {
+          "page_url": "https://deliveroo.co.uk/more/about-us",
+          "status": "failure",
+          "detail": "The official branding page could not be safely retrieved",
+          "source_http": "HTTP Error 404: Not Found"
+        },
+        {
+          "page_url": "https://merchants.deliveroo.com/legal/policies",
+          "status": "unsupported",
+          "detail": "The branding source exceeds its download size limit",
+          "selection": "https://deliveroo-partners.cdn.prismic.io/deliveroo-partners/Z0gsA5bqstJ972oH_deliveroo-logo-vector.svg",
+          "source_http": 200
+        },
+        {
+          "page_url": "https://help.deliveroo.com/en/",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page",
+          "source_http": 200
+        },
+        {
+          "page_url": "https://deliveroo.engineering/",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page",
+          "source_http": 200
+        }
+      ],
+      "logo": null
+    },
+    {
+      "name": "Contentful",
+      "attempts": [
+        {
+          "page_url": "https://www.contentful.com/newsroom/",
+          "status": "failure",
+          "detail": "The official branding page could not be safely retrieved",
+          "source_http": 200
+        },
+        {
+          "page_url": "https://www.contentful.com/",
+          "status": "failure",
+          "detail": "The official branding page could not be safely retrieved",
+          "source_http": 200
+        },
+        {
+          "page_url": "https://www.contentful.com/blog/",
+          "status": "failure",
+          "detail": "The official branding page could not be safely retrieved",
+          "source_http": 200
+        },
+        {
+          "page_url": "https://contentful.bynder.com/guidelines/guide/e1411ed9-7b0e-4fff-8342-6a87bb8bc0bc/page/5f013f57-7328-44e0-91e3-4f4609daad74",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page",
+          "source_http": 200
+        },
+        {
+          "page_url": "https://support.contentful.com/",
+          "status": "failure",
+          "detail": "The official branding page could not be safely retrieved",
+          "source_http": "HTTP Error 403: Forbidden"
+        },
+        {
+          "page_url": "https://www.contentful.com/legal/intellectual-property/trademark-and-brand-use-policy/2021-01-21/",
+          "status": "failure",
+          "detail": "The official branding page could not be safely retrieved",
+          "source_http": 200
+        },
+        {
+          "page_url": "https://www.contentful.com/help/how-attribution-works/",
+          "status": "failure",
+          "detail": "The official branding page could not be safely retrieved",
+          "source_http": 200
+        },
+        {
+          "page_url": "https://www.contentful.com/developers/docs/",
+          "status": "failure",
+          "detail": "The official branding page could not be safely retrieved",
+          "source_http": 200
+        }
+      ],
+      "logo": null
+    },
+    {
+      "name": "Trainline",
+      "attempts": [
+        {
+          "page_url": "https://www.trainlinegroup.com/investors/",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page",
+          "source_http": 200
+        },
+        {
+          "page_url": "https://www.thetrainline.com/partners",
+          "status": "failure",
+          "detail": "The official branding page could not be safely retrieved",
+          "source_http": "HTTP Error 404: Not Found"
+        },
+        {
+          "page_url": "https://www.trainlinegroup.com/media/latest-news/",
+          "status": "failure",
+          "detail": "The official branding page could not be safely retrieved",
+          "source_http": "HTTP Error 404: Not Found"
+        },
+        {
+          "page_url": "https://www.trainlinegroup.com/investors/",
+          "status": "success",
+          "detail": "Shared company-logo-backfill returned successful public workspace readback.",
+          "selection": "https://www.trainlinegroup.com/media/gefor0xi/logo-mint-1-1.svg",
+          "source_http": 200
+        }
+      ],
+      "logo": {
+        "status": "verified",
+        "page_url": "https://www.trainlinegroup.com/investors/",
+        "url": "https://www.trainlinegroup.com/media/gefor0xi/logo-mint-1-1.svg",
+        "final_url": "https://www.trainlinegroup.com/media/gefor0xi/logo-mint-1-1.svg",
+        "evidence": "Trainline Group’s official investor page uses its mint wordmark in the site navigation.",
+        "sha256": "8a2631db2633467540e9a0b618e5c4388dd3ed9ca6ff8fe8a28072719d0f8737",
+        "expected_sha256": "8a2631db2633467540e9a0b618e5c4388dd3ed9ca6ff8fe8a28072719d0f8737",
+        "checked_at": "2026-11-15T10:28:42.470414+00:00",
+        "local_path": "tasks/public-demo-logos-activity/research/europe/logos/trainline.png",
+        "dimensions": [
+          192,
+          34
+        ],
+        "selection": "https://www.trainlinegroup.com/media/gefor0xi/logo-mint-1-1.svg"
+      }
+    },
+    {
+      "name": "HelloFresh",
+      "attempts": [
+        {
+          "page_url": "https://www.hellofreshgroup.com/en/newsroom/",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page",
+          "source_http": 200
+        },
+        {
+          "page_url": "https://www.hellofreshgroup.com/en/newsroom/press-material/brand/",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page",
+          "source_http": 200
+        },
+        {
+          "page_url": "https://ir.hellofreshgroup.com/websites/hellofresh/English/0/home.html",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page",
+          "source_http": 200
+        },
+        {
+          "page_url": "https://www.hellofresh.ca/about-us",
+          "status": "failure",
+          "detail": "The official branding page could not be safely retrieved",
+          "source_http": "HTTP Error 404: Not Found"
+        },
+        {
+          "page_url": "https://www.hellofresh.com/",
+          "status": "unsupported",
+          "detail": "The branding source exceeds its download size limit",
+          "source_http": 200
+        },
+        {
+          "page_url": "https://www.hellofreshgroup.com/en/about-us/",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page",
+          "source_http": 200
+        }
+      ],
+      "logo": null
+    },
+    {
+      "name": "N26",
+      "attempts": [
+        {
+          "page_url": "https://n26.com/en-de",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page",
+          "source_http": 200
+        },
+        {
+          "page_url": "https://n26.com/en-eu/logo-assets",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page",
+          "source_http": 200
+        },
+        {
+          "page_url": "https://n26.com/en-eu/blog",
+          "status": "unsupported",
+          "detail": "The branding source exceeds its download size limit",
+          "source_http": 200
+        },
+        {
+          "page_url": "https://n26.com/en-eu/legal-documents",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page",
+          "source_http": 200
+        },
+        {
+          "page_url": "https://n26.com/de-de/presse",
+          "status": "missing",
+          "detail": "The selected logo URL was not declared on the official page",
+          "selection": "https://images.ctfassets.net/q33z48p65a6w/iQBHC7XxrteOoXlUmW56s/b56e61050e883493e781682576f93888/N26_Logo_1920x1080.png?fm=png&q=80&w=600",
+          "source_http": 200
+        },
+        {
+          "page_url": "https://support.n26.com/en-eu",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page",
+          "source_http": 200
+        }
+      ],
+      "logo": null
+    },
+    {
+      "name": "SumUp",
+      "attempts": [
+        {
+          "page_url": "https://help.sumup.com/en-GB",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page",
+          "source_http": 200
+        },
+        {
+          "page_url": "https://developer.sumup.com/",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page",
+          "source_http": 200
+        },
+        {
+          "page_url": "https://www.sumup.com/en-us/press/",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page",
+          "source_http": 200
+        },
+        {
+          "page_url": "https://www.sumup.com/en-us/about/",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page",
+          "source_http": 200
+        },
+        {
+          "page_url": "https://www.sumup.com/de-de/press/",
+          "status": "unsupported",
+          "detail": "The branding source exceeds its download size limit",
+          "source_http": 200
+        },
+        {
+          "page_url": "https://developer.sumup.com/api/",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page",
+          "source_http": 200
+        }
+      ],
+      "logo": null
+    },
+    {
+      "name": "Delivery Hero",
+      "attempts": [
+        {
+          "page_url": "https://developers.deliveryhero.com/",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page",
+          "source_http": 200
+        },
+        {
+          "page_url": "https://www.deliveryhero.com/dh-ventures/",
+          "status": "failure",
+          "detail": "The official branding page could not be safely retrieved",
+          "source_http": "HTTP Error 403: Forbidden"
+        },
+        {
+          "page_url": "https://www.deliveryhero.com/downloads/logos/",
+          "status": "failure",
+          "detail": "The official branding page could not be safely retrieved",
+          "source_http": "HTTP Error 403: Forbidden"
+        },
+        {
+          "page_url": "https://ir.deliveryhero.com/en",
+          "status": "missing",
+          "detail": "No explicit matching logo was found on the official page",
+          "source_http": 200
+        },
+        {
+          "page_url": "https://tech.deliveryhero.com/",
+          "status": "failure",
+          "detail": "The official branding page could not be safely retrieved",
+          "source_http": "HTTP Error 403: Forbidden"
+        },
+        {
+          "page_url": "https://careers.deliveryhero.com/",
+          "status": "success",
+          "detail": "Shared company-logo-backfill returned successful public workspace readback.",
+          "source_http": 200
+        }
+      ],
+      "logo": {
+        "status": "verified",
+        "page_url": "https://careers.deliveryhero.com/",
+        "url": "https://attraxcdnprod1-freshed3dgayb7c3.z01.azurefd.net/1481174/09419435-21e9-4b7c-b001-e4d0e06d8f6f/2026.10.22.15671/Blob/images/logos/dh-logo-main.svg",
+        "final_url": "https://attraxcdnprod1-freshed3dgayb7c3.z01.azurefd.net/1481174/09419435-21e9-4b7c-b001-e4d0e06d8f6f/2026.10.22.15671/Blob/images/logos/dh-logo-main.svg",
+        "evidence": "Delivery Hero’s official website publishes its company mark on this page.",
+        "sha256": "ce2fb288fd88f32c7997a58271f8f3bdbec1659b94c55ce4b9b97626ca931ced",
+        "expected_sha256": "ce2fb288fd88f32c7997a58271f8f3bdbec1659b94c55ce4b9b97626ca931ced",
+        "checked_at": "2026-11-15T10:28:58.242211+00:00",
+        "local_path": "tasks/public-demo-logos-activity/research/europe/logos/delivery-hero.png",
+        "dimensions": [
+          192,
+          32
+        ],
+        "selection": null
+      }
+    }
+  ]
+}

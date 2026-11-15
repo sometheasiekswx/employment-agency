@@ -1,0 +1,910 @@
+{
+  "checked_at": "2026-11-15T10:47:10+00:00",
+  "new_employers": {
+    "Cohere": 3,
+    "Feathery": 3,
+    "Braze": 4
+  },
+  "verification": "All ten primary posting URLs returned HTTP 200 and displayed application content. Three official logos passed shared-operation asset readback and independent PNG decode and SHA-256 verification.",
+  "scope_notes": [
+    "Cohere’s direct board lists Toronto among the accepted locations for all three included roles. The Dashboard and Annotation jobs concern separate products. North Admin specifies RAG or agent systems at scale. The Integrations opening asks for agentic evaluation or prompt/tool tuning. Staff, security and model infrastructure jobs require specialist experience.",
+    "Feathery’s Forward Deployed and Solutions Engineer openings materially overlap in technical scoping, workflow implementations, customer advisory and product feedback. The Forward Deployed entry represents the more engineering-focused remit. The Early Career full-stack requisition expressly targets candidates launching their careers.",
+    "Braze’s Core Objects and Email roles require five-plus full-stack years and leadership, with specific programming tools listed as bonuses. The selected Data Lakehouse role asks for at least two years and says two to four is ideal. Braze’s untitled Software Engineer II listing lists a two-to-four-year range. The Kafka at scale, enterprise security and senior distributed data roles were outside confirmed experience.",
+    "Wealthsimple’s matching technology roles were Canada-remote without Toronto listed on their employer board. Other checked employers lacked a qualifying set of three roles or verified branding. Work eligibility and sponsorship for selected listings remain unknown."
+  ],
+  "sources": [
+    {
+      "company": "Wealthsimple",
+      "url": "https://api.lever.co/v0/postings/wealthsimple?mode=json",
+      "status": 200
+    },
+    {
+      "company": "Wealthsimple",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/wealthsimple",
+      "status": 200
+    },
+    {
+      "company": "Wealthsimple",
+      "url": "https://www.wealthsimple.com/en-ca/about",
+      "status": 200
+    },
+    {
+      "company": "Clio",
+      "url": "https://boards-api.greenhouse.io/v1/boards/clio/jobs?content=true",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Clio",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/clio",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Clio",
+      "url": "https://www.clio.com/about/press/",
+      "status": 200
+    },
+    {
+      "company": "League",
+      "url": "https://boards-api.greenhouse.io/v1/boards/leagueinc/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "League",
+      "url": "https://league.com/press/",
+      "status": "failure",
+      "detail": "HTTP Error 403: Forbidden"
+    },
+    {
+      "company": "Vena Solutions",
+      "url": "https://boards-api.greenhouse.io/v1/boards/venasolutions/jobs?content=true",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Vena Solutions",
+      "url": "https://www.venasolutions.com/press",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Geotab",
+      "url": "https://boards-api.greenhouse.io/v1/boards/geotab/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "Geotab",
+      "url": "https://www.geotab.com/press/",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Ada",
+      "url": "https://boards-api.greenhouse.io/v1/boards/ada18/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "Ada",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/ada",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Ada",
+      "url": "https://www.ada.cx/about/",
+      "status": "failure",
+      "detail": "HTTP Error 403: Forbidden"
+    },
+    {
+      "company": "Float",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/float",
+      "status": 200
+    },
+    {
+      "company": "Float",
+      "url": "https://boards-api.greenhouse.io/v1/boards/floatfinancial/jobs?content=true",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Float",
+      "url": "https://floatfinancial.com/",
+      "status": 200
+    },
+    {
+      "company": "Jobber",
+      "url": "https://boards-api.greenhouse.io/v1/boards/jobber/jobs?content=true",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Jobber",
+      "url": "https://www.getjobber.com/company/",
+      "status": "failure",
+      "detail": "HTTP Error 403: Forbidden"
+    },
+    {
+      "company": "1Password",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/1password",
+      "status": 200
+    },
+    {
+      "company": "1Password",
+      "url": "https://1password.com/press",
+      "status": 200
+    },
+    {
+      "company": "Faire",
+      "url": "https://boards-api.greenhouse.io/v1/boards/faire/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "Faire",
+      "url": "https://www.faire.com/newsroom",
+      "status": 200,
+      "final_url": "https://www.faire.com/pagenotfound"
+    },
+    {
+      "company": "Lightspeed",
+      "url": "https://boards-api.greenhouse.io/v1/boards/lightspeedcommerce/jobs?content=true",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Lightspeed",
+      "url": "https://www.lightspeedhq.com/news/",
+      "status": 200
+    },
+    {
+      "company": "Super.com",
+      "url": "https://api.lever.co/v0/postings/super-com?mode=json",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Super.com",
+      "url": "https://www.super.com/",
+      "status": "failure",
+      "detail": "HTTP Error 403: Forbidden"
+    },
+    {
+      "company": "StackAdapt",
+      "url": "https://api.lever.co/v0/postings/stackadapt?mode=json",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "StackAdapt",
+      "url": "https://www.stackadapt.com/company/press",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Cohere",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/cohere",
+      "status": 200
+    },
+    {
+      "company": "Cohere",
+      "url": "https://cohere.com/about",
+      "status": 200
+    },
+    {
+      "company": "KOHO",
+      "url": "https://api.lever.co/v0/postings/koho?mode=json",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "KOHO",
+      "url": "https://www.koho.ca/about/",
+      "status": 200
+    },
+    {
+      "company": "BenchSci",
+      "url": "https://api.lever.co/v0/postings/benchsci?mode=json",
+      "status": 200
+    },
+    {
+      "company": "BenchSci",
+      "url": "https://www.benchsci.com/news",
+      "status": 200
+    },
+    {
+      "company": "Hootsuite",
+      "url": "https://boards-api.greenhouse.io/v1/boards/hootsuite/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "Hootsuite",
+      "url": "https://www.hootsuite.com/newsroom",
+      "status": 200
+    },
+    {
+      "company": "PointClickCare",
+      "url": "https://api.lever.co/v0/postings/pointclickcare?mode=json",
+      "status": 200
+    },
+    {
+      "company": "PointClickCare",
+      "url": "https://pointclickcare.com/about-us/",
+      "status": "failure",
+      "detail": "HTTP Error 403: Forbidden"
+    },
+    {
+      "company": "Intact Financial",
+      "url": "https://intactfc.wd3.myworkdayjobs.com/en-US/intactfc",
+      "status": 200
+    },
+    {
+      "company": "Intact Financial",
+      "url": "https://www.intactfc.com/English/media-centre/default.aspx",
+      "status": "failure",
+      "detail": "HTTP Error 405: Not Allowed"
+    },
+    {
+      "company": "Intact Financial",
+      "url": "https://www.intactfc.com/English/home/default.aspx",
+      "status": "failure",
+      "detail": "HTTP Error 405: Not Allowed"
+    },
+    {
+      "company": "Intact Financial",
+      "url": "https://intactfc.wd3.myworkdayjobs.com/en-US/intactfc/job/AI-Developer-II--Full-Stack--Python-React-_R153216",
+      "status": 200
+    },
+    {
+      "company": "Intact Financial",
+      "url": "https://intactfc.wd3.myworkdayjobs.com/en-US/intactfc/job/Senior-AI-Full-Stack-Software-Developer--Python-React-_R153213",
+      "status": 200
+    },
+    {
+      "company": "RBC",
+      "url": "https://jobs.rbc.com/ca/en/search-results?keywords=software",
+      "status": 200
+    },
+    {
+      "company": "RBC",
+      "url": "https://www.rbc.com/newsroom/",
+      "status": 200
+    },
+    {
+      "company": "RBC",
+      "url": "https://www.rbc.com/",
+      "status": 200
+    },
+    {
+      "company": "Harvey",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/harvey",
+      "status": 200
+    },
+    {
+      "company": "Harvey",
+      "url": "https://www.harvey.ai/",
+      "status": 200
+    },
+    {
+      "company": "Feathery",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/feathery",
+      "status": 200
+    },
+    {
+      "company": "Feathery",
+      "url": "https://www.feathery.io/",
+      "status": 200
+    },
+    {
+      "company": "Mycroft",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/mycroft",
+      "status": 200
+    },
+    {
+      "company": "Mycroft",
+      "url": "https://www.mycroft.io/",
+      "status": 200
+    },
+    {
+      "company": "General Magic",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/generalmagic",
+      "status": 200
+    },
+    {
+      "company": "General Magic",
+      "url": "https://www.generalmagic.ai/",
+      "status": 200
+    },
+    {
+      "company": "Kablamo",
+      "url": "https://www.teamkablamo.com/careers",
+      "status": 200,
+      "final_url": "https://teamkablamo.com/careers"
+    },
+    {
+      "company": "Kablamo",
+      "url": "https://www.teamkablamo.com/",
+      "status": 200,
+      "final_url": "https://teamkablamo.com/"
+    },
+    {
+      "company": "Superhuman",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/Superhuman%20Platform%20Inc",
+      "status": 200
+    },
+    {
+      "company": "Superhuman",
+      "url": "https://superhuman.com/about",
+      "status": 200,
+      "final_url": "https://superhuman.com/company/about"
+    },
+    {
+      "company": "Altis Labs",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/Altis%20Labs",
+      "status": 200
+    },
+    {
+      "company": "Altis Labs",
+      "url": "https://www.altislabs.com/",
+      "status": 200
+    },
+    {
+      "company": "Solstice",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/solstice",
+      "status": 200
+    },
+    {
+      "company": "Solstice",
+      "url": "https://solstice.ai/",
+      "status": "failure",
+      "detail": "HTTP Error 403: Forbidden"
+    },
+    {
+      "company": "Cohere",
+      "url": "https://cohere.com/press",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Cohere",
+      "url": "https://cohere.com/careers",
+      "status": 200
+    },
+    {
+      "company": "Cohere",
+      "url": "https://cohere.com/contact",
+      "status": 200,
+      "final_url": "https://cohere.com/contact-sales"
+    },
+    {
+      "company": "Cohere",
+      "url": "https://cohere.com/brand",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Feathery",
+      "url": "https://www.feathery.io/about",
+      "status": 200
+    },
+    {
+      "company": "Feathery",
+      "url": "https://www.feathery.io/careers",
+      "status": 200
+    },
+    {
+      "company": "Intact Financial",
+      "url": "https://www.intactfc.com/english/media-centre/index.html",
+      "status": "failure",
+      "detail": "HTTP Error 405: Not Allowed"
+    },
+    {
+      "company": "Intact Financial",
+      "url": "https://careers.intactfc.com/ca/en/",
+      "status": 200,
+      "final_url": "https://careers.intactfc.com/"
+    },
+    {
+      "company": "Wealthsimple",
+      "url": "https://www.wealthsimple.com/en-ca/press",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Clio",
+      "url": "https://www.clio.com/about/careers/",
+      "status": "failure",
+      "detail": "HTTP Error 403: Forbidden"
+    },
+    {
+      "company": "Clio",
+      "url": "https://clio.wd3.myworkdayjobs.com/Clio",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Lightspeed",
+      "url": "https://boards-api.greenhouse.io/v1/boards/lightspeedhq/jobs?content=true",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Lightspeed",
+      "url": "https://www.lightspeedhq.com/careers/",
+      "status": 200
+    },
+    {
+      "company": "Jobber",
+      "url": "https://www.getjobber.com/jobs/",
+      "status": "failure",
+      "detail": "HTTP Error 403: Forbidden"
+    },
+    {
+      "company": "Jobber",
+      "url": "https://boards-api.greenhouse.io/v1/boards/getjobber/jobs?content=true",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "StackAdapt",
+      "url": "https://boards-api.greenhouse.io/v1/boards/stackadapt/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "StackAdapt",
+      "url": "https://www.stackadapt.com/careers",
+      "status": 200
+    },
+    {
+      "company": "Shopify",
+      "url": "https://www.shopify.com/careers",
+      "status": 200
+    },
+    {
+      "company": "Shopify",
+      "url": "https://www.shopify.com/brand-assets",
+      "status": 200
+    },
+    {
+      "company": "Super.com",
+      "url": "https://api.lever.co/v0/postings/super?mode=json",
+      "status": 200
+    },
+    {
+      "company": "Super.com",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/super.com",
+      "status": 200
+    },
+    {
+      "company": "KOHO",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/koho",
+      "status": 200
+    },
+    {
+      "company": "BenchSci",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/benchsci",
+      "status": 200
+    },
+    {
+      "company": "Autodesk",
+      "url": "https://autodesk.wd1.myworkdayjobs.com/en-US/Ext",
+      "status": 200
+    },
+    {
+      "company": "Autodesk",
+      "url": "https://www.autodesk.com/company/newsroom",
+      "status": "failure",
+      "detail": "HTTP Error 403: Forbidden"
+    },
+    {
+      "company": "Preply",
+      "url": "https://boards-api.greenhouse.io/v1/boards/preply/jobs?content=true",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Preply",
+      "url": "https://preply.com/en/press",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Pager",
+      "url": "https://boards-api.greenhouse.io/v1/boards/pager/jobs?content=true",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Pager",
+      "url": "https://www.pager.com/",
+      "status": 200,
+      "final_url": "https://www.pagerhealth.com/"
+    },
+    {
+      "company": "Capco",
+      "url": "https://boards-api.greenhouse.io/v1/boards/capco/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "Capco",
+      "url": "https://www.capco.com/about-us/news",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Capco",
+      "url": "https://www.capco.com/",
+      "status": 200
+    },
+    {
+      "company": "Morningstar",
+      "url": "https://morningstar.wd5.myworkdayjobs.com/en-US/morningstar",
+      "status": 200
+    },
+    {
+      "company": "Morningstar",
+      "url": "https://www.morningstar.com/company",
+      "status": 202
+    },
+    {
+      "company": "Intuit",
+      "url": "https://jobs.intuit.com/location/toronto-jobs/27595/6251999-6093943-6167865/4",
+      "status": 200
+    },
+    {
+      "company": "Intuit",
+      "url": "https://jobs.intuit.com/search-jobs/Toronto",
+      "status": 200
+    },
+    {
+      "company": "Intuit",
+      "url": "https://jobs.intuit.com/job/toronto/software-developer-1-dgx/27595/102941609712",
+      "status": 200
+    },
+    {
+      "company": "Intuit",
+      "url": "https://www.intuit.com/company/press-room/",
+      "status": 200
+    },
+    {
+      "company": "RBC",
+      "url": "https://jobs.rbc.com/ca/en/job/R-0000192148/Senior-Full-Stack-Developer",
+      "status": 200
+    },
+    {
+      "company": "RBC",
+      "url": "https://jobs.rbc.com/ca/en/job/RBCAA0088R0000190997EXTERNALENCA/Lead-Full-Stack-Engineer",
+      "status": 200
+    },
+    {
+      "company": "iCapital",
+      "url": "https://boards-api.greenhouse.io/v1/boards/icapitalnetwork/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "iCapital",
+      "url": "https://icapital.com/newsroom/",
+      "status": "failure",
+      "detail": "HTTP Error 403: Forbidden"
+    },
+    {
+      "company": "Bankjoy",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/bankjoy",
+      "status": 200
+    },
+    {
+      "company": "Bankjoy",
+      "url": "https://www.bankjoy.com/",
+      "status": 200
+    },
+    {
+      "company": "Sanofi",
+      "url": "https://sanofi.wd3.myworkdayjobs.com/en-US/SanofiCareers",
+      "status": 200
+    },
+    {
+      "company": "Sanofi",
+      "url": "https://www.sanofi.com/en/media-room",
+      "status": 200
+    },
+    {
+      "company": "SimCorp",
+      "url": "https://simcorp.wd3.myworkdayjobs.com/en-US/SimCorp_Jobs",
+      "status": 200
+    },
+    {
+      "company": "SimCorp",
+      "url": "https://www.simcorp.com/en/company/news",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Gigi",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/gigi",
+      "status": 200
+    },
+    {
+      "company": "Gigi",
+      "url": "https://gigi.ai/",
+      "status": 200
+    },
+    {
+      "company": "Nexxa",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/nexxa",
+      "status": 200
+    },
+    {
+      "company": "Nexxa",
+      "url": "https://nexxa.ai/",
+      "status": 200
+    },
+    {
+      "company": "Intuit",
+      "url": "https://jobs.intuit.com/job/toronto/software-developer-1-api-management-platform/27595/102521440064",
+      "status": 200
+    },
+    {
+      "company": "Intuit",
+      "url": "https://jobs.intuit.com/job/toronto/software-developer-1/27595/102521439744",
+      "status": 200
+    },
+    {
+      "company": "Intuit",
+      "url": "https://jobs.intuit.com/job/toronto/senior-software-developer-full-stack/27595/102162337168",
+      "status": 200
+    },
+    {
+      "company": "Intuit",
+      "url": "https://jobs.intuit.com/job/toronto/senior-developer-marketing-ai-development-lead-gbsg-canada/27595/100450677008",
+      "status": 200
+    },
+    {
+      "company": "Braze",
+      "url": "https://boards-api.greenhouse.io/v1/boards/braze/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "Braze",
+      "url": "https://www.braze.com/company/newsroom",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Braze",
+      "url": "https://www.braze.com/",
+      "status": 200
+    },
+    {
+      "company": "Braze",
+      "url": "https://www.braze.com/company/press",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Homebase",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/homebase",
+      "status": 200
+    },
+    {
+      "company": "Homebase",
+      "url": "https://joinhomebase.com/press/",
+      "status": 200,
+      "final_url": "https://www.joinhomebase.com/press"
+    },
+    {
+      "company": "Homebase",
+      "url": "https://joinhomebase.com/",
+      "status": 200,
+      "final_url": "https://www.joinhomebase.com/"
+    },
+    {
+      "company": "Relay",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/relayfi",
+      "status": 200
+    },
+    {
+      "company": "Relay",
+      "url": "https://relayfi.com/about/",
+      "status": 200
+    },
+    {
+      "company": "Relay",
+      "url": "https://relayfi.com/",
+      "status": 200
+    },
+    {
+      "company": "Scribd",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/ScribdInc",
+      "status": 200
+    },
+    {
+      "company": "Scribd",
+      "url": "https://www.scribd.com/about/press",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Emburse",
+      "url": "https://api.lever.co/v0/postings/emburse?mode=json",
+      "status": 200
+    },
+    {
+      "company": "Emburse",
+      "url": "https://www.emburse.com/newsroom",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Mecka",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/mecka.ai",
+      "status": 200
+    },
+    {
+      "company": "Mecka",
+      "url": "https://www.mecka.ai/",
+      "status": 200
+    },
+    {
+      "company": "Strada",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/stradahq",
+      "status": 200
+    },
+    {
+      "company": "Strada",
+      "url": "https://www.strada.ai/",
+      "status": 200
+    },
+    {
+      "company": "Index Exchange",
+      "url": "https://boards-api.greenhouse.io/v1/boards/indexexchange/jobs?content=true",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Index Exchange",
+      "url": "https://www.indexexchange.com/news/",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "The Trade Desk",
+      "url": "https://boards-api.greenhouse.io/v1/boards/thetradedesk/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "The Trade Desk",
+      "url": "https://www.thetradedesk.com/us/about-us",
+      "status": 200,
+      "final_url": "https://www.thetradedesk.com/about-us"
+    },
+    {
+      "company": "Sentry",
+      "url": "https://boards-api.greenhouse.io/v1/boards/sentry/jobs?content=true",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Sentry",
+      "url": "https://sentry.io/branding/",
+      "status": 200
+    },
+    {
+      "company": "Samsara",
+      "url": "https://boards-api.greenhouse.io/v1/boards/samsara/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "Samsara",
+      "url": "https://www.samsara.com/company/newsroom/",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Braze",
+      "url": "https://investors.braze.com/overview/default.aspx",
+      "status": "failure",
+      "detail": "HTTP Error 403: Forbidden"
+    },
+    {
+      "company": "Braze",
+      "url": "https://investors.braze.com/",
+      "status": "failure",
+      "detail": "HTTP Error 403: Forbidden"
+    },
+    {
+      "company": "Braze",
+      "url": "https://www.braze.com/company",
+      "status": 200
+    },
+    {
+      "company": "Braze",
+      "url": "https://www.braze.com/company/careers",
+      "status": 200
+    },
+    {
+      "company": "Braze",
+      "url": "https://www.braze.com/docs/",
+      "status": 200,
+      "final_url": "https://www.braze.com/docs"
+    },
+    {
+      "company": "Braze",
+      "url": "https://www.braze.com/resources/articles/unveiling-our-new-brand-a-conversation-with-braze-executive-creative-director-greg-erdelyi",
+      "status": 200
+    },
+    {
+      "company": "Braze",
+      "url": "https://www.braze.com/brand",
+      "status": 200
+    },
+    {
+      "company": "Cohere",
+      "url": "https://jobs.ashbyhq.com/cohere/7133d205-5421-4336-a8e2-6037b5f55073",
+      "status": 200
+    },
+    {
+      "company": "Cohere",
+      "url": "https://jobs.ashbyhq.com/cohere/7e0e08ed-4b12-4aaa-8dda-ad6292992061",
+      "status": 200
+    },
+    {
+      "company": "Cohere",
+      "url": "https://jobs.ashbyhq.com/cohere/4232d337-fbc7-4e8c-81d5-2903ab0eb6e8",
+      "status": 200
+    },
+    {
+      "company": "Feathery",
+      "url": "https://jobs.ashbyhq.com/feathery/d783ea74-34f5-4cb6-aedb-c6b87c617131",
+      "status": 200
+    },
+    {
+      "company": "Feathery",
+      "url": "https://jobs.ashbyhq.com/feathery/0edfe489-b0ad-4e5a-a948-063cd447e4a0",
+      "status": 200
+    },
+    {
+      "company": "Feathery",
+      "url": "https://jobs.ashbyhq.com/feathery/0705cc73-88ac-4cfd-ba64-d80b1359e345",
+      "status": 200
+    },
+    {
+      "company": "Braze",
+      "url": "https://job-boards.greenhouse.io/braze/jobs/8249765",
+      "status": 200
+    },
+    {
+      "company": "Braze",
+      "url": "https://boards-api.greenhouse.io/v1/boards/braze/jobs/8249765",
+      "status": 200
+    },
+    {
+      "company": "Braze",
+      "url": "https://job-boards.greenhouse.io/braze/jobs/8226558",
+      "status": 200
+    },
+    {
+      "company": "Braze",
+      "url": "https://boards-api.greenhouse.io/v1/boards/braze/jobs/8226558",
+      "status": 200
+    },
+    {
+      "company": "Braze",
+      "url": "https://job-boards.greenhouse.io/braze/jobs/8222294",
+      "status": 200
+    },
+    {
+      "company": "Braze",
+      "url": "https://boards-api.greenhouse.io/v1/boards/braze/jobs/8222294",
+      "status": 200
+    },
+    {
+      "company": "Braze",
+      "url": "https://job-boards.greenhouse.io/braze/jobs/8262966",
+      "status": 200
+    },
+    {
+      "company": "Braze",
+      "url": "https://boards-api.greenhouse.io/v1/boards/braze/jobs/8262966",
+      "status": 200
+    }
+  ]
+}

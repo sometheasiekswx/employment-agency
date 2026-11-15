@@ -1,0 +1,359 @@
+{
+  "checked_at": "2026-11-15T10:48:50.844181+00:00",
+  "companies": [
+    {
+      "name": "Bloomberg",
+      "city": "New York",
+      "careers_url": "https://bloomberg.avature.net/careers/",
+      "logo": {
+        "status": "verified",
+        "page_url": "https://www.bloomberg.com/company/",
+        "url": "https://www.bloomberg.com/company/content/themes/company2019/public/assets/logo.svg",
+        "final_url": "https://www.bloomberg.com/company/content/themes/company2019/public/assets/logo.svg",
+        "selection": false,
+        "sha256": "baa9fe7719df272badfc011a7aab58cf596d5c22037bd72d149ddcd9dcd7c653",
+        "expected_sha256": "baa9fe7719df272badfc011a7aab58cf596d5c22037bd72d149ddcd9dcd7c653",
+        "evidence": "Bloomberg publishes this official company mark on its own website.",
+        "checked_at": "2026-11-15T10:47:20.347904+00:00",
+        "local_path": "tasks/public-demo-logos-activity/research/americas/logos/bloomberg.png",
+        "dimensions": [
+          124,
+          26
+        ]
+      },
+      "jobs": [
+        {
+          "id": "6aeeed168caddb141f6acd05",
+          "title": "Senior Software Engineer - Data and Platform Tools - Bloomberg Connects",
+          "employer": "Bloomberg",
+          "city": "New York",
+          "location": "New York, United States",
+          "url": "https://bloomberg.avature.net/careers/JobDetail/Senior-Software-Engineer-Data-and-Platform-Tools-Bloomberg-Connects/45014",
+          "careers_url": "https://bloomberg.avature.net/careers/",
+          "source": "official:bloomberg",
+          "source_url": "https://bloomberg.avature.net/careers/JobDetail/Senior-Software-Engineer-Data-and-Platform-Tools-Bloomberg-Connects/45014",
+          "requisition": "10054281",
+          "description": "Build distributed platform services, deployment pipelines and tools supporting the Bloomberg Connects product.",
+          "requirements": [
+            "5+ years designing, developing and releasing software in Python, C++, C# and/or TypeScript/JavaScript",
+            "Computer science or related degree, or equivalent experience"
+          ],
+          "fit_rationale": "Confirmed Python, TypeScript and CI/CD plus cloud product and API delivery align with the platform tooling role. The advert accepts these languages and lists specialised AI and search systems as desirable.",
+          "evidence": "Bloomberg publishes requisition 10054281 on its official careers channel and names the advertised location as New York, United States.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown"
+        },
+        {
+          "id": "33606f2a57b28d0c7ff7afe6",
+          "title": "Senior Software Engineer - Media API Platform",
+          "employer": "Bloomberg",
+          "city": "New York",
+          "location": "New York, United States",
+          "url": "https://bloomberg.avature.net/careers/JobDetail/Senior-Software-Engineer-Media-API-Platform/45685",
+          "careers_url": "https://bloomberg.avature.net/careers/",
+          "source": "official:bloomberg",
+          "source_url": "https://bloomberg.avature.net/careers/JobDetail/Senior-Software-Engineer-Media-API-Platform/45685",
+          "requisition": "10054574",
+          "description": "Build backend APIs, GraphQL platform tooling, identity integrations and developer workflows for Bloomberg Media.",
+          "requirements": [
+            "5+ years building and running production backend services",
+            "Expertise in JavaScript/TypeScript (Node), Java, Kotlin or Python",
+            "Distributed systems concepts and production debugging",
+            "Current use of AI-assisted engineering tools",
+            "Cross-team collaboration, automated testing, CI/CD and mentoring"
+          ],
+          "fit_rationale": "Confirmed TypeScript, Express.js and OAuth2 plus API development, authentication, CI/CD and technical guidance align with the backend platform work. GraphQL is optional; prior Bloomberg-scale operation is not claimed.",
+          "evidence": "Bloomberg publishes requisition 10054574 on its official careers channel and names the advertised location as New York, United States.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown"
+        },
+        {
+          "id": "a7c158aff67945de7b843e03",
+          "title": "Senior Software Engineer - Analytics Platform",
+          "employer": "Bloomberg",
+          "city": "New York",
+          "location": "New York, United States",
+          "url": "https://bloomberg.avature.net/careers/JobDetail/Senior-Software-Engineer-Analytics-Platform/21026",
+          "careers_url": "https://bloomberg.avature.net/careers/",
+          "source": "official:bloomberg",
+          "source_url": "https://bloomberg.avature.net/careers/JobDetail/Senior-Software-Engineer-Analytics-Platform/21026",
+          "requisition": "10052820",
+          "description": "Design microservices, APIs and developer tooling for Bloomberg analytics infrastructure.",
+          "requirements": [
+            "4+ years of software engineering; modern C++ or Python preferred",
+            "System design, object-oriented design, data structures and algorithms",
+            "Production data infrastructure or distributed service experience",
+            "Related technical degree or equivalent experience"
+          ],
+          "fit_rationale": "The public résumé documents Python data ingestion, APIs, a monolith-to-microservices migration and software architecture work. These support the analytics platform scope; specialist Arrow, Kafka and Linux performance work is optional.",
+          "evidence": "Bloomberg publishes requisition 10052820 on its official careers channel and names the advertised location as New York, United States.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown"
+        }
+      ],
+      "picks": [
+        {
+          "job_id": "6aeeed168caddb141f6acd05",
+          "reason": "Confirmed Python, TypeScript and CI/CD plus cloud product and API delivery align with the platform tooling role. The advert accepts these languages and lists specialised AI and search systems as desirable.",
+          "fact_ids": [
+            "ce3737d14c22431c2f3c0d19067d52a3",
+            "3b66e05b56c2d09ca02852719fc4b4bc",
+            "1fbbf838939b2db64d80606aec6c15eb"
+          ]
+        },
+        {
+          "job_id": "33606f2a57b28d0c7ff7afe6",
+          "reason": "Confirmed TypeScript, Express.js and OAuth2 plus API development, authentication, CI/CD and technical guidance align with the backend platform work. GraphQL is optional; prior Bloomberg-scale operation is not claimed.",
+          "fact_ids": [
+            "3b66e05b56c2d09ca02852719fc4b4bc",
+            "f8cb45f384063f6670a007b30b1d95a5",
+            "3048a991068b640797597ac317697949"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Oscar Health",
+      "city": "New York",
+      "careers_url": "https://www.hioscar.com/careers",
+      "logo": {
+        "status": "verified",
+        "page_url": "https://oscarhealth.com/news",
+        "url": "https://oscarhealth.com/logos/logo_black_header.svg",
+        "final_url": "https://oscarhealth.com/logos/logo_black_header.svg",
+        "selection": false,
+        "sha256": "3b0d2dd000092cb4ef483ab8717e2a7981d588d6247d375931f4316f5c63078a",
+        "expected_sha256": "3b0d2dd000092cb4ef483ab8717e2a7981d588d6247d375931f4316f5c63078a",
+        "evidence": "Oscar Health publishes this official company mark on its own website.",
+        "checked_at": "2026-11-15T10:47:22.116498+00:00",
+        "local_path": "tasks/public-demo-logos-activity/research/americas/logos/oscar-health.png",
+        "dimensions": [
+          169,
+          24
+        ]
+      },
+      "jobs": [
+        {
+          "id": "0041a5fcde5badccdb75a36e",
+          "title": "Senior Software Engineer, Fullstack",
+          "employer": "Oscar Health",
+          "city": "New York",
+          "location": "New York, New York, United States",
+          "url": "https://oscarhealth.com/careers/jobs?gh_jid=6836361",
+          "careers_url": "https://www.hioscar.com/careers",
+          "source": "greenhouse:oscar",
+          "source_url": "https://oscarhealth.com/careers/jobs?gh_jid=6836361",
+          "requisition": "ENG EVERGREEN 006",
+          "description": "Build full-stack consumer healthcare software, work across engineering and product, and improve production quality.",
+          "requirements": [
+            "5+ years of professional software engineering with multiple technologies",
+            "Practical computer science, reliable modular code and collaborative problem solving",
+            "TypeScript, JavaScript, Python or Go expertise is a bonus"
+          ],
+          "fit_rationale": "Confirmed TypeScript, Next.js and Python and the public résumé’s React SaaS, APIs and end-to-end product delivery match the full-stack scope and five-year software threshold.",
+          "evidence": "Oscar Health publishes requisition ENG EVERGREEN 006 on its official careers channel and names the advertised location as New York, New York, United States.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown"
+        },
+        {
+          "id": "a082f162fcc7655e67b073e8",
+          "title": "Senior Software Engineer, Backend",
+          "employer": "Oscar Health",
+          "city": "New York",
+          "location": "New York, New York, United States",
+          "url": "https://oscarhealth.com/careers/jobs?gh_jid=6546196",
+          "careers_url": "https://www.hioscar.com/careers",
+          "source": "greenhouse:oscar",
+          "source_url": "https://oscarhealth.com/careers/jobs?gh_jid=6546196",
+          "requisition": "ENG EVERGREEN 001",
+          "description": "Develop reliable backend software, data tools and foundational services for the healthcare platform.",
+          "requirements": [
+            "5+ years of professional software engineering with multiple technologies",
+            "Practical computer science, reliable modular code and collaborative problem solving",
+            "Python, Go and specialist observability tooling are bonus backgrounds"
+          ],
+          "fit_rationale": "Confirmed Python, SQL/NoSQL and CI/CD plus API, authentication and microservice work align with backend engineering. Healthcare experience and specialist observability tools are not mandatory.",
+          "evidence": "Oscar Health publishes requisition ENG EVERGREEN 001 on its official careers channel and names the advertised location as New York, New York, United States.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown"
+        },
+        {
+          "id": "2ee1b476d00c40cb9fdf8fc2",
+          "title": "Operations Engineer I",
+          "employer": "Oscar Health",
+          "city": "New York",
+          "location": "New York, New York, United States",
+          "url": "https://oscarhealth.com/careers/jobs?gh_jid=8301410",
+          "careers_url": "https://www.hioscar.com/careers",
+          "source": "greenhouse:oscar",
+          "source_url": "https://oscarhealth.com/careers/jobs?gh_jid=8301410",
+          "requisition": "R0009187",
+          "description": "Build and maintain technical solutions, workflows and data-quality automation for eligibility and billing operations.",
+          "requirements": [
+            "Technical bachelor’s degree or four years equivalent experience",
+            "3+ years in a technical role",
+            "1+ years of SQL",
+            "1+ years of Python or a similar language such as C#",
+            "Hybrid New York office attendance and on-call support"
+          ],
+          "fit_rationale": "The public résumé’s business systems work, Python data ingestion, databases and stakeholder-led delivery align with operational automation. This is a software and data implementation role with a lower seniority level than the senior openings.",
+          "evidence": "Oscar Health publishes requisition R0009187 on its official careers channel and names the advertised location as New York, New York, United States.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown"
+        }
+      ],
+      "picks": [
+        {
+          "job_id": "0041a5fcde5badccdb75a36e",
+          "reason": "Confirmed TypeScript, Next.js and Python and the public résumé’s React SaaS, APIs and end-to-end product delivery match the full-stack scope and five-year software threshold.",
+          "fact_ids": [
+            "3b66e05b56c2d09ca02852719fc4b4bc",
+            "60e7c079348914b505360dc1f0dedf7a",
+            "ce3737d14c22431c2f3c0d19067d52a3"
+          ]
+        },
+        {
+          "job_id": "a082f162fcc7655e67b073e8",
+          "reason": "Confirmed Python, SQL/NoSQL and CI/CD plus API, authentication and microservice work align with backend engineering. Healthcare experience and specialist observability tools are not mandatory.",
+          "fact_ids": [
+            "ce3737d14c22431c2f3c0d19067d52a3",
+            "d7629711b68661baaf1fbb1792c0fb8a",
+            "1fbbf838939b2db64d80606aec6c15eb"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "The New York Times",
+      "city": "New York",
+      "careers_url": "https://www.nytco.com/careers/",
+      "logo": {
+        "status": "verified",
+        "page_url": "https://www.nytco.com/press/",
+        "url": "https://www.nytco.com/app/themes/nytco/resources/images/t-black.png",
+        "final_url": "https://www.nytco.com/app/themes/nytco/resources/images/t-black.png",
+        "selection": true,
+        "sha256": "c5b8e630223995ac067ab6477e081f53fc06ea0cd12d224a2dd34f82c67532dd",
+        "expected_sha256": "c5b8e630223995ac067ab6477e081f53fc06ea0cd12d224a2dd34f82c67532dd",
+        "evidence": "The New York Times Company press page displays its official Times T mark as the image for newsroom announcements.",
+        "checked_at": "2026-11-15T10:47:22.480003+00:00",
+        "local_path": "tasks/public-demo-logos-activity/research/americas/logos/the-new-york-times.png",
+        "dimensions": [
+          192,
+          192
+        ]
+      },
+      "jobs": [
+        {
+          "id": "72bf0b367a569baf72f33ef0",
+          "title": "Front-End Web Engineer - T Brand",
+          "employer": "The New York Times",
+          "city": "New York",
+          "location": "New York, NY",
+          "url": "https://job-boards.greenhouse.io/thenewyorktimes/jobs/4744538005",
+          "careers_url": "https://www.nytco.com/careers/",
+          "source": "greenhouse:thenewyorktimes",
+          "source_url": "https://job-boards.greenhouse.io/thenewyorktimes/jobs/4744538005",
+          "requisition": "REQ-020762",
+          "description": "Build responsive, accessible branded editorial web experiences with designers and project managers.",
+          "requirements": [
+            "2+ years of frontend web development",
+            "HTML, CSS/SASS, JavaScript and basic TypeScript",
+            "Familiarity with or willingness to learn Astro and Svelte",
+            "Responsive design, accessibility, Git and debugging",
+            "A digital portfolio is required"
+          ],
+          "fit_rationale": "Confirmed TypeScript and the public résumé’s React interfaces, interactive Three.js web work and responsive product delivery match this frontend scope. Astro and Svelte can be learned; portfolio evidence is required.",
+          "evidence": "The New York Times publishes requisition REQ-020762 on its official careers channel and names the advertised location as New York, NY.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown"
+        },
+        {
+          "id": "a2b0696d97814b7683d7c961",
+          "title": "Senior Engineer, Developer Platforms and Generative AI",
+          "employer": "The New York Times",
+          "city": "New York",
+          "location": "New York, NY",
+          "url": "https://job-boards.greenhouse.io/thenewyorktimes/jobs/4696589005",
+          "careers_url": "https://www.nytco.com/careers/",
+          "source": "greenhouse:thenewyorktimes",
+          "source_url": "https://job-boards.greenhouse.io/thenewyorktimes/jobs/4696589005",
+          "requisition": "REQ-020128",
+          "description": "Improve internal developer workflows, documentation and cloud platform capabilities with AI-assisted tooling.",
+          "requirements": [
+            "5+ years of professional software engineering",
+            "2+ years improving developer experience through workflows, documentation or internal platform capabilities",
+            "Designing and building cloud-native applications; the team uses Go",
+            "Hands-on use of generative AI coding tools",
+            "Limited on-call work"
+          ],
+          "fit_rationale": "Confirmed AWS and CI/CD plus pipeline automation, software delivery guidance and current AI coding-tool use align with developer platforms. Go is the team’s language; the advert does not require prior Go tenure.",
+          "evidence": "The New York Times publishes requisition REQ-020128 on its official careers channel and names the advertised location as New York, NY.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown"
+        },
+        {
+          "id": "71b347f3ffdb6d0d3e6ab499",
+          "title": "Graphics/Multimedia Editor, Elections Data Developer (Election Analytics)",
+          "employer": "The New York Times",
+          "city": "New York",
+          "location": "New York, NY; Washington, DC",
+          "url": "https://job-boards.greenhouse.io/thenewyorktimes/jobs/4706625005",
+          "careers_url": "https://www.nytco.com/careers/",
+          "source": "greenhouse:thenewyorktimes",
+          "source_url": "https://job-boards.greenhouse.io/thenewyorktimes/jobs/4706625005",
+          "requisition": "REQ-020250",
+          "description": "Develop, clean and manage election data, ingestion pipelines, test datasets and observability tools. The team maintains R libraries and provides election-night coverage.",
+          "requirements": [
+            "3+ years of relevant experience",
+            "Familiarity with large datasets and data management",
+            "Data-oriented programming languages such as R or Python",
+            "Cloud providers such as Google Cloud or AWS",
+            "Collaboration and flexibility for election coverage",
+            "In-office New York or Washington attendance four days weekly"
+          ],
+          "fit_rationale": "Confirmed Python, SQL and AWS plus public data ingestion, sanitisation, visualisation and operational cloud software support this data-development scope. The advert accepts Python; prior R or election-domain expertise is not claimed.",
+          "evidence": "The New York Times publishes requisition REQ-020250 on its official employer board, advertising New York, NY and Washington, DC.",
+          "checked_at": "2026-11-15T10:48:50.844181+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown"
+        }
+      ],
+      "picks": [
+        {
+          "job_id": "72bf0b367a569baf72f33ef0",
+          "reason": "Confirmed TypeScript and the public résumé’s React interfaces, interactive Three.js web work and responsive product delivery match this frontend scope. Astro and Svelte can be learned; portfolio evidence is required.",
+          "fact_ids": [
+            "3b66e05b56c2d09ca02852719fc4b4bc",
+            "60e7c079348914b505360dc1f0dedf7a"
+          ]
+        },
+        {
+          "job_id": "a2b0696d97814b7683d7c961",
+          "reason": "Confirmed AWS and CI/CD plus pipeline automation, software delivery guidance and current AI coding-tool use align with developer platforms. Go is the team’s language; the advert does not require prior Go tenure.",
+          "fact_ids": [
+            "a383674d908eade31aef1db6ada4e12a",
+            "1fbbf838939b2db64d80606aec6c15eb"
+          ]
+        }
+      ]
+    }
+  ]
+}

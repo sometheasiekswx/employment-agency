@@ -1,0 +1,131 @@
+{
+  "job": {
+    "availability": "retrieved",
+    "careers_url": "https://www.civica.com/en-au/careers/",
+    "checked_at": "2026-11-15T11:04:16+00:00",
+    "closes": "",
+    "description": "Lead a team of four to six engineers while contributing hands-on to customer-facing software. Guide Agile delivery, systems design, quality, team development and roadmap decisions.",
+    "eligibility": "unknown",
+    "email": "",
+    "employer": "Civica",
+    "expectation": {
+      "basis": "",
+      "confidence": "",
+      "source": "",
+      "target": ""
+    },
+    "id": "fc3eaac1cdbeb94dda2a8405",
+    "location": "Melbourne, Victoria, Australia; Sydney, New South Wales, Australia",
+    "posted_at": "2026-10-27",
+    "prior_application": "none",
+    "reposted_at": "",
+    "requirements": [
+      "Five to eight years in software engineering, including at least about two years leading engineers",
+      "Hands-on back-end and front-end work, system design, automated testing and Agile/Scrum",
+      "Cloud SaaS experience on AWS, Azure or comparable platforms",
+      "Web and API development and working knowledge of DevOps, reliability and delivery lifecycle",
+      "Coaching, prioritisation and stakeholder management"
+    ],
+    "salary": {
+      "basis": "",
+      "currency": "",
+      "max": 0.0,
+      "min": 0.0,
+      "period": ""
+    },
+    "saved": false,
+    "seniority": "",
+    "source": "reviewed:civica",
+    "sponsorship": "unknown",
+    "title": "Engineering Manager - Technology",
+    "url": "https://apply.workable.com/civica-uk-ltd-1/j/E3D1D150F5",
+    "work_arrangement": "Hybrid",
+    "hiring_employer_verified": true,
+    "company": {
+      "id": "d45844f7b05f4239a2a4d7de8eb63b55",
+      "name": "Civica",
+      "vacancy_id": "24a2d9e6dc104a819a923994f710db4c",
+      "submitted_vacancy": false,
+      "remaining": 2,
+      "cooling": false,
+      "cooldown_until": null,
+      "cooldown_time_assumed": false,
+      "overflow": false,
+      "review_needed": false,
+      "pending_only_count": 0
+    }
+  },
+  "facts": [
+    {
+      "association": "",
+      "category": "skill",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "",
+      "id": "0f4239bdd598443f876d71ac77567bde",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.405897+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Agile",
+      "updated_at": "2026-11-15T11:12:24.405894+00:00"
+    }
+  ],
+  "matching": {
+    "hard_conflicts": [],
+    "unknowns": [
+      "Work rights / sponsorship need confirmation"
+    ],
+    "preferences": [],
+    "evidence": [
+      {
+        "requirement": "Five to eight years in software engineering, including at least about two years leading engineers",
+        "fact_ids": [],
+        "assessment": "No confirmed evidence"
+      },
+      {
+        "requirement": "Hands-on back-end and front-end work, system design, automated testing and Agile/Scrum",
+        "fact_ids": [],
+        "assessment": "No confirmed evidence"
+      },
+      {
+        "requirement": "Cloud SaaS experience on AWS, Azure or comparable platforms",
+        "fact_ids": [],
+        "assessment": "No confirmed evidence"
+      },
+      {
+        "requirement": "Web and API development and working knowledge of DevOps, reliability and delivery lifecycle",
+        "fact_ids": [],
+        "assessment": "No confirmed evidence"
+      },
+      {
+        "requirement": "Coaching, prioritisation and stakeholder management",
+        "fact_ids": [],
+        "assessment": "No confirmed evidence"
+      }
+    ],
+    "gaps": [
+      "Five to eight years in software engineering, including at least about two years leading engineers",
+      "Hands-on back-end and front-end work, system design, automated testing and Agile/Scrum",
+      "Cloud SaaS experience on AWS, Azure or comparable platforms",
+      "Web and API development and working knowledge of DevOps, reliability and delivery lifecycle",
+      "Coaching, prioritisation and stakeholder management"
+    ],
+    "stretch": true,
+    "eligible_for_preparation": true,
+    "fact_ids": [
+      "0f4239bdd598443f876d71ac77567bde"
+    ],
+    "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+    "salary_expectation": {
+      "target": "Unresolved — request the employer band or add comparable local salary evidence",
+      "basis": "No comparable gross-base band is available; no precise expectation invented.",
+      "source": "https://apply.workable.com/civica-uk-ltd-1/j/E3D1D150F5",
+      "confidence": "low"
+    }
+  },
+  "template": "plain",
+  "notice": "User review required. No ATS guarantee."
+}

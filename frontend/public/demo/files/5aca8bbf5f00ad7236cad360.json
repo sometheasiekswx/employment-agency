@@ -1,0 +1,240 @@
+{
+  "job": {
+    "availability": "retrieved",
+    "careers_url": "https://linktr.ee/about/careers",
+    "checked_at": "2026-11-15T10:56:42+00:00",
+    "closes": "",
+    "description": "Build creator analytics from client instrumentation and event ingestion through aggregation, a GraphQL API and the insights interface. Extend social platform integrations and improve data quality and observability.",
+    "eligibility": "unknown",
+    "email": "",
+    "employer": "Linktree",
+    "expectation": {
+      "basis": "",
+      "confidence": "",
+      "source": "",
+      "target": ""
+    },
+    "id": "a41c52d6cecf3d30140aa0e5",
+    "location": "Melbourne, VIC; Sydney, NSW",
+    "posted_at": "2026-10-16",
+    "prior_application": "none",
+    "reposted_at": "",
+    "requirements": [
+      "4+ years of software engineering, ideally in product or analytics",
+      "Full-stack TypeScript, Node.js, React, GraphQL, PostgreSQL or MySQL, and AWS",
+      "Comfort with SQL, data models, event schemas and warehouses such as Snowflake or BigQuery",
+      "API and third-party service integration experience; social APIs preferred",
+      "Fluent use and validation of AI development assistants",
+      "Product measurement and collaboration with design and data teams"
+    ],
+    "salary": {
+      "basis": "",
+      "currency": "",
+      "max": 0.0,
+      "min": 0.0,
+      "period": ""
+    },
+    "saved": false,
+    "seniority": "",
+    "source": "reviewed:linktree",
+    "sponsorship": "unknown",
+    "title": "Senior Full Stack Engineer - Grow",
+    "url": "https://linktr.ee/about/careers/am9icG9zdDqG97W_jZjP6DoHssSq2te2",
+    "work_arrangement": "Hybrid or remote",
+    "hiring_employer_verified": true,
+    "company": {
+      "id": "a4175ae0f94f403a9cc4fec563da235b",
+      "name": "Linktree",
+      "vacancy_id": "3f2169ce605c4717ac51a382fffa05fd",
+      "submitted_vacancy": false,
+      "remaining": 2,
+      "cooling": false,
+      "cooldown_until": null,
+      "cooldown_time_assumed": false,
+      "overflow": false,
+      "review_needed": false,
+      "pending_only_count": 0
+    }
+  },
+  "facts": [
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "6e30d600d3e246e48f25df95f8658d11",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.360374+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used Python to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.360368+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "00fef0a3dd09482bbbf9c43d353ed29f",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.364636+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used AWS to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.364633+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "6796d665b1be4c88b7d668da2d390b57",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.368961+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used Terraform to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.368958+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "f5997418df9b4226ab97f13139c2ac3f",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.373576+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used PostgreSQL to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.373574+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "4c8072fd7b1442db8852db31a6d0cdf5",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.378470+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used React to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.378468+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "3bb8369ff3ed4fe99799acc322c82480",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.384200+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used TypeScript to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.384198+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "f9d1c553b77e44e3bf21573cade4e938",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.390109+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used CI/CD to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.390106+00:00"
+    }
+  ],
+  "matching": {
+    "hard_conflicts": [],
+    "unknowns": [
+      "Work rights / sponsorship need confirmation"
+    ],
+    "preferences": [],
+    "evidence": [
+      {
+        "requirement": "4+ years of software engineering, ideally in product or analytics",
+        "fact_ids": [],
+        "assessment": "No confirmed evidence"
+      },
+      {
+        "requirement": "Full-stack TypeScript, Node.js, React, GraphQL, PostgreSQL or MySQL, and AWS",
+        "fact_ids": [],
+        "assessment": "No confirmed evidence"
+      },
+      {
+        "requirement": "Comfort with SQL, data models, event schemas and warehouses such as Snowflake or BigQuery",
+        "fact_ids": [],
+        "assessment": "No confirmed evidence"
+      },
+      {
+        "requirement": "API and third-party service integration experience; social APIs preferred",
+        "fact_ids": [],
+        "assessment": "No confirmed evidence"
+      },
+      {
+        "requirement": "Fluent use and validation of AI development assistants",
+        "fact_ids": [],
+        "assessment": "No confirmed evidence"
+      },
+      {
+        "requirement": "Product measurement and collaboration with design and data teams",
+        "fact_ids": [],
+        "assessment": "No confirmed evidence"
+      }
+    ],
+    "gaps": [
+      "4+ years of software engineering, ideally in product or analytics",
+      "Full-stack TypeScript, Node.js, React, GraphQL, PostgreSQL or MySQL, and AWS",
+      "Comfort with SQL, data models, event schemas and warehouses such as Snowflake or BigQuery",
+      "API and third-party service integration experience; social APIs preferred",
+      "Fluent use and validation of AI development assistants",
+      "Product measurement and collaboration with design and data teams"
+    ],
+    "stretch": true,
+    "eligible_for_preparation": true,
+    "fact_ids": [
+      "6e30d600d3e246e48f25df95f8658d11",
+      "00fef0a3dd09482bbbf9c43d353ed29f",
+      "6796d665b1be4c88b7d668da2d390b57",
+      "f5997418df9b4226ab97f13139c2ac3f",
+      "4c8072fd7b1442db8852db31a6d0cdf5",
+      "3bb8369ff3ed4fe99799acc322c82480",
+      "f9d1c553b77e44e3bf21573cade4e938"
+    ],
+    "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+    "salary_expectation": {
+      "target": "Unresolved — request the employer band or add comparable local salary evidence",
+      "basis": "No comparable gross-base band is available; no precise expectation invented.",
+      "source": "https://linktr.ee/about/careers/am9icG9zdDqG97W_jZjP6DoHssSq2te2",
+      "confidence": "low"
+    }
+  },
+  "template": "plain",
+  "notice": "User review required. No ATS guarantee."
+}

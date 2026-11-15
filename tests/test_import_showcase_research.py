@@ -80,3 +80,44 @@ class ReviewedLogoImport(unittest.TestCase):
             self.assertEqual(rejected['page_url'], retry_page)
             self.assertFalse(target.exists())
             self.assertEqual(company_logo_assets.read(workspace.path, sha256), normalized)
+
+    def test_requires_three_new_employers_without_capping_reviewed_roles(self):
+        def company(name, total=3):
+            jobs = [{
+                'id': f'{name}-{number}', 'url': f'https://example.org/jobs/{name}/{number}',
+                'employer': name, 'city': 'London', 'location': 'London, United Kingdom',
+                'requisition': str(number), 'requirements': ['Python'], 'evidence': 'Official role',
+                'fit_rationale': 'The approved résumé documents Python development.',
+                'checked_at': '2026-11-15T00:00:00Z', 'availability': 'retrieved',
+                'eligibility': 'unknown',
+            } for number in range(total)]
+            picks = [{'job_id': job['id'], 'reason': job['fit_rationale'], 'fact_ids': ['python']}
+                     for job in jobs[:2]] if total > 2 else []
+            return {'name': name, 'jobs': jobs, 'picks': picks}
+
+        retained = company('Retained', 1)
+        research = [retained, company('First', 12), company('Second'), company('Third')]
+        previous = {'companies': [
+            {'name': 'Retained', 'logo': {'status': 'verified'}}, {'name': 'Excluded'},
+        ]}
+        gaps = [{'name': 'Excluded', 'attempts': [{
+            'page_url': 'https://excluded.example.org/brand', 'status': 'gap',
+            'detail': 'No explicit official mark matched the supported formats.',
+        }]}]
+        original, verified, coverage = importer.validate_research(research, gaps, previous, {'London'})
+        self.assertEqual(original, ['Retained', 'Excluded'])
+        self.assertEqual(verified, ['Retained'])
+        self.assertEqual(coverage, {'London': ['First', 'Second', 'Third']})
+        with self.assertRaisesRegex(ValueError, 'exactly three'):
+            importer.validate_research(research[:-1], gaps, previous, {'London'})
+        with self.assertRaisesRegex(ValueError, 'excluded baseline employers'):
+            importer.validate_research(research, [], previous, {'London'})
+        with self.assertRaisesRegex(ValueError, 'three credible local roles'):
+            importer.validate_research([*research[:-1], company('Third', 2)], gaps, previous, {'London'})
+        oversized = company('Third')
+        oversized['picks'][0]['reason'] = 'x' * 241
+        with self.assertRaisesRegex(ValueError, 'Invalid picks at Third'):
+            importer.validate_research([*research[:-1], oversized], gaps, previous, {'London'})
+        research[-1]['jobs'][-1]['fit_rationale'] = None
+        with self.assertRaisesRegex(ValueError, 'evidence of fit'):
+            importer.validate_research(research, gaps, previous, {'London'})

@@ -1,0 +1,219 @@
+{
+  "job": {
+    "availability": "retrieved",
+    "careers_url": "https://careers.tencent.com/en-us/jobopportunity.html",
+    "checked_at": "2026-11-15T11:01:34.172657+00:00",
+    "closes": "",
+    "description": "Build web services and tooling for automated testing and improving software delivery. This posting is published in Simplified Chinese. The posting does not state an explicit language or sponsorship condition. Language proficiency and work authorization remain unknown.",
+    "eligibility": "unknown",
+    "email": "",
+    "employer": "Tencent",
+    "expectation": {
+      "basis": "",
+      "confidence": "",
+      "source": "",
+      "target": ""
+    },
+    "id": "1fb1ebef0d9e513d0df10a1a",
+    "location": "Shenzhen, China",
+    "posted_at": "",
+    "prior_application": "none",
+    "reposted_at": "",
+    "requirements": [
+      "Computing degree; at least one year of engineering in the internet or fintech sector",
+      "Backend proficiency with Go, Python or Node.js",
+      "Awareness of LLM tools and hands-on experience or strong interest; automated test systems or developer tools preferred"
+    ],
+    "salary": {
+      "basis": "",
+      "currency": "",
+      "max": 0.0,
+      "min": 0.0,
+      "period": ""
+    },
+    "saved": false,
+    "seniority": "",
+    "source": "reviewed:tencent",
+    "sponsorship": "unknown",
+    "title": "Full Stack Engineer, Weixin Pay engineering quality tools",
+    "url": "https://careers.tencent.com/jobdesc.html?postId=2102665620272361472",
+    "work_arrangement": "",
+    "hiring_employer_verified": true,
+    "company": {
+      "id": "ec91172478064bb688d39c4248005c5f",
+      "name": "Tencent",
+      "vacancy_id": "8f3a924c75444c61ac0ff24c273ee872",
+      "submitted_vacancy": false,
+      "remaining": 2,
+      "cooling": false,
+      "cooldown_until": null,
+      "cooldown_time_assumed": false,
+      "overflow": false,
+      "review_needed": false,
+      "pending_only_count": 0
+    }
+  },
+  "facts": [
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "6e30d600d3e246e48f25df95f8658d11",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.360374+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used Python to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.360368+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "00fef0a3dd09482bbbf9c43d353ed29f",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.364636+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used AWS to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.364633+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "6796d665b1be4c88b7d668da2d390b57",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.368961+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used Terraform to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.368958+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "f5997418df9b4226ab97f13139c2ac3f",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.373576+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used PostgreSQL to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.373574+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "4c8072fd7b1442db8852db31a6d0cdf5",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.378470+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used React to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.378468+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "3bb8369ff3ed4fe99799acc322c82480",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.384200+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used TypeScript to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.384198+00:00"
+    },
+    {
+      "association": "Example Labs (fictional)",
+      "category": "experience",
+      "claim_key": "",
+      "confirmed": true,
+      "conflict": false,
+      "dates": "2022–2026",
+      "id": "f9d1c553b77e44e3bf21573cade4e938",
+      "retired": false,
+      "source": {
+        "at": "2026-11-15T11:12:24.390109+00:00",
+        "name": "User supplied note"
+      },
+      "text": "Used CI/CD to build and maintain software services.",
+      "updated_at": "2026-11-15T11:12:24.390106+00:00"
+    }
+  ],
+  "matching": {
+    "hard_conflicts": [],
+    "unknowns": [
+      "Work rights / sponsorship need confirmation"
+    ],
+    "preferences": [],
+    "evidence": [
+      {
+        "requirement": "Computing degree; at least one year of engineering in the internet or fintech sector",
+        "fact_ids": [],
+        "assessment": "No confirmed evidence"
+      },
+      {
+        "requirement": "Backend proficiency with Go, Python or Node.js",
+        "fact_ids": [],
+        "assessment": "No confirmed evidence"
+      },
+      {
+        "requirement": "Awareness of LLM tools and hands-on experience or strong interest; automated test systems or developer tools preferred",
+        "fact_ids": [],
+        "assessment": "No confirmed evidence"
+      }
+    ],
+    "gaps": [
+      "Computing degree; at least one year of engineering in the internet or fintech sector",
+      "Backend proficiency with Go, Python or Node.js",
+      "Awareness of LLM tools and hands-on experience or strong interest; automated test systems or developer tools preferred"
+    ],
+    "stretch": true,
+    "eligible_for_preparation": true,
+    "fact_ids": [
+      "6e30d600d3e246e48f25df95f8658d11",
+      "00fef0a3dd09482bbbf9c43d353ed29f",
+      "6796d665b1be4c88b7d668da2d390b57",
+      "f5997418df9b4226ab97f13139c2ac3f",
+      "4c8072fd7b1442db8852db31a6d0cdf5",
+      "3bb8369ff3ed4fe99799acc322c82480",
+      "f9d1c553b77e44e3bf21573cade4e938"
+    ],
+    "reason": "Lexical evidence is a starting point for human review, not proof of qualification.",
+    "salary_expectation": {
+      "target": "Unresolved — request the employer band or add comparable local salary evidence",
+      "basis": "No comparable gross-base band is available; no precise expectation invented.",
+      "source": "https://careers.tencent.com/jobdesc.html?postId=2102665620272361472",
+      "confidence": "low"
+    }
+  },
+  "template": "plain",
+  "notice": "User review required. No ATS guarantee."
+}

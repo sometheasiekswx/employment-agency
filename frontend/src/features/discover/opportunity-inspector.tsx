@@ -633,7 +633,7 @@ export function OpportunityInspector({
           employerName
         )}
       </strong>
-      <span className={`discover-status ${status.tone}`}>{status.label}</span>
+      {status && <span className={`discover-status ${status.tone}`}>{status.label}</span>}
     </div>
   );
   const roleHeading = (

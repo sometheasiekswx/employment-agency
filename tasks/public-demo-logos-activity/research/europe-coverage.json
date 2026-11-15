@@ -1,0 +1,2530 @@
+{
+  "checked_at": "2026-11-15",
+  "new_employers": {
+    "London": {
+      "Jane Street": 4,
+      "Palantir": 6,
+      "Lendable": 3
+    },
+    "Berlin": {
+      "Taktile": 3,
+      "Kombo": 3,
+      "Almedia": 4
+    }
+  },
+  "verification": "The 23 selected primary posting URLs returned HTTP 200 and displayed application content. Eight accepted logo files were read through the shared company-logo operation, decoded as PNG and independently checked against the verified SHA-256. The isolated public workspace contains the operation receipts.",
+  "scope_notes": [
+    "Vacancy and licence decisions remain with the user. Candidate work rights, location eligibility and sponsorship are unknown unless the employer explicitly supplies a term.",
+    "Each selected employer’s complete employer-board payload was screened for the target city and engineering scope. The checked source lists use published locations, including alternative cities where applicable.",
+    "Jane Street has a general evergreen Software Engineer listing (4274814002) and an additional internship listing with the same display title (8589868002). The more specific current non-internship listing (8647260002) represents this broad hiring route. Excluded compiler, hardware, IT operations and cyber vacancies have materially different specialist scopes.",
+    "Palantir’s undergraduate and government clearance-specific routes and specialist roles for Query Engines, Substrate, AI, and senior core infrastructure were excluded. The Forward Deployed Engineer feed lists a very old publisher date and remains accessible on the current employer and posting pages.",
+    "Lendable’s separately titled Senior Python Engineer (Full Stack) lists eight years and substantially overlaps its Senior Full Stack Engineer advert, so only the role without that explicit threshold is retained. Excluded Kotlin-specific, PHP 8/CQRS, dbt, and hands-on agent roles contain requirements unestablished by the public résumé.",
+    "Taktile advertises the two forward-deployed levels as separate openings with different requirements (2+ versus 4–6 years of engineering including customer-facing work). Its Platform full-stack opening specifically asks for five years building Python services. Atlas requires seven years, and Developer Experience asks for CI/CD and agent adoption at organisational scale. The Ops forward-deployed role asks for technical support to direct enterprise customers.",
+    "Kombo Developer Support Engineer is classified with Engineering and explicitly requires shipping production code, making direct fixes and writing features and tooling. Kombo Pre-Sales Engineer is a commercial position and is outside the cohort.",
+    "Almedia’s Junior DevOps-track and Data Engineering vacancies grant production ownership, name no experience ceiling and ask for demonstrated fundamentals. They remain junior in title and level. Its Senior Frontend opening explicitly requires seven or more React/TypeScript years. Its AI Full Stack role mandates experience building complex agentic systems. Its Senior Backend role specifies production experience with most of its stack, which the public résumé does not establish.",
+    "Other checked employer leads did not establish the combination of an eligible local set and an accepted official mark. The source inventory includes inaccessible brands, endpoints returning missing or empty boards, and companies screened out for seniority, specialist scope or geographic mismatch."
+  ],
+  "sources": [
+    {
+      "company": "Revolut",
+      "url": "https://www.revolut.com/careers/?location=London",
+      "status": "failure",
+      "detail": "HTTP Error 403: Forbidden"
+    },
+    {
+      "company": "Revolut",
+      "url": "https://www.revolut.com/news/",
+      "status": "failure",
+      "detail": "HTTP Error 403: Forbidden"
+    },
+    {
+      "company": "Revolut",
+      "url": "https://www.revolut.com/",
+      "status": "failure",
+      "detail": "HTTP Error 403: Forbidden"
+    },
+    {
+      "company": "Canonical",
+      "url": "https://canonical.com/careers/all",
+      "status": 200
+    },
+    {
+      "company": "Canonical",
+      "url": "https://canonical.com/press-centre",
+      "status": 200,
+      "final_url": "https://canonical.com/blog/latest-news"
+    },
+    {
+      "company": "Canonical",
+      "url": "https://canonical.com/",
+      "status": 200
+    },
+    {
+      "company": "Snyk",
+      "url": "https://boards-api.greenhouse.io/v1/boards/snyk/jobs?content=true",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Snyk",
+      "url": "https://snyk.io/press-kit/",
+      "status": 200,
+      "final_url": "https://snyk.io/contact-us/"
+    },
+    {
+      "company": "Snyk",
+      "url": "https://snyk.io/",
+      "status": 200
+    },
+    {
+      "company": "Zalando",
+      "url": "https://jobs.zalando.com/en/jobs",
+      "status": 200
+    },
+    {
+      "company": "Zalando",
+      "url": "https://corporate.zalando.com/en/media",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Zalando",
+      "url": "https://corporate.zalando.com/en",
+      "status": 200
+    },
+    {
+      "company": "Trade Republic",
+      "url": "https://boards-api.greenhouse.io/v1/boards/traderepublic/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "Trade Republic",
+      "url": "https://traderepublic.com/en-de",
+      "status": 200
+    },
+    {
+      "company": "Trade Republic",
+      "url": "https://traderepublic.com/en-de/press",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Adyen",
+      "url": "https://boards-api.greenhouse.io/v1/boards/adyen/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "Adyen",
+      "url": "https://www.adyen.com/press-and-media",
+      "status": 200
+    },
+    {
+      "company": "Adyen",
+      "url": "https://www.adyen.com/",
+      "status": 200
+    },
+    {
+      "company": "Monzo",
+      "url": "https://monzo.com/press/",
+      "status": 200,
+      "final_url": "https://monzo.com/press"
+    },
+    {
+      "company": "Monzo",
+      "url": "https://monzo.com/downloads",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Monzo",
+      "url": "https://monzo.com/",
+      "status": 200
+    },
+    {
+      "company": "Deliveroo",
+      "url": "https://deliveroo.co.uk/more/news-articles",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Deliveroo",
+      "url": "https://corporate.deliveroo.co.uk/media/press-releases/",
+      "status": "failure",
+      "detail": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
+    },
+    {
+      "company": "Deliveroo",
+      "url": "https://restaurants.deliveroo.com/en-gb/",
+      "status": 200,
+      "final_url": "https://merchants.deliveroo.com/en-GB"
+    },
+    {
+      "company": "Deliveroo",
+      "url": "https://deliveroo.co.uk/",
+      "status": 200
+    },
+    {
+      "company": "Contentful",
+      "url": "https://www.contentful.com/press/",
+      "status": 200,
+      "final_url": "https://www.contentful.com/newsroom/"
+    },
+    {
+      "company": "Contentful",
+      "url": "https://www.contentful.com/",
+      "status": 200
+    },
+    {
+      "company": "Contentful",
+      "url": "https://www.contentful.com/blog/",
+      "status": 200
+    },
+    {
+      "company": "Trainline",
+      "url": "https://www.trainlinegroup.com/investors/",
+      "status": 200
+    },
+    {
+      "company": "Trainline",
+      "url": "https://www.thetrainline.com/partners",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Trainline",
+      "url": "https://www.trainlinegroup.com/media/latest-news/",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "HelloFresh",
+      "url": "https://www.hellofreshgroup.com/en/newsroom/",
+      "status": 200
+    },
+    {
+      "company": "HelloFresh",
+      "url": "https://www.hellofreshgroup.com/en/newsroom/press-material/brand/",
+      "status": 200
+    },
+    {
+      "company": "HelloFresh",
+      "url": "https://ir.hellofreshgroup.com/websites/hellofresh/English/0/home.html",
+      "status": 200
+    },
+    {
+      "company": "N26",
+      "url": "https://n26.com/en-de",
+      "status": 200
+    },
+    {
+      "company": "N26",
+      "url": "https://n26.com/en-eu/logo-assets",
+      "status": 200
+    },
+    {
+      "company": "N26",
+      "url": "https://n26.com/en-eu/blog",
+      "status": 200
+    },
+    {
+      "company": "SumUp",
+      "url": "https://help.sumup.com/en-GB/",
+      "status": 200,
+      "final_url": "https://help.sumup.com/en-GB"
+    },
+    {
+      "company": "SumUp",
+      "url": "https://developer.sumup.com/",
+      "status": 200
+    },
+    {
+      "company": "SumUp",
+      "url": "https://www.sumup.com/en-us/press/",
+      "status": 200
+    },
+    {
+      "company": "Delivery Hero",
+      "url": "https://developers.deliveryhero.com/",
+      "status": 200
+    },
+    {
+      "company": "Delivery Hero",
+      "url": "https://www.deliveryhero.com/dh-ventures/",
+      "status": "failure",
+      "detail": "HTTP Error 403: Forbidden"
+    },
+    {
+      "company": "Delivery Hero",
+      "url": "https://www.deliveryhero.com/downloads/logos/",
+      "status": "failure",
+      "detail": "HTTP Error 403: Forbidden"
+    },
+    {
+      "company": "Delivery Hero",
+      "url": "https://ir.deliveryhero.com/en/",
+      "status": 200,
+      "final_url": "https://ir.deliveryhero.com/en"
+    },
+    {
+      "company": "Delivery Hero",
+      "url": "https://tech.deliveryhero.com/",
+      "status": "failure",
+      "detail": "HTTP Error 403: Forbidden"
+    },
+    {
+      "company": "Cloudflare",
+      "url": "https://boards-api.greenhouse.io/v1/boards/cloudflare/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "Cloudflare",
+      "url": "https://www.cloudflare.com/press-kit/",
+      "status": 200,
+      "final_url": "https://www.cloudflare.com/press/press-kit/"
+    },
+    {
+      "company": "Cloudflare",
+      "url": "https://blog.cloudflare.com/",
+      "status": 200
+    },
+    {
+      "company": "GitLab",
+      "url": "https://boards-api.greenhouse.io/v1/boards/gitlab/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "GitLab",
+      "url": "https://about.gitlab.com/press/press-kit/",
+      "status": 200
+    },
+    {
+      "company": "GitLab",
+      "url": "https://handbook.gitlab.com/handbook/marketing/brand-and-product-marketing/brand/",
+      "status": 200,
+      "final_url": "https://handbook.gitlab.com/handbook/marketing/brand-experience/"
+    },
+    {
+      "company": "Elastic",
+      "url": "https://boards-api.greenhouse.io/v1/boards/elastic/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "Elastic",
+      "url": "https://www.elastic.co/brand",
+      "status": 200,
+      "final_url": "https://www.elastic.co/legal/trademarks"
+    },
+    {
+      "company": "Elastic",
+      "url": "https://www.elastic.co/about/",
+      "status": 200
+    },
+    {
+      "company": "Checkout.com",
+      "url": "https://api.smartrecruiters.com/v1/companies/Checkoutcom/postings?limit=100",
+      "status": 200
+    },
+    {
+      "company": "Checkout.com",
+      "url": "https://www.checkout.com/press",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Checkout.com",
+      "url": "https://www.checkout.com/",
+      "status": 200
+    },
+    {
+      "company": "HubSpot",
+      "url": "https://www.hubspot.com/careers/jobs",
+      "status": 200
+    },
+    {
+      "company": "HubSpot",
+      "url": "https://www.hubspot.com/company-news",
+      "status": 200
+    },
+    {
+      "company": "HubSpot",
+      "url": "https://developers.hubspot.com/",
+      "status": 200
+    },
+    {
+      "company": "Snyk",
+      "url": "https://snyk.io/careers/",
+      "status": 200
+    },
+    {
+      "company": "Snyk",
+      "url": "https://snyk.io/news/",
+      "status": 200
+    },
+    {
+      "company": "Personio",
+      "url": "https://boards-api.greenhouse.io/v1/boards/personio/jobs?content=true",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Personio",
+      "url": "https://www.personio.com/about-personio/press/",
+      "status": 200
+    },
+    {
+      "company": "Personio",
+      "url": "https://www.personio.com/",
+      "status": 200
+    },
+    {
+      "company": "commercetools",
+      "url": "https://boards-api.greenhouse.io/v1/boards/commercetools/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "commercetools",
+      "url": "https://www.commercetools.com/press",
+      "status": 200,
+      "final_url": "https://commercetools.com/"
+    },
+    {
+      "company": "commercetools",
+      "url": "https://commercetools.com/",
+      "status": 200
+    },
+    {
+      "company": "Flix",
+      "url": "https://boards-api.greenhouse.io/v1/boards/flix/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "Flix",
+      "url": "https://corporate.flix.com/press_releases/",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Flix",
+      "url": "https://corporate.flix.com/",
+      "status": 200
+    },
+    {
+      "company": "Babbel",
+      "url": "https://boards-api.greenhouse.io/v1/boards/babbel/jobs?content=true",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Babbel",
+      "url": "https://www.babbel.com/press",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Babbel",
+      "url": "https://about.babbel.com/",
+      "status": 200,
+      "final_url": "https://www.babbel.com/about-us"
+    },
+    {
+      "company": "Omio",
+      "url": "https://api.smartrecruiters.com/v1/companies/Omio/postings?limit=100",
+      "status": 200
+    },
+    {
+      "company": "Omio",
+      "url": "https://www.omio.com/press",
+      "status": "failure",
+      "detail": "HTTP Error 403: Forbidden"
+    },
+    {
+      "company": "Omio",
+      "url": "https://www.omio.com/",
+      "status": "failure",
+      "detail": "HTTP Error 403: Forbidden"
+    },
+    {
+      "company": "sennder",
+      "url": "https://boards-api.greenhouse.io/v1/boards/sennder/jobs?content=true",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "sennder",
+      "url": "https://www.sennder.com/press",
+      "status": 200
+    },
+    {
+      "company": "sennder",
+      "url": "https://www.sennder.com/",
+      "status": 200
+    },
+    {
+      "company": "Wolt",
+      "url": "https://careers.wolt.com/en/jobs",
+      "status": 200
+    },
+    {
+      "company": "Wolt",
+      "url": "https://explore.wolt.com/en/deu/about/press",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Wolt",
+      "url": "https://explore.wolt.com/en/deu",
+      "status": 200,
+      "final_url": "https://wolt.com/"
+    },
+    {
+      "company": "Wayfair",
+      "url": "https://boards-api.greenhouse.io/v1/boards/wayfair/jobs?content=true",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Wayfair",
+      "url": "https://www.aboutwayfair.com/",
+      "status": 200
+    },
+    {
+      "company": "Trade Republic",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/traderepublic",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Trade Republic",
+      "url": "https://traderepublic.com/en-de/careers",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Canonical",
+      "url": "https://boards-api.greenhouse.io/v1/boards/canonical/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "Grafana Labs",
+      "url": "https://boards-api.greenhouse.io/v1/boards/grafanalabs/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "Grafana Labs",
+      "url": "https://grafana.com/about/brand/",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Vercel",
+      "url": "https://boards-api.greenhouse.io/v1/boards/vercel/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "Vercel",
+      "url": "https://vercel.com/about",
+      "status": 200
+    },
+    {
+      "company": "Coinbase",
+      "url": "https://boards-api.greenhouse.io/v1/boards/coinbase/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "Coinbase",
+      "url": "https://www.coinbase.com/press",
+      "status": "failure",
+      "detail": "HTTP Error 403: Forbidden"
+    },
+    {
+      "company": "Palantir",
+      "url": "https://api.lever.co/v0/postings/palantir?mode=json",
+      "status": 200
+    },
+    {
+      "company": "Palantir",
+      "url": "https://www.palantir.com/about/",
+      "status": 200
+    },
+    {
+      "company": "Spotify",
+      "url": "https://api.lever.co/v0/postings/spotify?mode=json",
+      "status": 200
+    },
+    {
+      "company": "Spotify",
+      "url": "https://www.lifeatspotify.com/jobs",
+      "status": 200
+    },
+    {
+      "company": "Spotify",
+      "url": "https://newsroom.spotify.com/media-kit/logo-and-brand-assets/",
+      "status": 200
+    },
+    {
+      "company": "Databricks",
+      "url": "https://boards-api.greenhouse.io/v1/boards/databricks/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "Databricks",
+      "url": "https://www.databricks.com/company/newsroom",
+      "status": 200
+    },
+    {
+      "company": "Deel",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/deel",
+      "status": 200
+    },
+    {
+      "company": "Deel",
+      "url": "https://www.deel.com/press/",
+      "status": 200
+    },
+    {
+      "company": "Miro",
+      "url": "https://boards-api.greenhouse.io/v1/boards/miro/jobs?content=true",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Miro",
+      "url": "https://miro.com/newsroom/",
+      "status": 200
+    },
+    {
+      "company": "Doctolib",
+      "url": "https://boards-api.greenhouse.io/v1/boards/doctolib/jobs?content=true",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Doctolib",
+      "url": "https://about.doctolib.com/de/",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Doctolib",
+      "url": "https://careers.doctolib.com/jobs",
+      "status": 200,
+      "final_url": "https://careers.doctolib.com/jobs/"
+    },
+    {
+      "company": "NinjaOne",
+      "url": "https://api.lever.co/v0/postings/ninjaone?mode=json",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "NinjaOne",
+      "url": "https://www.ninjaone.com/press/",
+      "status": "failure",
+      "detail": "HTTP Error 403: Forbidden"
+    },
+    {
+      "company": "Raisin",
+      "url": "https://boards-api.greenhouse.io/v1/boards/raisin/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "Raisin",
+      "url": "https://www.raisin.com/en-us/press/",
+      "status": 200
+    },
+    {
+      "company": "Zalando",
+      "url": "https://corporate.zalando.com/en/press",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Zalando",
+      "url": "https://corporate.zalando.com/en/press/press-materials",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Wolt",
+      "url": "https://press.wolt.com/",
+      "status": 200,
+      "final_url": "https://press.wolt.com/en-WW/"
+    },
+    {
+      "company": "Wolt",
+      "url": "https://careers.wolt.com/en",
+      "status": 200
+    },
+    {
+      "company": "Flix",
+      "url": "https://global.flixbus.com/company/press-room",
+      "status": 200,
+      "final_url": "https://corporate.flix.com/newsroom/"
+    },
+    {
+      "company": "Trade Republic",
+      "url": "https://newsroom.traderepublic.com/",
+      "status": "failure",
+      "detail": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
+    },
+    {
+      "company": "Trade Republic",
+      "url": "https://jobs.ashbyhq.com/TradeRepublic",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Adyen",
+      "url": "https://careers.adyen.com/",
+      "status": 200
+    },
+    {
+      "company": "Snyk",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/snyk",
+      "status": 200
+    },
+    {
+      "company": "Snyk",
+      "url": "https://boards-api.greenhouse.io/v1/boards/snykltd/jobs?content=true",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "GoCardless",
+      "url": "https://boards-api.greenhouse.io/v1/boards/gocardless/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "GoCardless",
+      "url": "https://gocardless.com/press/",
+      "status": 200,
+      "final_url": "https://gocardless.com/about/press"
+    },
+    {
+      "company": "Zopa",
+      "url": "https://api.lever.co/v0/postings/zopa?mode=json",
+      "status": 200
+    },
+    {
+      "company": "Zopa",
+      "url": "https://www.zopa.com/about/press",
+      "status": 200
+    },
+    {
+      "company": "Funding Circle",
+      "url": "https://boards-api.greenhouse.io/v1/boards/fundingcircle/jobs?content=true",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Funding Circle",
+      "url": "https://www.fundingcircle.com/uk/press/",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "iwoca",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/iwoca",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "iwoca",
+      "url": "https://www.iwoca.co.uk/press",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Marshmallow",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/marshmallow",
+      "status": 200
+    },
+    {
+      "company": "Marshmallow",
+      "url": "https://www.marshmallow.com/press",
+      "status": 200,
+      "final_url": "https://www.marshmallow.com/"
+    },
+    {
+      "company": "Multiverse",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/multiverse",
+      "status": 200
+    },
+    {
+      "company": "Multiverse",
+      "url": "https://www.multiverse.io/en-GB/press",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Cleo",
+      "url": "https://boards-api.greenhouse.io/v1/boards/cleoai/jobs?content=true",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Cleo",
+      "url": "https://web.meetcleo.com/press",
+      "status": "failure",
+      "detail": "HTTP Error 403: Forbidden"
+    },
+    {
+      "company": "GetYourGuide",
+      "url": "https://boards-api.greenhouse.io/v1/boards/getyourguide/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "GetYourGuide",
+      "url": "https://www.getyourguide.careers/press",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "SoundCloud",
+      "url": "https://boards-api.greenhouse.io/v1/boards/soundcloud/jobs?content=true",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "SoundCloud",
+      "url": "https://press.soundcloud.com/",
+      "status": 200,
+      "final_url": "https://soundcloud.com/company/newsroom/"
+    },
+    {
+      "company": "Staffbase",
+      "url": "https://boards-api.greenhouse.io/v1/boards/staffbase/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "Staffbase",
+      "url": "https://staffbase.com/press",
+      "status": 200
+    },
+    {
+      "company": "Taxfix",
+      "url": "https://boards-api.greenhouse.io/v1/boards/taxfix/jobs?content=true",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Taxfix",
+      "url": "https://taxfix.de/en/press/",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Qonto",
+      "url": "https://api.lever.co/v0/postings/qonto?mode=json",
+      "status": 200
+    },
+    {
+      "company": "Qonto",
+      "url": "https://qonto.com/en/press",
+      "status": 200
+    },
+    {
+      "company": "Parloa",
+      "url": "https://boards-api.greenhouse.io/v1/boards/parloa/jobs?content=true",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Parloa",
+      "url": "https://www.parloa.com/newsroom/",
+      "status": 200,
+      "final_url": "https://www.parloa.com/parloa-in-the-press/"
+    },
+    {
+      "company": "Nelly",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/nelly",
+      "status": 200
+    },
+    {
+      "company": "Nelly",
+      "url": "https://www.getnelly.de/",
+      "status": 200
+    },
+    {
+      "company": "Jane Street",
+      "url": "https://boards-api.greenhouse.io/v1/boards/janestreet/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "Jane Street",
+      "url": "https://www.janestreet.com/",
+      "status": 200
+    },
+    {
+      "company": "Optiver",
+      "url": "https://boards-api.greenhouse.io/v1/boards/optiverus/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "Optiver",
+      "url": "https://optiver.com/",
+      "status": 200,
+      "final_url": "https://www.optiver.com/"
+    },
+    {
+      "company": "G-Research",
+      "url": "https://www.gresearch.com/open-roles/",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "G-Research",
+      "url": "https://www.gresearch.com/",
+      "status": 200
+    },
+    {
+      "company": "Synthesia",
+      "url": "https://boards-api.greenhouse.io/v1/boards/synthesia/jobs?content=true",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Synthesia",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/synthesia",
+      "status": 200
+    },
+    {
+      "company": "Synthesia",
+      "url": "https://www.synthesia.io/press",
+      "status": 200,
+      "final_url": "https://www.synthesia.io/newsroom"
+    },
+    {
+      "company": "incident.io",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/incident",
+      "status": 200
+    },
+    {
+      "company": "incident.io",
+      "url": "https://incident.io/brand",
+      "status": 200
+    },
+    {
+      "company": "ElevenLabs",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/elevenlabs",
+      "status": 200
+    },
+    {
+      "company": "ElevenLabs",
+      "url": "https://elevenlabs.io/press",
+      "status": 200
+    },
+    {
+      "company": "Freetrade",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/freetrade",
+      "status": 200
+    },
+    {
+      "company": "Freetrade",
+      "url": "https://freetrade.io/press",
+      "status": 200,
+      "final_url": "https://freetrade.io/legal/2025-sipp-transfer-offer-terms-and-conditions"
+    },
+    {
+      "company": "Reddit",
+      "url": "https://boards-api.greenhouse.io/v1/boards/reddit/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "Reddit",
+      "url": "https://redditinc.com/brand",
+      "status": 200
+    },
+    {
+      "company": "GetYourGuide",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/getyourguide",
+      "status": 200
+    },
+    {
+      "company": "GetYourGuide",
+      "url": "https://www.getyourguide.careers/jobs",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "GetYourGuide",
+      "url": "https://www.getyourguide.press/",
+      "status": 200
+    },
+    {
+      "company": "AUTO1 Group",
+      "url": "https://api.smartrecruiters.com/v1/companies/AUTO1Group/postings?limit=100&q=Engineer",
+      "status": 200
+    },
+    {
+      "company": "AUTO1 Group",
+      "url": "https://www.auto1-group.com/company/press",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Scout24",
+      "url": "https://boards-api.greenhouse.io/v1/boards/scout24/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "Scout24",
+      "url": "https://www.scout24.com/en/media",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Enpal",
+      "url": "https://api.smartrecruiters.com/v1/companies/enpal/postings?limit=100&q=Engineer",
+      "status": 200
+    },
+    {
+      "company": "Enpal",
+      "url": "https://www.enpal.com/en/press",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "idealo",
+      "url": "https://idealo.softgarden.io/en/vacancies",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "idealo",
+      "url": "https://www.idealo.de/unternehmen/",
+      "status": "failure",
+      "detail": "HTTP Error 403: Forbidden"
+    },
+    {
+      "company": "JetBrains",
+      "url": "https://www.jetbrains.com/careers/jobs/",
+      "status": 200
+    },
+    {
+      "company": "JetBrains",
+      "url": "https://www.jetbrains.com/company/brand/",
+      "status": 200
+    },
+    {
+      "company": "Helsing",
+      "url": "https://boards-api.greenhouse.io/v1/boards/helsing/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "Helsing",
+      "url": "https://helsing.ai/",
+      "status": 200
+    },
+    {
+      "company": "Pliant",
+      "url": "https://boards-api.greenhouse.io/v1/boards/pliant/jobs?content=true",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Pliant",
+      "url": "https://www.getpliant.com/en/",
+      "status": 200,
+      "final_url": "https://www.getpliant.com/en"
+    },
+    {
+      "company": "Parloa",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/parloa",
+      "status": 200
+    },
+    {
+      "company": "SoundCloud",
+      "url": "https://careers.soundcloud.com/",
+      "status": 200,
+      "final_url": "https://soundcloud.com/company/careers/"
+    },
+    {
+      "company": "Wolt",
+      "url": "https://careers.wolt.com/en/jobs/1/8281232",
+      "status": 200
+    },
+    {
+      "company": "Wolt",
+      "url": "https://careers.wolt.com/en/jobs/1/8385136",
+      "status": 200
+    },
+    {
+      "company": "Wolt",
+      "url": "https://careers.wolt.com/en/jobs/1/8037849",
+      "status": 200
+    },
+    {
+      "company": "Wolt",
+      "url": "https://careers.wolt.com/en/jobs/1/7738724",
+      "status": 200
+    },
+    {
+      "company": "Wolt",
+      "url": "https://careers.wolt.com/en/jobs/1/8141574",
+      "status": 200
+    },
+    {
+      "company": "Wolt",
+      "url": "https://careers.wolt.com/en/jobs/1/8324647",
+      "status": 200
+    },
+    {
+      "company": "Palantir",
+      "url": "https://investors.palantir.com/",
+      "status": 200
+    },
+    {
+      "company": "Palantir",
+      "url": "https://www.palantir.com/newsroom/",
+      "status": 200
+    },
+    {
+      "company": "Palantir",
+      "url": "https://www.palantir.com/",
+      "status": 200
+    },
+    {
+      "company": "Zopa",
+      "url": "https://www.zopa.com/",
+      "status": 200
+    },
+    {
+      "company": "Zopa",
+      "url": "https://www.zopa.com/careers",
+      "status": 200
+    },
+    {
+      "company": "Cloudflare",
+      "url": "https://www.cloudflare.com/press/",
+      "status": 200
+    },
+    {
+      "company": "Nelly",
+      "url": "https://www.getnelly.de/presse",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Zalando",
+      "url": "https://corporate.zalando.com/en/newsroom",
+      "status": 200
+    },
+    {
+      "company": "Zalando",
+      "url": "https://jobs.zalando.com/en/jobs?location=Berlin",
+      "status": 200
+    },
+    {
+      "company": "Doctolib",
+      "url": "https://about.doctolib.com/de",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Wolt",
+      "url": "https://boards-api.greenhouse.io/v1/boards/wolt/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "Leapsome",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/leapsome",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Leapsome",
+      "url": "https://www.leapsome.com/press",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "DeepL",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/deepl",
+      "status": 200
+    },
+    {
+      "company": "DeepL",
+      "url": "https://www.deepl.com/en/press",
+      "status": 200
+    },
+    {
+      "company": "n8n",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/n8n",
+      "status": 200
+    },
+    {
+      "company": "n8n",
+      "url": "https://n8n.io/brand/",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Taktile",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/taktile",
+      "status": 200
+    },
+    {
+      "company": "Taktile",
+      "url": "https://www.taktile.com/",
+      "status": 200,
+      "final_url": "https://taktile.com/"
+    },
+    {
+      "company": "Choco",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/choco",
+      "status": 200
+    },
+    {
+      "company": "Choco",
+      "url": "https://choco.com/press",
+      "status": 200,
+      "final_url": "https://choco.com/us/press"
+    },
+    {
+      "company": "Moss",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/moss",
+      "status": 200
+    },
+    {
+      "company": "Moss",
+      "url": "https://www.getmoss.com/press",
+      "status": 200
+    },
+    {
+      "company": "HomeToGo",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/hometogo",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "HomeToGo",
+      "url": "https://www.hometogo.com/media/",
+      "status": 200
+    },
+    {
+      "company": "Moonfare",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/moonfare",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Moonfare",
+      "url": "https://www.moonfare.com/",
+      "status": 200
+    },
+    {
+      "company": "Billie",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/billie",
+      "status": 200
+    },
+    {
+      "company": "Billie",
+      "url": "https://www.billie.io/press",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Ecosia",
+      "url": "https://boards-api.greenhouse.io/v1/boards/ecosia/jobs?content=true",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Ecosia",
+      "url": "https://www.ecosia.org/press",
+      "status": "failure",
+      "detail": "HTTP Error 403: Forbidden"
+    },
+    {
+      "company": "Ableton",
+      "url": "https://www.ableton.com/en/jobs/",
+      "status": 200
+    },
+    {
+      "company": "Ableton",
+      "url": "https://www.ableton.com/en/press/",
+      "status": 200
+    },
+    {
+      "company": "Doctolib",
+      "url": "https://careers.doctolib.fr/jobs/",
+      "status": 200
+    },
+    {
+      "company": "Doctolib",
+      "url": "https://about.doctolib.com/",
+      "status": 200
+    },
+    {
+      "company": "GetYourGuide",
+      "url": "https://www.getyourguide.careers/",
+      "status": 200
+    },
+    {
+      "company": "Taktile",
+      "url": "https://taktile.com/company/newsroom",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Taktile",
+      "url": "https://taktile.com/careers",
+      "status": 200
+    },
+    {
+      "company": "Taktile",
+      "url": "https://taktile.com/company",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Kittl",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/kittl",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Kittl",
+      "url": "https://www.kittl.com/about/",
+      "status": 200,
+      "final_url": "https://www.kittl.com/about"
+    },
+    {
+      "company": "voize",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/voize",
+      "status": 200
+    },
+    {
+      "company": "voize",
+      "url": "https://voize.de/en",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "AMBOSS",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/amboss",
+      "status": 200
+    },
+    {
+      "company": "AMBOSS",
+      "url": "https://boards-api.greenhouse.io/v1/boards/amboss/jobs?content=true",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "AMBOSS",
+      "url": "https://www.amboss.com/us/press",
+      "status": 200,
+      "final_url": "https://www.amboss.com/us/newsroom"
+    },
+    {
+      "company": "Numa",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/numa",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Numa",
+      "url": "https://numastays.com/press",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Hygraph",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/hygraph",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Hygraph",
+      "url": "https://hygraph.com/brand",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Storyblok",
+      "url": "https://boards-api.greenhouse.io/v1/boards/storyblok/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "Storyblok",
+      "url": "https://www.storyblok.com/press",
+      "status": 200
+    },
+    {
+      "company": "On",
+      "url": "https://boards-api.greenhouse.io/v1/boards/onrunning/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "On",
+      "url": "https://press.on-running.com/",
+      "status": 200
+    },
+    {
+      "company": "FREENOW",
+      "url": "https://boards-api.greenhouse.io/v1/boards/freenow/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "FREENOW",
+      "url": "https://www.free-now.com/de/presse/",
+      "status": 200
+    },
+    {
+      "company": "Grover",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/grover",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Grover",
+      "url": "https://www.grover.com/de-en",
+      "status": 200
+    },
+    {
+      "company": "Forto",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/forto",
+      "status": 200
+    },
+    {
+      "company": "Forto",
+      "url": "https://forto.com/en/press/",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "MILES Mobility",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/miles",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "MILES Mobility",
+      "url": "https://www.miles-mobility.com/",
+      "status": "failure",
+      "detail": "HTTP Error 403: Forbidden"
+    },
+    {
+      "company": "n8n",
+      "url": "https://n8n.io/",
+      "status": 200
+    },
+    {
+      "company": "n8n",
+      "url": "https://n8n.io/press/",
+      "status": 200
+    },
+    {
+      "company": "Jane Street",
+      "url": "https://www.janestreet.com/join-jane-street/open-roles/",
+      "status": 200
+    },
+    {
+      "company": "Palantir",
+      "url": "https://www.palantir.com/careers/",
+      "status": 200
+    },
+    {
+      "company": "Zalando",
+      "url": "https://jobs.zalando.com/en/jobs?location=Berlin&page=2",
+      "status": 200
+    },
+    {
+      "company": "Zalando",
+      "url": "https://jobs.zalando.com/en/jobs?location=Berlin&page=3",
+      "status": 200
+    },
+    {
+      "company": "Zalando",
+      "url": "https://jobs.zalando.com/en/jobs?location=Berlin&page=4",
+      "status": 200
+    },
+    {
+      "company": "Zalando",
+      "url": "https://jobs.zalando.com/en/jobs?location=Berlin&page=5",
+      "status": 200
+    },
+    {
+      "company": "Zalando",
+      "url": "https://jobs.zalando.com/en/jobs?location=Berlin&page=6",
+      "status": 200
+    },
+    {
+      "company": "Taktile",
+      "url": "https://taktile.com/legal/applicant-privacy-policy",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Taktile",
+      "url": "https://taktile.com/contact",
+      "status": 200
+    },
+    {
+      "company": "Taktile",
+      "url": "https://taktile.com/imprint",
+      "status": 200
+    },
+    {
+      "company": "Taktile",
+      "url": "https://docs.taktile.com/",
+      "status": 200,
+      "final_url": "https://app.taktile.com/decide/gitbook-auth?location=%2F"
+    },
+    {
+      "company": "Taktile",
+      "url": "https://taktile.com/cookie-policy",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "voize",
+      "url": "https://voize.de/",
+      "status": 200,
+      "final_url": "https://www.voize.ai/us"
+    },
+    {
+      "company": "voize",
+      "url": "https://voize.de/karriere",
+      "status": 200,
+      "final_url": "https://www.voize.ai/de/karriere"
+    },
+    {
+      "company": "Jane Street",
+      "url": "https://www.janestreet.com/join-jane-street/london/",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Delivery Hero",
+      "url": "https://careers.deliveryhero.com/",
+      "status": 200
+    },
+    {
+      "company": "Deliveroo",
+      "url": "https://deliveroo.co.uk/about-us",
+      "status": 200
+    },
+    {
+      "company": "Deliveroo",
+      "url": "https://deliveroo.co.uk/more/about-us",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Contentful",
+      "url": "https://www.contentful.com/brand/",
+      "status": 200,
+      "final_url": "https://contentful.bynder.com/guidelines/guide/e1411ed9-7b0e-4fff-8342-6a87bb8bc0bc/page/5f013f57-7328-44e0-91e3-4f4609daad74"
+    },
+    {
+      "company": "Contentful",
+      "url": "https://support.contentful.com/",
+      "status": "failure",
+      "detail": "HTTP Error 403: Forbidden"
+    },
+    {
+      "company": "Monzo",
+      "url": "https://monzo.com/about",
+      "status": 200
+    },
+    {
+      "company": "Monzo",
+      "url": "https://monzo.com/press",
+      "status": 200
+    },
+    {
+      "company": "Trainline",
+      "url": "https://www.trainlinegroup.com/",
+      "status": 200
+    },
+    {
+      "company": "HelloFresh",
+      "url": "https://www.hellofresh.ca/about-us",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "N26",
+      "url": "https://n26.com/en-eu/legal-documents",
+      "status": 200
+    },
+    {
+      "company": "SumUp",
+      "url": "https://www.sumup.com/en-us/about/",
+      "status": 200
+    },
+    {
+      "company": "Trade Republic",
+      "url": "https://traderepublic.com/en-de/about",
+      "status": 200
+    },
+    {
+      "company": "Trade Republic",
+      "url": "https://traderepublic.com/en-de/about#career",
+      "status": 200
+    },
+    {
+      "company": "Palantir",
+      "url": "https://www.palantir.com/careers/emea/",
+      "status": 200,
+      "final_url": "https://www.palantir.com/404"
+    },
+    {
+      "company": "Taktile",
+      "url": "https://taktile.com/legal/terms-of-service",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Taktile",
+      "url": "https://taktile.com/news",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Taktile",
+      "url": "https://taktile.com/legal",
+      "status": 200
+    },
+    {
+      "company": "Taktile",
+      "url": "https://taktile.com/blog",
+      "status": 200
+    },
+    {
+      "company": "Sage",
+      "url": "https://www.sage.com/en-gb/company/careers/",
+      "status": "failure",
+      "detail": "HTTP Error 403: Forbidden"
+    },
+    {
+      "company": "Sage",
+      "url": "https://www.sage.com/en-gb/company/about-sage/",
+      "status": "failure",
+      "detail": "HTTP Error 403: Forbidden"
+    },
+    {
+      "company": "dunnhumby",
+      "url": "https://boards-api.greenhouse.io/v1/boards/dunnhumby/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "dunnhumby",
+      "url": "https://www.dunnhumby.com/about-us/",
+      "status": 200,
+      "final_url": "https://www.dunnhumby.com/who-we-are/"
+    },
+    {
+      "company": "Perk",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/travelperk",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Perk",
+      "url": "https://boards-api.greenhouse.io/v1/boards/travelperk/jobs?content=true",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Perk",
+      "url": "https://www.perk.com/press/",
+      "status": 200,
+      "final_url": "https://www.perk.com/media/"
+    },
+    {
+      "company": "PolyAI",
+      "url": "https://boards-api.greenhouse.io/v1/boards/polyai/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "PolyAI",
+      "url": "https://poly.ai/press/",
+      "status": 200,
+      "final_url": "https://poly.ai/resources/blog"
+    },
+    {
+      "company": "Speechmatics",
+      "url": "https://boards-api.greenhouse.io/v1/boards/speechmatics/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "Speechmatics",
+      "url": "https://www.speechmatics.com/press",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Lendable",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/lendable",
+      "status": 200
+    },
+    {
+      "company": "Lendable",
+      "url": "https://www.lendable.co.uk/",
+      "status": 200
+    },
+    {
+      "company": "Starling Bank",
+      "url": "https://apply.workable.com/api/v1/widget/accounts/starling-bank",
+      "status": 200
+    },
+    {
+      "company": "Starling Bank",
+      "url": "https://www.starlingbank.com/news/",
+      "status": 200
+    },
+    {
+      "company": "Quantinuum",
+      "url": "https://api.lever.co/v0/postings/quantinuum?mode=json",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Quantinuum",
+      "url": "https://www.quantinuum.com/",
+      "status": 200
+    },
+    {
+      "company": "NinjaOne",
+      "url": "https://jobs.jobvite.com/ninjaone/jobs",
+      "status": 200
+    },
+    {
+      "company": "Deutsche Bank",
+      "url": "https://careers.db.com/professionals/search-roles/",
+      "status": 200
+    },
+    {
+      "company": "Deutsche Bank",
+      "url": "https://www.db.com/",
+      "status": 200
+    },
+    {
+      "company": "Mercedes-Benz.io",
+      "url": "https://boards-api.greenhouse.io/v1/boards/mercedesbenzio/jobs?content=true",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Mercedes-Benz.io",
+      "url": "https://www.mercedes-benz.io/",
+      "status": 200
+    },
+    {
+      "company": "Kittl",
+      "url": "https://boards-api.greenhouse.io/v1/boards/kittl/jobs?content=true",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Recare",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/recare",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Recare",
+      "url": "https://recaresolutions.com/",
+      "status": 200,
+      "final_url": "https://recareai.com/"
+    },
+    {
+      "company": "Checkmk",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/checkmk",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Checkmk",
+      "url": "https://checkmk.com/company/press",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "SoftwareOne",
+      "url": "https://careers.softwareone.com/global/en/search-results",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "SoftwareOne",
+      "url": "https://www.softwareone.com/en/media-releases",
+      "status": 200
+    },
+    {
+      "company": "Babbel",
+      "url": "https://www.babbel.com/careers/jobs",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Personio",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/personio",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Enpal",
+      "url": "https://www.enpal.de/karriere",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "AUTO1 Group",
+      "url": "https://www.auto1-group.com/jobs",
+      "status": 200,
+      "final_url": "https://www.auto1-group.com/jobs/"
+    },
+    {
+      "company": "Lendable",
+      "url": "https://www.lendable.co.uk/careers",
+      "status": 200,
+      "final_url": "https://careers.lendable.com/"
+    },
+    {
+      "company": "Lendable",
+      "url": "https://www.lendable.co.uk/about-us",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Google",
+      "url": "https://www.google.com/about/careers/applications/jobs/results/?location=Berlin%2C%20Germany",
+      "status": 200
+    },
+    {
+      "company": "Google",
+      "url": "https://about.google/",
+      "status": 200
+    },
+    {
+      "company": "SAP",
+      "url": "https://jobs.sap.com/search/?q=engineer&locationsearch=Berlin",
+      "status": "failure",
+      "detail": "HTTP Error 403: Forbidden"
+    },
+    {
+      "company": "SAP",
+      "url": "https://www.sap.com/about.html",
+      "status": 200
+    },
+    {
+      "company": "SimScale",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/simscale",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "SimScale",
+      "url": "https://www.simscale.com/press/",
+      "status": 200
+    },
+    {
+      "company": "Edurino",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/edurino",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Edurino",
+      "url": "https://www.edurino.com/",
+      "status": 200
+    },
+    {
+      "company": "Aignostics",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/aignostics",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Aignostics",
+      "url": "https://www.aignostics.com/press",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Adjust",
+      "url": "https://boards-api.greenhouse.io/v1/boards/adjust/jobs?content=true",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Adjust",
+      "url": "https://www.adjust.com/company/press/",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Contentstack",
+      "url": "https://boards-api.greenhouse.io/v1/boards/contentstack/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "Contentstack",
+      "url": "https://www.contentstack.com/company/newsroom",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Kolibri Games",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/kolibrigames",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Kolibri Games",
+      "url": "https://www.kolibrigames.com/press",
+      "status": "failure",
+      "detail": "HTTP Error 404: The requested content does not exist."
+    },
+    {
+      "company": "Vinted",
+      "url": "https://boards-api.greenhouse.io/v1/boards/vinted/jobs?content=true",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Vinted",
+      "url": "https://company.vinted.com/newsroom",
+      "status": 200
+    },
+    {
+      "company": "Block",
+      "url": "https://api.smartrecruiters.com/v1/companies/Square/postings?limit=100&q=Engineer",
+      "status": 200
+    },
+    {
+      "company": "Block",
+      "url": "https://block.xyz/press",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Omio",
+      "url": "https://api.smartrecruiters.com/v1/companies/Omio/postings?limit=100&q=Engineer",
+      "status": 200
+    },
+    {
+      "company": "Helsing",
+      "url": "https://helsing.ai/company",
+      "status": 200
+    },
+    {
+      "company": "Lendable",
+      "url": "https://www.lendable.com/",
+      "status": 200
+    },
+    {
+      "company": "Lendable",
+      "url": "https://www.lendable.com/news",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Orcrist Technologies",
+      "url": "https://boards-api.greenhouse.io/v1/boards/orcristtechnologies/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "Orcrist Technologies",
+      "url": "https://www.orcrist.ai/",
+      "status": 200
+    },
+    {
+      "company": "A11",
+      "url": "https://boards-api.greenhouse.io/v1/boards/projectaservicesgmbhcokg/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "A11",
+      "url": "https://a11.com/",
+      "status": 200,
+      "final_url": "https://www.a11.com/"
+    },
+    {
+      "company": "Almedia",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/almedia",
+      "status": 200
+    },
+    {
+      "company": "Almedia",
+      "url": "https://almedia.co/",
+      "status": 200
+    },
+    {
+      "company": "Almedia",
+      "url": "https://almedia.co/newsroom",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Zenjob",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/zenjob",
+      "status": 200
+    },
+    {
+      "company": "Zenjob",
+      "url": "https://www.zenjob.com/en/press/",
+      "status": 200
+    },
+    {
+      "company": "Tilla",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/tilla",
+      "status": 200
+    },
+    {
+      "company": "Tilla",
+      "url": "https://www.tilla.tech/",
+      "status": 200
+    },
+    {
+      "company": "PPRO",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/ppro",
+      "status": 200
+    },
+    {
+      "company": "PPRO",
+      "url": "https://www.ppro.com/media/",
+      "status": "failure",
+      "detail": "HTTP Error 403: Forbidden"
+    },
+    {
+      "company": "Nelly",
+      "url": "https://jobs.ashbyhq.com/nelly/3ce50828-ae7a-4212-bdd9-16377d57149c",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Root Global",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/rootglobal",
+      "status": 200
+    },
+    {
+      "company": "Root Global",
+      "url": "https://www.rootglobal.io/",
+      "status": 200
+    },
+    {
+      "company": "bunch",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/bunch",
+      "status": 200
+    },
+    {
+      "company": "bunch",
+      "url": "https://www.bunch.capital/",
+      "status": 200
+    },
+    {
+      "company": "praxipal",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/praxipal",
+      "status": 200
+    },
+    {
+      "company": "praxipal",
+      "url": "https://praxipal.com/",
+      "status": 200
+    },
+    {
+      "company": "Qorelo",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/qorelo",
+      "status": 200
+    },
+    {
+      "company": "Qorelo",
+      "url": "https://qorelo.com/",
+      "status": 200,
+      "final_url": "https://www.qorelo.com/"
+    },
+    {
+      "company": "Rivian and Volkswagen Group Technologies",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/rivianvw.tech",
+      "status": 200
+    },
+    {
+      "company": "Rivian and Volkswagen Group Technologies",
+      "url": "https://rivianvw.tech/",
+      "status": 200
+    },
+    {
+      "company": "Rover",
+      "url": "https://api.lever.co/v0/postings/rover?mode=json",
+      "status": 200
+    },
+    {
+      "company": "Rover",
+      "url": "https://www.rover.com/newsroom/",
+      "status": "failure",
+      "detail": "HTTP Error 403: Forbidden"
+    },
+    {
+      "company": "Rover",
+      "url": "https://www.rover.com/about/",
+      "status": "failure",
+      "detail": "HTTP Error 403: Forbidden"
+    },
+    {
+      "company": "Langdock",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/langdock",
+      "status": 200
+    },
+    {
+      "company": "Langdock",
+      "url": "https://www.langdock.com/",
+      "status": 200,
+      "final_url": "https://langdock.com/"
+    },
+    {
+      "company": "Peec AI",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/peec",
+      "status": 200
+    },
+    {
+      "company": "Peec AI",
+      "url": "https://peec.ai/",
+      "status": 200
+    },
+    {
+      "company": "Statista",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/statista",
+      "status": 200
+    },
+    {
+      "company": "Statista",
+      "url": "https://www.statista.com/press/",
+      "status": 200
+    },
+    {
+      "company": "Eye Security",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/eye-security",
+      "status": 200
+    },
+    {
+      "company": "Eye Security",
+      "url": "https://www.eye.security/",
+      "status": 200,
+      "final_url": "https://eye.security/"
+    },
+    {
+      "company": "AutoScout24",
+      "url": "https://boards-api.greenhouse.io/v1/boards/autoscout24/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "AutoScout24",
+      "url": "https://www.autoscout24.com/company/press/",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Cortea AI",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/cortea",
+      "status": 200
+    },
+    {
+      "company": "Cortea AI",
+      "url": "https://cortea.ai/",
+      "status": 200,
+      "final_url": "https://www.cortea.ai/"
+    },
+    {
+      "company": "Planet Labs",
+      "url": "https://boards-api.greenhouse.io/v1/boards/planetlabs/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "Planet Labs",
+      "url": "https://www.planet.com/company/",
+      "status": 200
+    },
+    {
+      "company": "Navan",
+      "url": "https://boards-api.greenhouse.io/v1/boards/navan/jobs?content=true",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Navan",
+      "url": "https://navan.com/press",
+      "status": 200,
+      "final_url": "https://investors.navan.com/press-room/home"
+    },
+    {
+      "company": "Smartly",
+      "url": "https://boards-api.greenhouse.io/v1/boards/smartlyio/jobs?content=true",
+      "status": 200
+    },
+    {
+      "company": "Smartly",
+      "url": "https://www.smartly.io/news",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "EGYM",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/egym",
+      "status": 200
+    },
+    {
+      "company": "EGYM",
+      "url": "https://egym.jobs.personio.de/",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "EGYM",
+      "url": "https://egym.com/us/news",
+      "status": "failure",
+      "detail": "HTTP Error 404: Not Found"
+    },
+    {
+      "company": "Gigs",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/gigs",
+      "status": 200
+    },
+    {
+      "company": "Gigs",
+      "url": "https://gigs.com/press",
+      "status": 200
+    },
+    {
+      "company": "Kombo",
+      "url": "https://api.ashbyhq.com/posting-api/job-board/kombo",
+      "status": 200
+    },
+    {
+      "company": "Kombo",
+      "url": "https://www.kombo.dev/",
+      "status": 200
+    },
+    {
+      "company": "Axel Springer",
+      "url": "https://api.smartrecruiters.com/v1/companies/AxelSpringerSE/postings?limit=100&q=Engineer",
+      "status": 200
+    },
+    {
+      "company": "Axel Springer",
+      "url": "https://www.axelspringer.com/en/media",
+      "status": 200,
+      "final_url": "https://www.axelspringer.com/de/pressemitteilungen/media-analyse-2009-bild-baut-reichweite-auf-1163-millionen-leser-aus"
+    },
+    {
+      "company": "Zalando",
+      "url": "https://jobs.zalando.com/en/jobs/2724425-Senior-Software-Engineer-(all-genders)-%E2%80%93-Analytics",
+      "status": 200
+    },
+    {
+      "company": "Zalando",
+      "url": "https://jobs.zalando.com/en/jobs/2725802-Software-Engineer---ZMS-Content-(all-genders)",
+      "status": 200
+    },
+    {
+      "company": "Zalando",
+      "url": "https://jobs.zalando.com/en/jobs/2726170-Senior-Enterprise-Automation-Engineer-(all-genders",
+      "status": 200
+    },
+    {
+      "company": "Zalando",
+      "url": "https://jobs.zalando.com/en/jobs/2724984-Senior-Software-Engineer---Machine-Learning-(all-g",
+      "status": 200
+    },
+    {
+      "company": "Zalando",
+      "url": "https://jobs.zalando.com/en/jobs/2726068-Senior-Software-Engineer--Carrier-Platform-(All-Ge",
+      "status": 200
+    },
+    {
+      "company": "Zalando",
+      "url": "https://jobs.zalando.com/en/jobs/2724315-Senior-Search-Engineer---Search-and-Browse-Core-(A",
+      "status": 200
+    },
+    {
+      "company": "Zalando",
+      "url": "https://jobs.zalando.com/en/jobs/2724272-Principal-Frontend-Engineer---ZEOS-Portal-(all-gen",
+      "status": 200
+    },
+    {
+      "company": "Zalando",
+      "url": "https://jobs.zalando.com/en/jobs/2725756-Software-Engineer-(All-Genders)",
+      "status": 200
+    },
+    {
+      "company": "Zalando",
+      "url": "https://jobs.zalando.com/en/jobs/2725282-Principal-Software-Engineer---Zalando-Payments-(al",
+      "status": 200
+    },
+    {
+      "company": "Zalando",
+      "url": "https://jobs.zalando.com/en/jobs/2726136-Principal-Software-Engineer---Transport-Systems-(a",
+      "status": 200
+    },
+    {
+      "company": "Zalando",
+      "url": "https://jobs.zalando.com/en/jobs/2724390-Senior-IAM-Engineer-(all-genders)",
+      "status": 200
+    },
+    {
+      "company": "Zalando",
+      "url": "https://jobs.zalando.com/en/jobs/2725728-Senior-Software-Engineer-(Data%2FML)---all-genders",
+      "status": 200
+    },
+    {
+      "company": "Zalando",
+      "url": "https://jobs.zalando.com/en/jobs/2725322-Senior-Principal-Engineer---Agentic-Security-(all-",
+      "status": 200
+    },
+    {
+      "company": "Zalando",
+      "url": "https://jobs.zalando.com/en/jobs/2723609-Software-Engineer-(Kotlin)---Transport-Planning-Op",
+      "status": 200
+    },
+    {
+      "company": "Zalando",
+      "url": "https://jobs.zalando.com/en/jobs/2723788-Principal-Software-Engineer-CuCa-Tech-(All-Genders",
+      "status": 200
+    },
+    {
+      "company": "Zalando",
+      "url": "https://jobs.zalando.com/en/jobs/2726034-Senior-Data-Platform-Engineer-(Central-Data-Lake)-",
+      "status": 200
+    },
+    {
+      "company": "Zalando",
+      "url": "https://jobs.zalando.com/en/jobs/2723963-Software-Engineer-(all-genders)",
+      "status": 200
+    },
+    {
+      "company": "Zalando",
+      "url": "https://jobs.zalando.com/en/jobs/2725988-Principal-Security-Engineer---Zalando-Payments-(Al",
+      "status": 200
+    },
+    {
+      "company": "Zalando",
+      "url": "https://jobs.zalando.com/en/jobs/2725987-Senior-Data-Engineer-(all-genders)",
+      "status": 200
+    },
+    {
+      "company": "Zalando",
+      "url": "https://jobs.zalando.com/en/jobs/2720136-Principal-Software-Engineer---Risk-Management-%2F-Ri",
+      "status": 200
+    },
+    {
+      "company": "Monzo",
+      "url": "https://community.monzo.com/",
+      "status": 200
+    },
+    {
+      "company": "Monzo",
+      "url": "https://community.monzo.com/t/we-ve-given-our-visual-brand-a-refresh-q-a-w-jesse-senior-brand-designer/139681",
+      "status": 200
+    },
+    {
+      "company": "Monzo",
+      "url": "https://developers.monzo.com/",
+      "status": 200
+    },
+    {
+      "company": "Deliveroo",
+      "url": "https://merchants.deliveroo.com/legal/policies",
+      "status": 200
+    },
+    {
+      "company": "Deliveroo",
+      "url": "https://help.deliveroo.com/en/",
+      "status": 200
+    },
+    {
+      "company": "Deliveroo",
+      "url": "https://deliveroo.engineering/",
+      "status": 200
+    },
+    {
+      "company": "Contentful",
+      "url": "https://www.contentful.com/legal/intellectual-property/trademark-and-brand-use-policy/2021-01-21/",
+      "status": 200
+    },
+    {
+      "company": "Contentful",
+      "url": "https://www.contentful.com/help/how-attribution-works/",
+      "status": 200
+    },
+    {
+      "company": "Contentful",
+      "url": "https://www.contentful.com/developers/",
+      "status": 200,
+      "final_url": "https://www.contentful.com/developers/docs/"
+    },
+    {
+      "company": "N26",
+      "url": "https://n26.com/de-de/presse",
+      "status": 200
+    },
+    {
+      "company": "N26",
+      "url": "https://support.n26.com/en-eu",
+      "status": 200
+    },
+    {
+      "company": "HelloFresh",
+      "url": "https://www.hellofresh.com/",
+      "status": 200
+    },
+    {
+      "company": "HelloFresh",
+      "url": "https://www.hellofreshgroup.com/en/about-us/",
+      "status": 200
+    },
+    {
+      "company": "SumUp",
+      "url": "https://www.sumup.com/de-de/press/",
+      "status": 200
+    },
+    {
+      "company": "SumUp",
+      "url": "https://developer.sumup.com/api/",
+      "status": 200
+    },
+    {
+      "company": "Jane Street",
+      "url": "https://www.janestreet.com/join-jane-street/apply/6236002002?gh_jid=6236002002",
+      "status": 200,
+      "final_url": "https://www.janestreet.com/join-jane-street/apply/6236002002/?gh_jid=6236002002"
+    },
+    {
+      "company": "Jane Street",
+      "url": "https://boards-api.greenhouse.io/v1/boards/janestreet/jobs/6236002002",
+      "status": 200
+    },
+    {
+      "company": "Jane Street",
+      "url": "https://www.janestreet.com/join-jane-street/apply/7229633002?gh_jid=7229633002",
+      "status": 200,
+      "final_url": "https://www.janestreet.com/join-jane-street/apply/7229633002/?gh_jid=7229633002"
+    },
+    {
+      "company": "Jane Street",
+      "url": "https://boards-api.greenhouse.io/v1/boards/janestreet/jobs/7229633002",
+      "status": 200
+    },
+    {
+      "company": "Jane Street",
+      "url": "https://www.janestreet.com/join-jane-street/apply/5168486002?gh_jid=5168486002",
+      "status": 200,
+      "final_url": "https://www.janestreet.com/join-jane-street/apply/5168486002/?gh_jid=5168486002"
+    },
+    {
+      "company": "Jane Street",
+      "url": "https://boards-api.greenhouse.io/v1/boards/janestreet/jobs/5168486002",
+      "status": 200
+    },
+    {
+      "company": "Jane Street",
+      "url": "https://www.janestreet.com/join-jane-street/apply/8647260002?gh_jid=8647260002",
+      "status": 200,
+      "final_url": "https://www.janestreet.com/join-jane-street/apply/8647260002/?gh_jid=8647260002"
+    },
+    {
+      "company": "Jane Street",
+      "url": "https://boards-api.greenhouse.io/v1/boards/janestreet/jobs/8647260002",
+      "status": 200
+    },
+    {
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/c44510a1-9537-4c52-ae81-51546979fe47",
+      "status": 200
+    },
+    {
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/10dfc8bc-99ad-4ca2-ab76-853cb90a92c2",
+      "status": 200
+    },
+    {
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/f70cdff7-c62f-4b73-a136-909e5e3d1891",
+      "status": 200
+    },
+    {
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/aaee4d20-7f1b-48b1-ad23-d52ffbf42a49",
+      "status": 200
+    },
+    {
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/5168e8fd-fec1-4fea-b7a1-81bdaea65850",
+      "status": 200
+    },
+    {
+      "company": "Palantir",
+      "url": "https://jobs.lever.co/palantir/f75cb0d2-6608-450b-848e-0f27937c930d",
+      "status": 200
+    },
+    {
+      "company": "Lendable",
+      "url": "https://jobs.ashbyhq.com/lendable/9c1b6ab5-5582-46b1-ae58-d9720c8b8440",
+      "status": 200
+    },
+    {
+      "company": "Lendable",
+      "url": "https://jobs.ashbyhq.com/lendable/9456eab2-b8e6-4a33-823c-b87c553fabe4",
+      "status": 200
+    },
+    {
+      "company": "Lendable",
+      "url": "https://jobs.ashbyhq.com/lendable/e80a5e5b-922d-4ce7-9837-3acf0b5f33b1",
+      "status": 200
+    },
+    {
+      "company": "Taktile",
+      "url": "https://jobs.ashbyhq.com/taktile/c9d47dd2-3252-4266-a581-b9d1b46e9297",
+      "status": 200
+    },
+    {
+      "company": "Taktile",
+      "url": "https://jobs.ashbyhq.com/taktile/594e7ab1-3c77-43b5-be3f-bc30d513c14c",
+      "status": 200
+    },
+    {
+      "company": "Taktile",
+      "url": "https://jobs.ashbyhq.com/taktile/d56d9c0d-5585-43d1-bc94-304bcc4ba11f",
+      "status": 200
+    },
+    {
+      "company": "Kombo",
+      "url": "https://jobs.ashbyhq.com/Kombo/221b2f22-ead1-48e1-b0ca-9a7c6110d1a4",
+      "status": 200
+    },
+    {
+      "company": "Kombo",
+      "url": "https://jobs.ashbyhq.com/Kombo/85e4cc9e-0509-41ba-b84c-4df821408146",
+      "status": 200
+    },
+    {
+      "company": "Kombo",
+      "url": "https://jobs.ashbyhq.com/Kombo/95e1ed46-b75f-4159-b134-9842ad5be573",
+      "status": 200
+    },
+    {
+      "company": "Almedia",
+      "url": "https://jobs.ashbyhq.com/almedia/a14b273c-801c-43e4-a6bf-84fb22651b12",
+      "status": 200
+    },
+    {
+      "company": "Almedia",
+      "url": "https://jobs.ashbyhq.com/almedia/90dbf17b-f709-4cfc-9775-8f642d931d58",
+      "status": 200
+    },
+    {
+      "company": "Almedia",
+      "url": "https://jobs.ashbyhq.com/almedia/ad0fe4c3-0440-4a09-b78b-6f739c3d917d",
+      "status": 200
+    },
+    {
+      "company": "Almedia",
+      "url": "https://jobs.ashbyhq.com/almedia/3835f505-4132-4db7-8288-43e1d1529b24",
+      "status": 200
+    }
+  ]
+}

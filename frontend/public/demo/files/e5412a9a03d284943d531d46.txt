@@ -1,0 +1,23 @@
+Alex Morgan
+
+Melbourne, Australia · Fictional sample profile
+
+alex@example.test
+
+Application for Senior Consultant Specialist, IWPB Technology - HSBC
+
+Dear Hiring Team,
+
+I am applying for the Senior Consultant Specialist, IWPB Technology position at HSBC. My relevant experience includes:
+
+Example Labs (fictional) — 2022–2026: Used React to build and maintain software services.
+
+Example Labs (fictional) — 2022–2026: Used TypeScript to build and maintain software services.
+
+TypeScript
+
+I would welcome the opportunity to discuss how this experience relates to your requirements. Thank you for considering my application.
+
+Kind regards,
+
+Alex Morgan

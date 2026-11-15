@@ -1,0 +1,898 @@
+{
+  "checked_at": "2026-11-15T10:36:52+00:00",
+  "companies": [
+    {
+      "name": "Jane Street",
+      "city": "London",
+      "careers_url": "https://www.janestreet.com/join-jane-street/open-roles/",
+      "logo": {
+        "status": "verified",
+        "page_url": "https://www.janestreet.com/",
+        "url": "https://www.janestreet.com/assets/logo_horizontal-16929188a56384c8e77bea91967c4553146ed7293f60a8f4f2ab6a06187881ce.svg",
+        "final_url": "https://www.janestreet.com/assets/logo_horizontal-16929188a56384c8e77bea91967c4553146ed7293f60a8f4f2ab6a06187881ce.svg",
+        "evidence": "Jane Street declares its wordmark in the masthead of its company website.",
+        "sha256": "f2edd1940cabae70d4d6e2ecf05184f5e46c8694f7c386f7eb26199671a05336",
+        "expected_sha256": "f2edd1940cabae70d4d6e2ecf05184f5e46c8694f7c386f7eb26199671a05336",
+        "checked_at": "2026-11-15T10:27:07.758420+00:00",
+        "local_path": "tasks/public-demo-logos-activity/research/europe/logos/jane-street.png",
+        "dimensions": [
+          181,
+          49
+        ],
+        "selection": "https://www.janestreet.com/assets/logo_horizontal-16929188a56384c8e77bea91967c4553146ed7293f60a8f4f2ab6a06187881ce.svg"
+      },
+      "picks": [
+        {
+          "job_id": "50738a2a4406dda4fefb2227",
+          "reason": "Confirmed TypeScript and Next.js, plus React SaaS and interactive web work in the public résumé, align with the browser tools and user-interface responsibilities. The advert treats TypeScript as a plus and does not require OCaml.",
+          "fact_ids": [
+            "3b66e05b56c2d09ca02852719fc4b4bc",
+            "60e7c079348914b505360dc1f0dedf7a"
+          ]
+        },
+        {
+          "job_id": "98386110344f706ed67f9273",
+          "reason": "Confirmed Python and SQL and the résumé’s Python data ingestion, data cleaning and visualisation work align with investigating and preparing new datasets.",
+          "fact_ids": [
+            "ce3737d14c22431c2f3c0d19067d52a3",
+            "d7629711b68661baaf1fbb1792c0fb8a"
+          ]
+        }
+      ],
+      "jobs": [
+        {
+          "id": "50738a2a4406dda4fefb2227",
+          "title": "Front End Software Engineer",
+          "employer": "Jane Street",
+          "city": "London",
+          "location": "London, England, United Kingdom",
+          "url": "https://www.janestreet.com/join-jane-street/apply/6236002002?gh_jid=6236002002",
+          "careers_url": "https://www.janestreet.com/join-jane-street/open-roles/",
+          "source": "greenhouse:janestreet",
+          "requisition": "3355",
+          "source_url": "https://www.janestreet.com/join-jane-street/apply/6236002002?gh_jid=6236002002",
+          "evidence": "Jane Street publishes listing 6236002002 on its careers channel and names the advertised location as London, England, United Kingdom.",
+          "description": "Build and refine browser tools for expert users operating trading infrastructure. Create reusable UI abstractions and work directly with users.",
+          "requirements": [
+            "Browser fundamentals including CSS and the DOM",
+            "Understanding of UI framework principles",
+            "Practical experience building sophisticated browser UIs",
+            "Interest in typed functional UI programming",
+            "Fluent English"
+          ],
+          "fit_rationale": "Confirmed TypeScript and Next.js, plus React SaaS and interactive web work in the public résumé, align with the browser tools and user-interface responsibilities. The advert treats TypeScript as a plus and does not require OCaml.",
+          "checked_at": "2026-11-15T10:36:52+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "posted_at": "2022-06-27",
+          "source_updated_at": "2026-11-03T10:18:06-05:00"
+        },
+        {
+          "id": "98386110344f706ed67f9273",
+          "title": "Data Engineer",
+          "employer": "Jane Street",
+          "city": "London",
+          "location": "London, England, United Kingdom",
+          "url": "https://www.janestreet.com/join-jane-street/apply/7229633002?gh_jid=7229633002",
+          "careers_url": "https://www.janestreet.com/join-jane-street/open-roles/",
+          "source": "greenhouse:janestreet",
+          "requisition": "4427",
+          "source_url": "https://www.janestreet.com/join-jane-street/apply/7229633002?gh_jid=7229633002",
+          "evidence": "Jane Street publishes listing 7229633002 on its careers channel and names the advertised location as London, England, United Kingdom.",
+          "description": "Use programming, research and validation to make datasets usable for engineering and trading teams.",
+          "requirements": [
+            "Strong programming skills in any language, with Python preferred",
+            "SQL or DataFrame libraries such as pandas or Polars",
+            "Attention to detail when investigating unfamiliar data",
+            "Clear communication and fluent English"
+          ],
+          "fit_rationale": "Confirmed Python and SQL and the résumé’s Python data ingestion, data cleaning and visualisation work align with investigating and preparing new datasets.",
+          "checked_at": "2026-11-15T10:36:52+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "posted_at": "2024-02-15",
+          "source_updated_at": "2026-11-03T10:18:06-05:00"
+        },
+        {
+          "id": "c397bd48894b48f960aab20e",
+          "title": "Production Engineer",
+          "employer": "Jane Street",
+          "city": "London",
+          "location": "London, England, United Kingdom",
+          "url": "https://www.janestreet.com/join-jane-street/apply/5168486002?gh_jid=5168486002",
+          "careers_url": "https://www.janestreet.com/join-jane-street/open-roles/",
+          "source": "greenhouse:janestreet",
+          "requisition": "2753",
+          "source_url": "https://www.janestreet.com/join-jane-street/apply/5168486002?gh_jid=5168486002",
+          "evidence": "Jane Street publishes listing 5168486002 on its careers channel and names the advertised location as London, England, United Kingdom.",
+          "description": "Build operational software and help resolve the production problems that affect internal teams.",
+          "requirements": [
+            "Strong general programming",
+            "Curiosity and collaboration",
+            "Clear communication during incidents",
+            "Fluent English"
+          ],
+          "fit_rationale": "Python automation, CI/CD, and prior deployment troubleshooting are relevant to building internal reliability tools and working through production issues. Prior finance or functional programming experience is optional.",
+          "checked_at": "2026-11-15T10:36:52+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "posted_at": "2021-04-01",
+          "source_updated_at": "2026-11-03T10:18:06-05:00"
+        },
+        {
+          "id": "533e0a799e4bef2256ea52de",
+          "title": "Software Engineer",
+          "employer": "Jane Street",
+          "city": "London",
+          "location": "London, England, United Kingdom",
+          "url": "https://www.janestreet.com/join-jane-street/apply/8647260002?gh_jid=8647260002",
+          "careers_url": "https://www.janestreet.com/join-jane-street/open-roles/",
+          "source": "greenhouse:janestreet",
+          "requisition": "R-1166",
+          "source_url": "https://www.janestreet.com/join-jane-street/apply/8647260002?gh_jid=8647260002",
+          "evidence": "Jane Street publishes listing 8647260002 on its careers channel and names the advertised location as London, England, United Kingdom.",
+          "description": "Develop internal software and foundational tools across trading, accounting and infrastructure.",
+          "requirements": [
+            "Strong programming in any language",
+            "Collaborative, inquisitive approach to engineering",
+            "Fluent English"
+          ],
+          "fit_rationale": "Python, TypeScript and the confirmed software delivery record align with the general programming and tooling scope. The advert welcomes candidates new to OCaml and financial systems.",
+          "checked_at": "2026-11-15T10:36:52+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "posted_at": "2026-08-07",
+          "source_updated_at": "2026-11-03T10:18:06-05:00"
+        }
+      ]
+    },
+    {
+      "name": "Palantir",
+      "city": "London",
+      "careers_url": "https://www.palantir.com/careers/",
+      "logo": {
+        "status": "verified",
+        "page_url": "https://investors.palantir.com/",
+        "url": "https://investors.palantir.com/images/components/footer/icon-logo.svg",
+        "final_url": "https://investors.palantir.com/images/components/footer/icon-logo.svg",
+        "evidence": "Palantir investor relations uses the company symbol in its own site footer.",
+        "sha256": "92e8875c5a99cee48a2db37d622cce81f6c31642ad5bfc23276d057290079d1d",
+        "expected_sha256": "92e8875c5a99cee48a2db37d622cce81f6c31642ad5bfc23276d057290079d1d",
+        "checked_at": "2026-11-15T10:28:48.904971+00:00",
+        "local_path": "tasks/public-demo-logos-activity/research/europe/logos/palantir.png",
+        "dimensions": [
+          80,
+          20
+        ],
+        "selection": "https://investors.palantir.com/images/components/footer/icon-logo.svg"
+      },
+      "picks": [
+        {
+          "job_id": "20efb10c1c3165768898aff8",
+          "reason": "Confirmed TypeScript and Next.js and the résumé’s React SaaS and end-user testing experience directly support the product workflow and browser engineering scope.",
+          "fact_ids": [
+            "3b66e05b56c2d09ca02852719fc4b4bc",
+            "60e7c079348914b505360dc1f0dedf7a"
+          ]
+        },
+        {
+          "job_id": "25685fa4b60255263e1c6bf4",
+          "reason": "The résumé documents API development, authentication, microservice migration and CI/CD alongside confirmed Python. This role asks for backend design concepts and active systems experience rather than a fixed number of specialist years.",
+          "fact_ids": [
+            "ce3737d14c22431c2f3c0d19067d52a3",
+            "1fbbf838939b2db64d80606aec6c15eb",
+            "f8cb45f384063f6670a007b30b1d95a5"
+          ]
+        }
+      ],
+      "jobs": [
+        {
+          "id": "20efb10c1c3165768898aff8",
+          "title": "Full Stack Software Engineer - Application Development",
+          "employer": "Palantir",
+          "city": "London",
+          "location": "London, United Kingdom",
+          "url": "https://jobs.lever.co/palantir/c44510a1-9537-4c52-ae81-51546979fe47",
+          "careers_url": "https://www.palantir.com/careers/",
+          "source": "lever:palantir",
+          "requisition": "c44510a1-9537-4c52-ae81-51546979fe47",
+          "source_url": "https://jobs.lever.co/palantir/c44510a1-9537-4c52-ae81-51546979fe47",
+          "evidence": "Palantir publishes listing c44510a1-9537-4c52-ae81-51546979fe47 on its careers channel and names the advertised location as London, United Kingdom.",
+          "description": "Build and iterate full-stack product workflows with a focus on interfaces and close collaboration with designers and users.",
+          "requirements": [
+            "2+ years of frontend software engineering",
+            "JavaScript or TypeScript",
+            "Strong frontend code and knowledge of web fundamentals",
+            "Data structures, loading patterns and frontend frameworks",
+            "Strong written and verbal communication"
+          ],
+          "fit_rationale": "Confirmed TypeScript and Next.js and the résumé’s React SaaS and end-user testing experience directly support the product workflow and browser engineering scope.",
+          "checked_at": "2026-11-15T10:36:49+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "Hybrid",
+          "posted_at": "2024-02-22"
+        },
+        {
+          "id": "25685fa4b60255263e1c6bf4",
+          "title": "Backend Software Engineer - Application Development",
+          "employer": "Palantir",
+          "city": "London",
+          "location": "London, United Kingdom",
+          "url": "https://jobs.lever.co/palantir/10dfc8bc-99ad-4ca2-ab76-853cb90a92c2",
+          "careers_url": "https://www.palantir.com/careers/",
+          "source": "lever:palantir",
+          "requisition": "10dfc8bc-99ad-4ca2-ab76-853cb90a92c2",
+          "source_url": "https://jobs.lever.co/palantir/10dfc8bc-99ad-4ca2-ab76-853cb90a92c2",
+          "evidence": "Palantir publishes listing 10dfc8bc-99ad-4ca2-ab76-853cb90a92c2 on its careers channel and names the advertised location as London, United Kingdom.",
+          "description": "Develop and maintain backend features and APIs that support application workflows.",
+          "requirements": [
+            "Live backend feature development and maintenance",
+            "Data structures and system architecture",
+            "Microservice API development and distributed systems concepts",
+            "Relevant engineering or computer science background",
+            "Programming in Java, C++, Python, Rust or similar"
+          ],
+          "fit_rationale": "The résumé documents API development, authentication, microservice migration and CI/CD alongside confirmed Python. This role asks for backend design concepts and active systems experience rather than a fixed number of specialist years.",
+          "checked_at": "2026-11-15T10:36:51+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "Hybrid",
+          "posted_at": "2024-03-11"
+        },
+        {
+          "id": "2767379c4380e97c58291601",
+          "title": "Backend Software Engineer - Infrastructure",
+          "employer": "Palantir",
+          "city": "London",
+          "location": "London, United Kingdom",
+          "url": "https://jobs.lever.co/palantir/f70cdff7-c62f-4b73-a136-909e5e3d1891",
+          "careers_url": "https://www.palantir.com/careers/",
+          "source": "lever:palantir",
+          "requisition": "f70cdff7-c62f-4b73-a136-909e5e3d1891",
+          "source_url": "https://jobs.lever.co/palantir/f70cdff7-c62f-4b73-a136-909e5e3d1891",
+          "evidence": "Palantir publishes listing f70cdff7-c62f-4b73-a136-909e5e3d1891 on its careers channel and names the advertised location as London, United Kingdom.",
+          "description": "Build shared backend services and APIs that simplify how application teams use data and platform infrastructure.",
+          "requirements": [
+            "Relevant engineering or computer science background",
+            "Strong coding in Java, C++, Python, Rust or similar",
+            "Familiarity with storage, data processing and cloud infrastructure",
+            "Ability to iterate and collaborate on reliable software"
+          ],
+          "fit_rationale": "Confirmed Python, AWS and SQL support the general infrastructure requirements. Public work on data ingestion and cloud systems supports the expected familiarity. Highly available distributed systems experience is listed as beneficial.",
+          "checked_at": "2026-11-15T10:36:51+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "Hybrid",
+          "posted_at": "2024-02-20"
+        },
+        {
+          "id": "fa531ec2c6030e0115ebd250",
+          "title": "Backend Software Engineer - Infrastructure, Foundations",
+          "employer": "Palantir",
+          "city": "London",
+          "location": "London, United Kingdom",
+          "url": "https://jobs.lever.co/palantir/aaee4d20-7f1b-48b1-ad23-d52ffbf42a49",
+          "careers_url": "https://www.palantir.com/careers/",
+          "source": "lever:palantir",
+          "requisition": "aaee4d20-7f1b-48b1-ad23-d52ffbf42a49",
+          "source_url": "https://jobs.lever.co/palantir/aaee4d20-7f1b-48b1-ad23-d52ffbf42a49",
+          "evidence": "Palantir publishes listing aaee4d20-7f1b-48b1-ad23-d52ffbf42a49 on its careers channel and names the advertised location as London, United Kingdom.",
+          "description": "Develop foundational backend services shared by infrastructure and application teams.",
+          "requirements": [
+            "Relevant engineering or computer science background",
+            "Strong coding in Java, C++, Python, Rust or similar",
+            "Familiarity with storage, data processing and cloud infrastructure",
+            "Ability to iterate and collaborate on reliable software"
+          ],
+          "fit_rationale": "Confirmed Python, Docker and AWS plus data pipeline and database work align with platform foundations. The advert makes specialist distributed-systems experience optional.",
+          "checked_at": "2026-11-15T10:36:51+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "Hybrid",
+          "posted_at": "2026-03-26"
+        },
+        {
+          "id": "1c96da0d1bddc8355393cbaf",
+          "title": "Forward Deployed Software Engineer",
+          "employer": "Palantir",
+          "city": "London",
+          "location": "London, United Kingdom",
+          "url": "https://jobs.lever.co/palantir/5168e8fd-fec1-4fea-b7a1-81bdaea65850",
+          "careers_url": "https://www.palantir.com/careers/",
+          "source": "lever:palantir",
+          "requisition": "5168e8fd-fec1-4fea-b7a1-81bdaea65850",
+          "source_url": "https://jobs.lever.co/palantir/5168e8fd-fec1-4fea-b7a1-81bdaea65850",
+          "evidence": "Palantir publishes listing 5168e8fd-fec1-4fea-b7a1-81bdaea65850 on its careers channel and names the advertised location as London, United Kingdom.",
+          "description": "Work directly with users to build and deploy technical solutions, including application and data workflows.",
+          "requirements": [
+            "Engineering degree",
+            "6+ months of relevant post-college experience",
+            "Python, Java, C++, TypeScript/JavaScript or similar",
+            "Secure application development, access controls and privacy",
+            "Travel estimated at 25–50%, varying by team and location"
+          ],
+          "fit_rationale": "The résumé shows a Computer Science degree, customer-facing requirements and demos, sensitive-data SaaS work and authentication. Confirmed TypeScript, Python and OAuth2 fit the application development scope. Travel availability is unknown.",
+          "checked_at": "2026-11-15T10:36:51+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "Hybrid",
+          "posted_at": "2009-12-05",
+          "source_date_note": "The publisher declares a 2009 date. The same requisition and its direct application link were reachable in the current employer feed."
+        },
+        {
+          "id": "c74be5fa676863e8841308bf",
+          "title": "Software Engineer - Apollo Platform",
+          "employer": "Palantir",
+          "city": "London",
+          "location": "London, United Kingdom",
+          "url": "https://jobs.lever.co/palantir/f75cb0d2-6608-450b-848e-0f27937c930d",
+          "careers_url": "https://www.palantir.com/careers/",
+          "source": "lever:palantir",
+          "requisition": "f75cb0d2-6608-450b-848e-0f27937c930d",
+          "source_url": "https://jobs.lever.co/palantir/f75cb0d2-6608-450b-848e-0f27937c930d",
+          "evidence": "Palantir publishes listing f75cb0d2-6608-450b-848e-0f27937c930d on its careers channel and names the advertised location as London, United Kingdom.",
+          "description": "Build platform tooling for deploying and operating software across environments.",
+          "requirements": [
+            "Software engineering or related background",
+            "Strong programming, such as Java, Go, C++ or an equivalent",
+            "Independent engineering judgment",
+            "Communication and ability to evolve complex systems"
+          ],
+          "fit_rationale": "Confirmed Docker and CI/CD and the résumé’s migration and pipeline work align with deployment tooling. The role allows equivalent programming languages and lists orchestration experience as valuable.",
+          "checked_at": "2026-11-15T10:36:51+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "Hybrid",
+          "posted_at": "2022-08-15"
+        }
+      ]
+    },
+    {
+      "name": "Lendable",
+      "city": "London",
+      "careers_url": "https://careers.lendable.com/",
+      "logo": {
+        "status": "verified",
+        "page_url": "https://www.lendable.com/",
+        "url": "https://www.lendable.com/logo-lend.svg",
+        "final_url": "https://www.lendable.com/logo-lend.svg",
+        "evidence": "The Lendable corporate website explicitly embeds this company mark as its masthead logo.",
+        "sha256": "c05a0b310f938b85c19144d50a3c03688647a5ae95e0493b0a792f09cfd07497",
+        "expected_sha256": "c05a0b310f938b85c19144d50a3c03688647a5ae95e0493b0a792f09cfd07497",
+        "checked_at": "2026-11-15T10:35:32.573336+00:00",
+        "local_path": "tasks/public-demo-logos-activity/research/europe/logos/lendable.png",
+        "dimensions": [
+          192,
+          43
+        ],
+        "selection": "https://www.lendable.com/logo-lend.svg"
+      },
+      "picks": [
+        {
+          "job_id": "43398ff7be0e6223a7385179",
+          "reason": "Confirmed Python and FastAPI, plus the résumé’s API, integration and automated testing work, align closely with the backend API role.",
+          "fact_ids": [
+            "ce3737d14c22431c2f3c0d19067d52a3",
+            "baf67c1cab10e840eb14b6082c1b04ee"
+          ]
+        },
+        {
+          "job_id": "ee5735c4bfb2b2e33dd8c34b",
+          "reason": "Confirmed FastAPI, TypeScript and Next.js plus production and warehouse tools built for internal users match the stack and operational context.",
+          "fact_ids": [
+            "baf67c1cab10e840eb14b6082c1b04ee",
+            "3b66e05b56c2d09ca02852719fc4b4bc",
+            "60e7c079348914b505360dc1f0dedf7a"
+          ]
+        }
+      ],
+      "jobs": [
+        {
+          "id": "43398ff7be0e6223a7385179",
+          "title": "Python Engineer",
+          "employer": "Lendable",
+          "city": "London",
+          "location": "London",
+          "url": "https://jobs.ashbyhq.com/lendable/9c1b6ab5-5582-46b1-ae58-d9720c8b8440",
+          "careers_url": "https://careers.lendable.com/",
+          "source": "ashby:lendable",
+          "requisition": "9c1b6ab5-5582-46b1-ae58-d9720c8b8440",
+          "source_url": "https://jobs.ashbyhq.com/lendable/9c1b6ab5-5582-46b1-ae58-d9720c8b8440",
+          "evidence": "Lendable publishes listing 9c1b6ab5-5582-46b1-ae58-d9720c8b8440 on its careers channel and names the advertised location as London.",
+          "description": "Build and integrate APIs for the lending platform and improve backend performance as part of the Python Infrastructure team.",
+          "requirements": [
+            "Strong modern Python development",
+            "Understanding of FastAPI",
+            "Automated unit, integration and functional testing",
+            "Collaborative engineering"
+          ],
+          "fit_rationale": "Confirmed Python and FastAPI, plus the résumé’s API, integration and automated testing work, align closely with the backend API role.",
+          "checked_at": "2026-11-15T10:36:50+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "Hybrid",
+          "posted_at": "2026-11-10"
+        },
+        {
+          "id": "ee5735c4bfb2b2e33dd8c34b",
+          "title": "Senior Full Stack Engineer",
+          "employer": "Lendable",
+          "city": "London",
+          "location": "London",
+          "url": "https://jobs.ashbyhq.com/lendable/9456eab2-b8e6-4a33-823c-b87c553fabe4",
+          "careers_url": "https://careers.lendable.com/",
+          "source": "ashby:lendable",
+          "requisition": "9456eab2-b8e6-4a33-823c-b87c553fabe4",
+          "source_url": "https://jobs.ashbyhq.com/lendable/9456eab2-b8e6-4a33-823c-b87c553fabe4",
+          "evidence": "Lendable publishes listing 9456eab2-b8e6-4a33-823c-b87c553fabe4 on its careers channel and names the advertised location as London.",
+          "description": "Deliver full-stack internal tools for operations teams, including quality assurance and customer support workflows.",
+          "requirements": [
+            "Professional software engineering",
+            "Python web applications with FastAPI, Django or Flask",
+            "JavaScript or TypeScript and a modern frontend framework",
+            "Design patterns, testing and code review",
+            "Product-team experience"
+          ],
+          "fit_rationale": "Confirmed FastAPI, TypeScript and Next.js plus production and warehouse tools built for internal users match the stack and operational context.",
+          "checked_at": "2026-11-15T10:36:49+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "Hybrid",
+          "posted_at": "2026-09-04"
+        },
+        {
+          "id": "e573255321834ae5a0e4acb3",
+          "title": "Senior Product Engineer",
+          "employer": "Lendable",
+          "city": "London",
+          "location": "London",
+          "url": "https://jobs.ashbyhq.com/lendable/e80a5e5b-922d-4ce7-9837-3acf0b5f33b1",
+          "careers_url": "https://careers.lendable.com/",
+          "source": "ashby:lendable",
+          "requisition": "e80a5e5b-922d-4ce7-9837-3acf0b5f33b1",
+          "source_url": "https://jobs.ashbyhq.com/lendable/e80a5e5b-922d-4ce7-9837-3acf0b5f33b1",
+          "evidence": "Lendable publishes listing e80a5e5b-922d-4ce7-9837-3acf0b5f33b1 on its careers channel and names the advertised location as London.",
+          "description": "Own product engineering initiatives for operations workflows such as complaints, quality assurance and fraud investigations.",
+          "requirements": [
+            "Record delivering practical full-stack solutions",
+            "Business judgment and comfort with ambiguity",
+            "Experience shaping engineering practices and mentoring",
+            "Interest in AI-assisted development"
+          ],
+          "fit_rationale": "Public systems-analysis work and practical internal cloud products relate to ambiguous operational problems. Mentoring and technical direction at Deakin support the team responsibilities, and FastAPI and Next.js are in the advertised stack.",
+          "checked_at": "2026-11-15T10:36:49+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "Hybrid",
+          "posted_at": "2026-11-09"
+        }
+      ]
+    },
+    {
+      "name": "Taktile",
+      "city": "Berlin",
+      "careers_url": "https://taktile.com/careers",
+      "logo": {
+        "status": "verified",
+        "page_url": "https://taktile.com/contact",
+        "url": "https://cdn.sanity.io/images/o8dlvrl5/production/71ea9f164e50eb1ee51bd60f4f9626c94a11466d-180x180.png",
+        "final_url": "https://cdn.sanity.io/images/o8dlvrl5/production/71ea9f164e50eb1ee51bd60f4f9626c94a11466d-180x180.png",
+        "evidence": "Taktile’s official website publishes its company mark on this page.",
+        "sha256": "e5e82fdd706e406e11df6c3ca1dab4364e25e615bef15683daa112a22f9e66a9",
+        "expected_sha256": "e5e82fdd706e406e11df6c3ca1dab4364e25e615bef15683daa112a22f9e66a9",
+        "checked_at": "2026-11-15T10:28:57.150414+00:00",
+        "local_path": "tasks/public-demo-logos-activity/research/europe/logos/taktile.png",
+        "dimensions": [
+          180,
+          180
+        ],
+        "selection": null
+      },
+      "picks": [
+        {
+          "job_id": "bb80e958778d690f317b22e0",
+          "reason": "Confirmed Python, TypeScript, FastAPI and AWS, plus experience delivering React interfaces and integrations, align directly with the stack. LLM application experience is listed as optional.",
+          "fact_ids": [
+            "ce3737d14c22431c2f3c0d19067d52a3",
+            "3b66e05b56c2d09ca02852719fc4b4bc",
+            "baf67c1cab10e840eb14b6082c1b04ee",
+            "a383674d908eade31aef1db6ada4e12a"
+          ]
+        },
+        {
+          "job_id": "53a92d7924af24f2d50b75b4",
+          "reason": "The résumé documents API and integration development alongside requirements gathering, customer-facing demos and acceptance testing. Confirmed Python and SQL fit the technical implementation scope.",
+          "fact_ids": [
+            "ce3737d14c22431c2f3c0d19067d52a3",
+            "d7629711b68661baaf1fbb1792c0fb8a",
+            "79ed41d4d9f7d874acbed0e6cb157cdf"
+          ]
+        }
+      ],
+      "jobs": [
+        {
+          "id": "bb80e958778d690f317b22e0",
+          "title": "Senior Full-Stack Engineer - Team Agent",
+          "employer": "Taktile",
+          "city": "Berlin",
+          "location": "Berlin Office; Iasi Office; London Office; Dublin",
+          "url": "https://jobs.ashbyhq.com/taktile/c9d47dd2-3252-4266-a581-b9d1b46e9297",
+          "careers_url": "https://taktile.com/careers",
+          "source": "ashby:taktile",
+          "requisition": "c9d47dd2-3252-4266-a581-b9d1b46e9297",
+          "source_url": "https://jobs.ashbyhq.com/taktile/c9d47dd2-3252-4266-a581-b9d1b46e9297",
+          "evidence": "Taktile publishes listing c9d47dd2-3252-4266-a581-b9d1b46e9297 on its careers channel and names the advertised location as Berlin Office; Iasi Office; London Office; Dublin.",
+          "description": "Build full-stack tools and rich interfaces for Taktile’s agent workflows.",
+          "requirements": [
+            "Prior industry experience with full-stack web applications",
+            "React and TypeScript",
+            "Python backend services with REST APIs and databases",
+            "AWS or a similar cloud provider",
+            "Fluent written and spoken English"
+          ],
+          "fit_rationale": "Confirmed Python, TypeScript, FastAPI and AWS, plus experience delivering React interfaces and integrations, align directly with the stack. LLM application experience is listed as optional.",
+          "checked_at": "2026-11-15T10:36:49+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "Hybrid",
+          "posted_at": "2026-09-02"
+        },
+        {
+          "id": "53a92d7924af24f2d50b75b4",
+          "title": "Forward Deployed Engineer",
+          "employer": "Taktile",
+          "city": "Berlin",
+          "location": "Berlin Office; London Office",
+          "url": "https://jobs.ashbyhq.com/taktile/594e7ab1-3c77-43b5-be3f-bc30d513c14c",
+          "careers_url": "https://taktile.com/careers",
+          "source": "ashby:taktile",
+          "requisition": "594e7ab1-3c77-43b5-be3f-bc30d513c14c",
+          "source_url": "https://jobs.ashbyhq.com/taktile/594e7ab1-3c77-43b5-be3f-bc30d513c14c",
+          "evidence": "Taktile publishes listing 594e7ab1-3c77-43b5-be3f-bc30d513c14c on its careers channel and names the advertised location as Berlin Office; London Office.",
+          "description": "Build and deploy customer integrations and decision workflows, then turn recurring implementation needs into reusable tools.",
+          "requirements": [
+            "2+ years engineering or technical deployment including customer-facing work",
+            "Production-grade Python and SQL",
+            "REST APIs and integrations",
+            "Stakeholder communication and practical troubleshooting",
+            "On site at least three days per week in Berlin or London"
+          ],
+          "fit_rationale": "The résumé documents API and integration development alongside requirements gathering, customer-facing demos and acceptance testing. Confirmed Python and SQL fit the technical implementation scope.",
+          "checked_at": "2026-11-15T10:36:50+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "Hybrid",
+          "posted_at": "2026-07-19"
+        },
+        {
+          "id": "07b0c14be889941cec63ccc2",
+          "title": "Senior Forward Deployed Engineer",
+          "employer": "Taktile",
+          "city": "Berlin",
+          "location": "Berlin Office; London Office",
+          "url": "https://jobs.ashbyhq.com/taktile/d56d9c0d-5585-43d1-bc94-304bcc4ba11f",
+          "careers_url": "https://taktile.com/careers",
+          "source": "ashby:taktile",
+          "requisition": "d56d9c0d-5585-43d1-bc94-304bcc4ba11f",
+          "source_url": "https://jobs.ashbyhq.com/taktile/d56d9c0d-5585-43d1-bc94-304bcc4ba11f",
+          "evidence": "Taktile publishes listing d56d9c0d-5585-43d1-bc94-304bcc4ba11f on its careers channel and names the advertised location as Berlin Office; London Office.",
+          "description": "Own more complex customer deployments and help turn Taktile customer feedback into platform improvements.",
+          "requirements": [
+            "4–6 years engineering or technical deployment including customer-facing work",
+            "Production-grade Python and SQL",
+            "REST API and integration design",
+            "Stakeholder communication and problem solving",
+            "On site at least three days per week in Berlin or London"
+          ],
+          "fit_rationale": "Confirmed Python and SQL support the delivery responsibilities. The résumé documents consulting with stakeholders, designing APIs and integrations, resolving deployment issues and guiding teams across the software lifecycle.",
+          "checked_at": "2026-11-15T10:36:50+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "Hybrid",
+          "posted_at": "2026-07-19"
+        }
+      ]
+    },
+    {
+      "name": "Kombo",
+      "city": "Berlin",
+      "careers_url": "https://jobs.ashbyhq.com/Kombo",
+      "logo": {
+        "status": "verified",
+        "page_url": "https://www.kombo.dev/",
+        "url": "https://www.kombo.dev/_astro/kombo-logo.DAwf5IA5.svg",
+        "final_url": "https://www.kombo.dev/_astro/kombo-logo.DAwf5IA5.svg",
+        "evidence": "Kombo’s official homepage explicitly embeds its named SVG logo in the site navigation.",
+        "sha256": "e80f8397894720f1c061a95b50da8088991914bb2991e2f5bb687e348a312431",
+        "expected_sha256": "e80f8397894720f1c061a95b50da8088991914bb2991e2f5bb687e348a312431",
+        "checked_at": "2026-11-15T10:35:36.827405+00:00",
+        "local_path": "tasks/public-demo-logos-activity/research/europe/logos/kombo.png",
+        "dimensions": [
+          117,
+          30
+        ],
+        "selection": "https://www.kombo.dev/_astro/kombo-logo.DAwf5IA5.svg"
+      },
+      "picks": [
+        {
+          "job_id": "09e716ba9a58d161a67e0bae",
+          "reason": "Public work on custom systems from stakeholder requirements to deployment and user acceptance testing aligns with this end-to-end product role. Confirmed TypeScript and Express.js support its integrations.",
+          "fact_ids": [
+            "3b66e05b56c2d09ca02852719fc4b4bc",
+            "f8cb45f384063f6670a007b30b1d95a5",
+            "79ed41d4d9f7d874acbed0e6cb157cdf"
+          ]
+        },
+        {
+          "job_id": "33336e77dcdcf8f797300d24",
+          "reason": "Confirmed TypeScript, SQL/NoSQL and CI/CD, plus experience migrating applications to microservices and diagnosing deployment issues, align with the API, database and operational work. Kubernetes and GCP are listed as optional.",
+          "fact_ids": [
+            "3b66e05b56c2d09ca02852719fc4b4bc",
+            "d7629711b68661baaf1fbb1792c0fb8a",
+            "1fbbf838939b2db64d80606aec6c15eb"
+          ]
+        }
+      ],
+      "jobs": [
+        {
+          "id": "09e716ba9a58d161a67e0bae",
+          "title": "Senior Product Engineer (Full Stack)",
+          "employer": "Kombo",
+          "city": "Berlin",
+          "location": "Berlin Office",
+          "url": "https://jobs.ashbyhq.com/Kombo/221b2f22-ead1-48e1-b0ca-9a7c6110d1a4",
+          "careers_url": "https://jobs.ashbyhq.com/Kombo",
+          "source": "ashby:kombo",
+          "requisition": "221b2f22-ead1-48e1-b0ca-9a7c6110d1a4",
+          "source_url": "https://jobs.ashbyhq.com/Kombo/221b2f22-ead1-48e1-b0ca-9a7c6110d1a4",
+          "evidence": "Kombo publishes listing 221b2f22-ead1-48e1-b0ca-9a7c6110d1a4 on its careers channel and names the advertised location as Berlin Office.",
+          "description": "Own solutions for customer problems from discovery through implementation, integration, rollout and feedback.",
+          "requirements": [
+            "Product engineering and end-to-end ownership",
+            "Work with customers to scope and validate solutions",
+            "TypeScript monorepo",
+            "Design, implement and ship production features",
+            "On-site in Berlin"
+          ],
+          "fit_rationale": "Public work on custom systems from stakeholder requirements to deployment and user acceptance testing aligns with this end-to-end product role. Confirmed TypeScript and Express.js support its integrations.",
+          "checked_at": "2026-11-15T10:36:50+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "On-site",
+          "posted_at": "2025-10-09"
+        },
+        {
+          "id": "33336e77dcdcf8f797300d24",
+          "title": "Senior Backend Engineer (Platform Team)",
+          "employer": "Kombo",
+          "city": "Berlin",
+          "location": "Berlin Office",
+          "url": "https://jobs.ashbyhq.com/Kombo/85e4cc9e-0509-41ba-b84c-4df821408146",
+          "careers_url": "https://jobs.ashbyhq.com/Kombo",
+          "source": "ashby:kombo",
+          "requisition": "85e4cc9e-0509-41ba-b84c-4df821408146",
+          "source_url": "https://jobs.ashbyhq.com/Kombo/85e4cc9e-0509-41ba-b84c-4df821408146",
+          "evidence": "Kombo publishes listing 85e4cc9e-0509-41ba-b84c-4df821408146 on its careers channel and names the advertised location as Berlin Office.",
+          "description": "Improve API infrastructure, service reliability, database performance and operational tooling.",
+          "requirements": [
+            "Production backend services, APIs and database-backed systems",
+            "Methodical debugging",
+            "Safe migrations, rollout and rollback reasoning",
+            "Independent ownership and clear communication",
+            "On-site in Berlin"
+          ],
+          "fit_rationale": "Confirmed TypeScript, SQL/NoSQL and CI/CD, plus experience migrating applications to microservices and diagnosing deployment issues, align with the API, database and operational work. Kubernetes and GCP are listed as optional.",
+          "checked_at": "2026-11-15T10:36:50+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "On-site",
+          "posted_at": "2026-09-04"
+        },
+        {
+          "id": "9caa8c35cfb99d791dd7c00a",
+          "title": "Developer Support Engineer (Berlin)",
+          "employer": "Kombo",
+          "city": "Berlin",
+          "location": "Berlin Office",
+          "url": "https://jobs.ashbyhq.com/Kombo/95e1ed46-b75f-4159-b134-9842ad5be573",
+          "careers_url": "https://jobs.ashbyhq.com/Kombo",
+          "source": "ashby:kombo",
+          "requisition": "95e1ed46-b75f-4159-b134-9842ad5be573",
+          "source_url": "https://jobs.ashbyhq.com/Kombo/95e1ed46-b75f-4159-b134-9842ad5be573",
+          "evidence": "Kombo publishes listing 95e1ed46-b75f-4159-b134-9842ad5be573 on its careers channel and names the advertised location as Berlin Office.",
+          "description": "Diagnose API and authentication issues in a production codebase, ship integration fixes and features, and build support tooling for developers.",
+          "requirements": [
+            "Technical background such as software engineering",
+            "Production coding, ideally TypeScript or JavaScript, with modern-language alternatives",
+            "Debugging APIs and integrations inside unfamiliar codebases",
+            "Technical communication and independent ownership",
+            "On-site in Berlin"
+          ],
+          "fit_rationale": "Public experience building APIs, authentication and integrations and resolving deployment issues supports the coding and troubleshooting responsibilities. Confirmed TypeScript and OAuth2 map directly to the work. Prior technical support experience is optional.",
+          "checked_at": "2026-11-15T10:36:50+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "On-site",
+          "posted_at": "2025-11-25"
+        }
+      ]
+    },
+    {
+      "name": "Almedia",
+      "city": "Berlin",
+      "careers_url": "https://jobs.ashbyhq.com/almedia",
+      "logo": {
+        "status": "verified",
+        "page_url": "https://almedia.co/",
+        "url": "https://cdn.prod.website-files.com/6a325fa9e8cad1f84dfc1296/6a33215fd0568a6a97e7add9_Logo%20(1).svg",
+        "final_url": "https://cdn.prod.website-files.com/6a325fa9e8cad1f84dfc1296/6a33215fd0568a6a97e7add9_Logo%20(1).svg",
+        "evidence": "Almedia’s official website publishes its company mark on this page.",
+        "sha256": "e4c09967748703f7b0a0b062df56c3bc9884de0586114cdc6d6df4d532b03b10",
+        "expected_sha256": "e4c09967748703f7b0a0b062df56c3bc9884de0586114cdc6d6df4d532b03b10",
+        "checked_at": "2026-11-15T10:35:33.304818+00:00",
+        "local_path": "tasks/public-demo-logos-activity/research/europe/logos/almedia.png",
+        "dimensions": [
+          156,
+          32
+        ],
+        "selection": null
+      },
+      "picks": [
+        {
+          "job_id": "4002ccd54c9e144702d89998",
+          "reason": "Public work on customer-facing cloud production and warehouse software relates to the self-serve operational workflows. Confirmed FastAPI, Next.js and TypeScript are among the advertised technologies.",
+          "fact_ids": [
+            "baf67c1cab10e840eb14b6082c1b04ee",
+            "60e7c079348914b505360dc1f0dedf7a",
+            "3b66e05b56c2d09ca02852719fc4b4bc"
+          ]
+        },
+        {
+          "job_id": "7d1fa2329ec9b23c0ed9a231",
+          "reason": "The résumé shows original cloud warehouse and production systems and technical direction across 10+ products. That zero-to-one ownership and confirmed TypeScript and Express.js match the product and backend scope.",
+          "fact_ids": [
+            "3b66e05b56c2d09ca02852719fc4b4bc",
+            "f8cb45f384063f6670a007b30b1d95a5",
+            "79ed41d4d9f7d874acbed0e6cb157cdf"
+          ]
+        }
+      ],
+      "jobs": [
+        {
+          "id": "4002ccd54c9e144702d89998",
+          "title": "Product Engineer (Client Platform)",
+          "employer": "Almedia",
+          "city": "Berlin",
+          "location": "Berlin",
+          "url": "https://jobs.ashbyhq.com/almedia/a14b273c-801c-43e4-a6bf-84fb22651b12",
+          "careers_url": "https://jobs.ashbyhq.com/almedia",
+          "source": "ashby:almedia",
+          "requisition": "a14b273c-801c-43e4-a6bf-84fb22651b12",
+          "source_url": "https://jobs.ashbyhq.com/almedia/a14b273c-801c-43e4-a6bf-84fb22651b12",
+          "evidence": "Almedia publishes listing a14b273c-801c-43e4-a6bf-84fb22651b12 on its careers channel and names the advertised location as Berlin.",
+          "description": "Build self-serve business workflows in the Client Platform and own their data, backend and frontend implementation.",
+          "requirements": [
+            "Experience with the advertised or comparable stack",
+            "Full-stack feature delivery across data, services and UI",
+            "Typed, documented code",
+            "Comfort using AI-assisted development tools",
+            "Cross-team project coordination"
+          ],
+          "fit_rationale": "Public work on customer-facing cloud production and warehouse software relates to the self-serve operational workflows. Confirmed FastAPI, Next.js and TypeScript are among the advertised technologies.",
+          "checked_at": "2026-11-15T10:36:50+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "On-site",
+          "posted_at": "2026-11-03"
+        },
+        {
+          "id": "7d1fa2329ec9b23c0ed9a231",
+          "title": "Founding Engineer",
+          "employer": "Almedia",
+          "city": "Berlin",
+          "location": "Berlin",
+          "url": "https://jobs.ashbyhq.com/almedia/90dbf17b-f709-4cfc-9775-8f642d931d58",
+          "careers_url": "https://jobs.ashbyhq.com/almedia",
+          "source": "ashby:almedia",
+          "requisition": "90dbf17b-f709-4cfc-9775-8f642d931d58",
+          "source_url": "https://jobs.ashbyhq.com/almedia/90dbf17b-f709-4cfc-9775-8f642d931d58",
+          "evidence": "Almedia publishes listing 90dbf17b-f709-4cfc-9775-8f642d931d58 on its careers channel and names the advertised location as Berlin.",
+          "description": "Build a new product from zero to deployment, setting direction for implementation and owning delivery.",
+          "requirements": [
+            "Strong senior-level product engineering experience",
+            "Deep backend experience such as TypeScript and Node.js",
+            "Zero-to-one delivery in a startup, founding role or comparable setting",
+            "Complex end-to-end delivery into production",
+            "Clear spoken and written English"
+          ],
+          "fit_rationale": "The résumé documents building original cloud warehouse and production systems and providing technical direction across 10+ software products. That project-level zero-to-one ownership and confirmed TypeScript and Express.js support the senior product and backend scope.",
+          "checked_at": "2026-11-15T10:36:50+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "On-site",
+          "posted_at": "2026-09-09"
+        },
+        {
+          "id": "8ea0fa9c8cde96c7832b01c5",
+          "title": "Junior Engineer (Typescript / Python / DevOps / AI)",
+          "employer": "Almedia",
+          "city": "Berlin",
+          "location": "Berlin",
+          "url": "https://jobs.ashbyhq.com/almedia/ad0fe4c3-0440-4a09-b78b-6f739c3d917d",
+          "careers_url": "https://jobs.ashbyhq.com/almedia",
+          "source": "ashby:almedia",
+          "requisition": "ad0fe4c3-0440-4a09-b78b-6f739c3d917d",
+          "source_url": "https://jobs.ashbyhq.com/almedia/ad0fe4c3-0440-4a09-b78b-6f739c3d917d",
+          "evidence": "Almedia publishes listing ad0fe4c3-0440-4a09-b78b-6f739c3d917d on its careers channel and names the advertised location as Berlin.",
+          "description": "Choose a software delivery track and own changes through development, validation and release. The advert offers TypeScript, Python, DevOps and AI tracks.",
+          "requirements": [
+            "Strong software fundamentals",
+            "Evidence of shipping work or similarly substantial projects",
+            "Systematic debugging and attention to failure modes",
+            "Strong TypeScript, Python, or Rust for the DevOps track"
+          ],
+          "fit_rationale": "Confirmed TypeScript, Python and CI/CD and the résumé’s automated pipelines support the DevOps track. The requisition is titled Junior, offers production ownership and states no experience ceiling.",
+          "checked_at": "2026-11-15T10:36:50+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "On-site",
+          "posted_at": "2026-10-13"
+        },
+        {
+          "id": "d627ad870e18da153bd72d15",
+          "title": "Junior Software Engineer - Data",
+          "employer": "Almedia",
+          "city": "Berlin",
+          "location": "Berlin",
+          "url": "https://jobs.ashbyhq.com/almedia/3835f505-4132-4db7-8288-43e1d1529b24",
+          "careers_url": "https://jobs.ashbyhq.com/almedia",
+          "source": "ashby:almedia",
+          "requisition": "3835f505-4132-4db7-8288-43e1d1529b24",
+          "source_url": "https://jobs.ashbyhq.com/almedia/3835f505-4132-4db7-8288-43e1d1529b24",
+          "evidence": "Almedia publishes listing 3835f505-4132-4db7-8288-43e1d1529b24 on its careers channel and names the advertised location as Berlin.",
+          "description": "Build data ingestion and storage pipelines, Python services, and data quality checks for production.",
+          "requirements": [
+            "Strong Python and SQL",
+            "Experience with schemas, indexes and database reliability",
+            "Engineering depth shown by a degree or shipped work",
+            "Systematic debugging and independent ownership"
+          ],
+          "fit_rationale": "Confirmed Python and SQL and the résumé’s work on automated Python ingestion, sanitising datasets, migrations and databases align with the dedicated data engineering work. The posting gives substantial delivery ownership despite the Junior title and states no experience ceiling.",
+          "checked_at": "2026-11-15T10:36:50+00:00",
+          "availability": "retrieved",
+          "eligibility": "unknown",
+          "sponsorship": "unknown",
+          "work_arrangement": "On-site",
+          "posted_at": "2026-10-13"
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "London": 3,
+    "Berlin": 3
+  }
+}

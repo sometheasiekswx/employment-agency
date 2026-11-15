@@ -261,6 +261,33 @@ export async function verifyPublicDemo(
   );
   const fixture = await fixtureResponse.json();
   const pdf = checkFixture(fixture, release.fixtureRevision);
+  let logos;
+  if (fixture.current_catalog_only === true) {
+    const logoMap = fixture.company_logos;
+    requireValue(isRecord(logoMap) && Array.isArray(fixture.state.jobs),
+      "The public catalog must contain listings and verified logo assets");
+    const entries = Object.entries(logoMap);
+    const used = new Set(fixture.state.jobs.map((job) => job?.company?.logo_url));
+    requireValue(
+      entries.length > 0 && entries.length === used.size &&
+        entries.every(([sha256, url]) =>
+          /^[a-f0-9]{64}$/.test(sha256) && url === `/demo/company-logos/${sha256}.png` && used.has(url),
+        ),
+      "Every public listing must use a current verified local company logo",
+    );
+    for (let index = 0; index < entries.length; index += 8) {
+      await Promise.all(entries.slice(index, index + 8).map(async ([sha256, url]) => {
+        const { response } = await request(url, "image/png");
+        const body = Buffer.from(await response.arrayBuffer());
+        requireValue(
+          body.subarray(0, 8).toString("hex") === "89504e470d0a1a0a" &&
+            createHash("sha256").update(body).digest("hex") === sha256,
+          `${url}: invalid public logo bytes`,
+        );
+      }));
+    }
+    logos = entries.length;
+  }
   if (fixture.demo_resume !== undefined) {
     const master = fixture.demo_resume;
     requireValue(
@@ -303,6 +330,7 @@ export async function verifyPublicDemo(
     fixtureRevision: release.fixtureRevision,
     routes: [...routes],
     pdf,
+    ...(logos === undefined ? {} : { logos }),
   };
 }
 
@@ -320,7 +348,8 @@ if (
       waitForAlias,
     });
     console.log(
-      `Verified public demo ${result.commit} (${result.fixtureRevision}): ${result.routes.length} routes and sample PDF`,
+      `Verified public demo ${result.commit} (${result.fixtureRevision}): ${result.routes.length} routes, sample PDF` +
+        (result.logos === undefined ? "" : `, and ${result.logos} company logos`),
     );
   } catch (error) {
     console.error(`Public demo verification failed: ${error.message}`);
