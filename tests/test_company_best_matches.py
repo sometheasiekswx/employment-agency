@@ -2,12 +2,15 @@
 
 from contextlib import closing
 import json
+import subprocess
+import sys
 import threading
 import unittest
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 from employment_agency import store
+from employment_agency.company_best_matches import ResearchIncomplete
 from employment_agency.server import server
 from employment_agency.service import Service
 import test_company_avoid
@@ -47,6 +50,156 @@ class CompanyBestMatches(unittest.TestCase):
 
     def picks(self):
         return self.s.state()['company_best_matches']
+
+    def research(self, *roles, finalize=False, **changes):
+        args = {
+            'workspace_id': self.w.workspace_id, 'profile_id': self.profile['id'],
+            'job_ids': [job['id'] for job in roles], **changes,
+        }
+        action = 'company-research-complete' if finalize else 'company-research'
+        return self.s.action(action, args)
+
+    def test_assessment_keeps_earlier_call_inputs(self):
+        payload = {'profile_id': self.profile['id'], 'job_ids': [self.first['id']] * 2}
+        self.assertEqual(self.s.action('company-research', payload), self.research(self.first))
+        empty = self.s.action('company-research', {**payload, 'job_ids': []})
+        self.assertEqual(empty['companies'], [])
+        self.assertEqual(empty['completion']['companies'], [])
+        with self.assertRaisesRegex(ValueError, 'current workspace'):
+            self.s.action('company-research', {**payload, 'workspace_id': 'another-workspace'})
+
+    def test_research_requires_current_highlights_from_full_inventory(self):
+        checked = self.roles[:2]
+        before = self.w.read()
+        assessment = self.research(*checked)
+        completion = assessment['completion']
+        self.assertEqual(completion['companies'][0]['vacancy_count'], 3)
+        self.assertEqual(completion['blockers'][0]['code'], 'company_highlights_missing')
+        self.assertEqual(self.s.state()['company_highlight_reviews'][0]['status'], 'missing')
+        with self.assertRaises(ResearchIncomplete) as refused:
+            self.research(*checked, finalize=True)
+        self.assertEqual(refused.exception.result['completion'], completion)
+        self.assertEqual(self.w.read(), before)
+        self.save()
+        reviewed = self.w.read()
+        result = self.research(*checked, finalize=True)['completion']
+        self.assertTrue(result['ready'])
+        self.assertEqual(result['companies'][0]['status'], 'current')
+        self.assertEqual(self.s.state()['company_highlight_reviews'], [])
+        self.assertEqual(self.w.read(), reviewed)
+        self.role('fourth')
+        self.assertEqual(self.s.state()['company_highlight_reviews'][0]['status'], 'stale')
+        self.assertEqual(self.picks(), [])
+        stale = self.w.read()
+        with self.assertRaises(ResearchIncomplete) as refused:
+            self.research(*checked, finalize=True)
+        self.assertEqual(refused.exception.result['completion']['blockers'][0]['code'], 'company_highlights_stale')
+        self.assertEqual(self.w.read(), stale)
+
+    def test_research_checks_every_scoped_company_and_ignores_unrelated_reviews(self):
+        others = [self.role(f'other-{i}', employer=f'Other Fictional Company {i}', mapped=False)
+                  for i in range(5)]
+        for role in others:
+            self.s.action('company-map', {'job_id': role['id'], 'confirmed': True})
+        self.assertTrue(self.research(*others, finalize=True)['completion']['ready'])
+        self.role('submitted-at-original', submitted_on='2026-01-01')
+        assessment = self.research(*others, self.first)
+        self.assertEqual(len(assessment['companies']), 5)
+        self.assertNotIn(self.employer, {company['id'] for company in assessment['companies']})
+        self.assertIn(self.employer, {company['employer_id'] for company in assessment['completion']['companies']})
+        with self.assertRaisesRegex(ResearchIncomplete, self.first['employer']):
+            self.research(*others, self.first, finalize=True)
+
+    def test_research_counts_posting_mirrors_once_and_excludes_submissions(self):
+        # Simulate retained legacy listings with different verified requisitions
+        # but a shared posting URL. All three link IDs remain distinct.
+        with self.w.edit() as state:
+            state['jobs'][1]['url'] = state['jobs'][0]['url']
+        result = self.research(*self.roles, finalize=True)['completion']
+        self.assertEqual(result['companies'][0]['vacancy_count'], 2)
+        self.assertEqual(result['companies'][0]['status'], 'not_required')
+        with self.assertRaisesRegex(ValueError, 'At least three distinct suitable vacancies'):
+            self.read_basis()
+        extra = self.role('fourth')
+        basis = self.read_basis()
+        groups = {job['id']: job['vacancy_group_id'] for job in basis['jobs']}
+        self.assertEqual(groups[self.roles[0]['id']], groups[self.roles[1]['id']])
+        with self.assertRaisesRegex(ValueError, 'same vacancy'):
+            self.save(compared_job_ids=[*self.comparison['compared_job_ids'], extra['id']])
+        with self.w.edit() as state:
+            state['jobs'][0]['prior_application'] = 'submitted'
+        result = self.research(extra, finalize=True)['completion']
+        self.assertEqual(result['companies'][0]['vacancy_count'], 2)
+
+    def test_comparison_groups_transitive_duplicates(self):
+        extra = self.role('another')
+        bridge = self.role('bridge', requisition='backend')
+        with self.w.edit() as state:
+            next(job for job in state['jobs'] if job['id'] == bridge['id'])['url'] = self.first['url']
+        basis = self.read_basis()
+        groups = {job['id']: job['vacancy_group_id'] for job in basis['jobs']}
+        self.assertEqual(len(set(groups.values())), 3)
+        self.assertEqual(groups[self.first['id']], groups[self.roles[1]['id']])
+        self.assertEqual(groups[self.first['id']], groups[bridge['id']])
+        compared = [self.roles[1]['id'], self.roles[2]['id'], extra['id']]
+        self.save(basis=basis['basis'], compared_job_ids=compared)
+        self.assertTrue(self.research(bridge, finalize=True)['completion']['ready'])
+        with self.w.edit() as state:
+            state['jobs'][0]['prior_application'] = 'submitted'
+        result = self.research(extra, finalize=True)['completion']
+        self.assertEqual(result['companies'][0]['vacancy_count'], 2)
+
+    def test_research_blocks_in_scope_unverified_employers_and_availability(self):
+        self.save()
+        unresolved = self.role('unresolved', mapped=False)
+        other = self.role('outside', employer='Unrelated Fictional Company', mapped=False)
+        completion = self.research(self.first)['completion']
+        self.assertEqual([(row['job_id'], row['code']) for row in completion['blockers']],
+                         [(unresolved['id'], 'employer_identity_unresolved')])
+        with self.assertRaises(ResearchIncomplete) as refused:
+            self.research(other, finalize=True)
+        self.assertEqual(refused.exception.result['completion']['blockers'][0]['job_id'], other['id'])
+        self.s.action('company-map', {'job_id': unresolved['id'], 'confirmed': True, 'employer_id': self.employer})
+        with self.w.edit() as state:
+            next(job for job in state['jobs'] if job['id'] == unresolved['id'])['availability'] = 'unverified'
+        self.assertTrue(self.research(self.first, finalize=True)['completion']['ready'])
+        with self.assertRaises(ResearchIncomplete) as refused:
+            self.research(self.first, unresolved, finalize=True)
+        self.assertEqual(refused.exception.result['completion']['blockers'][0]['code'],
+                         'listing_availability_unverified')
+
+    def test_finalization_validates_scope_and_requires_confirmed_evidence(self):
+        for changes in [
+            {'workspace_id': 'other'}, {'workspace_id': None}, {'profile_id': 'unknown'},
+            {'profile_id': []}, {'job_ids': []}, {'job_ids': 'bad'}, {'job_ids': [{}]},
+            {'job_ids': [self.first['id']] * 2}, {'job_ids': ['outside-workspace']}, {'extra': True},
+        ]:
+            with self.subTest(changes=changes), self.assertRaises(ValueError) as rejected:
+                self.research(self.first, finalize=True, **changes)
+            self.assertNotIsInstance(rejected.exception, ResearchIncomplete)
+        with self.assertRaisesRegex(ValueError, 'current workspace'):
+            self.s.action('company-research-complete', {
+                'profile_id': self.profile['id'], 'job_ids': [self.first['id']],
+            })
+        self.s.action('retire', {'id': self.fact_id})
+        with self.assertRaisesRegex(ValueError, 'confirmed career facts'):
+            self.save()
+        with self.assertRaisesRegex(ResearchIncomplete, 'shortage of confirmed career facts'):
+            self.research(self.first, finalize=True)
+
+    def test_cli_returns_incomplete_scope_with_nonzero_exit(self):
+        args = [sys.executable, '-m', 'employment_agency', '--workspace', str(self.w.path),
+                'action', 'company-research-complete']
+        scope = {
+            'workspace_id': self.w.workspace_id, 'profile_id': self.profile['id'],
+            'job_ids': [self.first['id']],
+        }
+        self.w.close()
+        result = subprocess.run(args, input=json.dumps(scope), text=True, capture_output=True, timeout=10)
+        self.assertEqual(result.returncode, 2, result.stderr)
+        self.assertIn('Company research is incomplete', result.stderr)
+        blocker = json.loads(result.stdout)['completion']['blockers'][0]
+        self.assertEqual(blocker['code'], 'company_highlights_missing')
 
     def test_private_snapshot_restore_and_application_context(self):
         saved = self.save()
@@ -164,13 +317,27 @@ class CompanyBestMatches(unittest.TestCase):
             try:
                 origin = f'http://127.0.0.1:{http.server_port}'
                 url = origin + '/api/company-best-matches'
+                complete_url = origin + '/api/company-research-complete'
                 headers = {'Origin': origin, 'Content-Type': 'application/json'}
                 payload = json.dumps({**self.comparison, 'basis': self.read_basis()['basis']}).encode()
+                checked = json.dumps({
+                    'workspace_id': self.w.workspace_id, 'profile_id': self.profile['id'],
+                    'job_ids': [self.first['id']],
+                }).encode()
                 with self.assertRaises(HTTPError) as rejected:
                     urlopen(Request(url, data=payload, headers=headers), timeout=3)
                 self.assertEqual(rejected.exception.code, 403)
+                with self.assertRaises(HTTPError) as rejected:
+                    urlopen(Request(complete_url, data=checked, headers=headers), timeout=3)
+                self.assertEqual(rejected.exception.code, 403)
                 with urlopen(origin + '/api/state', timeout=3) as response:
                     headers['X-Workspace-Token'] = json.load(response)['token']
+                with self.assertRaises(HTTPError) as refused:
+                    urlopen(Request(complete_url, data=checked, headers=headers), timeout=3)
+                with refused.exception as response:
+                    self.assertEqual(response.code, 409)
+                    blocker = json.load(response)['result']['completion']['blockers'][0]
+                    self.assertEqual(blocker['code'], 'company_highlights_missing')
                 basis_payload = {key: self.comparison[key] for key in ('workspace_id', 'employer_id', 'profile_id')}
                 basis_request = Request(url + '-basis', data=json.dumps(basis_payload).encode(), headers=headers)
                 with urlopen(basis_request, timeout=3) as response:
@@ -179,6 +346,8 @@ class CompanyBestMatches(unittest.TestCase):
                 self.assertEqual(context['basis'], json.loads(payload)['basis'])
                 with urlopen(Request(url, data=payload, headers=headers), timeout=3) as response:
                     self.assertEqual(json.load(response)['result']['employer_id'], self.employer)
+                with urlopen(Request(complete_url, data=checked, headers=headers), timeout=3) as response:
+                    self.assertTrue(json.load(response)['result']['completion']['ready'])
                 with urlopen(origin + '/api/state', timeout=3) as response:
                     self.assertEqual(len(json.load(response)['state']['company_best_matches']), 1)
             finally:

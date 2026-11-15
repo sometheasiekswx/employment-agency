@@ -399,6 +399,7 @@ def export_preview(destination):
             # drafts, not the private agent queue captured during this export.
             state['_workspace'].pop('agent_queue', None)
             state.pop('application_queue', None)
+            state.pop('company_highlight_reviews', None)
             state['_master']['path'] = 'master/fictional-resume'
             state['consents'] = {}
             state['runs'] = []

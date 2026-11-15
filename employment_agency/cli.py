@@ -4,6 +4,7 @@ import json
 import sys
 from .store import Workspace, restore, encode, migrate_sqlite, restore_snapshot
 from .service import Service
+from .company_best_matches import ResearchIncomplete
 from .workspaces import selected_workspace, remember, settings
 
 
@@ -185,7 +186,11 @@ def main(argv=None):
         elif a.command == "export":
             print(w.export(a.destination))
         else:
-            result = service.action(a.operation, body)
+            try:
+                result = service.action(a.operation, body)
+            except ResearchIncomplete as exc:
+                sys.stdout.buffer.write(encode(exc.result))
+                p.exit(2, f'{exc}\n')
             if a.operation == "discovery-start":
                 result = service.discovery.wait()
             if service.worker:

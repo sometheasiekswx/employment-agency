@@ -631,6 +631,12 @@ it("places the reviewed pair first and keeps the other roles visible after filte
       { job_id: "job-c", reason: "Your cloud delivery fits the platform work." },
     ],
   }];
+  fixture.state.company_highlight_reviews = [{
+    employer_id: company.id,
+    profile_id: "profile-b",
+    vacancy_count: 3,
+    status: "missing",
+  }];
   const { rerender } = render(<DiscoverPage />);
   await screen.findByText("Best matches for you");
   const group = screen.getByRole("region", { name: "Example Cloud opportunities" });
@@ -638,6 +644,7 @@ it("places the reviewed pair first and keeps the other roles visible after filte
   expect(cards()).toEqual(["Integration Engineer", "Platform Engineer", "Cloud Engineer"]);
   expect(within(group).getByText("More roles")).toBeInTheDocument();
   expect(within(group).getByText("Your Python integration work fits.")).toBeInTheDocument();
+  expect(screen.queryByText("Company highlights need review")).not.toBeInTheDocument();
   expect(within(screen.getByRole("region", { name: "Example Studio opportunities" }))
     .queryByText("Best matches for you")).not.toBeInTheDocument();
 
@@ -647,8 +654,17 @@ it("places the reviewed pair first and keeps the other roles visible after filte
   expect(within(group).queryByText("Your cloud delivery fits the platform work.")).not.toBeInTheDocument();
   fixture.profileId = "profile-b";
   rerender(<DiscoverPage />);
-  await screen.findByRole("button", { name: "Assess Integration Engineer at Example Cloud" });
+  expect(await screen.findByText("Company highlights need review")).toBeInTheDocument();
+  expect(cards().sort()).toEqual(["Cloud Engineer", "Integration Engineer"]);
   expect(screen.queryByText("Best matches for you")).not.toBeInTheDocument();
+  fixture.state.company_highlight_reviews[0].status = "stale";
+  rerender(<DiscoverPage />);
+  expect(await screen.findByText("Company highlights need a new review")).toBeInTheDocument();
+  fixture.state.jobs[0].saved = true;
+  fixture.query = "view=to-apply";
+  rerender(<DiscoverPage />);
+  await screen.findByRole("button", { name: "Assess Cloud Engineer at Example Cloud" });
+  await waitFor(() => expect(screen.queryByText("Company highlights need a new review")).not.toBeInTheDocument());
 });
 
 it.each([false, true])(

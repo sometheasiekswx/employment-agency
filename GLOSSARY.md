@@ -104,6 +104,12 @@ An account-owned collection of career facts, preferences, job evidence, document
 **Fit summary**:
 One or two sentences describing a role and its strongest supported match to confirmed career facts, including a material gap when relevant. It does not imply qualifications unsupported by evidence.
 
+**Company highlights**:
+The two vacancies an agent recommends after comparing every suitable, distinct vacancy at a hiring employer against the selected search profile and confirmed career facts. Each highlight has a supported fit reason. Highlights retain the other roles for review and do not select applications or consume company allowance.
+
+**Company highlight review**:
+The current comparison supporting a company's highlights. A company with more than two suitable, distinct vacancies needs this review before research covering that company can be reported complete. Missing or outdated reviews remain visible for existing and newly researched companies; unrelated companies do not block the current research task.
+
 **Demo workspace**:
 An isolated example career workspace containing an explicitly fictional candidate and dated snapshots of real job listings. Its sample decisions and generated documents demonstrate the application, not a real person's employment or submissions.
 

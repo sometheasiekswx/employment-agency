@@ -617,6 +617,12 @@ export function DiscoverPage() {
         .map((review) => [`employer:${review.employer_id}`, review.picks])
       : [],
   );
+  const reviewStatuses = new Map(
+    view === "jobs" && !removedView && !client.preview
+      ? state.company_highlight_reviews?.filter((review) => review.profile_id === profileId)
+        .map((review) => [`employer:${review.employer_id}`, review.status])
+      : [],
+  );
   const [completedRefresh, setCompletedRefresh] = useState(0);
   if (currentRanking.key === requestKey && completedRefresh !== attempt)
     setCompletedRefresh(attempt);
@@ -1775,6 +1781,13 @@ export function DiscoverPage() {
                     </h2>
                     <span>{opportunities.length}</span>
                   </header>
+                  {reviewStatuses.has(id) && (
+                    <p className="discover-match-heading">
+                      {reviewStatuses.get(id) === "stale"
+                        ? "Company highlights need a new review"
+                        : "Company highlights need review"}
+                    </p>
+                  )}
                   {stackEmployer && (
                     <div className="discover-stack-heading">
                       <span>2 of 2 selected</span>

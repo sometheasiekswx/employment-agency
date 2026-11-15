@@ -160,6 +160,37 @@ class PublicPreviewExport(unittest.TestCase):
             )
             self.assertEqual(reviews(original), reviews(approved))
 
+    def test_publication_keeps_reviewed_pick_when_a_vacancy_has_a_mirrored_listing(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            destination = root / 'demo'
+            with reviewed_publication_fixture(root) as (resume, pdf, _):
+                catalog = public_catalog.load_catalog()
+                company = catalog['companies'][0]
+                reviewed = company['listings'][0]
+                original = next(job for job in catalog['jobs'] if job['id'] == reviewed['job_id'])
+                mirror_url = original['url'] + '-mirror'
+                mirror_id = hashlib.sha256(mirror_url.encode()).hexdigest()[:24]
+                catalog['jobs'].append({**original, 'url': mirror_url, 'id': mirror_id})
+                company['listings'].insert(0, {**reviewed, 'source_url': mirror_url, 'job_id': mirror_id})
+                catalog_path = public_catalog.DATA / 'showcase_jobs.json'
+                catalog_path.write_text(json.dumps(catalog), encoding='utf-8')
+
+                with patch('employment_agency.public_preview.sample_activity', return_value=({}, set())):
+                    export_preview(destination)
+                original_state = json.loads((destination / 'preview.json').read_text(encoding='utf-8'))['state']
+                publish_resume_bundle(destination, resume, pdf)
+
+            state = json.loads((destination / 'preview.json').read_text(encoding='utf-8'))['state']
+            employer_id = next(job['company']['id'] for job in state['jobs'] if job['id'] == mirror_id)
+            reviews = [review for review in state['company_best_matches'] if review['employer_id'] == employer_id]
+            self.assertEqual(len(reviews), 1)
+            self.assertEqual([pick['job_id'] for pick in reviews[0]['picks']],
+                             [pick['job_id'] for pick in company['picks']])
+            self.assertEqual(state['company_best_matches'], original_state['company_best_matches'])
+            self.assertNotIn('company_highlight_reviews', original_state)
+            self.assertNotIn('company_highlight_reviews', state)
+
     def test_release_replaces_all_sample_assets_using_the_approved_resume(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

@@ -337,9 +337,17 @@ export interface CompanyBestMatches {
   picks: { job_id: string; reason: string }[];
 }
 
+export interface CompanyHighlightReview {
+  employer_id: string;
+  profile_id: string;
+  vacancy_count: number;
+  status: "missing" | "stale";
+}
+
 export interface WorkspaceState {
   application_queue?: ApplicationQueueEntry[];
   company_best_matches?: CompanyBestMatches[];
+  company_highlight_reviews?: CompanyHighlightReview[];
   agent_intents?: AgentIntent[];
   identity: Identity;
   facts: Fact[];

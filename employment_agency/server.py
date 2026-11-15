@@ -17,6 +17,7 @@ from .folders import choose_folder
 from .web_assets import asset, script_policy
 from . import company_handoff, company_logos, packages, history
 from .companies import CompanyBlocked
+from .company_best_matches import ResearchIncomplete
 
 
 def validate_tailscale_access(origin, user):
@@ -229,6 +230,8 @@ def server(service, port=8766, frontend_origin=None, tailscale_origin=None, tail
             except CompanyBlocked as exc:
                 self.send(409, encode({'error': str(exc), 'code': exc.code,
                                        **({'job_id': exc.job_id} if exc.job_id else {})}))
+            except ResearchIncomplete as exc:
+                self.send(409, encode({'error': str(exc), 'code': 'company_research_incomplete', 'result': exc.result}))
             except (ValueError, KeyError, TypeError, OverflowError, OSError) as exc:
                 self.send(400, encode({'error': str(exc)}))
             except Exception:

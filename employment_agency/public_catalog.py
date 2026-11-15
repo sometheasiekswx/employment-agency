@@ -88,6 +88,7 @@ def save_reviews(service, catalog, profile_id):
     profile = next(row for row in state['profiles'] if row['id'] == profile_id)
     comparison_links, unavailable, _ = company_best_matches.comparison_context(state)
     employers = {row['id']: row for row in state['employers']}
+    jobs = {row['id']: row for row in state['jobs']}
     for company in catalog['companies']:
         ids = [item['job_id'] for item in company['listings']]
         if len(ids) <= 2:
@@ -102,15 +103,21 @@ def save_reviews(service, catalog, profile_id):
                 raise ValueError('The public profile changed; review the company highlights again') from error
             picks.append({'job_id': pick['job_id'], 'reason': pick['reason'], 'fact_ids': fact_ids})
         employer = employers[links[ids[0]]]
-        eligible = company_best_matches.eligible_inventory(state, employer, profile, comparison_links, unavailable)
-        if len({item['vacancy_id'] for item in eligible.values()}) < 3:
+        eligible = company_best_matches.eligible_inventory(jobs.values(), employer, profile, comparison_links, unavailable)
+        groups = company_best_matches.distinct_inventory(eligible, jobs, comparison_links)
+        if len(set(groups.values())) < 3:
             continue
-        current = [job_id for job_id in ids if job_id in eligible]
+        picked = {pick['job_id'] for pick in picks}
+        compared = {}
+        for job_id in ids:
+            group = groups.get(job_id)
+            if group is not None and (group not in compared or job_id in picked):
+                compared[group] = job_id
         target = {'workspace_id': service.w.workspace_id, 'profile_id': profile_id,
                   'employer_id': employer['id']}
         context = service.action('company-best-matches-basis', target)
         service.action('company-best-matches', {
-            **target, 'basis': context['basis'], 'compared_job_ids': current, 'picks': picks,
+            **target, 'basis': context['basis'], 'compared_job_ids': list(compared.values()), 'picks': picks,
         })
 
 
@@ -130,7 +137,7 @@ def republish_reviews(state, catalog, resume_sha256):
             service = Service(workspace)
             for profile in state['profiles']:
                 save_reviews(service, catalog, profile['id'])
-            state['company_best_matches'] = company_best_matches.project(workspace.read())
+            state['company_best_matches'], _ = company_best_matches.project(workspace.read())
         finally:
             workspace.close()
 

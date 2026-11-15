@@ -219,7 +219,9 @@ class Service:
         if snapshot:
             from . import company_best_matches
 
-            state['company_best_matches'] = company_best_matches.project(state)
+            picks, review_statuses = company_best_matches.project(state)
+            state['company_best_matches'] = picks
+            state['company_highlight_reviews'] = review_statuses
 
         choices = pending_choices(state)
         slots = companies.ApplicationSlots(state) if snapshot else None
@@ -913,15 +915,10 @@ class Service:
             from . import company_cleanup
 
             return company_cleanup.operation(self, action, args)
-        if action == 'company-research':
-            ids = args.get('job_ids')
-            if not isinstance(ids, list) or any(not isinstance(job_id, str) for job_id in ids):
-                raise ValueError('Provide the checked workspace job IDs')
-            state = self.w.read()
-            if not set(ids) <= {job['id'] for job in state['jobs']}:
-                raise ValueError('The research includes an unknown workspace job ID')
-            result = companies.research(state, find(state['profiles'], args['profile_id']), ids)
-            return {'workspace': str(self.w.path), **result}
+        if action in ('company-research', 'company-research-complete'):
+            from . import company_best_matches
+
+            return company_best_matches.research(self.w, args, finalize=action == 'company-research-complete')
         if action == 'snapshot-status':
             with self.w.lock:
                 self.w.database.publish(verify=True)

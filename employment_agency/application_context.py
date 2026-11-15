@@ -377,12 +377,18 @@ def research_handoff(service, args):
         'before targeted fetching and prioritize employers with no previous submissions.',
         'Check the official careers site and employer-owned boards. Import verified listings through the shared app '
         'and show every eligible role by company, with source links, gaps in coverage and unknown requirements.',
+        'Call company-research with the workspace ID, selected profile ID and all checked job IDs. '
+        'Use its completion blockers to resolve uncertain employer links, verify availability and identify required reviews.',
         'For each verified employer check company-logo-inventory and use company-logo-backfill with official '
         'branding evidence when its logo is missing. Verify the mark in Jobs and report any gap.',
         'When more than two distinct vacancies suit the selected profile, compare all of them against the '
         'confirmed career facts. Read company-best-matches-basis for the verified employer and active profile '
         'before reviewing. Save exactly two recommendations with company-best-matches, including that basis, '
-        'all compared job IDs, short fit reasons and confirmed fact IDs for each pick. Keep unknowns explicit.',
+        'one compared job ID per vacancy_group_id, and short fit reasons with confirmed fact IDs for each pick. '
+        'Keep unknowns explicit.',
+        'Before reporting this shared research task as complete, call company-research-complete with the same '
+        'workspace ID, profile ID and all checked job IDs. The app rechecks each covered company’s full current inventory. '
+        'Require a successful response with completion.ready true. Otherwise report incomplete research and its specific blockers.',
         'Keep this request to job research.',
     ]
     return {'workspace_id': service.w.workspace_id, 'workspace': str(service.w.path),

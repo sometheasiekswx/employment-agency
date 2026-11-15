@@ -72,6 +72,8 @@ if __name__ == '__main__':
     with fixture('serve_sqlite_fixture.py') as url:
         browser('sqlite-company-browser.cjs', url)
     with fixture('serve_sqlite_fixture.py') as url:
+        browser('company-highlights-browser.cjs', url)
+    with fixture('serve_sqlite_fixture.py') as url:
         browser('application-journey-browser.cjs', url)
     with fixture('serve_sqlite_fixture.py') as url:
         browser('jobs-capacity-browser.cjs', url)

@@ -394,7 +394,8 @@ class PendingCompanySlots(TestCase):
         self.assertEqual(prompt['workspace'], workspace['path'])
         self.assertEqual(prompt['profile_id'], self.profile['id'])
         for required in ('five additional', 'GET /api/company-avoid', 'company-research-check',
-                         'official careers', 'every eligible role'):
+                         'official careers', 'every eligible role', 'company-research-complete',
+                         'all checked job IDs', 'completion.ready true', 'specific blockers'):
             self.assertIn(required, prompt['text'])
         self.assertNotIn(self.fact['text'], prompt['text'])
         self.assertEqual(self.w.read(), before)
