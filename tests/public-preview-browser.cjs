@@ -9,6 +9,28 @@ const { createHash } = require("node:crypto");
 const fs = require("node:fs");
 const { showPanel } = require("./browser-applications.cjs");
 
+async function assertCompanyLogo(mark, expectedUrl, base) {
+  const image = mark.locator("img");
+  await image.scrollIntoViewIfNeeded();
+  assert.equal(await mark.count(), 1);
+  assert.equal(new URL(await image.getAttribute("src"), base).href, new URL(expectedUrl, base).href);
+  assert.ok(await image.isVisible());
+  assert.deepEqual(await image.evaluate(async (element) => {
+    await element.decode();
+    return {
+      decoded: element.naturalWidth > 0 && element.naturalHeight > 0,
+      imageBackground: getComputedStyle(element).backgroundColor,
+      markBackground: getComputedStyle(element.parentElement).backgroundColor,
+      initials: element.parentElement.textContent.trim(),
+    };
+  }), {
+    decoded: true,
+    imageBackground: "rgba(0, 0, 0, 0)",
+    markBackground: "rgba(0, 0, 0, 0)",
+    initials: "",
+  }, expectedUrl);
+}
+
 (async () => {
   const base = process.env.TEST_URL;
   assert.ok(base, "Set TEST_URL to the static public preview");
@@ -138,7 +160,7 @@ const { showPanel } = require("./browser-applications.cjs");
       await page.goto(base + "/discover/?view=all");
       await board.waitFor();
       await page.waitForFunction((theme) => document.documentElement.dataset.theme === theme, colorScheme);
-      await page.screenshot({ path: `${evidenceDir}/catalog-${colorScheme}.png` });
+      assert.equal(await board.locator("article[data-job-id] .discover-employer-mark").count(), 0);
       const decoded = new Set();
       for (const [companyId, jobs] of jobsByCompany) {
         const column = board.locator(`[data-company-id="employer:${companyId}"]`);
@@ -147,16 +169,9 @@ const { showPanel } = require("./browser-applications.cjs");
         const outcome = logoOutcomes.get(jobs[0].id);
         assert.equal(outcome?.status, "verified", company.name);
         const logoUrl = `/demo/company-logos/${outcome.sha256}.png`;
-        const logo = column.locator("header .discover-employer-mark img");
         assert.ok(verifiedLogoUrls.has(logoUrl));
         assert.ok(jobs.every((job) => job.company.logo_url === logoUrl));
-        assert.equal(new URL(await logo.getAttribute("src"), base).href, new URL(logoUrl, base).href);
-        await logo.scrollIntoViewIfNeeded();
-        assert.ok(await logo.isVisible());
-        assert.ok(await logo.evaluate(async (image) => {
-          await image.decode();
-          return image.naturalWidth > 0 && image.naturalHeight > 0;
-        }), `${company.name} official logo decodes in ${colorScheme} mode`);
+        await assertCompanyLogo(column.locator("header .discover-employer-mark"), logoUrl, base);
         decoded.add(logoUrl);
         const displayedIds = await column.locator("article[data-job-id]").evaluateAll((cards) =>
           cards.map((card) => card.dataset.jobId),
@@ -171,6 +186,8 @@ const { showPanel } = require("./browser-applications.cjs");
           assert.equal(await column.locator(`[data-job-id="${job_id}"] .discover-match-reason`).innerText(), reason);
       }
       assert.deepEqual(decoded, verifiedLogoUrls);
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await page.screenshot({ path: `${evidenceDir}/catalog-${colorScheme}.png` });
     }
     for (const [query, roles, stage] of [
       ["?status=new", unseen, "new"], ["?view=to-apply", saved, "to-apply"],
@@ -179,6 +196,7 @@ const { showPanel } = require("./browser-applications.cjs");
     ]) {
       await page.goto(base + "/discover/" + query);
       await page.locator("article[data-job-id]").first().waitFor();
+      assert.equal(await page.locator("article[data-job-id] .discover-employer-mark").count(), 0, query);
       const ids = await page.locator("article[data-job-id]").evaluateAll((cards) =>
         cards.map((card) => card.dataset.jobId),
       );
@@ -295,6 +313,7 @@ const { showPanel } = require("./browser-applications.cjs");
     await inspector
       .getByRole("heading", { name: primary.title, exact: true })
       .waitFor();
+    await assertCompanyLogo(inspector.locator(".discover-inspector-company .discover-employer-mark"), primary.company.logo_url, base);
     const evidence = inspector.getByRole("region", { name: "Career evidence" });
     await evidence.getByText(primary.requirements[0], { exact: true }).first().waitFor();
     assert.equal(
@@ -578,6 +597,7 @@ const { showPanel } = require("./browser-applications.cjs");
     await modal
       .getByRole("button", { name: "Resize opportunity details", exact: true })
       .click();
+    await assertCompanyLogo(modal.locator(".discover-inspector-company .discover-employer-mark"), primary.company.logo_url, base);
     await page.screenshot({
       path: "output/playwright/public-preview/discover-mobile.png",
     });

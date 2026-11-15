@@ -9,7 +9,8 @@ const path = require("node:path");
   const useWebKit = process.env.BROWSER_ENGINE === "webkit";
   const browser = useWebKit ? await webkit.launch() : await chromium.launch({ channel: "chrome" });
   try {
-    const page = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+    const page = await context.newPage();
     page.setDefaultTimeout(8000);
     await page.route("**/*", (route) =>
       new URL(route.request().url()).origin === new URL(base).origin ? route.continue() : route.abort(),
@@ -34,16 +35,34 @@ const path = require("node:path");
       });
     });
     await page.goto(base + "/discover/?view=all");
-    const logo = initial.state.jobs.find((job) => job.title === "Quality Engineer").company?.logo_url;
+    const company = initial.state.jobs.find((job) => job.title === "Quality Engineer").company;
+    const logo = company?.logo_url;
     assert.match(logo, /^\/api\/company-logo\/[0-9a-f]{64}\.png$/);
+    const companyHeaderMark = `[data-company-id="employer:${company.id}"] > header .discover-employer-mark`;
+    const board = page.getByRole("region", { name: "Opportunities by company" });
     {
       const logoResponse = await page.request.get(base + logo);
       assert.equal(logoResponse.headers()["content-type"], "image/png");
       assert.equal(logoResponse.status(), 200);
-      const logoImage = page.locator(`.discover-card .discover-employer-mark img[src$="${logo}"]`).first();
+      const logoImage = board.locator(`${companyHeaderMark} img[src$="${logo}"]`);
       await logoImage.waitFor();
       await logoImage.evaluate((image) => image.decode());
       assert.ok(await logoImage.evaluate((image) => image.complete && image.naturalWidth === 48 && image.naturalHeight === 24));
+      assert.equal(await board.locator("article[data-job-id] .discover-employer-mark").count(), 0);
+    }
+    const fallbackPage = await context.newPage();
+    await fallbackPage.route("**/*", (route) => {
+      const url = new URL(route.request().url());
+      if (url.href === base + logo) return route.fulfill({ status: 404 });
+      return url.origin === base ? route.continue() : route.abort();
+    });
+    try {
+      await fallbackPage.goto(base + "/discover/?view=all");
+      const fallbackMark = fallbackPage.locator(companyHeaderMark);
+      await fallbackMark.getByText("FH", { exact: true }).waitFor();
+      assert.equal(await fallbackMark.locator("img").count(), 0);
+    } finally {
+      await fallbackPage.close();
     }
     const researchTrigger = page.getByRole("button", { name: "Copy agent instructions", exact: true });
     await researchTrigger.click();
@@ -56,6 +75,9 @@ const path = require("node:path");
     assert.ok(await researchTrigger.evaluate((button) => button === document.activeElement));
     await page.getByRole("button", { name: "Assess Platform Engineer at Fictional Harbour" }).first().click();
     const details = page.getByRole("dialog", { name: "Platform Engineer" });
+    const detailMark = details.locator(".discover-inspector-company .discover-employer-mark");
+    assert.equal(await detailMark.innerText(), "FH");
+    assert.equal(await detailMark.locator("img").count(), 0);
     await details.getByRole("button", { name: "Resize opportunity details" }).click();
     assert.equal(
       await details.getByRole("button", { name: "Copy job reference", exact: true }).count(),
@@ -73,7 +95,7 @@ const path = require("node:path");
     else await details.getByLabel("Hiring employer name").fill(first.employer);
     await details.getByRole("button", { name: "Confirm employer" }).click();
     await details.getByRole("button", { name: "Remove from To apply", exact: true }).waitFor();
-    await details.locator(`.discover-employer-mark img[src$="${logo}"]`).waitFor();
+    await detailMark.locator(`img[src$="${logo}"]`).waitFor();
     await details.getByRole("button", { name: "Prepare application" }).click();
     await details.getByRole("heading", { name: "CV", exact: true }).waitFor();
     await details.getByRole("button", { name: "Open application site" }).click();

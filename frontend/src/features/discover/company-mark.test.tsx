@@ -16,13 +16,14 @@ it("uses initials when a verified workspace logo is absent, rejected or fails to
   const image = view.container.querySelector("img")!;
   expect(new URL(image.src).pathname).toBe(logo);
   expect(new URL(image.src).origin).toBe(location.origin);
+  expect(view.container.textContent).toBe("");
   fireEvent.error(image);
   expect(view.container.textContent).toBe("FH");
   expect(view.container.querySelector("img")).toBeNull();
   view.rerender(
     <CompanyMark
       name="Other Fictional"
-      logoUrl={`/api/company-logo/${"b".repeat(64)}.png`}
+      logoUrl={`/demo/company-logos/${"b".repeat(64)}.png`}
     />,
   );
   expect(view.container.querySelector("img")).not.toBeNull();

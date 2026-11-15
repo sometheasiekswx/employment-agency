@@ -92,9 +92,8 @@
     padding-block: 16px;
   }
   .discover-dialog .discover-inspector-company .discover-employer-mark {
-    width: 32px;
+    width: 48px;
     height: 32px;
-    flex-basis: 32px;
     font-size: 15px;
   }
   .discover-dialog .discover-role-location {

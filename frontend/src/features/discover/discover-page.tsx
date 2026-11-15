@@ -1814,14 +1814,11 @@ export function DiscoverPage() {
                       >
                         {!compact && (
                           <div className="discover-card-top">
-                            <div className="discover-card-identity">
-                              <CompanyMark name={job.company?.name || job.employer} logoUrl={employerLogo(job)} />
-                              {status && (
-                                <span className={`discover-status ${status.tone}`}>
-                                  {status.label}
-                                </span>
-                              )}
-                            </div>
+                            {status && (
+                              <span className={`discover-status ${status.tone}`}>
+                                {status.label}
+                              </span>
+                            )}
                             <div className="discover-card-tools">
                               {currentRemoval(job) ? (
                                 <>

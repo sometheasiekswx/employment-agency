@@ -28,8 +28,7 @@ export function CompanyMark({
 
   return (
     <span aria-hidden="true" className="discover-employer-mark">
-      <span>{initials}</span>
-      {source && failed !== source && (
+      {source && failed !== source ? (
         <Image
           alt=""
           src={source}
@@ -38,7 +37,7 @@ export function CompanyMark({
           unoptimized
           onError={() => setFailed(source)}
         />
-      )}
+      ) : initials}
     </span>
   );
 }
