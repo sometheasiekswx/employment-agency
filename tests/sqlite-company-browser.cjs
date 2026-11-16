@@ -154,6 +154,11 @@ const path = require("node:path");
     await lastDetails.getByText("No slots left for this company", { exact: true }).waitFor();
     assert.equal(await lastDetails.getByRole("button", { name: "Apply later", exact: true }).count(), 0);
     await lastDetails.getByRole("link", { name: "Review this company in To apply" }).click();
+    await page.waitForURL((url) => url.pathname === "/discover/" &&
+      url.searchParams.get("view") === "to-apply" &&
+      url.searchParams.get("employer") === linked.employer.id &&
+      !url.searchParams.has("q"));
+    await page.getByRole("button", { name: `Clear company filter: ${linked.employer.name}`, exact: true }).waitFor();
     await page.getByText("All To apply (1)", { exact: true }).waitFor();
     await page.getByRole("button", { name: "Copy agent instructions", exact: true }).click();
     const instructionsField = prompt.getByRole("textbox", { name: "Prompt" });

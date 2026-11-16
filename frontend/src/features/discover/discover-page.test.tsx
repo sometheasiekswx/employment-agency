@@ -1988,6 +1988,47 @@ it("projects a full employer allowance consistently in the Jobs card and inspect
   expect(inspector.getByRole("button", { name: "Apply later" })).toBeEnabled();
 });
 
+it("keeps linked To apply choices in the company queue when new employer evidence conflicts", async () => {
+  const company = { id: "linked-employer", name: "Example Services", cooling: false, remaining: 0 };
+  const conflict = {
+    code: "employer_evidence_conflict",
+    message: "The current listing names a different hiring employer. Recheck the listing before applying.",
+  };
+  const [first, second] = fixture.state.jobs;
+  fixture.state.jobs = [
+    ...[first, second].map((job, index) => ({
+      ...job,
+      saved: true,
+      hiring_employer_verified: false,
+      company: { ...company, vacancy_id: `vacancy-${index + 1}` },
+      application_blocker: conflict,
+      pending_blocker: conflict,
+    })),
+    {
+      ...first, id: "name-only", title: "Name-only Engineer", saved: true,
+      hiring_employer_verified: false, company: { ...company, vacancy_id: null },
+    },
+    {
+      ...second, id: "different-link", title: "Unrelated Linked Engineer", saved: true,
+      hiring_employer_verified: true, company: { ...company, id: "another-employer", vacancy_id: "other-vacancy" },
+    },
+  ];
+  fixture.query = "view=to-apply&employer=linked-employer";
+
+  render(<DiscoverPage />);
+
+  expect(screen.getByRole("button", { name: "Clear company filter: Example Services" })).toBeVisible();
+  const rows = screen.getAllByRole("article");
+  expect(rows).toHaveLength(2);
+  for (const job of [first, second]) {
+    const role = await screen.findByRole("button", { name: `Assess ${job.title} at ${job.employer}` });
+    const card = within(role.closest("article")!);
+    expect(card.getByText(conflict.message)).toBeVisible();
+    expect(card.getByRole("button", { name: `Remove from To apply · ${job.title}` })).toBeEnabled();
+  }
+  expect(screen.queryByRole("button", { name: /Assess Name-only Engineer|Assess Unrelated Linked Engineer/ })).not.toBeInTheDocument();
+});
+
 it("copies the unfiltered To apply prompt directly and rejects an obsolete response", async () => {
   fixture.state._workspace.agent_queue = true;
   fixture.state.jobs[0].saved = true;

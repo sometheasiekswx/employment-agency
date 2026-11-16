@@ -66,3 +66,19 @@ builds the exact commit, runs its platform matrix, and verifies the staged and
 live demo before reporting deployment success. The private installation pin
 retains its original build provenance and records verified equivalence to the
 published feature revision.
+
+The first main-branch run caught a company allowance shortcut that still used a
+text query to open To apply. With global search, this opened all sources and hid
+the queue's agent controls. The shortcut now uses the confirmed employer ID and
+the existing employer queue URL. The SQLite browser regression retains its queue
+count and agent handoff checks, and also verifies the exact employer scope and
+absence of a search query. It passed in Chromium and phone-sized WebKit after
+the correction; TypeScript, ESLint and the production build also passed. The
+public workflow remains gated by the full platform and browser suites.
+
+Follow-up review also covered saved roles whose hiring evidence becomes disputed
+after they occupy company slots. The company queue retains roles with that exact
+company and a stored vacancy link, while excluding name-only guesses and other
+companies. The existing application blockers remain visible, and the user can
+remove the saved choices. The regression verifies both retained and excluded
+roles plus the company filter label.

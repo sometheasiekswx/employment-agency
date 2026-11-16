@@ -594,10 +594,12 @@ export function DiscoverPage() {
     ({ job }) => !job.company?.cooling,
   );
   const pausedResults = incomingRows.length > 0 && !availableIncoming.length;
+  // A saved role can still hold a slot under its vacancy link while conflicting evidence blocks applying.
+  const matchesEmployerScope = ({ company, hiring_employer_verified }: Job) =>
+    company?.id === employerScope &&
+    (hiring_employer_verified || Boolean(company.vacancy_id));
   const scopedEmployer = employerScope
-    ? [...latestJobs.values()].find(({ company, hiring_employer_verified }) =>
-        hiring_employer_verified && company?.id === employerScope,
-      )
+    ? [...latestJobs.values()].find(matchesEmployerScope)
     : undefined;
   const scopedEmployerName = scopedEmployer?.company?.name || scopedEmployer?.employer || "Company";
   const sourceRows = removedView
@@ -606,9 +608,7 @@ export function DiscoverPage() {
       ? applicationRows
       : toApplyView
         ? discoveryRows.filter(({ job }) =>
-            pending.has(job.id) &&
-            (!employerScope ||
-              (job.hiring_employer_verified && job.company?.id === employerScope)),
+            pending.has(job.id) && (!employerScope || matchesEmployerScope(job)),
           )
         : availableIncoming;
   const scopedRows = filterOpportunities(

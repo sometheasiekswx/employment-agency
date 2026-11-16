@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Check, Field, Form, Select, TextArea, checked, text } from "@/components/controls";
 import { useDraft } from "@/components/unsaved";
 import { useWorkspace } from "@/components/workspace-provider";
+import { employerQueueHref } from "@/features/discover/discovery";
 import { ApiResponseError } from "@/lib/api";
 import { displayDate, errorMessage, safeUrl } from "@/lib/format";
 import type { ApplicationBlocker, Job, RequestData } from "@/lib/models";
@@ -387,10 +388,7 @@ export function ApplicationException({
     <section className="application-exception" aria-label="Application allowance">
       <p role="status">{companyBlockerMessage(blocker, job, state._workspace.timezone)}</p>
       {narrowQueue && (
-        <Link href={`/discover/?${new URLSearchParams({
-          view: "to-apply",
-          q: job.company?.name || job.employer,
-        })}`} onNavigate={(event) => { if (!canLeave()) event.preventDefault(); }}>
+        <Link href={job.company?.id ? employerQueueHref(job.company.id) : "/discover/?view=to-apply"} onNavigate={(event) => { if (!canLeave()) event.preventDefault(); }}>
           Review this company in To apply
         </Link>
       )}
