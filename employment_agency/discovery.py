@@ -6,7 +6,7 @@ import threading
 from time import monotonic
 from urllib.parse import urlsplit
 
-from . import companies, company_logos, job_feeds, matching, public_pages
+from . import companies, company_logos, job_feeds, matching, public_pages, research_workflow
 from .discovery_fetch import FETCH_FAILURES, Fetch, ResponseCache, label_error
 from .store import now, uid
 
@@ -14,6 +14,7 @@ from .store import now, uid
 MAX_INPUTS = 16
 MAX_FOLLOWED = 16
 MAX_PER_PAGE = 5
+MAX_FOLLOW_DEPTH = 2
 MAX_WORKERS = 4
 MAX_RUN_IMPORT = 500
 MAX_SOURCE_IMPORT = 150
@@ -48,7 +49,7 @@ class Discovery:
     def start(self, args):
         from .service import find
 
-        if set(args) - {"profile_id", "source_ids", "urls", "firecrawl", "render"}:
+        if set(args) - {"profile_id", "source_ids", "urls", "firecrawl", "render", "research_id"}:
             raise ValueError("Unknown discovery options")
         with self.lock:
             if self.busy:
@@ -57,6 +58,10 @@ class Discovery:
             profile_id = args.get("profile_id")
             if profile_id:
                 find(state["profiles"], profile_id)
+            if 'research_id' in args:
+                if not profile_id:
+                    raise ValueError('Use the research task’s selected profile')
+                research_workflow.get_run(state, args['research_id'], profile_id)
             source_ids = args.get("source_ids", [])
             urls = args.get("urls", [])
             for values in (source_ids, urls):
@@ -94,6 +99,9 @@ class Discovery:
                 "early_results": False, "profile_id": profile_id, "sources": [], "pages": [],
                 "leads": [], "jobs": [], "new_job_count": 0,
             }
+            if 'research_id' in args:
+                result['research_id'] = args['research_id']
+                research_workflow.begin_discovery(self.service.w, args['research_id'], result['id'])
             if args.get("firecrawl") and not fetch.firecrawl_key:
                 result["notice"] = "Sign in to the Firecrawl CLI or set FIRECRAWL_API_KEY to enable its fallback. Local sources are still being checked."
             self.result = result
@@ -138,9 +146,10 @@ class Discovery:
 
     def finish(self, status, reason):
         self.result["status"] = status
+        observed_at = now()
         for row in self.result["sources"]:
             if row["status"] in ("queued", "fetching"):
-                row.update(status=status, note=reason)
+                row.update(status=status, note=reason, observed_at=observed_at)
 
     def run(self, started, targets, fetch, paused):
         jobs = queue.Queue()
@@ -181,7 +190,7 @@ class Discovery:
                         target, _ = in_flight.pop(key)
                         pending -= 1
                         per_host[target_host(target)] -= 1
-                        outcomes[key].update(status="timed_out", note="Source timed out")
+                        outcomes[key].update(status="timed_out", note="Source timed out", observed_at=now())
                         if target.get("source_id"):
                             self.service.degrade_source(target["source_id"], "timed_out", "Source timed out")
                     ready = []
@@ -199,7 +208,7 @@ class Discovery:
                                 target["source_id"] = source["id"]
                                 row["last_verified_at"] = source.get("checked_at")
                         if note := source_skip_reason(state, target, paused_names):
-                            row.update(status="skipped", note=note)
+                            row.update(status="skipped", note=note, observed_at=now())
                         else:
                             row["status"] = "fetching"
                             per_host[host] = per_host.get(host, 0) + 1
@@ -222,13 +231,12 @@ class Discovery:
                     pending -= 1
                     per_host[target_host(target)] -= 1
                     row = outcomes[target["key"]]
-                    next_targets = self.accept(target, payload, row, imported, new_jobs, fetch.deadline)
+                    next_targets = self.accept(target, payload, row, imported, new_jobs, known, fetch.deadline)
                     for child in next_targets:
                         if child["key"] in known:
                             continue
                         if followed >= MAX_FOLLOWED:
-                            if row["status"] == "retrieved":
-                                row.update(status="partial", note="Related links reached the search limit")
+                            mark_partial(row, "Related links reached the search limit.")
                             break
                         known.add(child["key"])
                         followed += 1
@@ -254,8 +262,14 @@ class Discovery:
                 jobs.put(None)
             with self.lock:
                 self.result["elapsed_seconds"] = round(monotonic() - started, 1)
+                try:
+                    research_workflow.finish_discovery(self.service.w, self.result.get('research_id'),
+                                                       self.result['id'], self.result['sources'])
+                except (ValueError, OSError):
+                    self.result.update(status='failed', error='Research evidence could not be saved. Recheck sources before completion.')
 
-    def accept(self, target, payload, row, imported, new_jobs, deadline):
+    def accept(self, target, payload, row, imported, new_jobs, known, deadline):
+        row["observed_at"] = now()
         if isinstance(payload, Exception):
             status, message = label_error(payload)
             row.update(status=status, note=message)
@@ -263,16 +277,18 @@ class Discovery:
                 self.service.degrade_source(target["source_id"], status, message)
             return []
         method, fetched_jobs, page = payload
-        row.update(method=method, checked_at=now(), job_count=len(fetched_jobs))
-        if page and page.get("note"):
-            row.update(status="partial", note=page["note"])
-        else:
-            row["status"] = "retrieved"
+        row.update(status="retrieved", method=method, checked_at=row["observed_at"], job_count=len(fetched_jobs))
         if page:
+            if page.get("note"):
+                mark_partial(row, page["note"])
+            elif page.get("leads"):
+                mark_partial(row, "Some listings from this page need manual review.")
             row["final_url"] = page["url"]
             self.result["pages"].append({key: page[key] for key in ("url", "title", "text", "links")})
             if not fetched_jobs and page["text"] and public_pages.job_hint(page["url"], page["title"]):
                 self.add_lead(page)
+                if not page.get("note"):
+                    mark_partial(row, "Review this possible vacancy; it was not imported as a listing.")
             for lead in page.get("leads", []):
                 self.add_lead(lead)
         capacity = max(0, min(MAX_SOURCE_IMPORT, MAX_RUN_IMPORT - len(imported)))
@@ -285,9 +301,10 @@ class Discovery:
                 leads.append(job)
             else:
                 full_board = False
-                if row["status"] == "retrieved":
-                    row.update(status="partial", note="Some listings are missing structured details")
                 self.add_lead(job)
+        if len(valid) + len(leads) < len(fetched_jobs):
+            mark_partial(row, "Some listings are missing structured details.")
+        checked_urls = {job["url"] for job in valid}
         profile = {}
         if leads or len(valid) > capacity:
             state = self.service.w.read()
@@ -296,28 +313,36 @@ class Discovery:
             leads = [match["job"] for match in matching.ranked(leads, profile, state["facts"])]
         if len(valid) > capacity:
             valid = [match["job"] for match in matching.ranked(valid, profile, state["facts"])][:capacity]
-            row.update(status="partial", note=f"Imported up to {capacity} listings from this source")
+            mark_partial(row, f"Imported up to {capacity} listings from this source.")
         if len(leads) > MAX_FEED_DETAILS:
-            row.update(status="partial", note=f"Checked details for up to {MAX_FEED_DETAILS} postings")
+            mark_partial(row, f"The search follows details for up to {MAX_FEED_DETAILS} postings from this source.")
+        related = related_targets(target, page, checked_urls, known, row) if page else []
+        research = ({'research_id': self.result['research_id'], 'method': method,
+                     'status': row['status'], 'url': target.get('url'),
+                     'source': row.get('source'), 'note': row.get('note', '')}
+                    if self.result.get('research_id') else None)
         try:
             job_ids, newly_recorded, skipped = self.service.import_discovery(
                 valid, source_id=target.get("source_id"), full_snapshot=full_board and not leads,
                 status=row["status"], observed_jobs=fetched_jobs, deadline=deadline,
+                research=research,
             )
         except TimeoutError:
-            row.update(status="timed_out", note="Search reached its time limit before saving this source")
+            row.update(status="timed_out", note="Search reached its time limit before saving this source", observed_at=now())
             return []
         except ValueError:
             message = "Source conflicted with existing records. Earlier records were retained."
-            row.update(status="failed", note=message)
+            row.update(status="failed", note=message, observed_at=now())
             if target.get("source_id"):
                 self.service.degrade_source(target["source_id"], "failed", message)
             return []
         if skipped:
-            row.update(status="skipped", note=skipped)
+            row.update(status="skipped", note=skipped, observed_at=now())
             return []
         row["imported_count"] = len(job_ids)
         row["job_ids"] = job_ids
+        if research and research.get('receipt_id'):
+            row['research_receipt_id'] = research['receipt_id']
         imported.update(job_ids)
         new_jobs.update(newly_recorded)
         if job_ids or (imported and full_board):
@@ -329,31 +354,45 @@ class Discovery:
             self.result["new_job_count"] = len(new_jobs)
             valid_urls = {job["url"] for job in valid}
             self.result["leads"] = [lead for lead in self.result["leads"] if lead["url"] not in valid_urls]
-        next_targets = []
         for job in leads:
             self.add_lead(job)
-        next_targets.extend(detail_target(job) for job in leads[:MAX_FEED_DETAILS])
-        vacancies = page.get("vacancies", {}) if page else {}
-        if page and (vacancies or not valid) and target.get("depth", 0) < 2:
-            links = [link for link in page["links"] if public_pages.allowed_link(link["url"], page["url"])
-                     and public_pages.job_link(link["url"], link["title"])]
-            if vacancies:
-                links = [link for link in links if link["url"] in vacancies]
-            else:
-                links.sort(key=lambda link: public_pages.label(link["title"]).casefold() in public_pages.NAVIGATION)
-                links = links[:MAX_PER_PAGE]
-            for link in links:
-                child = page_target(link["url"], depth=target.get("depth", 0) + 1)
-                if link["url"] in vacancies:
-                    child["vacancy"] = vacancies[link["url"]]
-                    child["label"] = child["vacancy"]["title"]
-                next_targets.append(child)
-        return next_targets
+        return [detail_target(job) for job in leads[:MAX_FEED_DETAILS]] + related
 
     def add_lead(self, job):
         leads = self.result["leads"]
         if len(leads) < 80 and not any(lead["url"] == job["url"] for lead in leads):
             leads.append({key: job.get(key, "") for key in ("title", "employer", "location", "url")})
+
+
+def mark_partial(row, note):
+    row.update(status="partial", note=" ".join(filter(None, (row.get("note"), note))))
+
+
+def related_targets(target, page, checked_urls, known, row):
+    vacancies = page.get("vacancies", {})
+    links = [link for link in page["links"] if link["url"] not in checked_urls
+             and public_pages.allowed_link(link["url"], page["url"])
+             and public_pages.job_link(link["url"], link["title"])]
+    links.sort(key=lambda link: (link["url"] not in vacancies,
+                                 public_pages.label(link["title"]).casefold() in public_pages.NAVIGATION))
+    depth = target.get("depth", 0)
+    children = {}
+    for link in links:
+        child = page_target(link["url"], depth=depth + 1)
+        if child["key"] in known:
+            continue
+        if link["url"] in vacancies:
+            child["vacancy"] = vacancies[link["url"]]
+            child["label"] = child["vacancy"]["title"]
+        children.setdefault(child["key"], child)
+    if children and depth >= MAX_FOLLOW_DEPTH:
+        mark_partial(row, "Some related links were not followed at the search depth limit.")
+        return []
+    vacancy_children = [child for child in children.values() if "vacancy" in child]
+    other_children = [child for child in children.values() if "vacancy" not in child]
+    if len(other_children) > MAX_PER_PAGE:
+        mark_partial(row, f"The search follows up to {MAX_PER_PAGE} related links per page.")
+    return vacancy_children + other_children[:MAX_PER_PAGE]
 
 
 def feed_target(kind, board, source_id=None):
@@ -388,7 +427,8 @@ def source_wait(target):
 
 def outcome_for(target):
     return {"label": target["label"], "url": target.get("url"), "status": "queued",
-            "job_count": 0, "imported_count": 0}
+            "job_count": 0, "imported_count": 0,
+            **({'source': {'kind': target['kind'], 'board': target['board']}} if target.get('kind') else {})}
 
 
 def matching_source(state, target):

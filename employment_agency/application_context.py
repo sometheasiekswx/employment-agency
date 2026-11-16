@@ -358,7 +358,10 @@ def handoff(service, args):
     return {**result, 'text': '\n'.join(lines), 'blockers': []}
 
 
-def research_handoff(service, args):
+def research_handoff(service, args, *, api_origin=None):
+    import sys
+    from .research_workflow import guide
+
     if set(args) - {'profile_id'}:
         raise ValueError('Choose the search profile for the research prompt')
     profile_id = args.get('profile_id')
@@ -366,30 +369,50 @@ def research_handoff(service, args):
         not isinstance(profile_id, str) or not companies.by_id(service.w.read()['profiles'], profile_id)
     ):
         raise ValueError('Choose a search profile in this workspace')
+    workflow = guide()
+    connection = (
+        f'API origin: {api_origin}. Read GET {api_origin}/api/state and verify the workspace path and ID below. '
+        'Use its token only in X-Workspace-Token for JSON POSTs, with Origin set to this API origin.'
+        if api_origin else
+        'Use the shared CLI while the app is stopped. If it is running, use its protected API and verify GET /api/state.'
+    )
     lines = [
         'Find five additional eligible hiring companies with Employment Agency.',
         f'Workspace: {service.w.path}',
         f'Workspace ID: {service.w.workspace_id}',
         f'Search profile ID: {profile_id}' if profile_id else 'Use the current workspace search preferences.',
-        'Read the workspace instructions and the five-company workflow in the shared app’s docs/agents.md.',
+        connection,
+        f'Workflow guide: {api_origin}/api/research-workflow' if api_origin else f'Workflow guide: {workflow["path"]}',
+        f'Bundled guide: {workflow["path"]}; SHA-256: {workflow["sha256"]}; app version: {workflow["package_version"]}.',
+        f'CLI interpreter: {sys.executable}. Use -m employment_agency --workspace WORKSPACE_PATH action OPERATION.',
+        'Read the workspace instructions and this exact workflow guide. If either the workspace or guide is inaccessible '
+        'or does not match, report the blocker before research. Never guess the connection or silently use another build.',
         'Before opening sources, call GET /api/company-avoid and verify its workspace path. '
         'Skip active cooldowns and companies already presented. Run company-research-check for each employer '
         'before targeted fetching and prioritize employers with no previous submissions.',
+        'Start company-research-start with workspace_id and profile_id. Retain its id as research_id for this request. '
+        'Use a fresh task for each follow-up.',
         'Check the official careers site and employer-owned boards. Import verified listings through the shared app '
         'and show every eligible role by company, with source links, gaps in coverage and unknown requirements.',
-        'Call company-research with the workspace ID, selected profile ID and all checked job IDs. '
+        'Use company-research-source for registered boards or discovery-start for public URLs, passing research_id. '
+        'Poll discovery-status until finished. These operations record scraping receipts. If external browser review '
+        'is needed, import verified jobs and record the evidence with company-research-record as described in the guide.',
+        'Call company-research with the workspace ID, selected profile ID, research_id and all checked job IDs. '
         'Use its completion blockers to resolve uncertain employer links, verify availability and identify required reviews.',
         'For each verified employer check company-logo-inventory and use company-logo-backfill with official '
-        'branding evidence when its logo is missing. Verify the mark in Jobs and report any gap.',
+        'branding evidence and research_id when its logo is missing. This records attempts and failures. '
+        'Verify the mark in Jobs and report any gap.',
         'When more than two distinct vacancies suit the selected profile, compare all of them against the '
         'confirmed career facts. Read company-best-matches-basis for the verified employer and active profile '
         'before reviewing. Save exactly two recommendations with company-best-matches, including that basis, '
         'one compared job ID per vacancy_group_id, and short fit reasons with confirmed fact IDs for each pick. '
         'Keep unknowns explicit.',
         'Before reporting this shared research task as complete, call company-research-complete with the same '
-        'workspace ID, profile ID and all checked job IDs. The app rechecks each covered company’s full current inventory. '
-        'Require a successful response with completion.ready true. Otherwise report incomplete research and its specific blockers.',
+        'workspace ID, profile ID, research_id and all checked job IDs. The app rechecks each covered company’s full current inventory, '
+        'source receipts and logo outcomes. Require a successful response with completion.ready true. '
+        'Report completion.gaps and coverage_complete honestly, including on success. '
+        'Otherwise report incomplete research and its specific blockers.',
         'Keep this request to job research.',
     ]
     return {'workspace_id': service.w.workspace_id, 'workspace': str(service.w.path),
-            'profile_id': profile_id, 'text': '\n'.join(lines)}
+            'profile_id': profile_id, 'workflow_sha256': workflow['sha256'], 'text': '\n'.join(lines)}

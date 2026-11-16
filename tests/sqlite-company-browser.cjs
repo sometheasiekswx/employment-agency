@@ -71,6 +71,13 @@ const path = require("node:path");
     assert.match(research, /^Find five additional eligible hiring companies/);
     assert.match(research, /GET \/api\/company-avoid/);
     assert.ok(research.includes(profile.id));
+    assert.ok(research.includes(base + "/api/research-workflow"));
+    const guide = (await (await page.request.get(base + "/api/research-workflow")).json()).result;
+    assert.ok(research.includes(guide.sha256));
+    assert.equal(require("node:crypto").createHash("sha256").update(guide.text).digest("hex"), guide.sha256);
+    assert.ok(!research.includes(initial.token));
+    assert.equal((await (await page.request.get(base + "/api/state")).json()).state._workspace.snapshot.revision,
+      initial.state._workspace.snapshot.revision, "Copying the handoff must remain read-only");
     await prompt.getByRole("button", { name: "Close agent instructions" }).click();
     assert.ok(await researchTrigger.evaluate((button) => button === document.activeElement));
     await page.getByRole("button", { name: "Assess Platform Engineer at Fictional Harbour" }).first().click();

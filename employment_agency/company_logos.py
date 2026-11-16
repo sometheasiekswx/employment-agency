@@ -272,13 +272,18 @@ def inventory_entries(root, state):
 
 
 def backfill(workspace, args):
-    if set(args) - {'workspace_id', 'company_ids', 'sources'} or args.get('workspace_id') != workspace.workspace_id:
+    from . import research_workflow
+
+    if set(args) - {'workspace_id', 'company_ids', 'sources', 'research_id'} or args.get('workspace_id') != workspace.workspace_id:
         raise ValueError('Use the workspace ID returned by the current company logo inventory')
     selected = args.get('company_ids')
     if (not isinstance(selected, list) or not 1 <= len(selected) <= BACKFILL_LIMIT
             or any(not isinstance(value, str) for value in selected) or len(set(selected)) != len(selected)):
         raise ValueError(f'Choose 1 to {BACKFILL_LIMIT} distinct company IDs from the inventory')
     state = workspace.read()
+    research_id = args.get('research_id')
+    if 'research_id' in args:
+        research_workflow.get_run(state, research_id)
     inventory = {row['id']: row for row in inventory_entries(workspace.path, state)}
     if not set(selected) <= inventory.keys():
         raise ValueError('The selected companies changed. Read the workspace inventory again.')
@@ -305,13 +310,17 @@ def backfill(workspace, args):
     employers = {row['id']: row for row in state.get('employers', [])}
     for entry in (inventory[key] for key in selected):
         employer = employers.get(entry['employer_id'])
-        outcome = backfill_company(workspace, state, entry, employer, supplied.get(entry['id']))
+        attempted = []
+        evidence = supplied.get(entry['id'])
+        outcome = backfill_company(workspace, state, entry, employer, evidence, attempted=attempted)
+        research_workflow.record_logo(workspace, research_id, employer, outcome, attempted, evidence)
         entries.append({**entry, **outcome})
     return {'workspace': str(workspace.path), 'workspace_id': workspace.workspace_id,
             'companies': entries, 'counts': dict(Counter(row['status'] for row in entries))}
 
 
-def backfill_company(workspace, state, entry, employer, supplied):
+def backfill_company(workspace, state, entry, employer, supplied, *, attempted=None):
+    attempted = [] if attempted is None else attempted
     if not employer:
         return {'status': 'unresolved', 'reason': 'Confirm the hiring employer before adding a logo'}
     if companies.research_employer(state, employer['name']).get('id') != employer['id']:
@@ -325,6 +334,7 @@ def backfill_company(workspace, state, entry, employer, supplied):
         job_ids = set(entry['job_ids'])
         for job in state['jobs']:
             if job['id'] in job_ids and (hint := published_hint(job, employer, entry['sources'])):
+                attempted.append(hint['url'])
                 result = try_logo(workspace, employer, hint, deadline, job_id=job['id'])
                 if result['status'] in ('success', 'already_present'):
                     return result
@@ -335,6 +345,7 @@ def backfill_company(workspace, state, entry, employer, supplied):
         if monotonic() >= deadline:
             return {'status': 'failure', 'reason': 'Branding retrieval reached its time limit'}
         try:
+            attempted.append(page)
             url, observed = branding.fetch(page, names, deadline, selection=selection)
             if not url:
                 if result['status'] == 'missing':

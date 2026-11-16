@@ -10,7 +10,7 @@ from .workspaces import selected_workspace, remember, settings
 
 # Other operations must explicitly supply a payload. Some mutations accept an
 # empty object and would otherwise change data when invoked without input.
-PARAMETERLESS_ACTIONS = frozenset({'snapshot-status', 'company-avoid', 'company-logo-inventory'})
+PARAMETERLESS_ACTIONS = frozenset({'snapshot-status', 'company-avoid', 'company-logo-inventory', 'research-workflow'})
 
 
 def main(argv=None):
@@ -46,7 +46,7 @@ def main(argv=None):
     sub.add_parser("state")
     act = sub.add_parser("action")
     act.add_argument("operation")
-    act.add_argument("--input", help="Read JSON from a file or pipe it on stdin; optional for snapshot-status, company-avoid and company-logo-inventory")
+    act.add_argument("--input", help="Read JSON from a file or pipe it on stdin; optional for snapshot-status, company-avoid, company-logo-inventory and research-workflow")
     export = sub.add_parser("export")
     export.add_argument("destination")
     res = sub.add_parser("restore")

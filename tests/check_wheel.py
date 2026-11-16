@@ -48,6 +48,11 @@ from employment_agency import packages
 
 assert Path(employment_agency.__file__).resolve().is_relative_to(Path(sys.prefix).resolve())
 assert employment_agency.__version__ == version('employment-agency-local')
+from employment_agency.research_workflow import guide
+workflow = guide()
+assert Path(workflow['path']).is_relative_to(Path(sys.prefix).resolve())
+assert hashlib.sha256(workflow['text'].encode()).hexdigest() == workflow['sha256']
+assert 'company-research-start' in workflow['text']
 workspace = Workspace(Path('workspace'))
 service = Service(workspace)
 try:

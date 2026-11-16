@@ -4,6 +4,7 @@
 
 These source updates are newer than the tagged 0.7.0 wheel. The public demo follows verified `main` deployments; private installed builds require an explicit upgrade.
 
+- Copy agent instructions with the actual workspace connection and a bundled, fingerprinted workflow guide. Research completion now requires task-scoped source receipts and valid company logos or documented retrieval attempts, while retaining partial and blocked coverage as explicit gaps.
 - Combine bookmark and agent-mark choices into **Apply later → To apply**. SQLite schema 7 rebuilds the queue indexes; the tagged 0.7.0 wheel uses schema 6.
 - Keep company columns and remaining review order stable during save, remove and Undo. Preserve optimistic decisions across superseded or failed refreshes.
 - Show original company logos in group headers and opened details without added backgrounds. Put titles at the top of previews, stack Remove and Apply later vertically, and place status beside location. Keep the generic work-rights confirmation notice in details.

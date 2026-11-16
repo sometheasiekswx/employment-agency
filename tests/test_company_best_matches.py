@@ -18,12 +18,36 @@ import test_company_avoid
 
 class CompanyBestMatches(unittest.TestCase):
     seed = test_company_avoid.CompanyAvoid.seed
-    role = test_company_avoid.CompanyAvoid.role
     tearDown = test_company_avoid.CompanyAvoid.tearDown
+
+    def role(self, *args, **kwargs):
+        job = test_company_avoid.CompanyAvoid.role(self, *args, **kwargs)
+        return job
+
+    def record_sources(self, *jobs):
+        for job in jobs:
+            self.s.action('company-research-record', {
+                'workspace_id': self.w.workspace_id, 'research_id': self.research_id,
+                'url': job['url'], 'status': 'retrieved', 'job_ids': [job['id']],
+                'evidence': 'Fictional browser source evidence for the comparison fixture.',
+            })
+        from employment_agency import company_logo_assets
+        from test_company_logos import image_bytes
+
+        mark = company_logo_assets.normalize(image_bytes(), 'image/png')
+        sha256 = company_logo_assets.persist(self.w.path, mark)
+        with self.w.edit() as state:
+            for employer in state.get('employers', []):
+                employer['logo'] = {'sha256': sha256, 'source': 'fictional-test',
+                                    'page_url': 'https://employer.example.test/'}
 
     def setUp(self):
         test_company_avoid.CompanyAvoid.setUp(self)
         self.roles = [self.first, self.role('backend'), self.role('platform')]
+        self.research_id = self.s.action('company-research-start', {
+            'workspace_id': self.w.workspace_id, 'profile_id': self.profile['id'],
+        })['id']
+        self.record_sources()
         self.fact_id = self.w.read()['facts'][0]['id']
         self.comparison = {
             'workspace_id': self.w.workspace_id,
@@ -54,13 +78,15 @@ class CompanyBestMatches(unittest.TestCase):
     def research(self, *roles, finalize=False, **changes):
         args = {
             'workspace_id': self.w.workspace_id, 'profile_id': self.profile['id'],
+            'research_id': self.research_id,
             'job_ids': [job['id'] for job in roles], **changes,
         }
         action = 'company-research-complete' if finalize else 'company-research'
         return self.s.action(action, args)
 
     def test_assessment_keeps_earlier_call_inputs(self):
-        payload = {'profile_id': self.profile['id'], 'job_ids': [self.first['id']] * 2}
+        payload = {'profile_id': self.profile['id'], 'research_id': self.research_id,
+                   'job_ids': [self.first['id']] * 2}
         self.assertEqual(self.s.action('company-research', payload), self.research(self.first))
         empty = self.s.action('company-research', {**payload, 'job_ids': []})
         self.assertEqual(empty['companies'], [])
@@ -70,6 +96,7 @@ class CompanyBestMatches(unittest.TestCase):
 
     def test_research_requires_current_highlights_from_full_inventory(self):
         checked = self.roles[:2]
+        self.record_sources(*checked)
         before = self.w.read()
         assessment = self.research(*checked)
         completion = assessment['completion']
@@ -101,6 +128,7 @@ class CompanyBestMatches(unittest.TestCase):
                   for i in range(5)]
         for role in others:
             self.s.action('company-map', {'job_id': role['id'], 'confirmed': True})
+        self.record_sources(*others)
         self.assertTrue(self.research(*others, finalize=True)['completion']['ready'])
         self.role('submitted-at-original', submitted_on='2026-01-01')
         assessment = self.research(*others, self.first)
@@ -115,12 +143,19 @@ class CompanyBestMatches(unittest.TestCase):
         # but a shared posting URL. All three link IDs remain distinct.
         with self.w.edit() as state:
             state['jobs'][1]['url'] = state['jobs'][0]['url']
+        self.s.action('company-research-record', {
+            'workspace_id': self.w.workspace_id, 'research_id': self.research_id,
+            'url': self.first['url'], 'status': 'retrieved',
+            'job_ids': [self.first['id'], self.roles[1]['id']], 'evidence': 'Both fictional posting mirrors checked.',
+        })
+        self.record_sources(self.roles[2])
         result = self.research(*self.roles, finalize=True)['completion']
         self.assertEqual(result['companies'][0]['vacancy_count'], 2)
         self.assertEqual(result['companies'][0]['status'], 'not_required')
         with self.assertRaisesRegex(ValueError, 'At least three distinct suitable vacancies'):
             self.read_basis()
         extra = self.role('fourth')
+        self.record_sources(extra)
         basis = self.read_basis()
         groups = {job['id']: job['vacancy_group_id'] for job in basis['jobs']}
         self.assertEqual(groups[self.roles[0]['id']], groups[self.roles[1]['id']])
@@ -128,7 +163,7 @@ class CompanyBestMatches(unittest.TestCase):
             self.save(compared_job_ids=[*self.comparison['compared_job_ids'], extra['id']])
         with self.w.edit() as state:
             state['jobs'][0]['prior_application'] = 'submitted'
-        result = self.research(extra, finalize=True)['completion']
+        result = self.research(*self.roles, extra, finalize=True)['completion']
         self.assertEqual(result['companies'][0]['vacancy_count'], 2)
 
     def test_comparison_groups_transitive_duplicates(self):
@@ -136,6 +171,8 @@ class CompanyBestMatches(unittest.TestCase):
         bridge = self.role('bridge', requisition='backend')
         with self.w.edit() as state:
             next(job for job in state['jobs'] if job['id'] == bridge['id'])['url'] = self.first['url']
+        self.record_sources(next(job for job in self.w.read()['jobs'] if job['id'] == bridge['id']))
+        self.record_sources(extra)
         basis = self.read_basis()
         groups = {job['id']: job['vacancy_group_id'] for job in basis['jobs']}
         self.assertEqual(len(set(groups.values())), 3)
@@ -143,13 +180,14 @@ class CompanyBestMatches(unittest.TestCase):
         self.assertEqual(groups[self.first['id']], groups[bridge['id']])
         compared = [self.roles[1]['id'], self.roles[2]['id'], extra['id']]
         self.save(basis=basis['basis'], compared_job_ids=compared)
-        self.assertTrue(self.research(bridge, finalize=True)['completion']['ready'])
+        self.assertTrue(self.research(bridge, extra, finalize=True)['completion']['ready'])
         with self.w.edit() as state:
             state['jobs'][0]['prior_application'] = 'submitted'
-        result = self.research(extra, finalize=True)['completion']
+        result = self.research(bridge, extra, finalize=True)['completion']
         self.assertEqual(result['companies'][0]['vacancy_count'], 2)
 
     def test_research_blocks_in_scope_unverified_employers_and_availability(self):
+        self.record_sources(self.first)
         self.save()
         unresolved = self.role('unresolved', mapped=False)
         other = self.role('outside', employer='Unrelated Fictional Company', mapped=False)
@@ -192,6 +230,7 @@ class CompanyBestMatches(unittest.TestCase):
                 'action', 'company-research-complete']
         scope = {
             'workspace_id': self.w.workspace_id, 'profile_id': self.profile['id'],
+            'research_id': self.research_id,
             'job_ids': [self.first['id']],
         }
         self.w.close()
@@ -311,6 +350,7 @@ class CompanyBestMatches(unittest.TestCase):
         self.assertEqual([record['profile_id'] for record in self.picks()], [self.profile['id']])
 
     def test_protected_local_endpoint(self):
+        self.record_sources(self.first)
         with server(self.s, 0) as http:
             thread = threading.Thread(target=http.serve_forever, daemon=True)
             thread.start()
@@ -322,6 +362,7 @@ class CompanyBestMatches(unittest.TestCase):
                 payload = json.dumps({**self.comparison, 'basis': self.read_basis()['basis']}).encode()
                 checked = json.dumps({
                     'workspace_id': self.w.workspace_id, 'profile_id': self.profile['id'],
+                    'research_id': self.research_id,
                     'job_ids': [self.first['id']],
                 }).encode()
                 with self.assertRaises(HTTPError) as rejected:

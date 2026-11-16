@@ -73,6 +73,8 @@ if __name__ == '__main__':
         browser('sqlite-company-browser.cjs', url)
     with fixture('serve_sqlite_fixture.py') as url:
         browser('company-highlights-browser.cjs', url)
+    with fixture('serve_research_fixture.py') as url:
+        browser('research-workflow-browser.cjs', url)
     with fixture('serve_sqlite_fixture.py') as url:
         browser('application-journey-browser.cjs', url)
     with fixture('serve_sqlite_fixture.py') as url:

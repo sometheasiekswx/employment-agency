@@ -79,14 +79,18 @@ def validate_research(companies, excluded, previous, destinations):
     labels = {employer_records.name_key(company['name']): company for company in companies}
     if len(labels) != len(companies) or '' in labels:
         raise ValueError('Combine employer aliases and cross-region research before importing')
-    baseline = previous.get('baseline_employers') or [row['name'] for row in previous['companies']]
+    baseline = previous.get('baseline_employers')
+    if baseline is None:
+        baseline = [row['name'] for row in previous['companies']]
     baseline_names = {employer_records.name_key(name) for name in baseline}
     exclusions = {employer_records.name_key(row['name']): row for row in excluded}
     if len(exclusions) != len(excluded) or exclusions.keys() != baseline_names - labels.keys():
         raise ValueError('Provide official logo coverage for exactly the excluded baseline employers')
-    previously_verified = set(previous.get('baseline_verified_employers') or [
-        row['name'] for row in previous['companies'] if (row.get('logo') or {}).get('status') == 'verified'
-    ])
+    baseline_verified = previous.get('baseline_verified_employers')
+    if baseline_verified is None:
+        baseline_verified = [row['name'] for row in previous['companies']
+                             if (row.get('logo') or {}).get('status') == 'verified']
+    previously_verified = set(baseline_verified)
     if exclusions.keys() & {employer_records.name_key(name) for name in previously_verified}:
         raise ValueError('Retain every baseline employer with a verified logo')
     for row in excluded:
@@ -223,6 +227,9 @@ def main():
             state['facts'] = published['state']['facts']
             state['profiles'] = published['state']['profiles']
         profile_id = workspace.read()['profiles'][0]['id']
+        research = service.action('company-research-start', {
+            'workspace_id': workspace.workspace_id, 'profile_id': profile_id,
+        })
         fields = {'id', 'title', 'employer', 'city', 'location', 'url', 'careers_url', 'description',
                   'requirements', 'availability', 'checked_at', 'posted_at', 'closes',
                   'eligibility', 'sponsorship', 'salary', 'work_arrangement', 'seniority'}
@@ -250,6 +257,11 @@ def main():
                            'requisition': source.get('requisition') or job['id'], 'evidence': evidence}
                 link = service.action('company-resolve', {**binding, 'name': name, 'verified': True})
                 employer_id = link['employer_id']
+                service.action('company-research-record', {
+                    'workspace_id': workspace.workspace_id, 'research_id': research['id'],
+                    'url': job['url'], 'status': 'retrieved', 'job_ids': [job['id']],
+                    'evidence': evidence,
+                })
                 if 'fit_rationale' in source:
                     binding['fit_rationale'] = source['fit_rationale']
                 record['listings'].append(binding)
@@ -281,6 +293,7 @@ def main():
             (args.workspace.parent / 'import-receipts.json').write_text(json.dumps(receipts, indent=2) + '\n')
         final = service.action('company-research-complete', {
             'workspace_id': workspace.workspace_id, 'profile_id': profile_id,
+            'research_id': research['id'],
             'job_ids': [job['id'] for job in catalog['jobs']],
         })
         if not final['completion']['ready']:

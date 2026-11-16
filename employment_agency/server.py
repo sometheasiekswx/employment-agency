@@ -126,6 +126,8 @@ def server(service, port=8766, frontend_origin=None, tailscale_origin=None, tail
                 return self.send(200, encode({'state': service.state(), 'token': token}))
             if path == '/api/company-avoid':
                 return self.send(200, encode({'result': service.action('company-avoid', {})}))
+            if path == '/api/research-workflow':
+                return self.send(200, encode({'result': service.action('research-workflow', {})}))
             if path == '/api/company-logo-inventory':
                 return self.send(200, encode({'result': service.action('company-logo-inventory', {})}))
             if path.startswith('/api/company-logo/'):
@@ -290,7 +292,14 @@ def server(service, port=8766, frontend_origin=None, tailscale_origin=None, tail
                     previous.close()
                 result = {'path': str(target), 'reload': True}
             else:
-                result = service.action(action, data)
+                if action == 'research-handoff':
+                    from .application_context import research_handoff
+
+                    if not service.w.database:
+                        raise ValueError('This operation requires a local SQLite workspace')
+                    result = research_handoff(service, data, api_origin=self.access_origin())
+                else:
+                    result = service.action(action, data)
                 if action in ('self-application-start', 'company-submission-continue') and result['status'] == 'handed_off':
                     attempt_id = result['id']
                     result = {**result, 'continue_url': f'/api/application-site/{attempt_id}/{application_site_proof(attempt_id)}'}

@@ -19,7 +19,7 @@ class ResearchIncomplete(ValueError):
         self.result = result
         blockers = result['completion']['blockers']
         super().__init__('Company research is incomplete. ' + '; '.join(
-            f"{blocker['name']}: {blocker['message']}" for blocker in blockers
+            f"{blocker.get('name', 'Research task')}: {blocker['message']}" for blocker in blockers
         ))
 
 
@@ -357,14 +357,18 @@ def completion(state, profile, checked):
 
 
 def research(workspace, args, *, finalize):
+    from . import research_workflow
+
     fields = {'workspace_id', 'profile_id', 'job_ids'}
-    if ((finalize and set(args) != fields)
+    if ((finalize and set(args) != fields | {'research_id'})
+            or set(args) - (fields | {'research_id'})
             or args.get('workspace_id', workspace.workspace_id) != workspace.workspace_id):
-        raise ValueError('Provide the current workspace, search profile and checked job IDs')
+        raise ValueError('Provide the current workspace, search profile, research_id and checked job IDs')
     state = workspace.read()
     profile = companies.by_id(state['profiles'], args.get('profile_id'))
     if not profile:
         raise ValueError('Choose a search profile in this workspace')
+    run = research_workflow.get_run(state, args['research_id'], profile['id']) if 'research_id' in args else None
     if finalize:
         checked = selected_jobs(state, args, limit=None)
     else:
@@ -377,6 +381,14 @@ def research(workspace, args, *, finalize):
         'workspace': str(workspace.path), 'workspace_id': workspace.workspace_id,
         'profile_id': profile['id'], 'completion': completion(state, profile, checked),
     }
+    evidence_blockers, gaps = research_workflow.completion(
+        workspace, state, run, checked,
+        {row['employer_id'] for row in result['completion']['companies']},
+    )
+    result['completion']['blockers'].extend(evidence_blockers)
+    result['completion'].update(ready=not result['completion']['blockers'], gaps=gaps,
+                                coverage_complete=not gaps and not result['completion']['blockers'])
+    result['research_id'] = run['id'] if run else None
     if finalize:
         if not result['completion']['ready']:
             raise ResearchIncomplete(result)

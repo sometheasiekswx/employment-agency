@@ -44,7 +44,14 @@ const path = require("node:path");
       name: "Platform engineering", roles: ["Platform Engineer"], include_unknown: true, include_stretch: true,
     });
     const workspace_id = initial.state._workspace.workspace_id;
-    const scope = { workspace_id, profile_id: profile.id, job_ids: roles.map((job) => job.id) };
+    const research = await action("company-research-start", { workspace_id, profile_id: profile.id });
+    const scope = { workspace_id, profile_id: profile.id, research_id: research.id, job_ids: roles.map((job) => job.id) };
+    for (const role of roles) {
+      await action("company-research-record", {
+        workspace_id, research_id: research.id, url: role.url, status: "retrieved", job_ids: [role.id],
+        evidence: "Fictional browser fixture checked the original role and its requirements.",
+      });
+    }
     const checked = await action("company-research", scope);
     assert.equal(checked.completion.ready, false);
     const complete = () => request("company-research-complete", scope);

@@ -183,10 +183,14 @@ Research five eligible hiring companies in my chosen locations. Prioritize emplo
 where I have never applied. Check each accessible official careers source and include
 every eligible role, ranked by company, with source URLs, checked dates and unknowns.
 Check each hiring employer with company-research-check before its targeted fetch.
+Read the running app's /api/research-workflow guide (or action research-workflow).
+Start company-research-start for the selected workspace and profile; pass its
+research_id to source checks, logo attempts and the final completion check.
 Attempt each company's official logo and retain source evidence; report missing assets.
 When a company has more than two suitable distinct roles, save exactly two supported
 company highlights and retain the other roles. Run company-research-complete for the
-current workspace, profile and checked job IDs before reporting research complete.
+current workspace, profile, research_id and all checked job IDs before reporting
+research complete. Require completion.ready and report completion.gaps honestly.
 Use confirmed experience, preserve document versions and ask about unknowns.
 Stop before paid requests, uploads, sending or submission.
 Keep personal data out of the public repository and its screenshots.

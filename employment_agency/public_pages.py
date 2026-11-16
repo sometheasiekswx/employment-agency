@@ -28,6 +28,8 @@ JOB_ROOT = re.compile(r"/(?:careers?|jobs?|vacanc(?:y|ies)|positions?|recruitmen
 NAVIGATION = frozenset(("careers", "jobs", "view all jobs", "find jobs", "join us", "apply", "apply now"))
 GENERIC_LINK_LABELS = NAVIGATION | {"view", "view job", "read more", "more details", "ដាក់ពាក្យ"}
 LINK_LIMIT = 40
+STRUCTURED_SCRIPT_LIMIT = 50
+STRUCTURED_LISTING_LIMIT = 40
 PDF_VACANCY_PATH = re.compile(r"(?:\.pdf$|/viewfilevacancy/?$)", re.I)
 
 
@@ -103,16 +105,21 @@ def sitemap_page(body, url):
     if tag not in ("urlset", "sitemapindex"):
         raise SourceError("Unsupported XML document. Supply a public HTML page or a recognised job feed.")
     links = []
+    limited = False
     for value in root.xpath('./*/*[local-name()="loc"]/text()'):
         try:
             destination = safe_link(value.strip(), url)
             if allowed_link(destination, url) and job_link(destination, ""):
-                links.append({"url": destination, "title": ""})
                 if len(links) == LINK_LIMIT:
+                    limited = True
                     break
+                links.append({"url": destination, "title": ""})
         except (TypeError, ValueError):
             continue
-    return {"url": url, "title": "Sitemap", "text": "", "links": links, "jobs": []}
+    result = {"url": url, "title": "Sitemap", "text": "", "links": links, "jobs": []}
+    if limited:
+        result["note"] = f"The sitemap contains more than {LINK_LIMIT} job links."
+    return result
 
 
 def first_text(tree, xpath):
@@ -185,8 +192,11 @@ def vacancy_table(main, url, page_text):
 def html_page(body, url, charset=None):
     tree = html.fromstring(body, parser=html.HTMLParser(encoding=charset, no_network=True))
     snippets = tree.xpath('//script[starts-with(@type, "application/ld+json")]/text()')
+    notes = []
+    if len(snippets) > STRUCTURED_SCRIPT_LIMIT:
+        notes.append(f"Read up to {STRUCTURED_SCRIPT_LIMIT} structured data blocks from this page.")
     postings = []
-    for snippet in snippets[:50]:
+    for snippet in snippets[:STRUCTURED_SCRIPT_LIMIT]:
         try:
             postings.extend(walk(json.loads(snippet)))
         except (ValueError, RecursionError):
@@ -225,25 +235,40 @@ def html_page(body, url, charset=None):
         node.tail = "\n" + (node.tail or "")
     main_text = "\n".join(part for line in main.text_content().splitlines() if (part := label(line)))
     jobs, leads = {}, []
-    for posting in postings[:40]:
+    if len(postings) > STRUCTURED_LISTING_LIMIT:
+        notes.append(f"Read up to {STRUCTURED_LISTING_LIMIT} structured listings from this page.")
+    incomplete = False
+    for posting in postings[:STRUCTURED_LISTING_LIMIT]:
         target = listing_url(posting, url, len(postings) > 1)
         if not target:
+            incomplete = True
             continue
         job = structured_job(posting, target, advert=main_text[:TEXT_LIMIT] if len(postings) == 1 else "",
                              page_url=url)
         if job["title"] and job["employer"] and job["description"]:
+            # Identical markup can appear more than once; ignore the generated timestamp.
+            if (prior := jobs.get(target)) and {**prior, "checked_at": job["checked_at"]} != job:
+                incomplete = True
             jobs[target] = job
         elif job["title"] and job["description"]:
             leads.append(job)
+        else:
+            incomplete = True
+    if incomplete:
+        notes.append("Some structured listings lack distinct URLs or complete vacancy details.")
     ordered = sorted(links.values(), key=lambda link: (link["url"] not in listings,
                                                       not job_link(link["url"], link["title"])))
+    if any(job_link(link["url"], link["title"]) for link in ordered[LINK_LIMIT:]):
+        notes.append(f"Kept up to {LINK_LIMIT} links from this page; some job links were not included.")
     result = {"url": url, "title": page_title, "text": main_text[:TEXT_LIMIT],
               "links": ordered[:LINK_LIMIT], "jobs": list(jobs.values())}
     if listings:
         result["vacancies"] = listings
     if leads:
         result["leads"] = leads
-        result["note"] = "Some listings need review to confirm the hiring employer"
+        notes.append("Some listings need review to confirm the hiring employer.")
+    if notes:
+        result["note"] = " ".join(notes)
     return result
 
 

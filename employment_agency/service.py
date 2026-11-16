@@ -228,6 +228,7 @@ class Service:
         state.pop('workspace_id', None)
         state.pop('application_answers', None)
         state.pop('agent_runs', None)
+        state.pop('research_runs', None)
         state.pop('application_destinations', None)
         submitted = submitted_job_ids(state)
         submitted_dates = companies.submission_dates(state) if snapshot else {}
@@ -378,6 +379,12 @@ class Service:
             with self.w.edit() as state:
                 return application_queue.set_pending(state, a.get('job_id'), a.get('marked'),
                                                      legacy_agent=True, enforce_slots=True)
+        if action == 'research-workflow':
+            from .research_workflow import guide
+
+            if a:
+                raise ValueError('research-workflow takes no arguments')
+            return guide()
         if action in ("discovery-start", "discovery-status", "discovery-stop"):
             from .discovery import Discovery
 
@@ -919,6 +926,10 @@ class Service:
             from . import company_best_matches
 
             return company_best_matches.research(self.w, args, finalize=action == 'company-research-complete')
+        if action in ('company-research-start', 'company-research-status', 'company-research-record'):
+            from .research_workflow import operation
+
+            return operation(self.w, action, args)
         if action == 'snapshot-status':
             with self.w.lock:
                 self.w.database.publish(verify=True)
@@ -936,10 +947,15 @@ class Service:
                 raise ValueError('Provide the hiring employer name')
             if action == 'company-research-source':
                 from .application_context import https_address
+                from .research_workflow import get_run
+
+                if 'research_id' in args:
+                    get_run(self.w.read(), args['research_id'])
                 evidence_url = args.get('evidence_url')
                 if evidence_url is not None and not https_address(evidence_url):
                     raise ValueError('Provide the official careers page that links this board')
-                return self.refresh(args['source_id'], research_name=name, research_evidence=evidence_url)
+                return self.refresh(args['source_id'], research_name=name, research_evidence=evidence_url,
+                                    research_id=args.get('research_id'))
             return {'workspace': str(self.w.path), **companies.research_employer(self.w.read(), name)}
         if action == 'company-selection':
             from .application_context import selected_jobs
@@ -1300,11 +1316,27 @@ class Service:
             state['jobs'].append(j)
         return j
 
-    def refresh(self, id, *, research_name=None, research_evidence=None):
+    def refresh(self, id, *, research_name=None, research_evidence=None, research_id=None):
+        from . import research_workflow
+
         current = self.w.read()
+        if research_id is not None:
+            research_workflow.get_run(current, research_id)
         src = find(current['sources'], id)
+        receipt = ({'research_id': research_id, 'method': 'shared-feed', 'status': 'retrieved',
+                    'url': research_evidence,
+                    'source': {'id': id, 'kind': src['kind'], 'board': src['board']}}
+                   if research_id is not None else None)
+
+        def skip_result(reason):
+            if receipt:
+                with self.w.edit() as state:
+                    research_workflow.record_source(state, research_id, [], method='shared-feed', status='skipped',
+                                                    url=research_evidence, source=receipt['source'], note=reason)
+            return {'count': 0, 'skipped': reason}
+
         if companies.source_cooldown(current, id):
-            return {'count': 0, 'skipped': 'Company is paused'}
+            return skip_result('Company is paused')
         research_request = research_name is not None
         saved_name = companies.source_research_name(current, src)
         if saved_name and research_request and companies.name_key(saved_name) != companies.name_key(research_name):
@@ -1320,8 +1352,9 @@ class Service:
             if owner_id and owner_id != company.get('id'):
                 raise ValueError('The board belongs to a different hiring employer')
             if not company['research_eligible']:
-                return {'count': 0, 'skipped': 'Company is paused or its history needs review'}
+                return skip_result('Company is paused or its history needs review')
         try:
+            status, note = "retrieved", ""
             if src['kind'] in ("greenhouse", "lever"):
                 jobs = sources.discover(src['kind'], src['board'])
                 full_snapshot = True
@@ -1333,20 +1366,37 @@ class Service:
                 jobs = fetch.feed(src['kind'], src['board'])
                 full_snapshot = src['kind'] in ("ashby", "workable")
                 if src['kind'] == "smartrecruiters":
-                    jobs = [fetch.enrich(job) for job in jobs[:12]]
+                    from .discovery import MAX_FEED_DETAILS
+
+                    if len(jobs) > MAX_FEED_DETAILS:
+                        status = "partial"
+                        note = f"Checked details for only {MAX_FEED_DETAILS} of {len(jobs)} postings."
+                    jobs = [fetch.enrich(job) for job in jobs[:MAX_FEED_DETAILS]]
+            if receipt:
+                receipt.update(status=status, note=note)
             imported, _, skipped = self.import_discovery(
-                jobs, source_id=id, full_snapshot=full_snapshot, research_name=research_name,
+                jobs, source_id=id, full_snapshot=full_snapshot, status=status, research_name=research_name,
                 expected_research_name=saved_name, save_research_name=research_request and not saved_name,
                 research_evidence=research_evidence,
+                research=receipt,
             )
             if skipped:
-                return {'count': 0, 'skipped': skipped}
+                return skip_result(skipped)
             result = {"count": len(imported)}
             if research_request:
                 result["job_ids"] = imported
+                if note:
+                    result.update(status=status, note=note)
             return result
         except Exception as e:
+            observed_at = now()
             self.degrade_source(id, "failed", type(e).__name__ + "; retry or import manually")
+            if receipt:
+                with self.w.edit() as state:
+                    research_workflow.record_source(state, research_id, [], method='shared-feed', status='failed',
+                                                    url=research_evidence, source=receipt['source'],
+                                                    note=type(e).__name__ + '; retry or inspect the original',
+                                                    observed_at=observed_at)
             return {
                 "error": "Source retrieval failed; previous results retained with their original timestamps"
             }
@@ -1357,8 +1407,9 @@ class Service:
 
     def import_discovery(self, jobs, *, source_id=None, full_snapshot=False, status="retrieved",
                          observed_jobs=None, deadline=None, research_name=None,
-                         expected_research_name=None, save_research_name=False, research_evidence=None):
-        if not source_id and not jobs:
+                         expected_research_name=None, save_research_name=False, research_evidence=None,
+                         research=None):
+        if not source_id and not jobs and not research:
             return [], set(), None
         with self.w.edit() as state:
             if deadline is not None:
@@ -1418,6 +1469,7 @@ class Service:
                     companies.link_verified_listing(state, listing, self.workspace_zone())
                 imported.append(listing)
             ids = {job["id"] for job in imported}
+            closed = []
             if source:
                 if self.w.database:
                     companies.link_source_jobs(state, source, imported, self.workspace_zone())
@@ -1427,6 +1479,8 @@ class Service:
                                 and old.get("url") not in observed_urls
                                 and old.get("source_requisition") not in observed_keys):
                             old["availability"] = "closed"
+                            if research:
+                                closed.append(old)
                 checked_at = now()
                 if save_research_name:
                     source["research_name"] = employer_name
@@ -1435,6 +1489,14 @@ class Service:
                     source["checked_at"] = checked_at
             if deadline is not None:
                 sources.remaining(deadline)
+            if research:
+                from . import research_workflow
+
+                receipt = research_workflow.record_source(
+                    state, research['research_id'], imported, closed_jobs=closed,
+                    **{key: research[key] for key in ('method', 'status', 'url', 'source', 'note') if key in research},
+                )
+                research['receipt_id'] = receipt['id']
             result = list(dict.fromkeys(job["id"] for job in imported)), ids - previous_ids, None
         if self.w.database:
             from . import company_logos
