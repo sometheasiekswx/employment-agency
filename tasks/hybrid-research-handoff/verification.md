@@ -82,6 +82,22 @@ test logs and the candidate wheel. Browser screenshot:
 Candidate wheel: `employment_agency_local-0.7.0-py3-none-any.whl`.
 SHA-256: `62cf756b3e4b254d1f72741ff4d499192d1b0df3995d9a875bc361fa661d1a82`.
 
+### Windows CI follow-up
+
+The [initial cross-platform run](https://github.com/sometheasiekswx/employment-agency/actions/runs/43902265470)
+passed Linux and macOS. Windows reached the expected retained `record_pending`
+receipt but an existing worker fixture exhausted its polling deadline before
+the queue finished publishing. A controlled local reproduction confirmed that
+the journal can expose the expected status while final persistence is ongoing.
+
+The fixture now waits on the worker's existing completion condition, with a
+45-second deadlock bound matching its shutdown guard, then reads the API once
+and checks the expected status. Receipt, exact-document, single-dispatch and
+restore assertions remain intact. All 34 affected execution, channel and
+protocol tests passed locally. This follow-up changes tests only; the verified
+production wheel and guide above are byte-identical. The final main revision's
+Checks run must pass before the automatic public release.
+
 ## Release and recovery
 
 The authorized release targets are shared `main`, its automatically deployed

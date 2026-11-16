@@ -6,7 +6,6 @@ import shutil
 import sqlite3
 import tempfile
 import threading
-import time
 import unittest
 from unittest.mock import patch
 
@@ -63,14 +62,13 @@ class AgentTestWorkspace(unittest.TestCase):
         args = {'job_ids': [self.job['id']], 'request_key': key, **values}
         return self.service.action('agent-application-start', args)['runs'][0]
 
-    def status(self, run, statuses, *, settled=True):
-        deadline = time.monotonic() + 8
-        while time.monotonic() < deadline:
-            row = self.service.action('agent-application-status', {'id': run['id']})['runs'][0]
-            if row['status'] in statuses and (not settled or not self.agent.busy):
-                return row
-            time.sleep(0.02)
-        self.fail(f'Run did not reach {statuses}: {row}')
+    def status(self, run, statuses):
+        with self.agent.changed:
+            self.assertTrue(self.agent.changed.wait_for(lambda: not self.agent.busy, timeout=45),
+                            f"Connected application worker did not settle for run {run['id']}")
+        row = self.service.action('agent-application-status', {'id': run['id']})['runs'][0]
+        self.assertIn(row['status'], statuses, f'Run did not reach {statuses}: {row}')
+        return row
 
 
 class AgentTests(AgentTestWorkspace):
