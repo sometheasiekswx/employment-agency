@@ -82,3 +82,11 @@ company and a stored vacancy link, while excluding name-only guesses and other
 companies. The existing application blockers remain visible, and the user can
 remove the saved choices. The regression verifies both retained and excluded
 roles plus the company filter label.
+
+All normal local browser scenarios passed. The hosted workflow first timed out
+because earlier dismissible save notifications covered its Prepare button; the
+test now closes those notices through the visible controls before clicking. The
+hosted workflow, editor and parity scenarios passed on rerun. The final company
+scope correction additionally passed its 78 focused unit tests and both SQLite
+company and Jobs-capacity browser checks against the exact committed package's
+production export. The hosted correction changes only the test and this record.

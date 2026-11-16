@@ -75,12 +75,17 @@ const {
   await page
     .getByRole("heading", { name: "Software Engineer · Fictional Systems" })
     .waitFor();
+  // Earlier save notices can cover the next action at the bottom of the page.
+  const savedNotices = page.locator(".notification-card:not([inert])").filter({ hasText: /^Saved\.$/ });
+  while (await savedNotices.count()) {
+    await savedNotices.last().getByRole("button", { name: "Dismiss notification", exact: true }).click();
+  }
   const [prepared] = await Promise.all([
     page.waitForResponse((response) => response.url().endsWith("/api/local-package")),
     page.getByRole("button", { name: "Prepare application", exact: true }).click(),
   ]);
   assert.equal(prepared.status(), 200);
-  await page.locator(".notification-card:not([inert])").filter({ hasText: /^Saved\.$/ }).last().waitFor();
+  await savedNotices.last().waitFor();
   await page.getByRole("link", { name: "Opportunities", exact: true }).click();
   const assess = page.getByRole("button", {
     name: "Assess Software Engineer at Fictional Systems",
