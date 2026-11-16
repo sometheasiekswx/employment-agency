@@ -1,33 +1,30 @@
-// Record the real production UI in an explicitly fictional, disposable fixture.
-// Start it with: .venv/bin/python tests/serve_concept_fixture.py --port 8788
+// Record the deployed public demo in a fresh browser context for each clip.
 const { chromium } = require('../frontend/node_modules/playwright');
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
-const { execFileSync } = require('node:child_process');
 const { showPanel } = require('../tests/browser-applications.cjs');
 
 const root = path.resolve(__dirname, '..');
-const origin = process.env.SHOWCASE_URL || 'http://127.0.0.1:8788';
+const origin = 'https://employment-agency-demo.vercel.app';
+const boardUrl = origin + '/discover/';
 const output = path.join(root, 'output/readme-showcase');
-const media = path.join(root, 'docs/media');
 const recorders = new WeakMap();
 const pendingRecorders = new WeakMap();
 const CAPTURE_SCALE = 2;
 const CAPTURE_FPS = 20;
 const selected = new Set((process.env.SHOWCASE_CLIPS || 'desktop,mobile,documents').split(','));
-assert.match(origin, /^http:\/\/127\.0\.0\.1:\d+$/);
-assert.notEqual(new URL(origin).port, '8766', 'Never capture the private app');
 fs.mkdirSync(output, { recursive: true });
-fs.mkdirSync(media, { recursive: true });
 
 const wait = (page, ms) => page.waitForTimeout(ms);
 const relative = file => path.relative(root, file).split(path.sep).join('/');
+const sha256 = data => crypto.createHash('sha256').update(data).digest('hex');
+const spotlightRole = 'Assess Senior / Lead Software Engineer, Anti-Scam Products at Open Government Products';
 
 async function ready(page) {
-  await page.locator('main#content').waitFor();
-  await page.getByText('Demo · fictional profile', { exact: true }).filter({ visible: true }).waitFor();
+  await page.getByText('Public demo', { exact: true }).filter({ visible: true }).first().waitFor();
+  await page.locator('.discover-card').first().waitFor();
   await page.evaluate(() => document.fonts.ready);
   await wait(page, 500);
   const pending = pendingRecorders.get(page);
@@ -107,7 +104,7 @@ async function startRecorder(context, page, directory, viewport, zero) {
     assert.equal(height, viewport.height * CAPTURE_SCALE);
     const at_ms = Math.round((before + after) / 2 - zero);
     samples.push({ at_ms, latency_ms: after - before });
-    const hash = crypto.createHash('sha256').update(data).digest('hex');
+    const hash = sha256(data);
     if (hash !== previousHash) {
       const file = path.join(directory, String(frames.length).padStart(5, '0') + '.png');
       fs.writeFileSync(file, data);
@@ -169,14 +166,16 @@ async function record(browser, slug, viewport, story, mobile = false) {
   });
   const zero = Date.now();
   const page = await context.newPage();
+  page.setDefaultTimeout(15000);
   pendingRecorders.set(page, [context, page, directory, viewport, zero]);
   const errors = [];
-  const external = [];
+  const blocked = [];
   const actions = [];
   await context.route('**/*', route => {
-    const url = new URL(route.request().url());
-    if (['http:', 'https:'].includes(url.protocol) && url.origin !== origin) {
-      external.push(url.href);
+    const request = route.request();
+    const url = new URL(request.url());
+    if (url.origin !== origin || !['GET', 'HEAD'].includes(request.method())) {
+      blocked.push(`${request.method()} ${url.href}`);
       return route.abort();
     }
     return route.continue();
@@ -188,7 +187,7 @@ async function record(browser, slug, viewport, story, mobile = false) {
   try {
     result = await story(page, note, zero);
     assert.deepEqual(errors, []);
-    assert.deepEqual(external, [], 'Published walkthroughs must not contact external sites');
+    assert.deepEqual(blocked, [], 'Capture must use only read requests to the public demo');
     result.body_font_css_px = await page.evaluate(() => parseFloat(getComputedStyle(document.body).fontSize));
     recording = await recorders.get(page).stop(result.start_ms, result.end_ms);
   } finally {
@@ -212,18 +211,17 @@ async function record(browser, slug, viewport, story, mobile = false) {
 }
 
 async function desktop(page, note, zero) {
-  await page.goto(origin + '/discover/?view=all');
+  await page.goto(boardUrl);
   await ready(page);
-  const card = page.getByRole('button', { name: 'Assess Cloud Software Engineer at Emberlane Systems', exact: true });
+  const card = page.getByRole('button', { name: spotlightRole, exact: true });
   const start_ms = Date.now() - zero;
   note('Company shortlist');
-  await capturePoster(page, path.join(output, 'discover-board-poster.png'));
   await wait(page, 1000);
   const filters = page.locator('.discover-filters > summary');
   await filters.click();
-  await page.getByRole('combobox', { name: 'Search profile', exact: true }).waitFor();
-  note('Find the profile chooser inside Filters');
-  await wait(page, 850);
+  await page.getByRole('combobox', { name: 'Location', exact: true }).selectOption({ label: 'Singapore' });
+  note('Filter the company board to Singapore');
+  await wait(page, 1200);
   await filters.click();
   await wait(page, 450);
   await card.hover();
@@ -231,7 +229,7 @@ async function desktop(page, note, zero) {
   await card.click();
   const inspector = page.locator('.discover-inspector');
   await inspector.waitFor();
-  await showPanel(page, 'overview');
+  await inspector.getByRole('region', { name: 'Career evidence' }).waitFor();
   note('Assess a role without leaving the company board');
   await wait(page, 1500);
   const poster = relative(path.join(output, 'discover-review-poster.png'));
@@ -246,42 +244,35 @@ async function desktop(page, note, zero) {
   note('Move to the next opportunity in place');
   await wait(page, 1600);
   const bookmark = inspector.getByRole('button', { name: /^(Apply later|Remove from To apply)$/ });
-  const originalSaved = await bookmark.getAttribute('aria-pressed') === 'true';
-  const selectedTitle = await inspector.locator('.role-workspace-heading h2').innerText();
+  assert.equal(await bookmark.getAttribute('aria-pressed'), 'false');
   await bookmark.click();
-  note(originalSaved ? 'Remove a sample role from To apply' : 'Add a sample role to To apply');
+  await inspector.getByRole('button', { name: 'Remove from To apply', exact: true, pressed: true }).waitFor();
+  note('Add a role to To apply in the demo browser');
   await wait(page, 1400);
   await inspector.getByRole('button', { name: 'Close opportunity details', exact: true }).click();
   note('Return to the preserved shortlist');
   await wait(page, 1700);
-  const end_ms = Date.now() - zero;
-  // Restore the disposable fixture outside the published clip, so reruns agree.
-  await page.getByRole('button', { name: originalSaved ? 'Jobs' : 'To apply', exact: true }).click();
-  const restoreLabel = `${originalSaved ? 'Apply later' : 'Remove from To apply'} · ${selectedTitle}`;
-  await page.getByRole('button', { name: restoreLabel, exact: true }).click();
-  await wait(page, 700);
-  return { start_ms, end_ms, poster };
+  return { start_ms, end_ms: Date.now() - zero, poster };
 }
 
 async function mobile(page, note, zero) {
-  await page.goto(origin + '/discover/?view=all');
+  await page.goto(boardUrl);
   await ready(page);
   const start_ms = Date.now() - zero;
   note('Mobile company shortlist');
   await wait(page, 1000);
   const search = page.getByRole('search', { name: 'Filter opportunities' }).getByRole('searchbox');
-  await search.pressSequentially('Cloud', { delay: 90 });
+  await search.pressSequentially('Anti-Scam', { delay: 120 });
   await page.waitForFunction(() => document.querySelectorAll('.discover-card').length === 1);
   note('Filter roles live while typing');
   await wait(page, 700);
-  await page.getByRole('button', { name: 'Clear search', exact: true }).tap();
-  await wait(page, 600);
-  const role = page.getByRole('button', { name: 'Assess Cloud Software Engineer at Emberlane Systems', exact: true });
+  const role = page.getByRole('button', { name: spotlightRole, exact: true });
   await role.tap();
   const inspector = page.locator('.discover-inspector');
   await inspector.waitFor();
-  note('Slide the native review sheet up from the bottom');
-  await showPanel(page, 'overview');
+  note('Open the mobile opportunity sheet');
+  const evidence = inspector.getByText('Related evidence (1 fact)', { exact: true }).first();
+  await evidence.waitFor();
   await wait(page, 800);
   const poster = relative(path.join(output, 'mobile-review-poster.png'));
   await capturePoster(page, path.join(root, poster));
@@ -315,8 +306,6 @@ async function mobile(page, note, zero) {
   assert.equal(await grip.getAttribute('aria-expanded'), 'true');
   assert.equal(await bookmark.getAttribute('aria-pressed'), originalSaved,
     'Swiping from the footer must preserve the To apply choice');
-  assert.equal(await inspector.getByRole('button', { name: 'Overview', exact: true }).getAttribute('aria-pressed'), 'true',
-    'Swiping from the footer must keep Overview selected');
   note('Swipe up from the footer control to expand');
   await touchDrag(page, company, 320);
   await wait(page, 500);
@@ -327,9 +316,7 @@ async function mobile(page, note, zero) {
   await wait(page, 650);
   await role.tap();
   await inspector.waitFor();
-  await showPanel(page, 'overview');
   await wait(page, 550);
-  const evidence = inspector.getByText('Related evidence (1 fact)', { exact: true }).first();
   await evidence.tap();
   assert.equal(await evidence.evaluate(element => element.parentElement.open), true,
     'An ordinary disclosure tap must still work after footer dragging');
@@ -338,23 +325,27 @@ async function mobile(page, note, zero) {
   await page.touchscreen.tap(180, 220);
   await inspector.waitFor({ state: 'detached' });
   note('Tap outside to dismiss');
-  note('Return to the same shortlist position');
+  await search.waitFor();
+  assert.equal(await search.inputValue(), 'Anti-Scam', 'Closing the sheet must preserve the search');
   await wait(page, 1000);
   return { start_ms, end_ms: Date.now() - zero, poster };
 }
 
 async function documents(page, note, zero) {
-  await page.goto(origin + '/discover/?view=applications');
+  await page.goto(boardUrl + '?view=applications&section=active');
   await ready(page);
   const start_ms = Date.now() - zero;
   note('Review application packages');
   await wait(page, 1300);
-  await page.getByRole('button', { name: 'Assess Cloud Software Engineer at Emberlane Systems', exact: true }).click();
+  await page.getByRole('button', { name: 'Assess Operations Engineer I at Oscar Health', exact: true }).click();
   await showPanel(page, 'files');
   await page.getByRole('combobox', { name: 'Document version', exact: true }).waitFor();
-  assert.match(await page.getByRole('link', { name: 'CV PDF', exact: true }).first().getAttribute('href'), /^\/files\//);
+  assert.match(await page.getByRole('link', { name: 'CV PDF', exact: true }).first().getAttribute('href'),
+    /^\/demo\/files\/[a-f0-9]+\.pdf$/);
   note('Review sample document files and their preserved version');
   await wait(page, 1100);
+  const poster = relative(path.join(output, 'application-documents-poster.png'));
+  await capturePoster(page, path.join(root, poster));
   await page.getByText('Supporting files & source evidence', { exact: true }).first().click();
   await pacedScroll(page, page.locator('.discover-inspector-body'), 280, 12);
   const sourceEvidence = page.getByRole('link', { name: 'Source evidence', exact: true }).first();
@@ -365,13 +356,13 @@ async function documents(page, note, zero) {
   'The supporting source-evidence file must be visible in the recording');
   note('Inspect supporting files and source evidence');
   await wait(page, 1000);
-  const poster = relative(path.join(output, 'application-documents-poster.png'));
-  await capturePoster(page, path.join(root, poster));
   await page.getByRole('link', { name: 'View application history', exact: true }).click();
   await page.getByRole('heading', { name: 'History', level: 1, exact: true }).waitFor();
   note('Find preserved document versions in History');
   await wait(page, 1400);
-  await page.locator('.history-version summary').first().click();
+  const version = page.locator('.history-version summary').first();
+  await version.click();
+  note('Expand the preserved sample version');
   await wait(page, 1200);
   await page.getByRole('link', { name: 'Opportunities', exact: true }).click();
   await page.getByRole('button', { name: 'Applications', exact: true }).click();
@@ -380,48 +371,52 @@ async function documents(page, note, zero) {
   return { start_ms, end_ms: Date.now() - zero, poster };
 }
 
+async function deployedSource(browser) {
+  const context = await browser.newContext();
+  try {
+    async function read(pathname) {
+      const url = origin + pathname;
+      const response = await context.request.get(url, { maxRedirects: 0 });
+      assert.equal(response.status(), 200, url);
+      return response;
+    }
+    const release = await (await read('/release.json')).json();
+    assert.match(release.commit, /^[a-f0-9]{40}$/);
+    const bundle = await read('/demo/preview.json');
+    const snapshot = await bundle.json();
+    assert.equal(snapshot.public_preview, true);
+    assert.equal(snapshot.state._workspace.demo, true);
+    assert.equal(snapshot.listing_mode, 'reviewed');
+    assert.equal(snapshot.revision, release.fixtureRevision);
+    assert.equal(snapshot.demo_resume?.pdf, '/demo/master-resume.pdf');
+    return {
+      origin,
+      release,
+      served_html_sha256: sha256(await (await read('/discover/')).body()),
+      preview_sha256: sha256(await bundle.body()),
+    };
+  } finally {
+    await context.close();
+  }
+}
+
 (async () => {
   const browser = await chromium.launch({ channel: process.env.BROWSER_CHANNEL || 'chrome', headless: true });
   try {
-    const check = await browser.newContext();
-    const response = await check.request.get(origin + '/api/state');
-    assert.equal(response.status(), 200);
-    const { state } = await response.json();
-    assert.equal(state._workspace.demo, true, 'Capture only a marked demo');
-    assert.equal(state.identity.name, 'Alex Morgan');
-    assert.equal(state.identity.email, 'alex@example.test');
-    assert.equal(state.jobs.length, 6);
-    assert.equal(state.applications.length, 3);
-    assert.ok(state.jobs.every(job => job.url.startsWith('https://example.test/concept/')));
-    const served = await check.request.get(origin + '/discover/?view=all');
-    assert.equal(served.status(), 200);
-    const servedHtmlHash = crypto.createHash('sha256').update(await served.body()).digest('hex');
-    await check.close();
+    const source = await deployedSource(browser);
     const clips = [];
     if (selected.has('desktop')) clips.push(await record(browser, 'discover-review', { width: 1120, height: 840 }, desktop));
     if (selected.has('mobile')) clips.push(await record(browser, 'mobile-review', { width: 390, height: 844 }, mobile, true));
     if (selected.has('documents')) clips.push(await record(browser, 'application-documents', { width: 1120, height: 840 }, documents));
-    const after = await browser.newContext();
-    const servedAfter = await after.request.get(origin + '/discover/?view=all');
-    assert.equal(crypto.createHash('sha256').update(await servedAfter.body()).digest('hex'), servedHtmlHash,
-      'The served application must not change during capture');
-    const { state: stateAfter } = await (await after.request.get(origin + '/api/state')).json();
-    const savedIds = ({ jobs }) => jobs.filter(job => job.saved).map(job => job.id).sort();
-    assert.deepEqual(savedIds(stateAfter), savedIds(state), 'The capture restores the fictional To apply choices');
-    await after.close();
+    assert.deepEqual(await deployedSource(browser), source, 'The public deployment must stay consistent during capture');
     fs.writeFileSync(path.join(output, 'manifest.json'), JSON.stringify({
       captured_at: new Date().toISOString(),
-      source: 'Lossless 2x Chromium PNG capture of the actual built application; real clicks, hover and scrolling with measured frame timestamps',
-      fixture: 'tests/serve_concept_fixture.py',
-      candidate: 'Alex Morgan — fictional',
-      opportunities: 'Six invented illustrative roles and employers, not live vacancies',
-      application_mode: 'Normal local application on a disposable fictional workspace. The public preview uses a separate static catalog.',
-      mutations: 'The desktop capture toggles one sample To apply choice and restores it outside the published clip. Drafts, documents and submissions are unaffected.',
-      external_requests: 'No employer links or external accounts opened',
-      served_html_sha256: servedHtmlHash,
-      served_html_unchanged_before_after_capture: true,
-      source_commit: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(),
-      source_working_tree_dirty: execFileSync('git', ['status', '--porcelain'], { cwd: root, encoding: 'utf8' }).trim().length > 0,
+      source: 'Lossless 2x Chromium PNG capture of the deployed public demo using browser clicks, scrolling and touch input',
+      deployment: source,
+      deployment_unchanged_before_after_capture: true,
+      content: 'Reviewed employer listing snapshots, the approved public profile and sample application documents.',
+      browser_state: 'Each clip ran in a fresh context. The desktop To apply selection was discarded when its context closed.',
+      network: 'Only GET and HEAD requests to the public demo origin were allowed.',
       clips,
     }, null, 2) + '\n');
     console.log('Recorded:', clips.map(clip => `${clip.slug} (${clip.duration_seconds.toFixed(1)}s)`).join(', '));

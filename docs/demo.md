@@ -1,6 +1,6 @@
 # Demo content and walkthroughs
 
-The deployed web showcase uses the owner’s approved redacted master résumé for its public profile and new drafts. The default local static export uses a fictional résumé. The installed CLI demo and the README recordings each have their own fictional workspace. Example documents and application decisions are fictional throughout.
+The deployed web showcase uses the owner’s approved redacted master résumé for its public profile and new drafts. The README walkthroughs record this deployment, including its sample application documents and decisions. The default local static export and the installed CLI demo use fictional profiles.
 
 |                     | Public web showcase                                                           | Existing CLI demo                                            |
 | ------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------ |
@@ -31,16 +31,7 @@ The shared Python `Service` generates the bundled state, requirement assessments
 
 ## Current interface GIFs
 
-The README walkthroughs record the current local interface with motion enabled. Desktop shows the company board, the profile chooser in Filters, Overview evidence, in-place comparison and Apply later feedback. Mobile shows live search, the sheet opening, one upward body swipe that expands and starts reading, a second swipe to read, header collapse, footer expansion, dismissal and an ordinary disclosure tap. The document walkthrough opens the role's Documents panel, reveals supporting files and follows the version into History. The recordings use the application's fonts and artwork and the six-role Alex Morgan fixture.
-
-| Role                      | Fictional employer  | Location  | Work model |
-| ------------------------- | ------------------- | --------- | ---------- |
-| Cloud Software Engineer   | Emberlane Systems   | Singapore | Hybrid     |
-| Backend Engineer          | Bayform Labs        | Singapore | On-site    |
-| Platform Engineer         | Fernbridge Digital  | Melbourne | Hybrid     |
-| Full Stack Engineer       | Paperwell Studio    | Melbourne | Remote     |
-| DevOps Engineer           | Northglass Works    | Berlin    | Hybrid     |
-| Backend Software Engineer | Cedarlight Software | Toronto   | Hybrid     |
+The walkthroughs record the live public demo with motion enabled. On desktop, the company board filters to Singapore, opens career evidence, compares roles in place and adds a role to To apply. On mobile, typing narrows the board, and swiping expands, scrolls and dismisses the opportunity sheet. The document walkthrough opens a sample application's Documents panel, reveals its supporting files and opens the preserved version in History. [Public demo](https://employment-agency-demo.vercel.app/discover/)
 
 | Walkthrough                                 | Animation                                                    | Reduced-motion still                                         |
 | ------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
@@ -48,7 +39,7 @@ The README walkthroughs record the current local interface with motion enabled. 
 | Application documents and preserved history | [application-documents.gif](media/application-documents.gif) | [application-documents.png](media/application-documents.png) |
 | Mobile discovery and expandable review      | [mobile-review.gif](media/mobile-review.gif)                 | [mobile-review.png](media/mobile-review.png)                 |
 
-The README leads with a full-width desktop GIF followed by a centered phone GIF, preserving readable layouts rather than shrinking both into table columns. It uses `<picture>` to select the still image when reduced motion is requested and provides direct static-preview links. Lossless browser PNGs are captured at twice the intended display size: desktop and document assets are 2240 × 1680, capped at 1120 × 840; mobile assets are 780 × 1688, capped at 390 × 844. GitHub can reduce widths to fit its content column; no fixed height stretches or squeezes the images. GIF timing follows the captures, with reading holds between interactions. The walkthroughs demonstrate interface navigation and sample evidence; they are not evidence that a vacancy is open or an application was sent.
+Click a walkthrough in the README to open its page in the public demo. The README supplies still images for reduced-motion preferences and links to each GIF and PNG. Lossless browser PNGs capture desktop and documents at 2240 × 1680 and mobile at 780 × 1688, twice their intended display dimensions. GIF timing follows the captures, with reading holds between interactions. The listings are reviewed snapshots and the application documents are samples.
 
 [Capture provenance, timing and asset metadata](media/showcase-provenance.json) · [Decoded asset and source-frame quality checks](media/quality-report.json).
 
@@ -68,18 +59,9 @@ Run `.venv/bin/python tests/run_public_preview_checks.py` after building to veri
 
 To refresh the public catalog, follow the [shared research workflow](agents.md#research-five-companies), then use `scripts/import-showcase-research.py` with a new isolated workspace, the already-approved public profile bundle and reviewed research files. The installed shared build must support `company-research-complete`. The importer refuses incomplete destination coverage, stores logos through shared operations, saves comparison bases and requires successful research completion before writing `demo_data/showcase_jobs.json`. Keep the workspace and approved résumé inputs outside tracked source. Regenerate `frontend/public/demo`, build and verify the static site. Changing the approved résumé requires another comparison review. The older metadata-only refresh script refuses to overwrite this reviewed catalog.
 
-### Record the fictional walkthroughs
+### Record the public demo walkthroughs
 
-Build the normal production frontend and start the six-role local fixture. [Fixture source](../tests/serve_concept_fixture.py)
-
-```sh
-npm --prefix frontend run build
-PYTHONPATH=.:tests .venv/bin/python tests/serve_concept_fixture.py --port 8788
-```
-
-This fixture creates a temporary marked demo workspace, seeds it through validated service operations and removes it when the server stops. Keep capture tools on its loopback URL and verify the fictional identity and demo marker before recording. The public static deployment serves exported state and documents without this local fixture server.
-
-With that fixture running, record and encode the three walkthroughs in another terminal:
+From the software checkout, record, encode and verify all three walkthroughs.
 
 ```sh
 node scripts/capture-showcase.cjs
@@ -87,9 +69,9 @@ node scripts/capture-showcase.cjs
 .venv/bin/python scripts/check-showcase.py
 ```
 
-Capture requires Playwright with Chrome, and encoding requires FFmpeg and Pillow. Chromium touch input drives the mobile gestures. The capture asserts that a swipe expands and scrolls before release, a second swipe continues scrolling, a footer drag preserves the To apply choice, and a normal evidence tap still works. The script checks the fictional fixture before recording and verifies its To apply choices after restoration. `SHOWCASE_URL` selects the same loopback fixture for capture and checking.
+Capture requires Playwright with Chrome. Encoding uses FFmpeg with libx264 and Pillow. Each clip starts in a fresh browser context scoped to the public demo. The script verifies the release marker, deployed HTML and public data before and after capture. The desktop bookmark is discarded with its browser context. Chromium touch input drives and verifies the mobile gestures.
 
-Lossless frames and the capture manifest go to `output/readme-showcase/`. The encoder writes the GIFs, PNG posters and `docs/media/showcase-provenance.json` with source timing and hashes. It enforces a 10 MB GIF limit. The checker verifies GIF decoding, source hashes and dimensions, poster pixels and README fallbacks. It saves `docs/media/quality-report.json` and local action contact sheets. Use the palette-error measure to assess GIF encoding. [Mobile interaction details](mobile-sheet-motion.md)
+Lossless frames, the capture manifest and MP4 copies go to `output/readme-showcase/`. The encoder writes the GIFs, PNG posters and `docs/media/showcase-provenance.json` with the deployed revision, source timing and hashes. It enforces a 10 MB GIF limit. The checker uses the saved frames to verify decoding, source hashes and dimensions, poster pixels and README fallbacks, even after the public site advances. Pass `--verify-live` to also compare the live release marker and content while the captured release is still live. The checker saves `docs/media/quality-report.json` and local action contact sheets. [Mobile interaction details](mobile-sheet-motion.md)
 
 ## Existing CLI demo
 

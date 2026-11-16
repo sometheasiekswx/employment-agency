@@ -50,6 +50,11 @@ def encode(ffmpeg, clip):
         '-fps_mode', 'vfr', '-enc_time_base', '1:100',
         '-loop', '0', '-gifflags', '+transdiff', str(destination),
     ], check=True)
+    subprocess.run(common + source + [
+        '-vf', 'fps=25,format=yuv420p', '-c:v', 'libx264', '-crf', '18',
+        '-t', str(clip['duration_seconds']),
+        '-movflags', '+faststart', str(MANIFEST.parent / (clip['slug'] + '.mp4')),
+    ], check=True)
     return destination
 
 
@@ -58,6 +63,10 @@ def main():
     if not ffmpeg:
         raise SystemExit('FFmpeg is required to encode the lossless browser PNGs.')
     manifest = json.loads(MANIFEST.read_text())
+    if {clip['slug'] for clip in manifest['clips']} != {
+        'discover-review', 'mobile-review', 'application-documents',
+    }:
+        raise SystemExit('Capture all three walkthroughs before building the README media.')
     MEDIA.mkdir(parents=True, exist_ok=True)
     for clip in manifest['clips']:
         source_frames = clip['frames']
@@ -110,9 +119,9 @@ def main():
     )
     manifest['display'] = 'Desktop 2240px assets at 1120px display width; mobile 780px assets at 390px.'
     manifest['reproduction'] = [
-        '.venv/bin/python tests/serve_concept_fixture.py --port 8788',
         'node scripts/capture-showcase.cjs',
         '.venv/bin/python scripts/build-showcase.py',
+        '.venv/bin/python scripts/check-showcase.py',
     ]
     (MEDIA / 'showcase-provenance.json').write_text(json.dumps(manifest, indent=2) + '\n')
 

@@ -1,13 +1,18 @@
 """Check captured GIFs, source integrity, proportions and README fallbacks."""
+import argparse
 from datetime import datetime, timezone
 import hashlib
 import json
 import math
-import os
 from pathlib import Path
 import re
 import urllib.request
 from PIL import Image, ImageChops, ImageDraw, ImageStat
+
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--verify-live', action='store_true',
+                    help='Compare the public alias with the recorded deployment before it advances.')
+args = parser.parse_args()
 
 ROOT = Path(__file__).resolve().parents[1]
 MEDIA = ROOT / 'docs/media'
@@ -19,23 +24,32 @@ walkthrough_tags = re.findall(r'<img[^>]*src="docs/media/[^\"]+\.gif"[^>]*>', re
 assert len(walkthrough_tags) == 3
 assert all('width=' in tag and 'height=' not in tag for tag in walkthrough_tags)
 assert len(re.findall(r'<source media="\(prefers-reduced-motion: reduce\)"', readme)) == 3
-origin = os.environ.get('SHOWCASE_URL', 'http://127.0.0.1:8788')
-assert re.fullmatch(r'http://127\.0\.0\.1:\d+', origin), 'Use a loopback fixture'
-assert not origin.endswith(':8766'), 'Never inspect the private app fixture'
-with urllib.request.urlopen(origin + '/discover/?view=all') as response:
-    after_html_hash = hashlib.sha256(response.read()).hexdigest()
-assert after_html_hash == manifest['served_html_sha256'], 'Built HTML changed during capture'
+origin = 'https://employment-agency-demo.vercel.app'
+deployment = manifest['deployment']
+assert deployment['origin'] == origin
+assert manifest['deployment_unchanged_before_after_capture'] is True
+if args.verify_live:
+    with urllib.request.urlopen(origin + '/release.json', timeout=15) as response:
+        assert response.geturl() == origin + '/release.json'
+        assert json.load(response) == deployment['release'], 'Public alias has advanced since capture'
+    for route, key in [('/discover/', 'served_html_sha256'), ('/demo/preview.json', 'preview_sha256')]:
+        with urllib.request.urlopen(origin + route, timeout=15) as response:
+            assert response.geturl() == origin + route
+            assert hashlib.sha256(response.read()).hexdigest() == deployment[key], f'{route} changed since capture'
+assert {clip['slug'] for clip in manifest['clips']} == {
+    'discover-review', 'mobile-review', 'application-documents',
+}, 'Capture all three walkthroughs before verifying'
 report = {
     'schema_version': 1,
     'verified_at': datetime.now(timezone.utc).isoformat(),
     'capture_at': manifest['captured_at'],
     'scope': 'Validation of the refreshed three walkthroughs only; no comparisons with older application revisions.',
     'source_pipeline': manifest['source'],
-    'served_html_sha256': manifest['served_html_sha256'],
-    'served_html_unchanged_before_after_capture': True,
-    'fixture': 'Capture used a disposable, marked Alex Morgan fictional workspace on loopback.',
+    'deployment': deployment,
+    'live_deployment_verified': args.verify_live,
     'encoding': manifest['encoding'],
     'checks': [
+        'Capture verified that the public deployment stayed consistent from start to finish.',
         'Every captured source PNG hash and native 2x dimensions match its provenance record.',
         'Every GIF frame decoded, dimensions match source, loop is infinite, and file is below 10 MB.',
         'Static posters preserve source PNG pixels at native dimensions.',
@@ -45,10 +59,12 @@ report = {
     'limitations': [
         'The lossless source is sampled at the measured capture rate rather than the browser refresh rate; short transitions can span only a few captured frames.',
         'GIF uses a 256-colour palette and centisecond timing. PNG posters preserve source pixels.',
-        'The walkthroughs use the local app and a fictional fixture. The public static deployment has separate release verification.',
+        'Mobile touch input was emulated in Chromium.',
     ],
     'clips': [],
 }
+if args.verify_live:
+    report['checks'].append('Live release marker, Opportunities HTML and public demo data match the recorded deployment.')
 for clip in manifest['clips']:
     slug = clip['slug']
     width = clip['display_width']

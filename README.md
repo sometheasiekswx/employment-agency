@@ -25,14 +25,16 @@ Reviewed employer listings · Tab-local drafts · No sign-in
 
 </div>
 
+The walkthroughs below were recorded in the public demo. You can explore reviewed employer listings, see how roles match the public résumé, and prepare editable CV and cover-letter drafts. Imported résumés and new drafts stay in the current tab. [Demo data and recording details](docs/demo.md)
+
 ### Desktop · Keep the shortlist in view
 
 Compare roles by company, filter by location and inspect supporting evidence in the same workspace. Company headers show verified logos when available and initials otherwise; opening a role keeps its details beside the board.
 
-<a href="docs/media/discover-review.gif">
+<a href="https://employment-agency-demo.vercel.app/discover/">
   <picture>
     <source media="(prefers-reduced-motion: reduce)" srcset="docs/media/discover-review.png">
-    <img src="docs/media/discover-review.gif" alt="Desktop Opportunities workspace comparing fictional roles by company, opening role details and reviewing career evidence without leaving the board" width="1120">
+    <img src="docs/media/discover-review.gif" alt="Public demo on desktop showing company listings, the Singapore filter, career evidence and adding a role to To apply" width="1120">
   </picture>
 </a>
 
@@ -43,10 +45,10 @@ Compare roles by company, filter by location and inspect supporting evidence in 
 Search as you type. Swipe anywhere in the partial sheet to expand or close. Keep swiping upward to move straight into reading.
 
 <p align="center">
-  <a href="docs/media/mobile-review.gif">
+  <a href="https://employment-agency-demo.vercel.app/discover/">
     <picture>
       <source media="(prefers-reduced-motion: reduce)" srcset="docs/media/mobile-review.png">
-      <img src="docs/media/mobile-review.gif" alt="Mobile Opportunities filtering fictional roles live, expanding and reading in one continuous swipe, dragging from the footer, and returning to the shortlist" width="390">
+      <img src="docs/media/mobile-review.gif" alt="Public demo on mobile showing live search, swiping the opportunity sheet open to review a role, and returning to the results" width="390">
     </picture>
   </a>
 </p>
@@ -54,8 +56,6 @@ Search as you type. Swipe anywhere in the partial sheet to expand or close. Keep
 <p align="center">
   <a href="docs/media/mobile-review.gif">Full mobile GIF</a> · <a href="docs/media/mobile-review.png">Static preview</a>
 </p>
-
-The recordings use a disposable fictional workspace. In the public demo, view the owner’s public résumé, follow employer listings, explore sample application queues and prepare editable CV and cover-letter drafts. Imported résumés and new drafts stay in the current tab. [Public demo](https://employment-agency-demo.vercel.app/discover/) · [Demo data and capture details](docs/demo.md)
 
 ## The workspace
 
@@ -203,12 +203,14 @@ Keep personal data out of the public repository and its screenshots.
 <details>
 <summary>See document review and preserved history</summary>
 
-<picture>
-  <source media="(prefers-reduced-motion: reduce)" srcset="docs/media/application-documents.png">
-  <img src="docs/media/application-documents.gif" alt="Fictional application document files, source evidence and their preserved versions in History" width="1120" loading="lazy">
-</picture>
+<a href="https://employment-agency-demo.vercel.app/discover/?view=applications&amp;section=active">
+  <picture>
+    <source media="(prefers-reduced-motion: reduce)" srcset="docs/media/application-documents.png">
+    <img src="docs/media/application-documents.gif" alt="Public demo showing a sample application’s CV and cover-letter files, source evidence and preserved version in History" width="1120" loading="lazy">
+  </picture>
+</a>
 
-[Static document preview](docs/media/application-documents.png) · [Capture provenance](docs/demo.md#current-interface-gifs)
+[Full documents GIF](docs/media/application-documents.gif) · [Static document preview](docs/media/application-documents.png) · [Capture provenance](docs/demo.md#current-interface-gifs)
 
 </details>
 
