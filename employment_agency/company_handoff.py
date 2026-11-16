@@ -194,18 +194,19 @@ def handoff(service, action, args):
     if action == 'company-submission-continue':
         return continuation(service, args.get('id'))
     if action == 'company-submission-status':
+        from .service import application_role
+
         state = service.w.read()
+        attempts = [attempt for attempt in state.get('submission_attempts', []) if attempt['channel'] == 'manual']
         if job_id := args.get('job_id'):
-            if not companies.by_id(state['jobs'], job_id):
+            role_attempts = [attempt for attempt in attempts if attempt['binding']['job_id'] == job_id]
+            versions = [app for app in state['applications'] if application_role(app) == job_id]
+            if not (companies.by_id(state['jobs'], job_id) or versions or role_attempts):
                 raise ValueError('Choose a role in this workspace')
-            if (version_id := args.get('application_id')) and not any(
-                app['job_id'] == job_id and app['id'] == version_id for app in state['applications']
-            ):
+            if (version_id := args.get('application_id')) and not companies.by_id(versions, version_id):
                 raise ValueError('Choose an application version for this role')
-            return [attempt for attempt in state.get('submission_attempts', [])
-                    if attempt['channel'] == 'manual' and attempt['binding']['job_id'] == job_id]
-        return [attempt for attempt in state.get('submission_attempts', [])
-                if attempt['channel'] == 'manual' and attempt['application_id'] == args.get('application_id')]
+            return role_attempts
+        return [attempt for attempt in attempts if attempt['application_id'] == args.get('application_id')]
     if action == 'company-submission-review':
         result = approval(service, service.w.read(), args)
         result['id'] = uid()

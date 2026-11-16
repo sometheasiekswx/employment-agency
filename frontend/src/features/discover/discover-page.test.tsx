@@ -219,6 +219,141 @@ it("filters while typing without ranking again or fetching a new route, then cle
   expect(new URLSearchParams(fixture.query).has("q")).toBe(false);
 });
 
+it("searches every source independently of queue filters, deduplicates roles and opens the current version", async () => {
+  fixture.query = "view=to-apply&employer=other&location=Berlin&offset=50";
+  fixture.profileId = "";
+  fixture.state.profiles = [];
+  const [cooling, queued] = fixture.state.jobs;
+  cooling.company = { id: "cooling", remaining: 0, cooling: true };
+  queued.saved = true;
+  const savedOnly = { id: "queued", title: "Reliability Engineer", employer: "Example Ops", saved: true };
+  const submitted = { id: "submitted", title: "Platform Engineer", employer: "Example Platform" };
+  const removedBookmark = {
+    id: "removed-bookmark", title: "Storage Engineer", employer: "Example Storage", saved: true,
+    removals: [{ id: "removed-bookmark-event", at: "2026-10-21", reason: "Set aside" }],
+  };
+  fixture.state.jobs.push(savedOnly, submitted, removedBookmark);
+  const archive = { job_id: "archived", title: "Integration Engineer", employer: "Example Archive" };
+  const removed = { job_id: "removed", title: "Data Engineer", employer: "Example Data" };
+  fixture.state.unlisted_removals = {
+    removed: [{ id: "removed-event", at: "2026-10-21", reason: "Set aside" }],
+  };
+  fixture.state.applications = [
+    { id: "backend-draft", job_id: queued.id, title: queued.title, employer: queued.employer, status: "draft", comments: [] },
+    { id: "sent-version", job_id: submitted.id, title: submitted.title, employer: submitted.employer, status: "submitted", created_at: "2026-10-21", comments: [] },
+    { id: "later-draft", job_id: submitted.id, title: submitted.title, employer: submitted.employer, status: "draft", created_at: "2026-10-22", comments: [] },
+    { ...archive, id: "earlier-queue", status: "reviewed", archived: true, comments: [] },
+    { ...removed, id: "removed-version", status: "draft", comments: [] },
+  ];
+  fixture.state.application_queue = [
+    { job_id: queued.id, application_id: "backend-draft", stage: "active", archived: false },
+    { job_id: savedOnly.id, application_id: null, stage: "saved", archived: false },
+    { job_id: submitted.id, application_id: "sent-version", stage: "submitted", archived: false },
+    { job_id: archive.job_id, application_id: "earlier-queue", stage: "active", archived: true },
+    { job_id: removed.job_id, application_id: "removed-version", stage: "removed", archived: false },
+  ];
+
+  render(<DiscoverPage />);
+  fireEvent.change(screen.getByRole("searchbox", { name: "Filter roles" }), {
+    target: { value: "Engineer" },
+  });
+  const sources = within(screen.getByRole("group", { name: "Search sources" }));
+  expect(sources.getByRole("button", { name: "All sources 7" })).toHaveAttribute("aria-pressed", "true");
+  expect(sources.getByRole("button", { name: "Jobs 1" })).toBeVisible();
+  expect(sources.getByRole("button", { name: "To apply 2" })).toBeVisible();
+  expect(sources.getByRole("button", { name: "Applications 3" })).toBeVisible();
+  expect(sources.getByRole("button", { name: "Removed 2" })).toBeVisible();
+  expect(screen.getAllByRole("article")).toHaveLength(7);
+  const card = (title: string) => within(screen.getByRole("heading", { name: title }).closest("article")!);
+  expect(card("Cloud Engineer").getByText("Jobs")).toBeVisible();
+  expect(card("Backend Engineer").getByText("To apply")).toBeVisible();
+  expect(card("Backend Engineer").getByText("Applications")).toBeVisible();
+  expect(card("Integration Engineer").getByText("Earlier queue")).toBeVisible();
+  expect(card("Data Engineer").getByText("Removed")).toBeVisible();
+  expect(card("Data Engineer").queryByText("Applications")).not.toBeInTheDocument();
+  expect(card("Data Engineer").getByRole("button", { name: "Restore Data Engineer" })).toBeEnabled();
+  expect(card("Storage Engineer").getByText("Removed")).toBeVisible();
+  expect(card("Storage Engineer").queryByText("To apply")).not.toBeInTheDocument();
+
+  fireEvent.click(sources.getByRole("button", { name: "Applications 3" }));
+  expect(screen.getAllByRole("article")).toHaveLength(3);
+  fireEvent.click(card("Platform Engineer").getByRole("button", { name: /Assess Platform Engineer/ }));
+  const inspector = within(screen.getByRole("dialog", { name: "Platform Engineer" }));
+  expect(inspector.getByRole("region", { name: "CV" }).closest("[data-application-id]")).toHaveAttribute(
+    "data-application-id", "sent-version",
+  );
+
+  fireEvent.click(screen.getByRole("button", { name: "Clear search" }));
+  expect(screen.queryByRole("group", { name: "Search sources" })).not.toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "To apply" })).toHaveAttribute("aria-pressed", "true");
+  expect(Object.fromEntries(new URLSearchParams(fixture.query))).toEqual({
+    view: "to-apply", employer: "other", location: "Berlin", offset: "50",
+  });
+  expect(fixture.client.action).not.toHaveBeenCalled();
+});
+
+it("shows stored global results when the assessment request fails", async () => {
+  fixture.query = "q=Cloud";
+  fixture.client.action.mockRejectedValueOnce(new Error("Assessment failed"));
+  render(<DiscoverPage />);
+  expect(screen.getByRole("button", { name: "Assess Cloud Engineer at Example Cloud" })).toBeVisible();
+  expect(await screen.findByRole("alert")).toHaveTextContent("Assessment failed");
+  expect(screen.getByRole("button", { name: "All sources 1" })).toHaveAttribute("aria-pressed", "true");
+  expect(screen.getByRole("button", { name: "Assess Cloud Engineer at Example Cloud" })).toBeVisible();
+});
+
+it("keeps the result visible but requires a current assessment to prepare its application", async () => {
+  fixture.query = "q=Cloud";
+  const view = render(<DiscoverPage />);
+  const result = screen.getByRole("button", { name: "Assess Cloud Engineer at Example Cloud" });
+  fireEvent.click(result);
+  const prepare = screen.getByRole("button", { name: "Prepare application" });
+  await waitFor(() => expect(prepare).toBeEnabled());
+
+  let resolveAssessment!: (rows: RankedJob[]) => void;
+  fixture.client.action.mockImplementationOnce(
+    () => new Promise<RankedJob[]>((resolve) => { resolveAssessment = resolve; }),
+  );
+  fixture.state = {
+    ...fixture.state,
+    facts: [...fixture.state.facts, { id: "deployments", text: "Maintained deployments", confirmed: true }],
+  };
+  view.rerender(<DiscoverPage />);
+  expect(result).toBeVisible();
+  expect(prepare).toBeDisabled();
+
+  await act(async () => { resolveAssessment(ranked()); });
+  expect(prepare).toBeEnabled();
+});
+
+it("finds an unlisted submission receipt without attributing older draft documents", async () => {
+  fixture.query = "q=Systems+Analyst";
+  fixture.profileId = "";
+  fixture.state.profiles = [];
+  fixture.state._workspace.agent_queue = true;
+  fixture.state.applications = [{
+    id: "older-draft", job_id: "missing-listing", title: "Systems Analyst",
+    employer: "Example Consulting", status: "draft", comments: [],
+  }];
+  fixture.state.application_queue = [{
+    job_id: "missing-listing", application_id: null, stage: "submitted", archived: false,
+  }];
+  fixture.client.action.mockResolvedValueOnce([{
+    id: "receipt", application_id: "older-draft", document_application_id: null,
+    binding: { job_id: "missing-listing" }, status: "confirmed", channel: "manual",
+    receipt: { evidence: "Received external confirmation." },
+  }]);
+  render(<DiscoverPage />);
+  expect(screen.getByRole("button", { name: "Applications 1" })).toBeVisible();
+  fireEvent.click(screen.getByRole("button", { name: "Assess Systems Analyst at Example Consulting" }));
+  const inspector = within(screen.getByRole("dialog", { name: "Systems Analyst" }));
+  expect(inspector.getByRole("heading", { name: "Submission record" })).toBeVisible();
+  expect(await inspector.findByText("Received external confirmation.")).toBeVisible();
+  expect(inspector.getByText("Submitted document version unknown.")).toBeVisible();
+  expect(inspector.queryByRole("button", { name: "CV" })).not.toBeInTheDocument();
+  expect(inspector.queryByRole("link", { name: "Download submitted CV" })).not.toBeInTheDocument();
+});
+
 it("saves a quick confirmation as career evidence from the listing details", async () => {
   fixture.state.jobs[0].requirements = ["Kubernetes"];
   const user = userEvent.setup();
@@ -322,7 +457,7 @@ it("retains the selected profile and role when a dirty review cancels a profile 
     return <button onClick={() => setDirty(true)}>Keep review draft</button>;
   }
   fixture.query =
-    "view=all&q=Cloud&location=Toronto&opportunity=job-a&assessment_profile=profile-a";
+    "view=all&location=Toronto&opportunity=job-a&assessment_profile=profile-a";
   const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
   const view = render(
     <DraftProvider>
@@ -349,7 +484,6 @@ it("retains the selected profile and role when a dirty review cancels a profile 
   expect(fixture.selectProfile).toHaveBeenCalledWith("profile-b");
   const next = new URLSearchParams(fixture.query);
   expect(next.has("opportunity")).toBe(false);
-  expect(next.get("q")).toBe("Cloud");
   expect(next.get("location")).toBe("Toronto");
   expect(next.get("view")).toBe("jobs");
 });
@@ -1069,7 +1203,7 @@ it("prepares a local draft only after an explicit click", async () => {
 it.each(["recommended", "all"])(
   "keeps the last selected role open when Apply later moves it out of %s",
   async (view) => {
-    fixture.query = `view=${view}&q=Cloud`;
+    fixture.query = `view=${view}`;
     render(<DiscoverPage />);
     const assess = { name: "Assess Cloud Engineer at Example Cloud" };
     fireEvent.click(await screen.findByRole("button", assess));
@@ -1454,19 +1588,24 @@ it("opens listing-only submissions from an earlier submitted-status URL", () => 
   ).toBeVisible();
 });
 
-it("keeps search and location across views and can clear a filtered Submitted queue without leaving it", async () => {
-  fixture.query = "view=all&q=NoMatch&location=Berlin";
+it("can clear global search and resume the original location and Submitted stage", async () => {
+  fixture.query = "view=all&location=Berlin";
   fixture.state.jobs[0].prior_application = "submitted";
   render(<DiscoverPage />);
   await userEvent.click(screen.getByRole("button", { name: "Applications" }));
   await userEvent.click(screen.getByRole("button", { name: "Submitted 1" }));
   expect(new URLSearchParams(fixture.query).get("location")).toBe("Berlin");
+  fireEvent.change(screen.getByLabelText("Filter roles"), {
+    target: { value: "NoMatch" },
+  });
   expect(screen.getByLabelText("Filter roles")).toHaveValue("NoMatch");
   expect(
     screen.getByRole("heading", {
-      name: "No applications match these filters",
+      name: "No matching roles",
     }),
   ).toBeVisible();
+  await userEvent.click(screen.getByRole("button", { name: "Clear search" }));
+  expect(new URLSearchParams(fixture.query).get("location")).toBe("Berlin");
   await userEvent.click(screen.getByRole("button", { name: "Clear filters" }));
   expect(screen.getByRole("button", { name: "Submitted 1" })).toHaveAttribute(
     "aria-pressed",
@@ -1853,7 +1992,7 @@ it("copies the unfiltered To apply prompt directly and rejects an obsolete respo
   fixture.state._workspace.agent_queue = true;
   fixture.state.jobs[0].saved = true;
   fixture.state.jobs[1].saved = true;
-  fixture.query = "view=to-apply&q=Cloud";
+  fixture.query = "view=to-apply&location=Toronto";
   let resolveObsolete!: (result: unknown) => void;
   const handoff = {
     workspace: fixture.state._workspace.path,

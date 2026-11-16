@@ -346,6 +346,35 @@ class ApplicationJourney(unittest.TestCase):
         self.assertEqual(self.s.action('company-submission-follow-up', {'id': result['id'],
                          'follow_up': 'Work sample available.'})['follow_up'], 'Work sample available.')
 
+    def test_manual_submission_status_preserves_unlisted_receipts_and_validates_the_role(self):
+        self.map()
+        app = self.draft()
+        other = self.draft(self.role('other-receipt-role'))
+        receipt = self.report(self.start(app), documents_used=False)
+        self.assertEqual(receipt['status'], 'confirmed')
+        self.assertIsNone(receipt['document_application_id'])
+        job_id = self.job['id']
+        with self.w.edit() as state:
+            state['jobs'] = [job for job in state['jobs'] if job['id'] != job_id]
+
+        def status(**args):
+            return self.s.action('company-submission-status', {'job_id': job_id, **args})
+
+        self.assertEqual(status(), [receipt])
+        self.assertEqual(status(application_id=app['id']), [receipt])
+        with self.assertRaisesRegex(ValueError, 'Choose an application version for this role'):
+            status(application_id=other['id'])
+        with self.assertRaisesRegex(ValueError, 'Choose a role in this workspace'):
+            status(job_id=store.uid(), application_id=app['id'])
+        self.assertEqual(self.s.action('application-queue', {'stage': 'submitted'})['rows'][0]['application_id'], None)
+        self.assertEqual(companies.by_id(self.w.read()['applications'], app['id'])['status'], 'draft')
+
+        with self.w.edit() as state:
+            state['applications'] = [version for version in state['applications'] if version['id'] != app['id']]
+        self.assertEqual(status(), [receipt])
+        with self.assertRaisesRegex(ValueError, 'Choose an application version for this role'):
+            status(application_id=app['id'])
+
     def test_self_apply_revalidates_destination_and_serializes_last_company_slot(self):
         employer_id = self.map()['employer_id']
         other = self.role('second')

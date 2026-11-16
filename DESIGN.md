@@ -111,6 +111,8 @@ Opportunity review changes to the existing modal sheet at 1000px, before the rai
 
 Jobs, To apply and Applications share the company board and role workspace in Opportunities. Jobs shows available roles, reviewed company highlights and known mismatches. In the local app, a company section also flags when the selected profile needs a first or refreshed highlight review. Apply later moves a role to To apply, where it stays through preparation until submission. Applications exposes Active, Submitted and Removed independently of matching, profiles or listing availability. Legacy discovery, saved and agent-queue links preserve selected roles and versions when opening the corresponding view. [Company highlight workflow](docs/agents.md#research-five-companies)
 
+Entering a role search searches all four sources, including earlier application queues and stored roles from paused employers. Source filters show matching counts. Explicit source labels distinguish each result; a role in both To apply and Applications has both labels on one card. Search reuses the company board and inspector without changing application decisions. Clearing the query restores the browsing view.
+
 Overview preserves in-place evidence assessment. Documents and Activity expand into a workbench beside the board on desktop and a full-screen native dialog on mobile. Switching panels retains comment drafts. Documents identifies every preserved version with its status and date, with access to original versions and History. Saving an edit selects the returned new draft without losing role, view, filters or document context. Native confirmation, cancellation, submission safeguards, immutable submitted snapshots and unsaved-edit protection remain authoritative.
 
 ## Components and states

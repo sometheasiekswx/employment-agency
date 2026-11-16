@@ -270,7 +270,7 @@ const fs = require("node:fs");
       base + "/discover/?view=all&q=NoMatchingFictionalOpportunity",
     );
     await page
-      .getByRole("heading", { name: "No roles match these filters" })
+      .getByRole("heading", { name: "No matching roles" })
       .waitFor();
     assert.equal(await page.locator(".discover-column").count(), 0);
 

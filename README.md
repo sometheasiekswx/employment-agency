@@ -73,6 +73,8 @@ Saving or removing a role keeps the remaining companies in their columns and pre
 
 **Clear the shortlist without losing your records.** Remove a role from Opportunities or Applications and continue with the next one. Open Applications → Removed to review its documents and activity, add a reason or restore it to its previous lists.
 
+**Search every source together.** Type a title, company or skill to search Jobs, To apply, Applications and Removed, including earlier application queues. Each result shows its source labels. Use the source filters and matching counts to narrow the results; clear the search to return to your browsing view.
+
 **Prepare application → CV → Open application site → I've applied.** The CV opens automatically, and the original job listing stays available alongside documents and activity. In **Jobs**, choose **Apply later** to keep a role in **To apply** through CV preparation. Open a role to apply yourself or use [Apply for me](docs/apply-for-me.md) when a supported runtime and application channel are available. Starting authorizes preparation and submission for that role. Missing information or access pauses the run for your help. **Copy agent instructions** in **To apply** copies the handoff for the whole pending queue. Saving, preparing a draft and copying leave submission authority with the user.
 
 ## Run locally

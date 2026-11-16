@@ -106,7 +106,18 @@ const { decideDialog } = require("./browser-dialog.cjs");
     await page.waitForURL(base + "/discover/");
     await assertProfile();
 
-    const localSearch = page.getByLabel("Filter roles", { exact: true });
+    const localSearch = page.getByRole("searchbox", {
+      name: "Filter roles",
+      exact: true,
+    });
+    const sources = page.getByRole("group", {
+      name: "Search sources",
+      exact: true,
+    });
+    const clear = page.getByRole("button", {
+      name: "Clear search",
+      exact: true,
+    });
     await localSearch.fill("Backend");
     await localSearch.press("Enter");
     await page.waitForURL(
@@ -114,6 +125,10 @@ const { decideDialog } = require("./browser-dialog.cjs");
         url.pathname === "/discover/" &&
         url.searchParams.get("q") === "Backend",
     );
+    await sources
+      .getByRole("button", { name: /^All sources /, pressed: true })
+      .waitFor();
+    await clear.click();
     await assertProfile();
 
     await page
@@ -129,6 +144,8 @@ const { decideDialog } = require("./browser-dialog.cjs");
     await page
       .getByRole("button", { name: /Assess .* at Cedarlight/ })
       .waitFor();
+    await sources.getByRole("button", { name: /^Applications 1$/ }).waitFor();
+    await clear.click();
 
     await page.setViewportSize({ width: 390, height: 844 });
     await page.getByRole("button", { name: "To apply", exact: true }).click();
@@ -149,7 +166,6 @@ const { decideDialog } = require("./browser-dialog.cjs");
       true,
       "live filtering retains the keyboard/input focus",
     );
-    await assertProfile();
     await page
       .getByRole("button", {
         name: "Assess DevOps Engineer at Northglass Works",
@@ -162,6 +178,10 @@ const { decideDialog } = require("./browser-dialog.cjs");
       "typing filters loaded rows without re-ranking",
     );
     await localSearch.press("Enter");
+    await sources
+      .getByRole("button", { name: /^All sources /, pressed: true })
+      .waitFor();
+    await clear.click();
     await assertProfile();
 
     await page.locator(".mobile-menu > summary").click();
@@ -208,6 +228,10 @@ const { decideDialog } = require("./browser-dialog.cjs");
       (url) =>
         url.pathname === "/discover/" && url.searchParams.get("q") === "Python",
     );
+    await sources
+      .getByRole("button", { name: /^All sources /, pressed: true })
+      .waitFor();
+    await clear.click();
     await assertProfile();
     page.off("dialog", recordDialog);
     assert.deepEqual(

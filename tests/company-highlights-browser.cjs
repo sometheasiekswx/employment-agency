@@ -93,8 +93,9 @@ const path = require("node:path");
       await screenshot(page, "missing");
       await filter(page).fill(roles[0].title);
       await page.waitForFunction(() => document.querySelectorAll(".discover-card").length === 1);
-      assert.ok(await missing(page).isVisible());
       await page.getByRole("button", { name: "Clear search" }).click();
+      await missing(page).waitFor();
+      assert.equal(await visibleRoles(page).count(), 3);
     }
     const basis = await action("company-best-matches-basis", {
       workspace_id, profile_id: profile.id, employer_id: employer.id,

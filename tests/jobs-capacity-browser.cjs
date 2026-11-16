@@ -183,8 +183,12 @@ const AxeBuilder = require("../frontend/node_modules/@axe-core/playwright").defa
     assert.notEqual(firstTitle, secondTitle);
 
     await page.getByRole("searchbox", { name: "Filter roles" }).fill(fourth.title);
-    assert.equal(await compact.count(), 1);
+    await role(fourth).waitFor();
+    assert.equal(await compact.count(), 0);
     assert.equal(await company.locator(".discover-compact-layers").count(), 0);
+    await page.getByRole("button", { name: "Clear search", exact: true }).click();
+    await change.waitFor();
+    assert.equal(await compact.count(), 2);
     await change.click();
     await chip.waitFor();
     await page.waitForURL(url => url.searchParams.get("employer") === employerId);
@@ -207,7 +211,7 @@ const AxeBuilder = require("../frontend/node_modules/@axe-core/playwright").defa
     for (const pending of [first, second, otherPending]) assert.ok(instructions.includes(pending.id));
     await page.goBack();
     await change.waitFor();
-    assert.equal(new URL(page.url()).searchParams.get("q"), fourth.title);
+    assert.equal(await compact.count(), 2);
     await page.goForward();
     await chip.waitFor();
 

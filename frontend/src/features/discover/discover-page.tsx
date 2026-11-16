@@ -73,13 +73,16 @@ import {
   employerQueueHref,
   filterOpportunities,
   groupOpportunities,
+  opportunitySearchSources,
   remainingEvidenceGaps,
   requirementEvidence,
   roleStatus,
   pendingActionLabel,
   pendingCapacityStatus,
+  searchOpportunities,
   stacksAtPendingLimit,
   type DiscoveryView,
+  type OpportunitySearchScope,
 } from "./discovery";
 import { OpportunityInspector, type RolePanel } from "./opportunity-inspector";
 import { OpportunityListingLink } from "./opportunity-listing-link";
@@ -175,6 +178,10 @@ export function DiscoverPage() {
   const { back, replace } = useRouter();
   const [routeQuery, setOptimisticQuery] = useOptimistic(params.toString());
   const filters = new URLSearchParams(routeQuery);
+  const effectiveQueue = useMemo(
+    () => new Map(state.application_queue?.map((entry) => [entry.job_id, entry])),
+    [state.application_queue],
+  );
   const applications = useMemo(
     () => applicationsByJob(state.applications, state.application_queue),
     [state.applications, state.application_queue],
@@ -190,8 +197,22 @@ export function DiscoverPage() {
           removals: state.unlisted_removals?.[id],
         });
     }
+    // A confirmed submission can outlive its listing and have no linked
+    // documents. Use the stored role name without attaching an older draft.
+    for (let index = state.applications.length - 1; index >= 0; index--) {
+      const version = state.applications[index];
+      const id = applicationRoleId(version);
+      if (!roles.has(id) && effectiveQueue.get(id)?.stage === "submitted")
+        roles.set(id, {
+          id,
+          title: version.title,
+          employer: version.employer,
+          prior_application: "submitted",
+          removals: state.unlisted_removals?.[id],
+        });
+    }
     return [...roles.values()];
-  }, [applications, state.jobs, state.unlisted_removals]);
+  }, [applications, effectiveQueue, state.applications, state.jobs, state.unlisted_removals]);
   const removal = useJobRemoval({ jobs: roleRecords, client, refresh });
   const [storedChoices, setSavedChoices] = useState<Record<string, SavedChoice>>({});
   // A read begun after the receipt is authoritative, including a newer
@@ -229,6 +250,11 @@ export function DiscoverPage() {
     : "";
   const requestedJob = latestJobs.get(requestedRoleId);
   const query = filters.get("q") || "";
+  const searching = Boolean(query.trim());
+  const rawSearchSource = searching ? filters.get("source") : null;
+  const searchScope = opportunitySearchSources.find(
+    ([source]) => source === rawSearchSource,
+  )?.[0] ?? "all";
   const rawStatus = filters.get("status") || "";
   const rawView = filters.get("view");
   const rawSection = filters.get("section");
@@ -237,11 +263,11 @@ export function DiscoverPage() {
     rawStatus === "rejected" ||
     (rawView === "applications" &&
       (rawSection === "removed" || rawSection === "rejected")) ||
-    Boolean(currentRemoval(requestedJob));
+    (!searching && Boolean(currentRemoval(requestedJob)));
   const legacySubmittedFilter =
     rawView !== "applications" && rawStatus === "submitted";
   const linkedListingSubmission =
-    requestedJob?.prior_application === "submitted" &&
+    !searching && requestedJob?.prior_application === "submitted" &&
     applications.get(requestedRoleId)?.status !== "submitted";
   if (!removedView && (legacySubmittedFilter || linkedListingSubmission)) {
     filters.set("view", "applications");
@@ -266,7 +292,7 @@ export function DiscoverPage() {
         : "jobs";
   const applicationView = view === "applications";
   const toApplyView = view === "to-apply";
-  const agentTools = localJourney && toApplyView;
+  const agentTools = localJourney && toApplyView && !searching;
   const employerScope = toApplyView ? filters.get("employer") || "" : "";
   const section = removedView ? "removed" : filters.get("section") || "active";
   if (requestedView && requestedView !== view) filters.set("view", view);
@@ -438,9 +464,10 @@ export function DiscoverPage() {
       ? { key: requestKey, profileId, rows: cached, error: "" }
       : ranking;
   const loading =
-    view === "jobs" && Boolean(profile) && currentRanking.key !== requestKey;
+    !searching && view === "jobs" && Boolean(profile) && currentRanking.key !== requestKey;
+  const needsRanking = !applicationView || (searching && Boolean(selectedId));
   useEffect(() => {
-    if (!profileId || applicationView) return;
+    if (!profileId || !needsRanking) return;
     let active = true;
     loadRanking(client, workspacePath, profileId, rankInput, attempt > 0).then(
       (rows) => {
@@ -466,7 +493,7 @@ export function DiscoverPage() {
     rankInput,
     requestKey,
     attempt,
-    applicationView,
+    needsRanking,
   ]);
 
   const rows = (
@@ -487,21 +514,26 @@ export function DiscoverPage() {
         ]
       : [];
   });
-  const effectiveQueue = new Map(
-    state.application_queue?.map((entry) => [entry.job_id, entry.stage]),
-  );
   const applicationJobs = {
     active: new Map<string, Job>(),
     submitted: new Map<string, Job>(),
   };
+  const searchableApplications = new Map<string, Job>();
+  const earlierQueueRoles = new Set<string>();
   for (const [id, app] of applications) {
-    if (app.archived && !includeHistorical) continue;
     const job = latestJobs.get(id)!;
+    const entry = effectiveQueue.get(id);
     const stage = currentRemoval(job)
       ? "removed"
-      : effectiveQueue.get(id) || applicationSection(app, job);
-    if (stage === "active" || stage === "submitted")
-      applicationJobs[stage].set(id, job);
+      : entry?.stage ?? applicationSection(app, job);
+    if (stage === "active" || stage === "submitted") {
+      const archived = entry?.archived ?? Boolean(app.archived);
+      if (searching) {
+        searchableApplications.set(id, job);
+        if (archived) earlierQueueRoles.add(id);
+      }
+      if (!archived || includeHistorical) applicationJobs[stage].set(id, job);
+    }
   }
   // A listing can record an earlier submission independently of any saved version.
   for (const [id, job] of latestJobs) {
@@ -509,8 +541,10 @@ export function DiscoverPage() {
       job.prior_application === "submitted" &&
       applications.get(id)?.status !== "submitted" &&
       !currentRemoval(job)
-    )
+    ) {
       applicationJobs.submitted.set(id, job);
+      if (searching) searchableApplications.set(id, job);
+    }
   }
   const listingIds = new Set(state.jobs.map(({ id }) => id));
   const pendingRole = (job: Job) =>
@@ -548,6 +582,14 @@ export function DiscoverPage() {
       (job) => rows.find((row) => row.job.id === job.id) || unassessedRole(job),
     );
   const incomingRows = discoveryRows.filter(({ job }) => !job.saved);
+  const searchResults = searching
+    ? searchOpportunities(query, {
+        jobs: incomingRows.map(({ job }) => job),
+        "to-apply": pending.values(),
+        applications: searchableApplications.values(),
+        removed: removedRows.map(({ job }) => job),
+      })
+    : undefined;
   const availableIncoming = incomingRows.filter(
     ({ job }) => !job.company?.cooling,
   );
@@ -608,17 +650,21 @@ export function DiscoverPage() {
         ),
       )
     : 0;
-  const visible = agentTools
-    ? filteredRows.slice(pendingOffset, pendingOffset + pendingPageSize)
-    : filteredRows;
+  const visible = searchResults
+    ? [...searchResults.matches.values()]
+        .filter(({ sources }) => searchScope === "all" || sources.includes(searchScope))
+        .map(({ job }) => assessedById.get(job.id) || unassessedRole(job))
+    : agentTools
+      ? filteredRows.slice(pendingOffset, pendingOffset + pendingPageSize)
+      : filteredRows;
   const reviews = new Map<string, CompanyBestMatches["picks"]>(
-    view === "jobs" && !removedView
+    view === "jobs" && !searching && !removedView
       ? state.company_best_matches?.filter((review) => review.profile_id === profileId)
         .map((review) => [`employer:${review.employer_id}`, review.picks])
       : [],
   );
   const reviewStatuses = new Map(
-    view === "jobs" && !removedView && !client.preview
+    view === "jobs" && !searching && !removedView && !client.preview
       ? state.company_highlight_reviews?.filter((review) => review.profile_id === profileId)
         .map((review) => [`employer:${review.employer_id}`, review.status])
       : [],
@@ -633,6 +679,7 @@ export function DiscoverPage() {
     section,
     removedView,
     query,
+    searchScope,
     location,
     statusFilter,
     employerScope,
@@ -661,7 +708,7 @@ export function DiscoverPage() {
       ...group,
       picks,
       roles: [...recommended, ...group.roles.filter(({ job }) => !picks.has(job.id))],
-      stackEmployer: view === "jobs"
+      stackEmployer: view === "jobs" && !searching
         ? group.roles.find(({ job }) => stacksAtPendingLimit(job))?.job.company?.id
         : undefined,
     };
@@ -676,6 +723,7 @@ export function DiscoverPage() {
     (selectedJob &&
     (requestedApplication ||
       removal.feedback?.job.id === selectedId ||
+      searchResults?.matches.has(selectedId) ||
       (view === "jobs" && pendingRole(selectedJob) &&
         (selectedJob.saved || Boolean(selectedJob.pending_blocker || failedAdmission?.jobId === selectedId))) ||
       (toApplyView &&
@@ -752,7 +800,7 @@ export function DiscoverPage() {
     const next = new URLSearchParams(queryString);
     next.set("application", application.id);
     next.set("panel", nextPanel);
-    if (applicationView)
+    if (applicationView && !searching)
       next.set(
         "section",
         applicationSection(
@@ -783,26 +831,28 @@ export function DiscoverPage() {
     }
     current.set("opportunity", attempt.binding.job_id);
     current.set("assessment_profile", profileId);
-    current.set("view", "applications");
-    current.set("section", "submitted");
-    current.delete("status");
+    if (!searching) {
+      current.set("view", "applications");
+      current.set("section", "submitted");
+      current.delete("status");
+    }
     replaceQuery(current);
   };
   const inspectorOpen = Boolean(selected);
   useEffect(() => {
     if (
-      employerScope &&
+      !searching && employerScope &&
       employerScope !== previousEmployerScope.current &&
       !selectedId
     )
       employerFilter.current?.focus({ preventScroll: true });
     previousEmployerScope.current = employerScope;
-  }, [employerScope, selectedId]);
+  }, [employerScope, searching, selectedId]);
   const selectedIndex = navigationRows.findIndex(
     (row) => row.job.id === selectedId,
   );
   const error =
-    !applicationView && currentRanking.key === requestKey
+    needsRanking && currentRanking.key === requestKey
       ? currentRanking.error
       : "";
   const showBoard = (!loading || rows.length > 0) && visible.length > 0;
@@ -834,6 +884,7 @@ export function DiscoverPage() {
       }
       const target =
         cardButtons.current.get(intent.adjacentId) ||
+        (searching && searchInput.current) ||
         (intent.fallbackToRemoved &&
           document.querySelector<HTMLButtonElement>(
             ".discover-removed-filter[aria-pressed]",
@@ -850,6 +901,7 @@ export function DiscoverPage() {
     inspectorOpen,
     mobile,
     selectedId,
+    searching,
     removal.feedback?.removalId,
   ]);
 
@@ -927,11 +979,11 @@ export function DiscoverPage() {
         });
         opener.current.focus({ preventScroll: true });
       } else {
-        document
-          .querySelector<HTMLButtonElement>(
+        (searchInput.current?.closest("[data-searching=true]")
+          ? searchInput.current
+          : document.querySelector<HTMLButtonElement>(
             '.discover-views button[aria-pressed="true"]',
-          )
-          ?.focus({ preventScroll: true });
+          ))?.focus({ preventScroll: true });
       }
     }, 0);
   }, []);
@@ -1007,7 +1059,7 @@ export function DiscoverPage() {
     return () => window.clearTimeout(restore);
   }, [inspectorOpen, closeRemovalReason, restoreShortlistFocus]);
 
-  const updateFilters = (values: Record<string, string>) => {
+  const updateFilters = (values: Record<string, string>, searchControl = false) => {
     if (!canLeave()) return false;
     const next = new URLSearchParams(queryString);
     if (values.view) {
@@ -1016,8 +1068,10 @@ export function DiscoverPage() {
       next.delete("status");
       next.delete("employer");
     }
-    if (!Object.hasOwn(values, "offset")) next.delete("offset");
-    next.delete("agent_offset");
+    if (!searchControl) {
+      if (!Object.hasOwn(values, "offset")) next.delete("offset");
+      next.delete("agent_offset");
+    }
     if (location) next.set("location", location);
     next.delete("destination");
     if (values.section) next.delete("removed");
@@ -1032,6 +1086,11 @@ export function DiscoverPage() {
     if (next.toString() !== routeQuery) replaceQuery(next, "filter");
     return true;
   };
+  const updateSearch = (value: string, scope: OpportunitySearchScope = searchScope) =>
+    updateFilters(
+      { q: value, source: value.trim() && scope !== "all" ? scope : "" },
+      true,
+    );
   const clearFilters = () => {
     if (updateFilters({ q: "", location: "", status: "", employer: "" }))
       searchInput.current?.focus({ preventScroll: true });
@@ -1078,10 +1137,11 @@ export function DiscoverPage() {
     const index = navigationRows.findIndex((row) => row.job.id === job.id);
     const adjacent = navigationRows[index + 1] || navigationRows[index - 1];
     const pressed = document.activeElement;
-    if (removedView && (!pressed?.closest(".discover-inspector") || !adjacent))
+    const leavesView = searching ? searchScope === "removed" : removedView;
+    if (leavesView && (!pressed?.closest(".discover-inspector") || !adjacent))
       scheduleTriageFocus(adjacent, pressed, job.id);
     startTransition(() => {
-      if (removedView && selectedId === job.id) {
+      if (leavesView && selectedId === job.id) {
         setSelectedId(adjacent?.job.id || "", true);
       }
       void removal.restore(job);
@@ -1154,11 +1214,14 @@ export function DiscoverPage() {
       }
       return;
     }
-    const leavesView = !applicationView && saved !== toApplyView;
+    const leavingPending = searching ? searchScope === "to-apply" : toApplyView;
+    const leavesView = searching
+      ? (saved ? searchScope === "jobs" : leavingPending)
+      : !applicationView && saved !== toApplyView;
     if (
       saving.current.has(id) ||
       (leavesView &&
-        toApplyView &&
+        leavingPending &&
         selectedId === id &&
         !requestedApplication &&
         !canLeave())
@@ -1279,6 +1342,7 @@ export function DiscoverPage() {
       ref={discoverScreen}
       className={`discover-screen${desktopInspector ? " has-desktop-inspector" : ""}${desktopInspector && expandedApplication ? " has-workbench" : ""}`}
       data-interaction-motion={animateInteractions ? "on" : "off"}
+      data-searching={searching}
     >
       <div className="discover-results">
         <div className="discover-controls">
@@ -1291,7 +1355,7 @@ export function DiscoverPage() {
             aria-label="Filter opportunities"
             onSubmit={(event) => {
               event.preventDefault();
-              updateFilters({ q: query });
+              updateSearch(query);
             }}
           >
             <Search size={18} aria-hidden="true" />
@@ -1304,12 +1368,8 @@ export function DiscoverPage() {
               name="q"
               type="search"
               value={query}
-              onChange={(event) => updateFilters({ q: event.target.value })}
-              placeholder={
-                applicationView
-                  ? "Search this queue"
-                  : "Title, company or skill"
-              }
+              onChange={(event) => updateSearch(event.target.value)}
+              placeholder="Search all roles"
               autoComplete="off"
               autoCapitalize="none"
               spellCheck={false}
@@ -1320,10 +1380,10 @@ export function DiscoverPage() {
                 type="button"
                 aria-label="Clear search"
                 onClick={(event) => {
-                  updateFilters({ q: "" });
-                  event.currentTarget.form
-                    ?.querySelector("input")
-                    ?.focus({ preventScroll: true });
+                  if (updateSearch(""))
+                    event.currentTarget.form
+                      ?.querySelector("input")
+                      ?.focus({ preventScroll: true });
                 }}
               >
                 <X size={18} aria-hidden="true" />
@@ -1340,6 +1400,20 @@ export function DiscoverPage() {
               <input type="hidden" name="status" value={statusFilter} />
             )}
           </form>
+          {searchResults ? (
+            <div className="discover-search-sources" role="group" aria-label="Search sources">
+              {opportunitySearchSources.map(([source, label]) => (
+                <button
+                  key={source}
+                  type="button"
+                  aria-pressed={searchScope === source}
+                  onClick={() => updateSearch(query, source)}
+                >
+                  {label} <span>{searchResults.counts[source]}</span>
+                </button>
+              ))}
+            </div>
+          ) : (
           <div className="discover-toolbar">
             <div
               className="discover-views"
@@ -1462,8 +1536,9 @@ export function DiscoverPage() {
               </div>
             </details>
           </div>
+          )}
         </div>
-        {applicationView && (
+        {applicationView && !searching && (
           <div className="opportunities-application-filters">
             <div
               className="opportunities-stages"
@@ -1504,7 +1579,7 @@ export function DiscoverPage() {
             )}
           </div>
         )}
-        {view === "jobs" && localJourney && <ResearchInstructions />}
+        {view === "jobs" && localJourney && !searching && <ResearchInstructions />}
         {agentTools && (
           <>
             <ApplicationInstructions
@@ -1537,11 +1612,11 @@ export function DiscoverPage() {
           <span className="discover-result-count" role="status">
             {loading
               ? "Loading matches…"
-              : error && !rows.length
+              : error && !rows.length && !searching
                 ? "Matches unavailable"
-                : `${removedView ? "Removed · " : ""}${visible.length} ${visible.length === 1 ? "role" : "roles"} · ${groups.length} ${groups.length === 1 ? "company" : "companies"}`}
+                : `${removedView && !searching ? "Removed · " : ""}${visible.length} ${visible.length === 1 ? "role" : "roles"} · ${groups.length} ${groups.length === 1 ? "company" : "companies"}`}
           </span>
-          {employerScope && (
+          {!searching && employerScope && (
             <button
               ref={employerFilter}
               type="button"
@@ -1555,7 +1630,7 @@ export function DiscoverPage() {
               {scopedEmployerName} <X size={14} aria-hidden="true" />
             </button>
           )}
-          {hasActiveFilters && visible.length > 0 && (
+          {!searching && hasActiveFilters && visible.length > 0 && (
             <button
               type="button"
               className="discover-removed-filter"
@@ -1564,7 +1639,7 @@ export function DiscoverPage() {
               Clear filters
             </button>
           )}
-          {(!applicationView || removedView) && (
+          {!searching && (!applicationView || removedView) && (
             <button
               type="button"
               className="discover-removed-filter"
@@ -1588,7 +1663,7 @@ export function DiscoverPage() {
         {!inspectorOpen && removal.editor && (
           <div className="discover-removal-inline">{removalEditor}</div>
         )}
-        {locationPicker.select ? (
+        {!searching && (locationPicker.select ? (
           <div className="discover-location-select">
             <Select
               label="Filter by city"
@@ -1626,7 +1701,7 @@ export function DiscoverPage() {
               </button>
             ))}
           </div>
-        )}
+        ))}
         {error && (
           <div className="discover-request-error" role="alert">
             <p>{error}</p>
@@ -1685,7 +1760,7 @@ export function DiscoverPage() {
           <div className="discover-empty">
             <Search size={27} aria-hidden="true" />
             <h2>
-              {hasActiveFilters && scopedRows.length
+              {searching ? "No matching roles" : hasActiveFilters && scopedRows.length
                 ? applicationView
                   ? "No applications match these filters"
                   : "No roles match these filters"
@@ -1704,7 +1779,11 @@ export function DiscoverPage() {
                           : "No roles in Jobs"}
             </h2>
             <p>
-              {hasActiveFilters && scopedRows.length
+              {searching
+                ? searchScope === "all"
+                  ? "Try another title, company, location or skill."
+                  : "Choose All sources or try another search."
+                : hasActiveFilters && scopedRows.length
                 ? "Clear the search and filters to see everything in this view."
                 : removedView
                   ? "Restore roles here to recover their application documents and activity."
@@ -1720,7 +1799,7 @@ export function DiscoverPage() {
                           ? "Import a job URL, paste an advert or refresh a configured source in Search preferences."
                           : "Import more roles or review the ones you plan to apply for."}
             </p>
-            {hasActiveFilters && scopedRows.length ? (
+            {searching ? null : hasActiveFilters && scopedRows.length ? (
               <button
                 type="button"
                 className="discover-primary"
@@ -1803,6 +1882,7 @@ export function DiscoverPage() {
                   )}
                   {opportunities.map((row, index) => {
                     const { job, match } = row;
+                    const resultSources = searchResults?.matches.get(job.id)?.sources;
                     const recommendation = picks.get(job.id);
                     const compact = Boolean(stackEmployer && stacksAtPendingLimit(job));
                     const nextJob = opportunities[index + 1]?.job;
@@ -1825,11 +1905,15 @@ export function DiscoverPage() {
                       ? pendingCapacityStatus(job, pendingBlocker)
                       : undefined;
                     const blockerId = blockerText ? `capacity-${job.id}` : undefined;
-                    const status = roleStatus(
+                    const roleBadge = roleStatus(
                       job,
                       applications.get(job.id),
                       client.preview,
                     );
+                    const status = resultSources && (
+                      roleBadge?.label === "To apply" ||
+                      (roleBadge?.label === "New" && resultSources.includes("removed"))
+                    ) ? undefined : roleBadge;
                     const salary = advertisedSalary(job, {
                       compact: true,
                       missing: "",
@@ -1913,6 +1997,20 @@ export function DiscoverPage() {
                                   <span className="discover-capacity-status">
                                     {pendingCapacity}<span className="visually-hidden"> for this company</span>
                                   </span>
+                                )}
+                              </div>
+                            )}
+                            {resultSources && (
+                              <div className="discover-card-sources">
+                                {opportunitySearchSources.map(([source, label]) =>
+                                  source !== "all" && resultSources.includes(source) ? (
+                                    <span key={source} className={`discover-source-badge ${source}`}>
+                                      {label}
+                                    </span>
+                                  ) : null,
+                                )}
+                                {earlierQueueRoles.has(job.id) && (
+                                  <span className="discover-source-badge">Earlier queue</span>
                                 )}
                               </div>
                             )}
@@ -2026,7 +2124,7 @@ export function DiscoverPage() {
                                 {blockerText}
                               </p>
                             )}
-                            {removedView && currentRemoval(job)?.reason && (
+                            {(removedView || searching) && currentRemoval(job)?.reason && (
                               <p
                                 className="discover-removal-reason"
                                 title={currentRemoval(job)?.reason}
@@ -2091,7 +2189,7 @@ export function DiscoverPage() {
             </button>
           </div>
         )}
-        {applicationView &&
+        {!searching && applicationView &&
           section === "submitted" &&
           Boolean(state.historical_decisions?.length) && (
             <section className="opportunities-historical">
@@ -2190,7 +2288,7 @@ export function DiscoverPage() {
           mobile={mobile}
           position={Math.max(0, selectedIndex)}
           count={selectedIndex < 0 ? 1 : navigationRows.length}
-          rankingCurrent={!loading && !error && assessmentAvailable}
+          rankingCurrent={currentRanking.key === requestKey && !error && assessmentAvailable}
           assessmentAvailable={assessmentAvailable}
           hasListingRecord={hasListingRecord}
           canChangePending={pendingRole(selected.job)}

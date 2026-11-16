@@ -98,6 +98,33 @@
   justify-content: space-between;
   margin: 0 0 12px;
 }
+.discover-search-sources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-block: 2px 12px;
+  margin-block-end: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.discover-screen .discover-search-sources button {
+  min-height: 40px;
+  padding: 6px 11px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--discover-card);
+  color: var(--ink);
+  font-size: 13px;
+}
+.discover-screen .discover-search-sources button[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  font-weight: 600;
+}
+.discover-search-sources button span {
+  margin-inline-start: 2px;
+  color: var(--discover-muted);
+  font-variant-numeric: tabular-nums;
+}
 .discover-result-count {
   color: var(--discover-muted);
   font-size: 12px;
@@ -258,6 +285,37 @@
   gap: 4px 8px;
   margin-block-start: 4px;
   font-size: 13px;
+}
+.discover-card-sources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-block-start: 6px;
+}
+.discover-source-badge {
+  padding: 2px 6px;
+  border-radius: 5px;
+  color: var(--neutral-ink);
+  background: var(--neutral-bg);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.discover-source-badge.jobs {
+  color: var(--info-ink);
+  background: var(--info-bg);
+}
+.discover-source-badge.to-apply {
+  color: var(--warning);
+  background: var(--warning-bg);
+}
+.discover-source-badge.applications {
+  color: var(--link);
+  background: var(--accent-soft);
+}
+.discover-source-badge.removed {
+  padding: 1px 5px;
+  border: 1px solid var(--line);
 }
 .discover-card-tools {
   display: flex;
@@ -1148,6 +1206,17 @@ p.discover-capacity-note {
   }
   .discover-screen .discover-toolbar {
     display: contents;
+  }
+  .discover-screen[data-searching="true"] .discover-controls {
+    grid-template-columns: minmax(0, 1fr);
+    border-bottom: 0;
+  }
+  .discover-search-sources {
+    padding-block-start: 4px;
+    margin-block-end: 0;
+  }
+  .discover-screen .discover-search-sources button {
+    min-height: 44px;
   }
   .discover-screen .discover-views {
     grid-column: 1 / -1;

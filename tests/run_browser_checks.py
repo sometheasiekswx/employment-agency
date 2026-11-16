@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 @contextmanager
-def fixture(script):
+def fixture(script, *args):
     with socket.socket() as sock:
         sock.bind(('127.0.0.1', 0))
         port = sock.getsockname()[1]
@@ -23,7 +23,7 @@ def fixture(script):
     with tempfile.TemporaryDirectory(prefix='ea-browser-config-') as config:
         env = {**os.environ, 'PYTHONPATH': os.pathsep.join([str(ROOT), str(ROOT / 'tests')]), 'EA_CONFIG_HOME': config}
         with tempfile.TemporaryFile() as log:
-            process = subprocess.Popen([sys.executable, str(ROOT / 'tests' / script), '--port', str(port)], cwd=ROOT, env=env, stdout=log, stderr=log)
+            process = subprocess.Popen([sys.executable, str(ROOT / 'tests' / script), '--port', str(port), *args], cwd=ROOT, env=env, stdout=log, stderr=log)
             try:
                 for _ in range(150):
                     if process.poll() is not None:
@@ -79,6 +79,8 @@ if __name__ == '__main__':
         browser('application-journey-browser.cjs', url)
     with fixture('serve_sqlite_fixture.py') as url:
         browser('jobs-capacity-browser.cjs', url)
+    with fixture('serve_sqlite_fixture.py', '--global-search') as url:
+        browser('global-search-browser.cjs', url)
     with fixture('serve_concept_fixture.py') as url:
         browser('appearance-browser.cjs', url)
         browser('opportunities-browser.cjs', url)

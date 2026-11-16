@@ -156,6 +156,58 @@ export function roleStatus(job: Job, app?: Application, preview = false) {
   return { label: "New", tone: "blue" };
 }
 
+export const opportunitySearchSources = [
+  ["all", "All sources"],
+  ["jobs", "Jobs"],
+  ["to-apply", "To apply"],
+  ["applications", "Applications"],
+  ["removed", "Removed"],
+] as const;
+
+export type OpportunitySearchScope = (typeof opportunitySearchSources)[number][0];
+type OpportunitySearchSource = Exclude<OpportunitySearchScope, "all">;
+
+function matchesOpportunity(job: Job, query: string) {
+  return (
+    !query ||
+    [
+      job.title,
+      job.employer,
+      job.company?.name,
+      job.location,
+      job.city,
+      job.work_arrangement,
+      ...(job.requirements || []),
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLocaleLowerCase()
+      .includes(query)
+  );
+}
+
+export function searchOpportunities(
+  query: string,
+  candidates: Record<OpportunitySearchSource, Iterable<Job>>,
+) {
+  const term = query.trim().toLocaleLowerCase();
+  const matches = new Map<string, { job: Job; sources: OpportunitySearchSource[] }>();
+  const counts = { all: 0, jobs: 0, "to-apply": 0, applications: 0, removed: 0 };
+  for (const [source] of opportunitySearchSources) {
+    if (source === "all") continue;
+    for (const job of candidates[source]) {
+      const existing = matches.get(job.id);
+      if (existing?.sources.includes(source)) continue;
+      if (existing) existing.sources.push(source);
+      else if (matchesOpportunity(job, term)) matches.set(job.id, { job, sources: [source] });
+      else continue;
+      counts[source]++;
+    }
+  }
+  counts.all = matches.size;
+  return { matches, counts };
+}
+
 export function filterOpportunities(
   rows: RankedJob[],
   filters: {
@@ -180,22 +232,7 @@ export function filterOpportunities(
       return false;
     if (filters.location && destination(job, priorities) !== filters.location)
       return false;
-    return (
-      !query ||
-      [
-        job.title,
-        job.employer,
-        job.company?.name,
-        job.location,
-        job.city,
-        job.work_arrangement,
-        ...(job.requirements || []),
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .toLocaleLowerCase()
-        .includes(query)
-    );
+    return matchesOpportunity(job, query);
   });
 }
 

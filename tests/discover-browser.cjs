@@ -332,7 +332,7 @@ const fs = require("node:fs");
     );
 
     // Persist a bookmark through a full reload before testing rollback in To apply.
-    await page.goto(discovery + "&q=Cloud");
+    await page.goto(discovery + "&location=Singapore&status=reviewed");
     await page
       .getByRole("button", {
         name: "Apply later · Cloud Software Engineer",
