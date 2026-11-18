@@ -14,6 +14,8 @@ The editor uses [Mozilla PDF.js 6.5.438](https://github.com/mozilla/pdf.js/relea
 
 The frontend overrides transitive `minimatch` to 11.0.1 for [GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249). The pinned ESLint and TypeScript ESLint packages still request version 10; their named matcher APIs are checked with a fresh install, lint, type checks, unit tests and build before accepting this override. Remove it when those parent packages adopt a patched compatible dependency. CI audits development as well as production dependencies.
 
+Vitest, Vite and the lint tools also depend on `picomatch`. While upstream has no patched npm release for GHSA-fc5q-39xc-vjpf, the lockfile pins the MIT-licensed `@ryotsu/picomatch` 4.0.7-a fork. Its seven JavaScript files match the signed package’s source commit. The only runtime change from its upstream parent is the parser guard. Revisit the override when upstream publishes a compatible fix. [Advisory](https://github.com/advisories/GHSA-fc5q-39xc-vjpf) · [Pinned fix](https://github.com/ryotsu-kankichi/secured-picomatch/commit/3ab5a7627d480259e3d9ca67fbc14c125d374f0e)
+
 ## Company logo rasterization
 
 The backfill operation uses [resvg-py 0.5.0](https://pypi.org/project/resvg-py/0.5.0/) (MIT) to rasterize a bounded SVG subset. The MIT licence travels with the installed Python distribution. PyPI provides CPython 3.10+ stable ABI wheels, including the project's Python 3.11 minimum and CI's 3.13, for macOS Intel and Apple Silicon, mainstream manylinux and musllinux targets, and Windows x86, x64 and ARM64. SVG validation and rendering run server-side. The browser receives the normalized PNG.
