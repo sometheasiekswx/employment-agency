@@ -147,9 +147,3 @@
     width: min(23rem, calc(100vw - 42.5rem));
   }
 }
-
-@media (max-width: 900px) {
-  body > .notification-host {
-    inset-block-end: calc(5rem + env(safe-area-inset-bottom));
-  }
-}

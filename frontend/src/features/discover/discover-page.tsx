@@ -41,6 +41,7 @@ import { CompanySubmission } from "@/features/applications/company-submission";
 import { SubmissionRecord } from "@/features/applications/submission-records";
 import { RoleAgentWork } from "@/features/applications/agent-application";
 import { Action, Check, Select } from "@/components/controls";
+import { GooeySelection } from "@/components/react-bits/gooey-selection";
 import { useWorkspace } from "@/components/workspace-provider";
 import {
   applicationRoleId,
@@ -1420,6 +1421,10 @@ export function DiscoverPage() {
               role="group"
               aria-label="Opportunity views"
             >
+              <GooeySelection
+                selectedKey={view}
+                activeSelector={'button[aria-pressed="true"]'}
+              />
               {(
                 [
                   ["jobs", "Jobs"],
@@ -1430,10 +1435,12 @@ export function DiscoverPage() {
                 <button
                   key={value}
                   type="button"
+                  className="discover-view-button"
                   aria-pressed={view === value}
                   onClick={() => updateFilters({ view: value })}
                 >
                   {label}
+                  <span aria-hidden="true" data-gooey-anchor="" />
                 </button>
               ))}
             </div>

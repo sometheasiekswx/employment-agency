@@ -1,16 +1,16 @@
-export const appearanceOptions = [
-  ["dark", "Dark"],
-  ["light", "Light"],
-  ["system", "System"],
-] as const;
+export const appearanceLabels = {
+  light: "Light",
+  dark: "Dark",
+  system: "System",
+} as const;
 
-export type Appearance = (typeof appearanceOptions)[number][0];
+export type Appearance = keyof typeof appearanceLabels;
 
 export const defaultAppearance: Appearance = "dark";
 export const appearanceStorageKey = "employment-agency:appearance";
 export const darkAppearanceQuery = "(prefers-color-scheme: dark)";
 
-const appearanceValues = appearanceOptions.map(([value]) => value);
+const appearanceValues = Object.keys(appearanceLabels);
 
 export function isAppearance(
   value: string | null | undefined,

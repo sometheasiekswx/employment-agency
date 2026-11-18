@@ -1,5 +1,5 @@
 // Use the production export and a disposable local Concept A workspace.
-const { chromium } = require(
+const { chromium, webkit } = require(
   process.env.PLAYWRIGHT_PATH || "../frontend/node_modules/playwright",
 );
 const assert = require("node:assert/strict");
@@ -9,10 +9,24 @@ assert.match(base || "", /^http:\/\/127\.0\.0\.1:\d+$/);
 assert.notEqual(new URL(base).port, "8766", "Never use the private workspace");
 
 const appearanceKey = "employment-agency:appearance";
-const themeSelect = (page) =>
-  page
-    .getByRole("region", { name: "Appearance", exact: true })
-    .getByRole("combobox", { name: "Color theme", exact: true });
+const nextMode = { Dark: "Light", Light: "System", System: "Dark" };
+const themeLabel = (mode) =>
+  `Color theme: ${mode}. Switch to ${nextMode[mode]}`;
+const themeButton = (page, mode) =>
+  page.getByRole("button", { name: themeLabel(mode), exact: true });
+const themeFeedback = (page, mode) =>
+  page.getByRole("status").filter({ hasText: new RegExp(`^${mode} theme$`) });
+async function assertMode(page, mode) {
+  await themeButton(page, mode).waitFor();
+  assert.equal(
+    await page.getByRole("button", { name: /color theme/i }).count(),
+    1,
+  );
+  assert.equal(
+    await themeButton(page, mode).getAttribute("title"),
+    themeLabel(mode),
+  );
+}
 const awaitTheme = (page, theme) =>
   page.waitForFunction(
     (value) =>
@@ -115,10 +129,12 @@ async function checkBrowserIcons(page) {
 }
 
 (async () => {
-  const browser = await chromium.launch({
-    channel: process.env.BROWSER_CHANNEL || "chrome",
-    headless: true,
-  });
+  const browser =
+    process.env.BROWSER_ENGINE === "webkit"
+      ? await webkit.launch()
+      : await chromium.launch({
+          channel: process.env.BROWSER_CHANNEL || "chrome",
+        });
   try {
     const context = await browser.newContext({ colorScheme: "light" });
     const page = await context.newPage();
@@ -138,19 +154,46 @@ async function checkBrowserIcons(page) {
     });
 
     await page.goto(base + "/settings/");
-    const choice = themeSelect(page);
-    await choice.waitFor();
-    assert.equal(await choice.inputValue(), "dark");
+    await assertMode(page, "Dark");
     await awaitAppearance(page, "dark");
     await checkBrowserIcons(page);
 
-    await choice.selectOption("system");
+    const themePosition = await themeButton(page, "Dark").boundingBox();
+    await themeButton(page, "Dark").press("Enter");
+    await assertMode(page, "Light");
+    await themeFeedback(page, "Light").waitFor();
+    assert.deepEqual(
+      await themeButton(page, "Light").boundingBox(),
+      themePosition,
+    );
+    assert.ok(
+      await themeButton(page, "Light").evaluate(
+        (button) =>
+          button === document.activeElement && button.matches(":focus-visible"),
+      ),
+    );
+    await awaitAppearance(page, "light");
+    await themeFeedback(page, "Light").waitFor({
+      state: "hidden",
+      timeout: 4_000,
+    });
+    await themeButton(page, "Light").press("Space");
+    await assertMode(page, "System");
     await awaitAppearance(page, "light");
     await page.emulateMedia({ colorScheme: "dark" });
     await awaitAppearance(page, "dark");
-    assert.equal(await choice.inputValue(), "system");
+    await assertMode(page, "System");
+    await page.reload();
+    await assertMode(page, "System");
+    await awaitAppearance(page, "dark");
+    await page.emulateMedia({ colorScheme: "light" });
+    await awaitAppearance(page, "light");
+    await themeButton(page, "System").click();
+    await assertMode(page, "Dark");
+    await awaitAppearance(page, "dark");
 
-    await choice.selectOption("light");
+    await themeButton(page, "Dark").click();
+    await assertMode(page, "Light");
     await awaitAppearance(page, "light");
     const beforeHydration = await context.newPage();
     await beforeHydration.emulateMedia({ colorScheme: "dark" });
@@ -165,28 +208,66 @@ async function checkBrowserIcons(page) {
     await beforeHydration.close();
 
     await page.reload();
-    await choice.waitFor();
-    assert.equal(await choice.inputValue(), "light");
+    await assertMode(page, "Light");
     await awaitAppearance(page, "light");
     await page.emulateMedia({ colorScheme: "light" });
     await page.emulateMedia({ colorScheme: "dark" });
-    assert.equal(await choice.inputValue(), "light");
+    await assertMode(page, "Light");
     await awaitAppearance(page, "light");
 
     const secondTab = await context.newPage();
     await secondTab.goto(base + "/settings/");
-    await themeSelect(secondTab).selectOption("dark");
+    await themeButton(secondTab, "Light").click();
+    await assertMode(page, "System");
+    await themeButton(secondTab, "System").click();
     await awaitAppearance(page, "dark");
-    assert.equal(await choice.inputValue(), "dark");
+    await assertMode(page, "Dark");
     await secondTab.evaluate(
       (key) => localStorage.setItem(key, "invalid"),
       appearanceKey,
     );
     await page.reload();
-    await choice.waitFor();
-    assert.equal(await choice.inputValue(), "dark");
+    await assertMode(page, "Dark");
     await awaitAppearance(page, "dark");
     assert.deepEqual(errors, []);
+
+    const phone = await browser.newContext({
+      viewport: { width: 320, height: 700 },
+      hasTouch: true,
+      reducedMotion: "reduce",
+      colorScheme: "light",
+    });
+    const phonePage = await phone.newPage();
+    await phonePage.goto(base + "/discover/");
+    await assertMode(phonePage, "Dark");
+    const phoneBounds = await themeButton(phonePage, "Dark").boundingBox();
+    assert.ok(phoneBounds.width >= 44 && phoneBounds.height >= 44);
+    await themeButton(phonePage, "Dark").tap();
+    await assertMode(phonePage, "Light");
+    await themeFeedback(phonePage, "Light").waitFor();
+    await themeButton(phonePage, "Light").tap();
+    await assertMode(phonePage, "System");
+    await themeFeedback(phonePage, "System").waitFor();
+    assert.equal(await themeFeedback(phonePage, "Light").count(), 0);
+    const feedbackBounds = await themeFeedback(
+      phonePage,
+      "System",
+    ).boundingBox();
+    assert.ok(
+      feedbackBounds.x >= 0 &&
+        feedbackBounds.x + feedbackBounds.width <= 320 &&
+        feedbackBounds.y >= 0 &&
+        feedbackBounds.y + feedbackBounds.height <= 700,
+      "Theme feedback fits in the phone viewport",
+    );
+    await awaitAppearance(phonePage, "light");
+    await phonePage
+      .getByRole("navigation", { name: "Workspace sections", exact: true })
+      .getByRole("link", { name: "Settings", exact: true })
+      .tap();
+    await phonePage.waitForURL(base + "/settings/");
+    await assertMode(phonePage, "System");
+    await phone.close();
 
     const blocked = await browser.newContext({ colorScheme: "light" });
     await blocked.addInitScript(() => {
@@ -198,11 +279,11 @@ async function checkBrowserIcons(page) {
     });
     const blockedPage = await blocked.newPage();
     await blockedPage.goto(base + "/settings/");
-    assert.equal(await themeSelect(blockedPage).inputValue(), "dark");
-    await themeSelect(blockedPage).selectOption("light");
+    await assertMode(blockedPage, "Dark");
+    await themeButton(blockedPage, "Dark").click();
     await awaitAppearance(blockedPage, "light");
     console.log(
-      "PASS: Appearance and themed wordmark, CSP first paint, tab sync, denied storage, browser and install icons.",
+      "PASS: Single theme button cycles Dark → Light → System → Dark with keyboard, touch and temporary feedback, tracks system and tab changes, and preserves first paint, denied-storage behavior, wordmark and install icons.",
     );
   } finally {
     await browser.close();

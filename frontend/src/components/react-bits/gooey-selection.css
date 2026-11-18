@@ -1,0 +1,64 @@
+.gooey-selection {
+  --gooey-shadow: 0.24;
+  --gooey-margin: 0px;
+  --gooey-left-bleed: 0px;
+  --gooey-right-bleed: 0px;
+  --paint-y: min(var(--gooey-margin), var(--gooey-gutter, 20px));
+  --paint-start: min(var(--gooey-left-bleed), var(--gooey-inline-gutter, var(--gooey-gutter, 20px)));
+  --paint-end: min(var(--gooey-right-bleed), var(--gooey-inline-gutter, var(--gooey-gutter, 20px)));
+  position: absolute;
+  inset: 0;
+  visibility: hidden;
+  pointer-events: none;
+  color: var(--gooey-fill, var(--accent));
+  outline-color: var(--gooey-hover, rgb(255 255 255 / 8%));
+}
+
+:root[data-theme="light"] .gooey-selection {
+  --gooey-shadow: 0.08;
+  outline-color: var(--gooey-hover, rgb(24 24 27 / 6%));
+}
+
+.gooey-selection-canvas-frame,
+.gooey-selection-text {
+  position: absolute;
+  inset: 0;
+}
+
+.gooey-selection-canvas-frame {
+  inset: calc(-1 * var(--paint-y)) calc(-1 * var(--paint-end))
+    calc(-1 * var(--paint-y)) calc(-1 * var(--paint-start));
+  z-index: 0;
+  overflow: clip;
+  /* Fade only the outer gutter, where particles can cross nearby text. */
+  mask-image:
+    linear-gradient(to bottom,
+      transparent, rgb(0 0 0 / 14%) calc(var(--paint-y) * 0.32),
+      rgb(0 0 0 / 86%) calc(var(--paint-y) * 0.74), black var(--paint-y),
+      black calc(100% - var(--paint-y)), rgb(0 0 0 / 86%) calc(100% - var(--paint-y) * 0.74),
+      rgb(0 0 0 / 14%) calc(100% - var(--paint-y) * 0.32), transparent),
+    linear-gradient(to right, transparent, black var(--paint-start), black calc(100% - var(--paint-end)), transparent);
+  mask-composite: intersect;
+}
+
+.gooey-selection-canvas {
+  position: absolute;
+  top: calc(var(--paint-y) - var(--gooey-margin));
+  left: calc(var(--paint-start) - var(--gooey-margin));
+}
+
+.gooey-selection-text {
+  z-index: 2;
+  clip-path: inset(100%);
+}
+
+/* At rest the native label keeps its user's font metrics and contrast. */
+:not([data-gooey-animating]) > .gooey-selection .gooey-selection-text {
+  display: none;
+}
+
+@media (prefers-reduced-motion: no-preference) and (forced-colors: none) {
+  [data-gooey-rendering] > .gooey-selection {
+    visibility: visible;
+  }
+}

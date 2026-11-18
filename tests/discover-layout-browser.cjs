@@ -256,7 +256,10 @@ const fs = require("node:fs");
       false,
       "Enlarged text remains readable inside the card",
     );
-    await page.getByRole("combobox", { name: "Color theme", exact: true }).selectOption("light");
+    await page.getByRole("button", {
+      name: "Color theme: Dark. Switch to Light",
+      exact: true,
+    }).click();
     await page.waitForFunction(() => document.documentElement.dataset.theme === "light");
     await page.setViewportSize({ width: 320, height: 1000 });
     await bounds("320px Light with doubled card text and long content");

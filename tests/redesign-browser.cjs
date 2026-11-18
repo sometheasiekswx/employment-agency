@@ -1,24 +1,155 @@
 // Production UI checks; run only through the disposable local fixture.
-const { chromium } = require(
+const { chromium, webkit } = require(
   process.env.PLAYWRIGHT_PATH || "../frontend/node_modules/playwright",
 );
 const AxeBuilder =
   require("../frontend/node_modules/@axe-core/playwright").default;
 const assert = require("node:assert/strict");
+const { checkGooeyBurst, installGooeyTrace } = require("./gooey-nav-trace.cjs");
 const { decideDialog } = require("./browser-dialog.cjs");
 const fs = require("node:fs");
+
+const primaryNavigation = (page) =>
+  page.getByRole("navigation", { name: "Workspace sections", exact: true });
+const primaryLink = (page, name) =>
+  primaryNavigation(page).getByRole("link", { name, exact: true });
+const currentLink = (navigation) =>
+  navigation.getByRole("link").and(navigation.locator('[aria-current="page"]'));
+const primaryBounds = (page) =>
+  primaryNavigation(page)
+    .getByRole("link")
+    .evaluateAll((links) =>
+      links.map((link) => link.getBoundingClientRect().toJSON()),
+    );
+const opportunityViews = (page) =>
+  page.getByRole("group", { name: "Opportunity views", exact: true });
+const workspaceOptions = (page) => page.getByLabel(/workspace options/i);
+const animating = (group, page) =>
+  group.and(page.locator("[data-gooey-animating]"));
+
+async function assertStaticSelection(group, selected) {
+  await selected.waitFor();
+  assert.equal(await group.getAttribute("data-gooey-animating"), null);
+  assert.equal(await group.getAttribute("data-gooey-rendering"), null);
+  const area = await selected.evaluate((node) => {
+    const selection = node.querySelector("[data-gooey-anchor]") ?? node;
+    const style = getComputedStyle(selection);
+    return [style.backgroundColor, style.outlineStyle];
+  });
+  assert.ok(
+    area[0] !== "rgba(0, 0, 0, 0)" || area[1] === "solid",
+    "The static selection has a visible fill or outline",
+  );
+}
+
+async function checkCompactNavigation(page, width) {
+  const header = await page.locator(".workspace-header").boundingBox();
+  const navigation = await primaryNavigation(page).boundingBox();
+  const viewportWidth = await page.evaluate(
+    () => document.documentElement.clientWidth,
+  );
+  assert.ok(
+    navigation.x >= 0 && navigation.x + navigation.width <= viewportWidth,
+    `Primary navigation remains within ${width}px`,
+  );
+  assert.ok(
+    navigation.y >= header.y &&
+      navigation.y + navigation.height <= header.y + header.height + 1 &&
+      header.y < 10 &&
+      header.height <= 156,
+    `Navigation remains inside the masthead at ${width}px`,
+  );
+  const links = await primaryBounds(page);
+  assert.equal(links.length, 5);
+  for (const target of links) {
+    assert.ok(
+      target.width >= 44 &&
+        target.height >= 44 &&
+        target.left >= 0 &&
+        target.right <= viewportWidth,
+      `Touch target at ${width}px`,
+    );
+  }
+}
+
+async function checkViewSpacing(page, width) {
+  const buttons = await opportunityViews(page)
+    .getByRole("button")
+    .evaluateAll((nodes) =>
+      nodes.map((node) => node.getBoundingClientRect().toJSON()),
+    );
+  assert.equal(buttons.length, 3);
+  for (const [index, button] of buttons.entries()) {
+    assert.ok(
+      button.width >= 44 && button.height >= 44,
+      `Opportunity view touch target at ${width}px`,
+    );
+    if (index === 0) continue;
+    const previous = buttons[index - 1];
+    assert.ok(
+      Math.abs(button.y - previous.y) <= 1,
+      `Opportunity views share one row at ${width}px`,
+    );
+    assert.ok(
+      button.x - previous.right >= -1 && button.x - previous.right <= 24,
+      `Opportunity views remain adjacent without overlap at ${width}px`,
+    );
+  }
+}
+
+async function checkResizePaint(page) {
+  const layer = primaryNavigation(page).locator(".gooey-selection");
+  const rightBleed = "--gooey-right-bleed";
+  const desktopBleed = await layer.evaluate(
+    (node, property) => node.style.getPropertyValue(property),
+    rightBleed,
+  );
+  assert.ok(
+    parseFloat(desktopBleed) > 20,
+    "Desktop canvas has room to paint beyond the phone gutter",
+  );
+  await page.setViewportSize({ width: 320, height: 1000 });
+  const overflow = await layer.evaluate(
+    (node, { property, desktop }) => {
+      const measured = node.style.getPropertyValue(property);
+      // Hold the desktop measurement for one read to cover the gap before the resize observer runs.
+      node.style.setProperty(property, desktop);
+      const overflow = document.documentElement.scrollWidth - innerWidth;
+      node.style.setProperty(property, measured);
+      return overflow;
+    },
+    { property: rightBleed, desktop: desktopBleed },
+  );
+  assert.equal(
+    overflow,
+    0,
+    "Desktop canvas measurements cannot make the phone masthead overflow",
+  );
+  await page.setViewportSize({ width: 1440, height: 1000 });
+}
+
 (async () => {
   const url = process.env.TEST_URL;
   assert.match(url, /^http:\/\/127\.0\.0\.1:\d+$/);
-  const browser = await chromium.launch({
-    channel: process.env.BROWSER_CHANNEL || "chrome",
-    headless: true,
-  });
+  assert.notEqual(new URL(url).port, "8766", "Never use the private workspace");
+  const browser =
+    process.env.BROWSER_ENGINE === "webkit"
+      ? await webkit.launch()
+      : await chromium.launch({
+          channel: process.env.BROWSER_CHANNEL || "chrome",
+          args: [
+            "--use-gl=angle",
+            "--use-angle=swiftshader",
+            "--enable-unsafe-swiftshader",
+          ],
+        });
   try {
     const context = await browser.newContext({
       viewport: { width: 1440, height: 1000 },
     });
     const page = await context.newPage();
+    await page.addInitScript(installGooeyTrace);
+    await page.clock.install();
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));
     await page.goto(url);
@@ -69,7 +200,7 @@ const fs = require("node:fs");
     });
     fs.mkdirSync("output/playwright/redesign", { recursive: true });
     fs.mkdirSync(".impeccable/review", { recursive: true });
-    for (const width of [320, 768, 1024, 1440]) {
+    for (const width of [320, 390, 768, 1024, 1440]) {
       await page.setViewportSize({ width, height: 1000 });
       for (const [route, title] of [
         ["/discover/?view=all", "Opportunities"],
@@ -98,64 +229,51 @@ const fs = require("node:fs");
           `${route} overflow at ${width}`,
         );
         const routePath = new URL(url + route).pathname;
-        const currentLink = page
-          .getByRole("navigation", { name: "Workspace sections", exact: true })
-          .locator('[aria-current="page"]');
-        assert.equal(
-          await currentLink.count(),
-          1,
-          "One current destination in the primary navigation",
-        );
-        assert.equal(await currentLink.getAttribute("href"), routePath);
+        const primary = primaryNavigation(page);
+        const current = currentLink(primary);
+        assert.equal(await primary.getByRole("link").count(), 5);
+        if (width <= 900 && route === "/discover/?view=all") {
+          await checkCompactNavigation(page, width);
+        }
+        assert.equal(await current.count(), 1, "One current workspace link");
+        assert.equal(await current.getAttribute("href"), routePath);
+        if (routePath === "/discover/") {
+          await checkViewSpacing(page, width);
+          if (width <= 390) {
+            const add = page.getByRole("link", {
+              name: "Add opportunities",
+              exact: true,
+            });
+            const hitArea = await add.boundingBox();
+            assert.ok(
+              hitArea.width >= 44 && hitArea.height >= 44,
+              `Direct import target at ${width}px`,
+            );
+            assert.equal(
+              await add.getAttribute("href"),
+              "/search/#add-opportunity",
+            );
+          }
+        }
         if (width <= 900 && routePath === "/search/") {
-          const menuToggle = page.locator(".mobile-menu > summary");
-          await menuToggle.click();
-          const menu = page.getByRole("navigation", {
-            name: "All workspace pages",
+          const options = workspaceOptions(page);
+          const header = page.locator(".workspace-header");
+          const add = header.getByRole("link", {
+            name: "Add opportunities",
             exact: true,
           });
-          assert.deepEqual(
-            (await menu.getByRole("link").allTextContents()).map((text) =>
-              text.trim(),
-            ),
-            [
-              "Add opportunities",
-              "Opportunities",
-              "Career profile",
-              "Search preferences",
-              "History",
-              "Settings",
-            ],
-            "All routes and the direct import shortcut remain available on phones",
-          );
+          await options.press("Enter");
+          await add.waitFor();
           assert.equal(
-            await menu
-              .getByRole("link", { name: "Add opportunities", exact: true })
-              .getAttribute("href"),
+            await add.getAttribute("href"),
             "/search/#add-opportunity",
           );
-          const overflowCurrent = menu.locator('[aria-current="page"]');
-          assert.equal(await overflowCurrent.count(), 1);
-          assert.equal(await overflowCurrent.getAttribute("href"), routePath);
-          assert.equal(
-            await overflowCurrent.isVisible(),
-            true,
-            "The current overflow destination is visible",
-          );
+          assert.equal(await current.getAttribute("href"), routePath);
+          await add.focus();
           await page.keyboard.press("Escape");
-          assert.equal(
-            await page.locator(".mobile-menu").evaluate((node) => node.open),
-            false,
-          );
-          await menuToggle.evaluate((node) => {
-            if (document.activeElement !== node)
-              throw new Error("Menu focus was not restored");
-          });
-        } else {
-          assert.equal(
-            await currentLink.isVisible(),
-            true,
-            "The current primary destination is visible",
+          await add.waitFor({ state: "hidden" });
+          assert.ok(
+            await options.evaluate((node) => document.activeElement === node),
           );
         }
         const violations = (
@@ -171,13 +289,28 @@ const fs = require("node:fs");
           [],
           `${route} accessibility at ${width}`,
         );
-        if (width === 1440)
+        if (width === 1440) {
+          const name = route.includes("view=applications")
+            ? "applications"
+            : routePath.split("/")[1];
           await page.screenshot({
-            path: `output/playwright/redesign/${route === "/" ? "applications" : route.split("/")[1]}-desktop.png`,
+            path: `output/playwright/redesign/${name}-desktop.png`,
           });
+        }
       }
     }
     await page.setViewportSize({ width: 1440, height: 1000 });
+    const hasWebGL = await page.evaluate(() =>
+      Boolean(document.createElement("canvas").getContext("webgl2")),
+    );
+    if (process.env.BROWSER_ENGINE !== "webkit")
+      assert.ok(hasWebGL, "Chromium must exercise the WebGL2 transition");
+    if (hasWebGL) {
+      await primaryNavigation(page)
+        .and(page.locator("[data-gooey-rendering]"))
+        .waitFor();
+      await checkResizePaint(page);
+    }
     await page.goto(
       `${url}/discover/?view=applications&section=active&application=${application.id}&panel=activity`,
     );
@@ -276,69 +409,214 @@ const fs = require("node:fs");
       .getByRole("button", removeRole)
       .waitFor();
     await page.screenshot({ path: ".impeccable/review/desktop.png" });
-    // The proximity spring must never shift a link's actual hit target.
-    const link = page.getByRole("link", {
-      name: "Career profile",
+    const navigation = primaryNavigation(page);
+    const activeRoutes = animating(navigation, page);
+    const views = opportunityViews(page);
+    const activeViews = animating(views, page);
+    const career = primaryLink(page, "Career profile");
+    const opportunities = primaryLink(page, "Opportunities");
+    const history = primaryLink(page, "History");
+    assert.equal(
+      await activeRoutes.count(),
+      0,
+      "Direct route load starts at rest",
+    );
+    assert.equal(
+      await activeViews.count(),
+      0,
+      "Direct view load starts at rest",
+    );
+    let departingView;
+    if (hasWebGL) {
+      await views.and(page.locator("[data-gooey-rendering]")).waitFor();
+      departingView = await views
+        .locator(".gooey-selection-canvas")
+        .evaluateHandle((canvas) => {
+          const context = canvas.getContext("webgl2");
+          const releaseSupported = Boolean(
+            context?.getExtension("WEBGL_lose_context"),
+          );
+          return { canvas, context, releaseSupported };
+        });
+    }
+    const before = await primaryBounds(page);
+    await career.hover();
+    assert.deepEqual(
+      await primaryBounds(page),
+      before,
+      "Hover keeps the same hit targets",
+    );
+
+    const pickCareer = async (activate) => {
+      await activate();
+      await page.waitForURL(url + "/career/");
+      await career.and(currentLink(navigation)).waitFor();
+      if (hasWebGL) await activeRoutes.waitFor({ state: "attached" });
+      assert.deepEqual(
+        await primaryBounds(page),
+        before,
+        "Route selection keeps the same hit targets",
+      );
+    };
+    if (hasWebGL) {
+      const measurements = await checkGooeyBurst(page, {
+        canvasSelector: ".workspace-header .gooey-selection-canvas",
+        from: opportunities,
+        to: career,
+        select: () => pickCareer(() => career.evaluate((link) => link.click())),
+        settled: () => activeRoutes.waitFor({ state: "detached" }),
+      });
+      console.log("Workspace navigation Classic measurements", measurements);
+    } else {
+      await pickCareer(() => career.click());
+      assert.equal(await activeRoutes.count(), 0);
+    }
+    assert.deepEqual(
+      await primaryBounds(page),
+      before,
+      "Settling keeps the same hit targets",
+    );
+    if (departingView) {
+      const releaseSupported = await departingView.evaluate(
+        ({ releaseSupported }) => releaseSupported,
+      );
+      if (process.env.BROWSER_ENGINE !== "webkit") assert.ok(releaseSupported);
+      if (releaseSupported) {
+        await page.waitForFunction(
+          ({ canvas, context }) =>
+            !canvas.isConnected && context.isContextLost(),
+          departingView,
+        );
+      }
+      await departingView.dispose();
+    }
+
+    await history.click();
+    await page.waitForURL(url + "/history/");
+    if (hasWebGL) await activeRoutes.waitFor({ state: "attached" });
+    await opportunities.click();
+    await page.waitForURL(url + "/discover/");
+    await activeRoutes.waitFor({ state: "detached" });
+    if (hasWebGL) {
+      await navigation.and(page.locator("[data-gooey-rendering]")).waitFor();
+      await views.and(page.locator("[data-gooey-rendering]")).waitFor();
+    }
+    assert.equal(
+      await currentLink(navigation).getAttribute("href"),
+      "/discover/",
+    );
+
+    const all = views.getByRole("button", { name: "Jobs", exact: true });
+    const toApply = views.getByRole("button", {
+      name: "To apply",
       exact: true,
     });
-    const before = await link.boundingBox();
-    await link.hover();
-    await page.waitForFunction(() => {
-      const dock = document.querySelector('[aria-label="Workspace sections"]');
-      const icon = dock?.querySelector(
-        '[aria-label="Career profile"] .dock-icon',
-      );
-      return icon && new DOMMatrix(getComputedStyle(icon).transform).a > 1.02;
+    const applications = views.getByRole("button", {
+      name: "Applications",
+      exact: true,
     });
-    const after = await link.boundingBox();
-    assert.deepEqual(after, before);
-    assert.ok(
-      (await link
-        .locator(".dock-icon")
-        .evaluate(
-          (node) => new DOMMatrix(getComputedStyle(node).transform).a,
-        )) > 1.02,
-      "React Bits proximity spring responds to the pointer",
-    );
-    await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.reload();
-    await page
-      .getByRole("heading", {
-        name: "Software Engineer",
-        exact: true,
-        level: 2,
-      })
+    const pickView = async (activate) => {
+      await activate();
+      await page.waitForURL(
+        (url) => url.searchParams.get("view") === "to-apply",
+      );
+      await views
+        .getByRole("button", { name: "To apply", exact: true, pressed: true })
+        .waitFor();
+      if (hasWebGL) await activeViews.waitFor({ state: "attached" });
+    };
+    if (hasWebGL) {
+      const measurements = await checkGooeyBurst(page, {
+        canvasSelector: ".discover-views .gooey-selection-canvas",
+        from: all,
+        to: toApply,
+        select: () =>
+          pickView(() => toApply.evaluate((button) => button.click())),
+        settled: () => activeViews.waitFor({ state: "detached" }),
+      });
+      console.log("Opportunity views Classic measurements", measurements);
+    } else {
+      await pickView(() => toApply.press("Enter"));
+      assert.equal(await activeViews.count(), 0);
+    }
+
+    await all.click();
+    if (hasWebGL) await activeViews.waitFor({ state: "attached" });
+    await page.setViewportSize({ width: 390, height: 844 });
+    await activeViews.waitFor({ state: "detached" });
+    await views
+      .getByRole("button", { name: "Jobs", exact: true, pressed: true })
       .waitFor();
-    await link.hover();
-    const icon = link.locator(".dock-icon");
-    assert.equal(
-      await icon.evaluate((node) => getComputedStyle(node).transform),
-      "none",
+    await checkViewSpacing(page, 390);
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await applications.click();
+    await page.waitForURL(
+      (url) => url.searchParams.get("view") === "applications",
     );
-    await link.focus();
-    await page.keyboard.press("Enter");
+    if (hasWebGL) await activeViews.waitFor({ state: "attached" });
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await activeViews.waitFor({ state: "detached" });
+    await assertStaticSelection(
+      views,
+      views.getByRole("button", {
+        name: "Applications",
+        exact: true,
+        pressed: true,
+      }),
+    );
+    await toApply.press("Space");
+    await views
+      .getByRole("button", { name: "To apply", exact: true, pressed: true })
+      .waitFor();
+    assert.equal(
+      await activeViews.count(),
+      0,
+      "Reduced motion skips new view animations",
+    );
+
+    await career.press("Enter");
     await page
       .getByRole("heading", { name: "Your details", exact: true })
       .waitFor();
+    await assertStaticSelection(navigation, currentLink(navigation));
+    assert.equal(
+      await currentLink(navigation).getAttribute("href"),
+      "/career/",
+    );
     await page
       .getByLabel("Name", { exact: true })
       .fill("Unsaved synthetic draft");
-    await decideDialog(
-      page,
-      () =>
-        page.getByRole("link", { name: "Opportunities", exact: true }).click(),
-      false,
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    const modifier = process.platform === "darwin" ? "Meta" : "Control";
+    const popupPromise = context.waitForEvent("page");
+    await opportunities.click({ modifiers: [modifier] });
+    const popup = await popupPromise;
+    await popup.waitForURL(url + "/discover/");
+    await popup.close();
+    assert.equal(
+      await currentLink(navigation).getAttribute("href"),
+      "/career/",
     );
+    assert.equal(
+      await activeRoutes.count(),
+      0,
+      "Opening a route in another tab leaves selection still",
+    );
+    await decideDialog(page, () => opportunities.click(), false);
     assert.ok(
       page.url().endsWith("/career/"),
       "Draft guard cancelled navigation",
     );
-    await decideDialog(
-      page,
-      () =>
-        page.getByRole("link", { name: "Opportunities", exact: true }).click(),
-      true,
+    assert.equal(
+      await activeRoutes.count(),
+      0,
+      "Cancelled navigation keeps the indicator still",
     );
+    assert.equal(
+      await currentLink(navigation).getAttribute("href"),
+      "/career/",
+    );
+    await decideDialog(page, () => opportunities.click(), true);
     await page
       .getByRole("heading", {
         name: "Software Engineer",
@@ -346,6 +624,7 @@ const fs = require("node:fs");
         level: 3,
       })
       .waitFor();
+    await page.emulateMedia({ reducedMotion: "reduce" });
     await page.setViewportSize({ width: 390, height: 844 });
     await page.reload();
     await page
@@ -363,11 +642,7 @@ const fs = require("node:fs");
     );
     await page.screenshot({ path: ".impeccable/review/mobile.png" });
     await page.setViewportSize({ width: 320, height: 900 });
-    const dock = await page.locator(".dock-panel").boundingBox();
-    assert.ok(
-      dock.y > 700 && dock.y + dock.height <= 900,
-      "Mobile dock belongs at viewport bottom",
-    );
+    await checkCompactNavigation(page, 320);
     await page.evaluate(
       () => (document.documentElement.style.fontSize = "200%"),
     );
@@ -388,16 +663,30 @@ const fs = require("node:fs");
       false,
       "200% text overflow: " + JSON.stringify(overflow),
     );
+    await primaryLink(page, "Settings").focus();
+    const mobileSettings = await primaryLink(page, "Settings").boundingBox();
+    assert.ok(
+      mobileSettings.x >= 0 && mobileSettings.x + mobileSettings.width <= 320,
+    );
+    assert.ok(
+      await primaryLink(page, "Settings").evaluate((link) =>
+        link.matches(":focus-visible"),
+      ),
+    );
     await page.evaluate(() => (document.documentElement.style.fontSize = ""));
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.locator(".rail-context").waitFor();
     await page.evaluate(
       () => (document.documentElement.style.fontSize = "200%"),
     );
-    const disclosure = page.locator(".rail-profile-details summary");
+    const disclosure = page.locator(".rail-context summary");
     await disclosure.focus();
     await page.keyboard.press("Enter");
-    assert.ok(await page.locator(".rail-profile-details").evaluate((details) => details.open));
+    assert.ok(
+      await page
+        .locator(".rail-context details")
+        .evaluate((details) => details.open),
+    );
     const collisions = await page
       .locator(".rail-context dl > div")
       .evaluateAll((rows) =>
@@ -414,7 +703,10 @@ const fs = require("node:fs");
           })
           .map((row) => row.textContent),
       );
-    assert.equal(await page.locator(".rail-context dl > div:visible").count(), 4);
+    assert.equal(
+      await page.locator(".rail-context dl > div:visible").count(),
+      4,
+    );
     assert.deepEqual(
       collisions,
       [],
@@ -430,9 +722,75 @@ const fs = require("node:fs");
       "All rail destinations remain reachable by keyboard with enlarged text",
     );
     await page.evaluate(() => (document.documentElement.style.fontSize = ""));
+    await page
+      .getByRole("button", {
+        name: "Color theme: Dark. Switch to Light",
+        exact: true,
+      })
+      .click();
+    await page.waitForFunction(
+      () => document.documentElement.dataset.theme === "light",
+    );
+    const lightResults = await new AxeBuilder({ page })
+      .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+      .analyze();
+    assert.deepEqual(
+      lightResults.violations.map(({ id, nodes }) => [
+        id,
+        nodes.map((node) => node.target),
+      ]),
+      [],
+      "Light desktop accessibility",
+    );
+    if (process.env.BROWSER_ENGINE !== "webkit") {
+      await page.emulateMedia({
+        reducedMotion: "no-preference",
+        forcedColors: "active",
+      });
+      await history.click();
+      await page.waitForURL(url + "/history/");
+      await assertStaticSelection(
+        navigation,
+        history.and(currentLink(navigation)),
+      );
+    }
+
+    const fallback = await browser.newContext();
+    await fallback.addInitScript(() => {
+      const getContext = HTMLCanvasElement.prototype.getContext;
+      HTMLCanvasElement.prototype.getContext = function (kind, ...options) {
+        return kind === "webgl2"
+          ? null
+          : getContext.call(this, kind, ...options);
+      };
+    });
+    const fallbackPage = await fallback.newPage();
+    await fallbackPage.goto(url + "/career/");
+    const fallbackNav = primaryNavigation(fallbackPage);
+    const fallbackHistory = primaryLink(fallbackPage, "History");
+    await fallbackHistory.click();
+    await fallbackPage.waitForURL(url + "/history/");
+    await assertStaticSelection(
+      fallbackNav,
+      fallbackHistory.and(currentLink(fallbackNav)),
+    );
+    await primaryLink(fallbackPage, "Opportunities").click();
+    const fallbackViews = opportunityViews(fallbackPage);
+    await fallbackViews
+      .getByRole("button", { name: "To apply", exact: true })
+      .click();
+    await assertStaticSelection(
+      fallbackViews,
+      fallbackViews.getByRole("button", {
+        name: "To apply",
+        exact: true,
+        pressed: true,
+      }),
+    );
+    await fallback.close();
     assert.deepEqual(errors, []);
     console.log(
-      "PASS: six workspace views at four widths, dark brand tokens, WCAG axe checks, stable navigation targets, mobile overflow navigation, reduced motion, keyboard/draft guard, mobile dock and 200% text.",
+      "PASS: six workspace views at five widths, dark brand tokens, WCAG axe checks, Classic GooeyNav, stable masthead and tabs, workspace options, reduced motion, modified links, keyboard/draft guard and 200% text.",
     );
   } finally {
     await browser.close();

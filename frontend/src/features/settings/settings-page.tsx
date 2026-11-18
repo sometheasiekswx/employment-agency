@@ -1,17 +1,17 @@
 "use client";
 
-import { ArchiveRestore, CalendarClock, Cloud, Monitor, ShieldCheck } from "lucide-react";
+import { ArchiveRestore, CalendarClock, Cloud, ShieldCheck } from "lucide-react";
 import { ContextHelp } from "@/components/context-help";
 import { useAppearance } from "@/components/appearance";
 import { useWorkspace } from "@/components/workspace-provider";
-import { Action, Field, Form, Select, text } from "@/components/controls";
+import { Action, Field, Form, text } from "@/components/controls";
 import { WorkspaceSettings } from "./workspace-settings";
 import { downloadBlob } from "@/lib/api";
-import { appearanceOptions } from "@/lib/appearance";
+import { appearanceLabels } from "@/lib/appearance";
 
 export function SettingsPage() {
   const { state, client, run, notify, clearSession } = useWorkspace();
-  const { appearance, setAppearance } = useAppearance();
+  const { appearance } = useAppearance();
   const cooldownMonths = state._workspace.company_cooldown_months;
   const exportWorkspace = async () => {
     if (client.hosted) await client.binary("export");
@@ -30,21 +30,16 @@ export function SettingsPage() {
         className="secondary-panel settings-appearance-panel"
         aria-labelledby="appearance-heading"
       >
-        <div className="settings-appearance-copy">
-          <div className="secondary-section-heading">
-            <Monitor size={18} aria-hidden="true" />
-            <h2 id="appearance-heading">Appearance</h2>
-          </div>
+        <div className="secondary-section-heading">
+          <h2 id="appearance-heading">Appearance</h2>
+          <p className="settings-theme">
+            Current theme <strong>{appearanceLabels[appearance]}</strong>
+          </p>
         </div>
-        <Select
-          label="Color theme"
-          options={appearanceOptions}
-          value={appearance}
-          onChange={(event) => setAppearance(event.target.value)}
-        />
-        <ContextHelp topic="How themes are saved">
-          <p>System follows your device’s appearance. Your choice is saved in this browser.</p>
-        </ContextHelp>
+        <p className="muted">
+          The theme button cycles through Dark, Light and System. System follows
+          your device’s appearance. Your choice is saved in this browser.
+        </p>
       </section>
       {cooldownMonths !== undefined && (
         <section

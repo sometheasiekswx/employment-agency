@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   useEffect,
   useRef,
+  useSyncExternalStore,
   type FormEvent,
   type ReactNode,
 } from "react";
@@ -13,7 +14,6 @@ import {
   Compass,
   ChevronDown,
   History,
-  Menu,
   Search,
   Settings2,
   HardDrive,
@@ -23,14 +23,13 @@ import {
   UserRound,
 } from "lucide-react";
 import Dock from "./react-bits/dock";
-import { useAppearance } from "./appearance";
-import { Select } from "./controls";
+import { AppearanceControl } from "./appearance-control";
 import { useWorkspace } from "./workspace-provider";
 import { useDraft } from "./unsaved";
 import { applicationQueues } from "@/features/applications/queues";
 import { WorkspaceSetup } from "@/features/settings/workspace-settings";
 import { PublicPreviewNotice } from "./public-preview-notice";
-import { appearanceOptions } from "@/lib/appearance";
+import type { Profile } from "@/lib/models";
 
 const pages = [
   {
@@ -65,6 +64,18 @@ const pages = [
   },
 ];
 
+const compactHeaderQuery = "(width < 720px)";
+
+function subscribeToCompactHeader(listener: () => void) {
+  const query = window.matchMedia?.(compactHeaderQuery);
+  query?.addEventListener("change", listener);
+  return () => query?.removeEventListener("change", listener);
+}
+
+function hasCompactHeader() {
+  return window.matchMedia?.(compactHeaderQuery).matches ?? false;
+}
+
 function initials(name: string) {
   return name
     .trim()
@@ -75,15 +86,62 @@ function initials(name: string) {
     .toUpperCase();
 }
 
+function ProfileContext({
+  profile,
+  locations,
+  children,
+}: {
+  profile?: Profile;
+  locations: string[];
+  children?: ReactNode;
+}) {
+  return (
+    <div className="profile-context">
+      <p className="profile-context-label">Active profile</p>
+      <p className="profile-context-name">
+        {profile?.name || "No search profile"}
+      </p>
+      <details className="profile-context-details">
+        <summary>
+          Profile details <ChevronDown size={15} aria-hidden="true" />
+        </summary>
+        <dl>
+          <div>
+            <dt>Role family</dt>
+            <dd>{profile?.roles.join(", ") || "Not set"}</dd>
+          </div>
+          <div>
+            <dt>Locations</dt>
+            <dd>{locations.join(", ") || "Not set"}</dd>
+          </div>
+          <div>
+            <dt>Work model</dt>
+            <dd>{profile?.arrangements.join(", ") || "Any work model"}</dd>
+          </div>
+          <div>
+            <dt>Seniority</dt>
+            <dd>{profile?.seniority.join(", ") || "Not specified"}</dd>
+          </div>
+        </dl>
+      </details>
+      {children}
+    </div>
+  );
+}
+
 export function Shell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { state, client, refreshError, profileId, refresh } = useWorkspace();
   const { canLeave } = useDraft();
-  const { appearance, setAppearance } = useAppearance();
   const workspaceHeader = useRef<HTMLElement>(null);
   const mobileMenu = useRef<HTMLDetailsElement>(null);
   const keyboardInput = useRef(false);
+  const compactHeader = useSyncExternalStore(
+    subscribeToCompactHeader,
+    hasCompactHeader,
+    () => false,
+  );
   const current = pages.find(({ href }) => href === pathname) || pages[0];
   const isDiscover = current.href === "/discover/";
   const profile = state.profiles.find(({ id }) => id === profileId);
@@ -91,16 +149,56 @@ export function Shell({ children }: { children: ReactNode }) {
     ? profile.locations
     : state._workspace.preferred_locations;
   const owner = state.identity.name || "Your workspace";
+  const avatar = initials(state.identity.name || "Employment Agency");
   const label = client.preview
     ? "Public demo"
     : client.hosted
       ? "Private cloud workspace"
       : "Local workspace";
   const queueCount = applicationQueues(state.applications).length;
+  const workspaceMode = (
+    <span className="workspace-mode">
+      {client.hosted ? (
+        <Cloud aria-hidden="true" />
+      ) : (
+        <HardDrive aria-hidden="true" />
+      )}
+      {label}
+    </span>
+  );
   useEffect(() => {
     document.title = `${current.label} | Employment Agency | ${label}`;
     if (mobileMenu.current) mobileMenu.current.open = false;
   }, [current.label, label]);
+  useEffect(() => {
+    const header = workspaceHeader.current;
+    if (!header) return;
+    const root = document.documentElement;
+    const syncHeaderHeight = () => {
+      root.style.setProperty(
+        "--workspace-header-height",
+        `${header.offsetHeight}px`,
+      );
+    };
+    const observer =
+      typeof ResizeObserver === "undefined"
+        ? undefined
+        : new ResizeObserver(syncHeaderHeight);
+    observer?.observe(header);
+    syncHeaderHeight();
+    const closeMenu = ({ target }: PointerEvent) => {
+      const menu = mobileMenu.current;
+      if (menu?.open && target instanceof Node && !menu.contains(target)) {
+        menu.open = false;
+      }
+    };
+    document.addEventListener("pointerdown", closeMenu);
+    return () => {
+      observer?.disconnect();
+      root.style.removeProperty("--workspace-header-height");
+      document.removeEventListener("pointerdown", closeMenu);
+    };
+  }, []);
   const guardedNavigation = (event: { preventDefault: () => void }) => {
     if (!canLeave()) {
       event.preventDefault();
@@ -117,13 +215,63 @@ export function Shell({ children }: { children: ReactNode }) {
       search.set("q", query.trim());
     router.push(`/discover/${search.size ? `?${search}` : ""}`);
   };
-  const themeControl = (
-    <Select
-      label="Color theme"
-      options={appearanceOptions}
-      value={appearance}
-      onChange={(event) => setAppearance(event.target.value)}
+  const workspaceNav = (
+    <Dock
+      key="sections"
+      items={pages}
+      pathname={current.href}
+      canLeave={canLeave}
     />
+  );
+  const mobileActions = (
+    <div key="utilities" className="mobile-header-actions">
+      <AppearanceControl />
+      <details
+        className="mobile-menu"
+        ref={mobileMenu}
+        onBlur={(event) => {
+          if (
+            keyboardInput.current &&
+            !event.currentTarget.contains(event.relatedTarget)
+          ) {
+            event.currentTarget.open = false;
+          }
+        }}
+        onKeyDown={(event) => {
+          const menu = event.currentTarget;
+          if (event.key === "Escape" && menu.open) {
+            menu.open = false;
+            menu.querySelector("summary")?.focus();
+            event.stopPropagation();
+          }
+        }}
+      >
+        <summary
+          aria-label={`${avatar} — Workspace options`}
+          title="Workspace options"
+        >
+          <span className="workspace-avatar" aria-hidden="true">
+            {avatar}
+          </span>
+        </summary>
+        <div className="mobile-menu-panel">
+          {!isDiscover && (
+            <Link
+              href="/search/#add-opportunity"
+              onNavigate={guardedNavigation}
+            >
+              <Sparkles aria-hidden="true" />
+              Add opportunities
+            </Link>
+          )}
+          <ProfileContext profile={profile} locations={locations} />
+          <div className="workspace-owner">
+            <strong>{owner}</strong>
+            {workspaceMode}
+          </div>
+        </div>
+      </details>
+    </div>
   );
   return (
     <div
@@ -142,7 +290,8 @@ export function Shell({ children }: { children: ReactNode }) {
           !(target instanceof HTMLElement) ||
           !target.closest("main") ||
           target.closest("dialog[open]") ||
-          !window.matchMedia?.("(max-width: 900px)").matches
+          !window.matchMedia?.("(max-width: 900px)").matches ||
+          getComputedStyle(header).position !== "sticky"
         )
           return;
         requestAnimationFrame(() => {
@@ -150,8 +299,7 @@ export function Shell({ children }: { children: ReactNode }) {
           // WebKit can leave an in-viewport focus target behind sticky chrome.
           const bounds = target.getBoundingClientRect();
           const top = header.getBoundingClientRect().bottom + 8;
-          const dock = header.querySelector(".dock-panel");
-          const bottom = (dock?.getBoundingClientRect().top ?? innerHeight) - 8;
+          const bottom = innerHeight - 8;
           const offset =
             bounds.top < top
               ? bounds.top - top
@@ -192,132 +340,47 @@ export function Shell({ children }: { children: ReactNode }) {
             loading="eager"
           />
         </Link>
-        {state._workspace.demo === true && (
-          <span className="demo-label mobile-demo-label">
-            {client.preview ? "Public demo" : (
-              <>Demo<span className="visually-hidden"> · fictional profile</span></>
-            )}
-          </span>
-        )}
 
         <div className="rail-context">
-          <p className="rail-context-label">Active profile</p>
-          <p className="rail-profile-name">
-            {profile?.name || "No search profile"}
-          </p>
-          <details className="rail-profile-details">
-            <summary>
-              Profile details <ChevronDown size={15} aria-hidden="true" />
-            </summary>
-            <dl>
-              <div>
-                <dt>Role family</dt>
-                <dd>{profile?.roles.join(", ") || "Not set"}</dd>
-              </div>
-              <div>
-                <dt>Locations</dt>
-                <dd>{locations.join(", ") || "Not set"}</dd>
-              </div>
-              <div>
-                <dt>Work model</dt>
-                <dd>{profile?.arrangements.join(", ") || "Any work model"}</dd>
-              </div>
-              <div>
-                <dt>Seniority</dt>
-                <dd>{profile?.seniority.join(", ") || "Not specified"}</dd>
-              </div>
-            </dl>
-          </details>
-          <p className="rail-summary">
-            <span>
-              <strong>{state.jobs.length}</strong>{" "}
-              {state.jobs.length === 1 ? "role" : "roles"}
-            </span>
-            <span>
-              <strong>{queueCount}</strong>{" "}
-              {queueCount === 1 ? "application" : "applications"}
-            </span>
-          </p>
+          <ProfileContext profile={profile} locations={locations}>
+            <p className="rail-summary">
+              <span>
+                <strong>{state.jobs.length}</strong>{" "}
+                {state.jobs.length === 1 ? "role" : "roles"}
+              </span>
+              <span>
+                <strong>{queueCount}</strong>{" "}
+                {queueCount === 1 ? "application" : "applications"}
+              </span>
+            </p>
+          </ProfileContext>
         </div>
 
-        <Dock items={pages} pathname={current.href} canLeave={canLeave} />
+        {compactHeader
+          ? [mobileActions, workspaceNav]
+          : [workspaceNav, mobileActions]}
 
-        <div className="rail-appearance">{themeControl}</div>
         <div className="rail-bottom">
           <span className="workspace-avatar" aria-hidden="true">
-            {initials(state.identity.name || "Employment Agency")}
+            {avatar}
           </span>
           <div className="workspace-owner">
             <strong>{owner}</strong>
-            <span className="workspace-mode">
-              {client.hosted ? (
-                <Cloud aria-hidden="true" />
-              ) : (
-                <HardDrive aria-hidden="true" />
-              )}
-              {label}
-            </span>
+            {workspaceMode}
           </div>
-        </div>
-
-        <div className="mobile-header-actions">
-          <Link
-            href="/career/"
-            className="workspace-avatar"
-            aria-label={`${initials(state.identity.name || "Employment Agency")} — Open career profile`}
-            onNavigate={guardedNavigation}
-          >
-            <span aria-hidden="true">
-              {initials(state.identity.name || "Employment Agency")}
-            </span>
-          </Link>
-          <details
-            className="mobile-menu"
-            ref={mobileMenu}
-            onKeyDown={(event) => {
-              if (event.key === "Escape" && mobileMenu.current?.open) {
-                mobileMenu.current.open = false;
-                mobileMenu.current.querySelector("summary")?.focus();
-                event.stopPropagation();
-              }
-            }}
-          >
-            <summary aria-label="All workspace pages">
-              <Menu aria-hidden="true" />
-            </summary>
-            <nav aria-label="All workspace pages">
-              <Link
-                href="/search/#add-opportunity"
-                onNavigate={guardedNavigation}
-              >
-                <Sparkles aria-hidden="true" />
-                Add opportunities
-              </Link>
-              {pages.map((page) => (
-                <Link
-                  key={page.href}
-                  href={page.href}
-                  aria-current={page.href === current.href ? "page" : undefined}
-                  onNavigate={guardedNavigation}
-                >
-                  <span aria-hidden="true">{page.icon}</span>
-                  {page.label}
-                </Link>
-              ))}
-              <div className="mobile-appearance">{themeControl}</div>
-              <p>{label}</p>
-            </nav>
-          </details>
+          <AppearanceControl />
         </div>
       </aside>
       <div className="workspace-main">
         <header className="workspace-topbar">
           <div className="page-heading">
             <h1>{current.label}</h1>
+            {state._workspace.demo === true && (
+              <span className="demo-label">
+                {client.preview ? "Public demo" : "Demo · fictional profile"}
+              </span>
+            )}
           </div>
-          {state._workspace.demo === true && (
-            <span className="demo-label">{client.preview ? "Public demo" : "Demo · fictional profile"}</span>
-          )}
           {!isDiscover && (
             <form
               className="workspace-search"

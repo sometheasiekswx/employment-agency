@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { beforeEach, expect, it, vi } from "vitest";
 import { Shell } from "./shell";
 
@@ -6,7 +6,6 @@ const fixture = vi.hoisted(() => ({
   pathname: "/discover/",
   push: vi.fn(),
   canLeave: vi.fn(() => true),
-  dock: vi.fn(),
   refresh: vi.fn(),
   refreshError: "",
   profileId: "",
@@ -29,7 +28,7 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: fixture.push }),
 }));
 vi.mock("next/image", () => ({ default: () => null }));
-vi.mock("./react-bits/dock", () => ({ default: fixture.dock }));
+vi.mock("./react-bits/gooey-selection", () => ({ GooeySelection: () => null }));
 
 const shell = () => (
   <Shell>
@@ -41,28 +40,23 @@ beforeEach(() => {
   fixture.pathname = "/discover/";
   fixture.push.mockReset();
   fixture.canLeave.mockReset().mockReturnValue(true);
-  fixture.dock.mockReset().mockReturnValue(null);
   fixture.refresh.mockReset().mockResolvedValue(undefined);
   fixture.refreshError = "";
-
 });
 
 it("unifies navigation under Opportunities and keeps every other workspace page accessible", () => {
   render(shell());
-  const { items, canLeave } = fixture.dock.mock.calls[0][0];
+  const navigation = screen.getByRole("navigation", {
+    name: "Workspace sections",
+  });
   expect(
-    items.map(({ href, label }: { href: string; label: string }) => [
-      href,
-      label,
-    ]),
-  ).toEqual([
-    ["/discover/", "Opportunities"],
-    ["/career/", "Career profile"],
-    ["/search/", "Search preferences"],
-    ["/history/", "History"],
-    ["/settings/", "Settings"],
-  ]);
-  expect(canLeave).toBe(fixture.canLeave);
+    within(navigation)
+      .getAllByRole("link")
+      .map((link) => link.getAttribute("href")?.replace(/\/?$/, "/")),
+  ).toEqual(["/discover/", "/career/", "/search/", "/history/", "/settings/"]);
+  expect(
+    within(navigation).getByRole("link", { current: "page" }),
+  ).toHaveAccessibleName("Opportunities");
   expect(
     screen.queryByRole("link", { name: "Applications" }),
   ).not.toBeInTheDocument();
@@ -82,7 +76,12 @@ it("labels the legacy root as Opportunities while its redirect is loading", () =
   expect(
     screen.getByRole("heading", { name: "Opportunities", hidden: true }),
   ).toBeInTheDocument();
-  expect(fixture.dock.mock.calls[0][0].pathname).toBe("/discover/");
+  const navigation = screen.getByRole("navigation", {
+    name: "Workspace sections",
+  });
+  expect(
+    within(navigation).getByRole("link", { current: "page" }),
+  ).toHaveAccessibleName("Opportunities");
   expect(document.title).toBe(
     "Opportunities | Employment Agency | Local workspace",
   );
@@ -109,7 +108,11 @@ it("keeps failed workspace refreshes visible with a retry across page navigation
   const { rerender } = render(shell());
   fixture.pathname = "/history/";
   rerender(shell());
-  expect(screen.getByRole("alert")).toHaveTextContent("Unresolved refresh failure");
-  fireEvent.click(screen.getByRole("button", { name: "Retry workspace refresh" }));
+  expect(screen.getByRole("alert")).toHaveTextContent(
+    "Unresolved refresh failure",
+  );
+  fireEvent.click(
+    screen.getByRole("button", { name: "Retry workspace refresh" }),
+  );
   expect(fixture.refresh).toHaveBeenCalledOnce();
 });

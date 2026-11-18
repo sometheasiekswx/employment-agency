@@ -184,11 +184,18 @@ const { decideDialog } = require("./browser-dialog.cjs");
     await clear.click();
     await assertProfile();
 
-    await page.locator(".mobile-menu > summary").click();
-    await page
-      .getByRole("navigation", { name: "All workspace pages" })
-      .getByRole("link", { name: "Add opportunities" })
-      .click();
+    await page.getByLabel(/workspace options/i).click();
+    const add = page.getByRole("link", {
+      name: "Add opportunities",
+      exact: true,
+    });
+    assert.equal(
+      await add.count(),
+      1,
+      "Discover has a single direct import link",
+    );
+    await page.keyboard.press("Escape");
+    await add.click();
     await page.waitForURL(base + "/search/#add-opportunity");
     await page.waitForFunction(
       () => document.activeElement?.id === "add-opportunity",

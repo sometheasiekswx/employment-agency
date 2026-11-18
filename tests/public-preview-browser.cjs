@@ -153,9 +153,15 @@ async function assertCompanyLogo(mark, expectedUrl, base) {
     fs.mkdirSync(evidenceDir, { recursive: true });
     for (const colorScheme of ["light", "dark"]) {
       await page.goto(base + "/settings/");
-      await page.getByRole("region", { name: "Appearance", exact: true })
-        .getByRole("combobox", { name: "Color theme", exact: true })
-        .selectOption(colorScheme);
+      const themeControl = page.getByRole("button", { name: /color theme/i });
+      await themeControl.waitFor();
+      assert.equal(await themeControl.count(), 1);
+      if (colorScheme === "light") {
+        await page.getByRole("button", { name: "Color theme: Dark. Switch to Light", exact: true }).click();
+      } else {
+        await page.getByRole("button", { name: "Color theme: Light. Switch to System", exact: true }).click();
+        await page.getByRole("button", { name: "Color theme: System. Switch to Dark", exact: true }).click();
+      }
       await page.waitForFunction((theme) => document.documentElement.dataset.theme === theme, colorScheme);
       await page.goto(base + "/discover/?view=all");
       await board.waitFor();
@@ -585,9 +591,9 @@ async function assertCompanyLogo(mark, expectedUrl, base) {
       [],
     );
     await page.setViewportSize({ width: 390, height: 844 });
-    const mobileLabel = page.locator(".mobile-demo-label");
-    assert.equal(await mobileLabel.innerText(), "Public demo");
-    assert.ok(await mobileLabel.isVisible());
+    const mobileLabel = page.locator(".workspace-topbar")
+      .getByText("Public demo", { exact: true });
+    await mobileLabel.waitFor();
     await assessPrimary().click();
     const modal = page.getByRole("dialog", {
       name: primary.title,
@@ -625,11 +631,15 @@ async function assertCompanyLogo(mark, expectedUrl, base) {
         ]);
         assert.ok(
           wordmark.width >= 160 &&
-            wordmark.x + wordmark.width <= badge.x &&
-            badge.x + badge.width <= menu.x &&
+            wordmark.x + wordmark.width <= menu.x &&
             menu.x + menu.width <= width &&
             Math.abs(wordmark.y - menu.y) < 4,
-          "The narrow public header fits the wordmark, demo label and controls on one row",
+          "The narrow public masthead fits the wordmark and controls on one row",
+        );
+        assert.ok(
+          badge.x >= 0 && badge.x + badge.width <= width &&
+            badge.y >= wordmark.y + wordmark.height,
+          "The public demo badge remains visible in the page heading",
         );
       }
       await assessPrimary().click();

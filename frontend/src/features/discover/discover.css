@@ -24,27 +24,69 @@
   border-bottom: 1px solid var(--line);
   margin-bottom: 18px;
 }
-.discover-views {
+.discover-screen .discover-views {
+  --gooey-gutter: 14px;
+  --gooey-fill: #796587;
+  --gooey-ink: #f8efff;
+  position: relative;
+  isolation: isolate;
   flex: 1;
-  gap: 22px !important;
+  gap: 2px;
 }
-.discover-screen .discover-views button {
-  min-height: 49px;
-  padding: 9px 0;
+:root[data-theme="light"] .discover-views {
+  --gooey-fill: #9986a6;
+  --gooey-ink: #291a32;
+}
+.discover-views .discover-view-button {
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 7px 13px;
   border: 0;
-  border-bottom: 2px solid transparent;
-  border-radius: 0;
+  border-radius: 999px;
   color: var(--discover-muted);
   background: transparent;
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 500;
 }
-.discover-screen .discover-views button:hover {
+.discover-views button.discover-view-button:hover {
   color: var(--ink);
 }
-.discover-screen .discover-views button[aria-pressed="true"] {
-  color: var(--accent);
-  border-bottom-color: var(--accent);
+.discover-views button.discover-view-button[aria-pressed="true"] {
+  color: var(--gooey-ink);
+}
+.discover-views [data-gooey-anchor] {
+  position: absolute;
+  z-index: -1;
+  inset: 6px 0;
+  border-radius: 999px;
+  pointer-events: none;
+}
+.discover-views [aria-pressed="true"] [data-gooey-anchor] {
+  background: var(--gooey-fill);
+}
+@media (prefers-reduced-motion: no-preference) and (forced-colors: none) {
+  .discover-views[data-gooey-animating] button.discover-view-button[aria-pressed="true"] {
+    color: var(--ink);
+  }
+  .discover-views[data-gooey-rendering] [data-gooey-anchor] {
+    background: transparent;
+  }
+}
+@media (forced-colors: active) {
+  .discover-views button.discover-view-button[aria-pressed="true"] {
+    color: HighlightText;
+    forced-color-adjust: none;
+  }
+  .discover-views [aria-pressed="true"] [data-gooey-anchor] {
+    background: Highlight;
+    forced-color-adjust: none;
+  }
 }
 .discover-screen .discover-refresh,
 .discover-filters > summary {
@@ -1221,19 +1263,14 @@ p.discover-capacity-note {
   .discover-screen .discover-views {
     grid-column: 1 / -1;
     grid-row: 2;
-    justify-content: space-between;
-    gap: 8px !important;
+    justify-self: start;
+    max-width: 100%;
     min-width: 0;
+    flex-wrap: wrap;
   }
-  .discover-screen .discover-views button {
-    flex: 0 1 auto;
-    min-height: 44px;
-    padding: 7px 0;
-    font-size: 13px;
-    white-space: nowrap;
-  }
-  .discover-screen .discover-views button svg {
-    display: none;
+  .discover-views .discover-view-button {
+    padding-inline: 12px;
+    font-size: 0.8125rem;
   }
   .discover-screen .discover-filters {
     grid-column: 2;
